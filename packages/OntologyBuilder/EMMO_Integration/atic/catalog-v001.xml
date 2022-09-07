@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="play.owl" uri="play.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo" uri="emmo/ontology-rooted_relations/owl/emmo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-core" uri="emmo/rdfxml/emmo-core.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-direct" uri="emmo/rdfxml/emmo-direct.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-granularity" uri="emmo/rdfxml/emmo-granularity.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-material" uri="emmo/ontology-rooted_relations/owl/emmo-material.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-math" uri="emmo/rdfxml/emmo-math.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-math-examples" uri="emmo/rdfxml/emmo-math-examples.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-models" uri="emmo/rdfxml/emmo-models.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-process" uri="emmo/rdfxml/emmo-process.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-properties" uri="emmo/rdfxml/emmo-properties.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-semiotics" uri="emmo/rdfxml/emmo-semiotics.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmc.info/emmo-usercase" uri="emmo/ontology-rooted_relations/owl/emmo-usercase.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmo.info/latest/emmo-inferred.owl" uri="emmo-inferred.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://emmo.info/latest/emmo.owl" uri="emmo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://www.co-ode.org/ontologies/pizza" uri="pizza/pizza_xml.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="duplicate:http://www.co-ode.org/ontologies/pizza/pizza.owl" uri="pizza/pizza_rdf.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="duplicate:http://www.co-ode.org/ontologies/pizza/pizza.owl" uri="pizza/pizza.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="http://www.lesfleursdunormal.fr/static/_downloads/pizza_onto.owl" uri="gugus.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="https://emmc.info/emmo-inferred" uri="emmo/rdfxml/emmo-inferred.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="https://raw.githubusercontent.com/emmo-repo/EMMO-python/master/emmo/rdfxml/emmo-all-inferred.owl" uri="emmo/rdfxml/emmo-all-inferred.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="shadowed:http://emmc.info/emmo" uri="emmo/rdfxml/emmo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="shadowed:http://emmc.info/emmo-material" uri="emmo/rdfxml/emmo-material.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1582287028269" name="shadowed:http://www.lesfleursdunormal.fr/static/_downloads/pizza_onto.owl" uri="pizza/pizza_onto_2.owl"/>
+    </group>
+</catalog>

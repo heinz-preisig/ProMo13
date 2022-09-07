@@ -1,0 +1,192 @@
+{
+  "data": {
+    "BRUSHES": {},
+    "PENS": {},
+    "action": {},
+    "brushes": {},
+    "conversion": {},
+    "geometry": {
+      "scene": [
+        800,
+        600
+      ]
+    },
+    "layer": {
+      "arc_edge": 4,
+      "arc_edge.head": 5,
+      "arc_edge.tail": 5,
+      "arc_info_knot": 5,
+      "arc_knot": 5,
+      "node_simple": 5
+    },
+    "model_version": {
+      "author": "H.A. Preisig",
+      "date": "2007-10-22",
+      "version": "1.1"
+    },
+    "movable": {},
+    "network": {},
+    "pens": {}
+  },
+  "objects": {},
+  "structures": {
+    "ancestor": {
+      "ancestor": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ],
+      "ancestor.name": [
+        "text",
+        [
+          -60,
+          0
+        ]
+      ]
+    },
+    "arc_edge": {
+      "arc_edge": [
+        "line",
+        [
+          0,
+          0
+        ]
+      ],
+      "arc_edge.head": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ],
+      "arc_edge.tail": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "arc_info_knot": {
+      "arc_info_knot": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ],
+      "arc_info_knot.name": [
+        "text",
+        [
+          0,
+          -40
+        ]
+      ]
+    },
+    "arc_knot": {
+      "arc_knot": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "connector": {
+      "connector": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ],
+      "connector.name": [
+        "text",
+        [
+          0,
+          -40
+        ]
+      ]
+    },
+    "node_composite": {
+      "node_composite": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ],
+      "node_composite.name": [
+        "text",
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "node_simple": {
+      "node_simple": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ],
+      "node_simple.name": [
+        "text",
+        [
+          0,
+          0
+        ]
+      ],
+      "node_simple.network_indicator": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "node_viewed": {
+      "node_viewed": [
+        "panel",
+        [
+          0,
+          0
+        ]
+      ],
+      "node_viewed.pane_ancestors": [
+        "panel",
+        [
+          0,
+          0
+        ]
+      ],
+      "node_viewed.pane_sibling": [
+        "panel",
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "sibling": {
+      "sibling": [
+        "ellipse",
+        [
+          0,
+          0
+        ]
+      ],
+      "sibling.name": [
+        "text",
+        [
+          30,
+          0
+        ]
+      ]
+    }
+  }
+}

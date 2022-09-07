@@ -1,0 +1,87 @@
+2016/12/02:
+  constrain the index handling and introduce two types of outputs,
+  one with Einstein indexing
+  one with matrix default indexing
+  - requires the introduction of transposition
+  - and adjusting to the output as defined by the target object
+
+  suggestion - could use sequence in ordered dictionary of the indices
+
+2016/11/28:
+  Matlab of Einstein indexing is a problem.
+  Alternatives:
+    insist of max 2 dimensional objects yields matrix operations only.
+    This then implies that one would have to write the code for matlab 
+    as matrix operations and not with Einstein indexing.
+    This requires an analysis of the dimensions BEFORE the code is written.
+    This could be done in the operator classes. 
+    Logically one would introduce two alternatives, one with Einstein 
+    indexing and one with matrix operations.
+  
+  Matrix representation:
+    - products require to find the appropriate transpositions of the 
+      operants and the result
+      
+  examples:
+    index structures : A,B,C,D
+    reduce
+      c.[A,C] = a.[A,B] |B| b.[B,C]  --> c = a * b   
+      c.[A,C] = a.[A,B] |B| b.[C,B]  --> c = a * b'   
+      c.[A,C] = a.[B,A] |B| b.[B,C]  --> c = a' * b   
+      c.[A,C] = a.[B,A] |B| b.[C,B]  --> c = a' * b'  
+      
+      c.[A] = a.[B] |B| b.[A,B]  --> c = diag(a) * b' 
+      c.[A] = a.[B] |B| b.[B,A]  --> c = diag(a) * b 
+      c.[A] = a.[A,B] |B| b.[B]  --> c = a * diag(b) 
+      c.[A] = a.[B,A] |B| b.[B]  --> c = a' * diag(b) 
+      c.[A] = a.[B] |B| b.[B]    --> c = diag(a) * diag(b) 
+      
+    
+
+
+current sequence :
+  - define frame and state first and allow for the definition of constants
+  - once defined, write them and close program
+  - on startup, the additional variables will become visible.
+
+how it probably should behave:
+  - once the state is written, it should be frozen and not editable
+  - if one insists of editing the state then one needs to propagate the change
+    --> much too difficult and dangerous
+    --> delete variables except frame, state and constants and start all over
+        again by writing the variables and restart (cancel & load)
+        AUTOMATIC procedure ???
+
+
+
+Changed to:  15 Oct 2015
+
+  - allow for library of ontologies
+  - select subject for the ontology -> generates a new directory in the library]
+  - initialisation is forced
+
+  - variables as tables
+  - constants are numbers
+
+
+design decisions:
+  - ontologies fix the basic structure
+  - frame & token symbols and units to be defined at the very beginning
+      the must be frozen once used  (TO BE DONE)
+  - index set names are the token names
+      TO BE DISCUSSED - renaming allowed later - or ailasing table
+
+  - ontology indicates object's shape:
+    * for list
+    # for number
+    . for scalar
+
+    currently one has to edit frame and state, and write
+    editing of the other variables is only enabled once the basics have been
+      writting -- idea is to block them afterwards
+
+  - frame variables can also have vectors (spatial coordinates)
+
+
+Experiment - call map
+pycallgraph graphviz --output-file=demo.png TASK_ontology_editor.py 

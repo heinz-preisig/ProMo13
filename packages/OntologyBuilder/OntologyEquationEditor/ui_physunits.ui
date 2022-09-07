@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PysUnitsDialog</class>
+ <widget class="QDialog" name="PysUnitsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>650</width>
+    <height>178</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>611</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout">
+    <property name="margin">
+     <number>5</number>
+    </property>
+    <property name="spacing">
+     <number>10</number>
+    </property>
+    <item row="0" column="1">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>time [s]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QSpinBox" name="spinBoxLength">
+      <property name="minimum">
+       <number>-99</number>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>length [m]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4">
+     <widget class="QSpinBox" name="spinBoxTemperature">
+      <property name="minimum">
+       <number>-99</number>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="5">
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>temperature [K]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QSpinBox" name="spinBoxAmount">
+      <property name="minimum">
+       <number>-99</number>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>amount [mol]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <widget class="QSpinBox" name="spinBoxCurrent">
+      <property name="minimum">
+       <number>-99</number>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>current [A]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QSpinBox" name="spinBoxMass">
+      <property name="minimum">
+       <number>-99</number>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3">
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>mass [kg]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QSpinBox" name="spinBoxLight">
+      <property name="minimum">
+       <number>-99</number>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="5">
+     <widget class="QLabel" name="label_10">
+      <property name="text">
+       <string>light [cd]</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QSpinBox" name="spinBoxTime">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>5</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="accessibleDescription">
+       <string notr="true"/>
+      </property>
+      <property name="minimum">
+       <number>-99</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="pushOK">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>140</y>
+     <width>97</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>OK</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

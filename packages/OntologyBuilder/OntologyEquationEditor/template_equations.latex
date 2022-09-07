@@ -1,0 +1,23 @@
+
+{% raw %}
+\newenvironment{eq}{\begin{minipage}{15cm}$}{$\end{minipage} }
+%\newenvironment{lay}{\catcode`\_=12}{\catcode`\_=8}
+\renewcommand{\arraystretch}{2}
+
+\begin{longtable}{|p{0.5cm}|p{15cm}|p{6cm}|p{3cm}|}\hline
+no & equation &documentation &layer \\\hline\hline
+\endhead
+\hline \multicolumn{4}{r}{\textit{Continued on next page}} \\
+\endfoot
+\hline
+\endlastfoot
+{% endraw %}
+
+{% for ID_eq in sequence -%}
+    \hyperlink{"v:{{ equations[ID_eq].var_ID }}"}{ {{ID_eq}} }\hypertarget{"e:{{ID_eq}}"}{ {{""}} } &
+    \begin{eq}{{equations[ID_eq].lhs}} := {{equations[ID_eq].rhs}}\end{eq} &
+    \begin{lay}{{equations[ID_eq].doc }}\end{lay} &
+    \begin{lay}{{equations[ID_eq].network.replace(">>>","-->")}}\end{lay} \\
+{% endfor -%}
+\hline
+\end{longtable}

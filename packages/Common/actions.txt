@@ -1,0 +1,43 @@
+
+'add node'     :: pannel 
+                - add a node to viewed node on the pannel
+'group nodes'  :: pannel 
+                - group selected nodes and move one level 
+                  in the model tree
+'insert model' :: pannel 
+                - insert a model in the viewed node
+                  
+'explode node' :: composite node 
+                - inverse of group - move the below 
+                  one level up
+'make a copy'  :: composite node
+                - copy the subbranch into a temporary snipsel
+                  
+'change arc'   :: simple node   
+                - complete the re-direction operation for 
+                  the selected arc by selecting a node
+'begin arc'    :: simple node   
+                - start a new arc from a node
+'add arc'      :: simple node   
+                - complete the started new arc in a node
+                            
+'zoom in'      :: any node   
+                - view this node
+'delete node'  :: any node   
+                - delete node from model
+rename node    :: any node
+                - rename the node
+                
+'remove arc'   :: arc ends head & tail  
+                - remove the selected arc
+'re-direct arc':: arc ends head & tail 
+                - start moving the selected end to a new node
+'insert knot'  :: arc ends head & tail 
+                - insert a know in the middle of the 
+                  selected section
+                  
+'remove knot'  :: knot
+                - remove the selected knot
+                
+'reset'        :: global 
+                - abort current operation

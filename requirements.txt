@@ -1,0 +1,13 @@
+ase==3.22.0
+dlite==0.1.1
+graphviz==0.8.4
+Jinja2==2.10.1
+numpy==1.21.4
+owlready2==0.35
+pydot==1.4.2
+pydotplus==2.0.2
+PyPDF2==1.26.0
+PyQt5==5.15.6
+PySide2==5.15.2
+PyYAML==6.0
+setuptools==45.2.0

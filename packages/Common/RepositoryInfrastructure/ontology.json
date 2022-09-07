@@ -1,0 +1,40 @@
+{
+  "interfaces": {},
+  "ontology_tree": {
+    "root": {
+      "behaviour": {
+        "arc": [],
+        "graph": [
+          "network"
+        ],
+        "node": [
+          "frame",
+          "state",
+          "constant"
+        ]
+      },
+      "children": [],
+      "name": "root",
+      "parents": [],
+      "structure": {
+        "arc": {
+        },
+        "node": {
+          "constant": [
+            "lumped"
+          ],
+          "dynamic": [
+            "lumped",
+            "distributed"
+          ],
+          "event": [
+            "lumped",
+            "distributed"
+          ]
+        },
+        "token": {}
+      },
+      "type": "intra"
+    }
+  }
+}

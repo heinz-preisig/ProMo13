@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="onto.owl" uri="play.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="play.owl" uri="atic/play.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo" uri="atic/emmo/rdfxml/emmo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-core" uri="atic/emmo/rdfxml/emmo-core.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-direct" uri="atic/emmo/rdfxml/emmo-direct.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-granularity" uri="atic/emmo/rdfxml/emmo-granularity.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-material" uri="atic/emmo/rdfxml/emmo-material.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-math" uri="atic/emmo/rdfxml/emmo-math.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-math-examples" uri="atic/emmo/rdfxml/emmo-math-examples.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-models" uri="atic/emmo/rdfxml/emmo-models.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-process" uri="atic/emmo/rdfxml/emmo-process.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-properties" uri="atic/emmo/rdfxml/emmo-properties.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmc.info/emmo-semiotics" uri="atic/emmo/rdfxml/emmo-semiotics.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmo.info/emmo-inferred" uri="emmo/owl/emmo-inferred.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmo.info/latest/emmo-inferred.owl" uri="atic/emmo-inferred.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://emmo.info/latest/emmo.owl" uri="atic/emmo.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://www.co-ode.org/ontologies/pizza" uri="atic/pizza/pizza_xml.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="duplicate:http://www.co-ode.org/ontologies/pizza/pizza.owl" uri="atic/pizza/pizza.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="duplicate:http://www.co-ode.org/ontologies/pizza/pizza.owl" uri="atic/pizza/pizza_rdf.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="http://www.lesfleursdunormal.fr/static/_downloads/pizza_onto.owl" uri="atic/gugus.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="https://emmc.info/emmo-inferred" uri="atic/emmo/rdfxml/emmo-inferred.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="https://raw.githubusercontent.com/emmo-repo/EMMO-python/master/emmo/rdfxml/emmo-all-inferred.owl" uri="atic/emmo/rdfxml/emmo-all-inferred.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="shadowed:http://www.lesfleursdunormal.fr/static/_downloads/pizza_onto.owl" uri="atic/pizza/pizza_onto_2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="shadowed:onto.owl" uri="Niloufar/play.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1585567002158" name="shadowed:onto.owl" uri="demo/vertical/figs/usercase_ontology.owl"/>
+    </group>
+</catalog>

@@ -1,0 +1,117 @@
+
+{% raw %}
+#!/usr/local/bin/python3
+# encoding: utf-8
+
+"""
+===============================================================================
+ Ontology design facility
+===============================================================================
+
+This program is part of the ProcessModelling suite
+
+"""
+
+__project__ = "ProcessModeller  Suite"
+__author__ = "PREISIG, Heinz A"
+__copyright__ = "Copyright 2015, PREISIG, Heinz A"
+__since__ = "16.09.2019"
+__license__ = "GPL planned -- until further notice for Bio4Fuel & MarketPlace internal use only"
+__version__ = "5.04"
+__email__ = "heinz.preisig@chemeng.ntnu.no"
+__status__ = "beta"
+
+
+import sys
+import os
+
+{% endraw %}
+ProMo_path = os.path.join("../../","{{ProMo}}")
+
+{% raw %}
+
+root = os.path.abspath(ProMo_path)      #os.path.join("../../"{{ProMo}}) #ProcessModeller_v7_04"))
+
+ext = [root, os.path.join(root, 'packages'), \
+             os.path.join(root, 'tasks'), \
+             os.path.join(root, 'packages', 'OntologyBuilder', 'EMMO_Integration')
+       ]
+# print(os.path.join(root, 'packages', 'OntologyBuilder', 'EMMO_Integration'))
+
+# emmo = "/home/heinz/1_Gits/ProcessModeller/ProcessModeller_v7_04/packages/OntologyBuilder/EMMO_Integration/"
+
+sys.path.extend(ext)
+from OntologyBuilder.EMMO_Integration.emmo_attach import ProMoOwlOntology
+from Common.ontology_container import OntologyContainer
+
+from owlready2 import *
+{% endraw %}
+
+ontology = OntologyContainer("{{ontology}}") #'flash_03')
+
+{% raw %}
+variables = ontology.variables
+
+name = "play"
+owlfile = name+".owl"
+
+# onto  = O.setup_ontology(name)
+o = ProMoOwlOntology()
+onto = o.setupOnto()
+
+with onto:
+  class ProMoVar(onto.VAR):
+    pass
+  class is_function_of(ObjectProperty):
+    domain = [ProMoVar]
+    range  = [ProMoVar]
+    pass
+
+{% endraw %}
+
+
+{%- for var_ID in variables %}
+# {{var_ID}}
+label = variables[{{var_ID}}]["label"]
+network = variables[{{var_ID}}]["network"]
+variable_type = variables[{{var_ID}}]["type"]
+label = variables[{{var_ID}}]["label"]
+doc = variables[{{var_ID}}]["doc"]
+onto_ID = "V_{{var_ID}}"
+V_{{var_ID}} = onto.ProMoVar( onto_ID )
+V_{{var_ID}}.label = label
+V_{{var_ID}}.network = network
+V_{{var_ID}}.variable_type = variable_type
+V_{{var_ID}}.comment = doc
+
+units = variables[{{var_ID}}]["units"].asList()
+V_{{var_ID}}.time = [ units[0] ]
+V_{{var_ID}}.length = [ units[1] ]
+V_{{var_ID}}.amount = [ units[2] ]
+V_{{var_ID}}.mass = [ units[3] ]
+V_{{var_ID}}.temperature = [ units[4] ]
+V_{{var_ID}}.current = [ units[5] ]
+V_{{var_ID}}.light = [ units[6] ]
+
+{% endfor -%}
+
+{% for var_ID in variables %}
+
+{% for eq_ID in variables[var_ID].equations -%}
+{% raw %}
+incidence_list = []
+{% endraw %}
+{%- set e = variables[var_ID].equations[eq_ID]["rhs"].split(" ") -%}
+{% for v in e %}
+{% if "V_" in v %}
+incidence_list.append( {{v}} )
+{% endif %}
+{%- endfor -%}
+V_{{var_ID}}.is_function_of = incidence_list
+{%- endfor -%}
+{%- endfor -%}
+
+{% raw %}
+
+onto.save("variables.owl")
+{% endraw %}

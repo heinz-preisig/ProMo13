@@ -1,0 +1,30 @@
+{
+  "species": {
+    "instances": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "conversions": [
+      {
+        "reactants": [
+          "A"
+        ],
+        "products": [
+          "B"
+        ]
+      },
+      {
+        "reactants": [
+          "A",
+          "B"
+        ],
+        "products": [
+          "C",
+          "D"
+        ]
+      }
+    ]
+  }
+}

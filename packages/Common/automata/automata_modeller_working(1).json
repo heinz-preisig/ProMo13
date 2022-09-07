@@ -1,0 +1,1429 @@
+{
+  "MOUSE_AUTOMATON": {
+    "connect_arc": {
+      "arc_edge.head&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_sleep"
+      },
+      "arc_edge.tail&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_sleep"
+      },
+      "arc_edge.tail&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_sleep"
+      },
+      "node_viewed&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "add node"
+        ],
+        "cursor": "TC_L_add-R_blank"
+      },
+      "node_composite&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_composite&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_simple&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_boundary&-:normal": {
+        "right": [
+          "insert",
+          "add arc"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "TC_L_add-R_adda"
+      },
+      "arc_edge.head&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_sleep"
+      },
+      "node_simple&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "forbidden"
+      },
+      "arc_edge.tail&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_sleep"
+      },
+      "sibling&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "arc_edge.tail&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "forbidden"
+      },
+      "node_boundary&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "ancestor&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "node_composite&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "arc_knot&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_sleep"
+      },
+      "arc_edge.head&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "forbidden"
+      },
+      "arc_edge.head&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_sleep"
+      },
+      "node_simple&-:normal": {
+        "right": [
+          "insert",
+          "add arc"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_adda"
+      },
+      "node_boundary&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_forbidden"
+      }
+    },
+    "insert": {
+      "arc_edge.head&-:open": {
+        "right": [
+          "re-connect_arc",
+          "re-direct arc"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "TC_L_blank-R_recon"
+      },
+      "arc_edge.tail&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "arc_edge.tail&-:normal": {
+        "right": [
+          "re-connect_arc",
+          "re-direct arc"
+        ],
+        "left": [
+          "-",
+          "insert knot"
+        ],
+        "cursor": "TC_L_insknot-R_recon"
+      },
+      "node_viewed&-:-": {
+        "right": [
+          "-",
+          "insert model"
+        ],
+        "left": [
+          "-",
+          "add node"
+        ],
+        "cursor": "TC_L_add-R_frfile"
+      },
+      "node_composite&-:-": {
+        "right": [
+          "-",
+          "make a copy"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_tofile"
+      },
+      "node_composite&-:selected": {
+        "right": [
+          "-",
+          "make a copy"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_tofile"
+      },
+      "node_simple&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_boundary&-:normal": {
+        "right": [
+          "connect_arc",
+          "begin arc"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "TC_L_goin-R_adda"
+      },
+      "arc_edge.head&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "node_simple&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_forbidden"
+      },
+      "arc_edge.tail&-:open": {
+        "right": [
+          "re-connect_arc",
+          "re-direct arc"
+        ],
+        "left": [
+          "-",
+          "insert knot"
+        ],
+        "cursor": "TC_L_blank-R_recon"
+      },
+      "sibling&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "arc_edge.tail&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "node_boundary&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "ancestor&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "node_composite&-:normal": {
+        "right": [
+          "-",
+          "make a copy"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_tofile"
+      },
+      "arc_knot&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_move"
+      },
+      "arc_edge.head&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "arc_edge.head&-:normal": {
+        "right": [
+          "re-connect_arc",
+          "re-direct arc"
+        ],
+        "left": [
+          "-",
+          "insert knot"
+        ],
+        "cursor": "TC_L_insknot-R_recon"
+      },
+      "node_simple&-:normal": {
+        "right": [
+          "connect_arc",
+          "begin arc"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_adda"
+      },
+      "node_boundary&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_forbidden"
+      }
+    },
+    "re-connect_arc": {
+      "arc_edge.head&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.tail&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.tail&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_viewed&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "add node"
+        ],
+        "cursor": "TC_L_add-R_blank"
+      },
+      "node_composite&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_composite&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_simple&-:-": {
+        "right": [
+          "insert",
+          "change arc"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_adda"
+      },
+      "node_boundary&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.head&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_simple&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "forbidden"
+      },
+      "arc_edge.tail&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "sibling&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "arc_edge.tail&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_boundary&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "ancestor&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "node_composite&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_knot&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.head&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.head&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_simple&-:normal": {
+        "right": [
+          "insert",
+          "change arc"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_adda"
+      },
+      "node_boundary&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      }
+    },
+    "explode": {
+      "arc_edge.head&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "arc_edge.tail&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "arc_edge.tail&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "node_viewed&-:-": {
+        "right": [
+          "explore",
+          "group nodes"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "TC_L_group"
+      },
+      "node_composite&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_move"
+      },
+      "node_composite&-:selected": {
+        "right": [
+          "-",
+          "make a copy"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "TC_R_tofile"
+      },
+      "node_simple&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_move"
+      },
+      "node_boundary&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.head&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "node_simple&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_move"
+      },
+      "arc_edge.tail&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "sibling&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "arc_edge.tail&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "node_boundary&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "ancestor&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "node_composite&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "explode node"
+        ],
+        "cursor": "CC_explode"
+      },
+      "arc_knot&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_move"
+      },
+      "arc_edge.head&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "arc_edge.head&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_undefined"
+      },
+      "node_simple&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_move"
+      },
+      "node_boundary&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      }
+    },
+    "explore": {
+      "arc_edge.head&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.tail&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.tail&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_viewed&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "CC_sleep"
+      },
+      "node_composite&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "node_composite&-:selected": {
+        "right": [
+          "-",
+          "make a copy"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "TC_L_goin-R_tofile"
+      },
+      "node_simple&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "move"
+      },
+      "node_boundary&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.head&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_simple&-:selected": {
+        "right": [
+          "-",
+          "make a copy"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "TC_R_tofile"
+      },
+      "arc_edge.tail&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "sibling&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "arc_edge.tail&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_boundary&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "ancestor&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "node_composite&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "zoom in"
+        ],
+        "cursor": "TC_L_goin-R_blank"
+      },
+      "arc_knot&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "move"
+      },
+      "arc_edge.head&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.head&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_simple&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "move"
+      },
+      "node_boundary&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      }
+    },
+    "delete": {
+      "arc_edge.head&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "remove arc"
+        ],
+        "cursor": "CC_del"
+      },
+      "arc_edge.tail&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "remove arc"
+        ],
+        "cursor": "CC_del"
+      },
+      "arc_edge.tail&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "remove arc"
+        ],
+        "cursor": "CC_del"
+      },
+      "node_viewed&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_composite&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "delete node"
+        ],
+        "cursor": "CC_del"
+      },
+      "node_composite&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "forbidden"
+      },
+      "node_simple&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "delete node"
+        ],
+        "cursor": "CC_del"
+      },
+      "node_boundary&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "delete node"
+        ],
+        "cursor": "CC_del"
+      },
+      "arc_edge.head&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "remove arc"
+        ],
+        "cursor": "CC_del"
+      },
+      "node_simple&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "forbidden"
+      },
+      "arc_edge.tail&-:open": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "remove arc"
+        ],
+        "cursor": "CC_del"
+      },
+      "sibling&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.tail&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_boundary&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "delete node"
+        ],
+        "cursor": "CC_del"
+      },
+      "ancestor&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "node_composite&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "delete node"
+        ],
+        "cursor": "CC_del"
+      },
+      "arc_knot&-:-": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "remove knot"
+        ],
+        "cursor": "CC_del"
+      },
+      "arc_edge.head&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "-"
+      },
+      "arc_edge.head&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "remove arc"
+        ],
+        "cursor": "CC_del"
+      },
+      "node_simple&-:normal": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "delete node"
+        ],
+        "cursor": "CC_del"
+      },
+      "node_boundary&-:selected": {
+        "right": [
+          "-",
+          "-"
+        ],
+        "left": [
+          "-",
+          "-"
+        ],
+        "cursor": "forbidden"
+      }
+    }
+  },
+  "KEY_AUTOMATON": {
+    "Key_Escape": [
+      "explore",
+      "reset"
+    ],
+    "Key_V": [
+      "explore",
+      "-"
+    ],
+    "Key_D": [
+      "delete",
+      "-"
+    ],
+    "Key_E": [
+      "explode",
+      "-"
+    ],
+    "Key_I": [
+      "insert",
+      "-"
+    ]
+  },
+  "DESIGNATED_KEYS": {
+    "select": "Key_S",
+    "modifier": "Key_Shift",
+    "reset": "Key_Escape"
+  }
+}

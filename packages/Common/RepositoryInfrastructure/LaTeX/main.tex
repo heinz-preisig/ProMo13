@@ -1,0 +1,142 @@
+
+% automatically generated - do not edit
+%
+% =======================================
+
+\documentclass[landscape]{article}
+\usepackage[T1]{fontenc}
+\usepackage{longtable}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+
+\usepackage[text={\textwidth,10cm},
+		a4paper,
+		headsep=0.7cm,
+		top=2cm,
+		bottom=2cm,
+		left=2cm,
+		right=2cm,
+		%		showframe,
+		showcrop,
+		%nofoot,
+		nomarginpar
+		]{geometry}
+\usepackage[%
+        backref,
+        %	ps2pdf,
+        %	dvips,
+        final,
+        %pdftitle={#1},
+        pdfauthor={Heinz A Preisig},
+        pdfsubject={'CAM'},
+        colorlinks=true,
+        linkcolor=red,
+        citecolor=blue,
+        anchorcolor=blue,
+        hyperindex=true,
+        bookmarks,
+        bookmarksopen=true,
+        bookmarksnumbered=true,
+        bookmarksdepth=10,
+        hyperfigures=true,
+        %a4paper,
+        linktocpage=true,
+        pageanchor=true,
+        ]{hyperref}
+
+\usepackage{enumitem}
+
+%% math packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{calligra}
+\usepackage{array}
+
+%% >>>>>>>>>>>>>>>> user definitions BIBLIOGRAPHY & DEFS <<<<<<<<<<<<<<<<<<<<<<<<
+
+
+%% personal styles and definitions
+%\usepackage{mystyle}
+%\def\mydefs{defs}
+%\usepackage[english]{babel}
+%\usepackage{blindtext}
+%\usepackage{listings}
+%\usepackage{multirow}
+%\usepackage{inconsolata}
+%\usepackage{glossaries}
+%\usepackage{pdflscape}
+%\usepackage{caption} % For mimicing a figure in a minipage
+
+%\catcode`\&=12
+\input{./resources/defs}
+\input{./resources/defvars}
+\parindent=0pt
+
+
+
+\newenvironment{variables}{
+	\begin{itemize}[leftmargin=4cm, align=left, labelwidth=3cm, noitemsep]
+	}
+	{\end{itemize}}
+\newenvironment{lay}{\catcode`\_=12}{\catcode`\_=8}
+\newenvironment{IND}{\catcode`\&=12\catcode`\_=12}{\catcode`\&=4\catcode`\_=8}
+
+\newcolumntype{P}[1]{>{$}p{#1}<{$}}
+
+
+\newenvironment{eq}{\begin{minipage}{10cm}$}{$\end{minipage} }
+%\newenvironment{lay}{\catcode`\_=12}{\catcode`\_=8}
+
+
+% ==================================== body  =====================================
+\begin{document}
+
+
+\section{Variables}
+
+\section{ root } \input{ variables_root.tex }
+\section{ control } \input{ variables_control.tex }
+\section{ physical } \input{ variables_physical.tex }
+\section{ fluid } \input{ variables_fluid.tex }
+\section{ gas } \input{ variables_gas.tex }
+\section{ liquid } \input{ variables_liquid.tex }
+\section{ solid } \input{ variables_solid.tex }
+
+\newpage
+\section{Equations}
+
+%\subsection{Selections}  			{ \input{equations_select}}
+%\newpage
+\subsection{Model equations} 	{ \input{equations_generic}}
+\newpage
+\subsection{Instantiations}   { \input{equations_instantiate}}
+\newpage
+
+\pagestyle{empty}
+\def\dotgrapha#1{\newpage
+	\includegraphics[scale=0.6,angle=0, trim=0 0cm 0cm 0cm]{#1}}
+
+\def\dotgraphb#1{\newpage
+	\includegraphics[width=\textwidth,
+	                 height=\textheight,
+	                 trim=0 0cm 0cm 0cm]{#1}}
+\def\dotgraphc#1{\newpage
+	             	\includegraphics[%width=\textwidth,
+	             	%height=\textheight,
+	             	trim=0 0cm 0cm 0cm]{#1}}
+% trim l b r t
+
+\newpage
+\section{Graphs}
+
+
+\dotgrapha{../ontology_graphs/graph__root.ps}
+\dotgrapha{../ontology_graphs/graph__control.ps}
+\dotgrapha{../ontology_graphs/graph__physical.ps}
+\dotgrapha{../ontology_graphs/graph__fluid.ps}
+\dotgrapha{../ontology_graphs/graph__gas.ps}
+\dotgrapha{../ontology_graphs/graph__liquid.ps}
+\dotgrapha{../ontology_graphs/graph__solid.ps}
+
+\end{document}
+% ================================== end =========================================
