@@ -135,7 +135,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     self.root = "root"  # RULE: root of tree is called "root"
     self.lock_delete = False
     self.saved_ontology = False
-    new_variable_file = False
+    self.new_variable_file = False
 
     if not ontology_name:  # RULE: No ontology chosen -- ask for new ontology
       ui_ask = UI_String("give new ontology name ", "ontology name", limiting_list=ontologies)
