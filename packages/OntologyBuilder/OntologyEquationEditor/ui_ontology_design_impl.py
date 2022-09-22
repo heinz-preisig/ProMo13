@@ -422,7 +422,7 @@ class UiOntologyDesign(QMainWindow):
       # return
       # else:
       #   self.__setupEdit("interface")
-      # self.__setupEdit("interface")
+      self.__setupEdit("interface")  # TODO need to think a better way of delete the equations
       self.__setupEditInterface()
       self.__showFilesControl()
 
