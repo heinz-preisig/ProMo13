@@ -136,6 +136,10 @@ class ModelContainer(dict):
     self["arcs"] = {}
     self.arcID = 0
     self["scenes"] = {}
+    self["instantiation_info"] = {
+      "nodes": {},
+      "arcs": {},
+    }
 
     rootID = ROOTID  # str(ROOTID)   #HAP: ID string to integer
     self["nodes"][rootID] = NodeInfo(rootID)
@@ -636,9 +640,13 @@ class ModelContainer(dict):
 
     odata["named_networks"] = data["named_networks"]
 
+    # Check if we are saving this info here
+    odata["instantiation_info"] = deepcopy(self["instantiation_info"])
+
     for i in self:
       if i != "ID_tree":
-        del self[i]
+        # TODO check this, it was giving "RuntimeError: dictionary keys changed during iteration"
+        # del self[i]
         self[i] = odata[i]
 
     return node_map
@@ -780,6 +788,7 @@ class ModelContainer(dict):
     flat_data["token_incidence_matrix"] = I_tokens
     flat_data["typed_token_incidence_matrix"] = I_typed_tokens
     flat_data["typed_token_lists"] = typed_tokens
+    flat_data["instantiation_info"] = self["instantiation_info"]
     return flat_data
 
   def getAndFixData(self, f):
