@@ -23,6 +23,7 @@ import copy
 import itertools
 import os
 from collections import OrderedDict
+from collections import deque
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -1422,35 +1423,35 @@ class Commander(QtCore.QObject):
     Returns:
         _type_: _description_
     """
-    from pprint import pprint as pp # Pretty print for debug
+    # Pretty print for debug
+    from pprint import pprint as pp 
 
     node_id = pars["nodeID"]
     nodes_to_instantiate = []
+    nodes_selection =[]
 
-    if node_id != 0:     
-      node_class = self.model_container["nodes"][node_id]["class"]
-      if node_class == "node_simple":       # Case 1: Single node
-        nodes_to_instantiate.append(node_id)
-
-        # print("Instantiating nodes: " + str(nodes_to_instantiate))
-      elif node_class == "node_composite":  # Case 2: Composite node
-        nodes_to_instantiate = self.model_container["ID_tree"].getChildren(node_id)        
-
-        # print("Instantiating nodes: " + str(nodes_to_instantiate))
-    else:                                   # Case 3: Selection of nodes
+    if node_id != 0:                    # Case 1 & 2 Simple and composite nodes
+      nodes_selection.append(node_id)
+    else:                               # Case 3: Selection of nodes
       if self.node_group:
         for node in self.node_group:
-          node_id = node.ID
-          node_class = self.model_container["nodes"][node_id]["class"]
-          if node_class == "node_simple":
-            nodes_to_instantiate.append(node_id)
-          elif node_class == "node_composite":
-            nodes_to_instantiate.extend(self.model_container["ID_tree"].getChildren(node_id))
-
-        # print("Instantiating nodes: " + str(nodes_to_instantiate))
+          nodes_selection.append(node.ID)
       else:                     
         print("Nothing to instantiate.")
         return {"failed": True}
+
+    # Using a queue to get all the simple nodes inside composite nodes.
+    node_queue = deque(nodes_selection)
+    while node_queue:
+      node_id = node_queue.popleft()
+      node_class = self.model_container["nodes"][node_id]["class"]
+      if node_class == "node_simple":
+        nodes_to_instantiate.append(node_id)
+      elif node_class == "node_composite":
+        children = self.model_container["ID_tree"].getChildren(node_id)
+        node_queue.extend(children)
+
+    # print(nodes_to_instantiate)
 
     entity_behaviour, var_data_all = self._get_instantiation_variables(nodes_to_instantiate)
 

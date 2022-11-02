@@ -207,7 +207,13 @@ class InstantiationDlg(QtWidgets.QDialog):
       item_pos (int): Position in the **QListWidget** of the selected variable. It
         corresponds to the index in the proper var_data list.
     """
-    var_info, _ = self.var_data[self.tab_index_selected][item_pos]
+    var_info, is_enabled = self.var_data[self.tab_index_selected][item_pos]
+
+    # Nothing happens while clicking on a disable item
+    if not is_enabled:
+      self._set_instantiation_state(False)
+      return
+
     var_name = self.variables[var_info["id"]]["label"]
     
     if var_info["same_in_all_nodes"]:
