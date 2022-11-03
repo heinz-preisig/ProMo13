@@ -701,6 +701,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
                                                                     self.ui.layoutInteractiveWidgetBottom)
       # self.setSelectorChecked("mechanism", "mechanism", 1)
       # self.radio_selectors["mechanism"].check("mechanism", 1)
+      self.__makeComboNodeSubClass()
       self.__makeComboArcSubClass()
       # print("debugging -- finding how to toggle mechanism")
 
@@ -709,8 +710,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def radioReceiverArcMechanism(self, token_class, token, mechanism, toggle):
     if toggle:
-      # print("radioReceiverArcMechanism: receiver class %s, radio token %s. token_string %s" % (token_class, token,
-      # token_string))
+      # print("radioReceiverArcMechanism: receiver class %s, radio token %s." 
+      # % (token_class, token))
 
       self.__trimLayout(2, self.ui.layoutInteractiveWidgetBottom)
       nw = self.current_network
