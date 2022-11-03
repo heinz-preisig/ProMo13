@@ -1455,7 +1455,7 @@ class Commander(QtCore.QObject):
 
     entity_behaviour, var_data_all = self._get_instantiation_variables(nodes_to_instantiate)
 
-    pp(var_data_all)
+    # pp(var_data_all)
 
     if len(nodes_to_instantiate) > 1:
       single_node_instantiation = False
