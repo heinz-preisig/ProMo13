@@ -347,7 +347,7 @@ class ModelContainer(dict):
     sinkNodeID = self["arcs"][arcID]["sink"]
     sourceCoordinates = self["scenes"][sceneID]["nodes"][sourceNodeID]["position_x"], self["scenes"][sceneID]["nodes"][sourceNodeID]["position_y"]
     sinkCoordinates = self["scenes"][sceneID]["nodes"][sinkNodeID]["position_x"], self["scenes"][sceneID]["nodes"][sinkNodeID]["position_y"]
-    print("debugging for position")
+    # print("debugging for position")
     return sourceCoordinates,sinkCoordinates
 
   def fixTokensInNode(self, nodeID, token):
@@ -754,7 +754,7 @@ class ModelContainer(dict):
 
   def write(self, f):
 
-    print("debugging -- file name:", f)
+    # print("debugging -- file name:", f)
 
     # TODO: DONE mapping could be done on reading instead of writing. Solves problem of intermediate writing -->
     #  makeFromFile
@@ -837,7 +837,7 @@ class ModelContainer(dict):
         self["named_networks"].updateWithData(data["named_networks"])
       else:
         self[the_hash] = data[the_hash]
-    print(" -------- ")
+    # print(" -------- ")
 
   def addFromFile(self, f, parentID, position, graphics_data, editor_phase):
 
@@ -945,7 +945,7 @@ class ModelContainer(dict):
     # tree move children to parent
     children = sorted(self["ID_tree"].getChildren(nodeID))
     for child in children:
-      print("debugging -- move: ", child)
+      # print("debugging -- move: ", child)
       self["ID_tree"].moveID(child, parentID)
       self["scenes"][parentID]["nodes"][child] = self["scenes"][nodeID]["nodes"][child]
 
@@ -1195,7 +1195,7 @@ class ModelContainer(dict):
     tokens = self.ontology.tokens
     D = self.computeTokenDomains(tokens)
     for node_ID in self["nodes"]:
-      print("debugging -- node %s" % node_ID, self["nodes"][node_ID])
+      # print("debugging -- node %s" % node_ID, self["nodes"][node_ID])
       for token in D:
         if D[token]:
           for domain in D[token]:
@@ -1230,7 +1230,7 @@ class ModelContainer(dict):
             I_tokens[domainID] = {}
           I_tokens[domainID][token]= self.computeTokenIncidenceMatrix(self["arcs"], token)
           I_typed_tokens[token][domainID] = {}
-          print("debugging -- type token domain")
+          # print("debugging -- type token domain")
           for tt in typed_tokens[token][domainID]:
             I_typed_tokens[token][domainID][tt] = self.computeTypedTokenIncidenceMatrix(token, tt)
 
@@ -1358,7 +1358,7 @@ class ModelContainer(dict):
               for s in self["nodes"][node]["tokens_right"][token]:
                 if s not in arc_data["typed_tokens"]:
                   arc_data["typed_tokens"].append(s)
-              print("debugging -- halting place")
+              # print("debugging -- halting place")
           for arc in arcs_in:
             if arc in arcs_in_domain:
               arc_data = self["arcs"][arc]
@@ -1366,7 +1366,7 @@ class ModelContainer(dict):
               for s in self["nodes"][node]["tokens_left"][token]:
                 if s not in arc_data["typed_tokens"]:
                   arc_data["typed_tokens"].append(s)
-              print("debugging -- halting place")
+              # print("debugging -- halting place")
 
     # typed token domains
       tt = self.ontology.typed_token_refining_token[token]  # RULE: tokens have only one typed token

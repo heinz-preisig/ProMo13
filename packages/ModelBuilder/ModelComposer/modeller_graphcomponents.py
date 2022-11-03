@@ -130,8 +130,8 @@ class R_Item(QtWidgets.QGraphicsItem):
       else:
         obj_str = str([phase, r, d, a, s])
 
-      if s == "selected":
-        print("debugging -- R_Item obj string", obj_str)
+      # if s == "selected":
+        # print("debugging -- R_Item obj string", obj_str)
 
       shape_data = self.commander.graphics_data.getData(phase, self.graphics_root_object,
                                                         decoration, application, state)
@@ -343,7 +343,7 @@ class G_Item(QtWidgets.QGraphicsItem):
     try:
       self.setAcceptHoverEvents(True)
     except:
-      print("debugging -- set hover event error")
+      # print("debugging -- set hover event error")
       pass
     # c = R.ModellerCursor()
     self.move_cursor = self.commander.cursors.getCursor('grab')
