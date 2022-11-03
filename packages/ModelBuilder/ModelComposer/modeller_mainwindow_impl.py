@@ -133,7 +133,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     # while self.model_name in [""]:
     self.model_name, status = askForModelFileGivenOntologyLocation(self.model_library_location, alternative=True)
 
-    print("debugging -- model name and new_model", self.model_name, status)
+    # print("debugging -- model name and new_model", self.model_name, status)
     if status == "existent":
       new_model = False
     elif status == "new":
@@ -216,7 +216,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     count = 0
     tokens = sorted(self.TOKENS.keys())
     for token in tokens:
-      print(token, ' : ', count)
+      # print(token, ' : ', count)
       r, g, b, a = self.TOKENS[token]["colour"]
       colour = QtGui.QColor(r, g, b, a)  # .rgba()
       self.colourDialog.setCustomColor(count, colour)
@@ -471,7 +471,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     node = self.selected_node_type[network]
     token = self.selected_token[self.editor_phase][network]
     obj_ID = "node.%s|%s"%(node, token)
-    print("debugging -- make combo node subclass", network, node, token, obj_ID)
+    # print("debugging -- make combo node subclass", network, node, token, obj_ID)
 
     self.ui.comboNodeSubClass.clear()
     variants = set()
@@ -491,13 +491,13 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     pass
 
   def __makeComboArcSubClass(self):
-    print("debugging -- arc subclass exposure")
+    # print("debugging -- arc subclass exposure")
     network = self.current_network
     token = self.selected_token[self.editor_phase][network]
     mechanism = self.selected_transfer_mechanism[network][token]
     nature = self.selected_arc_nature[network][token]
     obj_ID = "arc.%s|%s|%s"%(token, mechanism, nature)
-    print("debugging -- make combo node subclass", network, token, mechanism, nature, obj_ID)
+    # print("debugging -- make combo node subclass", network, token, mechanism, nature, obj_ID)
 
     self.ui.comboArcSubClass.clear()
     variants = set()
@@ -539,8 +539,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   @staticmethod
   def __makeAndAddSelector(group_name, what, receiver, index, layout, autoexclusive=True):
-    if group_name == "nodes":
-      print("debugging -- group name")
+    # if group_name == "nodes":
+      # print("debugging -- group name")
     radio_selector = RadioSelector()
     list_of_choices = []
     counter = 0
@@ -571,7 +571,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     box.update()
 
   def __colourDialog(self, colour):
-    print("debugging -- ask for colour ", colour)
+    # print("debugging -- ask for colour ", colour)
     r, g, b, a = colour
     colour = QtGui.QColor(r, g, b, a)
     c = self.colourDialog.getColor(colour).getRgb()
@@ -594,7 +594,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.__makeComboNodeSubClass()
 
   def setNodeType(self, node_type):
-    print("debugging -- node type", node_type)
+    # print("debugging -- node type", node_type)
     nw = self.current_network
     self.selected_node_type[nw] = node_type
     index = self.nodeObjects_in_networks[nw].index(node_type)
@@ -619,11 +619,11 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def on_comboNodeSubClass_currentTextChanged(self, node_sub_class):
     self.current_node_variant = node_sub_class
-    print("debugging -- node subclass", node_sub_class)
+    # print("debugging -- node subclass", node_sub_class)
 
   def on_comboArcSubClass_currentTextChanged(self, arc_sub_class):
     self.current_arc_variant = arc_sub_class
-    print("debugging -- arc subclass", arc_sub_class)
+    # print("debugging -- arc subclass", arc_sub_class)
 
 
   def radioReceiverNetworks(self, token_class, token, token_string, toggle):
@@ -702,7 +702,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       # self.setSelectorChecked("mechanism", "mechanism", 1)
       # self.radio_selectors["mechanism"].check("mechanism", 1)
       self.__makeComboArcSubClass()
-      print("debugging -- finding how to toggle mechanism")
+      # print("debugging -- finding how to toggle mechanism")
 
   def setSelectorChecked(self, selector, group, item_number):
     self.radio_selectors[selector].check(group, item_number)
@@ -800,12 +800,12 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def radioReceiverTypedTokenInject(self, token_class, token, token_string, toggle):
     self.commander.applyControlAccessRules()
-    print("debugging -- typed token to be injected")
+    # print("debugging -- typed token to be injected")
     pass
 
   def radioReceiverTypedTokenToConvert(self, token_class, token, token_string, toggle):
     self.commander.applyControlAccessRules()
-    print("debugging -- typed token to be convert")
+    # print("debugging -- typed token to be convert")
     pass
 
   def on_toolNamed_NetworkColour_pressed(self):

@@ -730,7 +730,7 @@ class Commander(QtCore.QObject):
       # print("__c11_addTheArc", " from network %s to network %s"%(source_network,sink_network))
 
       # introducing boundary
-      print("debugging -- finding out if it is inter or intra face")
+      # print("debugging -- finding out if it is inter or intra face")
 
 
       # RULE s :
@@ -893,7 +893,7 @@ class Commander(QtCore.QObject):
 
     # add info knot
     self.model_container.getArcGraphicalData(self.current_ID_node_or_arc, arcID)
-    print("debugging find arc on scene")
+    # print("debugging find arc on scene")
     self.__C12_insertArcInfoKnot(arcID)
 
     return {
@@ -981,7 +981,7 @@ class Commander(QtCore.QObject):
     self.model_container.insertKnot(self.currently_viewed_node, arcID, indexA, indexB, position)
 
     self.redrawCurrentScene()
-    print("debugging -- knots")
+    # print("debugging -- knots")
 
     return {
             "arc"   : arcID,
@@ -1347,7 +1347,7 @@ class Commander(QtCore.QObject):
     :param nodeID: node ID as string
     :return:
     """
-    print("debugging -- selecting node")
+    # print("debugging -- selecting node")
     node_type = self.model_container["nodes"][nodeID]["class"]
     if node_type in [NAMES["node"], NAMES["intraface"]]:
       ancestors = self.model_container["ID_tree"].getAncestors(nodeID)
@@ -2323,7 +2323,7 @@ class Commander(QtCore.QObject):
           self.state_nodes[child] = "enabled"  # default is enabled
 
   def __ruleNodeAccessTypedTokensInject(self):
-    print("debugging -- token control inject rule")
+    # print("debugging -- token control inject rule")
 
     #
     # RULE: only constant systems can receive tokens in a given network
@@ -2477,8 +2477,8 @@ class Commander(QtCore.QObject):
     network = self.main.current_network
     named_network = self.main.current_named_network
 
-    print("debugging -- access rules editor phase & state :", phase, state)
-    print("debugging -- access rules editor network & named network :", network, named_network)
+    # print("debugging -- access rules editor phase & state :", phase, state)
+    # print("debugging -- access rules editor network & named network :", network, named_network)
 
     # token_control = self.main.control_tools.index
     # typed_token_control = self.main.control_typed_tokens.index

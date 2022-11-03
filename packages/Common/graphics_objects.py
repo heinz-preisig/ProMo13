@@ -498,7 +498,7 @@ class GraphDataObjects(OrderedDict):
   def __init__(self, dict_application_node_types,
                application_arc_types):
 
-    print("debugging")
+    # print("debugging")
     for phase in PHASES:
       self[phase] = {}
       for graphics_object in GRAPHICS_OBJECTS:
@@ -533,7 +533,7 @@ class GraphDataObjects(OrderedDict):
             self[phase][graphics_object][decoration][application] = {}
             self[phase][graphics_object][decoration][application][state] = deepcopy(DATA_STRUCTURE[shape])
 
-    print("debugging -- setting up graph objects")
+    # print("debugging -- setting up graph objects")
 
   def setData(self, what, value, phase, root_object, decoration, application, state):
     if what != "action":
