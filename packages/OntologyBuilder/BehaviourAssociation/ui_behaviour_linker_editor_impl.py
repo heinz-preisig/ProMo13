@@ -36,6 +36,13 @@ from OntologyBuilder.OntologyEquationEditor.resources import showPDF
 from OntologyBuilder.OntologyEquationEditor.variable_framework import findDependentVariables
 from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidenceDictionaries
 
+from packages.OntologyBuilder.BehaviourAssociation import ui_equation_selector_dialog_impl
+from packages.OntologyBuilder.BehaviourAssociation import ctrl_equation_selector_dialog
+
+import collections
+from packages.Common.classes import io
+from packages.Common.classes import entity
+
 base_variant = "base"  # RULE: nomenclature for base case
 
 pixel_or_text = "text"  # NOTE: variable to set the mode
@@ -225,7 +232,14 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.arc_objects = self.ontology_container.list_arc_objects_on_networks
     self.node_objects = self.ontology_container.list_inter_node_objects_tokens
 
-    self.entity_behaviours = EntityBehaviour()
+    # self.entity_behaviours = EntityBehaviour()
+    # NEW entities and equations classes
+    self.all_equations = io.load_equations_from_file(self.ontology_name)
+    self.entity_behaviours = io.load_entities_from_old_file(
+      self.ontology_name,
+      self.all_equations,
+    )
+
     self.list_linked_equations = self.__getFilteredEquationList("interface_link_equation")
     # print("debugging")
 
@@ -235,7 +249,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.rules = {}
 
     # get existing data
-    self.__readVariableAssignmentToEntity()
+    # self.__readVariableAssignmentToEntity()
 
     # interface components
     self.layout_InterNetworks = QtWidgets.QVBoxLayout()  # Vertical Box with horizontal boxes of radio buttons & labels
@@ -278,44 +292,44 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     # self.selected_variant = None
     self.state = "start"
 
-  def __readVariableAssignmentToEntity(self):
-    f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
-    data = getData(f)
-    if data:
-      loaded_entity_behaviours = data["behaviours"]
+  # def __readVariableAssignmentToEntity(self):
+  #   f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
+  #   data = getData(f)
+  #   if data:
+  #     loaded_entity_behaviours = data["behaviours"]
 
-      if loaded_entity_behaviours:
-        for entity_str_ID in loaded_entity_behaviours:  # careful there may not be all entities at least during
-          print("debugging -- load", entity_str_ID)
-          # developments
-          if loaded_entity_behaviours[entity_str_ID]:
-            dummy = VariantRecord()
-            data = loaded_entity_behaviours[entity_str_ID]
-            for atr in dummy:
-              if atr not in data:
-                data[atr] = None
-            tree = {}
-            for treeStrID in data["tree"]:
-              tree[int(treeStrID)] = data["tree"][treeStrID]
-            data["tree"] = tree
+  #     if loaded_entity_behaviours:
+  #       for entity_str_ID in loaded_entity_behaviours:  # careful there may not be all entities at least during
+  #         print("debugging -- load", entity_str_ID)
+  #         # developments
+  #         if loaded_entity_behaviours[entity_str_ID]:
+  #           dummy = VariantRecord()
+  #           data = loaded_entity_behaviours[entity_str_ID]
+  #           for atr in dummy:
+  #             if atr not in data:
+  #               data[atr] = None
+  #           tree = {}
+  #           for treeStrID in data["tree"]:
+  #             tree[int(treeStrID)] = data["tree"][treeStrID]
+  #           data["tree"] = tree
 
-            nodes = {}
-            for nodeStrID in data["nodes"]:
-              nodes[int(nodeStrID)] = data["nodes"][nodeStrID]
-            data["nodes"] = nodes
+  #           nodes = {}
+  #           for nodeStrID in data["nodes"]:
+  #             nodes[int(nodeStrID)] = data["nodes"][nodeStrID]
+  #           data["nodes"] = nodes
 
-            rec = VariantRecord(tree=data["tree"],
-                                                                  nodes=data["nodes"],
-                                                                  IDs=data["IDs"],
-                                                                  root_variable=data["root_variable"],
-                                                                  root_equation=data["root_equation"],
-                                                                  blocked_list=data["blocked"],
-                                                                  buddies_list=data["buddies"],
-                                                                  to_be_inisialised=data["to_be_initialised"])
-            if "base_" in entity_str_ID:
-              entity_str_ID = entity_str_ID.replace("base_", "base#")
-            self.entity_behaviours[entity_str_ID] = rec
-            print("debugging -- entity behaviour")
+  #           rec = VariantRecord(tree=data["tree"],
+  #                                                                 nodes=data["nodes"],
+  #                                                                 IDs=data["IDs"],
+  #                                                                 root_variable=data["root_variable"],
+  #                                                                 root_equation=data["root_equation"],
+  #                                                                 blocked_list=data["blocked"],
+  #                                                                 buddies_list=data["buddies"],
+  #                                                                 to_be_inisialised=data["to_be_initialised"])
+  #           if "base_" in entity_str_ID:
+  #             entity_str_ID = entity_str_ID.replace("base_", "base#")
+  #           self.entity_behaviours[entity_str_ID] = rec
+  #           print("debugging -- entity behaviour")
 
   def getObjectSpecificationState(self):
     state = -1
@@ -451,18 +465,38 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     print("debugging -- push left button state:", self.state)
     if "make_base" in self.state:
       # variant = "base"
-      var_ID = self.current_base_var_ID
-      equ_ID = self.current_base_equ_ID
+      root_var_id = self.current_base_var_ID
+      root_eq_id = self.current_base_equ_ID
       self.selected_Entity_ID = self.__makeCurrentObjectString()
-      blocked = self.list_linked_equations
-      var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(self.selected_Entity_ID,
-                                                                          var_ID, blocked,
-                                                                          start_equation=equ_ID)
-      self.status_report("generated graph for %s" % (self.selected_Entity_ID))
-      self.entity_behaviours.addVariant(self.selected_Entity_ID, entity_assignments)
+      # blocked = self.list_linked_equations
+
+      # var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(self.selected_Entity_ID,
+      #                                                                     var_ID, blocked,
+      #                                                                     start_equation=equ_ID)
+
+      
+      
+      # self.status_report("generated graph for %s" % (self.selected_Entity_ID))
+      # self.entity_behaviours.addVariant(self.selected_Entity_ID, entity_assignments)
+
+      # TODO Remove when is not longer needed for compatibility
+      if "V_" not in str(root_var_id):
+        root_var_id = "V_" + str(root_var_id)
+      if "E_" not in str(root_eq_id):
+        root_eq_id = "E_" + str(root_eq_id)
+
+      new_base = entity.Entity.from_root(
+        self.selected_Entity_ID,
+        root_var_id,
+        root_eq_id,
+        self.all_equations,
+      )
+
+      self.entity_behaviours[self.selected_Entity_ID] = new_base
+
       self.__makeVariantList()
 
-      graph_file = var_equ_tree_graph.render()
+      # graph_file = var_equ_tree_graph.render()
       self.ui.pushButtonLeft.hide()
       self.ui.groupBoxControls.show()
       self.ui.pushButtonMakeLatex.show()
@@ -472,47 +506,101 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       self.__makeAndDisplayEquationListLeftAndRight()
       self.ui.groupBoxControls.show()
 
-    elif self.state in ["duplicates", "new_variant", "edit_variant"]:  # accepting
-      print("debugging -- accepting >>> %s <<< reduced entity object" % self.state)
+    elif self.state in ["duplicates"]:
+      parent_entity = self.entity_behaviours[self.__makeCurrentObjectString()]
 
-      var_ID = self.selected_base_variable
-      equ_ID = self.selected_base_equation
+      self.selected_variant_str_ID = self.__askForNewVariantName(self.variant_list)
+      self.selected_Entity_ID = self.__makeCurrentObjectString()
 
-      self.variant_list = self.__makeVariantStringList()
-      if self.state in ["duplicates", "new_variant"]:
-        self.selected_variant_str_ID = self.__askForNewVariantName(self.variant_list)
-        self.selected_Entity_ID = self.__makeCurrentObjectString()
-        self.ui.listLeft.clear()
-        self.ui.listRight.clear()
-        if self.state == "duplicates":
-          selectedListEquationIDs = self.entity_behaviours.getEquationIDList(self.selected_Entity_ID)
-          # this is tricky: the right list may include already blocked ones.
-          for e in self.rightListEquationIDs:
-            if e in selectedListEquationIDs:
-              selectedListEquationIDs.remove(e)
-          self.leftListEquationIDs = selectedListEquationIDs
+      self.entity_behaviours[self.selected_Entity_ID] = deepcopy(parent_entity)
 
-      blocked = list(set(self.list_linked_equations) | set(self.rightListEquationIDs))
-      var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(self.selected_Entity_ID, var_ID,
-                                                                          blocked, start_equation=equ_ID)
-      graph_file = var_equ_tree_graph.render()
-      self.status_report("generated graph for %s " % (self.selected_Entity_ID))
-
-      obj = self.selected_Entity_ID #__makeCurrentObjectString()
-      self.entity_behaviours.addVariant(obj, entity_assignments)
       self.__makeVariantList()
 
-      incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(self.ontology_container.variables)
-      found_vars, found_equs, found_vars_text, found_equs_text = findDependentVariables(
-              self.ontology_container.variables, 95,
-              self.ontology_container.indices)
+      # graph_file = var_equ_tree_graph.render()
+      self.ui.pushButtonLeft.hide()
+      self.ui.groupBoxControls.show()
+      self.ui.pushButtonMakeLatex.show()
+      self.ui.pushButtonViewLatex.show()
 
-      print("debugging -- collect equations for the root expression:", found_vars, found_equs, found_vars_text,
-            found_equs_text)
+      self.ui.listLeft.clear()
+      self.ui.listRight.clear()
+      self.__makeAndDisplayEquationListLeftAndRight()
+      self.ui.groupBoxControls.show()
 
-    elif self.state == "show":
-      pass
-      # print("debugging -- show don't do anything")
+    elif self.state in ["new_variant"]:  # accepting
+      parent_entity = self.entity_behaviours[self.__makeCurrentObjectString()]
+      self.variant_list = self.__makeVariantStringList()
+
+      self.selected_variant_str_ID = self.__askForNewVariantName(self.variant_list)
+      self.selected_Entity_ID = self.__makeCurrentObjectString()
+
+      self.entity_behaviours[self.selected_Entity_ID] = entity.Entity.from_root(
+        self.selected_Entity_ID,
+        parent_entity.root_variable_id,
+        parent_entity.root_equation_id,
+        self.all_equations,
+      )
+
+      self.__makeVariantList()
+
+      # graph_file = var_equ_tree_graph.render()
+      self.ui.pushButtonLeft.hide()
+      self.ui.groupBoxControls.show()
+      self.ui.pushButtonMakeLatex.show()
+      self.ui.pushButtonViewLatex.show()
+
+      self.ui.listLeft.clear()
+      self.ui.listRight.clear()
+      self.__makeAndDisplayEquationListLeftAndRight()
+      self.ui.groupBoxControls.show()
+      
+      # if self.state in ["duplicates", "new_variant"]:
+        
+      #   self.selected_Entity_ID = self.__makeCurrentObjectString()
+      #   self.ui.listLeft.clear()
+      #   self.ui.listRight.clear()
+      #   if self.state == "duplicates":
+      #     selectedListEquationIDs = self.entity_behaviours.getEquationIDList(self.selected_Entity_ID)
+      #     # this is tricky: the right list may include already blocked ones.
+      #     for e in self.rightListEquationIDs:
+      #       if e in selectedListEquationIDs:
+      #         selectedListEquationIDs.remove(e)
+      #     self.leftListEquationIDs = selectedListEquationIDs
+
+      # blocked = list(set(self.list_linked_equations) | set(self.rightListEquationIDs))
+      # var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(self.selected_Entity_ID, var_ID,
+      #                                                                     blocked, start_equation=equ_ID)
+      # graph_file = var_equ_tree_graph.render()
+      # self.status_report("generated graph for %s " % (self.selected_Entity_ID))
+
+      # obj = self.selected_Entity_ID #__makeCurrentObjectString()
+      # self.entity_behaviours.addVariant(obj, entity_assignments)
+      # self.__makeVariantList()
+
+      # incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(self.ontology_container.variables)
+      # found_vars, found_equs, found_vars_text, found_equs_text = findDependentVariables(
+      #         self.ontology_container.variables, 95,
+      #         self.ontology_container.indices)
+
+      # print("debugging -- collect equations for the root expression:", found_vars, found_equs, found_vars_text,
+      #       found_equs_text)
+    elif self.state in ["edit_variant"]:
+      entity_id = self.__makeCurrentObjectString()
+      entity_to_edit = deepcopy(self.entity_behaviours[entity_id])
+
+      controller = ctrl_equation_selector_dialog.ControllerEquationSelectorDlg(
+        entity_to_edit,
+        self.ontology_name,
+      )
+
+      dlg = ui_equation_selector_dialog_impl.EquationSelectorDlg(
+        controller,
+        self,
+      )
+
+      if dlg.exec_() == QtWidgets.QDialog.Accepted:
+         self.entity_behaviours[entity_id] = entity_to_edit
+
     self.setState("show")
 
   def __makeNewBaseName(self):
@@ -528,20 +616,22 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     return "base#%s" % count_max
 
   def on_pushButtonUpdate_pressed(self):
-    obj_str = self.selected_Entity_ID #__makeCurrentObjectString()
-    # print("debugging -- update pressed %s" % self.state)
-    var_ID = self.selected_base_variable
-    equ_ID = self.selected_base_equation
-    blocked = list(set(self.list_linked_equations) or set(self.rightListEquationIDs))
-    var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(obj_str, var_ID,
-                                                                        blocked,
-                                                                        start_equation=equ_ID)
-    graph_file = var_equ_tree_graph.render()
-    self.status_report("generated graph for %s " % (obj_str))
+    pass
+    # TODO Check if this is still needed
+    # obj_str = self.selected_Entity_ID #__makeCurrentObjectString()
+    # # print("debugging -- update pressed %s" % self.state)
+    # var_ID = self.selected_base_variable
+    # equ_ID = self.selected_base_equation
+    # blocked = list(set(self.list_linked_equations) or set(self.rightListEquationIDs))
+    # var_equ_tree_graph, entity_assignments = self.analyseBiPartiteGraph(obj_str, var_ID,
+    #                                                                     blocked,
+    #                                                                     start_equation=equ_ID)
+    # graph_file = var_equ_tree_graph.render()
+    # self.status_report("generated graph for %s " % (obj_str))
 
-    self.entity_behaviours.addVariant(obj_str, entity_assignments)
-    self.__makeAndDisplayEquationListLeftAndRight()
-    self.variant_list = self.__makeVariantStringList()
+    # self.entity_behaviours.addVariant(obj_str, entity_assignments)
+    # self.__makeAndDisplayEquationListLeftAndRight()
+    # self.variant_list = self.__makeVariantStringList()
 
   def __getFilteredEquationList(self, equation_type):
     equations = []
@@ -594,6 +684,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     if self.variant_list:
       self.selected_variant_str_ID = self.variant_list[row]
       self.selected_Entity_ID = self.__makeCurrentObjectString()
+      # TODO Use if statement instead
       try:
         self.__makeAndDisplayEquationListLeftAndRight()
       except:
@@ -609,7 +700,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def on_pushButtonDelete_pressed(self):
     obj = self.selected_Entity_ID #__makeCurrentObjectString()
-    self.entity_behaviours.removeVariant(obj)  # nw_str_ID, entity_label_ID, variant)
+    del self.entity_behaviours[obj]
+    # self.entity_behaviours.removeVariant(obj)  # nw_str_ID, entity_label_ID, variant)
     deleted_base = self.__makeVariantList()
     self.ui.listLeft.clear()
     self.ui.listRight.clear()
@@ -621,16 +713,16 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def on_pushButtonSave_pressed(self):
     # print("debugging -- save file")
-
-    f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
-    for obj in self.entity_behaviours:
-      if self.entity_behaviours[obj]:
-        try:
-          self.__makeVariablesToBeValueInitialised(obj)
-        except:
-          print("Error -- something went wrong object: %s" % obj)
-    data = {"behaviours": self.entity_behaviours}
-    putData(data, f)
+    io.save_entities_to_old_file(self.ontology_name, self.entity_behaviours)
+    # f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
+    # for obj in self.entity_behaviours:
+    #   if self.entity_behaviours[obj]:
+    #     try:
+    #       self.__makeVariablesToBeValueInitialised(obj)
+    #     except:
+    #       print("Error -- something went wrong object: %s" % obj)
+    # data = {"behaviours": self.entity_behaviours}
+    # putData(data, f)
 
   def on_pushButtonInformation_pressed(self):
     print("todo: not yet implemented")
@@ -692,11 +784,11 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     if not self.variant_list:
       return
 
-    entity_object_str = self.selected_Entity_ID #__makeCurrentObjectString()
-    self.selected_base_variable = self.entity_behaviours[entity_object_str]["root_variable"]
-    self.selected_base_equation = self.entity_behaviours[entity_object_str]["root_equation"]
-    self.leftListEquationIDs = self.__makeDuplicateShows()
-    self.leftIndex = self.__makeLeftRightList(self.leftListEquationIDs, self.ui.listLeft)
+    # entity_object_str = self.selected_Entity_ID #__makeCurrentObjectString()
+    # self.selected_base_variable = self.entity_behaviours[entity_object_str]["root_variable"]
+    # self.selected_base_equation = self.entity_behaviours[entity_object_str]["root_equation"]
+    # self.leftListEquationIDs = self.__makeDuplicateShows()
+    # self.leftIndex = self.__makeLeftRightList(self.leftListEquationIDs, self.ui.listLeft)
     self.ui.pushButtonLeft.hide()
 
   def on_radioButtonMakBase_pressed(self):
@@ -732,62 +824,63 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.__makeAndDisplayEquationListLeftAndRight()
 
   def on_radioButtonInstantiateVariant_pressed(self):
+    pass
+    # # TODO Check if this is still necessary
+    # if not self.variant_list:
+    #   return
 
-    if not self.variant_list:
-      return
+    # # print("debugging -- instantiate variant")
 
-    # print("debugging -- instantiate variant")
-
-    entity_object_str = self.__makeEntityObjectStrID()
-    self.__makeVariablesToBeValueInitialised(entity_object_str)
+    # entity_object_str = self.__makeEntityObjectStrID()
+    # self.__makeVariablesToBeValueInitialised(entity_object_str)
 
 
-  def __makeVariablesToBeValueInitialised(self, entity_object_str):
-    # find the ID for the "value" variable
-    numerical_value = self.ontology_container.rules["numerical_value"]
-    var_ID_value = -1
-    variables = self.ontology_container.variables
-    for var_ID in variables:
-      if variables[var_ID]["label"] == numerical_value:
-        var_ID_value = var_ID
-        break
-    if var_ID_value == -1:
-      print("Error -- did not fined variable for numerical value")
-    # find all those expressions that ask for a value
-    # print("debugging -- ", dir(self.entity_behaviours[entity_object_str]))
-    behaviour = self.entity_behaviours[entity_object_str]
-    tree = behaviour["tree"]
-    a = walkDepthFirstFnc(tree, 0)
-    to_be_initialised = set()
-    for ID in a:
-      _ID = behaviour["nodes"][ID]
-      lbl, varStrID = _ID.split("_")
-      if lbl != "equation":
-        varID = int(varStrID)
+  # def __makeVariablesToBeValueInitialised(self, entity_object_str):
+  #   # find the ID for the "value" variable
+  #   numerical_value = self.ontology_container.rules["numerical_value"]
+  #   var_ID_value = -1
+  #   variables = self.ontology_container.variables
+  #   for var_ID in variables:
+  #     if variables[var_ID]["label"] == numerical_value:
+  #       var_ID_value = var_ID
+  #       break
+  #   if var_ID_value == -1:
+  #     print("Error -- did not fined variable for numerical value")
+  #   # find all those expressions that ask for a value
+  #   # print("debugging -- ", dir(self.entity_behaviours[entity_object_str]))
+  #   behaviour = self.entity_behaviours[entity_object_str]
+  #   tree = behaviour["tree"]
+  #   a = walkDepthFirstFnc(tree, 0)
+  #   to_be_initialised = set()
+  #   for ID in a:
+  #     _ID = behaviour["nodes"][ID]
+  #     lbl, varStrID = _ID.split("_")
+  #     if lbl != "equation":
+  #       varID = int(varStrID)
 
-        var = self.ontology_container.variables[varID]
-        equations = var["equations"]
-        for e in equations:
-          eq = equations[e]["rhs"]
-          if isVariableInExpression(eq, var_ID_value):
-            # print("debugging -- variable ", var["label"], eq)
-            to_be_initialised.add(varID)
+  #       var = self.ontology_container.variables[varID]
+  #       equations = var["equations"]
+  #       for e in equations:
+  #         eq = equations[e]["rhs"]
+  #         if isVariableInExpression(eq, var_ID_value):
+  #           # print("debugging -- variable ", var["label"], eq)
+  #           to_be_initialised.add(varID)
 
-    self.entity_behaviours[entity_object_str]["to_be_initialised"] = sorted(to_be_initialised)
-    # print("debugging -- to be initialised", sorted(to_be_initialised))
+  #   self.entity_behaviours[entity_object_str]["to_be_initialised"] = sorted(to_be_initialised)
+  #   # print("debugging -- to be initialised", sorted(to_be_initialised))
 
   # =============================
 
-  def analyseBiPartiteGraph(self, entity, var_ID, blocked, start_equation=None):
-    var_equ_tree_graph, assignments = AnalyseBiPartiteGraph(var_ID,
-                                                            self.ontology_container,
-                                                            self.ontology_name,
-                                                            blocked,
-                                                            entity,
-                                                            start_equation)
+  # def analyseBiPartiteGraph(self, entity, var_ID, blocked, start_equation=None):
+  #   var_equ_tree_graph, assignments = AnalyseBiPartiteGraph(var_ID,
+  #                                                           self.ontology_container,
+  #                                                           self.ontology_name,
+  #                                                           blocked,
+  #                                                           entity,
+  #                                                           start_equation)
 
-    # self.__makeLatexDocument(entity, assignments)
-    return var_equ_tree_graph, assignments
+  #   # self.__makeLatexDocument(entity, assignments)
+  #   return var_equ_tree_graph, assignments
 
   def __makeLatexDocument(self, obj, assignments):
     # obj = self.__makeCurrentObjectString()
@@ -815,14 +908,29 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     entity_str_ID = self.selected_Entity_ID
     if "base" not in self.state:
-      self.selected_base_variable = self.entity_behaviours.getRootVariableID(entity_str_ID)
-      self.selected_base_equation = self.entity_behaviours.getRootEquationID(entity_str_ID)
+      # self.selected_base_variable = self.entity_behaviours.getRootVariableID(entity_str_ID)
+      # self.selected_base_equation = self.entity_behaviours.getRootEquationID(entity_str_ID)
+      entity = self.entity_behaviours[entity_str_ID]
+      self.selected_base_variable = entity.root_variable_id.replace("V_", "")
+      self.selected_base_equation = entity.root_equation_id.replace("E_", "")
       if not self.selected_base_variable:
         return
-      equation_ID_list = self.entity_behaviours.getEquationIDList(entity_str_ID)
-      blocked_ = self.entity_behaviours.getBlocked(entity_str_ID)  # ok that is a copy
-      blocked = deepcopy(blocked_)
-      root_equation = equation_ID_list.pop(0)
+
+      # TODO Make graphical representation of the entity. (check qtgraphs)
+      # Temporary solution.
+      equation_ID_list = list(entity.entity_equations.keys())
+      equation_ID_list.remove(entity.root_equation_id)
+      equation_ID_list = [int(item.replace("E_", "")) for item in equation_ID_list]
+
+      blocked = entity.unused_equations_ids.copy()
+      blocked = [int(item.replace("E_", "")) for item in blocked]
+
+      root_equation = int(entity.root_equation_id.replace("E_", ""))
+
+      # equation_ID_list = self.entity_behaviours.getEquationIDList(entity_str_ID)
+      # blocked_ = self.entity_behaviours.getBlocked(entity_str_ID)  # ok that is a copy
+      # blocked = deepcopy(blocked_)
+      # root_equation = equation_ID_list.pop(0)
 
       root_eq_ID = self.equation_inverse_index[root_equation]  # RULE: single equation
       eq_ID, var_ID, var_type, nw_eq, equation_label = self.equation_information[root_eq_ID]
@@ -832,6 +940,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     # print("debugging -- left list showing ", equation_ID_list[0:5])
     else:
       blocked = []
+
     equation_ID_set = set()
     [equation_ID_set.add(e) for e in equation_ID_list]
     block_set = set()
@@ -858,52 +967,52 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     ui.addItems(label_list)
     return index
 
-  def __makeEntityObjectStrID(self):
-    nw_str_ID = self.radio_InterNetworks.label_indices[self.selected_InterNetwork_ID]
-    entity_label_ID = self.radio_Entities.label_indices[self.selected_Entity_ID]
-    variant = self.radio_Variants.getStrID()
-    entity_object_str = functionMakeObjectStringID(nw_str_ID, entity_label_ID, variant)
-    return entity_object_str
+  # def __makeEntityObjectStrID(self):
+  #   nw_str_ID = self.radio_InterNetworks.label_indices[self.selected_InterNetwork_ID]
+  #   entity_label_ID = self.radio_Entities.label_indices[self.selected_Entity_ID]
+  #   variant = self.radio_Variants.getStrID()
+  #   entity_object_str = functionMakeObjectStringID(nw_str_ID, entity_label_ID, variant)
+  #   return entity_object_str
 
-  def __makeRightSelector(self):
-    show = self.rightListEquationIDs
-    equation_list, index = self.__makeRadioSelectorLists(show)
-    self.radio_Right.makeSelector(pixel_or_text, equation_list, self.layout_Right)
-    self.equation_right_clean = False
-    self.current_right_index = index
+  # def __makeRightSelector(self):
+  #   show = self.rightListEquationIDs
+  #   equation_list, index = self.__makeRadioSelectorLists(show)
+  #   self.radio_Right.makeSelector(pixel_or_text, equation_list, self.layout_Right)
+  #   self.equation_right_clean = False
+  #   self.current_right_index = index
 
-  def __makeDuplicateShows(self):
-    entity_object_str = self.selected_Entity_ID
-    nodes = self.entity_behaviours[entity_object_str]["nodes"]
-    blocked = self.entity_behaviours[entity_object_str]["blocked"]
-    show = []
-    # select duplicates:
-    for node in nodes:
-      label, str_ID = nodes[node].split("_")
-      ID = int(str_ID)
-      if label == "variable":
-        equation_IDs = sorted(self.ontology_container.variables[ID]["equations"])
-        if len(equation_IDs) > 1:
-          # print("debugging -- found variable %s"%equation_IDs)
-          show.extend(equation_IDs)
-    for eq_ID in blocked:
-      if eq_ID in show:
-        show.remove(eq_ID)
-    return show
+  # def __makeDuplicateShows(self):
+  #   entity_object_str = self.selected_Entity_ID
+  #   nodes = self.entity_behaviours[entity_object_str]["nodes"]
+  #   blocked = self.entity_behaviours[entity_object_str]["blocked"]
+  #   show = []
+  #   # select duplicates:
+  #   for node in nodes:
+  #     label, str_ID = nodes[node].split("_")
+  #     ID = int(str_ID)
+  #     if label == "variable":
+  #       equation_IDs = sorted(self.ontology_container.variables[ID]["equations"])
+  #       if len(equation_IDs) > 1:
+  #         # print("debugging -- found variable %s"%equation_IDs)
+  #         show.extend(equation_IDs)
+  #   for eq_ID in blocked:
+  #     if eq_ID in show:
+  #       show.remove(eq_ID)
+  #   return show
 
   def __makeEquationTextButton(self, text, button, tooltip):
     button.setText(text)
     button.setToolTip(tooltip)
     button.show()
 
-  def __makeEquationPixelButton(self, equation_label, button, tooltip):
-    button.setText("")
-    icon, label, size = equation_label
-    button.setIcon(icon)
-    button.setIconSize(size)
-    button.setToolTip(tooltip)
-    button.show()
-    return
+  # def __makeEquationPixelButton(self, equation_label, button, tooltip):
+  #   button.setText("")
+  #   icon, label, size = equation_label
+  #   button.setIcon(icon)
+  #   button.setIconSize(size)
+  #   button.setToolTip(tooltip)
+  #   button.show()
+  #   return
 
   def __makeBase(self):
 
@@ -968,7 +1077,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     nw_str_ID = self.selected_InterNetwork_strID
     current_component = self.node_arc.strip("s")
     object = self.selected_object
-    entity_str_IDs = sorted(self.entity_behaviours)
+    # entity_str_IDs = sorted(self.entity_behaviours)
+    entity_str_IDs = list(self.entity_behaviours.keys())
     variants = set()
     for o in entity_str_IDs:
       network, component, entity, variant = functionGetObjectsFromObjectStringID(o)
@@ -981,30 +1091,31 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     return sorted(variants)
 
   def __makeVariantRadioIDList(self):
+    pass
+    # TODO Check if this is still used
+    # variant_list = self.entity_behaviours.getVariantList(self.selected_InterNetwork_strID, self.selected_object)
+    # self.ui.listVariants.clear()
+    # self.ui.listVariants.addItems(variant_list)
 
-    variant_list = self.entity_behaviours.getVariantList(self.selected_InterNetwork_strID, self.selected_object)
-    self.ui.listVariants.clear()
-    self.ui.listVariants.addItems(variant_list)
+    # return
 
-    return
+  # def __makeRadioSelectorLists(self, selector_list):
 
-  def __makeRadioSelectorLists(self, selector_list):
+  #   radio_selectors = {
+  #           "rendered": [],
+  #           "pixelled": []
+  #           }
 
-    radio_selectors = {
-            "rendered": [],
-            "pixelled": []
-            }
+  #   index = {"variable": [], "equation": []}
+  #   indices = []
 
-    index = {"variable": [], "equation": []}
-    indices = []
+  #   for equ_ID in selector_list:
+  #     var_ID, var_type, nw_eq, rendered_equation, pixelled_equation = self.equations[equ_ID]
+  #     radio_selectors["rendered"].append(rendered_equation)
+  #     radio_selectors["pixelled"].append(pixelled_equation)
+  #     indices.append(equ_ID)
 
-    for equ_ID in selector_list:
-      var_ID, var_type, nw_eq, rendered_equation, pixelled_equation = self.equations[equ_ID]
-      radio_selectors["rendered"].append(rendered_equation)
-      radio_selectors["pixelled"].append(pixelled_equation)
-      indices.append(equ_ID)
-
-    return radio_selectors, indices
+  #   return radio_selectors, indices
 
   def __makeEquationAndIndexLists(self):
     """

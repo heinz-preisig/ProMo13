@@ -25,7 +25,7 @@ __status__ = "beta"
 import os as OS
 from shutil import copyfile
 
-from Common.pop_up_message_box import makeMessageBox
+from packages.Common.pop_up_message_box import makeMessageBox
 
 # from Common.ui_message_popup_impl import UI_MessagePopUp
 
@@ -65,7 +65,9 @@ FILE_NAMES = {
         "latex_shell_var_equ_doc_command"     : "make_documentation.sh",
         "latex_shell_automata_doc_command"    : "make_automata_table.sh",
         "latex_shell_var_equ_list_command"    : "latex_compile.sh",
-        "variable_assignment_to_entity_object": "variable_assignment_to_entity_object.json"
+        "variable_assignment_to_entity_object": "variable_assignment_to_entity_object.json",
+        # TODO Verify that all these files are still used.
+        "equations_global_id": "equations_global_ID.json", # Added new
         }
 
 EXTENSION_GRAPH_DATA = ".json"
@@ -149,6 +151,10 @@ FILES["global_index_identifier"] = JOIN(DIRECTORIES["ontology_repository"], "%s"
                                         FILE_NAMES["global_index_identifier"])  # %ontology_name
 FILES["global_equation_identifier"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                            FILE_NAMES["global_equation_identifier"])  # %ontology_name
+
+# Added new
+FILES["global_equation_id"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
+                                           FILE_NAMES["equations_global_id"])  # %ontology_name
 
 FILES["variables_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                FILE_NAMES["variables_file"])  # %ontology_name
