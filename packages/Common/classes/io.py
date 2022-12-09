@@ -6,6 +6,7 @@ from typing import List, Dict, Optional
 
 from packages.Common.classes import equation
 from packages.Common.classes import entity
+from packages.Common.classes import variable
 from packages.Common import resource_initialisation
 
 
@@ -180,11 +181,63 @@ def load_entities_from_old_file(
 
   return entities
 
+def load_variables_from_old_file(
+  ontology_name: str,
+  variable_ids: Optional[List[str]] = None
+) -> Dict[str, entity.Entity]:
+  """Loads data from file to create Variable objects.
+
+  Args:
+      ontology_name (str): _description_
+      variable_names (Optional[List[str]]): Ids of the variables that
+      will be loaded. If **None** all variables are loaded. Defaults to
+      **None**.
+
+  Returns:
+      Dict[str, entity.Entity]: Data of the variables. The keys are
+        the ids of the variables and the corresponding values are
+        Variable objects.
+  """
+
+  path = resource_initialisation.FILES["variables_file"] % ontology_name
+  with open(path, "r", encoding="utf-8",) as file:
+    data = json.load(file)
+
+  # TODO Change behaviour in case of no data.
+  if not data:
+    return {}
+
+  # TODO Remove this when is not loger needed for compatibility
+  data = data["variables"]
+
+  if variable_ids is None:
+    variable_ids = data.keys()
+
+  variables = {}
+  for variable_id in variable_ids:
+    var_id = variable_id
+    if "V_" not in var_id:
+      var_id = "V_" + var_id
+
+    old_id = var_id.replace("V_", "")
+    if old_id not in data:
+      print(old_id + " not found.")
+      continue
+
+    new_var = variable.Variable.from_old_dict(
+      var_id,
+      data[old_id],
+    )
+
+    variables[var_id] = new_var
+
+  return variables
+
 def save_entities_to_old_file(
     ontology_name: str,
     entities: Dict[str, entity.Entity],
   ) -> None:
-  
+
   path = resource_initialisation.FILES[
     "variable_assignment_to_entity_object"
   ] % ontology_name

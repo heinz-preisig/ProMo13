@@ -53,6 +53,11 @@ from ModelBuilder.ModelComposer.modeller_model_data import ModelGraphicsData
 from ModelBuilder.ModelComposer.modeller_model_data import ROOTID
 from ModelBuilder.ModelComposer.instantiation_dialog_impl import InstantiationDlg
 
+from typing import List, Optional, Tuple
+from typing_extensions import TypedDict
+from packages.Common.classes import io
+from packages.Common.classes import entity
+
 EDITOR_PHASES = list(GRAPH_EDITOR_STATES.keys())
 
 
@@ -60,6 +65,12 @@ EDITOR_PHASES = list(GRAPH_EDITOR_STATES.keys())
 
 def debugPrint(source, what):
   print(source, ": ", what)
+
+class VariableInfo(TypedDict):
+  """Creates a new type for a dictionary that stores info about a var"""
+  id: str
+  same_in_all_nodes: bool
+  value: Optional[float]
 
 
 class Commander(QtCore.QObject):
@@ -90,6 +101,16 @@ class Commander(QtCore.QObject):
     # model container - start with a root node
     self.current_ID_node_or_arc = ROOTID  # str(ROOTID)  # nodeID    #HAP: ID string to integer
     self.model_container = ModelContainer(self.main.networks, self.main.ontology)
+
+    # Loading Equations and Entities in the new form.
+    self.all_equations = io.load_equations_from_file( self.main.ontology_name)
+    self.all_entities = io.load_entities_from_old_file(
+      self.main.ontology_name,
+      self.all_equations,
+    )
+    self.all_variables = io.load_variables_from_old_file(
+      self.main.ontology_name
+    )
 
     # initial commander state
     self.state_nodes = {}
@@ -1402,20 +1423,25 @@ class Commander(QtCore.QObject):
 
     In cases 2 and 3 the group of nodes to be instantiated can be:
 
-      * Same type of nodes (same entity). All non-required variables have the same
-        instantiation state in all nodes.
-      * Same type of nodes (same entity). At least one non-required variable has
-        different instantiation state in one of the nodes.
+      * Same type of nodes (same entity). All non-required variables
+        have the same instantiation state in all nodes.
+      * Same type of nodes (same entity). At least one non-required
+        variable has different instantiation state in one of the nodes.
       * Different type of nodes (different entities).
 
-    Depending on the situation two types of instantiation will be performed:
+    Depending on the situation two types of instantiation can be
+      performed:
 
-      # Full instantiation: All variables can be instantiated. Allowed for:
+      # Full instantiation: All variables can be instantiated. Allowed
+          for:
+
         * Single node.
-        * Composite and Selection if the nodes share the same type (entity) and
-          all non-required variables have the same instantiation state in all nodes.
-      # Partial instantiation: Only "required" variables can be instantiated. Used for 
-        all the other cases where there are differences between the nodes to be instantiated.
+        * Composite and Selection if the nodes share the same type
+          (entity) and all non-required variables have the same
+          instantiation state in all nodes.
+      # Partial instantiation: Only "required" variables can be
+        instantiated. Used for all the other cases where there are
+        differences between the nodes to be instantiated.
 
     Args:
         pars (* ): _description_
@@ -1453,7 +1479,9 @@ class Commander(QtCore.QObject):
 
     # print(nodes_to_instantiate)
 
-    entity_behaviour, var_data_all = self._get_instantiation_variables(nodes_to_instantiate)
+    entity_behaviour, var_data_all = self._get_instantiation_variables(
+      nodes_to_instantiate
+    )
 
     # pp(var_data_all)
 
@@ -1463,44 +1491,29 @@ class Commander(QtCore.QObject):
       single_node_instantiation = True
 
     dlg = InstantiationDlg(
-      self.main, 
       var_data_all,
       entity_behaviour,
-      self.main.ontology.variables,
-      single_node_instantiation
+      self.all_variables,
+      single_node_instantiation,
+      self.main,
     )
 
     if dlg.exec_() == QtWidgets.QDialog.Accepted:
       for node_id in nodes_to_instantiate:
         for var_info, _ in itertools.chain(dlg.var_data[0],dlg.var_data[1]):
           if var_info["same_in_all_nodes"]:
-            self._set_instantiation_value(var_info["id"], var_info["value"], node_id)
-
-    # print('#########################################')
-    # pp(entity_behaviour)
-    # print('#########################################')
+            self._set_instantiation_value(
+              var_info["id"],
+              var_info["value"],
+              node_id
+            )
 
     return {"failed": False}
 
-    # print("debugging -- node group:", self.node_group)
-    # nodeIDs = []
-    # if self.node_group:
-    #   for n in self.node_group:
-    #     nodeIDs.append(self.node_group[n].ID)
-    # else:
-    #   nodeIDs = [pars["nodeID"]]
-    # flat_topology = self.model_container.makeFlatTopology()
-    # nodeIDs = list(flat_topology["nodes"].keys())
-    # vars_to_be_instantiated = self.__getVarsToBeInstantiated(nodeIDs)
-
-    # print("__c52__InstantiateObject ", flat_topology)
-    # print("__c52__InstantiateObject -- not yet implemented", pars, self.model_container["nodes"][pars["nodeID"]])
-    # for ID in nodeIDs:
-    #   selected_entity_behaviour = self.__getEntityBehaviour(ID)
-    #   print("debugging -- behaviour:", selected_entity_behaviour)
-    return {"failed": False}
-
-  def _get_instantiation_variables(self, nodes_to_instantiate):
+  def _get_instantiation_variables(
+    self,
+    nodes_to_instantiate: List[int],
+  ) -> Tuple[Optional[entity.Entity], List[VariableInfo]]:
     """Finds the variables that will be instantiated.
 
     The variables that will be instantiated depend on:
@@ -1513,59 +1526,66 @@ class Commander(QtCore.QObject):
       * Individual variables that have already been instantiated.
 
         * The variable has not been instantiated in any node.
-        * The variable has been instantiated in all nodes with the same value.
-        * The variable has been instantiated in all nodes with different values.
+        * The variable has been instantiated in all nodes with the same
+          value.
+        * The variable has been instantiated in all nodes with different
+          values.
         * The variable has been instantiated only in some nodes.
 
     There are two types of instantiation:
 
-      * Full instantiation: All variables in the entity linked to the nodes can be instantiated.
-      * Partial instantiation: Only required variables can be instantiated.
+      * Full instantiation: All variables in the entity linked to the
+        nodes can be instantiated.
+      * Partial instantiation: Only required variables can be
+        instantiated.
 
-    If the nodes correspond to different entities we do partial instantiation.
+    If the nodes correspond to different entities we do partial
+    instantiation.
 
-    If the nodes correspond to the same entity, the variables that are not "required" need
-    to be checked. If the instantiation state (whether the variable has been instantiated
-    or not) of at least one of them is not the same in all nodes then we do partial
+    If the nodes correspond to the same entity, the variables that are
+    not "required" need to be checked. If the instantiation state
+    (whether the variable has been instantiated or not) of at least one
+    of them is not the same in all nodes then we do partial 
     instantiation. Else we do full instantiation.
 
     Args:
-      nodes_to_instantiate (list[int]): List of nodes that will be instantiated.
+      nodes_to_instantiate (list[int]): List of nodes that will be
+      instantiated.
 
     Returns:
-      Tuple(dict, list[dict]): Contains the information of
-        the variables that will be instantiated:
+      Tuple[Optional[entity.Entity], List[VariableInfo]]: Contains
+        information about the variables that will be instantiated:
 
-        * First element: Is None if partial instantiation is to be carried.
-          Else it contains the information of the entity linked to all nodes.
-        * Second: Each element contains the data of a single variable with the
-          following fields.
+        * First element: Is None if partial instantiation is to be
+          carried. Otherwise it contains the information of the entity
+          linked to all nodes.
+        * Second: Each element contains the data of a single variable
+          with the following fields.
 
-          * id (int): The variable id.
-          * same_in_all_nodes (bool): True if the variable has been instantiated with
-            the same value in all nodes or has not been instantiated in any. False
-            if it has been instantiated in all nodes but the value is different in
-            at least one of them.
-          * value (float or None): The value of the variable if it has been instantiated
-            with the same value in all nodes. None otherwise.
+          * id (str): The variable id.
+          * same_in_all_nodes (bool): True if the variable has been
+            instantiated with the same value in all nodes or has not
+            been instantiated in any. False otherwise.
+          * value (Optional[float]): The value of the variable if it has
+            been instantiated with the same value in all nodes.
+            None otherwise.
 
     """
     var_data_all = []
     entity_required_variables = []
-    entity_name = self.__getEntityBehaviour(nodes_to_instantiate[0])
-    entity_behaviour = self.model_container.ontology.entity_behaviours[entity_name]
+    entity_name = self._get_entity_name_from_node(nodes_to_instantiate[0])
+    entity_behaviour = self.all_entities[entity_name]
 
     # Checking if all nodes correspond to the same entity and storing
     # the required variables for the entity linked to each node.
     nodes_are_same_entity = True
     for node_id in nodes_to_instantiate:
-      name = self.__getEntityBehaviour(node_id)
+      name = self._get_entity_name_from_node(node_id)
       if name != entity_name:
         nodes_are_same_entity = False
 
-      entity = self.model_container.ontology.entity_behaviours[name]
-      entity_required_variables.append(entity["to_be_initialised"])
-
+      entity = self.all_entities[name]
+      entity_required_variables.append(entity.get_variables_to_instantiate()[0])
 
     if nodes_are_same_entity:
       # Getting data for the required variables
@@ -1575,61 +1595,69 @@ class Commander(QtCore.QObject):
       )
 
       # Getting data for the rest of the variables
-      all_variables = self._get_entity_variables(entity_behaviour)
-      other_variables = list(
-        set(all_variables).symmetric_difference(entity_required_variables[0]))
+      other_variables = entity_behaviour.get_variables_to_instantiate()[1]
 
       full_instantiation, temp_var_data = self._get_var_data(
         other_variables,
         nodes_to_instantiate,
       )
 
-      # If all non-required variables are not in the same instantiation state
-      # only partial instantiation will be done.
+      # If all non-required variables are not in the same instantiation
+      # state only partial instantiation will be done.
       if full_instantiation:
         var_data_all.extend(temp_var_data)
       else:
         entity_behaviour = None
-        # TODO Add a dialog informing and maybe giving options to continue or cancel
+        # TODO Add a dialog informing and maybe giving options to
+        # continue or cancel
     else:
       entity_behaviour = None
-      # Only required variables that are present in all the nodes can be instantiated.
-      # This is always a partial instantiation.
-      set_list_required_variables = [set(item) for item in entity_required_variables]
-      common_variables = list(set.intersection(*set_list_required_variables))
+      # Only required variables that are present in all the nodes can be
+      # instantiated. This is always a partial instantiation.
+      set_list_required_variables = [
+        set(item) for item in entity_required_variables
+      ]
+      common_variables = list(
+        set.intersection(*set_list_required_variables)
+      )
 
       _, var_data_all = self._get_var_data(
         common_variables,
         nodes_to_instantiate,
       )
 
-    return entity_behaviour, var_data_all
+    return (entity_behaviour, var_data_all)
 
-  def _get_var_data(self, var_list, node_list):
-    """Returns the data for a list of variables present in a list of nodes.
+  def _get_var_data(
+    self,
+    var_list: List[str],
+    node_list: List[int],
+  ) -> Tuple[bool, List[VariableInfo]]:
+    """Returns the data for variables in nodes.
 
-    Also checks for each variable if its instantiation state is the same in 
-    all nodes.
+    Also checks for each variable if its instantiation state is the same
+    in all nodes.
 
     Args:
-      var_list (list[int]): The variables which data is required.
-      node_list (list[int]): Onlu need the data of the variables in these nodes.
+      var_list (List[str]): Ids of the variables which data is required.
+      node_list (List[int]): Only need the data of the variables in
+        these nodes.
 
     Returns:
-      Tuple(bool, list[dict]): Each element corresponds to:
+      Tuple[bool, List[VariableInfo]]: Each element corresponds to:
 
-        * First: True if all variables have the same instantiation state in all
-          nodes. False otherwise.
-        * Second: Each element contains the data of a single variable with the
-          following fields.
+        * First: True if all variables have the same instantiation state
+          in all nodes. False otherwise.
+        * Second: Each element contains the data of a single variable
+          with the following fields.
 
-          * id (int): The variable id.
-          * same_in_all_nodes (bool): True if the variable has been instantiated with
-            the same value in all nodes or has not been instantiated in any. False
-            if it has been instantiated in all nodes but the value is different in
-            at least one of them.
-          * value (float or None): The value of the variable if it has been instantiated
-            with the same value in all nodes. None otherwise.
+          * id (str): The variable id.
+          * same_in_all_nodes (bool): True if the variable has been
+            instantiated with the same value in all nodes or has not
+            been instantiated in any. False otherwise.
+          * value (Optional[float]): The value of the variable if it has
+            been instantiated with the same value in all nodes. None
+            otherwise.
     """
     var_data = []
     all_same_instantiation_state = True
@@ -1645,28 +1673,33 @@ class Commander(QtCore.QObject):
 
     return all_same_instantiation_state, var_data
 
-  def _check_var_for_selected_nodes(self, var_id, nodes):
+  def _check_var_for_selected_nodes(
+    self,
+    var_id: str, 
+    nodes: List[int],
+  ) -> Tuple[bool, VariableInfo]:
     """Checks the value of a variable in different nodes.
 
     Args:
-      var_id (int): Id of the variable.
-      nodes (list[int]): List of node ids.
+      var_id (str): Id of the variable.
+      nodes (List[int]): List of node ids.
 
     Returns:
-      Tuple (bool, dict): Each element corresponds to:
+      Tuple[bool, VariableInfo]: Each element corresponds to:
 
-        * First: True if the instantiation state (instantiated or not) is the same in
-          all nodes, False if not.
+        * First: True if the instantiation state (instantiated or not)
+          is the same in all nodes. False otherwise.
 
-        * Second: Information about the variable with the following fields:
+        * Second: Information about the variable with the following
+          fields:
 
-          * id (int): The variable id.
-          * same_in_all_nodes (bool): True if the variable has been instantiated with
-            the same value in all nodes or has not been instantiated in any. False
-            if it has been instantiated in all nodes but the value is different in
-            at least one of them.
-          * value (float or None): The value of the variable if it has been instantiated
-            with the same value in all nodes. None otherwise.
+          * id (str): The variable id.
+          * same_in_all_nodes (bool): True if the variable has been
+            instantiated with the same value in all nodes or has not
+            been instantiated in any. False otherwise.
+          * value (float or None): The value of the variable if it has
+            been instantiated with the same value in all nodes.
+            None otherwise.
     """
     first_var_value = self._get_instantiation_value(var_id, nodes[0])
     var_have_same_value = True
@@ -1694,103 +1727,113 @@ class Commander(QtCore.QObject):
 
     return (True, var_info)
 
-  def _get_instantiation_value(self, var_id, node_id):
+  def _get_instantiation_value(
+    self,
+    var_id: str,
+    node_id: int
+  ) -> Optional[float]:
     """Returns the instantiation value of a variable in a node.
 
     Args:
-      var_id (int): Id of the variable.
+      var_id (str): Id of the variable.
       node_id (int): Id of the node.
 
     Returns:
       float: The stored value for the variable in the specified node or None
         if nothing have been stored yet.
     """
-    if var_id not in self.main.ontology.variables:
+    # TODO Change to `var_id` when the int & str problem is fixed.
+    if int(var_id.replace("V_", "")) not in self.main.ontology.variables:
       pass # TODO Code behaviour when the variable file changed
 
-    node_id = str(node_id) # TODO Remove when fixing the int & str problem
-    var_id = str(var_id) # TODO Remove when fixing the int & str problem
-    if node_id in self.model_container["instantiation_info"]["nodes"]:
-      if var_id in self.model_container["instantiation_info"]["nodes"][node_id]:
-        return self.model_container["instantiation_info"]["nodes"][node_id][var_id]
+    node_id = str(node_id) # TODO Remove when the int & str problem is fixed.
+    nodes = self.model_container["instantiation_info"]["nodes"]
+    if node_id in nodes:
+      if var_id in nodes[node_id]:
+        return nodes[node_id][var_id]
 
     return None
   
-  def _set_instantiation_value(self, var_id, var_value, node_id):
+  def _set_instantiation_value(
+    self,
+    var_id: str,
+    var_value: Optional[float],
+    node_id: int
+  ) -> None:
     """Save the instantiation value of a variable in a node.
 
     Args:
-        var_id (int): Id of the variable.
-        var_value (float): Value of the variable.
+        var_id (str): Id of the variable.
+        var_value (Optional[float]): Value of the variable or None if
+          no value has been assigned yet.
         node_id (int): Id of the node.
     """
-    node_id = str(node_id) # TODO Remove when fixing the int & str problem
-    var_id = str(var_id) # TODO Remove when fixing the int & str problem
-    if node_id not in self.model_container["instantiation_info"]["nodes"]:
-      self.model_container["instantiation_info"]["nodes"][node_id] = {}
+    # TODO Remove when the int & str problem is fixed.
+    node_id = str(node_id)
+    nodes = self.model_container["instantiation_info"]["nodes"]
+    if node_id not in nodes:
+      nodes[node_id] = {}
 
-    self.model_container["instantiation_info"]["nodes"][node_id][var_id] = var_value
+    nodes[node_id][var_id] = var_value
 
-  def _get_entity_variables(self, entity):
-    """Gets all the variables in an entity.
+  def _get_entity_name_from_node(self, node_id: str) -> entity.Entity:
+    """Gets the entity associated to a node.
 
     Args:
-      entity (dict): Dictionary containing the entity.
+        node_id (str): Id of the node.
 
     Returns:
-      list(int): A list containing the ids of all the variables in the entity.
+        entity.Entity: Entity associated to the node.
     """
-    #TODO Make this a method in the object Entity
-    variables = []
-    for id in entity["IDs"]:
-      if "variable" in id:
-        variables.append(int(id[9:]))
-    
-    return variables
+    # TODO Associate a node to an entity when inserting the node.
+    entity_type = self.model_container["nodes"][node_id]["type"]
 
-  # def __getVarsToBeInstantiated(self, nodeIDs):
-  #   entity_behaviours = {}
-  #   for ID in nodeIDs:
-  #     entity_behaviours[ID] = self.__getEntityBehaviour(ID)
-      
-  #   vars_to_be_instantiated = {}
-  #   for ID in nodeIDs:
-  #     if entity_behaviours[ID]:
-  #       vars_to_be_instantiated[ID] = entity_behaviours[ID]["to_be_initialised"]
-  
-  #   print("debugging -- behaviours")
-  #   return vars_to_be_instantiated
-  #
-  #
-  def __getEntityBehaviour(self, nodeID):
-    selected_entity_behaviour = None
-    entity_behaviours = self.model_container.ontology.entity_behaviours
-    entity = self.model_container["nodes"][nodeID]["type"]
-    entity_nw = self.model_container["nodes"][nodeID]["network"]
-    entity_variant = self.model_container["nodes"][nodeID]["variant"]
-
-    # print(entity_behaviours)
-    #RULE: intra have no parameters -- hopefully
+    entity_nw = self.model_container["nodes"][node_id]["network"]
     if entity != "intra":
       nws = list(self.model_container.ontology.intra_domains.keys())
       for nw in nws:
         if entity_nw in self.model_container.ontology.intra_domains[nw]:
           entity_domain = self.model_container.ontology.intra_domains[nw][0]
-      tokens = sorted(self.model_container["nodes"][nodeID]["tokens"].keys())
-      entity_objects = []
-      for t in tokens:
-        # RULE: we pick the default version. For the time being there is no choice given
-        entity_objects.append("%s.node.%s|%s.%s" % (entity_domain, entity, t, entity_variant))
+
+    tokens = sorted(self.model_container["nodes"][node_id]["tokens"].keys())
+
+    entity_variant = self.model_container["nodes"][node_id]["variant"]
+
+    for t in tokens:
+      ent_name = f"{entity_domain}.node.{entity_type}|{t}.{entity_variant}"
+      if ent_name in self.all_entities:
+        return ent_name
+
+  # def __getEntityBehaviour(self, nodeID):
+  #   selected_entity_behaviour = None
+  #   entity_behaviours = self.model_container.ontology.entity_behaviours
+  #   entity = self.model_container["nodes"][nodeID]["type"]
+  #   entity_nw = self.model_container["nodes"][nodeID]["network"]
     
-      for obj in entity_objects:
-        for ent in sorted(entity_behaviours.keys()):
-          if obj in ent:
-            print("found it", ent)
-            # selected_entity_behaviour = entity_behaviours[ent]
-            selected_entity_behaviour = ent
-    # TODO Check if this was used somewhere else. Returning name of the entity instead of
-    #      object for now
-    return selected_entity_behaviour
+  #   entity_variant = self.model_container["nodes"][nodeID]["variant"]
+
+  #   # print(entity_behaviours)
+  #   #RULE: intra have no parameters -- hopefully
+  #   if entity != "intra":
+  #     nws = list(self.model_container.ontology.intra_domains.keys())
+  #     for nw in nws:
+  #       if entity_nw in self.model_container.ontology.intra_domains[nw]:
+  #         entity_domain = self.model_container.ontology.intra_domains[nw][0]
+  #     tokens = sorted(self.model_container["nodes"][nodeID]["tokens"].keys())
+  #     entity_objects = []
+  #     for t in tokens:
+  #       # RULE: we pick the default version. For the time being there is no choice given
+  #       entity_objects.append("%s.node.%s|%s.%s" % (entity_domain, entity, t, entity_variant))
+    
+  #     for obj in entity_objects:
+  #       for ent in sorted(entity_behaviours.keys()):
+  #         if obj in ent:
+  #           print("found it", ent)
+  #           # selected_entity_behaviour = entity_behaviours[ent]
+  #           selected_entity_behaviour = ent
+  #   # TODO Check if this was used somewhere else. Returning name of the entity instead of
+  #   #      object for now
+  #   return selected_entity_behaviour
 
   # ===================================================================
   def __setName(self, node, name):

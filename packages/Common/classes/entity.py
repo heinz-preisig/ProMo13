@@ -301,7 +301,8 @@ class Entity():
           # entry is added to the stack.
           if child_var_id in var_eq_info:
             for child_eq_id in var_eq_info[child_var_id]:
-              queue.append((child_var_id, child_eq_id))
+              if child_eq_id != "_": # Dont include dummy equations.
+                queue.append((child_var_id, child_eq_id))
 
     # Saving the tree as a temporary tree.
     self.temp_var_eq_tree = tree
@@ -487,5 +488,24 @@ class Entity():
         available_equations["implicit"].append((eq_id, False))
 
     return available_equations
+
+  def get_variables_to_instantiate(self) -> Tuple[List[str], List[str]]:
+    """Return all variables in use in the entity.
+
+    Returns:
+        Tuple[List[str], List[str]]: The first list contains the ids of
+          the variables that need to be initialized. The ids of the rest
+          of the variables are in the second list.
+    """
+    # TODO Find a way to merge with `get_used_variables`.
+    self._gen_to_be_init()
+    all_variables = set()
+    for node_id in self.var_eq_tree:
+      if "V_" in node_id:
+        all_variables.add(node_id)
+
+    all_variables.remove(self.root_variable_id)
+
+    return (self.to_be_init, list(all_variables - set(self.to_be_init)))
 
 

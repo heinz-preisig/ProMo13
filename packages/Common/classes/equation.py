@@ -47,8 +47,8 @@ class Equation():
 
     Args:
         eq_id (str): Id of the equation.
-        eq_dict (str): Contains information about the equation in the
-          following fields:
+        eq_dict (EquationDict): Contains information about the equation
+          in the following fields:
 
           - lhs (str): Only contains one term representing a variable.
           - rhs (str): Contains several terms describing the rhs of the
