@@ -35,6 +35,7 @@ from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.treeid import ObjectTree
 from Common.pop_up_message_box import makeMessageBox
+from packages.Common.classes import entity
 
 # INDENT = "    "
 # LF = "\n"
@@ -984,7 +985,7 @@ def getListOfBuddies(ontology_container, var_equ_tree, variable_ID):
   return buddies
 
 
-def makeLatexDoc(file_name, assignments, ontology_container, dot_graph_file=""):
+def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_graph_file=""):
   ontology_location = ontology_container.ontology_location
   ontology_name = ontology_container.ontology_name
   latex_equation_file = FILES["coded_equations"] % (ontology_location, "latex")
@@ -994,36 +995,55 @@ def makeLatexDoc(file_name, assignments, ontology_container, dot_graph_file=""):
   variables = ontology_container.variables
 
 
-  # var_ID = assignments["root_variable"]
-  # tree = VarEqTree(variables,var_ID,[])
-  print("debugging")
-  # tree_var_ID = assignments["nodes"][0]
-  try:
-    walked_nodes = walkDepthFirstFnc(assignments["tree"], 0)
-  except:
-    print("problem, there is a problem here")
-  nodes = []
-  for n in walked_nodes:
-    nodes.append(assignments["nodes"][n])
-    print(assignments["nodes"][n])
-  nodes = assignments["nodes"]
+  # # var_ID = assignments["root_variable"]
+  # # tree = VarEqTree(variables,var_ID,[])
+  # print("debugging")
+  # # tree_var_ID = assignments["nodes"][0]
+  # try:
+  #   walked_nodes = walkDepthFirstFnc(assignments["tree"], 0)
+  # except:
+  #   print("problem, there is a problem here")
+  # nodes = []
+  # for n in walked_nodes:
+  #   nodes.append(assignments["nodes"][n])
+  #   print(assignments["nodes"][n])
+  # nodes = assignments["nodes"]
   latex_var_equ = []
   count = 0
 
-  for a in nodes:
-    if "equation" in nodes[a]:
-      print("debugging -- found equation:", nodes[a])
-      e, eq_str_ID = nodes[a].split("_")
+  # for a in nodes:
+  #   if "equation" in nodes[a]:
+  #     print("debugging -- found equation:", nodes[a])
+  #     e, eq_str_ID = nodes[a].split("_")
+  #     var_ID = latex_equations[eq_str_ID]["variable_ID"]
+  #     eq = "%s := %s" % (latex_equations[eq_str_ID]["lhs"], latex_equations[eq_str_ID]["rhs"])
+  #     s = [count, str(var_ID), eq_str_ID, eq, str(variables[var_ID]["tokens"])]
+  #     latex_var_equ.append(s)
+  #     count += 1
+
+  # for a in nodes:
+  #   if "variable" in nodes[a]:
+  #     print("debugging -- found variable:", nodes[a])
+  #     v, var_str_ID = nodes[a].split("_")
+  #     var_ID = int(var_str_ID)
+  #     eqs = variables[var_ID]["equations"]
+  #     if not eqs:
+  #       eq = "%s :: %s" % (compiled_variable_labels[var_ID],"\\text{port variable}")# (variables[var_ID]["aliases"]["latex"], "\\text{port variable}")
+  #       s = [count, var_str_ID, "-", eq, str(variables[var_ID]["tokens"])]
+  #       latex_var_equ.append(s)
+  #       count += 1
+  for node in assignments.var_eq_tree:
+    if "E" in node:
+      eq_str_ID = node.replace("E_", "")
       var_ID = latex_equations[eq_str_ID]["variable_ID"]
       eq = "%s := %s" % (latex_equations[eq_str_ID]["lhs"], latex_equations[eq_str_ID]["rhs"])
       s = [count, str(var_ID), eq_str_ID, eq, str(variables[var_ID]["tokens"])]
       latex_var_equ.append(s)
       count += 1
 
-  for a in nodes:
-    if "variable" in nodes[a]:
-      print("debugging -- found variable:", nodes[a])
-      v, var_str_ID = nodes[a].split("_")
+  for node in assignments.var_eq_tree:
+    if "V" in node:
+      var_str_ID = node.replace("V_", "")
       var_ID = int(var_str_ID)
       eqs = variables[var_ID]["equations"]
       if not eqs:
@@ -1035,8 +1055,8 @@ def makeLatexDoc(file_name, assignments, ontology_container, dot_graph_file=""):
   print("debugging -- got here")
 
   # get variable in LaTex form
-  root_var = nodes[0]
-  v, var_str_ID = root_var.split("_")
+  root_var = assignments.root_variable_id
+  var_str_ID = root_var.replace("V_", "")
   var_ID = int(var_str_ID)
   lhs = variables[var_ID]["aliases"]["latex"]
 
