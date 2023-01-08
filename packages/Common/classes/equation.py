@@ -1,5 +1,5 @@
 """Contains the equation class."""
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Optional, Dict
 from typing_extensions import Self
 
 class EquationDict(TypedDict):
@@ -16,50 +16,58 @@ class Equation():
   # TODO Add atributes.
   # TODO Explain the different possibilites for the terms in the equations
 
-  def __init__(self, eq_id: str, lhs: str, rhs: str, network: str) -> None:
-    """Initializes the equation.
+  def __init__(
+    self,
+    eq_id: str,
+    lhs: str,
+    rhs: str,
+    network: str,
+    representation: Dict[str, str],
+  ) -> None:
+    # """Initializes the equation.
 
-    An additional array `variables` is constructed to store the id of
-    all the variable in the equation. The first position is always the
-    id of the variable in the lhs.
+    # An additional array `variables` is constructed to store the id of
+    # all the variable in the equation. The first position is always the
+    # id of the variable in the lhs.
 
-    Args:
-        eq_id (str): Id of the equation.
-        lhs (str): Only contains one term representing a variable.
-        rhs (str): Contains several terms describing the rhs of the
-          equation.
-        network (str): Network where the equation was defined.
-    """
+    # Args:
+    #     eq_id (str): Id of the equation.
+    #     lhs (str): Only contains one term representing a variable.
+    #     rhs (str): Contains several terms describing the rhs of the
+    #       equation.
+    #     network (str): Network where the equation was defined.
+    # """
     self.eq_id = eq_id
     self.lhs = lhs
     self.rhs = rhs
     self.network = network
+    self.representation = representation
 
     self.terms = self.lhs.split()
     self.terms.extend(self.rhs.split())
 
-  @classmethod
-  def from_dict(cls, eq_id: str, eq_dict: EquationDict) -> Self:
-    """Provides an alternative constructor.
+  # @classmethod
+  # def from_dict(cls, eq_id: str, eq_dict: EquationDict) -> Self:
+  #   """Provides an alternative constructor.
 
-    Uses the equation id and a dictionary containing the information
-    about the equation.
+  #   Uses the equation id and a dictionary containing the information
+  #   about the equation.
 
-    Args:
-        eq_id (str): Id of the equation.
-        eq_dict (EquationDict): Contains information about the equation
-          in the following fields:
+  #   Args:
+  #       eq_id (str): Id of the equation.
+  #       eq_dict (EquationDict): Contains information about the equation
+  #         in the following fields:
 
-          - lhs (str): Only contains one term representing a variable.
-          - rhs (str): Contains several terms describing the rhs of the
-              equation.
-          - network (str): Network where the equation was defined.
+  #         - lhs (str): Only contains one term representing a variable.
+  #         - rhs (str): Contains several terms describing the rhs of the
+  #             equation.
+  #         - network (str): Network where the equation was defined.
 
-    Returns:
-        Equation: An instance of the Equation class initialized with the
-          values provided.
-    """
-    return cls(eq_id, eq_dict["lhs"], eq_dict["rhs"], eq_dict["network"])
+  #   Returns:
+  #       Equation: An instance of the Equation class initialized with the
+  #         values provided.
+  #   """
+  #   return cls(eq_id, eq_dict["lhs"], eq_dict["rhs"], eq_dict["network"])
 
   def is_explicit_for_var(self, var_id: str) -> bool:
     """Checks if a variable is in the lhs of the equation.
@@ -92,23 +100,23 @@ class Equation():
     return False
 
   def convert_to_dict(self) -> EquationDict:
-    """Converts the equation into a dictionary.
+    # """Converts the equation into a dictionary.
 
-    Returns:
-        Dict: Dictionary containing the information of the equation with
-          the following fields:
+    # Returns:
+    #     Dict: Dictionary containing the information of the equation with
+    #       the following fields:
 
-          - variable_ID (str): Id of the variable in the lhs.
-          - lhs (str): Only contains one term representing a variable.
-          - rhs (str): Contains several terms describing the rhs of the
-              equation.
-          - network (str): Network where the equation was defined.
-    """
+    #       - variable_ID (str): Id of the variable in the lhs.
+    #       - lhs (str): Only contains one term representing a variable.
+    #       - rhs (str): Contains several terms describing the rhs of the
+    #           equation.
+    #       - network (str): Network where the equation was defined.
+    # """
     eq_dict = {}
-    eq_dict["variable_ID"] = self.terms[0]
     eq_dict["lhs"] = self.lhs
     eq_dict["rhs"] = self.rhs
     eq_dict["network"] = self.network
+    eq_dict["representation"] = self.representation
 
     return eq_dict
 
@@ -125,16 +133,19 @@ class Equation():
           the variable passed as argument using this equation.
 
     """
-    inc_list = list(filter(lambda term: "V" in term, self.terms))
+    inc_list = list(set(filter(lambda term: "V" in term, self.terms)))
     if var_id is None:
       return inc_list
 
     if self.contains_var(var_id):
       inc_list.remove(var_id)
-      return inc_list
+      # return inc_list
 
-    print(f"Variable {var_id} not in equation {self.eq_id}")
-    return []
+    # In some cases var_id wont be explicitly in the equation but
+    # one of the variables with be a function of var_id.
+    return inc_list
+    # print(f"Variable {var_id} not in equation {self.eq_id}")
+    # return []
 
   def is_instantiation_eq(self) -> bool:
     """Checks if this equation is used for instantiation with `Value`.
@@ -150,4 +161,18 @@ class Equation():
     if "O_11" in self.rhs and "V_1" in self.rhs:
       return True
     return False
+
+  def parse_integrator(self):
+    components = self.rhs.split()
+    if components[0] != "O_9":
+      return None
+
+    return {
+      "var_id": self.lhs.split()[0],
+      "int_interval_ini": components[7],
+      "int_interval_fin": components[9],
+      "integrand": components[2],
+      "int_var": components[4],
+      "init_value": components[13],
+    }
 

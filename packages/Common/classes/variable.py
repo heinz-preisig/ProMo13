@@ -1,57 +1,88 @@
 """Contains the variable class."""
 from typing import Dict, List
-from typing_extensions import TypedDict, Self
-
-
-class OldEquationsinVariableDict(TypedDict):
-  rhs: str
-  type: str
-  doc: str
-  network: str
-  incidence_list: List[str]
-
-
-class OldVariableDict(TypedDict):
-  """Creates a new type for a dictionary that stores info about a var"""
-  aliases: Dict[str, str]
-  doc: str
-  equations: Dict[int, OldEquationsinVariableDict]
-  index_structures: List[int]
-  label: str
-  network: str
-  port_variable: bool
-  tokens: List[str]
-  type: str
-  units: List[int]
-
+from typing_extensions import Self
 
 class Variable():
   """Models a variable."""
-  def __init__(self, var_id:str, label: str):
-    """Initializes the variable
+  def __init__(
+    self,
+    var_id: str,
+    aliases: Dict[str, str],
+    doc: str,
+    equations: List[str],
+    index_structures: List[int],
+    label: str,
+    network: str,
+    port_variable: bool,
+    tokens: List[str],
+    var_type: str,
+    units: List[int],
+  ):
+    # """Initializes the variable
 
-    Args:
-        var_id (str): Id of the variable.
-        label (str): Variable label.
-    """
+    # Args:
+    #     var_id (str): Id of the variable.
+    #     label (str): Variable label.
+    # """
     self.var_id = var_id
+    self.aliases = aliases
+    self.doc = doc
+    self.equations = equations
+    self.index_structures = [str(i) for i in index_structures]
     self.label = label
+    self.network = network
+    self.port_variable = port_variable
+    self.tokens = tokens
+    self.var_type = var_type
+    self.units = units
 
   @classmethod
-  def from_old_dict(cls, var_id: str, var_dict: OldVariableDict) -> Self:
+  def from_dict(
+    cls,
+    var_id: str,
+    var_data: Dict,
+  ) -> Self:
     """Provides an alternative constructor.
 
-    Uses the variable id and a dictionary containing the information
-    about the variable.
-    **Only used for backwards compatibility.**
+    Used when a new variable is going to be created from a Dict.
 
     Args:
-        var_id (str): Id of the variable.
-        var_dict (OldVariableDict): Contains information about the
-          variable.
+      var_id (str): Id of the variable.
+      var_data (Dict): Information about the variable stored in a Dict.
 
     Returns:
-        Variable: An instance of the Variable class initialized with the
-          values provided.
+        Self: An instance of the clase initialized with the information
+          stored in the Dict.
     """
-    return cls(var_id, var_dict["label"])
+    
+    # Creating a new instance of the class
+    return  cls(
+      var_id,
+      var_data["aliases"],
+      var_data["doc"],
+      var_data["equations"],
+      var_data["index_structures"],
+      var_data["label"],
+      var_data["network"],
+      var_data["port_variable"],
+      var_data["tokens"],
+      var_data["type"],
+      var_data["units"],
+    )
+
+  def convert_to_dict(self) -> Dict:
+    output_dict = {}
+    output_dict["aliases"] = self.aliases
+    output_dict["doc"] = self.doc
+    output_dict["equations"] = self.equations
+    output_dict["index_structures"] = self.index_structures
+    output_dict["label"] = self.label
+    output_dict["network"] = self.network
+    output_dict["port_variable"] = self.port_variable
+    output_dict["tokens"] = self.tokens
+    output_dict["type"] = self.var_type
+    output_dict["units"] = self.units
+
+    return output_dict
+
+
