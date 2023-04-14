@@ -66,6 +66,7 @@ FILE_NAMES = {
         "latex_shell_automata_doc_command"    : "make_automata_table.sh",
         "latex_shell_var_equ_list_command"    : "latex_compile.sh",
         "variable_assignment_to_entity_object": "variable_assignment_to_entity_object.json",
+        "matlab_template"                     : "matlab_template.jinja",
         # TODO Verify that all these files are still used.
         "equations_global_id": "equations_global_ID.json", # Added new
         }
@@ -140,6 +141,7 @@ DIRECTORIES["output_language"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                       "%s")  # %ontology_name, model_name, case_name, language
 DIRECTORIES["common_shell_scripts"] = JOIN(DIRECTORIES["common"], "shell_scripts")
 DIRECTORIES["graph_locations"] = JOIN(DIRECTORIES["ontology_repository"], "%s", DIRECTORIES["graphs"])
+DIRECTORIES["templates"] = JOIN(DIRECTORIES["common"], "templates")
 
 FILES = {}
 FILES["ontology_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s", FILE_NAMES["ontology_file"])  # %ontology_name
@@ -315,6 +317,8 @@ FILES["coded_variables"] = JOIN("%s", "variables_%s.json")  # ontology_location,
 FILES["icons"] = {
         "info": JOIN(DIRECTORIES["icon_location"], "info_icon.png")
         }
+
+FILES["matlab_template"] = JOIN(DIRECTORIES["templates"], FILE_NAMES["matlab_template"])
 
 
 # compilation of rst to html  NOTE: not a good way of doing things -- generate HTML directly with normal editor

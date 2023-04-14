@@ -1,0 +1,22 @@
+From the compiler
+# Way to distinguish the variables (naming problem). Maybe "var_name{index}" or {var_name}.
+# The inv function wont find the reciprocal in matlab, instead use 1 ./ var_name.
+# The blockReduce function will take only two parameters A, B. A is a column vector of size N. B is a matrix with K rows so K/N is an integer.
+# The khatriRao function will be splitted in two:
+  * colKron (Column-wise Kronecker product): Takes 2 parameters A, B. A is a row vector (Need to transpose) of size N. B is a matrix with K columns so K/N is an integer.
+  * faceSplit (Face-splitting product): Takes 2 parameters A, B. A is a column vector of size N. B is a matrix with K rows so K/N is an integer.  
+--------------------------------------------------------------------------------------------------------------
+From the modeller
+# In the arcs "source" and "sink" should be str and no int.
+# Token domains, do I always use "0" or can there be more, and why are we doing that division.
+# Instantiation info should be stored as strings. 
+  * Simple string for undimensional vars.
+  * List of strings for vectors.
+  * Do we ever have matrices?
+# Move the instantiation to the task generator probably. Keeping the posibility to save the model with instantiation info included.
+--------------------------------------------------------------------------------------------------------------
+From the behaviour linker
+# Change how the entities are constructed to match what we use in the task generator.
+# Implement a way to merge entities and deal with conflicts.
+# Look into a way to do nodes and arcs at the same time. 
+

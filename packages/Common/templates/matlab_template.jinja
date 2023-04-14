@@ -1,0 +1,159 @@
+function output_vars = main
+  % Index sets
+  {% for set_name, set_info in index_sets_info.general|items %}
+    {# {% if set.comment %}
+      {% for com in set.comment%}
+        {{-"  "}}% {{com}}
+      {% endfor %}
+    {% endif %} #}
+    {{-"  "}}{{set_name}} = cell(1, {{set_info|length}});
+    {% for element in set_info %}
+      {% if element|is_list %}
+        {{-"  "}}{{set_name}}({{loop.index}})  = [{{element|join(", ")}}];
+      {% else %}
+         {{-"  "}}{{set_name}}({{loop.index}})  = {{element}};
+      {% endif %}
+    {% endfor %}
+    {{-"  "}}{{set_name}}_lbl = "{{set_name}}";
+  {% endfor %}
+
+  {% for set_name, set_info in index_sets_info.specific|items %}
+    {{-"  "}}{{set_name}} = [{{set_info|join(", ")}}];
+  {% endfor %}
+
+  % Variables
+  {% for inst in instantiations %}
+    {% if inst.comment %}
+      {% for com in inst.comment%}
+        {{-"  "}}% {{com}}
+      {% endfor %}
+    {% endif %}
+    {% if inst.dimension == 0 %}
+      {{-"  "}}{{inst.var_id|label}} = {{inst.vals}};
+    {% else %}
+      {{-"  "}}{{inst.var_id|label}} = MultiDimVar(
+        {{-""}}{ {{-inst.index_labels-}} }, 
+        {{-" "}}{ {{-inst.index_sets-}} }
+      {{-""}});{{-"\n"-}}
+      {% if inst.dimension == 1 %}
+        {% for index, init_values in inst.vals|items %}
+          {{-"  "}}{{inst.var_id|label}}({{index}}) = [{{init_values|join("; ")}}];
+        {% endfor %}
+        {% if inst.is_sparse %}
+          {{-"  "}}{{inst.var_id|label}} = sparse({{inst.var_id|label}});
+        {% endif %}
+      {% elif inst.dimension == 2 %}
+        {% for i in inst.vals.vals%}
+          {{-"  "}}{{inst.var_id|label}}.value(
+            {{-inst.vals.rows[loop.index - 1]-}},
+            {{-" "}}{{inst.vals.cols[loop.index - 1]-}}
+          {{-""}}) = {{inst.vals.vals[loop.index - 1]}};{{-"\n"-}}
+        {% endfor %}
+        {% if inst.is_sparse %}
+          {{-"  "}}{{inst.var_id|label}} = sparse({{inst.var_id|label}});
+        {% endif %}
+      {% endif %}
+    {% endif %}
+    {{-"\n"-}}
+  {% endfor%}
+
+% Integrators
+  % Initial conditions
+  {% for i in integrators %}
+    {{-"  "}}phi_0({{i.interval}}) =
+      {{-" "}}{{i.init_value|var_slice(i.index_sets)}};
+  {% endfor %}
+
+  % Integration interval
+  integration_interval = [
+    {{-(integrators|first).int_interval_ini|label-}},
+    {{-" "}}{{(integrators|first).int_interval_fin|label-}}
+  ];
+
+  % Integrator routine
+  [t, phi] = ode15s(@f, integration_interval, phi_0);
+
+  % Integrand
+  function dphidt = f(t, phi) {{"\n"-}}
+    {% for i in integrators %}
+      {{-"    "}}{{i.var_id|var_slice(i.index_sets)}} =
+        {{-" "}}phi({{i.interval}});{{"\n"-}}
+    {% endfor %}
+
+    {% for expr in expressions %}
+      {% if expr.type == "simple" %}
+        {{-"    "}}{{expr.equations[0].var_id|var_slice(expr.equations[0].index_sets)}} = 
+          {{-" "}}{{expr.id}}({{expr|dependencies}});
+      {% elif expr.type == "root" %}
+        {{-"    "}}{{expr.equations[0].var_id|var_slice(expr.equations[0].index_sets)}} = 
+          {{-" "}}{{expr.id}}({{expr|dependencies}});
+      {% elif expr.type == "system" %}
+        {{-"    "}}sol = {{expr.id}}({{expr|dependencies}});{{"\n"-}}
+        {% for eq in expr.equations %}
+          {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = 
+            {{-" "}}sol({{eq.interval}});
+        {% endfor %}
+      {% endif %}
+      {{-"\n"-}}
+    {% endfor %}
+    {% for i in integrators %}
+      {{-"    "}}dphidt({{i.interval}}) = 
+        {{-" "}}{{i.integrand|var_slice(i.index_sets)}}
+    {% endfor %}
+  endfunction
+endfunction
+
+% Functions for the equations
+{% for expr in expressions %}
+  {% if expr.type == "simple" %}
+    {{-""}}function sol = {{expr.id}}({{expr.equations|first|arguments}})
+      {% set eq = expr.equations|first%}
+      {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}};
+  {% elif expr.type == "root" %}
+    {{-""}}function sol = {{expr.id}}({{expr.equations|first|arguments}})
+      {% set eq = expr.equations|first%}
+      {{-"  "}}function F = root(x)
+        {{-"\n"-}}
+        {{-"    "}}{{eq.var_id|label}}({{eq.var_id|main_index}}) = x
+        {{-"\n"-}}
+        {{-"    "}}F = {{eq.eq_id|eq_label("rhs")}} - {{eq.eq_id|eq_label("lhs")}};
+        {{-"\n"-}}
+        {{-"    "}}F = F.value;
+        {{-"\n"-}}
+      {{-"  "}}endfunction{{"\n\n"}}
+      {{-"  "}}init_guess = [{{expr.init_guess|join("; ")}}]{{"\n"}}
+      {{-"  "}}sol = {{solvers.sys_of_equations}}(@root, init_guess){{"\n"}}
+    {% elif expr.type == "system" %}
+      {{-""}}function sol = {{expr.id}}({{expr|dependencies}}){{"\n"}}
+        {{-"  "}}function F = sys(x)
+          {% for eq in expr.equations %}
+            {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = x({{eq.interval}})
+          {% endfor %}
+          {{-"\n"-}}
+          {% for eq in expr.equations %}
+            {{-"    "}}function sol = {{eq.eq_id}}({{eq|arguments}})
+            {{-"\n"-}}
+              {{-"      "}}sol = {{eq.eq_id|eq_label("rhs")}} - {{eq.eq_id|eq_label("lhs")}};
+              {{-"\n"-}}
+              {{-"      "}}sol = sol.value;
+            {{-"\n"-}}
+            {{-"    "}}endfunction
+          {% endfor %}
+          {{-"\n"-}}
+          {% for eq in expr.equations %}
+            {{-"    "}}F({{eq.interval}}) = {{eq.eq_id}}({{ {"type":"simple", "equations":[eq]}|dependencies}})
+          {% endfor %}          
+        {{-"  "}}endfunction{{"\n\n"}}
+      {{-"  "}}init_guess = [{{expr.init_guess|join("; ")}}]{{"\n"}}
+      {{-"  "}}sol = {{solvers.sys_of_equations}}(@sys, init_guess){{"\n"}}
+    {% endif %}
+  {{-""}}endfunction{{"\n"}}
+{% endfor %}
+
+% Auxiliar functions
+function result = indexunion(varargin)
+  result = varargin{1};
+  for i = 2:nargin
+    result = union(result, varargin{i});
+  endfor
+endfunction
