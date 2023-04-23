@@ -253,6 +253,7 @@ FILES["latex_template_main"] = "template_main.latex"
 FILES["latex_template_variables"] = "template_variables.latex"
 FILES["latex_template_equations"] = "template_equations.latex"
 FILES["latex_template_equation_list"] = "template_equation_list.latex"
+FILES["latex_img"] = JOIN(DIRECTORIES["ontology_repository"], "%s", DIRECTORIES["latex"], "%s.png")
 
 
 ### info files
