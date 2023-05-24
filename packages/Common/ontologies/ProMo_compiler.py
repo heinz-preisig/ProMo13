@@ -42,13 +42,16 @@ __status__ = "beta"
 
 import copy
 import os
+
 from collections import OrderedDict
+
 
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
 # from Common.record_definitions import RecordVariable
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
+
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import ID_delimiter
 from OntologyBuilder.OntologyEquationEditor.resources import ID_spacer

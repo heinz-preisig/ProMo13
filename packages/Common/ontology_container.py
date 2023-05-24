@@ -1225,7 +1225,7 @@ class OntologyContainer():
     variable_record_filter = set(list(RecordVariable().keys()))  # minimal configuration
 
     if OS.path.exists(variables_f_name):
-      return self.__readVariablesEquationFile(variable_record_filter, variables_f_name)
+      return self.__readVariablesEquationFile(variable_record_filter, variables_f_name,)
 
     # shift from version 7 to version 8
     elif OS.path.exists(variables_f_name_v7):
@@ -1273,7 +1273,7 @@ class OntologyContainer():
     # if reply == OK:
     #   exit(-1)
 
-  def __readVariablesEquationFile(self, variable_record_filter, variables_f_name):
+  def __readVariablesEquationFile(self, variable_record_filter, variables_f_name, include_network=False):
     data = getData(variables_f_name)
     variables_raw = data["variables"]
     version = data["version"]
@@ -1302,14 +1302,25 @@ class OntologyContainer():
         label = variables_raw[ID]["label"]
         iri = "promo:%s" % label
         variables_raw[ID]["IRI"] = iri
-      # else:  this was a one-time action
-      #   prefix,_label = variables_raw[ID]["IRI"].split(":")
-      #   label = _label.strip(" ")
-      #   nw = variables_raw[ID]["network"].replace(">","-")
-      #   if prefix == "promo":
-      #     extended_label = nw + "+%s"%label
-      #     variables_raw[ID]["IRI"] = prefix+":"+extended_label
-      #     print("debugging", variables_raw[ID]["IRI"])
+
+      elif include_network:
+        prefix,_label = variables_raw[ID]["IRI"].split(":")
+        label = _label.strip(" ")
+        nw = variables_raw[ID]["network"].replace(">","-")
+        if prefix == "promo":
+          extended_label = nw + "+%s"%label
+          variables_raw[ID]["IRI"] = prefix+":"+extended_label
+          print("debugging", variables_raw[ID]["IRI"])
+      elif not include_network:  #  make a simple IRI for promo
+        prefix,_label = variables_raw[ID]["IRI"].split(":")
+        label = variables_raw[ID]["label"] # _label.strip(" ")
+        if prefix == "promo":
+          extended_label = "%s"%label
+          variables_raw[ID]["IRI"] = prefix+":"+extended_label
+          print("debugging", variables_raw[ID]["IRI"])
+
+
+
       try:
         variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
       except:

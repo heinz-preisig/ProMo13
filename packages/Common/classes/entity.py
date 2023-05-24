@@ -9,7 +9,6 @@ from pprint import pprint as pp
 
 from Common.classes import equation
 
-
 class EntityDict(TypedDict):
   """Creates a new type for a dictionary that stores an entity."""
   index_set: str
