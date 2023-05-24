@@ -1,0 +1,35 @@
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#> .
+
+@prefix promo:<http://example.org/> .
+
+# Hand crafted
+# Heinz A Preisig
+# 2023-02-01
+
+### equations =========================
+
+# classes
+
+promo:equation a rdfs:class .
+promo:expression a rdfs:class .
+
+
+## properties
+
+promo:rhs a rdf:Property;
+    rdfs:domain promo:equation;
+    rdfs:range  rdfs:List.
+
+promo:doc a rdf:Property;
+    rdfs:domain promo:equation;
+    rdfs:range  rdfs:comment.
+
+promo:expressions a rdf:Property;
+    rdfs:domain promo:expression;
+    rdfs:range rdfs:List .
+
+promo:incidence_list a rdf:Property;
+    rdfs:domain promo:equation.
+

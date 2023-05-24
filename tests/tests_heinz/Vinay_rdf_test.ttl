@@ -1,0 +1,25 @@
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+
+@prefix ex:<http://example.org/>.
+
+
+ex:person a rdfs:class.
+
+
+ex:name a rdf:Property;
+    rdfs:domain ex:person;
+    rdfs:range rdfs:Literal.
+
+ex:age a rdf:Property;
+    rdfs:domain ex:person;
+    rdfs:range ex:integer.
+
+ex:address a rdf:Property;
+    rdfs:domain ex:person;
+    rdfs:range rdfs:Literal.
+
+ex:Vinay ex:name "Vinay Gautam";
+    ex:age 42;
+    ex:address "road Trondheim".

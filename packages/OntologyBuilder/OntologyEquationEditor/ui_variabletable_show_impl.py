@@ -151,7 +151,7 @@ class UI_VariableTableShow(VariableTable):
                                                             self.ontology_name,
                                                             [],
                                                             "%s_graph"%self.selected_variable_symbol)
-    var_equ_tree_graph.render()
+    var_equ_tree_graph.render_expression_to_list()
     dot_graph_file = var_equ_tree_graph.outputFile + ".pdf"
     file_name = self.selected_variable_symbol
     return assignments, dot_graph_file, file_name

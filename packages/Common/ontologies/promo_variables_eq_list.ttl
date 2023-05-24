@@ -1,0 +1,98 @@
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#> .
+
+@prefix qudt:<http://qudt.org/2.1/vocab/quantitykind#> .
+
+@prefix promo:<http://example.org#> .
+
+# classes
+promo:variable a rdfs:class .
+promo:token a rdfs:class .
+
+promo:index a rdfs:class .
+promo:blockIndex a rdfs:class .
+promo:token a rdfs:class .
+
+promo:equations a rdfs:class .
+
+promo:has_index a rdfs:property .
+
+
+### variables =========================
+## properties
+# Literals
+
+# name is given by qudt or promo if it is not existing in qudt
+promo:name a rdf:Property;
+    rdfs:range rdfs:Literal.
+
+# models are directed graphs, which we term "networks"
+# ProMo is based on a hierarchy of networks
+promo:network a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:Literal.
+
+# ProMo uses only SI units as a vector of exponents for
+# time, length, amount, mass, temperature, current, light, nil (see ProMo variable_framework units)
+promo:units a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:List.
+
+# code generation is a central goal of ProMo. Alternative names are used for each target code
+# TODO: needs to be extended
+promo:aliases a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:List.
+
+# lists
+# token: the abstract object living in a network -- nodes are capacities (houses), arcs transport tokens (roads)
+promo:tokens a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:List.
+
+# indexes are defined for bookkeeping nodes, arcs, species etc.
+promo:index_structures a  rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:List.
+
+# each variable may be defined by more then one expression.
+promo:expression_list a  rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:List.
+
+promo:token_list a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:List.
+
+
+
+
+### indices ===========================
+promo:label a rdf:Property;
+	rdfs:domain rdfs:index;
+    rdfs:range rdfs:Literal.
+
+promo:network a rdf:Property;
+    rdfs:domain promo:index;
+    rdfs:range rdfs:Literal.
+
+
+### block_indices ===========================
+
+promo:label a rdf:Property;
+	rdfs:domain rdfs:blockIndex;
+    rdfs:range rdfs:Literal.
+
+promo:network a rdf:Property;
+    rdfs:domain promo:blockIndex;
+    rdfs:range rdfs:Literal.
+    
+promo:indices a rdf:Property;
+	rdfs:domain promo:blockIndex;
+    rdfs:range  rdfs:List.
+    
+### tokens ==========================
+
+
+

@@ -1,0 +1,24 @@
+@prefix promo: <http://example.org/> .
+@prefix promolg: <http://example.org/language/> .
+@prefix qudt: <http://qudt.org/2.1/vocab/quantitykind#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+promo:expression_list_85 a rdf:List ;
+    rdf:_0 promolg:Instantiate ;
+    rdf:_1 promolg:left_round ;
+    rdf:_2 qudt:AmountOfSubstance ;
+    rdf:_3 promolg:comma ;
+    rdf:_4 promo:Value ;
+    rdf:_5 promolg:right_round .
+    
+
+
+promo:Value a promo:variable ;
+    promo:doc "numerical value" ;
+    promo:label "value" ;
+    promo:network "root" ;
+    promo:port_variable "True" ;
+    promo:type "constant" .
+    
+    

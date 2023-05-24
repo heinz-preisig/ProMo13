@@ -1,0 +1,43 @@
+
+ -- http://qudt.org/schema/qudt/informativeReference -- http://www.oxfordreference.com/view/10.1093/acref/9780199233991.001.0001/acref-9780199233991-e-2791
+ -- http://www.w3.org/2000/01/rdf-schema#label -- International System of Units
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Deca
+ -- http://qudt.org/schema/qudt/informativeReference -- http://www.oxfordreference.com/view/10.1093/acref/9780199233991.001.0001/acref-9780199233991-appendix-0003
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Pico
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Zepto
+ -- http://qudt.org/schema/qudt/hasBaseUnit -- http://qudt.org/vocab/unit/A
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Atto
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Peta
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Mega
+ -- http://qudt.org/schema/qudt/abbreviation -- SI
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Kilo
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Zetta
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Deci
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Yotta
+ -- http://qudt.org/schema/qudt/informativeReference -- http://physics.info/system-international/
+ -- http://qudt.org/schema/qudt/hasBaseUnit -- http://qudt.org/vocab/unit/K
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Yocto
+ -- http://qudt.org/schema/qudt/hasBaseUnit -- http://qudt.org/vocab/unit/UNITLESS
+ -- http://qudt.org/schema/qudt/informativeReference -- http://www.nist.gov/pml/pubs/sp811/index.cfm
+ -- http://qudt.org/schema/qudt/hasBaseUnit -- http://qudt.org/vocab/unit/SEC
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Milli
+ -- http://qudt.org/schema/qudt/hasBaseUnit -- http://qudt.org/vocab/unit/M
+ -- http://qudt.org/schema/qudt/hasBaseUnit -- http://qudt.org/vocab/unit/CD
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Nano
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Micro
+ -- http://qudt.org/schema/qudt/informativeReference -- http://www.oxfordreference.com/view/10.1093/acref/9780198605225.001.0001/acref-9780198605225-e-1292
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Femto
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Hecto
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Centi
+ -- http://qudt.org/schema/qudt/informativeReference -- http://physics.nist.gov/Pubs/SP811
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Giga
+ -- http://purl.org/dc/terms/description -- The International System of Units (abbreviated \(SI\) from French: Système international d'unités) is the modern form of the metric system and is generally a system of units of measurement devised around seven base units and the convenience of the number ten. The older metric system included several groups of units. The SI was established in 1960, based on the metre-kilogram-second system, rather than the centimetre-gram-second system, which, in turn, had a few variants.
+ -- http://qudt.org/schema/qudt/dbpediaMatch -- http://dbpedia.org/resource/International_System_of_Units
+ -- http://qudt.org/schema/qudt/hasBaseUnit -- http://qudt.org/vocab/unit/KiloGM
+ -- http://www.w3.org/1999/02/22-rdf-syntax-ns#type -- http://qudt.org/schema/qudt/SystemOfUnits
+ -- http://qudt.org/schema/qudt/informativeReference -- http://aurora.regenstrief.org/~ucum/ucum.html
+ -- http://qudt.org/schema/qudt/hasBaseUnit -- http://qudt.org/vocab/unit/MOL
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Exa
+ -- http://www.w3.org/2000/01/rdf-schema#isDefinedBy -- http://qudt.org/2.1/vocab/sou
+ -- http://qudt.org/schema/qudt/informativeReference -- https://www.govinfo.gov/content/pkg/GOVPUB-C13-f10c2ff9e7af2091314396a2d53213e4/pdf/GOVPUB-C13-f10c2ff9e7af2091314396a2d53213e4.pdf
+ -- http://qudt.org/schema/qudt/prefix -- http://qudt.org/2.1/vocab/prefix/Tera

@@ -1,0 +1,92 @@
+[
+  {
+    "@id": "http://example.org/person",
+    "@type": [
+      "http://www.w3.org/2000/01/rdf-schema#class"
+    ]
+  },
+  {
+    "@id": "http://example.org/age",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#domain": [
+      {
+        "@id": "http://example.org/person"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#range": [
+      {
+        "@id": "http://example.org/integer"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/address",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#domain": [
+      {
+        "@id": "http://example.org/person"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#range": [
+      {
+        "@id": "http://www.w3.org/2000/01/rdf-schema#Literal"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/Heinz",
+    "http://example.org/address": [
+      {
+        "@value": "road ln"
+      }
+    ],
+    "http://example.org/age": [
+      {
+        "@value": 72
+      }
+    ],
+    "http://example.org/name": [
+      {
+        "@value": "heinz preisig"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/name",
+    "@type": [
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#domain": [
+      {
+        "@id": "http://example.org/person"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#range": [
+      {
+        "@id": "http://www.w3.org/2000/01/rdf-schema#Literal"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/Vinay",
+    "http://example.org/address": [
+      {
+        "@value": "road Trondheim"
+      }
+    ],
+    "http://example.org/age": [
+      {
+        "@value": 42
+      }
+    ],
+    "http://example.org/name": [
+      {
+        "@value": "Vinay Gautam"
+      }
+    ]
+  }
+]

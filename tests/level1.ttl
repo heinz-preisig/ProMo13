@@ -1,0 +1,220 @@
+@prefix promo: <http://example.org/> .
+@prefix promolg: <http://example.org/language/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+promo:aliases a rdf:Property ;
+    rdfs:domain promo:variable ;
+    rdfs:range rdfs:List .
+
+promo:charge a promo:token .
+
+promo:energy a promo:token .
+
+promo:equations a rdfs:class .
+
+promo:expression_list a rdf:Property ;
+    rdfs:domain promo:variable ;
+    rdfs:range rdfs:List .
+
+promo:index_structures a rdf:Property ;
+    rdfs:domain promo:variable ;
+    rdfs:range rdfs:List .
+
+promo:indices a rdf:Property ;
+    rdfs:domain promo:blockIndex ;
+    rdfs:range rdfs:List .
+
+promo:label a rdf:Property ;
+    rdfs:domain rdfs:blockIndex,
+        rdfs:index ;
+    rdfs:range rdfs:Literal .
+
+promolg:BlockReduce rdfs:subClassOf promolg:operator .
+
+promolg:Instantiate rdfs:subClassOf promolg:operator .
+
+promolg:Integral rdfs:subClassOf promolg:operator .
+
+promolg:KR rdfs:subClassOf promolg:operator .
+
+promolg:MakeIndex rdfs:subClassOf promolg:operator .
+
+promolg:MixedStack rdfs:subClassOf promolg:function .
+
+promolg:ParDiff rdfs:subClassOf promolg:operator .
+
+promolg:Product rdfs:subClassOf promolg:operator .
+
+promolg:Root rdfs:subClassOf promolg:function .
+
+promolg:Stack rdfs:subClassOf promolg:function .
+
+promolg:TotalDiff rdfs:subClassOf promolg:operator .
+
+promolg:abs rdfs:subClassOf promolg:function .
+
+promolg:acos rdfs:subClassOf promolg:function .
+
+promolg:ampersand rdfs:subClassOf promolg:delimiter .
+
+promolg:asin rdfs:subClassOf promolg:function .
+
+promolg:atan rdfs:subClassOf promolg:function .
+
+promolg:blockProd rdfs:subClassOf promolg:function .
+
+promolg:comma rdfs:subClassOf promolg:delimiter .
+
+promolg:cos rdfs:subClassOf promolg:function .
+
+promolg:diffSpace rdfs:subClassOf promolg:function .
+
+promolg:double_column rdfs:subClassOf promolg:delimiter .
+
+promolg:exp rdfs:subClassOf promolg:function .
+
+promolg:expandProduct rdfs:subClassOf promolg:operator .
+
+promolg:in rdfs:subClassOf promolg:operator .
+
+promolg:inv rdfs:subClassOf promolg:function .
+
+promolg:left rdfs:subClassOf promolg:function .
+
+promolg:left_round rdfs:subClassOf promolg:delimiter .
+
+promolg:left_square rdfs:subClassOf promolg:delimiter .
+
+promolg:left_wiggled rdfs:subClassOf promolg:delimiter .
+
+promolg:ln rdfs:subClassOf promolg:function .
+
+promolg:log rdfs:subClassOf promolg:function .
+
+promolg:max rdfs:subClassOf promolg:operator .
+
+promolg:min rdfs:subClassOf promolg:operator .
+
+promolg:minus rdfs:subClassOf promolg:operator .
+
+promolg:neg rdfs:subClassOf promolg:function .
+
+promolg:or rdfs:subClassOf promolg:delimiter .
+
+promolg:plus rdfs:subClassOf promolg:operator .
+
+promolg:power rdfs:subClassOf promolg:operator .
+
+promolg:reduceProduct rdfs:subClassOf promolg:operator .
+
+promolg:right rdfs:subClassOf promolg:function .
+
+promolg:right_round rdfs:subClassOf promolg:delimiter .
+
+promolg:right_square rdfs:subClassOf promolg:delimiter .
+
+promolg:right_wiggled rdfs:subClassOf promolg:delimiter .
+
+promolg:sign rdfs:subClassOf promolg:function .
+
+promolg:sin rdfs:subClassOf promolg:function .
+
+promolg:sqrt rdfs:subClassOf promolg:function .
+
+promolg:tan rdfs:subClassOf promolg:function .
+
+promolg:underline rdfs:subClassOf promolg:delimiter .
+
+promo:mass a promo:token .
+
+promo:name a rdf:Property ;
+    rdfs:range rdfs:Literal .
+
+promo:network a rdf:Property ;
+    rdfs:domain promo:blockIndex,
+        promo:index,
+        promo:variable ;
+    rdfs:range rdfs:Literal .
+
+promo:signal a promo:token .
+
+promo:token_list a rdf:Property ;
+    rdfs:domain promo:variable ;
+    rdfs:range rdfs:List .
+
+promo:tokens a rdf:Property ;
+    rdfs:domain promo:variable ;
+    rdfs:range rdfs:List .
+
+promo:units a rdf:Property ;
+    rdfs:domain promo:variable ;
+    rdfs:range rdfs:List .
+
+promo:arc promo:label "arc" ;
+    promo:network "['root', 'physical', 'reactions', 'material', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas', 'control']" ;
+    promo:type "index" ;
+    rdf:_2 promo:global_index_list .
+
+promo:arc_x_species promo:indices "[2, 3]" ;
+    promo:label "arc & species" ;
+    promo:network "['physical', 'reactions', 'material', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas']" ;
+    promo:type "block_index" ;
+    rdf:_6 promo:global_index_list .
+
+promo:diffSpace promo:label "diffSpace" ;
+    promo:network "['control']" ;
+    promo:type "index" ;
+    rdf:_9 promo:global_index_list .
+
+promo:index a rdfs:class .
+
+promo:node promo:label "node" ;
+    promo:network "['root', 'physical', 'reactions', 'material', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas', 'control']" ;
+    promo:type "index" ;
+    rdf:_1 promo:global_index_list .
+
+promo:node_x_species promo:indices "[1, 3]" ;
+    promo:label "node & species" ;
+    promo:network "['physical', 'reactions', 'material', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas']" ;
+    promo:type "block_index" ;
+    rdf:_5 promo:global_index_list .
+
+promo:node_x_species_conversion promo:indices "[1, 4]" ;
+    promo:label "node & species_conversion" ;
+    promo:network "['physical', 'reactions', 'material', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas']" ;
+    promo:type "block_index" ;
+    rdf:_7 promo:global_index_list .
+
+promo:species promo:label "species" ;
+    promo:network "['physical', 'reactions', 'material', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas']" ;
+    promo:type "index" ;
+    rdf:_3 promo:global_index_list .
+
+promo:species_conversion promo:label "species_conversion" ;
+    promo:network "['physical', 'reactions', 'material', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas']" ;
+    promo:type "index" ;
+    rdf:_4 promo:global_index_list .
+
+promo:species_conversion_x_species promo:indices "[4, 3]" ;
+    promo:label "species_conversion & species" ;
+    promo:network "['physical', 'reactions', 'material', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas']" ;
+    promo:type "block_index" ;
+    rdf:_8 promo:global_index_list .
+
+promo:blockIndex a rdfs:class .
+
+promo:token a rdfs:class .
+
+promo:variable a rdfs:class .
+
+promo:global_index_list rdf:_1 promo:node ;
+    rdf:_2 promo:arc ;
+    rdf:_3 promo:species ;
+    rdf:_4 promo:species_conversion ;
+    rdf:_5 promo:node_x_species ;
+    rdf:_6 promo:arc_x_species ;
+    rdf:_7 promo:node_x_species_conversion ;
+    rdf:_8 promo:species_conversion_x_species ;
+    rdf:_9 promo:diffSpace .
+

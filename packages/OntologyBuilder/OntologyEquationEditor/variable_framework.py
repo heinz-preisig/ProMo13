@@ -59,7 +59,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_LOOSE_UNITS
 from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_NO_UNITS
 from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_RETAIN_UNITS
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
-from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal
+from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal,IRI_parse, IRI_make
 from OntologyBuilder.OntologyEquationEditor.tpg import *
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1318,6 +1318,9 @@ class PhysicalVariable():
 
   def changeLabel(self, label):
     self.label = label
+    prefix,namespace,old_label = IRI_parse(self.IRI)
+    self.IRI = IRI_make(prefix,namespace,label)
+
     for language in LANGUAGES["aliasing"]:
       if language != "global_ID":
         self.aliases[language] = label
@@ -1662,7 +1665,7 @@ class KhatriRao(BinaryOperator):
 
     The cases are
      1: N,A : NS,AS  --> NS,AS
-     2: N,A : AS,NS  --> AS,NS
+     2: N,A : AS,NS  --> AS,NSn  obsolete
      3: N   : NS     --> NS
      4: N   : NS,AS  --> NS,AS
      5: A   : NS,AS  --> NS,AS

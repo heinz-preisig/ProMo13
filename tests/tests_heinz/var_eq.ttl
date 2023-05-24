@@ -1,0 +1,73 @@
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#> .
+
+@prefix qudt:<http://qudt.org/2.1/vocab/quantitykind#> .
+
+@prefix promo:<http://example.org/> .
+
+# classes
+promo:variable a rdfs:class .
+promo:token a rdfs:class .
+
+
+### variables =========================
+## properties
+# Literals
+promo:name a rdf:Property;
+    rdfs:range rdfs:Literal.
+
+promo:network a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:Literal.
+
+promo:units a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:Literal.
+
+promo:aliases a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:Literal.
+
+# lists
+promo:index_structures a  rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:List.
+
+promo:equation_list a  rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:List.
+
+# derived classes
+
+promo:var_name a promo:name .
+
+### equations =========================
+
+# classes
+
+promo:equation a rdfs:class .
+promo:expression a rdfs:class .
+promo:delimiter a rdfs:class .
+promo:operator a rdfs:class .
+promo:unitary_fct a rdfs:class .
+promo:fct a rdfs:class .
+
+
+## properties
+
+promo:rhs a rdf:Property;
+    rdfs:domain promo:equation;
+    rdfs:range  rdfs:List.
+
+promo:doc a rdf:Property;
+    rdfs:domain promo:equation;
+    rdfs:range  rdfs:comment.
+
+promo:expressions a rdf:Property;
+    rdfs:domain promo:expression;
+    rdfs:range rdfs:List .
+
+promo:incidence_list a rdf:Property;
+    rdfs:domain promo:equation.
+

@@ -163,9 +163,8 @@ class VariableTable(QtWidgets.QDialog):
   def makeVariableIDList(self):
     variable_ID_list = set()
     nw = self.network
-    for variable_type in self.variable_space[nw]:  # self.variables.index_accessible_variables_on_networks[nw]:
+    for variable_type in self.variable_space[nw]:
       if variable_type in self.enabled_variable_types:
-        # for i in self.variables.index_accessible_variables_on_networks[nw][variable_type]:
         for i in self.variable_space[nw][variable_type]:
           variable_ID_list.add(i)
     return variable_ID_list
@@ -202,6 +201,7 @@ class VariableTable(QtWidgets.QDialog):
           self.__addQtTableItem(table, 'x', rowCount, 7)
           self.__addQtTableItem(table, v.network, rowCount, 8)
           self.__addQtTableItem(table, str(ID), rowCount, 9)
+          self.__addQtTableItem(table,v.IRI, rowCount, 10)
           rowCount += 1
     return variable_ID_list
 

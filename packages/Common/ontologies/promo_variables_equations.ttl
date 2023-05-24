@@ -1,0 +1,81 @@
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#> .
+
+@prefix qudt:<http://qudt.org/2.1/vocab/quantitykind#> .
+
+@prefix promo:<http://example.org/> .
+
+# classes
+promo:variable a rdfs:class .
+promo:token a rdfs:class .
+
+promo:index a rdfs:class .
+promo:blockIndex a rdfs:class .
+promo:token a rdfs:class .
+
+#predicates
+promo:is_defined_by_expression a rdf:property ;
+    rdfs:domain promo:variable.
+
+promo:is_defined_by_expression_list a rdf:property ;
+    rdfs:domain promo:variable.
+
+promo:has_index a rdf:property  ;
+    rdfs:domain promo:variable.
+
+promo:has_token a rdf:property  ;
+    rdfs:domain promo:variable.
+
+promo:has_alias a rdf:property  ;
+    rdfs:domain promo:variable.
+
+promo:for_domain a rdf:property  ;
+    rdfs:domain promo:variable.
+
+
+
+### variables =========================
+## properties
+# Literals
+promo:name a rdf:Property;
+    rdfs:range rdfs:Literal.
+
+promo:network a rdf:Property;
+    rdfs:domain promo:variable;
+    rdfs:range rdfs:Literal.
+
+
+
+
+
+
+
+
+
+
+### indices ===========================
+promo:label a rdf:Property;
+	rdfs:domain rdfs:index;
+    rdfs:range rdfs:Literal.
+
+promo:network a rdf:Property;
+    rdfs:domain promo:index;
+    rdfs:range rdfs:Literal.
+
+
+### block_indices ===========================
+
+promo:label a rdf:Property;
+	rdfs:domain rdfs:blockIndex;
+    rdfs:range rdfs:Literal.
+
+promo:network a rdf:Property;
+    rdfs:domain promo:blockIndex;
+    rdfs:range rdfs:Literal.
+
+
+### tokens ==========================
+
+
+

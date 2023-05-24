@@ -1,0 +1,16 @@
+hasSpatialLast
+hasSpatialFirst
+hasTemporalNext
+hasNext
+hasRest
+hasSpatialRest
+hasSpatialNext
+hasTemporalLast
+hasTemporalRest
+hasTemporalFirst
+Arrangement
+OrderedElement
+Sequence
+SpatialOrderedElement
+Ordered
+TemporalOrderedElement

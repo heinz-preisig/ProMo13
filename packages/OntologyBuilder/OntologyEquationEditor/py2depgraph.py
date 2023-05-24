@@ -61,7 +61,7 @@ def main(argv):
   debug = 0
   exclude = []
   mf = mymf(path, debug, exclude)
-  mf.run_script("ProMo_OntologyEquationComposer.py")  # argv[0])
+  mf.run_script("../../../tasks/ProMo_OntologyEquationComposer.py")  # argv[0])
   pprint.pprint({'depgraph': mf._depgraph, 'types': mf._types})
 
 

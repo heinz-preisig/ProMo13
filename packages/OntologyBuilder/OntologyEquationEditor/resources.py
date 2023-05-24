@@ -20,22 +20,22 @@ import subprocess
 from os.path import abspath
 from os.path import dirname
 
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 from graphviz import Digraph
 from jinja2 import Environment  # sudo apt-get install python-jinja2
 from jinja2 import FileSystemLoader
-from PyQt5 import QtCore
-from PyQt5 import QtGui
 
+from Common.classes import entity
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
-from Common.common_resources import getData, getEnumeratedData
+from Common.common_resources import getData
+from Common.common_resources import getEnumeratedData
 from Common.common_resources import invertDict
-from Common.common_resources import walkDepthFirstFnc
+from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions_equation_linking import VariantRecord
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.treeid import ObjectTree
-from Common.pop_up_message_box import makeMessageBox
-from packages.Common.classes import entity
 
 # INDENT = "    "
 # LF = "\n"
@@ -51,6 +51,21 @@ LAYER_DELIMITER = "_"
 VAR_REG_EXPR = QtCore.QRegExp("[a-zA-Z_]\w*")
 BLOCK_INDEX_SEPARATOR = " & "
 
+IRIPREFIX_DELIMITER = ":"
+IRINAMESPACE_DELIMITER = "+"
+
+IRI_TEMPLATE = "%s:%s+%s" #%(prefix, namespace, label)
+
+def IRI_parse(iri):
+  prefix, _rest = iri.split(IRIPREFIX_DELIMITER)
+  namespace, label = _rest.split(IRINAMESPACE_DELIMITER)
+  return prefix,namespace,label
+
+def IRI_make(prefix,namespace,label):
+  r = IRI_TEMPLATE%(prefix,namespace,label)
+  return r
+
+
 TOOLTIPS = {}
 
 TOOLTIPS["edit"] = {}
@@ -65,6 +80,7 @@ TOOLTIPS["edit"]["del"] = "delete"
 TOOLTIPS["edit"]["network"] = "network where variable is defined"
 TOOLTIPS["edit"]["token"] = "tokens for this variable"
 TOOLTIPS["edit"]["ID"] = "assigned ID"
+TOOLTIPS["edit"]["IRI"] = "assigned IRI"
 
 TOOLTIPS["pick"] = {}
 s = "click copy variable symbol into expression editor"
@@ -79,6 +95,7 @@ TOOLTIPS["pick"]["del"] = s
 TOOLTIPS["pick"]["network"] = s
 TOOLTIPS["pick"]["token"] = s
 TOOLTIPS["pick"]["ID"] = "assigned ID"
+TOOLTIPS["pick"]["IRI"] = "assigned IRI"
 
 TOOLTIPS["show"] = {}
 s = "sorting is enabled & click to see equation"
@@ -93,6 +110,7 @@ TOOLTIPS["show"]["del"] = s
 TOOLTIPS["show"]["network"] = s
 TOOLTIPS["show"]["token"] = s
 TOOLTIPS["show"]["ID"] = s
+TOOLTIPS["show"]["IRI"] = "assigned IRI"
 
 # ------------
 TEMPLATES = {}
@@ -156,6 +174,20 @@ ENABLED_COLUMNS["intra_connections"]["state"] = [0, 1, 2, 3, 4, 5, 6]
 
 
 LIST_DELIMITERS = ["(", ")", "[", "]", "{", "}", "|", ",", "::", "&", "_"]
+DELIMITERS_alias = {
+        "(" : "left_round",
+        ")" : "right_round",
+        "[" : "left_square",
+        "]" : "right_square",
+        "{" : "left_wiggled",
+        "}" : "right_wiggled",
+        "|" : "or",
+        "," : "comma",
+        "::": "double_column",
+        "&" : "ampersand",
+        "_" : "underline"
+        }
+
 LIST_OPERATORS = ["+",  # ................ ordinary plus
                   "-",  # ................ ordinary minus
                   "^",  # ................ ordinary power
@@ -173,6 +205,44 @@ LIST_OPERATORS = ["+",  # ................ ordinary plus
                   "in",  # ............... membership    TODO: behaves more like a delimiter...
                   "MakeIndex",  # ......... make a new index
                   ]
+
+OPERATORS_alias = {
+        "+"          : "plus",  # ................ ordinary plus
+        "-"          : "minus",  # ................ ordinary minus
+        "^"          : "power",  # ................ ordinary power
+        ":"          : "KR",  # ................ Khatri-Rao product
+        "."          : "expandProduct",  # ................ expand product
+        "|"          : "reduceProduct",  # ................ reduce product
+        "BlockReduce": "BlockReduce",  # ....... block reduce product
+        "ParDiff"    : "ParDiff",  # .......... partial derivative
+        "TotalDiff"  : "TotalDiff",  # ........ total derivative
+        "Integral"   : "Integral",  # ......... integral
+        "Product"    : "Product",  # ......... interval
+        "Instantiate": "Instantiate",  # ...... instantiate
+        "max"        : "max",  # .............. maximum
+        "min"        : "min",  # .............. minimum
+        "in"         : "in",  # ............... membership    TODO: behaves more like a delimiter...
+        "MakeIndex"  : "MakeIndex",  # ......... make a new index
+        }
+
+# OPERATORS_rdf = {
+#         "+"          : "plus",  # ................ ordinary plus
+#         "-"          : "minus",  # ................ ordinary minus
+#         "^"          : "power",  # ................ ordinary power
+#         ":"          : "KR",  # ................ Khatri-Rao product
+#         "."          : "expandProduct",  # ................ expand product
+#         "|"          : "reduceProduct",  # ................ reduce product
+#         "BlockReduce": "BlockReduce",  # ....... block reduce product
+#         "ParDiff"    : "ParDiff",  # .......... partial derivative
+#         "TotalDiff"  : "TotalDiff",  # ........ total derivative
+#         "Integral"   : "Integral",  # ......... integral
+#         "Product"    : "Product",  # ......... interval
+#         "Instantiate": "Instantiate",  # ...... instantiate
+#         "max"        : "max",  # .............. maximum
+#         "min"        : "min",  # .............. minimum
+#         "in"         : "in",  # ............... membership    TODO: behaves more like a delimiter...
+#         "MakeIndex"  : "MakeIndex",  # ......... make a new index
+#         }
 
 UNITARY_NO_UNITS = ["exp", "log", "ln", "sqrt", "sin", "cos", "tan", "asin", "acos", "atan"]
 UNITARY_RETAIN_UNITS = ["abs", "neg", "diffSpace", "left", "right"]
@@ -592,6 +662,59 @@ CODE[language]["block_index"] = "{%s" + \
                                 CODE[language]["block_index.delimiter"] + \
                                 "%s}"
 
+
+# ============================================================================================
+# language = "RDF"
+# CODE[language] = {}
+# CODE[language]["bracket"] = DELIMITERS_alias["("] + r"%s" + DELIMITERS_alias["\right)"]
+# CODE[language][","] = ","
+#
+# CODE[language]["+"] = r"%s" + OPERATORS_alias["+"] + r"%s"
+# CODE[language]["-"] = r"%s" + OPERATORS_alias["-"] + r"%s"
+# CODE[language]["^"] = r"%s" + OPERATORS_alias["^"] + r"%s"
+# CODE[language][":"] = r"%s" + OPERATORS_alias[":"] + r"%s" # .........................Khatri-Rao product
+# CODE[language]["."] = r"%s \, . \, %s"  # ...............................expand product
+# CODE[language]["|"] = r"%s \stackrel{%s}{\,\star\,} %s"  # ..............reduce product
+# CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
+# CODE[language]["ParDiff"] = r"\ParDiff{%s}{%s}"
+# CODE[language]["TotalDiff"] = r"\TotDiff{%s}{%s}"
+# CODE[language]["Integral"] = r"\int_{{ {lower!s} }}^{{ {upper!s} }} \, {integrand!s} \enskip d\,{differential!s}"
+# # CODE[language]["Interval"] = r"%s \in \left[ {%s} , {%s} \right] "
+# CODE[language]["Product"] = r"\prod_{index!s}  {argument!s} "
+# CODE[language]["Instantiate"] = r"\text{Instantiate}(%s, %s)"
+# CODE[language]["max"] = r"\mathbf{max}\left( %s, %s \right)"
+# CODE[language]["min"] = r"\mathbf{min}\left( %s, %s \right)"
+# CODE[language]["index_diff_state"] = r"\dot{%s}"
+#
+# for f in UNITARY_NO_UNITS:
+#   CODE[language][f] = f + r"(%s)"
+#
+# CODE[language]["abs"] = r"|%s|"
+#
+# CODE[language]["neg"] = r"\left( -%s \right)"
+# CODE[language]["inv"] = r"\left( %s \right)^{-1}"
+# CODE[language]["sign"] = r"\text{sign} \left( %s \right)"
+#
+# CODE[language]["blockProd"] = r"\displaystyle \prod_{{ {1} \in {2} }} {0}"
+# CODE[language]["Root"] = r"Root\left( %s\right)"
+# CODE[language]["MixedStack"] = r"\text{MixedStack}\left( %s \right)"
+# CODE[language]["Stack"] = r"\text{Stack}\left( %s \right)"
+#
+# CODE[language]["diffSpace"] = r"\text{diffSpace}(%s)"
+# CODE[language]["left"] = r"\left({%s}\right)^{-\epsilon}"
+# CODE[language]["right"] = r"\left({%s}\right)^{+\epsilon}"
+# CODE[language]["equation"] = "%s = %s"
+# CODE[language]["()"] = "%s"  # r"\left(%s \right)"
+# #
+# CODE[language]["index"] = "{\cal{%s}}"
+# CODE[language]["block_index.delimiter"] = " "
+#
+# CODE[language]["variable"] = "%s"  # label of the variable
+#
+# CODE[language]["block_index"] = "{%s" + \
+#                                 CODE[language]["block_index.delimiter"] + \
+#                                 "%s}"
+
 # generating the operator lists for the equation editor
 
 OnePlace_TEMPLATE = LIST_FUNCTIONS_SINGLE_ARGUMENT
@@ -637,11 +760,14 @@ for c in Special_TEMPLATE:
 
 OPERATOR_SNIPS.append(CODE[internal]["Root"] % ('expression to be explicit in var'))
 
+
 def makeInterfaceVariableName(symbol):
-  return TEMPLATES["interface_variable"]%symbol
+  return TEMPLATES["interface_variable"] % symbol
+
 
 def revertInterfaceVariableName(symbol):
   return symbol[1:]
+
 
 def setValidator(lineEdit):
   validator = QtGui.QRegExpValidator(VAR_REG_EXPR, lineEdit)
@@ -708,6 +834,7 @@ def renderExpressionFromGlobalIDToInternal(expression, variables, indices):
   return s
 
 
+
 def renderIndexListFromGlobalIDToInternal(indexList, indices):
   """
   render an index list to display representation
@@ -727,7 +854,8 @@ def renderIndexListFromGlobalIDToInternal(indexList, indices):
 
   return s
 
-class  VarEqTree():
+
+class VarEqTree():
   """
   Generate a variable equation tree starting with a variable
 
@@ -902,7 +1030,7 @@ class DotGraphVariableEquations(VarEqTree):
     # var_labels_raw= getData(v_name)
     for var_id in self.variables:
       ID = self.TEMPLATE_VARIABLE % var_id
-      var_labels[ID] = self.variables[var_id]["aliases"]["internal_code"] # var_labels_raw[str(var_id)]["latex"] #
+      var_labels[ID] = self.variables[var_id]["aliases"]["internal_code"]  # var_labels_raw[str(var_id)]["latex"] #
       for equ_ID in self.variables[var_id]["equations"]:
         ID = self.TEMPLATE_EQUATION % equ_ID
         equation = self.variables[var_id]["equations"][equ_ID]["rhs"]
@@ -927,7 +1055,8 @@ class DotGraphVariableEquations(VarEqTree):
     image = os.path.join(self.latex_directory, "%s.png" % var_ID_label)
     if not os.path.exists(image):
       print("missing picture file:", image)
-      reply = makeMessageBox("equation picture file missing %s "%image,buttons=["OK"],infotext="-- run equation composer and generate files")
+      reply = makeMessageBox("equation picture file missing %s " % image, buttons=["OK"],
+                             infotext="-- run equation composer and generate files")
     self.simple_graph.node(node_ID_label, "", image=image, style="filled", color=colour)
 
   def addEquation(self, eq_ID_label, first=False):
@@ -936,8 +1065,9 @@ class DotGraphVariableEquations(VarEqTree):
     colour = "cyan"
     image = os.path.join(self.latex_directory, "%s.png" % eq_ID_label)
     if not os.path.exists(image):
-      print("missing picture file %s"%image)
-      reply = makeMessageBox("equation picture file missing %s"%image,buttons=["OK"],infotext="-- run equation composer and generate files")
+      print("missing picture file %s" % image)
+      reply = makeMessageBox("equation picture file missing %s" % image, buttons=["OK"],
+                             infotext="-- run equation composer and generate files")
     self.simple_graph.node(node_ID_label, '', image=image, shape="box", height="0.8cm", style="filled", color=colour)
 
 
@@ -958,7 +1088,7 @@ def AnalyseBiPartiteGraph(variable_ID, ontology_container, ontology_name, blocke
                               nodes=var_equ_tree.tree["nodes"],
                               IDs=var_equ_tree.tree["IDs"],
                               root_variable=var_equ_tree.var_ID,
-                              root_equation = start_equation,
+                              root_equation=start_equation,
                               blocked_list=blocked,
                               buddies_list=list(buddies)
                               )
@@ -993,7 +1123,6 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
   latex_equations = getData(latex_equation_file)
   compiled_variable_labels = getEnumeratedData(latex_variable_file)
   variables = ontology_container.variables
-
 
   # # var_ID = assignments["root_variable"]
   # # tree = VarEqTree(variables,var_ID,[])
@@ -1047,7 +1176,8 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
       var_ID = int(var_str_ID)
       eqs = variables[var_ID]["equations"]
       if not eqs:
-        eq = "%s :: %s" % (compiled_variable_labels[var_ID],"\\text{port variable}")# (variables[var_ID]["aliases"]["latex"], "\\text{port variable}")
+        eq = "%s :: %s" % (compiled_variable_labels[var_ID],
+                           "\\text{port variable}")  # (variables[var_ID]["aliases"]["latex"], "\\text{port variable}")
         s = [count, var_str_ID, "-", eq, str(variables[var_ID]["tokens"])]
         latex_var_equ.append(s)
         count += 1

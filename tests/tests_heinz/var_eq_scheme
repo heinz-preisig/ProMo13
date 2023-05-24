@@ -1,0 +1,90 @@
+digraph {
+	graph [rankdir=LR]
+	index_structures
+	"rdf-schema#List"
+	index_structures -> "rdf-schema#List" [label="rdf-schema#range"]
+	incidence_list
+	"22-rdf-syntax-ns#Property"
+	incidence_list -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	name
+	"22-rdf-syntax-ns#Property"
+	name -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	units
+	variable
+	units -> variable [label="rdf-schema#domain"]
+	aliases
+	"rdf-schema#Literal"
+	aliases -> "rdf-schema#Literal" [label="rdf-schema#range"]
+	equation_list
+	"22-rdf-syntax-ns#Property"
+	equation_list -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	aliases
+	"22-rdf-syntax-ns#Property"
+	aliases -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	network
+	variable
+	network -> variable [label="rdf-schema#domain"]
+	index_structures
+	variable
+	index_structures -> variable [label="rdf-schema#domain"]
+	var_name
+	name
+	var_name -> name [label="22-rdf-syntax-ns#type"]
+	rhs
+	"22-rdf-syntax-ns#Property"
+	rhs -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	variable
+	"rdf-schema#class"
+	variable -> "rdf-schema#class" [label="22-rdf-syntax-ns#type"]
+	equation_list
+	"rdf-schema#List"
+	equation_list -> "rdf-schema#List" [label="rdf-schema#range"]
+	name
+	"rdf-schema#Literal"
+	name -> "rdf-schema#Literal" [label="rdf-schema#range"]
+	doc
+	"rdf-schema#comment"
+	doc -> "rdf-schema#comment" [label="rdf-schema#range"]
+	units
+	"22-rdf-syntax-ns#Property"
+	units -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	equation
+	"rdf-schema#class"
+	equation -> "rdf-schema#class" [label="22-rdf-syntax-ns#type"]
+	rhs
+	"rdf-schema#List"
+	rhs -> "rdf-schema#List" [label="rdf-schema#range"]
+	doc
+	"22-rdf-syntax-ns#Property"
+	doc -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	equation_list
+	variable
+	equation_list -> variable [label="rdf-schema#domain"]
+	aliases
+	variable
+	aliases -> variable [label="rdf-schema#domain"]
+	network
+	"rdf-schema#Literal"
+	network -> "rdf-schema#Literal" [label="rdf-schema#range"]
+	token
+	"rdf-schema#class"
+	token -> "rdf-schema#class" [label="22-rdf-syntax-ns#type"]
+	network
+	"22-rdf-syntax-ns#Property"
+	network -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	incidence_list
+	equation
+	incidence_list -> equation [label="rdf-schema#domain"]
+	units
+	"rdf-schema#Literal"
+	units -> "rdf-schema#Literal" [label="rdf-schema#range"]
+	rhs
+	equation
+	rhs -> equation [label="rdf-schema#domain"]
+	index_structures
+	"22-rdf-syntax-ns#Property"
+	index_structures -> "22-rdf-syntax-ns#Property" [label="22-rdf-syntax-ns#type"]
+	doc
+	equation
+	doc -> equation [label="rdf-schema#domain"]
+}

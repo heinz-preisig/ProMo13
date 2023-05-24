@@ -25,7 +25,7 @@ __status__ = "beta"
 import os as OS
 from shutil import copyfile
 
-from packages.Common.pop_up_message_box import makeMessageBox
+from Common.pop_up_message_box import makeMessageBox
 
 # from Common.ui_message_popup_impl import UI_MessagePopUp
 
@@ -33,6 +33,7 @@ from packages.Common.pop_up_message_box import makeMessageBox
 
 FILE_NAMES = {
         "ontology_file"                       : "ontology.json",
+        "variables_expressions_graph_file"        : "variables_expressions.ttl",
         "model_file"                          : "model.json",
         "model_flat_file"                     : "model_flat.json",
         "indices_file"                        : "indices.json",
@@ -69,6 +70,7 @@ FILE_NAMES = {
         "matlab_template"                     : "matlab_template.jinja",
         # TODO Verify that all these files are still used.
         "equations_global_id": "equations_global_ID.json", # Added new
+        "VariableExpression_ttl": "variableExpression",
         }
 
 EXTENSION_GRAPH_DATA = ".json"
@@ -145,6 +147,8 @@ DIRECTORIES["templates"] = JOIN(DIRECTORIES["common"], "templates")
 
 FILES = {}
 FILES["ontology_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s", FILE_NAMES["ontology_file"])  # %ontology_name
+
+FILES["variables_expressions_ontology_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s", FILE_NAMES["variables_expressions_graph_file"])  # %ontology_name
 FILES["indices_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s", FILE_NAMES["indices_file"])  # %ontolgy_name
 # FILES["rules_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s", FILE_NAMES["rules_file"])  # %ontology_name
 FILES["global_variable_identifier"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
@@ -158,17 +162,20 @@ FILES["global_equation_identifier"] = JOIN(DIRECTORIES["ontology_repository"], "
 FILES["global_equation_id"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                            FILE_NAMES["equations_global_id"])  # %ontology_name
 
-FILES["variables_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
-                               FILE_NAMES["variables_file"])  # %ontology_name
+# FILES["variables_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
+#                                FILE_NAMES["variables_file"])  # %ontology_name
 
 FILES["variables_file_v6"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                   FILE_NAMES["variables_file_v6"])  # %ontology_name
 
+FILES["variables_file_v7"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
+                                  FILE_NAMES["variables_file_v7"])  # %ontology_name
+
 FILES["variables_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                FILE_NAMES["variables_file_v8"])  # %ontology_name
 
-FILES["variables_file_v7"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
-                                  FILE_NAMES["variables_file_v7"])  # %ontology_name
+FILES["variablesExpression_ttl_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
+                               FILE_NAMES["VariableExpression_ttl"])  # %ontology_name
 
 FILES["initial_variables_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                        FILE_NAMES["variables_initial"])  # %ontology_name

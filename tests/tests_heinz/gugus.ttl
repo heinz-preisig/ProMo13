@@ -1,0 +1,7 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<http://example.org/myList> a rdf:List ;
+    rdf:_1 <http://example.org/one> ;
+    rdf:_2 <http://example.org/two> ;
+    rdf:_3 <http://example.org/three> .
+

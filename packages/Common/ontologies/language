@@ -1,0 +1,147 @@
+digraph {
+	graph [rankdir=LR]
+	asin
+	function
+	asin -> function [label="22-rdf-syntax-ns#type"]
+	minus
+	operator
+	minus -> operator [label="22-rdf-syntax-ns#type"]
+	or
+	delimiter
+	or -> delimiter [label="22-rdf-syntax-ns#type"]
+	tan
+	function
+	tan -> function [label="22-rdf-syntax-ns#type"]
+	KR
+	operator
+	KR -> operator [label="22-rdf-syntax-ns#type"]
+	Instantiate
+	operator
+	Instantiate -> operator [label="22-rdf-syntax-ns#type"]
+	MixedStack
+	function
+	MixedStack -> function [label="22-rdf-syntax-ns#type"]
+	in
+	operator
+	in -> operator [label="22-rdf-syntax-ns#type"]
+	Root
+	function
+	Root -> function [label="22-rdf-syntax-ns#type"]
+	atan
+	function
+	atan -> function [label="22-rdf-syntax-ns#type"]
+	ParDiff
+	operator
+	ParDiff -> operator [label="22-rdf-syntax-ns#type"]
+	exp
+	function
+	exp -> function [label="22-rdf-syntax-ns#type"]
+	log
+	function
+	log -> function [label="22-rdf-syntax-ns#type"]
+	double_column
+	delimiter
+	double_column -> delimiter [label="22-rdf-syntax-ns#type"]
+	diffSpace
+	function
+	diffSpace -> function [label="22-rdf-syntax-ns#type"]
+	Stack
+	function
+	Stack -> function [label="22-rdf-syntax-ns#type"]
+	left_square
+	delimiter
+	left_square -> delimiter [label="22-rdf-syntax-ns#type"]
+	power
+	operator
+	power -> operator [label="22-rdf-syntax-ns#type"]
+	left
+	function
+	left -> function [label="22-rdf-syntax-ns#type"]
+	expandProduct
+	operator
+	expandProduct -> operator [label="22-rdf-syntax-ns#type"]
+	MakeIndex
+	operator
+	MakeIndex -> operator [label="22-rdf-syntax-ns#type"]
+	ln
+	function
+	ln -> function [label="22-rdf-syntax-ns#type"]
+	ampersand
+	delimiter
+	ampersand -> delimiter [label="22-rdf-syntax-ns#type"]
+	cos
+	function
+	cos -> function [label="22-rdf-syntax-ns#type"]
+	sqrt
+	function
+	sqrt -> function [label="22-rdf-syntax-ns#type"]
+	neg
+	function
+	neg -> function [label="22-rdf-syntax-ns#type"]
+	right_round
+	delimiter
+	right_round -> delimiter [label="22-rdf-syntax-ns#type"]
+	right
+	function
+	right -> function [label="22-rdf-syntax-ns#type"]
+	acos
+	function
+	acos -> function [label="22-rdf-syntax-ns#type"]
+	sign
+	function
+	sign -> function [label="22-rdf-syntax-ns#type"]
+	right_square
+	delimiter
+	right_square -> delimiter [label="22-rdf-syntax-ns#type"]
+	Integral
+	operator
+	Integral -> operator [label="22-rdf-syntax-ns#type"]
+	right_wiggled
+	delimiter
+	right_wiggled -> delimiter [label="22-rdf-syntax-ns#type"]
+	min
+	operator
+	min -> operator [label="22-rdf-syntax-ns#type"]
+	inv
+	function
+	inv -> function [label="22-rdf-syntax-ns#type"]
+	abs
+	function
+	abs -> function [label="22-rdf-syntax-ns#type"]
+	BlockReduce
+	operator
+	BlockReduce -> operator [label="22-rdf-syntax-ns#type"]
+	plus
+	operator
+	plus -> operator [label="22-rdf-syntax-ns#type"]
+	left_wiggled
+	delimiter
+	left_wiggled -> delimiter [label="22-rdf-syntax-ns#type"]
+	TotalDiff
+	operator
+	TotalDiff -> operator [label="22-rdf-syntax-ns#type"]
+	left_round
+	delimiter
+	left_round -> delimiter [label="22-rdf-syntax-ns#type"]
+	Product
+	operator
+	Product -> operator [label="22-rdf-syntax-ns#type"]
+	underline
+	delimiter
+	underline -> delimiter [label="22-rdf-syntax-ns#type"]
+	sin
+	function
+	sin -> function [label="22-rdf-syntax-ns#type"]
+	blockProd
+	function
+	blockProd -> function [label="22-rdf-syntax-ns#type"]
+	max
+	operator
+	max -> operator [label="22-rdf-syntax-ns#type"]
+	reduceProduct
+	operator
+	reduceProduct -> operator [label="22-rdf-syntax-ns#type"]
+	comma
+	delimiter
+	comma -> delimiter [label="22-rdf-syntax-ns#type"]
+}

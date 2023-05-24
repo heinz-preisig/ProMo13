@@ -1,0 +1,147 @@
+@prefix promolg: <http://example.org/language#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+promolg:BlockReduce rdfs:label "BlockReduce" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:Instantiate rdfs:label "Instantiate" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:Integral rdfs:label "Integral" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:KR rdfs:label ":" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:MakeIndex rdfs:label "MakeIndex" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:MixedStack rdfs:label "MixedStack" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:ParDiff rdfs:label "ParDiff" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:Product rdfs:label "Product" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:Root rdfs:label "Root" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:Stack rdfs:label "Stack" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:TotalDiff rdfs:label "TotalDiff" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:abs rdfs:label "abs" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:acos rdfs:label "acos" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:ampersand rdfs:label "&" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:asin rdfs:label "asin" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:atan rdfs:label "atan" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:blockProd rdfs:label "blockProd" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:comma rdfs:label "," ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:cos rdfs:label "cos" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:diffSpace rdfs:label "diffSpace" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:double_column rdfs:label "::" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:exp rdfs:label "exp" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:expandProduct rdfs:label "." ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:in rdfs:label "in" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:inv rdfs:label "inv" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:left rdfs:label "left" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:left_round rdfs:label "(" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:left_square rdfs:label "[" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:left_wiggled rdfs:label "{" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:ln rdfs:label "ln" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:log rdfs:label "log" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:max rdfs:label "max" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:min rdfs:label "min" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:minus rdfs:label "-" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:neg rdfs:label "neg" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:or rdfs:label "|" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:plus rdfs:label "+" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:power rdfs:label "^" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:reduceProduct rdfs:label "|" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:right rdfs:label "right" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:right_round rdfs:label ")" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:right_square rdfs:label "]" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:right_wiggled rdfs:label "}" ;
+    rdfs:subClassOf promolg:delimiter .
+
+promolg:sign rdfs:label "sign" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:sin rdfs:label "sin" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:sqrt rdfs:label "sqrt" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:tan rdfs:label "tan" ;
+    rdfs:subClassOf promolg:function .
+
+promolg:underline rdfs:label "_" ;
+    rdfs:subClassOf promolg:delimiter .
+

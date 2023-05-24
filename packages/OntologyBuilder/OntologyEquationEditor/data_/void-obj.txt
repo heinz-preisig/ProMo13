@@ -1,0 +1,124 @@
+
+nf959739626b84fa9abb610ba5d8f62d2b1
+nf959739626b84fa9abb610ba5d8f62d2b2
+nf959739626b84fa9abb610ba5d8f62d2b3
+nf959739626b84fa9abb610ba5d8f62d2b4
+nf959739626b84fa9abb610ba5d8f62d2b5
+nf959739626b84fa9abb610ba5d8f62d2b6
+nf959739626b84fa9abb610ba5d8f62d2b7
+nf959739626b84fa9abb610ba5d8f62d2b8
+nf959739626b84fa9abb610ba5d8f62d2b9
+http://kwijibo.talis.com/
+http://linkeddata.deri.ie/
+http://purl.org/adms/assettype/Ontology
+http://purl.org/adms/status/Completed
+http://purl.org/adms/status/UnderDevelopment
+http://rdfs.org/ns/void#Dataset
+http://rdfs.org/ns/void#Linkset
+http://rdfs.org/ns/void#TechnicalFeature
+http://rdfs.org/ns/void#subset
+http://rdfs.org/ns/void#target
+http://richard.cyganiak.de/
+http://sw-app.org/about.html
+http://users.ox.ac.uk/~zool0770/
+http://vocab.deri.ie
+http://vocab.deri.ie/void
+http://vocab.deri.ie/void#Digital%20Enterprise%20Research%20Institute%2C%20NUI%20Galway
+http://vocab.deri.ie/void.html
+http://www.deri.ie/
+http://www.insight-centre.org
+http://www.talis.com/
+http://www.w3.org/1999/02/22-rdf-syntax-ns#DatatypeProperty
+http://www.w3.org/1999/02/22-rdf-syntax-ns#Property
+http://www.w3.org/2000/01/rdf-schema#Class
+http://www.w3.org/2000/01/rdf-schema#Literal
+http://www.w3.org/2000/01/rdf-schema#Resource
+http://www.w3.org/2001/XMLSchema#integer
+http://www.w3.org/2002/07/owl#Class
+http://www.w3.org/2002/07/owl#DatatypeProperty
+http://www.w3.org/2002/07/owl#FunctionalProperty
+http://www.w3.org/2002/07/owl#ObjectProperty
+http://www.w3.org/2002/07/owl#Ontology
+http://www.w3.org/ns/adms#SemanticAsset
+http://www.w3.org/ns/adms#SemanticDistribution
+http://www.zoo.ox.ac.uk/
+http://xmlns.com/foaf/0.1/Document
+https://schema.org/Organization
+https://schema.org/Person
+mailto:Keith.Alexander@talis.com
+mailto:jun.zhao@zoo.ox.ac.uk
+mailto:michael.hausenblas@deri.org
+mailto:richard.cyganiak@deri.org
+2010-01-26
+2011-03-06
+A URI that is a common string prefix of all the entity URIs in a void:Dataset.
+A collection of RDF links between two void:Datasets.
+A set of RDF triples that are published, maintained or aggregated by a single provider.
+A subset of a void:Dataset that contains only the entities of a certain rdfs:Class.
+A subset of a void:Dataset that contains only the triples of a certain rdf:Property.
+A technical feature of a void:Dataset, such as a supported RDF serialization format.
+A top concept or entry point for a void:Dataset that is structured in a tree-like fashion. All resources in a dataset can be reached by following links from its root resources in a small number of steps.
+A vocabulary that is used in the dataset.
+A web resource whose foaf:primaryTopic or foaf:topics include void:Datasets.
+An OpenSearch description document for a free-text search service over a void:Dataset.
+An RDF dump, partial or complete, of a void:Dataset.
+Data Dump
+Defines a regular expression pattern matching URIs in the dataset.
+Defines a simple URI look-up protocol for accessing a dataset.
+Department of Zoology, University of Oxford
+Digital Enterprise Research Institute, NUI Galway
+Jun Zhao
+Keith Alexander
+LiDRC
+Michael Hausenblas
+Objects Target
+One of the two datasets linked by the Linkset.
+Points to the void:Dataset that a document is a part of.
+Richard Cyganiak
+Subjects Target
+Talis
+Target
+The Vocabulary of Interlinked Datasets (VoID) is an RDF Schema vocabulary for expressing metadata about RDF datasets. It is intended as a bridge between the publishers and users of RDF data, with applications ranging from data discovery to cataloging and archiving of datasets. This document provides a formal definition of the new RDF classes and properties introduced for VoID. It is a companion to the main specification document for VoID, <em><a href="http://www.w3.org/TR/void/">Describing Linked Datasets with the VoID Vocabulary</a></em>.
+The dataset describing the objects of the triples contained in the Linkset.
+The dataset describing the subjects of triples contained in the Linkset.
+The rdf:Property that is the predicate of all triples in a property-based partition.
+The rdfs:Class that is the rdf:type of all entities in a class-based partition.
+The total number of distinct classes in a void:Dataset. In other words, the number of distinct resources occuring as objects of rdf:type triples in the dataset.
+The total number of distinct objects in a void:Dataset. In other words, the number of distinct resources that occur in the object position of triples in the dataset. Literals are included in this count.
+The total number of distinct properties in a void:Dataset. In other words, the number of distinct resources that occur in the predicate position of triples in the dataset.
+The total number of distinct subjects in a void:Dataset. In other words, the number of distinct resources that occur in the subject position of triples in the dataset.
+The total number of documents, for datasets that are published as a set of individual documents, such as RDF/XML documents or RDFa-annotated web pages. Non-RDF documents, such as web pages in HTML or images, are usually not included in this count. This property is intended for datasets where the total number of triples or entities is hard to determine. void:triples or void:entities should be preferred where practical.
+The total number of entities that are described in a void:Dataset.
+The total number of triples contained in a void:Dataset.
+URI space
+Vocabulary of Interlinked Datasets (VoID)
+a link predicate
+class
+class partition
+classes
+dataset
+dataset description
+distinct objects
+distinct subjects
+example resource of dataset
+feature
+has URI regular expression pattern
+has a SPARQL endpoint at
+has an URI look-up endpoint at
+has subset
+http://rdfs.org/ns/void#
+http://vocab.deri.ie/void.rdf
+http://vocab.deri.ie/void.ttl
+in dataset
+linkset
+number of documents
+number of entities
+number of properties
+number of triples
+open search description
+property
+property partition
+root resource
+technical feature
+vocabulary
+void

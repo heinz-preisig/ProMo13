@@ -1,0 +1,147 @@
+digraph {
+	graph [rankdir=LR]
+	promoampersand
+	promodelimiter
+	promoampersand -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoleft_square
+	promodelimiter
+	promoleft_square -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoln
+	promofunction
+	promoln -> promofunction [label="22-rdf-syntax-ns#type"]
+	promopower
+	promooperator
+	promopower -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoInstantiate
+	promooperator
+	promoInstantiate -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoRoot
+	promofunction
+	promoRoot -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoabs
+	promofunction
+	promoabs -> promofunction [label="22-rdf-syntax-ns#type"]
+	promodouble_column
+	promodelimiter
+	promodouble_column -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoright_square
+	promodelimiter
+	promoright_square -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoIntegral
+	promooperator
+	promoIntegral -> promooperator [label="22-rdf-syntax-ns#type"]
+	promosin
+	promofunction
+	promosin -> promofunction [label="22-rdf-syntax-ns#type"]
+	promosqrt
+	promofunction
+	promosqrt -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoneg
+	promofunction
+	promoneg -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoKR
+	promooperator
+	promoKR -> promooperator [label="22-rdf-syntax-ns#type"]
+	promolog
+	promofunction
+	promolog -> promofunction [label="22-rdf-syntax-ns#type"]
+	promocomma
+	promodelimiter
+	promocomma -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoacos
+	promofunction
+	promoacos -> promofunction [label="22-rdf-syntax-ns#type"]
+	promomin
+	promooperator
+	promomin -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoatan
+	promofunction
+	promoatan -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoreduceProduct
+	promooperator
+	promoreduceProduct -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoBlockReduce
+	promooperator
+	promoBlockReduce -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoleft_round
+	promodelimiter
+	promoleft_round -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promodiffSpace
+	promofunction
+	promodiffSpace -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoMixedStack
+	promofunction
+	promoMixedStack -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoexp
+	promofunction
+	promoexp -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoleft
+	promofunction
+	promoleft -> promofunction [label="22-rdf-syntax-ns#type"]
+	promounderline
+	promodelimiter
+	promounderline -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoor
+	promodelimiter
+	promoor -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoleft_wiggled
+	promodelimiter
+	promoleft_wiggled -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promominus
+	promooperator
+	promominus -> promooperator [label="22-rdf-syntax-ns#type"]
+	promocos
+	promofunction
+	promocos -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoright_wiggled
+	promodelimiter
+	promoright_wiggled -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoin
+	promooperator
+	promoin -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoexpandProduct
+	promooperator
+	promoexpandProduct -> promooperator [label="22-rdf-syntax-ns#type"]
+	promomax
+	promooperator
+	promomax -> promooperator [label="22-rdf-syntax-ns#type"]
+	promosign
+	promofunction
+	promosign -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoParDiff
+	promooperator
+	promoParDiff -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoright
+	promofunction
+	promoright -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoStack
+	promofunction
+	promoStack -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoright_round
+	promodelimiter
+	promoright_round -> promodelimiter [label="22-rdf-syntax-ns#type"]
+	promoProduct
+	promooperator
+	promoProduct -> promooperator [label="22-rdf-syntax-ns#type"]
+	promotan
+	promofunction
+	promotan -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoTotalDiff
+	promooperator
+	promoTotalDiff -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoasin
+	promofunction
+	promoasin -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoMakeIndex
+	promooperator
+	promoMakeIndex -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoplus
+	promooperator
+	promoplus -> promooperator [label="22-rdf-syntax-ns#type"]
+	promoblockProd
+	promofunction
+	promoblockProd -> promofunction [label="22-rdf-syntax-ns#type"]
+	promoinv
+	promofunction
+	promoinv -> promofunction [label="22-rdf-syntax-ns#type"]
+}

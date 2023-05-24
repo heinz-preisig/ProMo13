@@ -1,0 +1,6 @@
+hasTemporalDirectPart
+hasSpatioTemporalDirectPart
+hasSpatialDirectPart
+Reductionistic
+State
+Existent

@@ -1,0 +1,15 @@
+semiotical
+hasIndex
+hasIcon
+hasSign
+hasInterpretant
+hasConvention
+Semiosis
+Interpreter
+Interpretant
+Index
+Conventional
+Object
+Sign
+Semiotic
+Icon

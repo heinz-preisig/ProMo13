@@ -26,9 +26,10 @@ __status__ = "beta"
 from collections import OrderedDict
 
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
-from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
+from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES, IRI_make
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from Common.common_resources import VARIABLE_TYPE_INTERFACES
+from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES as T
 
 TEMPLATES = {
         "incidence_matrix"          : "F_%s_%s",  # %(token, transfer_mechanism)
@@ -87,6 +88,7 @@ class RecordVariable(dict):
     self["aliases"] = {}  # ..................................  one for each language, with language being the hash key
     self["port_variable"] = False  # ................. port variables are at the bottom of the definition -- foundation
     self["tokens"] = []  # ...................................................................................... token
+    self["IRI"] = "None" # ......................................................... qudt or promo IRI for the variable
 
 
 class RecordEquation(dict):
@@ -151,6 +153,8 @@ class RecordIndex(dict):  # ....................................................
     # simplify
     self["aliases"] = {}  # ...................................................................... hash-key is language
     self["tokens"] = None
+    self["IRI"] = "None" # ......................................................... qudt or promo IRI for the variable
+
 
 
 class RecordBlockIndex(dict):  # .............................................................. hash is global index_ID
@@ -161,6 +165,7 @@ class RecordBlockIndex(dict):  # ...............................................
     self["indices"] = []  # ................................................. the two indices making up the block index
     self["network"] = []  # TODO: list of networks it applies to ???
     self["aliases"] = {}  # ...................................................................... hash-key is language
+    self["IRI"] = "None" # ......................................................... qudt or promo IRI for the variable
 
 
 class RecordIncidenceMatrix(RecordVariable):  # obsolete for the time being
@@ -248,6 +253,7 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
                                aliases={},
                                port_variable=False,
                                tokens=[],
+                               IRI=None,
                                ):
   """
   NOTE: there is a problem here with the defaults -- do not use them, but define everthing explicitly.
@@ -276,6 +282,7 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["aliases"] = aliases  # .....could be in code - not handy and not quite logical: there is also a compiled version
   self["port_variable"] = port_variable  # ............ port variables are at the bottom of the definition -- foundation
   self["tokens"] = tokens # ...................................................................................... token
+  self["IRI"] = IRI_make("promo", network, label)  # NOTE: label is to be adjusted when changed
 
   for language in LANGUAGES["aliasing"]:
     self["aliases"][language] = label

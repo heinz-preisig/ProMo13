@@ -35,6 +35,7 @@ from OntologyBuilder.OntologyEquationEditor.ui_symbol_impl import UI_SymbolDialo
 from OntologyBuilder.OntologyEquationEditor.variable_framework import simulateDeletion
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
+from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
 from Common.pop_up_message_box import makeMessageBox
 
 
@@ -174,6 +175,17 @@ class UI_VariableTableDialog(VariableTable):
     self.variables.indexVariables()  # indexEquationsInNetworks()
     self.reset_table()
 
+  def __iriDialog(self, v):
+    label = v.label
+    iri = v.IRI
+    iri_getter = UI_QUDTFetch_IRI(label, iri)
+    iri_getter.exec_()
+    iri,new_iri = iri_getter.getSelection()
+    print("debugging:", new_iri, iri)
+    if iri:
+      v.IRI = iri
+    self.reset_table()
+
   def on_pushNew_pressed(self):
     self.__defineNewVarWithEquation()
 
@@ -284,6 +296,9 @@ class UI_VariableTableDialog(VariableTable):
     elif c == 7:
       # print("clicked 7 - delete ")
       self.__showDeleteDialog(selected_ID)
+    elif c == 10:
+      print("clicked 10 -- IRI")
+      self.__iriDialog(v)
     return
 
   def definePortVariable(self):
@@ -301,6 +316,7 @@ class UI_VariableTableDialog(VariableTable):
                                                  aliases={},
                                                  port_variable=True,
                                                  tokens=[],
+                                                 IRI=None
                                                  )
 
     self.variables.addNewVariable(ID=var_ID, **variable_record)

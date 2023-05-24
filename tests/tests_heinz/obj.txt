@@ -1,0 +1,2779 @@
+
+n047bee8ca09d4897ba6c6a7696d8b36ab1
+n047bee8ca09d4897ba6c6a7696d8b36ab10
+n047bee8ca09d4897ba6c6a7696d8b36ab100
+n047bee8ca09d4897ba6c6a7696d8b36ab101
+n047bee8ca09d4897ba6c6a7696d8b36ab102
+n047bee8ca09d4897ba6c6a7696d8b36ab103
+n047bee8ca09d4897ba6c6a7696d8b36ab104
+n047bee8ca09d4897ba6c6a7696d8b36ab105
+n047bee8ca09d4897ba6c6a7696d8b36ab106
+n047bee8ca09d4897ba6c6a7696d8b36ab107
+n047bee8ca09d4897ba6c6a7696d8b36ab108
+n047bee8ca09d4897ba6c6a7696d8b36ab109
+n047bee8ca09d4897ba6c6a7696d8b36ab11
+n047bee8ca09d4897ba6c6a7696d8b36ab110
+n047bee8ca09d4897ba6c6a7696d8b36ab111
+n047bee8ca09d4897ba6c6a7696d8b36ab112
+n047bee8ca09d4897ba6c6a7696d8b36ab113
+n047bee8ca09d4897ba6c6a7696d8b36ab114
+n047bee8ca09d4897ba6c6a7696d8b36ab115
+n047bee8ca09d4897ba6c6a7696d8b36ab116
+n047bee8ca09d4897ba6c6a7696d8b36ab117
+n047bee8ca09d4897ba6c6a7696d8b36ab118
+n047bee8ca09d4897ba6c6a7696d8b36ab119
+n047bee8ca09d4897ba6c6a7696d8b36ab12
+n047bee8ca09d4897ba6c6a7696d8b36ab120
+n047bee8ca09d4897ba6c6a7696d8b36ab121
+n047bee8ca09d4897ba6c6a7696d8b36ab122
+n047bee8ca09d4897ba6c6a7696d8b36ab123
+n047bee8ca09d4897ba6c6a7696d8b36ab124
+n047bee8ca09d4897ba6c6a7696d8b36ab125
+n047bee8ca09d4897ba6c6a7696d8b36ab126
+n047bee8ca09d4897ba6c6a7696d8b36ab127
+n047bee8ca09d4897ba6c6a7696d8b36ab128
+n047bee8ca09d4897ba6c6a7696d8b36ab129
+n047bee8ca09d4897ba6c6a7696d8b36ab13
+n047bee8ca09d4897ba6c6a7696d8b36ab130
+n047bee8ca09d4897ba6c6a7696d8b36ab131
+n047bee8ca09d4897ba6c6a7696d8b36ab132
+n047bee8ca09d4897ba6c6a7696d8b36ab133
+n047bee8ca09d4897ba6c6a7696d8b36ab134
+n047bee8ca09d4897ba6c6a7696d8b36ab135
+n047bee8ca09d4897ba6c6a7696d8b36ab136
+n047bee8ca09d4897ba6c6a7696d8b36ab137
+n047bee8ca09d4897ba6c6a7696d8b36ab138
+n047bee8ca09d4897ba6c6a7696d8b36ab139
+n047bee8ca09d4897ba6c6a7696d8b36ab14
+n047bee8ca09d4897ba6c6a7696d8b36ab140
+n047bee8ca09d4897ba6c6a7696d8b36ab141
+n047bee8ca09d4897ba6c6a7696d8b36ab142
+n047bee8ca09d4897ba6c6a7696d8b36ab143
+n047bee8ca09d4897ba6c6a7696d8b36ab144
+n047bee8ca09d4897ba6c6a7696d8b36ab145
+n047bee8ca09d4897ba6c6a7696d8b36ab146
+n047bee8ca09d4897ba6c6a7696d8b36ab147
+n047bee8ca09d4897ba6c6a7696d8b36ab148
+n047bee8ca09d4897ba6c6a7696d8b36ab149
+n047bee8ca09d4897ba6c6a7696d8b36ab15
+n047bee8ca09d4897ba6c6a7696d8b36ab150
+n047bee8ca09d4897ba6c6a7696d8b36ab151
+n047bee8ca09d4897ba6c6a7696d8b36ab152
+n047bee8ca09d4897ba6c6a7696d8b36ab153
+n047bee8ca09d4897ba6c6a7696d8b36ab154
+n047bee8ca09d4897ba6c6a7696d8b36ab155
+n047bee8ca09d4897ba6c6a7696d8b36ab156
+n047bee8ca09d4897ba6c6a7696d8b36ab157
+n047bee8ca09d4897ba6c6a7696d8b36ab158
+n047bee8ca09d4897ba6c6a7696d8b36ab159
+n047bee8ca09d4897ba6c6a7696d8b36ab16
+n047bee8ca09d4897ba6c6a7696d8b36ab160
+n047bee8ca09d4897ba6c6a7696d8b36ab161
+n047bee8ca09d4897ba6c6a7696d8b36ab162
+n047bee8ca09d4897ba6c6a7696d8b36ab163
+n047bee8ca09d4897ba6c6a7696d8b36ab164
+n047bee8ca09d4897ba6c6a7696d8b36ab165
+n047bee8ca09d4897ba6c6a7696d8b36ab166
+n047bee8ca09d4897ba6c6a7696d8b36ab167
+n047bee8ca09d4897ba6c6a7696d8b36ab168
+n047bee8ca09d4897ba6c6a7696d8b36ab169
+n047bee8ca09d4897ba6c6a7696d8b36ab17
+n047bee8ca09d4897ba6c6a7696d8b36ab170
+n047bee8ca09d4897ba6c6a7696d8b36ab171
+n047bee8ca09d4897ba6c6a7696d8b36ab172
+n047bee8ca09d4897ba6c6a7696d8b36ab173
+n047bee8ca09d4897ba6c6a7696d8b36ab174
+n047bee8ca09d4897ba6c6a7696d8b36ab175
+n047bee8ca09d4897ba6c6a7696d8b36ab176
+n047bee8ca09d4897ba6c6a7696d8b36ab177
+n047bee8ca09d4897ba6c6a7696d8b36ab178
+n047bee8ca09d4897ba6c6a7696d8b36ab179
+n047bee8ca09d4897ba6c6a7696d8b36ab18
+n047bee8ca09d4897ba6c6a7696d8b36ab180
+n047bee8ca09d4897ba6c6a7696d8b36ab181
+n047bee8ca09d4897ba6c6a7696d8b36ab182
+n047bee8ca09d4897ba6c6a7696d8b36ab183
+n047bee8ca09d4897ba6c6a7696d8b36ab184
+n047bee8ca09d4897ba6c6a7696d8b36ab185
+n047bee8ca09d4897ba6c6a7696d8b36ab186
+n047bee8ca09d4897ba6c6a7696d8b36ab187
+n047bee8ca09d4897ba6c6a7696d8b36ab188
+n047bee8ca09d4897ba6c6a7696d8b36ab189
+n047bee8ca09d4897ba6c6a7696d8b36ab19
+n047bee8ca09d4897ba6c6a7696d8b36ab190
+n047bee8ca09d4897ba6c6a7696d8b36ab191
+n047bee8ca09d4897ba6c6a7696d8b36ab192
+n047bee8ca09d4897ba6c6a7696d8b36ab193
+n047bee8ca09d4897ba6c6a7696d8b36ab194
+n047bee8ca09d4897ba6c6a7696d8b36ab195
+n047bee8ca09d4897ba6c6a7696d8b36ab196
+n047bee8ca09d4897ba6c6a7696d8b36ab197
+n047bee8ca09d4897ba6c6a7696d8b36ab198
+n047bee8ca09d4897ba6c6a7696d8b36ab199
+n047bee8ca09d4897ba6c6a7696d8b36ab2
+n047bee8ca09d4897ba6c6a7696d8b36ab20
+n047bee8ca09d4897ba6c6a7696d8b36ab21
+n047bee8ca09d4897ba6c6a7696d8b36ab22
+n047bee8ca09d4897ba6c6a7696d8b36ab23
+n047bee8ca09d4897ba6c6a7696d8b36ab24
+n047bee8ca09d4897ba6c6a7696d8b36ab25
+n047bee8ca09d4897ba6c6a7696d8b36ab26
+n047bee8ca09d4897ba6c6a7696d8b36ab27
+n047bee8ca09d4897ba6c6a7696d8b36ab28
+n047bee8ca09d4897ba6c6a7696d8b36ab29
+n047bee8ca09d4897ba6c6a7696d8b36ab3
+n047bee8ca09d4897ba6c6a7696d8b36ab30
+n047bee8ca09d4897ba6c6a7696d8b36ab31
+n047bee8ca09d4897ba6c6a7696d8b36ab32
+n047bee8ca09d4897ba6c6a7696d8b36ab33
+n047bee8ca09d4897ba6c6a7696d8b36ab34
+n047bee8ca09d4897ba6c6a7696d8b36ab35
+n047bee8ca09d4897ba6c6a7696d8b36ab36
+n047bee8ca09d4897ba6c6a7696d8b36ab37
+n047bee8ca09d4897ba6c6a7696d8b36ab38
+n047bee8ca09d4897ba6c6a7696d8b36ab39
+n047bee8ca09d4897ba6c6a7696d8b36ab4
+n047bee8ca09d4897ba6c6a7696d8b36ab40
+n047bee8ca09d4897ba6c6a7696d8b36ab41
+n047bee8ca09d4897ba6c6a7696d8b36ab42
+n047bee8ca09d4897ba6c6a7696d8b36ab43
+n047bee8ca09d4897ba6c6a7696d8b36ab44
+n047bee8ca09d4897ba6c6a7696d8b36ab45
+n047bee8ca09d4897ba6c6a7696d8b36ab46
+n047bee8ca09d4897ba6c6a7696d8b36ab47
+n047bee8ca09d4897ba6c6a7696d8b36ab48
+n047bee8ca09d4897ba6c6a7696d8b36ab49
+n047bee8ca09d4897ba6c6a7696d8b36ab5
+n047bee8ca09d4897ba6c6a7696d8b36ab50
+n047bee8ca09d4897ba6c6a7696d8b36ab51
+n047bee8ca09d4897ba6c6a7696d8b36ab52
+n047bee8ca09d4897ba6c6a7696d8b36ab53
+n047bee8ca09d4897ba6c6a7696d8b36ab54
+n047bee8ca09d4897ba6c6a7696d8b36ab55
+n047bee8ca09d4897ba6c6a7696d8b36ab56
+n047bee8ca09d4897ba6c6a7696d8b36ab57
+n047bee8ca09d4897ba6c6a7696d8b36ab58
+n047bee8ca09d4897ba6c6a7696d8b36ab59
+n047bee8ca09d4897ba6c6a7696d8b36ab6
+n047bee8ca09d4897ba6c6a7696d8b36ab60
+n047bee8ca09d4897ba6c6a7696d8b36ab61
+n047bee8ca09d4897ba6c6a7696d8b36ab62
+n047bee8ca09d4897ba6c6a7696d8b36ab63
+n047bee8ca09d4897ba6c6a7696d8b36ab64
+n047bee8ca09d4897ba6c6a7696d8b36ab65
+n047bee8ca09d4897ba6c6a7696d8b36ab66
+n047bee8ca09d4897ba6c6a7696d8b36ab67
+n047bee8ca09d4897ba6c6a7696d8b36ab68
+n047bee8ca09d4897ba6c6a7696d8b36ab69
+n047bee8ca09d4897ba6c6a7696d8b36ab7
+n047bee8ca09d4897ba6c6a7696d8b36ab70
+n047bee8ca09d4897ba6c6a7696d8b36ab71
+n047bee8ca09d4897ba6c6a7696d8b36ab72
+n047bee8ca09d4897ba6c6a7696d8b36ab73
+n047bee8ca09d4897ba6c6a7696d8b36ab74
+n047bee8ca09d4897ba6c6a7696d8b36ab75
+n047bee8ca09d4897ba6c6a7696d8b36ab76
+n047bee8ca09d4897ba6c6a7696d8b36ab77
+n047bee8ca09d4897ba6c6a7696d8b36ab78
+n047bee8ca09d4897ba6c6a7696d8b36ab79
+n047bee8ca09d4897ba6c6a7696d8b36ab8
+n047bee8ca09d4897ba6c6a7696d8b36ab80
+n047bee8ca09d4897ba6c6a7696d8b36ab81
+n047bee8ca09d4897ba6c6a7696d8b36ab82
+n047bee8ca09d4897ba6c6a7696d8b36ab83
+n047bee8ca09d4897ba6c6a7696d8b36ab84
+n047bee8ca09d4897ba6c6a7696d8b36ab85
+n047bee8ca09d4897ba6c6a7696d8b36ab86
+n047bee8ca09d4897ba6c6a7696d8b36ab87
+n047bee8ca09d4897ba6c6a7696d8b36ab88
+n047bee8ca09d4897ba6c6a7696d8b36ab89
+n047bee8ca09d4897ba6c6a7696d8b36ab9
+n047bee8ca09d4897ba6c6a7696d8b36ab90
+n047bee8ca09d4897ba6c6a7696d8b36ab91
+n047bee8ca09d4897ba6c6a7696d8b36ab92
+n047bee8ca09d4897ba6c6a7696d8b36ab93
+n047bee8ca09d4897ba6c6a7696d8b36ab94
+n047bee8ca09d4897ba6c6a7696d8b36ab95
+n047bee8ca09d4897ba6c6a7696d8b36ab96
+n047bee8ca09d4897ba6c6a7696d8b36ab97
+n047bee8ca09d4897ba6c6a7696d8b36ab98
+n047bee8ca09d4897ba6c6a7696d8b36ab99
+n3b50900cab9a4ab1975975d4dfa32b84b1
+n3b50900cab9a4ab1975975d4dfa32b84b2
+n3b50900cab9a4ab1975975d4dfa32b84b3
+n3b50900cab9a4ab1975975d4dfa32b84b4
+n3b50900cab9a4ab1975975d4dfa32b84b5
+n3b50900cab9a4ab1975975d4dfa32b84b6
+n5fe9a1ff555245d59e47590857e2121eb1
+n5fe9a1ff555245d59e47590857e2121eb10
+n5fe9a1ff555245d59e47590857e2121eb11
+n5fe9a1ff555245d59e47590857e2121eb12
+n5fe9a1ff555245d59e47590857e2121eb13
+n5fe9a1ff555245d59e47590857e2121eb14
+n5fe9a1ff555245d59e47590857e2121eb2
+n5fe9a1ff555245d59e47590857e2121eb3
+n5fe9a1ff555245d59e47590857e2121eb4
+n5fe9a1ff555245d59e47590857e2121eb5
+n5fe9a1ff555245d59e47590857e2121eb6
+n5fe9a1ff555245d59e47590857e2121eb7
+n5fe9a1ff555245d59e47590857e2121eb8
+n5fe9a1ff555245d59e47590857e2121eb9
+n6dabcc20f4c7443fa37eeebbb27849c2b1
+n6dabcc20f4c7443fa37eeebbb27849c2b2
+n6dabcc20f4c7443fa37eeebbb27849c2b3
+n6dabcc20f4c7443fa37eeebbb27849c2b4
+n6dabcc20f4c7443fa37eeebbb27849c2b5
+n6dabcc20f4c7443fa37eeebbb27849c2b6
+n8b5c2ba28c4e4a998d7ad7106e243ab2b1
+n8b5c2ba28c4e4a998d7ad7106e243ab2b10
+n8b5c2ba28c4e4a998d7ad7106e243ab2b11
+n8b5c2ba28c4e4a998d7ad7106e243ab2b12
+n8b5c2ba28c4e4a998d7ad7106e243ab2b13
+n8b5c2ba28c4e4a998d7ad7106e243ab2b14
+n8b5c2ba28c4e4a998d7ad7106e243ab2b15
+n8b5c2ba28c4e4a998d7ad7106e243ab2b16
+n8b5c2ba28c4e4a998d7ad7106e243ab2b17
+n8b5c2ba28c4e4a998d7ad7106e243ab2b18
+n8b5c2ba28c4e4a998d7ad7106e243ab2b19
+n8b5c2ba28c4e4a998d7ad7106e243ab2b2
+n8b5c2ba28c4e4a998d7ad7106e243ab2b20
+n8b5c2ba28c4e4a998d7ad7106e243ab2b21
+n8b5c2ba28c4e4a998d7ad7106e243ab2b22
+n8b5c2ba28c4e4a998d7ad7106e243ab2b23
+n8b5c2ba28c4e4a998d7ad7106e243ab2b3
+n8b5c2ba28c4e4a998d7ad7106e243ab2b4
+n8b5c2ba28c4e4a998d7ad7106e243ab2b5
+n8b5c2ba28c4e4a998d7ad7106e243ab2b6
+n8b5c2ba28c4e4a998d7ad7106e243ab2b7
+n8b5c2ba28c4e4a998d7ad7106e243ab2b8
+n8b5c2ba28c4e4a998d7ad7106e243ab2b9
+na1da761f5a3e49b6888f693442b15a09b1
+na1da761f5a3e49b6888f693442b15a09b2
+na1da761f5a3e49b6888f693442b15a09b3
+na407269e3b5f4836be818d44a0919bb8b1
+na407269e3b5f4836be818d44a0919bb8b10
+na407269e3b5f4836be818d44a0919bb8b11
+na407269e3b5f4836be818d44a0919bb8b12
+na407269e3b5f4836be818d44a0919bb8b13
+na407269e3b5f4836be818d44a0919bb8b14
+na407269e3b5f4836be818d44a0919bb8b15
+na407269e3b5f4836be818d44a0919bb8b16
+na407269e3b5f4836be818d44a0919bb8b17
+na407269e3b5f4836be818d44a0919bb8b18
+na407269e3b5f4836be818d44a0919bb8b19
+na407269e3b5f4836be818d44a0919bb8b2
+na407269e3b5f4836be818d44a0919bb8b20
+na407269e3b5f4836be818d44a0919bb8b21
+na407269e3b5f4836be818d44a0919bb8b22
+na407269e3b5f4836be818d44a0919bb8b23
+na407269e3b5f4836be818d44a0919bb8b24
+na407269e3b5f4836be818d44a0919bb8b25
+na407269e3b5f4836be818d44a0919bb8b26
+na407269e3b5f4836be818d44a0919bb8b27
+na407269e3b5f4836be818d44a0919bb8b28
+na407269e3b5f4836be818d44a0919bb8b29
+na407269e3b5f4836be818d44a0919bb8b3
+na407269e3b5f4836be818d44a0919bb8b30
+na407269e3b5f4836be818d44a0919bb8b31
+na407269e3b5f4836be818d44a0919bb8b32
+na407269e3b5f4836be818d44a0919bb8b33
+na407269e3b5f4836be818d44a0919bb8b34
+na407269e3b5f4836be818d44a0919bb8b35
+na407269e3b5f4836be818d44a0919bb8b36
+na407269e3b5f4836be818d44a0919bb8b37
+na407269e3b5f4836be818d44a0919bb8b38
+na407269e3b5f4836be818d44a0919bb8b39
+na407269e3b5f4836be818d44a0919bb8b4
+na407269e3b5f4836be818d44a0919bb8b40
+na407269e3b5f4836be818d44a0919bb8b41
+na407269e3b5f4836be818d44a0919bb8b42
+na407269e3b5f4836be818d44a0919bb8b43
+na407269e3b5f4836be818d44a0919bb8b44
+na407269e3b5f4836be818d44a0919bb8b45
+na407269e3b5f4836be818d44a0919bb8b46
+na407269e3b5f4836be818d44a0919bb8b47
+na407269e3b5f4836be818d44a0919bb8b48
+na407269e3b5f4836be818d44a0919bb8b49
+na407269e3b5f4836be818d44a0919bb8b5
+na407269e3b5f4836be818d44a0919bb8b50
+na407269e3b5f4836be818d44a0919bb8b51
+na407269e3b5f4836be818d44a0919bb8b52
+na407269e3b5f4836be818d44a0919bb8b53
+na407269e3b5f4836be818d44a0919bb8b54
+na407269e3b5f4836be818d44a0919bb8b55
+na407269e3b5f4836be818d44a0919bb8b56
+na407269e3b5f4836be818d44a0919bb8b57
+na407269e3b5f4836be818d44a0919bb8b58
+na407269e3b5f4836be818d44a0919bb8b59
+na407269e3b5f4836be818d44a0919bb8b6
+na407269e3b5f4836be818d44a0919bb8b7
+na407269e3b5f4836be818d44a0919bb8b8
+na407269e3b5f4836be818d44a0919bb8b9
+nb5fb94fc88d24dde9062eba03d2f9da7b1
+nb5fb94fc88d24dde9062eba03d2f9da7b10
+nb5fb94fc88d24dde9062eba03d2f9da7b11
+nb5fb94fc88d24dde9062eba03d2f9da7b12
+nb5fb94fc88d24dde9062eba03d2f9da7b13
+nb5fb94fc88d24dde9062eba03d2f9da7b14
+nb5fb94fc88d24dde9062eba03d2f9da7b15
+nb5fb94fc88d24dde9062eba03d2f9da7b16
+nb5fb94fc88d24dde9062eba03d2f9da7b17
+nb5fb94fc88d24dde9062eba03d2f9da7b18
+nb5fb94fc88d24dde9062eba03d2f9da7b19
+nb5fb94fc88d24dde9062eba03d2f9da7b2
+nb5fb94fc88d24dde9062eba03d2f9da7b20
+nb5fb94fc88d24dde9062eba03d2f9da7b21
+nb5fb94fc88d24dde9062eba03d2f9da7b22
+nb5fb94fc88d24dde9062eba03d2f9da7b23
+nb5fb94fc88d24dde9062eba03d2f9da7b24
+nb5fb94fc88d24dde9062eba03d2f9da7b25
+nb5fb94fc88d24dde9062eba03d2f9da7b26
+nb5fb94fc88d24dde9062eba03d2f9da7b27
+nb5fb94fc88d24dde9062eba03d2f9da7b28
+nb5fb94fc88d24dde9062eba03d2f9da7b29
+nb5fb94fc88d24dde9062eba03d2f9da7b3
+nb5fb94fc88d24dde9062eba03d2f9da7b30
+nb5fb94fc88d24dde9062eba03d2f9da7b31
+nb5fb94fc88d24dde9062eba03d2f9da7b32
+nb5fb94fc88d24dde9062eba03d2f9da7b4
+nb5fb94fc88d24dde9062eba03d2f9da7b5
+nb5fb94fc88d24dde9062eba03d2f9da7b6
+nb5fb94fc88d24dde9062eba03d2f9da7b7
+nb5fb94fc88d24dde9062eba03d2f9da7b8
+nb5fb94fc88d24dde9062eba03d2f9da7b9
+nb9af1ec5f39849d1bf108a188c16ce67b1
+nb9af1ec5f39849d1bf108a188c16ce67b10
+nb9af1ec5f39849d1bf108a188c16ce67b11
+nb9af1ec5f39849d1bf108a188c16ce67b12
+nb9af1ec5f39849d1bf108a188c16ce67b13
+nb9af1ec5f39849d1bf108a188c16ce67b14
+nb9af1ec5f39849d1bf108a188c16ce67b15
+nb9af1ec5f39849d1bf108a188c16ce67b16
+nb9af1ec5f39849d1bf108a188c16ce67b17
+nb9af1ec5f39849d1bf108a188c16ce67b18
+nb9af1ec5f39849d1bf108a188c16ce67b19
+nb9af1ec5f39849d1bf108a188c16ce67b2
+nb9af1ec5f39849d1bf108a188c16ce67b20
+nb9af1ec5f39849d1bf108a188c16ce67b21
+nb9af1ec5f39849d1bf108a188c16ce67b22
+nb9af1ec5f39849d1bf108a188c16ce67b23
+nb9af1ec5f39849d1bf108a188c16ce67b24
+nb9af1ec5f39849d1bf108a188c16ce67b25
+nb9af1ec5f39849d1bf108a188c16ce67b26
+nb9af1ec5f39849d1bf108a188c16ce67b27
+nb9af1ec5f39849d1bf108a188c16ce67b28
+nb9af1ec5f39849d1bf108a188c16ce67b29
+nb9af1ec5f39849d1bf108a188c16ce67b3
+nb9af1ec5f39849d1bf108a188c16ce67b30
+nb9af1ec5f39849d1bf108a188c16ce67b31
+nb9af1ec5f39849d1bf108a188c16ce67b32
+nb9af1ec5f39849d1bf108a188c16ce67b33
+nb9af1ec5f39849d1bf108a188c16ce67b34
+nb9af1ec5f39849d1bf108a188c16ce67b35
+nb9af1ec5f39849d1bf108a188c16ce67b36
+nb9af1ec5f39849d1bf108a188c16ce67b37
+nb9af1ec5f39849d1bf108a188c16ce67b38
+nb9af1ec5f39849d1bf108a188c16ce67b39
+nb9af1ec5f39849d1bf108a188c16ce67b4
+nb9af1ec5f39849d1bf108a188c16ce67b40
+nb9af1ec5f39849d1bf108a188c16ce67b41
+nb9af1ec5f39849d1bf108a188c16ce67b42
+nb9af1ec5f39849d1bf108a188c16ce67b43
+nb9af1ec5f39849d1bf108a188c16ce67b44
+nb9af1ec5f39849d1bf108a188c16ce67b45
+nb9af1ec5f39849d1bf108a188c16ce67b46
+nb9af1ec5f39849d1bf108a188c16ce67b5
+nb9af1ec5f39849d1bf108a188c16ce67b6
+nb9af1ec5f39849d1bf108a188c16ce67b7
+nb9af1ec5f39849d1bf108a188c16ce67b8
+nb9af1ec5f39849d1bf108a188c16ce67b9
+nb9b82f506cac44278cdcee274b2c9e42b1
+nb9b82f506cac44278cdcee274b2c9e42b10
+nb9b82f506cac44278cdcee274b2c9e42b11
+nb9b82f506cac44278cdcee274b2c9e42b12
+nb9b82f506cac44278cdcee274b2c9e42b13
+nb9b82f506cac44278cdcee274b2c9e42b14
+nb9b82f506cac44278cdcee274b2c9e42b15
+nb9b82f506cac44278cdcee274b2c9e42b16
+nb9b82f506cac44278cdcee274b2c9e42b17
+nb9b82f506cac44278cdcee274b2c9e42b18
+nb9b82f506cac44278cdcee274b2c9e42b2
+nb9b82f506cac44278cdcee274b2c9e42b3
+nb9b82f506cac44278cdcee274b2c9e42b4
+nb9b82f506cac44278cdcee274b2c9e42b5
+nb9b82f506cac44278cdcee274b2c9e42b6
+nb9b82f506cac44278cdcee274b2c9e42b7
+nb9b82f506cac44278cdcee274b2c9e42b8
+nb9b82f506cac44278cdcee274b2c9e42b9
+ncd4940816acd4ec2bf01bc05c1f1781db1
+ncd4940816acd4ec2bf01bc05c1f1781db10
+ncd4940816acd4ec2bf01bc05c1f1781db2
+ncd4940816acd4ec2bf01bc05c1f1781db3
+ncd4940816acd4ec2bf01bc05c1f1781db4
+ncd4940816acd4ec2bf01bc05c1f1781db5
+ncd4940816acd4ec2bf01bc05c1f1781db6
+ncd4940816acd4ec2bf01bc05c1f1781db7
+ncd4940816acd4ec2bf01bc05c1f1781db8
+ncd4940816acd4ec2bf01bc05c1f1781db9
+ndff705a955f74095b82659ef185bd433b1
+ndff705a955f74095b82659ef185bd433b2
+ndff705a955f74095b82659ef185bd433b3
+ndff705a955f74095b82659ef185bd433b4
+ndff705a955f74095b82659ef185bd433b5
+ndff705a955f74095b82659ef185bd433b6
+ndff705a955f74095b82659ef185bd433b7
+ne73c536f3a9b4ffd9e3db5a2b225e88db1
+ne73c536f3a9b4ffd9e3db5a2b225e88db10
+ne73c536f3a9b4ffd9e3db5a2b225e88db11
+ne73c536f3a9b4ffd9e3db5a2b225e88db12
+ne73c536f3a9b4ffd9e3db5a2b225e88db13
+ne73c536f3a9b4ffd9e3db5a2b225e88db2
+ne73c536f3a9b4ffd9e3db5a2b225e88db3
+ne73c536f3a9b4ffd9e3db5a2b225e88db4
+ne73c536f3a9b4ffd9e3db5a2b225e88db5
+ne73c536f3a9b4ffd9e3db5a2b225e88db6
+ne73c536f3a9b4ffd9e3db5a2b225e88db7
+ne73c536f3a9b4ffd9e3db5a2b225e88db8
+ne73c536f3a9b4ffd9e3db5a2b225e88db9
+nf036b0065e2e4347a4318faf052e33d9b1
+nf036b0065e2e4347a4318faf052e33d9b10
+nf036b0065e2e4347a4318faf052e33d9b11
+nf036b0065e2e4347a4318faf052e33d9b12
+nf036b0065e2e4347a4318faf052e33d9b13
+nf036b0065e2e4347a4318faf052e33d9b14
+nf036b0065e2e4347a4318faf052e33d9b15
+nf036b0065e2e4347a4318faf052e33d9b16
+nf036b0065e2e4347a4318faf052e33d9b17
+nf036b0065e2e4347a4318faf052e33d9b18
+nf036b0065e2e4347a4318faf052e33d9b19
+nf036b0065e2e4347a4318faf052e33d9b2
+nf036b0065e2e4347a4318faf052e33d9b20
+nf036b0065e2e4347a4318faf052e33d9b21
+nf036b0065e2e4347a4318faf052e33d9b22
+nf036b0065e2e4347a4318faf052e33d9b23
+nf036b0065e2e4347a4318faf052e33d9b24
+nf036b0065e2e4347a4318faf052e33d9b25
+nf036b0065e2e4347a4318faf052e33d9b26
+nf036b0065e2e4347a4318faf052e33d9b27
+nf036b0065e2e4347a4318faf052e33d9b28
+nf036b0065e2e4347a4318faf052e33d9b29
+nf036b0065e2e4347a4318faf052e33d9b3
+nf036b0065e2e4347a4318faf052e33d9b30
+nf036b0065e2e4347a4318faf052e33d9b31
+nf036b0065e2e4347a4318faf052e33d9b32
+nf036b0065e2e4347a4318faf052e33d9b33
+nf036b0065e2e4347a4318faf052e33d9b34
+nf036b0065e2e4347a4318faf052e33d9b35
+nf036b0065e2e4347a4318faf052e33d9b36
+nf036b0065e2e4347a4318faf052e33d9b37
+nf036b0065e2e4347a4318faf052e33d9b38
+nf036b0065e2e4347a4318faf052e33d9b39
+nf036b0065e2e4347a4318faf052e33d9b4
+nf036b0065e2e4347a4318faf052e33d9b40
+nf036b0065e2e4347a4318faf052e33d9b41
+nf036b0065e2e4347a4318faf052e33d9b42
+nf036b0065e2e4347a4318faf052e33d9b5
+nf036b0065e2e4347a4318faf052e33d9b6
+nf036b0065e2e4347a4318faf052e33d9b7
+nf036b0065e2e4347a4318faf052e33d9b8
+nf036b0065e2e4347a4318faf052e33d9b9
+http://emmo.info/emmo#EMMO_00199e76_69dc_45b6_a9c6_98cc90cdc0f5
+http://emmo.info/emmo#EMMO_008fd3b2_4013_451f_8827_52bceab11841
+http://emmo.info/emmo#EMMO_00dd79e0_31a6_427e_9b9c_90f3097e4a96
+http://emmo.info/emmo#EMMO_02c0621e_a527_4790_8a0f_2bb51973c819
+http://emmo.info/emmo#EMMO_02e894c3_b793_4197_b120_3442e08f58d1
+http://emmo.info/emmo#EMMO_0527413c_b286_4e9c_b2d0_03fb2a038dee
+http://emmo.info/emmo#EMMO_053648ea_3c0a_468c_89cb_eb009239323a
+http://emmo.info/emmo#EMMO_054af807_85cd_4a13_8eba_119dfdaaf38b
+http://emmo.info/emmo#EMMO_057e7d57_aff0_49de_911a_8861d85cef40
+http://emmo.info/emmo#EMMO_06448f64_8db6_4304_8b2c_e785dba82044
+http://emmo.info/emmo#EMMO_06658d8d_dcde_4fc9_aae1_17f71c0bcdec
+http://emmo.info/emmo#EMMO_068c4e58_2470_4b1c_8454_010dd4906100
+http://emmo.info/emmo#EMMO_080052a1_f295_44be_a60f_1326ce13f1ba
+http://emmo.info/emmo#EMMO_08b308d4_31cd_4779_a784_aa92fc730f39
+http://emmo.info/emmo#EMMO_09663630_1b84_4202_91e6_e641104f579e
+http://emmo.info/emmo#EMMO_09b9021b_f97b_43eb_b83d_0a764b472bc2
+http://emmo.info/emmo#EMMO_0aa934ee_1ad4_4345_8a7f_bc73ec67c7e5
+http://emmo.info/emmo#EMMO_0ab0485c_9e5b_4257_a679_90a2dfba5c7c
+http://emmo.info/emmo#EMMO_0c576e13_4ee7_4f3d_bfe9_1614243df018
+http://emmo.info/emmo#EMMO_0cd58641_824c_4851_907f_f4c3be76630c
+http://emmo.info/emmo#EMMO_0ee5779e_d798_4ee5_9bfe_c392d5bea112
+http://emmo.info/emmo#EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
+http://emmo.info/emmo#EMMO_0f795e3e_c602_4577_9a43_d5a231aa1360
+http://emmo.info/emmo#EMMO_10a5fd39_06aa_4648_9e70_f962a9cb2069
+http://emmo.info/emmo#EMMO_1181c938_c8f0_4ad6_bc7a_2bfdc0903d29
+http://emmo.info/emmo#EMMO_1273eb34_de48_43a9_925f_104110469dd2
+http://emmo.info/emmo#EMMO_14ff4393_0f28_4fb4_abc7_c2cc00bc761d
+http://emmo.info/emmo#EMMO_15db234d_ecaf_4715_9838_4b4ec424fb13
+http://emmo.info/emmo#EMMO_1604f495_328a_4f28_9962_f4cc210739dd
+http://emmo.info/emmo#EMMO_17e27c22_37e1_468c_9dd7_95e137f73e7f
+http://emmo.info/emmo#EMMO_18448443_dcf1_49b8_a321_cf46e2c393e1
+http://emmo.info/emmo#EMMO_18ce5200_00f5_45bb_8c6f_6fb128cd41ae
+http://emmo.info/emmo#EMMO_1aed91a3_d00c_48af_8f43_a0c958b2512a
+http://emmo.info/emmo#EMMO_1b52ee70_121e_4d8d_8419_3f97cd0bd89c
+http://emmo.info/emmo#EMMO_1c2226a9_22f0_40c8_8928_5a01d398f96e
+http://emmo.info/emmo#EMMO_1cba0b27_15d0_4326_933f_379d0b3565b6
+http://emmo.info/emmo#EMMO_1d8b370b_c672_4d0c_964e_eaafcbf2f51f
+http://emmo.info/emmo#EMMO_1e0b665d_db6c_4752_a6d4_262d3a8dbb46
+http://emmo.info/emmo#EMMO_1eed0732_e3f1_4b2c_a9c4_b4e75eeb5895
+http://emmo.info/emmo#EMMO_1f087811_06cb_42d5_90fb_25d0e7e068ef
+http://emmo.info/emmo#EMMO_216f448e_cdbc_4aeb_a529_7a5fe7fc38bb
+http://emmo.info/emmo#EMMO_21aaefc1_3f86_4208_b7db_a755f31f0f8c
+http://emmo.info/emmo#EMMO_21ef2ed6_c086_4d24_8a75_980d2bcc9282
+http://emmo.info/emmo#EMMO_21f56795_ee72_4858_b571_11cfaa59c1a8
+http://emmo.info/emmo#EMMO_2337e25c_3c60_43fc_a8f9_b11a3f974291
+http://emmo.info/emmo#EMMO_23b579e1_8088_45b5_9975_064014026c42
+http://emmo.info/emmo#EMMO_23bfe79a_cade_48f1_9a8c_fd96e6bac8ba
+http://emmo.info/emmo#EMMO_24c71baf_6db6_48b9_86c8_8c70cf36db0c
+http://emmo.info/emmo#EMMO_251cfb4f_5c75_4778_91ed_6c8395212fd8
+http://emmo.info/emmo#EMMO_254472c6_3dbd_4f02_bc43_571389cd281f
+http://emmo.info/emmo#EMMO_25a3da5e_eab1_42dd_8081_61dd09d34e1b
+http://emmo.info/emmo#EMMO_25f8b804_9a0b_4387_a3e7_b35bce5365ee
+http://emmo.info/emmo#EMMO_27c5d8c6_8af7_4d63_beb1_ec37cd8b3fa3
+http://emmo.info/emmo#EMMO_28ef05a7_ecc1_4df6_8116_c53251fbd4a8
+http://emmo.info/emmo#EMMO_28fbea28_2204_4613_87ff_6d877b855fcd
+http://emmo.info/emmo#EMMO_2946d40b_24a1_47fa_8176_e3f79bb45064
+http://emmo.info/emmo#EMMO_29afdf54_90ae_4c98_8845_fa9ea3f143a8
+http://emmo.info/emmo#EMMO_2a888cdf_ec4a_4ec5_af1c_0343372fc978
+http://emmo.info/emmo#EMMO_2e5e45fc_f52c_4294_bdc2_5ed7a06dfce7
+http://emmo.info/emmo#EMMO_2e7e5796_4a80_4d73_bb84_f31138446c0c
+http://emmo.info/emmo#EMMO_2e9ace8a_1155_45b5_a066_d5fd9774e76c
+http://emmo.info/emmo#EMMO_2ff07b07_c447_490f_903a_f6a72a12d7bf
+http://emmo.info/emmo#EMMO_314ba716_2d3d_4462_9a4f_d3419ae1df43
+http://emmo.info/emmo#EMMO_314d0bd5_67ed_437e_a609_36d46147cea7
+http://emmo.info/emmo#EMMO_31ec09ba_1713_42cb_83c7_b38bf6f9ced2
+http://emmo.info/emmo#EMMO_321af35f_f0cc_4a5c_b4fe_8c2c0303fb0c
+http://emmo.info/emmo#EMMO_3227b821_26a5_4c7c_9c01_5c24483e0bd0
+http://emmo.info/emmo#EMMO_33433bb1_c68f_45ee_a466_f01e2c57b214
+http://emmo.info/emmo#EMMO_33b67e69_3645_4c73_b100_5ea6759221b4
+http://emmo.info/emmo#EMMO_3446e167_c576_49d6_846c_215bb8878a55
+http://emmo.info/emmo#EMMO_35d2e130_6e01_41ed_94f7_00b333d46cf9
+http://emmo.info/emmo#EMMO_36c79456_e29c_400d_8bd3_0eedddb82652
+http://emmo.info/emmo#EMMO_385b8f6e_43ac_4596_ad76_ac322c68b7ca
+http://emmo.info/emmo#EMMO_39c3815d_8cae_4c8f_b2ff_eeba24bec455
+http://emmo.info/emmo#EMMO_3a185e6c_9e19_4776_b583_19c978156aa0
+http://emmo.info/emmo#EMMO_3a204900_2b33_47d1_b444_815cc4c8cffa
+http://emmo.info/emmo#EMMO_3c424d37_cf62_41b1_ac9d_a316f8d113d6
+http://emmo.info/emmo#EMMO_3ee80521_3c23_4dd1_935d_9d522614a3e2
+http://emmo.info/emmo#EMMO_3f15d200_c97b_42c8_8ac0_d81d150361e2
+http://emmo.info/emmo#EMMO_406f9b74_c927_4e05_b9af_5edbe5e280c5
+http://emmo.info/emmo#EMMO_42955b2d_b465_4666_86cc_ea3c2d685753
+http://emmo.info/emmo#EMMO_42fc460a_4bf3_4d0b_8dee_3c7efcefebb5
+http://emmo.info/emmo#EMMO_43a6b269_da31_4bb6_a537_c97df4fff32a
+http://emmo.info/emmo#EMMO_43e9a05d_98af_41b4_92f6_00f79a09bfce
+http://emmo.info/emmo#EMMO_44da6d75_54a4_4aa8_bd3a_156f6e9abb8e
+http://emmo.info/emmo#EMMO_46f0f8df_4dc6_418f_8036_10427a3a288e
+http://emmo.info/emmo#EMMO_48716718_225f_4c88_89e2_d819d30c90a2
+http://emmo.info/emmo#EMMO_49267eba_5548_4163_8f36_518d65b583f9
+http://emmo.info/emmo#EMMO_49804605_c0fe_4538_abda_f70ba1dc8a5d
+http://emmo.info/emmo#EMMO_4c49ab58_a6f6_409e_b849_f873ae1dcbee
+http://emmo.info/emmo#EMMO_4ce76d7f_03f8_45b6_9003_90052a79bfaa
+http://emmo.info/emmo#EMMO_4d6504f1_c470_4ce9_b941_bbbebc9ab05d
+http://emmo.info/emmo#EMMO_50bf79a6_a48b_424d_9d2c_813bd631231a
+http://emmo.info/emmo#EMMO_515b5579_d526_4842_9e6f_ecc34db6f368
+http://emmo.info/emmo#EMMO_52211e5e_d767_4812_845e_eb6b402c476a
+http://emmo.info/emmo#EMMO_52d08d7d_e9e4_43e5_8508_d353e7e3a23a
+http://emmo.info/emmo#EMMO_52e4cb25_da39_45e2_a6db_063ec5730499
+http://emmo.info/emmo#EMMO_53bd0c90_41c3_46e2_8779_cd2a80f7e18b
+http://emmo.info/emmo#EMMO_53e825d9_1a09_483c_baa7_37501ebfbe1c
+http://emmo.info/emmo#EMMO_54ee6b5e_5261_44a8_86eb_5717e7fdb9d0
+http://emmo.info/emmo#EMMO_585e0ff0_9429_4d3c_b578_58abb1ba21d1
+http://emmo.info/emmo#EMMO_591e02fd_8d37_45a6_9d11_bb21cef391a0
+http://emmo.info/emmo#EMMO_59c10c5c_47bd_4348_ba39_38836607dfa1
+http://emmo.info/emmo#EMMO_5b2222df_4da6_442f_8244_96e9e45887d1
+http://emmo.info/emmo#EMMO_5cf9f86c_86f5_40c4_846d_60371f670e0a
+http://emmo.info/emmo#EMMO_5eaecadc_4f0d_4a3a_afc7_1fc0b83cc928
+http://emmo.info/emmo#EMMO_5ebd5e01_0ed3_49a2_a30d_cd05cbe72978
+http://emmo.info/emmo#EMMO_60577dea_9019_4537_ac41_80b0fb563d41
+http://emmo.info/emmo#EMMO_60b78cc3_6011_4134_95ab_956f56d4bdc1
+http://emmo.info/emmo#EMMO_62f0d847_3603_45b4_bfc4_dd4511355ff2
+http://emmo.info/emmo#EMMO_649bf97b_4397_4005_90d9_219755d92e34
+http://emmo.info/emmo#EMMO_651013cf_00ee_4e66_9d4e_fdfb20d991d2
+http://emmo.info/emmo#EMMO_65a2c5b8_e4d8_4a51_b2f8_e55effc0547d
+http://emmo.info/emmo#EMMO_668e6ead_1530_40cc_ad5e_24b880edff50
+http://emmo.info/emmo#EMMO_66d01570_36dd_42fd_844d_29b81b029cd5
+http://emmo.info/emmo#EMMO_67fc0a36_8dcb_4ffa_9a43_31074efa3296
+http://emmo.info/emmo#EMMO_696ed548_9477_45ea_993c_6a8f5271914a
+http://emmo.info/emmo#EMMO_6a4547ab_3abb_430d_b81b_ce32d47729f5
+http://emmo.info/emmo#EMMO_6c7160fc_cc64_46f0_b43b_aba65e9952e3
+http://emmo.info/emmo#EMMO_6e046dd0_9634_4013_b2b1_9cc468087c83
+http://emmo.info/emmo#EMMO_6f4d704a_a7c6_4c07_b8a7_ea0bab04128f
+http://emmo.info/emmo#EMMO_6f5af708_f825_4feb_a0d1_a8d813d3022b
+http://emmo.info/emmo#EMMO_707f0cd1_941c_4b57_9f20_d0ba30cd6ff3
+http://emmo.info/emmo#EMMO_70dac51e_bddd_48c2_8a98_7d8395e91fc2
+http://emmo.info/emmo#EMMO_71d1c8f0_c6e3_44b5_a4b6_1b74ff35698a
+http://emmo.info/emmo#EMMO_71f6ab56_342c_484b_bbe0_de86b7367cb3
+http://emmo.info/emmo#EMMO_72d53756_7fb1_46ed_980f_83f47efbe105
+http://emmo.info/emmo#EMMO_74931b1b_c133_4e59_9a75_1bf0e1626201
+http://emmo.info/emmo#EMMO_7610efb8_c7c6_4684_abc1_774783c62472
+http://emmo.info/emmo#EMMO_77e9dc31_5b19_463e_b000_44c6e79f98aa
+http://emmo.info/emmo#EMMO_7afbed84_7593_4a23_bd88_9d9c6b04e8f6
+http://emmo.info/emmo#EMMO_7d2afa66_ae9e_4095_a9bf_421d0be401b6
+http://emmo.info/emmo#EMMO_7db11dbf_a643_464a_9b56_07eabcc3e9c5
+http://emmo.info/emmo#EMMO_7db59e56_f68b_48b7_ae99_891c35ae5c3b
+http://emmo.info/emmo#EMMO_7dea2572_ab42_45bd_9fd7_92448cec762a
+http://emmo.info/emmo#EMMO_8043d3c6_a4c1_4089_ba34_9744e28e5b3d
+http://emmo.info/emmo#EMMO_81369540_1b0e_471b_9bae_6801af22800e
+http://emmo.info/emmo#EMMO_8159c26a_494b_4fa0_9959_10888f152298
+http://emmo.info/emmo#EMMO_847724b7_acef_490e_9f0d_67da967f2812
+http://emmo.info/emmo#EMMO_847f1d9f_205e_46c1_8cb6_a9e479421f88
+http://emmo.info/emmo#EMMO_852b4ab8_fc29_4749_a8c7_b92d4fca7d5a
+http://emmo.info/emmo#EMMO_8681074a_e225_4e38_b586_e85b0f43ce38
+http://emmo.info/emmo#EMMO_868ae137_4d25_493e_b270_21ea3d94849e
+http://emmo.info/emmo#EMMO_86ca9b93_1183_4b65_81b8_c0fcd3bba5ad
+http://emmo.info/emmo#EMMO_873b0ab3_88e6_4054_b901_5531e01f14a4
+http://emmo.info/emmo#EMMO_8786cb47_8e1f_4968_9b15_f6d41fc51252
+http://emmo.info/emmo#EMMO_88470739_03d3_4c47_a03e_b30a1288d50c
+http://emmo.info/emmo#EMMO_89762966_8076_4f7c_b745_f718d653e8e2
+http://emmo.info/emmo#EMMO_89a0c87c_0804_4013_937a_6fe234d9499c
+http://emmo.info/emmo#EMMO_8a70dea4_d6ab_4260_b931_a3e990982416
+http://emmo.info/emmo#EMMO_8d00f093_3f45_4ea3_986c_b3545c3c2f4c
+http://emmo.info/emmo#EMMO_8d2d9374_ef3a_47e6_8595_6bc208e07519
+http://emmo.info/emmo#EMMO_8ef3cd6d_ae58_4a8d_9fc0_ad8f49015cd0
+http://emmo.info/emmo#EMMO_9141801c_c539_4c72_b423_8c74ff6b8f05
+http://emmo.info/emmo#EMMO_9268958f_7f54_48ab_a693_febe2645892b
+http://emmo.info/emmo#EMMO_9380ab64_0363_4804_b13f_3a8a94119a76
+http://emmo.info/emmo#EMMO_939483b1_0148_43d1_8b35_851d2cd5d939
+http://emmo.info/emmo#EMMO_985bec21_989f_4b9e_a4b3_735d88099c3c
+http://emmo.info/emmo#EMMO_9895a1b4_f0a5_4167_ac5e_97db40b8bfcc
+http://emmo.info/emmo#EMMO_98ada9d8_f1c8_4f13_99b5_d890f5354152
+http://emmo.info/emmo#EMMO_9bbab0be_f9cc_4f46_9f46_0fd271911b79
+http://emmo.info/emmo#EMMO_9bfd6f1e_b0ce_459c_beb7_8f1f41708bba
+http://emmo.info/emmo#EMMO_9fd1e79d_41d1_44f8_8142_66dbdf0fc7ad
+http://emmo.info/emmo#EMMO_9ff3bf8e_2168_406e_8251_1d158fc948ae
+http://emmo.info/emmo#EMMO_a1083d0a_c1fb_471f_8e20_a98f881ad527
+http://emmo.info/emmo#EMMO_a121bb1d_5225_4c78_809b_0268c3012208
+http://emmo.info/emmo#EMMO_a155dc93_d266_487e_b5e7_2a2c72d5ebf9
+http://emmo.info/emmo#EMMO_a2f94f33_71fa_443c_a1fb_d1685fc537ec
+http://emmo.info/emmo#EMMO_a3a701ed_6f7d_4a10_9aee_dfa1961fc7b7
+http://emmo.info/emmo#EMMO_a4d66059_5dd3_4b90_b4cb_10960559441b
+http://emmo.info/emmo#EMMO_a66427d1_9932_4363_9ec5_7d91f2bfda1e
+http://emmo.info/emmo#EMMO_a77a0a4b_6bd2_42b2_be27_4b63cebbb59e
+http://emmo.info/emmo#EMMO_a80dc6f5_b1aa_41a7_a3a8_cd5040da2162
+http://emmo.info/emmo#EMMO_a8eb4bbb_1bd3_4ad4_b114_2789bcbd2134
+http://emmo.info/emmo#EMMO_a9201b2f_e6de_442a_b3a6_d292a5820bc5
+http://emmo.info/emmo#EMMO_a979c531_f9fa_4a6e_93c1_a2960241ca64
+http://emmo.info/emmo#EMMO_ab79e92b_5377_454d_be06_d61b50db295a
+http://emmo.info/emmo#EMMO_acaaa124_3dde_48b6_86e6_6ec6f364f408
+http://emmo.info/emmo#EMMO_acb50123_87a2_4753_b36c_f87114ad4de2
+http://emmo.info/emmo#EMMO_ae15fb4f_8e4d_41de_a0f9_3997f89ba6a2
+http://emmo.info/emmo#EMMO_ae2d1a96_bfa1_409a_a7d2_03d69e8a125a
+http://emmo.info/emmo#EMMO_affe07e4_e9bc_4852_86c6_69e26182a17f
+http://emmo.info/emmo#EMMO_b081b346_7279_46ef_9a3d_2c088fcd79f4
+http://emmo.info/emmo#EMMO_b14d9be5_f81e_469b_abca_379c2e83feab
+http://emmo.info/emmo#EMMO_b20be325_8bfd_4237_bee7_201ab0fd9c75
+http://emmo.info/emmo#EMMO_b21a56ed_f969_4612_a6ec_cb7766f7f31d
+http://emmo.info/emmo#EMMO_b2282816_b7a3_44c6_b2cb_3feff1ceb7fe
+http://emmo.info/emmo#EMMO_b29fd350_39aa_4af7_9459_3faa0544cba6
+http://emmo.info/emmo#EMMO_b3600e73_3e05_479d_9714_c041c3acf5cc
+http://emmo.info/emmo#EMMO_b41515a9_28d8_4d78_8165_74b2fc72f89e
+http://emmo.info/emmo#EMMO_b55cd09a_e54d_4eb1_81dd_03c29d1b878e
+http://emmo.info/emmo#EMMO_b5957cef_a287_442d_a3ce_fd39f20ba1cd
+http://emmo.info/emmo#EMMO_b71e4ba5_8f73_4199_8c96_7ea7f94d9e2a
+http://emmo.info/emmo#EMMO_b7bcff25_ffc3_474e_9ab5_01b1664bd4ba
+http://emmo.info/emmo#EMMO_b803f122_4acb_4064_9d71_c1e5fd091fc9
+http://emmo.info/emmo#EMMO_b8830065_3809_41b7_be3c_e33795567fd9
+http://emmo.info/emmo#EMMO_ba882f34_0d71_4e4f_9d92_0c076c633a2c
+http://emmo.info/emmo#EMMO_bed1d005_b04e_4a90_94cf_02bc678a8569
+http://emmo.info/emmo#EMMO_c2f5ee66_579c_44c6_a2e9_fa2eaa9fa4da
+http://emmo.info/emmo#EMMO_c46f091c_0420_4c1a_af30_0a2c8ebcf7d7
+http://emmo.info/emmo#EMMO_c5aae418_1622_4d02_93c5_21159e28e6c1
+http://emmo.info/emmo#EMMO_c5ddfdba_c074_4aa4_ad6b_1ac4942d300d
+http://emmo.info/emmo#EMMO_c6d4a5e0_7e95_44df_a6db_84ee0a8bbc8e
+http://emmo.info/emmo#EMMO_c74da218_9147_4f03_92d1_8894abca55f3
+http://emmo.info/emmo#EMMO_c8d084ad_f88e_4596_8e4d_982c6655ce6f
+http://emmo.info/emmo#EMMO_c995ae70_3b84_4ebb_bcfc_69e6a281bb88
+http://emmo.info/emmo#EMMO_cabb20f0_05c7_448f_9485_e129725f15a4
+http://emmo.info/emmo#EMMO_cd2cd0de_e0cc_4ef1_b27e_2e88db027bac
+http://emmo.info/emmo#EMMO_cdc962d8_f3ea_4764_a57a_c7caa4859179
+http://emmo.info/emmo#EMMO_ce7d4720_aa20_4a8c_93e8_df41a35b6723
+http://emmo.info/emmo#EMMO_cf3dd6cc_c5d6_4b3d_aef4_82f3b7a361af
+http://emmo.info/emmo#EMMO_d0200cf1_e4f4_45ae_873f_b9359daea3cd
+http://emmo.info/emmo#EMMO_d41ce84b_4317_41fb_a5d1_6cd281fca106
+http://emmo.info/emmo#EMMO_d4f7d378_5e3b_468a_baa1_a7e98358cda7
+http://emmo.info/emmo#EMMO_d5f3e0e5_fc7d_4e64_86ad_555e74aaff84
+http://emmo.info/emmo#EMMO_d6eb0176_a0d7_4b4e_8df0_50e912be2342
+http://emmo.info/emmo#EMMO_d7788d1a_020d_4c78_85a1_13563fcec168
+http://emmo.info/emmo#EMMO_d7b7fd1e_645a_42cb_8f40_85f0d034d3ae
+http://emmo.info/emmo#EMMO_d7f11b34_a121_4519_87c0_aa754f1c4737
+http://emmo.info/emmo#EMMO_d859588d_44dc_4614_bc75_5fcd0058acc8
+http://emmo.info/emmo#EMMO_d8aa8e1f_b650_416d_88a0_5118de945456
+http://emmo.info/emmo#EMMO_d8d2144e_5c8d_455d_a643_5caf4d8d9df8
+http://emmo.info/emmo#EMMO_da1dd4a7_c611_4ad4_bef6_7646f28aa598
+http://emmo.info/emmo#EMMO_daa9ee97_4c5f_42e5_918c_44d7523e8958
+http://emmo.info/emmo#EMMO_db5dd38d_ac79_4af6_8782_fee7e7150ae8
+http://emmo.info/emmo#EMMO_db716151_6b73_45ff_910c_d182fdcbb4f5
+http://emmo.info/emmo#EMMO_db9a009e_f097_43f5_9520_6cbc07e7610b
+http://emmo.info/emmo#EMMO_dc232f53_8ed8_4ddd_9f41_cc057985eadb
+http://emmo.info/emmo#EMMO_dd4a7f3e_ef56_466c_ac1a_d2716b5f87ec
+http://emmo.info/emmo#EMMO_df6eeb01_1b41_4bd8_9257_a04fbd7cf000
+http://emmo.info/emmo#EMMO_e0954911_fc88_492a_9830_fdb238e28cc2
+http://emmo.info/emmo#EMMO_e1097637_70d2_4895_973f_2396f04fa204
+http://emmo.info/emmo#EMMO_e1981c25_7c55_4020_aa7a_d2e14ced86d4
+http://emmo.info/emmo#EMMO_e2207e91_02b0_4a8a_b13e_61d2a2a839f1
+http://emmo.info/emmo#EMMO_e29f84db_4c1c_46ae_aa38_c4d47536b972
+http://emmo.info/emmo#EMMO_e501069c_34d3_4dc7_ac87_c90c7342192b
+http://emmo.info/emmo#EMMO_e5438930_04e7_4d42_ade5_3700d4a52ab7
+http://emmo.info/emmo#EMMO_e5488299_8dab_4ebb_900a_26d2abed8396
+http://emmo.info/emmo#EMMO_e56ee3eb_7609_4ae1_8bed_51974f0960a6
+http://emmo.info/emmo#EMMO_e75f580e_52bf_4dd5_af70_df409cec08fd
+http://emmo.info/emmo#EMMO_e79c62ff_10ad_4ec0_baba_c19ddd4eaa11
+http://emmo.info/emmo#EMMO_e7bc8939_7ff8_4917_beb5_c42730b390f3
+http://emmo.info/emmo#EMMO_e88f75d6_9a17_4cfc_bdf7_43d7cea5a9a1
+http://emmo.info/emmo#EMMO_e9ffc696_5228_4ff9_8a60_0f5e05e9931b
+http://emmo.info/emmo#EMMO_eb3518bf_f799_4f9e_8c3e_ce59af11453b
+http://emmo.info/emmo#EMMO_eb3c61f0_3983_4346_a0c6_e7f6b90a67a8
+http://emmo.info/emmo#EMMO_ec2472ae_cf4a_46a5_8555_1556f5a6c3c5
+http://emmo.info/emmo#EMMO_ec903946_ddc9_464a_903c_7373e0d1eeb5
+http://emmo.info/emmo#EMMO_ecec2983_7c26_4f8d_a981_51ca29668baf
+http://emmo.info/emmo#EMMO_ed4af7ae_63a2_497e_bb88_2309619ea405
+http://emmo.info/emmo#EMMO_f2523820_04a6_44ab_bb67_8237dda2b0c2
+http://emmo.info/emmo#EMMO_f2ca6dd0_0e5f_4392_a92d_cafdae6cfc95
+http://emmo.info/emmo#EMMO_f2d5d3ad_2e00_417f_8849_686f3988d929
+http://emmo.info/emmo#EMMO_f35cff4d_dc09_44cf_a729_22fb79e3bfb2
+http://emmo.info/emmo#EMMO_f5769206_9257_4b08_bf7b_dad7868c6afc
+http://emmo.info/emmo#EMMO_f6070071_d054_4b17_9d2d_f446f7147d0f
+http://emmo.info/emmo#EMMO_f658c301_ce93_46cf_9639_4eace2c5d1d5
+http://emmo.info/emmo#EMMO_f68030be_94b8_4c61_a161_886468558054
+http://emmo.info/emmo#EMMO_f6d0c26a_98b6_4cf8_8632_aa259131faaa
+http://emmo.info/emmo#EMMO_f76f5a24_d703_4e8c_b368_f9a7777cb73a
+http://emmo.info/emmo#EMMO_f7ed665b_c2e1_42bc_889b_6b42ed3a36f0
+http://emmo.info/emmo#EMMO_f84792eb_ec64_4a6b_941f_c9f3e9ef052c
+http://emmo.info/emmo#EMMO_f8a2fe9f_458b_4771_9aba_a50e76afc52d
+http://emmo.info/emmo#EMMO_f8b92999_3cde_46e3_99d5_664da3090a02
+http://emmo.info/emmo#EMMO_f8bd64d5_5d3e_4ad4_a46e_c30714fecb7f
+http://emmo.info/emmo#EMMO_f9bc8b52_85e9_4b53_b969_dd7724d5b8e4
+http://emmo.info/emmo#EMMO_faab3f84_e475_4a46_af9c_7d249f0b9aef
+http://emmo.info/emmo#EMMO_fab003c8_f7a6_4346_9988_7161325ed7a3
+http://emmo.info/emmo#EMMO_faf79f53_749d_40b2_807c_d34244c192f4
+http://emmo.info/emmo/1.0.0-beta/middle/holistic
+http://emmo.info/emmo/1.0.0-beta/middle/isq
+http://emmo.info/emmo/1.0.0-beta/middle/manufacturing
+http://emmo.info/emmo/1.0.0-beta/middle/materials
+http://emmo.info/emmo/1.0.0-beta/middle/math
+http://emmo.info/emmo/1.0.0-beta/middle/metrology
+http://emmo.info/emmo/1.0.0-beta/middle/models
+http://emmo.info/emmo/1.0.0-beta/middle/ordinal
+http://emmo.info/emmo/1.0.0-beta/middle/perceptual
+http://emmo.info/emmo/1.0.0-beta/middle/perspective
+http://emmo.info/emmo/1.0.0-beta/middle/physicalistic
+http://emmo.info/emmo/1.0.0-beta/middle/properties
+http://emmo.info/emmo/1.0.0-beta/middle/reductionistic
+http://emmo.info/emmo/1.0.0-beta/middle/semiotics
+http://emmo.info/emmo/1.0.0-beta/middle/siunits
+http://emmo.info/emmo/1.0.0-beta/middle/units-extension
+http://emmo.info/emmo/1.0.0-beta/top
+http://emmo.info/emmo/1.0.0-beta/top/physical
+http://www.w3.org/1999/02/22-rdf-syntax-ns#nil
+http://www.w3.org/2000/01/rdf-schema#comment
+http://www.w3.org/2001/XMLSchema#boolean
+http://www.w3.org/2001/XMLSchema#double
+http://www.w3.org/2001/XMLSchema#integer
+http://www.w3.org/2001/XMLSchema#string
+http://www.w3.org/2002/07/owl#AnnotationProperty
+http://www.w3.org/2002/07/owl#AsymmetricProperty
+http://www.w3.org/2002/07/owl#Class
+http://www.w3.org/2002/07/owl#DatatypeProperty
+http://www.w3.org/2002/07/owl#FunctionalProperty
+http://www.w3.org/2002/07/owl#InverseFunctionalProperty
+http://www.w3.org/2002/07/owl#IrreflexiveProperty
+http://www.w3.org/2002/07/owl#ObjectProperty
+http://www.w3.org/2002/07/owl#Ontology
+http://www.w3.org/2002/07/owl#Restriction
+http://www.w3.org/2002/07/owl#topDataProperty
+1e-24
+1e-21
+1e-18
+1e-15
+1e-12
+1e-09
+1e-06
+0.001
+0.01
+0.1
+1
+3
+4
+10.0
+100.0
+1000.0
+1000000.0
+1000000000.0
+1000000000000.0
+1000000000000000.0
+1e+18
+1e+21
+1e+24
+*
++
+-
+/
+1,
+i,
+π,
+the number of protons in the nucleus of an atom
+1.0.0-beta
+10-9.1
+3‑10.1
+=
+A
+A State whose spatial direct parts are all SpatialOrdered objects.
+A mathematical object in this branch is not representing a concept but an actual graphical object built using mathematcal symbols arranged in some way, according to math conventions.
+Access, DE
+Adham Hashibon
+An Existent whose temporal direct parts are all TemporalOrdered.
+An object can be represented by a quantity for the fact that it has been recognized to belong to a specific class.
+
+The quantity is selected without an observation aimed to measure its actual value, but by convention.
+AtomicMassNumber
+B
+Bq
+C
+Conductivity
+Da
+Direct parthood is the relation used to build the class hierarchy (and the granularity hierarchy) for this perspective.
+E
+EMMC ASBL
+ElectromagneticPermeability
+Emanuele Ghedini
+F
+Fraunhofer IWM, DE
+G
+Georg Schmitz
+Gerhard Goldbeck
+Goldbeck Consulting Ltd (UK)
+Gy
+H
+Hz
+Impedance
+In EMMO version 1.0.0-beta, physical quantities used the hasReferenceUnit object property to relate them to their units via physical dimensionality. This was simplified in 1.0.0-alpha3 in order to make reasoning faster.
+
+The restriction (e.g. for the physical quantity Length)
+
+    Length hasReferenceUnit only (hasPhysicsDimension only LengthDimension)
+
+was in 1.0.0-alpha3 changed to
+
+    Length hasPhysicsDimension some LengthDimension
+
+Likewise were the universal restrictions on the corresponding unit changed to excistential. E.g.
+
+    Metre hasPhysicsDimension only LengthDimension
+
+was changed to
+
+    Metre hasPhysicsDimension some LengthDimension
+
+The label of this class was also changed from PhysicsDimension to PhysicalDimension.
+InverseLength
+J
+Jesper Friis
+K
+LinearArray
+M
+N
+Np
+NucleonNumber
+P
+Pa
+Reactance
+Resistivity
+S
+SINTEF, NO
+Sv
+T
+T+1 L+1 M0 I+1 Θ0 N0 J0
+T+1 L0 M0 I+1 Θ0 N0 J0
+T+1 L0 M0 I0 Θ0 N0 J0
+T+2 L-1 M-1 I+1 Θ0 N0 J0
+T+3 L-1 M-1 I0 Θ0 N0 J+1
+T+3 L-2 M-1 I+2 Θ0 N0 J0
+T+3 L-3 M-1 I+2 Θ0 N0 J0
+T+4 L-2 M-1 I+2 Θ0 N0 J0
+T+4 L-3 M-1 I+2 Θ0 N0 J0
+T-1 L+1 M+1 I0 Θ0 N0 J0
+T-1 L+1 M0 I0 Θ0 N0 J0
+T-1 L+2 M+1 I0 Θ0 N0 J0
+T-1 L0 M0 I0 Θ0 N+1 J0
+T-1 L0 M0 I0 Θ0 N0 J0
+T-2 L+1 M+1 I-2 Θ0 N0 J0
+T-2 L+1 M+1 I0 Θ0 N0 J0
+T-2 L+1 M0 I0 Θ0 N0 J0
+T-2 L+2 M+1 I-1 Θ0 N0 J0
+T-2 L+2 M+1 I-2 Θ0 N0 J0
+T-2 L+2 M+1 I0 Θ-1 N-1 J0
+T-2 L+2 M+1 I0 Θ-1 N0 J0
+T-2 L+2 M+1 I0 Θ0 N-1 J0
+T-2 L+2 M+1 I0 Θ0 N0 J0
+T-2 L+2 M0 I0 Θ0 N0 J0
+T-2 L+3 M-1 I0 Θ0 N0 J0
+T-2 L-1 M+1 I0 Θ0 N0 J0
+T-2 L0 M+1 I-1 Θ0 N0 J0
+T-3 L+2 M+1 I-1 Θ0 N0 J0
+T-3 L+2 M+1 I-2 Θ0 N0 J0
+T-3 L+2 M+1 I0 Θ0 N0 J0
+T-3 L+3 M+1 I-2 Θ0 N0 J0
+T0 L+1 M0 I0 Θ0 N0 J0
+T0 L+2 M0 I+1 Θ0 N0 J0
+T0 L+2 M0 I0 Θ0 N0 J0
+T0 L+3 M0 I0 Θ0 N0 J0
+T0 L-1 M0 I+1 Θ0 N0 J0
+T0 L-1 M0 I0 Θ0 N0 J0
+T0 L-2 M+1 I0 Θ0 N0 J0
+T0 L-2 M0 I+1 Θ0 N0 J0
+T0 L-2 M0 I0 Θ0 N0 J+1
+T0 L-3 M+1 I0 Θ0 N0 J0
+T0 L-3 M0 I0 Θ0 N+1 J0
+T0 L-3 M0 I0 Θ0 N0 J0
+T0 L0 M+1 I0 Θ0 N0 J0
+T0 L0 M0 I+1 Θ0 N0 J0
+T0 L0 M0 I0 Θ+1 N0 J0
+T0 L0 M0 I0 Θ0 N+1 J0
+T0 L0 M0 I0 Θ0 N-1 J0
+T0 L0 M0 I0 Θ0 N0 J+1
+T0 L0 M0 I0 Θ0 N0 J0
+T0 L2 M0 I0 Θ0 N0 J0
+The union of Arrangement and Sequence.
+University of Bologna, IT
+V
+W
+Wb
+Y
+Z
+a
+au
+c
+cd
+d
+da
+eV
+f
+g
+h
+ha
+http://dbpedia.org/page/%C3%85ngstr%C3%B6m
+http://dbpedia.org/page/Absorbed_dose
+http://dbpedia.org/page/Acceleration
+http://dbpedia.org/page/Amount_of_substance
+http://dbpedia.org/page/Angle
+http://dbpedia.org/page/Angular_momentum
+http://dbpedia.org/page/Area
+http://dbpedia.org/page/Area_density
+http://dbpedia.org/page/Astronomical_unit
+http://dbpedia.org/page/Atomic_number
+http://dbpedia.org/page/Boltzmann_constant
+http://dbpedia.org/page/Capacitance
+http://dbpedia.org/page/Center_of_mass
+http://dbpedia.org/page/Chemical_potential
+http://dbpedia.org/page/Current_density
+http://dbpedia.org/page/Day
+http://dbpedia.org/page/Degree_(angle)
+http://dbpedia.org/page/Density
+http://dbpedia.org/page/Dimensionless_quantity
+http://dbpedia.org/page/Electric_charge
+http://dbpedia.org/page/Electric_current
+http://dbpedia.org/page/Electric_dipole_moment
+http://dbpedia.org/page/Electrical_impedance
+http://dbpedia.org/page/Electrical_reactance
+http://dbpedia.org/page/Electrical_resistance_and_conductance
+http://dbpedia.org/page/Electrical_resistivity_and_conductivity
+http://dbpedia.org/page/Electron_rest_mass
+http://dbpedia.org/page/Electronvolt
+http://dbpedia.org/page/Elementary_charge
+http://dbpedia.org/page/Energy
+http://dbpedia.org/page/Enthalpy
+http://dbpedia.org/page/Entropy
+http://dbpedia.org/page/Fine-structure_constant
+http://dbpedia.org/page/Force
+http://dbpedia.org/page/Frequency
+http://dbpedia.org/page/Gas_constant
+http://dbpedia.org/page/Gravitational_constant
+http://dbpedia.org/page/Heat
+http://dbpedia.org/page/Hectare
+http://dbpedia.org/page/Illuminance
+http://dbpedia.org/page/Inductance
+http://dbpedia.org/page/Internal_energy
+http://dbpedia.org/page/Kinetic_energy
+http://dbpedia.org/page/Length
+http://dbpedia.org/page/Luminance
+http://dbpedia.org/page/Luminous_flux
+http://dbpedia.org/page/Luminous_intensity
+http://dbpedia.org/page/Magnetic_field
+http://dbpedia.org/page/Magnetic_flux
+http://dbpedia.org/page/Magnetic_moment
+http://dbpedia.org/page/Mass
+http://dbpedia.org/page/Mass_concentration_(chemistry)
+http://dbpedia.org/page/Mass_fraction_(chemistry)
+http://dbpedia.org/page/Minute
+http://dbpedia.org/page/Molar_concentration
+http://dbpedia.org/page/Mole_fraction
+http://dbpedia.org/page/Momentum
+http://dbpedia.org/page/Neper
+http://dbpedia.org/page/Permeability_(electromagnetism)
+http://dbpedia.org/page/Permittivity
+http://dbpedia.org/page/Planck_constant
+http://dbpedia.org/page/Potential_energy
+http://dbpedia.org/page/Power_(physics)
+http://dbpedia.org/page/Pressure
+http://dbpedia.org/page/Radiant_flux
+http://dbpedia.org/page/Reciprocal_length
+http://dbpedia.org/page/Refractive_index
+http://dbpedia.org/page/Rydberg_constant
+http://dbpedia.org/page/Solid_angle
+http://dbpedia.org/page/Speed
+http://dbpedia.org/page/Speed_of_light
+http://dbpedia.org/page/Stress_(mechanics)
+http://dbpedia.org/page/Thermodynamic_temperature
+http://dbpedia.org/page/Time
+http://dbpedia.org/page/Torque
+http://dbpedia.org/page/Unified_atomic_mass_unit
+http://dbpedia.org/page/Vergence
+http://dbpedia.org/page/Voltage
+http://dbpedia.org/page/Volume
+http://dbpedia.org/page/Wavenumber
+http://dbpedia.org/page/Weight
+http://dbpedia.org/page/Work_(physics)
+http://goldbook.iupac.org/terms/view/M03688
+http://qudt.org/vocab/constant/AvogadroConstant
+http://qudt.org/vocab/constant/BoltzmannConstant
+http://qudt.org/vocab/constant/ElectromagneticPermeabilityOfVacuum
+http://qudt.org/vocab/constant/ElectronMass
+http://qudt.org/vocab/constant/FineStructureConstant
+http://qudt.org/vocab/constant/JosephsonConstant
+http://qudt.org/vocab/constant/MolarGasConstant
+http://qudt.org/vocab/constant/NewtonianConstantOfGravitation
+http://qudt.org/vocab/constant/PermittivityOfVacuum
+http://qudt.org/vocab/constant/PlanckConstant
+http://qudt.org/vocab/constant/ProtonMass
+http://qudt.org/vocab/constant/RydbergConstant
+http://qudt.org/vocab/constant/SpeedOfLight_Vacuum
+http://qudt.org/vocab/constant/VonKlitzingConstant
+http://qudt.org/vocab/quantitykind/AbsorbedDose
+http://qudt.org/vocab/quantitykind/Acceleration
+http://qudt.org/vocab/quantitykind/AmountOfSubstance
+http://qudt.org/vocab/quantitykind/AmountOfSubstanceConcentrationOfB
+http://qudt.org/vocab/quantitykind/AngularMomentum
+http://qudt.org/vocab/quantitykind/Area
+http://qudt.org/vocab/quantitykind/AtomicNumber
+http://qudt.org/vocab/quantitykind/Capacitance
+http://qudt.org/vocab/quantitykind/CatalyticActivity
+http://qudt.org/vocab/quantitykind/ChemicalPotential
+http://qudt.org/vocab/quantitykind/Conductance
+http://qudt.org/vocab/quantitykind/Density
+http://qudt.org/vocab/quantitykind/DoseEquivalent
+http://qudt.org/vocab/quantitykind/ElectricCharge
+http://qudt.org/vocab/quantitykind/ElectricConductivity
+http://qudt.org/vocab/quantitykind/ElectricCurrent
+http://qudt.org/vocab/quantitykind/ElectricCurrentDensity
+http://qudt.org/vocab/quantitykind/ElectricDipoleMoment
+http://qudt.org/vocab/quantitykind/ElectromagneticPermeability
+http://qudt.org/vocab/quantitykind/ElementaryCharge
+http://qudt.org/vocab/quantitykind/Energy
+http://qudt.org/vocab/quantitykind/Enthalpy
+http://qudt.org/vocab/quantitykind/Entropy
+http://qudt.org/vocab/quantitykind/Force
+http://qudt.org/vocab/quantitykind/Frequency
+http://qudt.org/vocab/quantitykind/Heat
+http://qudt.org/vocab/quantitykind/Illuminance
+http://qudt.org/vocab/quantitykind/Impedance
+http://qudt.org/vocab/quantitykind/Inductance
+http://qudt.org/vocab/quantitykind/InternalEnergy
+http://qudt.org/vocab/quantitykind/InverseLength
+http://qudt.org/vocab/quantitykind/KineticEnergy
+http://qudt.org/vocab/quantitykind/Length
+http://qudt.org/vocab/quantitykind/Luminance
+http://qudt.org/vocab/quantitykind/LuminousFlux
+http://qudt.org/vocab/quantitykind/MagneticDipoleMoment
+http://qudt.org/vocab/quantitykind/MagneticFieldStrength
+http://qudt.org/vocab/quantitykind/MagneticFlux
+http://qudt.org/vocab/quantitykind/MagneticFluxDensity
+http://qudt.org/vocab/quantitykind/Mass
+http://qudt.org/vocab/quantitykind/MassConcentration
+http://qudt.org/vocab/quantitykind/MassFraction
+http://qudt.org/vocab/quantitykind/MassNumber
+http://qudt.org/vocab/quantitykind/MoleFraction
+http://qudt.org/vocab/quantitykind/Momentum
+http://qudt.org/vocab/quantitykind/Permittivity
+http://qudt.org/vocab/quantitykind/PlaneAngle
+http://qudt.org/vocab/quantitykind/PotentialEnergy
+http://qudt.org/vocab/quantitykind/Power
+http://qudt.org/vocab/quantitykind/Pressure
+http://qudt.org/vocab/quantitykind/RadiantFlux
+http://qudt.org/vocab/quantitykind/Reactance
+http://qudt.org/vocab/quantitykind/RefractiveIndex
+http://qudt.org/vocab/quantitykind/Resistance
+http://qudt.org/vocab/quantitykind/Resistivity
+http://qudt.org/vocab/quantitykind/SolidAngle
+http://qudt.org/vocab/quantitykind/SpecificActivity
+http://qudt.org/vocab/quantitykind/Speed
+http://qudt.org/vocab/quantitykind/Strain
+http://qudt.org/vocab/quantitykind/Stress
+http://qudt.org/vocab/quantitykind/Torque
+http://qudt.org/vocab/quantitykind/Velocity
+http://qudt.org/vocab/quantitykind/Voltage
+http://qudt.org/vocab/quantitykind/Volume
+http://qudt.org/vocab/quantitykind/VolumeFraction
+http://qudt.org/vocab/quantitykind/Wavenumber
+http://qudt.org/vocab/quantitykind/Weight
+http://qudt.org/vocab/quantitykind/Work
+http://qudt.org/vocab/unit/A
+http://qudt.org/vocab/unit/ANGSTROM
+http://qudt.org/vocab/unit/ARCMIN
+http://qudt.org/vocab/unit/ARCSEC
+http://qudt.org/vocab/unit/B
+http://qudt.org/vocab/unit/BQ
+http://qudt.org/vocab/unit/C
+http://qudt.org/vocab/unit/CD
+http://qudt.org/vocab/unit/DAY
+http://qudt.org/vocab/unit/DEG
+http://qudt.org/vocab/unit/DEG_C
+http://qudt.org/vocab/unit/Dalton
+http://qudt.org/vocab/unit/EV
+http://qudt.org/vocab/unit/FARAD
+http://qudt.org/vocab/unit/GM
+http://qudt.org/vocab/unit/GRAY
+http://qudt.org/vocab/unit/H
+http://qudt.org/vocab/unit/HA
+http://qudt.org/vocab/unit/HR
+http://qudt.org/vocab/unit/HZ
+http://qudt.org/vocab/unit/J
+http://qudt.org/vocab/unit/K
+http://qudt.org/vocab/unit/KAT
+http://qudt.org/vocab/unit/KiloGM
+http://qudt.org/vocab/unit/L
+http://qudt.org/vocab/unit/LM
+http://qudt.org/vocab/unit/LUX
+http://qudt.org/vocab/unit/M
+http://qudt.org/vocab/unit/M-PER-SEC
+http://qudt.org/vocab/unit/M2
+http://qudt.org/vocab/unit/M3
+http://qudt.org/vocab/unit/MIN
+http://qudt.org/vocab/unit/MOL
+http://qudt.org/vocab/unit/N
+http://qudt.org/vocab/unit/N-M
+http://qudt.org/vocab/unit/NP
+http://qudt.org/vocab/unit/OHM
+http://qudt.org/vocab/unit/PA
+http://qudt.org/vocab/unit/PARSEC
+http://qudt.org/vocab/unit/RAD
+http://qudt.org/vocab/unit/SEC
+http://qudt.org/vocab/unit/SR
+http://qudt.org/vocab/unit/SV
+http://qudt.org/vocab/unit/T
+http://qudt.org/vocab/unit/TON_M
+http://qudt.org/vocab/unit/UNITLESS
+http://qudt.org/vocab/unit/V
+http://qudt.org/vocab/unit/W
+http://qudt.org/vocab/unit/WB
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-01-03
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-01-19
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-01-32
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-03-12
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-03-26
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-03-48
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-03-49
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-03-57
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=113-04-20
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=121-11-35
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=121-11-36
+http://www.electropedia.org/iev/iev.nsf/display?openform&ievref=121-11-55
+http://www.ontology-of-units-of-measure.org/resource/om-2/AmountOfSubstanceFraction
+http://www.ontology-of-units-of-measure.org/resource/om-2/ElectricDipoleMoment
+http://www.ontology-of-units-of-measure.org/resource/om-2/InternalEnergy
+http://www.ontology-of-units-of-measure.org/resource/om-2/KineticEnergy
+http://www.ontology-of-units-of-measure.org/resource/om-2/MassFraction
+http://www.ontology-of-units-of-measure.org/resource/om-2/Permittivity
+http://www.ontology-of-units-of-measure.org/resource/om-2/PotentialEnergy
+http://www.ontology-of-units-of-measure.org/resource/om-2/Speed
+http://www.ontology-of-units-of-measure.org/resource/om-2/Strain
+http://www.ontology-of-units-of-measure.org/resource/om-2/Torque
+http://www.ontology-of-units-of-measure.org/resource/om-2/Wavenumber
+http://www.ontology-of-units-of-measure.org/resource/om-2/cubicMetre
+http://www.ontology-of-units-of-measure.org/resource/om-2/metrePerSecond-Time
+http://www.ontology-of-units-of-measure.org/resource/om-2/newtonMetre
+http://www.ontology-of-units-of-measure.org/resource/om-2/squareMetre
+https://creativecommons.org/licenses/by/4.0/legalcode
+https://doi.org/10.1351/goldbook.A00031
+https://doi.org/10.1351/goldbook.A00051
+https://doi.org/10.1351/goldbook.A00114
+https://doi.org/10.1351/goldbook.A00295
+https://doi.org/10.1351/goldbook.A00296
+https://doi.org/10.1351/goldbook.A00297
+https://doi.org/10.1351/goldbook.A00300
+https://doi.org/10.1351/goldbook.A00346
+https://doi.org/10.1351/goldbook.A00353
+https://doi.org/10.1351/goldbook.A00424
+https://doi.org/10.1351/goldbook.A00429
+https://doi.org/10.1351/goldbook.A00496
+https://doi.org/10.1351/goldbook.A00499
+https://doi.org/10.1351/goldbook.A00543
+https://doi.org/10.1351/goldbook.B00624
+https://doi.org/10.1351/goldbook.B00695
+https://doi.org/10.1351/goldbook.C00787
+https://doi.org/10.1351/goldbook.C00791
+https://doi.org/10.1351/goldbook.C00881
+https://doi.org/10.1351/goldbook.C01032
+https://doi.org/10.1351/goldbook.C01245
+https://doi.org/10.1351/goldbook.C01365
+https://doi.org/10.1351/goldbook.D01514
+https://doi.org/10.1351/goldbook.D01527
+https://doi.org/10.1351/goldbook.D01560
+https://doi.org/10.1351/goldbook.D01561
+https://doi.org/10.1351/goldbook.D01590
+https://doi.org/10.1351/goldbook.D01742
+https://doi.org/10.1351/goldbook.E01923
+https://doi.org/10.1351/goldbook.E01925
+https://doi.org/10.1351/goldbook.E01927
+https://doi.org/10.1351/goldbook.E01928
+https://doi.org/10.1351/goldbook.E01929
+https://doi.org/10.1351/goldbook.E01936
+https://doi.org/10.1351/goldbook.E01982
+https://doi.org/10.1351/goldbook.E02008
+https://doi.org/10.1351/goldbook.E02014
+https://doi.org/10.1351/goldbook.E02032
+https://doi.org/10.1351/goldbook.E02101
+https://doi.org/10.1351/goldbook.E02141
+https://doi.org/10.1351/goldbook.E02149
+https://doi.org/10.1351/goldbook.F02320
+https://doi.org/10.1351/goldbook.F02389
+https://doi.org/10.1351/goldbook.F02480
+https://doi.org/10.1351/goldbook.FT07383
+https://doi.org/10.1351/goldbook.G02579
+https://doi.org/10.1351/goldbook.G02680
+https://doi.org/10.1351/goldbook.G02695
+https://doi.org/10.1351/goldbook.G02696
+https://doi.org/10.1351/goldbook.H02752
+https://doi.org/10.1351/goldbook.H02782
+https://doi.org/10.1351/goldbook.H02785
+https://doi.org/10.1351/goldbook.H02866
+https://doi.org/10.1351/goldbook.I02941
+https://doi.org/10.1351/goldbook.I03103
+https://doi.org/10.1351/goldbook.J03363
+https://doi.org/10.1351/goldbook.K03372
+https://doi.org/10.1351/goldbook.K03374
+https://doi.org/10.1351/goldbook.K03391
+https://doi.org/10.1351/goldbook.K03402
+https://doi.org/10.1351/goldbook.L03498
+https://doi.org/10.1351/goldbook.L03594
+https://doi.org/10.1351/goldbook.L03639
+https://doi.org/10.1351/goldbook.L03640
+https://doi.org/10.1351/goldbook.L03646
+https://doi.org/10.1351/goldbook.L03651
+https://doi.org/10.1351/goldbook.M03683
+https://doi.org/10.1351/goldbook.M03684
+https://doi.org/10.1351/goldbook.M03686
+https://doi.org/10.1351/goldbook.M03709
+https://doi.org/10.1351/goldbook.M03713
+https://doi.org/10.1351/goldbook.M03722
+https://doi.org/10.1351/goldbook.M03884
+https://doi.org/10.1351/goldbook.M03980
+https://doi.org/10.1351/goldbook.M04007
+https://doi.org/10.1351/goldbook.M04076
+https://doi.org/10.1351/goldbook.N00350
+https://doi.org/10.1351/goldbook.N04106
+https://doi.org/10.1351/goldbook.N04135
+https://doi.org/10.1351/goldbook.O04280
+https://doi.org/10.1351/goldbook.P04442
+https://doi.org/10.1351/goldbook.P04503
+https://doi.org/10.1351/goldbook.P04507
+https://doi.org/10.1351/goldbook.P04508
+https://doi.org/10.1351/goldbook.P04685
+https://doi.org/10.1351/goldbook.P04778
+https://doi.org/10.1351/goldbook.P04792
+https://doi.org/10.1351/goldbook.P04819
+https://doi.org/10.1351/goldbook.P04855
+https://doi.org/10.1351/goldbook.P04914
+https://doi.org/10.1351/goldbook.R05036
+https://doi.org/10.1351/goldbook.R05046
+https://doi.org/10.1351/goldbook.R05240
+https://doi.org/10.1351/goldbook.R05316
+https://doi.org/10.1351/goldbook.R05430
+https://doi.org/10.1351/goldbook.S05513
+https://doi.org/10.1351/goldbook.S05658
+https://doi.org/10.1351/goldbook.S05732
+https://doi.org/10.1351/goldbook.S05852
+https://doi.org/10.1351/goldbook.S05854
+https://doi.org/10.1351/goldbook.S05971
+https://doi.org/10.1351/goldbook.S06167
+https://doi.org/10.1351/goldbook.T06283
+https://doi.org/10.1351/goldbook.T06321
+https://doi.org/10.1351/goldbook.T06375
+https://doi.org/10.1351/goldbook.T06394
+https://doi.org/10.1351/goldbook.T06400
+https://doi.org/10.1351/goldbook.V06634
+https://doi.org/10.1351/goldbook.W06656
+https://doi.org/10.1351/goldbook.W06664
+https://doi.org/10.1351/goldbook.W06666
+https://doi.org/10.1351/goldbook.W06668
+https://doi.org/10.1351/goldbook.W06684
+https://en.wikipedia.org/wiki/Angstrom
+https://en.wikipedia.org/wiki/Astronomical_unit
+https://en.wikipedia.org/wiki/Atomic_mass
+https://en.wikipedia.org/wiki/Center_of_mass
+https://en.wikipedia.org/wiki/Centimetre%E2%80%93gram%E2%80%93second_system_of_units
+https://en.wikipedia.org/wiki/Decibel
+https://en.wikipedia.org/wiki/Dimensionless_quantity
+https://en.wikipedia.org/wiki/Equivalent_dose
+https://en.wikipedia.org/wiki/Gram
+https://en.wikipedia.org/wiki/Hectare
+https://en.wikipedia.org/wiki/International_System_of_Quantities
+https://en.wikipedia.org/wiki/International_System_of_Units#Derived_units
+https://en.wikipedia.org/wiki/List_of_physical_constants
+https://en.wikipedia.org/wiki/Metric_prefix
+https://en.wikipedia.org/wiki/Neper
+https://en.wikipedia.org/wiki/Non-SI_units_mentioned_in_the_SI
+https://en.wikipedia.org/wiki/Reciprocal_length
+https://en.wikipedia.org/wiki/Tonne
+https://iopscience.iop.org/article/10.1088/0026-1394/47/3/012
+https://physics.nist.gov/cgi-bin/cuu/Value?alph
+https://physics.nist.gov/cgi-bin/cuu/Value?bg
+https://physics.nist.gov/cgi-bin/cuu/Value?c
+https://physics.nist.gov/cgi-bin/cuu/Value?e
+https://physics.nist.gov/cgi-bin/cuu/Value?ep0
+https://physics.nist.gov/cgi-bin/cuu/Value?h
+https://physics.nist.gov/cgi-bin/cuu/Value?k
+https://physics.nist.gov/cgi-bin/cuu/Value?kcd
+https://physics.nist.gov/cgi-bin/cuu/Value?kjos
+https://physics.nist.gov/cgi-bin/cuu/Value?me
+https://physics.nist.gov/cgi-bin/cuu/Value?mp
+https://physics.nist.gov/cgi-bin/cuu/Value?mu0
+https://physics.nist.gov/cgi-bin/cuu/Value?na
+https://physics.nist.gov/cgi-bin/cuu/Value?nucs
+https://physics.nist.gov/cgi-bin/cuu/Value?r
+https://physics.nist.gov/cgi-bin/cuu/Value?rk
+https://physics.nist.gov/cgi-bin/cuu/Value?ryd
+https://www.bipm.org/utils/common/pdf/si-brochure/SI-Brochure-9-EN.pdf
+https://www.iso.org/obp/ui/#iso:std:iso:80000:-1:ed-1:v1:en:sec:3.1
+k
+kat
+kg
+l
+lm
+lx
+m
+m/s
+kg/m^3
+min
+mol
+n
+p
+qudt.org/vocab/quantitykind/ThermodynamicTemperature
+qudt.org/vocab/quantitykind/Time
+rad
+refractive index,
+volume fraction,
+fine structure constant
+s
+sr
+t
+y
+z
+°
+°C
+µ
+Å
+Δ
+Ω
+′
+″
+∇
+"A property of a phenomenon, body, or substance, where the property has a magnitude that can be expressed by means of a number and a reference"
+ISO 80000-1
+
+"A reference can be a measurement unit, a measurement procedure, a reference material, or a combination of such."
+International vocabulary of metrology (VIM)
+"In the name “amount of substance”, the word “substance” will typically be replaced by words to specify the substance concerned in any particular application, for example “amount of hydrogen chloride, HCl”, or “amount of benzene, C6H6 ”. It is important to give a precise definition of the entity involved (as emphasized in the definition of the mole); this should preferably be done by specifying the molecular chemical formula of the material involved. Although the word “amount” has a more general dictionary definition, the abbreviation of the full name “amount of substance” to “amount” may be used for brevity."
+
+-- SI Brochure
+"Ordinal quantities, such as Rockwell C hardness, are usually not considered to be part of a system of quantities because they are related to other quantities through empirical relations only."
+International vocabulary of metrology (VIM)
+"Property of a phenomenon, body, or substance, where the property has no magnitude."
+
+"A nominal property has a value, which can be expressed in words, by alphanumerical codes, or by other means."
+
+International vocabulary of metrology (VIM)
+"Quantity in a conventionally chosen subset of a given system of quantities, where no quantity in the subset can be expressed in terms of the other quantities within that subset"
+ISO 80000-1
+"Quantity, defined by a conventional measurement procedure, for which a total ordering relation can be established, according to magnitude, with other quantities of the same kind, but for which no algebraic operations among those quantities exist"
+International vocabulary of metrology (VIM)
+"Quantity, in a system of quantities, defined in terms of the base quantities of that system".
+"Real scalar quantity, defined and adopted by convention, with which any other quantity of the same kind can be compared to express the ratio of the second quantity to the first one as a number"
+ISO 80000-1
+"The unit one is the neutral element of any system of units – necessary and present automatically."
+SI Brochure
+"Unit symbols are mathematical entities and not abbreviations."
+
+"Symbols for units are treated as mathematical entities. In expressing the value of a quantity as the product of a numerical value and a unit, both the numerical value and the unit may be treated by the ordinary rules of algebra."
+
+https://www.bipm.org/utils/common/pdf/si-brochure/SI-Brochure-9-EN.pdf
+'Existent' is the EMMO class to be used for representing real world physical objects under a reductionistic perspective (i.e. objects come from the composition of sub-part objects, both in time and space). 
+
+'Existent' class collects all individuals that stand for physical objects that can be structured in well defined temporal sub-parts called states, through the temporal direct parthood relation.
+
+This class provides a first granularity hierarchy in time, and a way to axiomatize tessellation principles for a specific whole with a non-transitivity relation (direct parthood) that helps to retain the granularity levels.
+
+e.g. a car, a supersaturated gas with nucleating nanoparticles, an atom that becomes ionized and then recombines with an electron.
+'Graphical' objects include writings, pictures, sketches ...
+'Perceptual' includes real world objects that:
+- are part of a communication system (e.g. words, speech, alphabets)
+- are not part of a communication system, but can be identified and referred by an interpreter
+'acoustical' refers to the perception mechanism of the observer that can occur through a microphone, a ear.
+- Standard deviation
+
+- Half-width of an interval with a stated coverage probability
+0-manifold
+1 + 1 = 2
+1-dimensional array who's spatial direct parts are numbers.
+1-manifold
+1DArray
+2 * a - b = c
+2 * x^2 + x + 3
+2+2
+2+3 = 5
+x^2 +3x  = 5x
+dv/dt = a
+sin(x) = y
+2-dimensional array who's spatial direct parts are vectors.
+2-manifold
+2DArray
+2x+3
+3-dimensional array who's spatial direct parts are matrices.
+3-manifold
+3DArray
+6.8 m
+0.9 km
+8 K
+6 MeV
+43.5 HRC(150 kg)
+A 'Graphical' that stands for a real world object that shows a recognizable pictorial pattern without being necessarily associated to a symbolic language.
+A 'Mathematical' entity that is made of a 'Numeral' and a 'MeasurementUnit' defined by a physical law, connected to a physical entity through a model perspective. Measurement is done according to the same model.
+A 'Mathematical' that has no unknown value, i.e. all its 'Variable"-s parts refers to a 'Number' (for scalars that have a built-in datatype) or to another 'Numerical' (for complex numerical data structures that should rely on external implementations).
+A 'Perceptual' is a meta-object, meaning that is addressed by the ontologist (the meta-interpreter) in a meta-semiotic process occurring outside the EMMO.
+
+A 'Perceptual' becomes an 'Object', when it is part of a 'Semiotic' process described by the ontologist through the EMMO.
+A 'Perceptual' referring to a specific code that is used as 'Conventional' sign to represent an 'Object' according to a specific interaction mechanism by an 'Observer'.
+
+(A property is always a partial representation of an 'Object' since it reflects the 'Object' capability to be part of a specific 'Observation' process)
+A 'Perceptual' which stands for a real world object whose spatial configuration shows a pattern identifiable by an observer.
+A 'Perceptual' which stands for a real world object whose spatiotemporal pattern makes it identifiable by an observer as a sound.
+A 'Physical' that possesses some 'Massive' parts.
+A 'Physical' which is a tessellation of 'State' temporal direct parts.
+A 'Physical' which is a tessellation of spatial direct parts.
+A 'Physical' which stands for a real world object that can stimulate a perception (e.g. a mental impression, the excitation of a sensor) to an interpreter (human or non-human).
+A 'Physical' with 'Massless' parts that are mediators of interactions.
+A 'Physical' with no 'Massive' parts.
+A 'Process' is always a 'Physical', since a 'Void' does not have elements that evolves in time.
+A 'Process', that has participant an 'Interpreter', that is aimed to produce a 'Sign' representing another participant, the 'Object'.
+A 'Property' is a sort of name or label that we put upon objects that interact with an observer in the same specific way.
+
+e.g. "hot" objects are objects that interact with an observer through a perception mechanism aimed to perceive an heat source.
+A 'Property' that cannot be univocally determined and depends on an agent (e.g. a human individual, a community) acting as black-box.
+A 'Property' that is determined by each 'Observer' following a well defined 'Observation' procedure through a specific perception channel.
+A 'Quantity' that can be quantified with respect to a standardized reference physical instance (e.g. the prototype meter bar, the kg prototype) or method (e.g. resilience) through a measurement process.
+A 'Quantity' that stands for the standard reference magnitude of a specific class of measurement processes, defined and adopted by convention or by law.
+
+The numerical quantity value of the 'MeasurementUnit' is conventionally 1 and does not appear.
+
+Quantitative measurement results are expressed as a multiple of the 'MeasurementUnit'.
+A 'Semiosis' that involves an 'Observer' that perceives another 'Physical' (the 'Object') through a specific perception mechanism and produces a 'Property' (the 'Sign') that stands for the result of that particular perception.
+A 'Sign' can have temporal-direct-parts which are 'Sign' themselves.
+
+A 'Sign' usually havs 'sign' spatial direct parts only up to a certain elementary semiotic level, in which the part is only a 'Physical' and no more a 'Sign' (i.e. it stands for nothing). This elementary semiotic level is peculiar to each particular system of signs (e.g. text, painting).
+
+Just like an 'Elementary' in the 'Physical' branch, each 'Sign' branch should have an a-tomistic mereological part.
+A 'Sign' that stands for an 'Object' by resembling or imitating it, in shape or by sharing a similar logical structure.
+A 'Sign' that stands for an 'Object' due to causal continguity.
+A 'Sign' that stands for an 'Object' through convention, norm or habit, without any resemblance to it.
+A 'Variable' is a symbolic object that stands for a numerical defined 'Mathematical' object like e.g. a number, a vector, a matrix.
+A 'conventional' that stand for a 'physical'.
+A 'geometrical' stands for real world objects that express a geometrical concept.
+
+This can be achieved in many different ways. For example, a line can be expressed by:
+a) an equation like y=mx+q, which is both an 'equation' and a 'geometrical'
+b) a line drawn with a pencil on a paper, which is simply a 'graphical' object
+c) a set of axioms, when the properties of a line are inferred by the interpreter reading them, that are both 'graphical' and also 'formula'
+
+The case a) is a geometrical and mathematical, b) is geometrical and pictorial, while c) is geometrical and a composition of idiomatic strings.
+A 'graphical' aimed to represent a geometrical concept.
+A 'model' prediction is always a prediction of the properties of an entity, since an entity is known by an interpreter only through perception.
+A 'physical' that stands for a real world object that has been designed and manufactured for a particular purpose.
+A 'process' that is recognized by physical sciences and is catogrized accordingly.
+A 'sign' that not only stands for a 'physical' or a 'process', but it is also a simplified representation, aimed to assist calculations for its description or for predictions of its behaviour.
+
+A 'model' represents a 'physical' or a 'process' by direct similitude (e.g. small scale replica) or by capturing in a logical framework the relations between its properties (e.g. mathematical model).
+A 'varaible' that stand for a well known constant.
+A 'variable' whose value is assumed to be known independently from the equation, but whose value is not explicitated in the equation.
+A SI base or special unit with a metric prefix.
+A SI derived unit whos numerical factor in front of the product of SI base units is one.
+A Vector is a 1-dimensional Array with Number as spatial direct parts,
+a Matrix is a 2-dimensional Array with Vector as spatial direct parts,
+an Array3D is a 3-dimensional Array with Matrix as spatial direct parts,
+and so forth...
+A class devoted to categorize 'Physical'-s according to their granularity relations, first in terms of time evolution (Existent) and then in terms of their composition (State), up to the spatial a-tomistic element (Elementary).
+A computational model that uses existing data to create new insight into the behaviour of a system.
+A derived unit whos numerical factor in front of the product of base units is NOT equal to one.
+A dose quantity used in the International Commission on Radiological Protection (ICRP) system of radiological protection.
+A drawing of a cat.
+A circle on a paper sheet.
+The Mona Lisa.
+A flow of electric charge.
+A function defined using functional notation.
+A fundamental physical constant characterizing the strength of the electromagnetic interaction between elementary charged particles.
+A instance of a material (e.g. nitrogen) can represent different states of matter. The fact that the individual also belongs to other classes (e.g. Gas) would reveal the actual form in which the material is found.
+A language object is a symbolic object respecting a specific language syntactic rules (a well-formed formula).
+A language object respecting the syntactic rules of C++.
+A language object that follows syntactic rules of a an idiom (e.g. english, italian).
+A language object that follows syntactic rules of a programming language.
+A language object used in metrology.
+A line scratched on a surface.
+A sound.
+A smell.
+The word 'cat' and the sound of the word 'cat' (the first one is graphical and the second acoustical).
+A manufacturing process aimed to the production of a device made of specific components.
+A manufacturing process whose product is the result of the combination of more substances.
+A material_relation can e.g. return a predefined number, return a database query, be an equation that depends on other physics_quantities.
+A mathematical model can be defined as a description of a system using mathematical concepts and language to facilitate proper explanation of a system or to study the effects of different components and to make predictions on patterns of behaviour. 
+
+Abramowitz and Stegun, 1968
+A mathematical string that can be evaluated as true or false.
+A matter individual that stands for a real world object representing an amount of a physical substance (or mixture of substances) in different states of matter or phases.
+A measure of the wavelength-weighted power emitted by a light source in a particular direction per unit solid angle. It is based on the luminosity function, which is a standardized model of the sensitivity of the human eye.
+A measure of time defined as 86 400 seconds.
+A measurement is the process of experimentally obtaining one or more measurement results that can reasonably be attributed to a quantity.
+
+-- VIM
+A measurement result generally contains “relevant information” about the set of measured quantity properties, such that some may be more representative of the measured quantity than others. This may be expressed in the form of a probability density function (pdf).
+A measurement unit symbol that do not have a metric prefix as a direct spatial part.
+A measurement unit that is made of a metric prefix and a unit symbol.
+A measuring instrument that can be used alone is a measuring system.
+A non-SI metric unit of area defined as the square with 100-metre sides.
+A non-SI unit defined as 1000 kg.
+A non-SI unit of volume defined as 1 cubic decimetre (dm3),
+A non-negative parameter characterising the dispersion of the quantity being measured.
+A novel is made of chapters, paragraphs, sentences, words and characters (in a direct parthood mereological hierarchy). 
+
+Each of them are 'sign'-s. 
+
+A character can be the a-tomistic 'sign' for the class of texts.
+
+The horizontal segment in the character "A" is direct part of "A" but it is not a 'sign' itself.
+
+For plain text we can propose the ASCII symbols, for math the fundamental math symbols.
+A number is actually a string (e.g. 1.4, 1e-8) of numerical digits and other symbols. However, in order not to increase complexity of the taxonomy and relations, here we take a number as an "atomic" object (i.e. we do not include digits in the EMMO as alphabet for numbers).
+
+A 'Number' individual provide the link between the ontology and the actual data, through the data property hasNumericalValue.
+A numerical data value.
+A physical constant relating energy at the individual particle level with temperature. It is the gas constant R divided by the Avogadro constant.
+
+It defines the Kelvin unit in the SI system.
+A physical made of more than one symbol sequentially arranged.
+A physics-based model based on a physics equation describing the behaviour of atoms.
+A physics-based model based on a physics equation describing the behaviour of continuum volume.
+A physics-based model based on a physics equation describing the behaviour of electrons.
+A physics-based model based on a physics equation describing the behaviour of mesoscopic entities, i.e. a set of bounded atoms like a molecule, bead or nanoparticle.
+A picture that reproduces the aspect of a person. 
+
+An equation that reproduces the logical connection of the properties of a physical entity.
+A portion of a 'Process' that participates to the process with a specific role.
+A property of an electrical conductor by which a change in current through it induces an electromotive force in both the conductor itself and in any nearby conductors by mutual inductance.
+A property of objects which can be transferred to other objects or converted into different forms.
+A property that is associated to an object by convention, or assumption.
+A pure number, typically the number of something.
+A quantitative property attributed by agreement to a quantity for a given purpose.
+A quantitative property is always expresssed as a quantity (i.e. a number and a reference unit). For the EMMO, a nominalistic ontology, there is no property as abstract object.
+
+A property is a sign that stands for an object according to a specific code shared by some observers.
+
+For quantititative properties, one possible code that is shared between the scientific community (the observers) is the SI system of units.
+A quantity is not necessarily a property, since it is possible to write "10 kg", without assigning this quantity to a specific object.
+
+However, a quantitative property is always a quantity.
+A quantity to which no physical dimension is assigned and with a corresponding unit of measurement in the SI of the unit one.
+A real matrix with shape 4x3.
+A real vector with 3 elements.
+A reference can be a measurement unit, a measurement procedure, a reference material, or a combination of such.
+International vocabulary of metrology (VIM)
+A reference unit provided by a measurement procedure.
+A reference unit provided by a reference material.
+International vocabulary of metrology (VIM)
+A relation which makes a non-equal comparison between two numbers or other mathematical expressions.
+A set of one or more 'MeasuringInstruments' and often other devices, including any reagent and supply, assembled and adapted to give information used to generate 'MeasuredQuantityProperty' within specified intervals for quantities of specified kinds.
+
+-- VIM
+A set of units that correspond to the base quantities in a system of units.
+A solvable set of one Physics Equation and one or more Materials Relations.
+A state quantity equal to the difference between the total energy of a system and the sum of the macroscopic kinetic and potential energies of the system.
+A string is made of concatenated symbols whose arrangement is one-dimensional. Each symbol can have only one previous and one next neighborhood (bidirectional list).
+A string is not requested to respect any syntactic rule: it's simply directly made of symbols.
+A symbol that stands for a concept in the language of the meterological domain of ISO 80000.
+A symbol that stands for a single unit.
+A symbol that, following SI specifications, describe the physical dimensionality of a physical quantity and the exponents of the base units in a measurement unit.
+A symbolic entity made of other symbolic entities according to a specific spatial configuration.
+A symbolic is recognized as reference unit also if it is not part of a quatity (e.g. as in the sentence "the Bq is the reference unit of Becquerel").
+
+For this reason we can't declare the axiom:
+ReferenceUnit SubClassOf: inverse(hasReferenceUnit) some Quantity
+because there exist reference units without being part of a quantity.
+
+This is peculiar to EMMO, where quantities (symbolic) are distinct with properties (semiotics).
+A symbolic that has parts a reference unit and a numerical object separated by a space expressing the value of a quantitative property (expressed as the product of the numerical and the unit).
+A temporal part of a physical that identifies a particular type of evolution in time.
+A union of classes that categorize physicals under a holistic perspective: the interest is on the whole 4D object (process) and the role of its 4D parts (participants) without going further into specifying the spatial hierarchy or the temporal position of each part.
+A unique string describing the physical dimensionality of a physical quantity.
+
+See the comments of PhysicalDimension for a description of this "regex" string.
+A unit symbol that stands for a derived unit.
+A unit that does not belong to any system of units.
+A well-formed finite combination of mathematical symbols according to some specific rules.
+AbsorbedDose
+AbsorbedDoseDimension
+Acceleration
+According to Peirce, 'Sign' includes three subcategories:
+- symbols: that stand for an object through convention
+- indeces: that stand for an object due to causal continguity
+- icons: that stand for an object due to similitudes e.g. in shape or composition
+According to the SI brochure counting does not automatically qualify a quantity as an amount of substance.
+
+This quantity is used only to describe the outcome of a counting process, without regard of the type of entities.
+
+There are also some quantities that cannot be described in terms of the seven base quantities of the SI, but have the nature of a count. Examples are a number of molecules, a number of cellular or biomolecular entities (for example copies of a particular nucleic acid sequence), or degeneracy in quantum mechanics. Counting quantities are also quantities with the associated unit one.
+Acoustical
+AlgebricEquation
+AlgebricExpression
+AlgebricOperator
+All physical quantities, with the exception of counts, are derived quantities, which may be written in terms of base quantities according to the equations of physics. The dimensions of the derived quantities are written as products of powers of the dimensions of the base quantities using the equations that relate the derived quantities to the base quantities.
+In general the dimension of any quantity Q is written in the form of a dimensional product,
+
+dim Q = T^α L^β M^γ I^δ Θ^ε N^ζ J^η
+
+where the exponents α, β, γ, δ, ε, ζ and η, which are generally small integers, which can be positive, negative, or zero, are called the dimensional exponents.
+(SI brochure)
+AmountConcentration
+AmountDimension
+AmountFraction
+AmountFractionUnit
+AmountOfSubstance
+Ampere
+An 'Existent' individual stands for a real world object for which the ontologist wants to provide univocal tessellation in time.
+
+By definition, the tiles are represented by 'State'-s individual.
+
+Tiles are related to the 'Existent' through temporal direct parthood, enforcing non-transitivity and inverse-functionality.
+An 'Graphical' that stands for a token or a composition of tokens from one or more alphabets, without necessarily respecting syntactic rules.
+An 'ObjectiveProperty' that cannot be quantified.
+An 'Physical' that is used as sign ("semeion" in greek) that stands for another 'Physical' through an semiotic process.
+An 'equation' that has parts two 'polynomial'-s
+An 'equation' that stands for a 'physical_law' by mathematically defining the relations between physics_quantities.
+An 'equation' that stands for a physical assumption specific to a material, and provides an expression for a 'physics_quantity' (the dependent variable) as function of other variables, physics_quantity or data (independent variables).
+An 'interpreter' that perceives another 'entity' (the 'object') through a specific perception mechanism and produces a 'property' (the 'sign') that stands for the result of that particular perception.
+An 'observation' that results in a quantitative comparison of a 'property' of an 'object' with a standard reference.
+An Hydrogen atom has the quantity atomic number Z = 1 as its conventional property.
+An electric dipole, vector quantity of magnitude equal to the product of the positive charge and the distance between the charges and directed from the negative charge to the positive charge.
+An engineered object which is instrumental for reaching a particular purpose through its characteristic functioning process, with particular reference to mechanical or electronic equipment.
+An equation that define a new variable in terms of other mathematical entities.
+An equation with variables can always be represented as:
+
+f(v0, v1, ..., vn) = g(v0, v1, ..., vn)
+
+where f is the left hand and g the right hand  side expressions and v0, v1, ..., vn are the variables.
+An experiment is a process that is intended to replicate a physical phenomenon in a controlled environment.
+An expression that has parts only integer constants, variables, and the algebraic operations (addition, subtraction, multiplication, division and exponentiation by an exponent that is a rational number)
+An holistic perspective considers each part of the whole as equally important, without the need of a granularity hierarchy (in time or space).
+
+A molecule of a body can have role in the body evolution, without caring if its part of a specific organ and without specifying the time interval in which this role occurred.
+
+This class allows the picking of parts without necessarily going trough a rigid hierarchy of spatial compositions (e.g. body -> organ -> cell -> molecule) or temporal composition.
+Angle
+Angstrom
+AngularMomentum
+AngularMomentumDimension
+Any interaction that, when unopposed, will change the motion of an object
+Arbitrary amount-of-substance concentration of lutropin in a given sample of plasma (WHO international standard 80/552): 5.0 International Unit/l
+ArcMinute
+ArcSecond
+Area
+AreaDensity
+AreaDimension
+AreaFractionUnit
+ArithmeticEquation
+ArithmeticExpression
+ArithmeticOperator
+Arrangement
+Array
+Array subclasses with a specific shape can be constructed with cardinality restrictions.
+
+See Shape4x3Matrix as an example.
+Array3D
+Arrays are ordered mathematical objects who's elementary spatial parts are numbers. Their dimensionality is constructed with spatial direct parthood, where 1-dimensional arrays have spatial direct parts Number and n-dimensional array have spatial direct parts (n-1)-dimensional arrays.
+Arrays are ordered objects, since they are a subclasses of Arrangement.
+Assemblying a bicycle, building a car.
+Assigns a quantity to an object by convention.
+AstronomicalUnit
+AtomicMass
+AtomicNumber
+AtomisticModel
+Atto
+AvogadroConstant
+Base quantities defined in the International System of Quantities (ISQ).
+BaseQuantity
+BaseUnit
+Becquerel
+Being hasTemporalDirectPart a proper parthood relation, there cannot be 'Existent' made of a single 'State'.
+
+Moreover, due to inverse functionality, a 'State' can be part of only one 'Existent', preventing overlapping between 'Existent'-s.
+Bel
+BoltzmannConstant
+Boolean
+C++
+CFC is a 'sign' that stands for the fact that the morphology of atoms composing the microstructure of an entity is predominantly Cubic Face Centered
+
+A color is a nominal property.
+
+Sex of a human being.
+CGS is a variant of the metric system.
+CGSUnit
+CPlusPlus
+Candela
+Capacitance
+CapacitanceDimension
+Car, tire, composite material.
+CatalyticActivity
+CatalyticActivityDimension
+Centi
+CentreOfMass
+Change of the relative positions of parts of a body, excluding a displacement of the body as a whole.
+Charge
+ChemicalPotential
+Circle
+Concentration
+Conductance
+Constant
+Contacts:
+Gerhard Goldbeck
+Goldbeck Consulting Ltd (UK)
+email: gerhard@goldbeck-consulting.com
+
+Emanuele Ghedini
+University of Bologna (IT)
+email: emanuele.ghedini@unibo.it
+ContinuumManufacturing
+ContinuumModel
+Conventional
+ConventionalQuantitativeProperty
+Coulomb
+CoulombMetre
+CubicMetre
+CurrentDensity
+Curve
+Dalton
+DataBasedModel
+Day
+Decays per unit time.
+Deci
+Defines physical quantities in the International System of Quantities (ISQ). ISQ was made an official ISO standard in 2009 and is defined in the ISO/IEC 80000 standard.
+
+ISQ underlines the SI system and defines physical quanties that are measured with SI units.
+
+ISQ has 7 base quantities and many derived quantities defined in terms of the 7 base quantities.
+
+The number of derived quantities not closed and may increase based on the need by domain ontologies.
+Defines properties as the result of an observation process. Observation is a semiotic process that stimulate an interpretant within the interpreter who communicates the perception result to other interpreters through a sign, which is the property.
+
+Hence, properties creates a link between the holistic and the perceptual perspectives.
+
+Subclasses of property are subclasses that spesialise the type of observation process.
+Defines the Candela base unit in the SI system.
+Defines the formal language of metrology, including theoretical and practical aspects of measurements.
+
+This module is based on the International vocabulary of metrology (VIM) as well as the ISO/IEC 80000 standard.
+Defines the holistic perspective which include process and the role of its participants.
+
+Processes are 4D object's that unfolds in time in a way that has a meaning to the ontologist with participants who's role is assigned by the ontologist.
+Defines the perceptual perspective, which which categorises real world objects according to how they are percieved by an user as a recognisable pattern in space or time. 
+
+The perceptual module includes formal languages, pictures, geometry, mathematics and sounds. Phenomenic objects can be used in a semiotic process as signs.
+Defines the reductionistic perspective, which uses the fundamental non-transitive parthood relation, called direct parthood, to provide a powerful granularity description of multiscale real world objects.  EMMO can in principle represents the Universe with direct parthood relations as a direct rooted tree up to its elementary constituents.
+
+In addition to direct parthood, the reductionistic module defines 'State' as a tesselation of spatial direct parts with no change of granularity or cardinality and 'Existent' as a tesselation of temporal direct parts.
+Defines the root of the physicalistic perspective that introduces the concept of real world objects that have a meaning for the ontologist under an applied physics perspective.
+DefiningEquation
+Degree
+Degree is a measurement of plane angle, defined by representing a full rotation as 360 degrees.
+DegreeCelsius
+Deka
+Density
+Density functional theory.
+Hartree-Fock.
+Derivative of velocity with respect to time.
+Derived quantities defined in the International System of Quantities (ISQ).
+Derived units are defined as products of powers of the base units corresponding to the relations defining the derived quantities in terms of the base quantities.
+Derived units are defined as products of powers of the base units. When the numerical factor of this product is one, the derived units are called coherent derived units. The base and coherent derived units of the SI form a coherent set, designated the set of coherent SI units.
+DerivedQuantity
+DerivedUnit
+Describes manufacturing processes with engeneered participants. The module also provides a root for engeneered materials.
+Device
+Device used for making measurements, alone or in conjunction with one or more supplementary devices.
+
+-- VIM
+DifferentialOperator
+DimensionOne
+Dimensionless measurement unit for plane angle.
+Dimensionless measurement unit for solid angle.
+Dimensionless multiplicative unit prefix.
+Direct partitions declaration is a choice of the ontologist that choses the classes to be used as direct parts, according to its own world view.
+
+A 'State' can always be direct partitioned in 'Elementary'-s and 'Void' or 'Physical'.
+
+e.g. the water in my glass can be seen as a single object without declaring direct parts, or as made of H2O molecules direct parts.
+DiscreteManufacturing
+Division
+DoseEquivalent
+Electric current divided by the cross-sectional area it is passing through.
+Electric field strength divided by the current density.
+ElectricCapacitance
+ElectricCharge
+ElectricChargeDimension
+ElectricConductance
+ElectricConductanceDimension
+ElectricConductivity
+ElectricCurrent
+ElectricCurrentDimension
+ElectricDipoleMoment
+ElectricImpedance
+ElectricInductance
+ElectricPotential
+ElectricPotentialDimension
+ElectricReactance
+ElectricResistance
+ElectricResistanceDimension
+ElectricResistivity
+Electron
+ElectronCharge
+ElectronMass
+ElectronVolt
+ElectronicModel
+ElementaryCharge
+ElementaryParticle
+Energy
+Energy imparted to matter by ionizing radiation in a suitable small element of volume divided by the mass of that element of volume.
+Energy is often defined as "ability of a system to perform work", but it might be misleading since is not necessarily available to do work.
+Energy per unit change in amount of substance.
+Energy required to move a unit charge through an electric field from a reference point.
+EnergyDimension
+Engineered
+Enthalpy
+Entropy
+EntropyDimension
+Equals
+Equation
+Equivalent to the Boltzmann constant, but expressed in units of energy per temperature increment per mole (rather than energy per temperature increment per particle).
+EuclideanSpace
+European Materials & Modelling Ontology (EMMO)
+
+EMMO is a multidisciplinary effort to develop a standard representational framework (the ontology) based on current materials modelling knowledge, including physical sciences, analytical philosophy and information and communication technologies.
+
+It provides the connection between the physical world, materials characterisation world and materials modelling world.
+
+EMMO is released under a Creative Commons license Attribution 4.0 International (CC BY 4.0).
+Even though torque has the same physical dimension as energy, it is not of the same kind and can not be measured with energy units like joule or electron volt.
+Exa
+ExactConstant
+Existent
+Experiment
+Exponent
+Expression
+Extend of a spatial dimension.
+Extent of a surface.
+Extent of an object in space.
+Factor by which the phase velocity of light is reduced in a medium.
+Farad
+Femto
+Field
+FineStructureConstant
+Following the common definition of process, the reader may think that every 'Physical' should be a process, since every 4D object always has a time dimension. 
+
+However, in the EMMO we restrict the meaning of the word process to 'Physical'-s whose evolution in time have a particular meaning for the ontologist (i.e. every 4D object unfolds in time, but not every 4D object may be of interest for the ontologist). 
+
+A 'Process' is not only something that unfolds in time (which is automatically represented in a 4D ontology), but something that has a meaning for the ontologist (i.e. that the ontologist can separate from the rest of the 4D physical for any reason).
+For a given unit system, measured constants are physical constants that are not used to define the unit system. Hence, these constants have to be measured and will therefore be associated with an uncertainty.
+For a measurement involving replicate indications, each indication can be used to provide a corresponding 'MeasuredQuantityProperty'. This set of individual measured quantity properties can be used to
+calculate a resulting measured quantity property, such as an average or median, usually with a decreased associated 'MeasuredUncertainty'.
+
+-- VIM
+For an atom or nucleus, this energy is quantized and can be written as:
+
+    W = g μ M B
+
+where g is the appropriate g factor, μ is mostly the Bohr magneton or nuclear magneton, M is magnetic quantum number, and B is magnitude of the magnetic flux density.
+
+-- ISO 80000
+Force
+Force of gravity acting on a body.
+Force per unit oriented surface area .
+ForceDimension
+FractionUnit
+Frequency
+FrequencyDimension
+From Latin manufacture: "made by hand".
+From Latin perceptiō (“a receiving or collecting, perception, comprehension”), from perceptus (“perceived, observed”).
+From Old French "deviser", meaning: arrange, plan, contrive.
+
+Literally "dispose in portions," from Vulgar Latin "divisare", frequentative of Latin dividere, meaning "to divide".
+From the Ancient Greek γραφή (graphḗ) which means drawing, painting, writing, a writing, description, and from γράφω (gráphō) which means scratch, carve.
+FunctionDefinition
+Geometrical
+Giga
+Gluon
+Gradient
+Gram
+Gram is defined as one thousandth of the SI unit kilogram.
+Graphical
+Graviton
+Gray
+Hardness
+Resilience
+Hardness is a subclass of properties.
+
+Vickers hardness is a subclass of hardness that involves the procedures and instruments defined by the standard hardness test.
+Heat
+Heat is energy in transfer to or from a thermodynamic system, by mechanisms other than thermodynamic work or transfer of matter.
+Hectare
+Hecto
+Henry
+Here is assumed that the concept of 'object' is always relative to a 'semiotic' process. An 'object' does not exists per se, but it's always part of an interpretation.
+
+The EMMO relies on strong reductionism, i.e. everything real is a formless collection of elementary particles: we give a meaning to real world entities only by giving them boundaries and defining them using 'sign'-s. 
+
+In this way the 'sign'-ed entity becomes an 'object', and the 'object' is the basic entity needed in order to apply a logical formalism to the real world entities (i.e. we can speak of it through its sign, and use logics on it through its sign).
+Hertz
+Holism (from Greek ὅλος holos "all, whole, entire").
+Holistic
+Hour
+HyperfineTransitionFrequencyOfCs
+ISQBaseQuantity
+ISQDerivedQuantity
+ISQDimensionlessQuantity
+Icon
+Idiomatic
+IdiomaticSymbol
+Illuminance
+IlluminanceDimension
+In Peirce semiotics this kind of sign category is called symbol. However, since symbol is also used in formal languages, the name is changed in conventional.
+In general, for a given set of information, it is understood that the measurement uncertainty is associated with a stated quantity value. A modification of this value results in a modification of the associated uncertainty.
+In geometrical optics, vergence describes the curvature of optical wavefronts.
+In math usually number and numeral are distinct concepts, the numeral being the symbol or a composition of symbols (e.g. 3.14, 010010, three) and the number is the idea behind it.
+
+More than one numeral stand for the same number.
+
+In the EMMO abstract entities does not exists, and numbers are simply defined by other numerals, so that a number is the class of all the numerals that are equivalent (e.g. 3 and 0011 are numerals that stands for the same number).
+
+Or alternatively, an integer numeral may also stands for a set of a specific cardinality (e.g. 3 stands for a set of three apples). Rational and real numbers are simply a syntactic arrangment of integers (digits, in decimal system).
+
+The fact that you can't give a name to a number without using a numeral or, in case of positive integers, without referring to a real world objects set with specific cardinality, suggests that the abstract concept of number is not a concept that can be practically used.
+
+For these reasons, the EMMO will consider numerals and numbers as the same concept.
+In non-relativistic physics, the centre of mass doesn’t depend on the chosen reference frame.
+In the EMMO the relation of participation to a process falls under mereotopology.
+
+Since topological connection means causality, then the only way for a real world object to participate to a process is to be a part of it.
+In the same system of quantities, dim ρB = ML−3 is the quantity dimension of mass concentration of component B, and ML−3 is also the quantity dimension of mass density, ρ.
+ISO 80000-1
+In the usual geometrical three-dimensional space, position vectors are quantities of the dimension length.
+
+-- IEC
+Increase in the rate of reaction of a specified chemical reaction that an enzyme produces in a specific assay system.
+Index
+Inductance
+InductanceDimension
+Inequality
+Integer
+InternalEnergy
+International System of Quantities (ISQ)
+InternationalSystemOfQuantity
+Interpretant
+Interpreter
+Inverse of 'ElectricalConductance'.
+Inverse of 'ElectricalResistance'.
+Inverse of the magnetic flux quantum.
+Java
+JosephsonConstant
+Joule
+Katal
+Kelvin
+Kilo
+Kilogram
+KineticEnergy
+Language
+Laplacian
+Length
+Length is a non-negative additive quantity attributed to a one-dimensional object in space.
+Length per unit time.
+
+Speed in the absolute value of the velocity.
+LengthDimension
+LengthFractionUnit
+Let's define the class 'colour' as the subclass of the properties that involve photon emission and an electromagnetic radiation sensible observer.
+
+An individual C of this class 'colour' can be defined be declaring the process individual (e.g. daylight illumination) and the observer (e.g. my eyes)
+
+Stating that an entity E hasProperty C, we mean that it can be observed by such setup of process + observer (i.e. observed by my eyes under daylight).
+
+This definition can be generalized by using a generic human eye, so that the observer can be a generic human.
+
+This can be used in material characterization, to define exactly the type of measurement done, including the instrument type.
+Letter
+Line
+Litre
+Logarithmic measure of the number of available states of a system.
+Lumen
+Luminance
+LuminousEfficacyDimension
+LuminousEfficacyOf540THzRadiation
+LuminousFlux
+LuminousIntensity
+LuminousIntensityDimension
+Lux
+MagneticDipoleMoment
+MagneticDipoleMomentDimension
+MagneticFieldStrength
+MagneticFlux
+MagneticFluxDensity
+MagneticFluxDensityDimension
+MagneticFluxDimension
+Manufacturing
+Mass
+Mass of a constituent divided by the total mass of all constituents in the mixture.
+Mass of a constituent divided by the volume of the mixture.
+Mass per unit area.
+Mass per volume.
+MassConcentration
+MassDimension
+MassFraction
+MassFractionUnit
+MassNumber
+Massive
+Massless
+Material
+Material usually means some definite kind, quality, or quantity of matter, especially as intended for use.
+MaterialLaw
+MaterialRelation
+Math
+Mathematical
+MathematicalFormula
+MathematicalModel
+MathematicalOperator
+MathematicalSymbol
+Matrix
+Matter
+May also be referred to as a measure of order of  a system.
+Me looking a cat and saying loud: "Cat!" -> the semiosis process
+
+me -> interpreter
+cat -> object (in Peirce semiotics)
+the cat perceived by my mind -> interpretant
+"Cat!" -> sign, the produced sign
+Measure for how the magnetization of material is affected by the application of an external magnetic field .
+Measure for how the polarization of a material is affected by the application of an external electric field.
+Measure of a material's ability to conduct an electric current.
+
+Conductivity is equeal to the resiprocal of resistivity.
+Measure of length defined as 1e-10 metres.
+Measure of magnetism, taking account of the strength and the extent of a magnetic field.
+Measure of plane angle defined as 1/3600 or a degree.
+Measure of plane angle defined as 1/60 or a degree.
+Measure of plane angle.
+Measure of the difficulty to pass an electric current through a material.
+Measure of the ease for electric current to pass through a material.
+Measure of the extent and direction an object rotates about a reference point.
+Measure of the internal forces that neighboring particles of a continuous material exert on each other.
+Measure of the opposition that a circuit presents to a current when a voltage is applied.
+Measure of time defined as 3600 seconds.
+Measured in cd/m². Not to confuse with Illuminance, which is measured in lux (cd sr/m²).
+Measured or simulated 'physical propertiy'-s are always defined by a physical law, connected to a physical entity through a model perspective and measurement is done according to the same model.
+
+Systems of units suggests that this is the correct approach, since except for the fundamental units (length, time, charge) every other unit is derived by mathematical relations between these fundamental units, implying a physical laws or definitions.
+Measured value of a quantity representing a 'MeasurementResult'.
+
+-- VIM
+MeasuredConstant
+MeasuredQuantitativeProperty
+MeasuredQuantityValue
+MeasuredUncertainty
+Measurement
+Measurement of energy in a thermodynamic system.
+Measurement uncertainty includes components arising from systematic effects, such as components associated with corrections and the assigned quantity values of measurement standards, as well as the definitional uncertainty. Sometimes estimated systematic effects are not corrected for but, instead, associated measurement uncertainty components are incorporated.
+Measurement unit for Celsius temperature. This unit can only be used for expressing temperature differences.
+Measurement unit for absorbed dose.
+Measurement unit for catalytic activity.
+Measurement unit for electric capacitance.
+Measurement unit for electric charge.
+Measurement unit for electric dipole moment.
+Measurement unit for electrical conductance.
+Measurement unit for electrical inductance.
+Measurement unit for energy.
+Measurement unit for equivalent doseof ionizing radiation. 
+
+Sievert is derived from absorbed dose, but takes into account the biological effectiveness of the radiation, which is dependent on the radiation type and energy.
+Measurement unit for force.
+Measurement unit for frequence.
+Measurement unit for illuminance.
+Measurement unit for luminous flux.
+Measurement unit for magnetic flux density or induction.
+Measurement unit for magnetic flux.
+Measurement unit for power.
+Measurement unit for pressure.
+Measurement unit for resistance.
+Measurement unit for voltage.
+Measurement unit obtained by dividing a given measurement unit by an integer greater than one.
+Measurement unit obtained by multiplying a given measurement unit by an integer greater than one.
+Measurement units of quantities of the same quantity dimension may be designated by the same name and symbol even when the quantities are not of the same kind. 
+
+For example, joule per kelvin and J/K are respectively the name and symbol of both a measurement unit of heat capacity and a measurement unit of entropy, which are generally not considered to be quantities of the same kind. 
+
+However, in some cases special measurement unit names are restricted to be used with quantities of specific kind only. 
+
+For example, the measurement unit ‘second to the power minus one’ (1/s) is called hertz (Hz) when used for frequencies and becquerel (Bq) when used for activities of radionuclides. 
+
+As another example, the joule (J) is used as a unit of energy, but never as a unit of moment of force, i.e. the newton metre (N · m).
+MeasurementResult
+MeasurementUnit
+MeasuringInstrument
+MeasuringSystem
+Mega
+MesoscopicModel
+Metre
+MetrePerSecond
+MetricPrefix
+Metrological
+MetrologicalSymbol
+Metrology
+Metrology includes all theoretical and practical aspects of measurement, whatever the measurement uncertainty and field of application.
+
+-- International vocabulary of metrology (VIM)
+Micro
+Milli
+Minus
+Minute
+MinuteOfArc
+Model
+ModelledQuantitativeProperty
+Models
+MolarConcentration
+MolarGasConstant
+Molarity
+Mole
+MoleFraction
+Momentum
+MultipleUnit
+Multiplication
+Nano
+NaturalLaw
+Neper
+Newton
+NewtonMetre
+NewtonianConstantOfGravity
+NominalProperty
+Non-SI time unit defined as 60 seconds.
+Non-SI units mentioned in the SI.
+NonPrefixedUnit
+Note that the physical dimension is the same as for Joule.
+Number
+Number of direct parts of a Reductionistic.
+Number of nucleons in an atomic nucleus.
+Number of periods per time interval.
+Number of protons in an atomic nucleus.
+NumberOfElements
+Numeral
+Numerical
+Object
+ObjectiveProperty
+Observation
+Observer
+OffSystemUnit
+Often denoted B.
+Ohm
+One astronomical unit is defined as exactly 149597870700 m, which is roughly the distance from earth to sun.
+One bel is defined as `1⁄2 ln(10) neper`.
+One dalton is defined as one twelfth of the mass of an unbound neutral atom of carbon-12 in its nuclear and electronic ground state.
+One-dimensional subspace of space-time, which is locally orthogonal to space.
+OneManifold
+Only a subset of elementary particles from the Standard Model are here included for the sake of simplicity.
+Ordered
+OrderedElement
+Ordinal
+OrdinalQuantity
+Pa stands for N/m2
+J stands for N m
+Parameter
+Participant
+Participation is a parthood relation: you must be part (and then be connected) of the process to contribute to it.
+Participation is not under direct parthood since a process is not strictly related to reductionism, but it's a way to categorize temporal regions by the interpreters.
+Pascal
+PerAmountDimension
+Perceived power of light.
+Perceptual
+Permeability
+Permittivity
+Perspective
+Peta
+Photon
+Physical constant in Newton's law of gravitation and in Einstein's general theory of relativity.
+Physical constant that by definition (after the latest revision of the SI system that was enforsed May 2019) has a known exact numerical value when expressed in SI units.
+Physical constant used to define a unit system. Hence, when expressed in that unit system they have an exact value with no associated uncertainty.
+Physical constants are categorised into "exact" and measured constants. 
+
+With "exact" constants, we refer to physical constants that have an exact numerical value after the revision of the SI system that was enforsed May 2019.
+PhysicalConstant
+PhysicalDimension
+PhysicalLaw
+PhysicalPhenomenon
+PhysicalQuantity
+Physicalistic
+PhysicsBasedModel
+PhysicsEquation
+Pico
+Pictorial
+PlanckConstant
+Plane
+PlaneAngle
+Plus
+Point
+Polynomial
+Position
+Position vectors are so-called bounded vectors, i.e. their magnitude and direction depend on the particular coordinate system used.
+
+-- ISO 80000-3
+PositionVector
+PotentialEnergy
+Power
+PowerDimension
+PrefixedUnit
+Pressure
+PressureDimension
+Probability
+Probability is a dimensionless quantity that can attain values between 0 and 1; zero denotes the impossible event and 1 denotes a certain event.
+ProcedureUnit
+Process
+Product of force and displacement.
+Product of mass and velocity.
+Properties
+Property
+Property of a physical body that express its resistance to acceleration (a change in its state of motion) when a force is applied.
+ProtonMass
+Punctuation
+PureNumberQuantity
+PureNumberUnit
+Python
+QuantitativeProperty
+Quantities declared under the ISO 80000.
+Quantities defined as ratios `Q=A/B` having equal dimensions in numerator and denominator are dimensionless quantities but still have a physical dimension defined as dim(A)/dim(B).
+
+Johansson, Ingvar (2010). "Metrological thinking needs the notions of parametric quantities, units and dimensions". Metrologia. 47 (3): 219–230. doi:10.1088/0026-1394/47/3/012. ISSN 0026-1394.
+Quantities that are ratios of quantities of the same kind (for example length ratios and amount fractions) have the option of being expressed with units (m/m, mol/mol to aid the understanding of the quantity being expressed and also allow the use of SI prefixes, if this
+is desirable (μm/m, nmol/mol).
+-- SI Brochure
+Quantity
+Quark
+Radian
+RadiantFlux
+Radioactive decays per second.
+Radioactivity
+Rate of transfer of energy per unit time.
+Ratio of area on a sphere to its radius squared.
+Ratio of circular arc length to radius.
+RatioQuantity
+Real
+ReciprocalLength
+Reductionistic
+ReferenceUnit
+Referred as Quantity Value in International vocabulary of metrology (VIM)
+Refractive index or volume fraction.
+RefractiveIndex
+Relates a quantity to its reference unit through spatial direct parthood.
+Relates the physical quantity to its unit through spatial direct parthood.
+Represents the number 1, used as an explicit unit to say something has no units.
+Resistance
+Resistance quantum.
+Result of a measurement.
+
+A MeasurementResult is in EMMO expressed as a single MeasurendQuantitativeProperty and a MeasuredUncertainty
+Rockwell C hardness of a given sample (150 kg load): 43.5HRC(150 kg)
+RybergConstant
+SI coherent measurement unit for area.
+SI coherent measurement unit for speed.
+SI coherent measurement unit for torque.
+SI coherent measurement unit for volume.
+SI distinguishes between a quantity (an abstract concept) and the quantity value (a number and a reference). 
+
+The EMMO, following strict nominalism, denies the existence of abstract objects and then collapses the two concepts of SI quantity and SI quantity value into a single one: the 'Quantity'.
+
+So, for the EMMO the symbol "kg" is not a physical quantity but simply a 'Symbolic' object categorized as a 'MeasurementUnit'.
+
+While the string "1 kg" is a 'Physical Quantity'.
+SI units
+SIAcceptedSpecialUnit
+SIBaseUnit
+SICoherentDerivedUnit
+SICoherentUnit
+SIExactConstant
+SIMetricPrefix
+SINonCoherentDerivedUnit
+SINonCoherentUnit
+SIPrefixedUnit
+SISpecialUnit
+SIUnit
+SIUnitSymbol
+Second
+SecondOfArc
+Semiosis
+Semiotic
+Semiotic subclasse are defined using Peirce's semiotic theory.
+
+"Namely, a sign is something, A, which brings something, B, its interpretant sign determined or created by it, into the same sort of correspondence with something, C, its object, as that in which itself stands to C." (Peirce 1902, NEM 4, 20–21).
+
+The triadic elements:
+- 'sign': the sign A (e.g. a name)
+- 'interpretant': the sign B as the effects of the sign A on the interpreter (e.g. the mental concept of what a name means)
+- 'object': the object C (e.g. the entity to which the sign A and B refer to)
+
+This class includes also the 'interpeter' i.e. the entity that connects the 'sign' to the 'object'
+Semiotics
+Sequence
+Shape3Vector
+Shape4x3Matrix
+Siemens
+Sievert
+Sign
+Since the nucleus account for nearly all of the total mass of atoms  (with the electrons and nuclear binding energy making minor contributions), the atomic mass measured in Da has nearly the same value as the mass number.
+Smoke stands for a combustion process (a fire).
+My facial expression stands for my emotional status.
+Software
+SolidAngle
+Some examples are "Pa", "m" and "J".
+Spacing
+SpatialOrderedElement
+Special units are semiotic shortcuts to more complex composed symbolic objects.
+SpecialUnit
+Speed
+SpeedDimension
+SpeedFractionUnit
+SpeedOfLightInVacuum
+Sphere
+SquareMetre
+StandardUnit
+State
+Steradian
+Strain
+Strength of a magnetic field. Commonly denoted H.
+Strength of the magnetic field.
+Stress
+String
+SubMultipleUnit
+Subclasses of 'QuantitativeProperty' classify objects according to the type semiosis that is used to connect the property to the object (e.g. by measurement, by convention, by modelling).
+Subclasses of 'Symbol' are alphabets, in formal languages terminology.
+
+A 'Symbol' is atomic for that alphabet, i.e. it has no parts that are symbols for the same alphabet.
+e.g. a math symbol is not made of other math symbols
+
+A Symbol may be a String in another language.
+e.g. "Bq" is the symbol for Becquerel units when dealing with metrology, or a string of "B" and "q" symbols when dealing with characters.
+SubjectiveProperty
+Symbol
+Symbolic
+SymbolicComposition
+Symbols of a formal language need not be symbols of anything. For instance there are logical constants which do not refer to any idea, but rather serve as a form of punctuation in the language (e.g. parentheses). 
+
+Symbols of a formal language must be capable of being specified without any reference to any interpretation of them. 
+(Wikipedia)
+Synthesis of materials, the preparation of a cake.
+TemperatureDimension
+TemporalOrderedElement
+Tera
+Tesla
+The 'Engineered' branch represents real world objects that show some level of complexity/heterogeneity in their composition, and are made for a specific use.
+The 'semiosis' process of interpreting a 'physical' and provide a complec sign, 'theory' that stands for it and explain it to another interpreter.
+The 'theory' is e.g. a proposition, a book or a paper whose sub-symbols suggest in the mind of the interpreter an interpretant structure that can represent a 'physical'.
+
+It is not an 'icon' (like a math equation), because it has no common resemblance or logical structure with the 'physical'.
+
+In Peirce semiotics: legisign-symbol-argument
+The 22 derived units that are given a special name in the SI system that stands for units derived by SI base units.
+The DBpedia and UIPAC Gold Book definitions (http://dbpedia.org/page/Vacuum_permeability,  https://doi.org/10.1351/goldbook.P04504) are outdated since May 20, 2019. It is now a measured constant.
+The DBpedia definition (http://dbpedia.org/page/Avogadro_constant) is outdated as May 20, 2019. It is now an exact quantity.
+The DBpedia definition (http://dbpedia.org/page/Boltzmann_constant) is outdated as May 20, 2019. It is now an exact quantity.
+The DBpedia definition (http://dbpedia.org/page/Elementary_charge) is outdated as May 20, 2019. It is now an exact quantity.
+The DBpedia definition (http://dbpedia.org/page/Magnetic_flux_quantum) is outdated as May 20, 2019. It is now an exact quantity.
+The DBpedia definition (http://dbpedia.org/page/Vacuum_permittivity) is outdated since May 20, 2019. It is now a measured constant.
+The EMMO requires FacT++ reasoner plugin in order to visualize all inferences and class hierarchy (ctrl+R hotkey in Protege).
+The Lennard-Jones potential.
+
+A force field.
+
+An Hamiltonian.
+The Newton's equation of motion.
+
+The Schrödinger equation.
+
+The Navier-Stokes equation.
+The Rydberg constant represents the limiting value of the highest wavenumber (the inverse wavelength) of any photon that can be emitted from the hydrogen atom, or, alternatively, the wavenumber of the lowest-energy photon capable of ionizing the hydrogen atom from its ground state.
+The amount of a constituent divided by the total amount of all constituents in a mixture.
+The amount of a constituent divided by the volume of the mixture.
+The amount of energy gained (or lost) by the charge of a single electron moving across an electric potential difference of one volt.
+The ampere, symbol A, is the SI unit of electric current. It is defined by taking the fixed numerical value of the elementary charge e to be 1.602176634×10−19 when expressed in the unit C, which is equal to A s, where the second is defined in terms of ∆νCs.
+The atomic mass is often expressed as an average of the commonly found isotopes.
+The base units in the SI system.
+The beauty of that girl.
+The style of your clothing.
+The candela, symbol cd, is the SI unit of luminous intensity in a given direction. It is defined by taking the fixed numerical value of the luminous efficacy of monochromatic radiation of frequency 540×1012 Hz, Kcd, to be 683 when expressed in the unit lm W−1, which is equal to cd sr W−1, or cd sr kg−1 m−2 s3, where the kilogram, metre and second are defined in terms of h, c and ∆νCs.
+The centimetre–gram–second (CGS) system of units.
+The charge of an electron.
+The class is the idea of the symbol, while the individual of that class stands for a specific mark (or token) of that idea.
+The class of 'mathematical'-s that stand for a statement of equality between two mathematical expressions.
+The class of general mathematical symbolic objects respecting mathematical syntactic rules.
+The class of individuals that stand for an elementary mark of a specific symbolic code (alphabet).
+The class of individuals that stand for electrons elemntary particles.
+The class of individuals that stand for gluons elementary particles.
+The class of individuals that stand for gravitons elementary particles.
+The class of individuals that stand for photons elementary particles.
+The class of individuals that stand for quarks elementary particles.
+The class of individuals that stand for real world objects according to a specific representational perspective.
+The class of individuals that stands for semiotic objects, i.e. objects that take part on a semiotic process.
+The class of letter "A" is the symbol as idea and the letter A that you see on the screen is the mark.
+The class of quantities that are the ratio of two quantities with the same physical dimensionality.
+The complete set of SI units includes both the coherent set and the multiples and sub-multiples formed by using the SI prefixes.
+The concepts of matter and field for classical physics, upon which we can categorize physical entities, are replaced in quantum physics by the more general concepts of quantum field.
+
+Here the class 'Field' refers to the quantum field of massless bosonic particles (i.e. photons, gluons), while the class 'Matter' refers to the quantum field of massive fermionic or bosonic particles (e.g. quarks, electrons).
+The conventional symbolic representation of the dimension of a base quantity is a single upper case letter in roman (upright) type. The conventional symbolic representation of the dimension of a derived quantity is the product of powers of the dimensions of the base quantities according to the definition of the derived quantity. The dimension of a quantity Q is denoted by dim Q.
+ISO 80000-1
+The definition of 'State' implies that its spatial direct parts (i.e. 'physicals') are not gained or lost during its temporal extension (they exist from the left to the right side of the time interval), so that the cardinality of spatial direct parts in a 'State' is constant.
+
+This does not mean that there cannot be a change in the internal structure of the 'State' direct parts. It means only that this change must not affect the existence of the direct part itself.
+
+There is no change in granularity or cardinality of direct parts of a 'State'.
+
+The use of spatial direct parthood in 'State' definition means that a 'State' cannot overlap in space another 'State'.
+The definition of velocity as v = dx/dt.
+
+The definition of density as mass/volume.
+
+y = f(x)
+The dependent variable for which an equation has been written.
+The derivative of the electric charge of a system with respect to the electric potential.
+The effectiveness of a force to produce rotation about an axis, measured by the product of the force and the perpendicular distance from the line of action of the force to the axis.
+The energy of an object due to its motion.
+The energy possessed by a body by virtue of its position or orientation in a potential field.
+The entity (or agent, or observer, or cognitive entity) who connects 'Sign', 'Interpretant' and 'Object'.
+The equals symbol.
+The expression used by the EMMO for physical dimensions is a metrological symbol (but a string at meta level, i.e. the ontologist level) like this:
+ 
+Ta Lb Mc Id Θe Nf Jg
+
+where a, b, c, d, e, f and g are 0 or signed integers.
+
+Regex for the physical dimension symbol for the EMMO is:
+^T([+-][1-9]|0) L([+-][1-9]|0) M([+-][1-9]|0) I([+-][1-9]|0) Θ([+-][1-9]|0) N([+-][1-9]|0) J([+-][1-9]|0)$
+
+Examples of correspondance between base units and physical dimensions are:
+mol -> T0 L0 M0 I0 Θ0 N+1 J0
+s -> T+1 L0 M0 I0 Θ0 N0 J0
+A/m2 -> T0 L0 M-2 I+1 Θ0 N0 J0
+The force applied perpendicular to the surface of an object per unit area over which that force is distributed.
+The frequency standard in the SI system in which the photon absorption by transitions between the two hyperfine ground states of caesium-133 atoms are used to control the output frequency.
+
+It defines the base unit second in the SI system.
+The generic EMMO semiotical relation.
+The indefinite continued progress of existence and events that occur in apparently irreversible succession from the past through the present to the future.
+The interpreter's internal representation of the object in a semiosis process.
+The inverse of length.
+The kelvin, symbol K, is the SI unit of thermodynamic temperature. It is defined by taking the fixed numerical value of the Boltzmann constant k to be 1.380649×10−23 when expressed in the unit J K−1, which is equal to kg m2 s−2 K−1, where the kilogram, metre and second are defined in terms of h, c and ∆νCs.
+The kilogram, symbol kg, is the SI unit of mass. It is defined by taking the fixed numerical value of the Planck constant h to be 6.62607015×10−34 when expressed in the unit J s, which is equal to kg m2 s−1, where the metre and the second are defined in terms of c and ∆νCs.
+The luminous efficacy of monochromatic radiation of frequency 540 × 10 12 Hz, K cd , is a technical constant that gives an exact numerical relationship between the purely physical characteristics of the radiant power stimulating the human eye (W) and its photobiological response defined by the luminous flux due to the spectral responsivity of a standard observer (lm) at a frequency of 540 × 10 12 hertz.
+The magnitude of the electric charge carried by a single electron. It defines the base unit Ampere in the SI system.
+The mass of an atom in the ground state.
+The math module defines the formal language of mathematics. Mathematical objects represents graphical objects based on graphical symbols arranged according the rules of math.
+The meta-semiotic process:
+I see a cloud in the sky. Since I'm an EMMO ontologist, I create an individual named Cloud under the 'Impression' class.  This semiotic process occurs at meta-level: it's how I use the EMMO as tool for a direct representation of the world.
+
+The semiotic process within EMMO:
+My friend looks at the same cloud and says: "It is an elephant".
+I use the EMMO to record this experience by declaring:
+    - my friend as MyFriend individual, belonging to 'Interpreter' classes
+    - the sound of the word "elephant" as an acoustical impression individual named ElephantWord, belonging to 'Impression'
+    - a relation hasSign between Cloud and ElephantWord, that makes ElephantWord also belonging to 'Sign' class and Cloud belonging also to 'Object' class
+    - a 'Semiosis' individual called MyFriendElephantCloud that hasParticipant: Cloud, ElephantWord and MyFriend, respectively as object, sign and interpreter.
+The metre, symbol m, is the SI unit of length. It is defined by taking the fixed numerical value of the speed of light in vacuum c to be 299792458 when expressed in the unit m s−1, where the second is defined in terms of ∆νCs.
+The models module defines models as semiotic signs that stands for an object by resembling or imitating it, in shape or by sharing a similar logical structure.
+The module 'siunits' defines the 7 base units and 22 derived units as well as the metric prefixes specified in the SI system.
+
+All additional derived units, SI-based or not, goes into the 'units-extension' module.
+The module 'units-extension' defines all units in EMMO middle that are not included in the 'siumits' module.
+The mole, symbol mol, is the SI unit of amount of substance. One mole contains exactly 6.022 140 76 × 1023 elementary entities. This number is the fixed numerical value of the Avogadro constant, NA, when expressed in the unit mol−1 and is called the Avogadro number. The amount of substance, symbol n, of a system is a measure of the number of specified elementary entities. An elementary entity may be an atom, a molecule, an ion, an electron, any other particle or specified group of particles.
+The names, symbols and prefixes of SI units are defined by the General Conference on Weights and Measures (CGPM).
+
+https://en.wikipedia.org/wiki/General_Conference_on_Weights_and_Measures
+The negative of ElementaryCharge.
+The number of constituent particles, usually atoms or molecules, that are contained in the amount of substance given by one mole.
+
+It defines the base unit mole in the SI system.
+The number of elementary entities present.
+The number of waves per unit length along the direction of propagation.
+The object, in Peirce semiotics.
+The opposition of a circuit element to a change in current or voltage, due to that element's inductance or capacitance.
+The ordinal module defines ordering based on direct parthood. It allows EMMO to describe arrays and data structures in programming languages enabling low-level semantic interoperability.
+The perspective for which physical objects are categorized only by concepts coming from applied physical sciences.
+The perspective module provides the practical implementation of the EMMO pluralistic approach for which the only objective categorization is provided by the Universe individual and all the Quantum individuals.
+
+Between these two extremes, there are several subjective ways to categorize real world objects, each one provide under a 'Perspective' subclass.
+The physical property of matter that causes it to experience a force when placed in an electromagnetic field.
+The presence of the prefix makes this units non-coherent with SI system.
+The process of transforming raw materials into a product by the use of manual labor, machinery or chemical/biological processes.
+The propability for a certain outcome, is the ratio between the number of events leading to the given outcome and the total number of events.
+The quantity value of physical quantities if real space is a Shape3Vector.
+The quantum of action. It defines the kg base unit in the SI system.
+The radiant energy emitted, reflected, transmitted or received, per unit time.
+The relation between a process and an object participating to it.
+The rest mass of a proton.
+The rest mass of an electron.
+The second, symbol s, is the SI unit of time. It is defined by taking the fixed numerical value of the caesium frequency ∆νCs, the unperturbed ground-state hyperfine transition frequency of the caesium 133 atom, to be 9192631770 when expressed in the unit Hz, which is equal to s−1.
+The semiotics module is based on the semiotic theory by Charles S. Peirce. It introduces the triadic semiotic process, called semiosis, with its participants an 'object' that is represented by a 'sign' producing another sign, the 'interpretant' and finally the 'interpreter' who connects the 'object', 'sign' and 'interpretant'.
+
+The role of abstract objects are in EMMO fulfilled by semiotic objects, i.e. real world objects (e.g. symbol or sign) that stand for other real world objects that are to be interpreted by an agent. These symbols appear in actions (semiotic processes) meant to communicate meaning by establishing relationships between symbols (signs).
+The set of units provided by the SI referring to the ISQ.
+The speed of light in vacuum. Defines the base unit metre in the SI system.
+The thermal conductivity of a copper sample in my laboratory can be assumed to be the conductivity that appears in the vendor specification. This value has been obtained by measurement of a sample which is not the one I have in my laboratory. This conductivity value is then a conventional quantitiative property assigned to my sample through a semiotic process in which no actual measurement is done by my laboratory.
+
+If I don't believe the vendor, then I can measure the actual thermal conductivity. I then perform a measurement process that semiotically assign another value for the conductivity, which is a measured property, since is part of a measurement process.
+
+Then I have two different physical quantities that are properties thanks to two different semiotic processes.
+The total luminous flux incident on a surface, per unit area.
+The union of all classes categorizing elementary particles according to the Standard Model.
+The union of classes of elementary particles that do not possess mass.
+The union of classes of elementary particles that possess mass.
+The unique point where the weighted relative position of the distributed mass of an Item sums to zero. Equivalently, it is the point where if a force is applied to the Item, causes the Item to move in direction of force without rotation.
+The usefulness of 'State' is that it makes it possible to describe the evolution in time of an 'Existent' in terms of series of 'State'-s that can take into account the disappearance or appearance of parts within a 'Physical'. 
+
+A 'State' is a recognizable granularity level of matter, in the sense that its direct parts do not appear or disappear within its lifetime as it can be for a generic 'Existent'.
+The value of magnetic permeability in a classical vacuum.
+The value of the absolute dielectric permittivity of classical vacuum.
+The velocity depends on the choice of the reference frame. Proper transformation between frames must be used: Galilean for non-relativistic description, Lorentzian for relativistic description.
+
+-- IEC, note 2
+The velocity is related to a point described by its position vector. The point may localize a particle, or be attached to any other object such as a body or a wave.
+
+-- IEC, note 1
+The von Klitzing constant is defined as Planck constant divided by the square of the elementary charge.
+The word "cat" considered as a collection of 'symbol'-s respecting the rules of english language. 
+
+In this example the 'symbolic' entity "cat" is not related to the real cat, but it is only a word (like it would be to an italian person that ignores the meaning of this english word).
+
+If an 'interpreter' skilled in english language is involved in a 'semiotic' process with this word, that "cat" became also a 'sign' i.e. it became for the 'interpreter' a representation for a real cat.
+The word objective does not mean that each observation will provide the same results. It means that the observation followed a well defined procedure.
+The word subjective means that a non-well defined or an unknown procedure is used for the definition of the property.
+
+This happens due to e.g. the complexity of the object, the lack of a underlying model for the representation of the object, the non-well specified meaning of the property symbols.
+
+A 'SubjectiveProperty' cannot be used to univocally compare 'Object'-s.
+
+e.g. you cannot evaluate the beauty of a person on objective basis.
+Theorisation
+Theorization
+Theory
+There is no change in granularity or cardinality of parts within a state.
+
+The use of spatial direct parthood in state definition means that a state cannot overlap in space another state that is direct part of the same whole.
+Thermodynamic temperature is the absolute measure of temperature. It is defined by the third law of thermodynamics in which the theoretically lowest temperature is the null or zero point.
+ThermodynamicEnergy
+ThermodynamicTemperature
+These units are SI coherent by definition.
+This class collects all units that are products or powers of SI base or SI special units only.
+This class collects individuals that represents arrangements of strings, or other symbolic compositions, without any particular predifined arrangement schema.
+This class is the most general superclass for the categorization of real world objects that are recognizable by an interpreter (agent).
+
+A 'Perceptual' can stand for something else in a semiotic process (acting as sign or as object). 
+
+However, a perceptual is not necessarily a 'Sign' (e.g. a line sketched on a blackboard is a recognizable 'Perceptual' but it may stand for nothing).
+This class is the practical implementation of the EMMO pluralistic approach for which the only objective categorization is provided by the Universe individual and all the Quantum individuals.
+
+Between these two extremes, there are several subjective ways to categorize real world objects, each one provide under a 'Perspective' subclass.
+This class refers to what is commonly known as physical property, i.e. a measurable property of physical system, whether is quantifiable or not.
+This is a list of units that are not defined as part of the International System of Units (SI), but are otherwise mentioned in the SI brouchure, because either the General Conference on Weights and Measures (CGPM) accepts their use as being multiples or submultiples of SI-units, they have important contemporary application worldwide, or are otherwise commonly encountered worldwide.
+This language domain makes use of ISO 80000 concepts.
+Three subtypes of icon are possible:
+ 
+(a) the image, which depends on a simple quality (e.g. picture)
+
+(b) the diagram, whose internal relations, mainly dyadic or so taken, represent by analogy the relations in something (e.g. math formula, geometric flowchart)
+
+(c) the metaphor, which represents the representative character of a sign by representing a parallelism in something else
+
+[Wikipedia]
+ThreeManifold
+Time
+Time can be seen as the duration of an event or, more operationally, as "what clocks read".
+TimeDimension
+Today decibel (one tenth of a bel) is commonly used instead of bel.
+Tonne
+Torque
+Torus
+TwoManifold
+Typically used for ratios of two units whos dimensions cancels out.
+UTF8
+Unit for amount fraction.
+Unit for dimensionless units that cannot be expressed as a 'FractionUnit'.
+Unit for fractions of quantities of the same kind, to aid the understanding of the quantity being expressed.
+Unit for mass fraction.
+Unit for plane angle.
+Unit for quantities of dimension one that are the fraction of two amount of substance.
+Unit for quantities of dimension one that are the fraction of two areas.
+Unit for quantities of dimension one that are the fraction of two lengths.
+Unit for quantities of dimension one that are the fraction of two masses.
+Unit for quantities of dimension one that are the fraction of two speeds.
+Unit for quantities of dimension one that are the fraction of two volumes.
+Unit for radioactive activity.
+Unit for refractive index.
+Unit for solid angle.
+Unit for volume fraction.
+Unit of AtomicNumber
+Unit of measurement for quantities of type level or level difference, which are defined as the natural logarithm of the ratio of power- or field-type quantities.
+
+The value of a ratio in nepers is given by `ln(x1/x2)` where `x1` and `x2` are the values of interest (amplitudes), and ln is the natural logarithm. When the values are quadratic in the amplitude (e.g. power), they are first linearised by taking the square root before the logarithm is taken, or equivalently the result is halved.
+
+Wikipedia
+Unit of measurement for quantities of type level or level difference.
+UnitOne
+UnitSymbol
+Units extension
+Unknown
+Using direct parthood EMMO creates a well-defined broadcasting between granularity levels. This also make it possible to count the direct parts of each granularity level.
+Vacuum
+VacuumElectricPermittivity
+VacuumMagneticPermeability
+Variable
+Vector
+Vector quantity giving the rate of change of a position vector.
+
+-- ISO 80000-3
+Vector quantity μ causing a change to its energy ΔW in an external magnetic field of field flux density B:
+
+    ΔW = −μ · B
+Vector r characterizing a point P in a point space with a given origin point O.
+Velocity
+Velocity, for the Navier-Stokes equation.
+VelocityDimension
+Vergence
+Volt
+Voltage
+Volume
+Volume of a constituent of a mixture divided by the sum of volumes of all constituents prior to mixing.
+VolumeDimension
+VolumeFraction
+VolumeFractionUnit
+VonKlitzingConstant
+Watt
+Wavenumber
+We know real world entities through observation/perception.
+
+A non-perceivable real world entity does not exist (or it exists on a plane of existance that has no intersection with us and we can say nothing about it).
+
+Perception/observation of a real wolrd entity occurs when the entity stimulate an observer in a peculiar way through a well defined perception channel.
+
+For this reason each property is related to a specific observation process which involves a specific observer with its own perception mechanisms.
+
+The observation process (e.g. a look, a photo shot, a measurement) is performed  by an observer (e.g. you, a camera, an instrument) through a specific perception mechanism (e.g. retina impression, CMOS excitation, piezoelectric sensor activation) and involves an observed entity.
+
+An observation is a semiotic process, since it stimulate an interpretant within the interpreter who can communicate the perception result to other interpreters through a sign which is the property.
+
+Property subclasses are specializations that depend on the type of observation processes.
+
+e.g. the property 'colour' is related to a process that involves emission or interaction of photon and an observer who can perceive electromagnetic radiation in the visible frequency range.
+
+Properties usually relies on symbolic systems (e.g. for colour it can be palette or RGB).
+Weber
+Weight
+While every 'process' in the EMMO involves physical objects, this class is devoted to represent real world objects that express a phenomenon relevant for the ontologist
+While the SI brochure treats 'MeasurementUnit' as a 'PhysicalQuantity', in the EMMO this is not possible since the latter always has two direct parts, a 'Numerical' and a 'MeasurementUnit', while the former a single 'Symbol'.
+
+SI distinguishes between a quantity (an abstract concept) and the quantity value (a number and a reference). The EMMO, following strict nominalism, considers a SI quantity as a SI quantity value, collapsing the two concepts into one: the 'Quantity'.
+
+So, for the EMMO the symbol "kg" is not a physical quantity but a 'MeasurementUnit', while the string "1 kg" is 'Physical Quantity'.
+While this particle is only supposed to exist, the EMMO approach to classical and quantum systems represents fields as made of particles.
+
+For this reason graviton is an useful concept to homogenize the approach between different fields.
+Work
+Yocto
+Yotta
+Zepto
+ZeroManifold
+Zetta
+a photometric measure of the luminous intensity per unit area of light travelling in a given direction.
+bel is used to express the ratio of one value of a power or field quantity to another, on a logarithmic scale, the logarithmic quantity being called the power level or field level, respectively.
+e.g. the existent in my glass is declared at t = t_start as made of two direct parts: the ice and the water. It will continue to exists as state as long as the ice is completely melt at t = t_end. The new state will be completely made of water. Between t_start and t_end there is an exchange of molecules between the ice and the water, but this does not affect the existence of the two states.
+
+If we partition the existent in my glass as ice surrounded by several molecules (we do not use the object water as direct part) then the appearance of a molecule coming from the ice will cause a state to end and another state to begin.
+eV
+barn
+ex-sistere (latin): to stay (to persist through time) outside others of the same type (to be distinct from the rest).
+f(x) > 0
+fe780
+emmo
+!5*a
+cat
+for(i=0;i<N;++i)
+hasConvention
+hasConventionalQuantity
+hasIcon
+hasIndex
+hasInterpretant
+hasMeasuredQuantity
+hasModel
+hasModelledQuantity
+hasNext
+hasNumericalData
+hasParticipant
+hasPhysicalDimension
+hasProperParticipant
+hasProperty
+hasQuantitativeProperty
+hasQuantityValue
+hasReferenceUnit
+hasRest
+hasSign
+hasSpatialDirectPart
+hasSpatialFirst
+hasSpatialLast
+hasSpatialNext
+hasSpatialRest
+hasSpatioTemporalDirectPart
+hasSymbolData
+hasTemporalDirectPart
+hasTemporalFirst
+hasTemporalLast
+hasTemporalNext
+hasTemporalRest
+hasVariable
+http://dbpedia.org/page/Volume_fraction
+http://www.ontology-of-units-of-measure.org/resource/om-2/VolumeFraction
+https://doi.org/10.1351/goldbook.V06643
+measured quantity value
+measured uncertainty
+measurement
+measurement result
+measuring instrument
+measuring system
+physicalDimension
+quantity value
+semiotical
+viscosity in the Navier-Stokes equation
+x
+k
+y = f(x)
+Ångström
+Ångström is not mentioned in the SI system and deprecated by the International Bureau of Weights and Measures (BIPM).
+
+Dispite of that, it is often used in the natural sciences and technology.
+π refers to the constant number ~3.14
+— quantities of the same kind have the same quantity dimension,
+— quantities of different quantity dimensions are always of different kinds, and
+— quantities having the same quantity dimension are not necessarily of the same kind.
+ISO 80000-1

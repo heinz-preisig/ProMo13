@@ -65,6 +65,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
+from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
 
 
 def findID(indices, name):
@@ -404,8 +405,12 @@ class OntologyContainer():
         self.indices[i]["network"] = self.heirs_network_dictionary[def_network]
 
     self.indexEquations()
+    pass
 
   def indexEquations(self):
+    # TODO: there is some inconsistency in the equation numbering. Some start with 0 some with 1
+    # TODO: equation_dictionary and equation_variable_dictionary start with 1
+    # TODO: equation_information and equation_inverse_index start with 0
     self.equation_dictionary = self.__makeEquationDictionary()
     self.equation_variable_dictionary = self.__makeEquationVariableDictionary()
     self.equations, \
@@ -1292,6 +1297,19 @@ class OntologyContainer():
       aliases = eval(variables_raw[ID]["aliases"])
       variables_raw[ID]["aliases"] = aliases
       variables_raw[ID]["index_structures"] = eval(variables_raw[ID]["index_structures"])
+
+      if "IRI" not in variables_raw[ID]:
+        label = variables_raw[ID]["label"]
+        iri = "promo:%s" % label
+        variables_raw[ID]["IRI"] = iri
+      # else:  this was a one-time action
+      #   prefix,_label = variables_raw[ID]["IRI"].split(":")
+      #   label = _label.strip(" ")
+      #   nw = variables_raw[ID]["network"].replace(">","-")
+      #   if prefix == "promo":
+      #     extended_label = nw + "+%s"%label
+      #     variables_raw[ID]["IRI"] = prefix+":"+extended_label
+      #     print("debugging", variables_raw[ID]["IRI"])
       try:
         variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
       except:
@@ -1310,6 +1328,10 @@ class OntologyContainer():
     for i in indices_raw:  # DOC: indices are stored in a dictionary with the hash being the enumeration integer
       # for the index
       indices[int(i)] = indices_raw[i]
+      label = indices_raw[i]["label"]
+      if "IRI" not in indices_raw[i]:
+        l = label.replace(" ","_")
+        indices[int(i)]["IRI"] = "promo:%s"%l
     ProMoIRI = {}
     for i in ProMoIRI_raw:
       ProMoIRI[i] = int(ProMoIRI_raw[i])

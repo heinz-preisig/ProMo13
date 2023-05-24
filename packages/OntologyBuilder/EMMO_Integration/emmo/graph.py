@@ -422,7 +422,7 @@ class OntoGraph:
         if format is None:
             format = ext.lstrip('.')
         kwargs.setdefault('cleanup', True)
-        self.dot.render(base, format=format, **kwargs)
+        self.dot.render_expression_to_list(base, format=format, **kwargs)
 
     def view(self):
         """Shows the graph in a viewer."""
