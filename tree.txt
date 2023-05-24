@@ -1,0 +1,1297 @@
+.
+├── docs
+│   ├── _build
+│   │   └── rinoh
+│   │       ├── promo.pdf
+│   │       ├── promo.rtc
+│   │       └── promo.stylelog
+│   ├── build
+│   │   ├── doctrees
+│   │   │   ├── environment.pickle
+│   │   │   ├── index.doctree
+│   │   │   └── modules
+│   │   │       └── model_composer.doctree
+│   │   └── html
+│   │       ├── genindex.html
+│   │       ├── index.html
+│   │       ├── _modules
+│   │       │   ├── index.html
+│   │       │   └── packages
+│   │       │       ├── Common
+│   │       │       │   └── classes
+│   │       │       └── ModelBuilder
+│   │       │           └── ModelComposer
+│   │       │               └── instantiation_dialog_impl.html
+│   │       ├── modules
+│   │       │   └── model_composer.html
+│   │       ├── objects.inv
+│   │       ├── py-modindex.html
+│   │       ├── search.html
+│   │       ├── searchindex.js
+│   │       ├── _sources
+│   │       │   ├── index.rst.txt
+│   │       │   └── modules
+│   │       │       └── model_composer.rst.txt
+│   │       └── _static
+│   │           ├── basic.css
+│   │           ├── css
+│   │           │   ├── badge_only.css
+│   │           │   ├── fonts
+│   │           │   │   ├── fontawesome-webfont.eot
+│   │           │   │   ├── fontawesome-webfont.svg
+│   │           │   │   ├── fontawesome-webfont.ttf
+│   │           │   │   ├── fontawesome-webfont.woff
+│   │           │   │   ├── fontawesome-webfont.woff2
+│   │           │   │   ├── lato-bold-italic.woff
+│   │           │   │   ├── lato-bold-italic.woff2
+│   │           │   │   ├── lato-bold.woff
+│   │           │   │   ├── lato-bold.woff2
+│   │           │   │   ├── lato-normal-italic.woff
+│   │           │   │   ├── lato-normal-italic.woff2
+│   │           │   │   ├── lato-normal.woff
+│   │           │   │   ├── lato-normal.woff2
+│   │           │   │   ├── Roboto-Slab-Bold.woff
+│   │           │   │   ├── Roboto-Slab-Bold.woff2
+│   │           │   │   ├── Roboto-Slab-Regular.woff
+│   │           │   │   └── Roboto-Slab-Regular.woff2
+│   │           │   └── theme.css
+│   │           ├── doctools.js
+│   │           ├── documentation_options.js
+│   │           ├── file.png
+│   │           ├── jquery-3.6.0.js
+│   │           ├── jquery.js
+│   │           ├── js
+│   │           │   ├── badge_only.js
+│   │           │   ├── html5shiv.min.js
+│   │           │   ├── html5shiv-printshiv.min.js
+│   │           │   └── theme.js
+│   │           ├── language_data.js
+│   │           ├── minus.png
+│   │           ├── plus.png
+│   │           ├── pygments.css
+│   │           ├── searchtools.js
+│   │           ├── sphinx_highlight.js
+│   │           ├── _sphinx_javascript_frameworks_compat.js
+│   │           ├── underscore-1.13.1.js
+│   │           └── underscore.js
+│   ├── make.bat
+│   ├── make_documentation.sh
+│   ├── Makefile
+│   └── source
+│       ├── conf.py
+│       ├── index.rst
+│       └── modules
+│           └── model_composer.rst
+├── packages
+│   ├── Common
+│   │   ├── actions.txt
+│   │   ├── automata
+│   │   │   ├── autoconvert.json
+│   │   │   ├── automata_base_working.json
+│   │   │   ├── automata_base_working.py
+│   │   │   ├── automata_modeller (copy).json
+│   │   │   ├── automata_modeller.json
+│   │   │   ├── automata_modeller.py
+│   │   │   ├── automata_modeller_working(1).json
+│   │   │   ├── automata_modeller_working.json
+│   │   │   ├── automata_modeller_working.py
+│   │   │   └── automata_py2json.py
+│   │   ├── automata_objects.py
+│   │   ├── classes
+│   │   │   ├── entity.py
+│   │   │   ├── equation.py
+│   │   │   ├── __init__.py
+│   │   │   ├── io.py
+│   │   │   ├── network.py
+│   │   │   ├── ontology.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── entity.cpython-38.pyc
+│   │   │   │   ├── equation.cpython-38.pyc
+│   │   │   │   ├── equations.cpython-38.pyc
+│   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   ├── io.cpython-38.pyc
+│   │   │   │   ├── ontology.cpython-38.pyc
+│   │   │   │   ├── topology_object.cpython-38.pyc
+│   │   │   │   ├── vareqdigraph.cpython-38.pyc
+│   │   │   │   └── variable.cpython-38.pyc
+│   │   │   ├── vareqdigraph.py
+│   │   │   └── variable.py
+│   │   ├── common_resources.py
+│   │   ├── cursors
+│   │   │   ├── blank.xpm
+│   │   │   ├── BL_inject_token.xpm
+│   │   │   ├── BR_convert.xpm
+│   │   │   ├── BR_inject_token.xpm
+│   │   │   ├── CC_add.xpm
+│   │   │   ├── CC_arrow.xpm
+│   │   │   ├── CC_ask.xpm
+│   │   │   ├── CC_blank.xcf
+│   │   │   ├── CC_blank.xpm
+│   │   │   ├── CC_circ-arrow-left01.xpm
+│   │   │   ├── CC_circ-arrow-left02.xpm
+│   │   │   ├── CC_DELETE.xpm
+│   │   │   ├── CC_del.xpm
+│   │   │   ├── CC_explain.xpm
+│   │   │   ├── CC_explode.xpm
+│   │   │   ├── CC_forbidden.xpm
+│   │   │   ├── CC_goin.xpm
+│   │   │   ├── CC_grab-tongs01.xpm
+│   │   │   ├── CC_L_add-R_adda.xpm
+│   │   │   ├── CC_L_add-R_ask.xpm
+│   │   │   ├── CC_L_add-R_blank.xpm
+│   │   │   ├── CC_L_blank-R_add.xpm
+│   │   │   ├── CC_L_blank-R_name.xcf
+│   │   │   ├── CC_L_blank-R_name.xpm
+│   │   │   ├── CC_L_change-R_blank.xpm
+│   │   │   ├── CC_L_goin-R_adda.xcf
+│   │   │   ├── CC_L_goin-R_adda.xpm
+│   │   │   ├── CC_L_goin-R_name.xcf
+│   │   │   ├── CC_L_goin-R_name.xpm
+│   │   │   ├── CC_L_goin-R_recon.xcf
+│   │   │   ├── CC_L_goin-R_recon.xpm
+│   │   │   ├── CC_L_name-R_blank.xpm
+│   │   │   ├── CC_L_name-R_name.xcf
+│   │   │   ├── CC_L_name-R_name.xpm
+│   │   │   ├── CC_logo01.xpm
+│   │   │   ├── CC_logo.xpm
+│   │   │   ├── CC_move.xpm
+│   │   │   ├── CC_select.xpm
+│   │   │   ├── CC_sleep.xpm
+│   │   │   ├── CC_undefined.xpm
+│   │   │   ├── c-mass.xpm
+│   │   │   ├── cursor_emptydot.bmp
+│   │   │   ├── energy_1.xpm
+│   │   │   ├── energy.xpm
+│   │   │   ├── energy_.xpm
+│   │   │   ├── heat wave 2.jpg
+│   │   │   ├── heat wave 3.jpg
+│   │   │   ├── heat wave 3.xpm
+│   │   │   ├── heat wave.jpg
+│   │   │   ├── heat wave.xpm
+│   │   │   ├── heat.xpm
+│   │   │   ├── LC_arrow.xpm
+│   │   │   ├── LC_blank-R_ask.xpm
+│   │   │   ├── LC_grab-finger01.xpm
+│   │   │   ├── LC_grab-finger02.xpm
+│   │   │   ├── LC_grab-tongs01.xpm
+│   │   │   ├── LC_undefined.xpm
+│   │   │   ├── mass.xpm
+│   │   │   ├── modeller.bmp
+│   │   │   ├── modeller.xbm
+│   │   │   ├── modeller.xpm
+│   │   │   ├── pointer03.xpm
+│   │   │   ├── py.bmp
+│   │   │   ├── signal.xpm
+│   │   │   ├── sink.xpm
+│   │   │   ├── source.xpm
+│   │   │   ├── TC_L_add-R_adda.xpm
+│   │   │   ├── TC_L_add-R_blank.xpm
+│   │   │   ├── TC_L_add-R_frfile.xpm
+│   │   │   ├── TC_L_blank-R_adda.xpm
+│   │   │   ├── TC_L_blank-R_del.xpm
+│   │   │   ├── TC_L_blank-R_recon.xpm
+│   │   │   ├── TC_L_goin-R_adda.xpm
+│   │   │   ├── TC_L_goin-R_arrow.xpm
+│   │   │   ├── TC_L_goin-R_ask.xpm
+│   │   │   ├── TC_L_goin-R_blank.xcf
+│   │   │   ├── TC_L_goin-R_blank.xpm
+│   │   │   ├── TC_L_goin-R_frfile.xcf
+│   │   │   ├── TC_L_goin-R_frfile.xpm
+│   │   │   ├── TC_L_goin-R_recon.xcf
+│   │   │   ├── TC_L_goin-R_recon.xpm
+│   │   │   ├── TC_L_goin-R_tofile.xcf
+│   │   │   ├── TC_L_goin-R_tofile.xpm
+│   │   │   ├── TC_L_group.xpm
+│   │   │   ├── TC_L_insknot-R_blank.xpm
+│   │   │   ├── TC_L_insknot-R_recon.xpm
+│   │   │   ├── TC_L_markdel-R_del.xpm
+│   │   │   ├── TC_L_move-R_ask.xpm
+│   │   │   ├── TC_L_recon-R_recon.xpm
+│   │   │   ├── TC_R_tofile.xpm
+│   │   │   ├── TL_add-abstract.xpm
+│   │   │   ├── TL_add-t-token.png
+│   │   │   ├── TL_add-t-token.xcf
+│   │   │   ├── TL_add-t-token.xpm
+│   │   │   ├── TL_arrow_full.xpm
+│   │   │   ├── TL_arrow.xpm
+│   │   │   ├── TL_ask.xpm
+│   │   │   ├── TL_boxedask.xpm
+│   │   │   ├── TL_convert.xpm
+│   │   │   ├── TL_enter.xpm
+│   │   │   ├── TL_min-abstrac.xpm
+│   │   │   ├── TL_point-hand01.xpm
+│   │   │   ├── TL_point-hand02.xpm
+│   │   │   ├── TR_enter.xpm
+│   │   │   ├── TR_instantiate.png
+│   │   │   ├── TR_instantiate.xcf
+│   │   │   ├── TR_instantiate.xpm
+│   │   │   ├── work_c.xpm
+│   │   │   └── work.xpm
+│   │   ├── discipline_tree.png
+│   │   ├── git_log.txt
+│   │   ├── git_pull_auto.sh
+│   │   ├── git_pull.sh
+│   │   ├── git_push_auto.sh
+│   │   ├── git_push.sh
+│   │   ├── graphics_objects.py
+│   │   ├── graph_objects_ini.json
+│   │   ├── gugus.html
+│   │   ├── icons
+│   │   │   ├── accept_button_hap.png
+│   │   │   ├── accept_button_hap.svg
+│   │   │   ├── accept_green.png
+│   │   │   ├── accept.png
+│   │   │   ├── automaton.svg
+│   │   │   ├── back_button_hap.png
+│   │   │   ├── back_button_hap.svg
+│   │   │   ├── back_green.png
+│   │   │   ├── back.png
+│   │   │   ├── back_small_blue.png
+│   │   │   ├── blank_button_hap.svg
+│   │   │   ├── block-icon.png
+│   │   │   ├── check.png
+│   │   │   ├── check_.png
+│   │   │   ├── compile_button_hap.png
+│   │   │   ├── compile_button_hap.svg
+│   │   │   ├── compile_button.png
+│   │   │   ├── compile_button.svg
+│   │   │   ├── compile.png
+│   │   │   ├── composer.svg
+│   │   │   ├── convert_icons_taks.py
+│   │   │   ├── delete_button_hap.svg
+│   │   │   ├── delete.png
+│   │   │   ├── dependent_new_button (copy).svg
+│   │   │   ├── dependent_new_button_hap.png
+│   │   │   ├── dependent_new_button_hap.svg
+│   │   │   ├── dependent_new_button.svg
+│   │   │   ├── dot_graph_button_hap.png
+│   │   │   ├── dot_graph_button_hap.svg
+│   │   │   ├── dot_graph_button.png
+│   │   │   ├── dot_graph_button.svg
+│   │   │   ├── down-icon.png
+│   │   │   ├── edit.png
+│   │   │   ├── exit_button_hap.png
+│   │   │   ├── exit_button_hap.svg
+│   │   │   ├── exit.xpm
+│   │   │   ├── G_arc_attributes.png
+│   │   │   ├── G_connection_attributes.png
+│   │   │   ├── G_link_attributes.png
+│   │   │   ├── G_node_attributes.png
+│   │   │   ├── go-down.png
+│   │   │   ├── go-left.png
+│   │   │   ├── go-right.png
+│   │   │   ├── go-up.png
+│   │   │   ├── green_left_arrow.png
+│   │   │   ├── G_system_attributes.png
+│   │   │   ├── G_tokens.png
+│   │   │   ├── icons.py
+│   │   │   ├── icon_trash_it.png
+│   │   │   ├── info_button_01.png
+│   │   │   ├── info_button_01.svg
+│   │   │   ├── info_button_hap.png
+│   │   │   ├── info_button_HAP.png
+│   │   │   ├── info_button_hap.svg
+│   │   │   ├── info_button.png
+│   │   │   ├── info_button.svg
+│   │   │   ├── info_icon_.png
+│   │   │   ├── info.png
+│   │   │   ├── latex_button_hap.svg
+│   │   │   ├── left-icon.png
+│   │   │   ├── looks.svg
+│   │   │   ├── minus-icon_green.png
+│   │   │   ├── minus-icon.png
+│   │   │   ├── modelfactory.png
+│   │   │   ├── new_button_hap.png
+│   │   │   ├── new_button_hap.svg
+│   │   │   ├── new_button.png
+│   │   │   ├── new_button.svg
+│   │   │   ├── new.png
+│   │   │   ├── next_button_hap.svg
+│   │   │   ├── oe.png
+│   │   │   ├── ontology.svg
+│   │   │   ├── ontology.xpm
+│   │   │   ├── otter.png
+│   │   │   ├── path870.png
+│   │   │   ├── pending.png
+│   │   │   ├── pending_.png
+│   │   │   ├── plus_button_hap.svg
+│   │   │   ├── plus-icon_green.png
+│   │   │   ├── plus-icon.png
+│   │   │   ├── port_button_hap.png
+│   │   │   ├── port_button_hap.svg
+│   │   │   ├── port_button.png
+│   │   │   ├── port_button.svg
+│   │   │   ├── ProMo_logo.png
+│   │   │   ├── ProMo_logo.svg
+│   │   │   ├── quation_button_hap.svg
+│   │   │   ├── reject_button_hap.png
+│   │   │   ├── reject_button_hap.svg
+│   │   │   ├── reject.png
+│   │   │   ├── reset_button_hap.svg
+│   │   │   ├── right-icon.png
+│   │   │   ├── save_as_button_hap.svg
+│   │   │   ├── save_button_hap.png
+│   │   │   ├── save_button_hap.svg
+│   │   │   ├── save_button.png
+│   │   │   ├── save_button.svg
+│   │   │   ├── schnipsel_button_hap.svg
+│   │   │   ├── screen_shot_button_hap.svg
+│   │   │   ├── task_automata (copy).svg
+│   │   │   ├── task_automata.png
+│   │   │   ├── task_automata.svg
+│   │   │   ├── task_bi_partite_constrainer.svg
+│   │   │   ├── task_empty (another copy).svg
+│   │   │   ├── task_empty (copy).svg
+│   │   │   ├── task_empty.svg
+│   │   │   ├── task_entity_generation (copy).svg
+│   │   │   ├── task_entity_generation.png
+│   │   │   ├── task_entity_generation.svg
+│   │   │   ├── task_graphic_objects (copy).svg
+│   │   │   ├── task_graphic_objects.png
+│   │   │   ├── task_graphic_objects.svg
+│   │   │   ├── task_model_composer (copy).svg
+│   │   │   ├── task_model_composer.png
+│   │   │   ├── task_model_composer.svg
+│   │   │   ├── task_model_renderer (copy).svg
+│   │   │   ├── task_model_renderer.svg
+│   │   │   ├── task_ontology_equations (copy).svg
+│   │   │   ├── task_ontology_equations.png
+│   │   │   ├── task_ontology_equations.svg
+│   │   │   ├── task_ontology_foundation (copy).svg
+│   │   │   ├── task_ontology_foundation.png
+│   │   │   ├── task_ontology_foundation.svg
+│   │   │   ├── task_second.svg
+│   │   │   ├── task_token_conversion.svg
+│   │   │   ├── task_typed_token_editor.svg
+│   │   │   ├── task_typed_tokens.svg
+│   │   │   ├── update_button_hap.svg
+│   │   │   ├── up-icon.png
+│   │   │   ├── variable_show_button_01.svg
+│   │   │   └── variable_show_button.svg
+│   │   ├── info_automata_editor.html
+│   │   ├── info_automata_editor.pdf
+│   │   ├── info_behaviour_association_editor.html
+│   │   ├── info_behaviour_association_editor.pdf
+│   │   ├── info_graphic_object_editor.html
+│   │   ├── info_graphic_object_editor.pdf
+│   │   ├── info_index_alias_table.html
+│   │   ├── info_modeller_editor.html
+│   │   ├── info_modeller_editor.pdf
+│   │   ├── info_ontology_equation_editor.html
+│   │   ├── info_ontology_equation_editor.pdf
+│   │   ├── info_ontology_foundation_editor.html
+│   │   ├── info_ontology_foundation_editor.pdf
+│   │   ├── info_ontology_variable_table.html
+│   │   ├── info_typed_token_editor.html
+│   │   ├── info_typed_token_editor.pdf
+│   │   ├── info_variable_alias_table.html
+│   │   ├── __init__.py
+│   │   ├── logo_impl.py
+│   │   ├── logo.py
+│   │   ├── logo.ui
+│   │   ├── message.txt
+│   │   ├── ontology_container.py
+│   │   ├── pop_up_message_box.py
+│   │   ├── __pycache__
+│   │   │   ├── automata_objects.cpython-38.pyc
+│   │   │   ├── common_resources.cpython-38.pyc
+│   │   │   ├── graphics_objects.cpython-38.pyc
+│   │   │   ├── __init__.cpython-38.pyc
+│   │   │   ├── logo.cpython-38.pyc
+│   │   │   ├── logo_impl.cpython-38.pyc
+│   │   │   ├── ontology_container.cpython-38.pyc
+│   │   │   ├── pop_up_message_box.cpython-38.pyc
+│   │   │   ├── qt_resources.cpython-38.pyc
+│   │   │   ├── radio_selector.cpython-38.pyc
+│   │   │   ├── radio_selector_impl.cpython-38.pyc
+│   │   │   ├── record_definitions.cpython-38.pyc
+│   │   │   ├── record_definitions_equation_linking.cpython-38.pyc
+│   │   │   ├── resource_initialisation.cpython-38.pyc
+│   │   │   ├── resources_icons.cpython-38.pyc
+│   │   │   ├── save_file.cpython-38.pyc
+│   │   │   ├── save_file_impl.cpython-38.pyc
+│   │   │   ├── single_list_selector.cpython-38.pyc
+│   │   │   ├── single_list_selector_impl.cpython-38.pyc
+│   │   │   ├── treeid.cpython-38.pyc
+│   │   │   ├── ui_radio_selector_w_scroll.cpython-38.pyc
+│   │   │   ├── ui_radio_selector_w_sroll_impl.cpython-38.pyc
+│   │   │   ├── ui_string_dialog.cpython-38.pyc
+│   │   │   ├── ui_string_dialog_impl.cpython-38.pyc
+│   │   │   ├── ui_text_browser_popup.cpython-38.pyc
+│   │   │   ├── ui_text_browser_popup_impl.cpython-38.pyc
+│   │   │   ├── ui_two_list_selector_dialog.cpython-38.pyc
+│   │   │   └── ui_two_list_selector_dialog_impl.cpython-38.pyc
+│   │   ├── qt_resources.py
+│   │   ├── radio_selector_impl.py
+│   │   ├── radio_selector.py
+│   │   ├── radio_selector_scroll_impl.py
+│   │   ├── radio_selector_scroll_original.py
+│   │   ├── radio_selector_scroll.py
+│   │   ├── radio_selector_scroll.ui
+│   │   ├── radio_selector.ui
+│   │   ├── record_definitions_equation_linking.py
+│   │   ├── record_definitions.py
+│   │   ├── RepositoryInfrastructure
+│   │   │   ├── converting_tokens.json
+│   │   │   ├── LaTeX
+│   │   │   │   ├── main.tex
+│   │   │   │   └── resources
+│   │   │   │       ├── automata_tables.tex
+│   │   │   │       ├── defs.tex
+│   │   │   │       ├── defvars.tex
+│   │   │   │       ├── header.tex
+│   │   │   │       ├── latex_compile.sh
+│   │   │   │       ├── make_automata_table.sh
+│   │   │   │       └── make_documentation.sh
+│   │   │   ├── ontology.json
+│   │   │   ├── resources
+│   │   │   │   ├── automata.json
+│   │   │   │   ├── automata_working.json
+│   │   │   │   ├── graph_objects.json
+│   │   │   │   └── show_dot_graphs.sh
+│   │   │   └── typed_tokens.json
+│   │   ├── resource_initialisation.py
+│   │   ├── resources_icons.py
+│   │   ├── save_file_impl.py
+│   │   ├── save_file.py
+│   │   ├── save_file.ui
+│   │   ├── shell_scripts
+│   │   │   ├── make_ontology_git.sh
+│   │   │   ├── pnglatex.bash
+│   │   │   └── pnglatex_info
+│   │   │       ├── AUTHORS
+│   │   │       ├── example.png
+│   │   │       ├── LICENSE
+│   │   │       └── README.md
+│   │   ├── single_list_selector_impl.py
+│   │   ├── single_list_selector.py
+│   │   ├── single_list_selector.ui
+│   │   ├── templates
+│   │   │   └── matlab_template.jinja
+│   │   ├── testNewFeaterures
+│   │   │   └── TableWithPictures
+│   │   │       ├── equation_10.png
+│   │   │       ├── equation_1.png
+│   │   │       ├── equation_2.png
+│   │   │       ├── equation_3.png
+│   │   │       ├── equation_4.png
+│   │   │       ├── equation_5.png
+│   │   │       ├── equation_7.png
+│   │   │       ├── equation_8.png
+│   │   │       ├── table_with_equations_02.py
+│   │   │       └── table_with_pictures.py
+│   │   ├── toggle_button.py
+│   │   ├── treeid.py
+│   │   ├── tree.pdf
+│   │   ├── ui
+│   │   │   ├── main.py
+│   │   │   ├── main.pyproject
+│   │   │   └── main.pyproject.user
+│   │   ├── ui_list
+│   │   │   ├── main.py
+│   │   │   ├── main.pyproject
+│   │   │   └── main.pyproject.user
+│   │   ├── ui_match_pairs_impl.py
+│   │   ├── ui_match_pairs.py
+│   │   ├── ui_match_pairs.ui
+│   │   ├── ui_number_dialog_impl.py
+│   │   ├── ui_picture_table.py
+│   │   ├── ui_radio_selector_w_scroll.py
+│   │   ├── ui_radio_selector_w_scroll.ui
+│   │   ├── ui_radio_selector_w_sroll_impl.py
+│   │   ├── ui_source_sink_linking_impl.py
+│   │   ├── ui_source_sink_linking.py
+│   │   ├── ui_source_sink_linking.ui
+│   │   ├── ui_string_dialog_impl.py
+│   │   ├── ui_string_dialog.py
+│   │   ├── ui_string_dialog.ui
+│   │   ├── ui_text_browser_popup_impl.py
+│   │   ├── ui_text_browser_popup.py
+│   │   ├── ui_text_browser_popup.ui
+│   │   ├── ui_two_list_selector
+│   │   │   ├── form.ui
+│   │   │   ├── main.py
+│   │   │   ├── main.pyproject
+│   │   │   └── main.pyproject.user
+│   │   ├── ui_two_list_selector_dialog (copy).ui
+│   │   ├── ui_two_list_selector_dialog_impl.py
+│   │   ├── ui_two_list_selector_dialog_main.ui
+│   │   ├── ui_two_list_selector_dialog.py
+│   │   ├── ui_two_list_selector_dialog.ui
+│   │   ├── ui_two_list_selector_impl.py
+│   │   ├── ui_two_list_selector.py
+│   │   ├── ui_two_list_selector.ui
+│   │   ├── ui_wait_impl.py
+│   │   ├── ui_wait.py
+│   │   └── ui_wait.ui
+│   ├── countfile.txt
+│   ├── __init__.py
+│   ├── ModelBuilder
+│   │   ├── AutomataEditor
+│   │   │   ├── editor_automata_dialog_impl.py
+│   │   │   ├── editor_automata_dialog.py
+│   │   │   ├── editor_automata_dialog.ui
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── editor_automata_dialog.cpython-38.pyc
+│   │   │       ├── editor_automata_dialog_impl.cpython-38.pyc
+│   │   │       └── __init__.cpython-38.pyc
+│   │   ├── AutomataEditor.py
+│   │   ├── git_log.txt
+│   │   ├── git_pull_auto.sh
+│   │   ├── git_pull.sh
+│   │   ├── git_push_auto.sh
+│   │   ├── git_push.sh
+│   │   ├── GraphComponentEditor
+│   │   │   ├── editor_graphcomponents_gui_impl.py
+│   │   │   ├── editor_graphcomponents_gui.py
+│   │   │   ├── editor_graphcomponents_gui.ui
+│   │   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   ├── Instantiate_case
+│   │   │   ├── Editor
+│   │   │   │   ├── editor_initialise_system_gui_impl.py
+│   │   │   │   ├── editor_initialise_system_gui.py
+│   │   │   │   ├── editor_initialise_system_gui.ui
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── object_initializer_gui.py
+│   │   │   │   └── object_initializer_gui.ui
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   ├── setup.py
+│   │   │   └── sys
+│   │   ├── Instantiate_case.py
+│   │   ├── Instantiate_equations
+│   │   │   ├── Editor
+│   │   │   │   ├── editor_initialise_equations_gui_impl.py
+│   │   │   │   ├── editor_initialise_equations_gui.py
+│   │   │   │   ├── editor_initialise_equations_gui.ui
+│   │   │   │   ├── equation_selector_gui.py
+│   │   │   │   ├── equation_selector_gui.ui
+│   │   │   │   ├── fix_selected_equations.py
+│   │   │   │   ├── fix_selected_equations.ui
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   └── setup.py
+│   │   ├── Instantiate_equations.py
+│   │   ├── message.txt
+│   │   ├── ModelComposer
+│   │   │   ├── __init__.py
+│   │   │   ├── instantiation_dialog_impl.py
+│   │   │   ├── instantiation_dialog.ui
+│   │   │   ├── modeller_commander.py
+│   │   │   ├── modeller_graphcomponents.py
+│   │   │   ├── modeller_logger_impl.py
+│   │   │   ├── modeller_logger.py
+│   │   │   ├── modeller_logger.ui
+│   │   │   ├── modeller_mainwindow_impl.py
+│   │   │   ├── modeller_mainwindow.py
+│   │   │   ├── modeller_mainwindow.ui
+│   │   │   ├── modeller_model_data.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   ├── instantiation_dialog_impl.cpython-38.pyc
+│   │   │   │   ├── modeller_commander.cpython-38.pyc
+│   │   │   │   ├── modeller_graphcomponents.cpython-38.pyc
+│   │   │   │   ├── modeller_logger.cpython-38.pyc
+│   │   │   │   ├── modeller_logger_impl.cpython-38.pyc
+│   │   │   │   ├── modeller_mainwindow.cpython-38.pyc
+│   │   │   │   ├── modeller_mainwindow_impl.cpython-38.pyc
+│   │   │   │   ├── modeller_model_data.cpython-38.pyc
+│   │   │   │   ├── resources.cpython-38.pyc
+│   │   │   │   └── ui_instantiation_dialog.cpython-38.pyc
+│   │   │   ├── resources.py
+│   │   │   └── ui_instantiation_dialog.py
+│   │   ├── __pycache__
+│   │   │   └── __init__.cpython-38.pyc
+│   │   └── z_Initialise_system_editor
+│   │       ├── Editor
+│   │       │   ├── editor_initialise_system_gui_impl (copy).py
+│   │       │   ├── editor_initialise_system_gui_impl.py
+│   │       │   ├── editor_initialise_system_gui.py
+│   │       │   ├── editor_initialise_system_gui.ui
+│   │       │   ├── __init__.py
+│   │       │   ├── object_initializer_gui.py
+│   │       │   └── object_initializer_gui.ui
+│   │       ├── __init__.py
+│   │       ├── Master_Andreas
+│   │       │   ├── equations-1.json
+│   │       │   ├── HEX_groups.json
+│   │       │   ├── __init__.py
+│   │       │   ├── master_project.py
+│   │       │   ├── Re%3a_Litt_forsinka.zip
+│   │       │   ├── SOFC_GT_SIMPLIFIED.json
+│   │       │   ├── typed_tokens.json
+│   │       │   └── variables-1.json
+│   │       ├── master_project_new_old.py
+│   │       ├── master_project_OLD.py
+│   │       ├── master_project_OLD_TOBIAS.py
+│   │       ├── master_project.py
+│   │       ├── README.rst
+│   │       ├── setup.py
+│   │       └── tests
+│   │           ├── __init__.py
+│   │           └── test_sample.py
+│   ├── OntologyBuilder
+│   │   ├── Attic_OntologyEquationAssignmentEditor
+│   │   │   ├── assign_equations_gui_impl.py
+│   │   │   ├── assign_equations_gui.py
+│   │   │   ├── assign_equations_gui.ui
+│   │   │   ├── attic
+│   │   │   │   ├── assignEquations_gui_impl.py
+│   │   │   │   ├── assignEquations_gui_impl_v7.py
+│   │   │   │   ├── assign_equations_gui.py
+│   │   │   │   ├── assign_equations_gui.ui
+│   │   │   │   ├── assign_equations_gui_v7.ui
+│   │   │   │   ├── assign_equations.py
+│   │   │   │   └── assign_equations.ui
+│   │   │   ├── EquationAssign.pdf
+│   │   │   ├── __init__.py
+│   │   │   └── scroller.py
+│   │   ├── BehaviourAssociation
+│   │   │   ├── ctrl_equation_selector_dialog.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── ctrl_equation_selector_dialog.cpython-38.pyc
+│   │   │   │   ├── ui_behaviour_linker_editor.cpython-38.pyc
+│   │   │   │   ├── ui_behaviour_linker_editor_impl.cpython-38.pyc
+│   │   │   │   ├── ui_equation_selector_dialog.cpython-38.pyc
+│   │   │   │   ├── ui_equation_selector_dialog_impl.cpython-38.pyc
+│   │   │   │   └── ui_equation_selector_dlg.cpython-38.pyc
+│   │   │   ├── template_equation_list (copy).latex
+│   │   │   ├── template_equation_list.latex
+│   │   │   ├── ui_behaviour_linker_editor_impl.py
+│   │   │   ├── ui_behaviour_linker_editor.py
+│   │   │   ├── ui_behaviour_linker_editor.ui
+│   │   │   ├── ui_equation_selector_dialog_impl.py
+│   │   │   ├── ui_equation_selector_dialog.py
+│   │   │   └── ui_equation_selector_dialog.ui
+│   │   ├── BehaviourLinker
+│   │   │   ├── Controllers
+│   │   │   │   ├── entity_editor.py
+│   │   │   │   ├── entity_generator.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── main.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── entity_editor.cpython-38.pyc
+│   │   │   │   │   ├── entity_generator.cpython-38.pyc
+│   │   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   │   ├── main.cpython-38.pyc
+│   │   │   │   │   └── variable_editor.cpython-38.pyc
+│   │   │   │   └── variable_editor.py
+│   │   │   ├── Delegates
+│   │   │   │   ├── image_list.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── __pycache__
+│   │   │   │       ├── image_list.cpython-38.pyc
+│   │   │   │       └── __init__.cpython-38.pyc
+│   │   │   ├── __init__.py
+│   │   │   ├── Models
+│   │   │   │   ├── entity_editor.py
+│   │   │   │   ├── entity_generator.py
+│   │   │   │   ├── image_list.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── main.py
+│   │   │   │   ├── ontology_selector.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── entity_editor.cpython-38.pyc
+│   │   │   │   │   ├── entity_generator.cpython-38.pyc
+│   │   │   │   │   ├── image_list.cpython-38.pyc
+│   │   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   │   ├── main.cpython-38.pyc
+│   │   │   │   │   ├── tree_bases.cpython-38.pyc
+│   │   │   │   │   ├── tree.cpython-38.pyc
+│   │   │   │   │   └── variable_editor.cpython-38.pyc
+│   │   │   │   ├── tree_bases.py
+│   │   │   │   ├── tree.py
+│   │   │   │   └── variable_editor.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── delegates.cpython-38.pyc
+│   │   │   │   ├── dlg_add_variable.cpython-38.pyc
+│   │   │   │   ├── dlg_add_variable_ctrl.cpython-38.pyc
+│   │   │   │   ├── dlg_entity_changes.cpython-38.pyc
+│   │   │   │   ├── dlg_entity_changes_ctrl.cpython-38.pyc
+│   │   │   │   ├── dlg_entity_editor.cpython-38.pyc
+│   │   │   │   ├── dlg_entity_editor_ctrl.cpython-38.pyc
+│   │   │   │   ├── dlg_insert_str.cpython-38.pyc
+│   │   │   │   ├── dlg_insert_str_ctrl.cpython-38.pyc
+│   │   │   │   ├── dlg_variable_editor.cpython-38.pyc
+│   │   │   │   ├── dlg_variable_editor_ctrl.cpython-38.pyc
+│   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   ├── main_window_controller.cpython-38.pyc
+│   │   │   │   ├── main_window.cpython-38.pyc
+│   │   │   │   ├── main_window_model.cpython-38.pyc
+│   │   │   │   ├── main_window_view.cpython-38.pyc
+│   │   │   │   ├── new_entity_dlg.cpython-38.pyc
+│   │   │   │   ├── new_entity_view.cpython-38.pyc
+│   │   │   │   ├── ontology_selector_controller.cpython-38.pyc
+│   │   │   │   ├── ontology_selector.cpython-38.pyc
+│   │   │   │   ├── ontology_selector_model.cpython-38.pyc
+│   │   │   │   ├── ontology_selector_view.cpython-38.pyc
+│   │   │   │   └── progress_bar.cpython-38.pyc
+│   │   │   ├── resources
+│   │   │   │   ├── resources.qrc
+│   │   │   │   ├── resources_rc.py
+│   │   │   │   └── styles
+│   │   │   │       └── stylesheet.qss
+│   │   │   ├── stylesheet.qrc
+│   │   │   └── Views
+│   │   │       ├── Compiled_UIs
+│   │   │       │   ├── entity_changes_ui.py
+│   │   │       │   ├── entity_editor_ui.py
+│   │   │       │   ├── entity_generator_ui.py
+│   │   │       │   ├── __init__.py
+│   │   │       │   ├── insert_str_ui.py
+│   │   │       │   ├── main_ui.py
+│   │   │       │   ├── ontology_selector_ui.py
+│   │   │       │   ├── __pycache__
+│   │   │       │   │   ├── entity_changes_ui.cpython-38.pyc
+│   │   │       │   │   ├── entity_editor_ui.cpython-38.pyc
+│   │   │       │   │   ├── entity_generator_ui.cpython-38.pyc
+│   │   │       │   │   ├── __init__.cpython-38.pyc
+│   │   │       │   │   ├── insert_str_ui.cpython-38.pyc
+│   │   │       │   │   ├── main_ui.cpython-38.pyc
+│   │   │       │   │   ├── ontology_selector_ui.cpython-38.pyc
+│   │   │       │   │   ├── variable_editor_ui.cpython-38.pyc
+│   │   │       │   │   └── variable_selection_ui.cpython-38.pyc
+│   │   │       │   ├── variable_editor_ui.py
+│   │   │       │   └── variable_selection_ui.py
+│   │   │       ├── compile.py
+│   │   │       ├── entity_changes.py
+│   │   │       ├── entity_editor.py
+│   │   │       ├── entity_generator.py
+│   │   │       ├── __init__.py
+│   │   │       ├── insert_str.py
+│   │   │       ├── main.py
+│   │   │       ├── ontology_selector.py
+│   │   │       ├── progress_bar.py
+│   │   │       ├── __pycache__
+│   │   │       │   ├── entity_changes.cpython-38.pyc
+│   │   │       │   ├── entity_editor.cpython-38.pyc
+│   │   │       │   ├── entity_generator.cpython-38.pyc
+│   │   │       │   ├── __init__.cpython-38.pyc
+│   │   │       │   ├── insert_str.cpython-38.pyc
+│   │   │       │   ├── main.cpython-38.pyc
+│   │   │       │   ├── ontology_selector.cpython-38.pyc
+│   │   │       │   ├── progress_bar.cpython-38.pyc
+│   │   │       │   ├── variable_editor.cpython-38.pyc
+│   │   │       │   └── variable_selection.cpython-38.pyc
+│   │   │       ├── UIs
+│   │   │       │   ├── entity_changes.ui
+│   │   │       │   ├── entity_editor.ui
+│   │   │       │   ├── entity_generator.ui
+│   │   │       │   ├── insert_str.ui
+│   │   │       │   ├── main.ui
+│   │   │       │   ├── ontology_selector.ui
+│   │   │       │   ├── variable_editor.ui
+│   │   │       │   └── variable_selection.ui
+│   │   │       ├── variable_editor.py
+│   │   │       └── variable_selection.py
+│   │   ├── EMMO_Integration
+│   │   │   ├── atic
+│   │   │   │   ├── catalog-v001.xml
+│   │   │   │   ├── emmo
+│   │   │   │   │   ├── emmodoc
+│   │   │   │   │   │   ├── eisvogel.tex
+│   │   │   │   │   │   ├── emmodoc.css
+│   │   │   │   │   │   ├── emmodoc-meta.yaml
+│   │   │   │   │   │   ├── emmodoc-pdf_template.tex
+│   │   │   │   │   │   ├── emmodoc.py
+│   │   │   │   │   │   ├── emmodoc-template.html
+│   │   │   │   │   │   ├── emmodoc-template.tex
+│   │   │   │   │   │   ├── emmo.md
+│   │   │   │   │   │   ├── figs
+│   │   │   │   │   │   │   ├── animal.dot
+│   │   │   │   │   │   │   ├── animal.png
+│   │   │   │   │   │   │   ├── arrow-disjoint_with.png
+│   │   │   │   │   │   │   ├── arrow-equivalent_to.png
+│   │   │   │   │   │   │   ├── arrow-inverse_of.png
+│   │   │   │   │   │   │   ├── arrow-is_a.png
+│   │   │   │   │   │   │   ├── arrow-relation.png
+│   │   │   │   │   │   │   ├── arrows.py
+│   │   │   │   │   │   │   ├── emmc-logo.png
+│   │   │   │   │   │   │   ├── emmo-core.png
+│   │   │   │   │   │   │   ├── emmo-direct_part.png
+│   │   │   │   │   │   │   ├── emmo-elementary.png
+│   │   │   │   │   │   │   ├── emmo-granularity2.png
+│   │   │   │   │   │   │   ├── emmo-granularity.png
+│   │   │   │   │   │   │   ├── emmo-matter.png
+│   │   │   │   │   │   │   ├── emmo-multidisciplinary.png
+│   │   │   │   │   │   │   ├── emmo-primitives.png
+│   │   │   │   │   │   │   ├── emmo-scope.png
+│   │   │   │   │   │   │   ├── emmo-state.png
+│   │   │   │   │   │   │   ├── emmo-structure.dot
+│   │   │   │   │   │   │   ├── emmo-structure.png
+│   │   │   │   │   │   │   ├── emmo-three_worlds.png
+│   │   │   │   │   │   │   ├── entity_branch.png
+│   │   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   │   └── physical.png
+│   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   ├── introduction.md
+│   │   │   │   │   │   └── relations.md
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── ontograph.py
+│   │   │   │   │   ├── ontology.py
+│   │   │   │   │   ├── ontology-rooted_relations
+│   │   │   │   │   │   ├── doc
+│   │   │   │   │   │   │   ├── emmo_abstract.png
+│   │   │   │   │   │   │   ├── emmo_base.png
+│   │   │   │   │   │   │   ├── emmo_irag.pdf
+│   │   │   │   │   │   │   ├── emmo_material.png
+│   │   │   │   │   │   │   └── emmo_usercase.png
+│   │   │   │   │   │   ├── emmo
+│   │   │   │   │   │   │   ├── emmo-material.owl
+│   │   │   │   │   │   │   ├── emmo.owl
+│   │   │   │   │   │   │   └── emmo-usercase.owl
+│   │   │   │   │   │   ├── python
+│   │   │   │   │   │   │   ├── emmo
+│   │   │   │   │   │   │   │   ├── emmodoc
+│   │   │   │   │   │   │   │   │   ├── eisvogel.tex
+│   │   │   │   │   │   │   │   │   ├── emmodoc.css
+│   │   │   │   │   │   │   │   │   ├── emmodoc-meta.yaml
+│   │   │   │   │   │   │   │   │   ├── emmodoc-pdf_template.tex
+│   │   │   │   │   │   │   │   │   ├── emmodoc.py
+│   │   │   │   │   │   │   │   │   ├── emmodoc-template.html
+│   │   │   │   │   │   │   │   │   ├── emmodoc-template.tex
+│   │   │   │   │   │   │   │   │   ├── entities.md
+│   │   │   │   │   │   │   │   │   ├── figs
+│   │   │   │   │   │   │   │   │   │   ├── animal.dot
+│   │   │   │   │   │   │   │   │   │   ├── animal.png
+│   │   │   │   │   │   │   │   │   │   ├── arrow-disjoint_with.png
+│   │   │   │   │   │   │   │   │   │   ├── arrow-equivalent_to.png
+│   │   │   │   │   │   │   │   │   │   ├── arrow-inverse_of.png
+│   │   │   │   │   │   │   │   │   │   ├── arrow-is_a.png
+│   │   │   │   │   │   │   │   │   │   ├── arrow-relation.png
+│   │   │   │   │   │   │   │   │   │   ├── arrows.py
+│   │   │   │   │   │   │   │   │   │   ├── emmc-logo.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-direct_part.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-elementary.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-granularity2.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-granularity.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-matter.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-multidisciplinary.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-primitives.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-scope.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-state.png
+│   │   │   │   │   │   │   │   │   │   ├── emmo-three_worlds.png
+│   │   │   │   │   │   │   │   │   │   └── entity_branch.png
+│   │   │   │   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   │   │   │   ├── introduction.md
+│   │   │   │   │   │   │   │   │   └── relations.md
+│   │   │   │   │   │   │   │   ├── entity.py
+│   │   │   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   │   │   ├── ontology.py
+│   │   │   │   │   │   │   │   ├── scripts
+│   │   │   │   │   │   │   │   │   └── emmo-graph.py
+│   │   │   │   │   │   │   │   └── tests
+│   │   │   │   │   │   │   │       ├── emmodoc.css
+│   │   │   │   │   │   │   │       ├── emmodoc-meta.yaml
+│   │   │   │   │   │   │   │       ├── emmodoc-template.html
+│   │   │   │   │   │   │   │       ├── test_basic.py
+│   │   │   │   │   │   │   │       ├── test_graph.py
+│   │   │   │   │   │   │   │       └── test_vocabulary.py
+│   │   │   │   │   │   │   ├── MANIFEST.in
+│   │   │   │   │   │   │   ├── README.md
+│   │   │   │   │   │   │   ├── setup.py
+│   │   │   │   │   │   │   └── TODO.txt
+│   │   │   │   │   │   └── README.md
+│   │   │   │   │   ├── ontovocab.py
+│   │   │   │   │   ├── owldir.py
+│   │   │   │   │   ├── rdfxml
+│   │   │   │   │   │   ├── emmo-all-inferred.owl
+│   │   │   │   │   │   ├── emmo-core.owl
+│   │   │   │   │   │   ├── emmo-direct.owl
+│   │   │   │   │   │   ├── emmo-granularity.owl
+│   │   │   │   │   │   ├── emmo-inferred.owl
+│   │   │   │   │   │   ├── emmo-material.owl
+│   │   │   │   │   │   ├── emmo-math-examples.owl
+│   │   │   │   │   │   ├── emmo-math.owl
+│   │   │   │   │   │   ├── emmo-models.owl
+│   │   │   │   │   │   ├── emmo.owl
+│   │   │   │   │   │   ├── emmo-process.owl
+│   │   │   │   │   │   ├── emmo-properties.owl
+│   │   │   │   │   │   └── emmo-semiotics.owl
+│   │   │   │   │   ├── relations.py
+│   │   │   │   │   ├── scripts
+│   │   │   │   │   │   ├── emmo-graph.py
+│   │   │   │   │   │   └── __init__.py
+│   │   │   │   │   ├── tests
+│   │   │   │   │   │   ├── emmodoc.css
+│   │   │   │   │   │   ├── emmodoc-meta.yaml
+│   │   │   │   │   │   ├── emmodoc-template.html
+│   │   │   │   │   │   ├── __init__.py
+│   │   │   │   │   │   ├── test_basic.py
+│   │   │   │   │   │   ├── test_graph.py
+│   │   │   │   │   │   └── test_vocabulary.py
+│   │   │   │   │   └── utils.py
+│   │   │   │   ├── emmo_attach_all.py
+│   │   │   │   ├── emmo_attach.py
+│   │   │   │   ├── Emmo_docs
+│   │   │   │   │   ├── EMMC-CSA_-D2.9_M30_vfinal-PU-WEB.pdf
+│   │   │   │   │   └── emmodoc.pdf
+│   │   │   │   ├── emmo-inferred.owl
+│   │   │   │   ├── EmmoIntegration.py
+│   │   │   │   ├── emmo.owl
+│   │   │   │   ├── emmo_play_2.py
+│   │   │   │   ├── emmo_play.py
+│   │   │   │   ├── gugus.owl
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── pizza
+│   │   │   │   │   ├── pizza_onto_2.owl
+│   │   │   │   │   ├── pizza.owl
+│   │   │   │   │   ├── pizza_rdf.owl
+│   │   │   │   │   └── pizza_xml.owl
+│   │   │   │   ├── pizza_example.py
+│   │   │   │   ├── play_05.py
+│   │   │   │   ├── play_06.py
+│   │   │   │   ├── play_3.py
+│   │   │   │   ├── play_4.py
+│   │   │   │   └── play.owl
+│   │   │   ├── catalog-v001.xml
+│   │   │   ├── demo
+│   │   │   │   ├── horizontal
+│   │   │   │   │   ├── atoms.json
+│   │   │   │   │   ├── emmo2meta.py
+│   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── step1_generate_metadata.py
+│   │   │   │   │   ├── step2_define_metadata.py
+│   │   │   │   │   ├── step3_instantiate.py
+│   │   │   │   │   └── step4_map_instance.py
+│   │   │   │   ├── README.md
+│   │   │   │   └── vertical
+│   │   │   │       ├── Al-Fe4Al13.cif
+│   │   │   │       ├── define_ontology.py
+│   │   │   │       ├── figs
+│   │   │   │       │   ├── materials.svg
+│   │   │   │       │   ├── properties+materials.svg
+│   │   │   │       │   ├── types+properties.svg
+│   │   │   │       │   ├── units+properties.svg
+│   │   │   │       │   ├── usercase_ontology.owl
+│   │   │   │       │   ├── usercase_ontology-parents.svg
+│   │   │   │       │   └── usercase_ontology.svg
+│   │   │   │       ├── plot_ontology.py
+│   │   │   │       └── README.md
+│   │   │   ├── devel.Dockerfile
+│   │   │   ├── Dockerfile
+│   │   │   ├── docs
+│   │   │   │   ├── conf.py
+│   │   │   │   ├── docker-instructions.md
+│   │   │   │   ├── index.md
+│   │   │   │   ├── make.bat
+│   │   │   │   ├── Makefile
+│   │   │   │   └── requirements.txt
+│   │   │   ├── emmo
+│   │   │   │   ├── graph.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── nadict.py
+│   │   │   │   ├── ontodoc.py
+│   │   │   │   ├── ontograph.py
+│   │   │   │   ├── ontology.py
+│   │   │   │   ├── owl
+│   │   │   │   │   └── emmo-inferred.owl
+│   │   │   │   ├── owldir.py
+│   │   │   │   ├── patch.py
+│   │   │   │   ├── tests
+│   │   │   │   │   ├── doc.md
+│   │   │   │   │   ├── doc-subsec.md
+│   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── test_basic.py
+│   │   │   │   │   ├── test_graph2.py
+│   │   │   │   │   ├── test_graph.py
+│   │   │   │   │   ├── test_nadict.py
+│   │   │   │   │   ├── test_ontodoc.py
+│   │   │   │   │   └── test_runner.py
+│   │   │   │   └── utils.py
+│   │   │   ├── emmo_attach_all.py
+│   │   │   ├── emmo_attach.py
+│   │   │   ├── examples
+│   │   │   │   └── emmodoc
+│   │   │   │       ├── classes.md
+│   │   │   │       ├── emmodoc-meta.yaml
+│   │   │   │       ├── emmo.md
+│   │   │   │       ├── figs
+│   │   │   │       │   ├── animal.dot
+│   │   │   │       │   ├── animal.png
+│   │   │   │       │   ├── arrow-disjoint_with.png
+│   │   │   │       │   ├── arrow-equivalent_to.png
+│   │   │   │       │   ├── arrow-inverse_of.png
+│   │   │   │       │   ├── arrow-is_a.png
+│   │   │   │       │   ├── arrow-relation.png
+│   │   │   │       │   ├── arrows.py
+│   │   │   │       │   ├── emmc-logo.png
+│   │   │   │       │   ├── emmo-core.png
+│   │   │   │       │   ├── emmo-direct_part.png
+│   │   │   │       │   ├── emmo-elementary.png
+│   │   │   │       │   ├── emmo-granularity2.png
+│   │   │   │       │   ├── emmo-granularity.png
+│   │   │   │       │   ├── emmo-matter.png
+│   │   │   │       │   ├── emmo-modules.py
+│   │   │   │       │   ├── emmo-multidisciplinary.png
+│   │   │   │       │   ├── emmo-primitives.png
+│   │   │   │       │   ├── emmo-scope.png
+│   │   │   │       │   ├── emmo-state.png
+│   │   │   │       │   ├── emmo-structure.dot
+│   │   │   │       │   ├── emmo-structure.png
+│   │   │   │       │   ├── emmo-three_worlds.png
+│   │   │   │       │   ├── entity_branch.png
+│   │   │   │       │   ├── modules.png
+│   │   │   │       │   └── physical.png
+│   │   │   │       ├── important_concepts.md
+│   │   │   │       ├── introduction.md
+│   │   │   │       ├── pandoc-html.css
+│   │   │   │       ├── pandoc-html-options.yaml
+│   │   │   │       ├── pandoc-options.yaml
+│   │   │   │       ├── pandoc-pdf-options.yaml
+│   │   │   │       ├── pandoc-template.html
+│   │   │   │       ├── pandoc-template.tex
+│   │   │   │       ├── README.md
+│   │   │   │       └── relations.md
+│   │   │   ├── __init__.py
+│   │   │   ├── LICENSE.txt
+│   │   │   ├── MANIFEST.in
+│   │   │   ├── Niloufar
+│   │   │   │   ├── emmo_attach.py
+│   │   │   │   ├── play_06.py
+│   │   │   │   └── play.owl
+│   │   │   ├── play_06.py
+│   │   │   ├── play.owl
+│   │   │   ├── README.md
+│   │   │   ├── requirements.txt
+│   │   │   ├── setup.py
+│   │   │   ├── TODO.txt
+│   │   │   └── tools
+│   │   │       ├── ontodoc
+│   │   │       └── ontograph
+│   │   ├── git_log.txt
+│   │   ├── git_pull_auto.sh
+│   │   ├── git_pull.sh
+│   │   ├── git_push_auto.sh
+│   │   ├── git_push.sh
+│   │   ├── __init__.py
+│   │   ├── message.txt
+│   │   ├── OntologyEquationEditor
+│   │   │   ├── 0_issues.txt
+│   │   │   ├── depgraph2dot.py
+│   │   │   ├── __init__.py
+│   │   │   ├── make_dependency_plot.sh
+│   │   │   ├── py2depgraph.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   ├── resources.cpython-38.pyc
+│   │   │   │   ├── tpg.cpython-38.pyc
+│   │   │   │   ├── ui_aliastable.cpython-38.pyc
+│   │   │   │   ├── ui_aliastableindices_impl.cpython-38.pyc
+│   │   │   │   ├── ui_aliastablevariables_impl.cpython-38.pyc
+│   │   │   │   ├── ui_documentation.cpython-38.pyc
+│   │   │   │   ├── ui_documentation_impl.cpython-38.pyc
+│   │   │   │   ├── ui_equations.cpython-38.pyc
+│   │   │   │   ├── ui_equations_impl.cpython-38.pyc
+│   │   │   │   ├── ui_interface_variable_pick_impl.cpython-38.pyc
+│   │   │   │   ├── ui_ontology_design.cpython-38.pyc
+│   │   │   │   ├── ui_ontology_design_impl.cpython-38.pyc
+│   │   │   │   ├── ui_physunits.cpython-38.pyc
+│   │   │   │   ├── ui_physunits_impl.cpython-38.pyc
+│   │   │   │   ├── ui_symbol.cpython-38.pyc
+│   │   │   │   ├── ui_symbol_impl.cpython-38.pyc
+│   │   │   │   ├── ui_variabletable.cpython-38.pyc
+│   │   │   │   ├── ui_variabletable_impl.cpython-38.pyc
+│   │   │   │   ├── ui_variabletable_instantiate.cpython-38.pyc
+│   │   │   │   ├── ui_variabletable_pick_impl.cpython-38.pyc
+│   │   │   │   ├── ui_variabletable_show_impl.cpython-38.pyc
+│   │   │   │   ├── variable_framework.cpython-38.pyc
+│   │   │   │   └── variable_table.cpython-38.pyc
+│   │   │   ├── resources.py
+│   │   │   ├── template_equation_list_associate.latex
+│   │   │   ├── template_equation_list.latex
+│   │   │   ├── template_equation_list_with_dot.latex
+│   │   │   ├── template_equations.latex
+│   │   │   ├── template_main (copy).latex
+│   │   │   ├── template_main.latex
+│   │   │   ├── template_main.python
+│   │   │   ├── template_variable.cpp
+│   │   │   ├── template_variable.ID
+│   │   │   ├── template_variable.internal_to_global_ID
+│   │   │   ├── template_variable.latex
+│   │   │   ├── template_variable.matlab
+│   │   │   ├── template_variable.python
+│   │   │   ├── template_variables (copy).latex
+│   │   │   ├── template_variables (copy).owl
+│   │   │   ├── template_variables.latex
+│   │   │   ├── template_variables.owl
+│   │   │   ├── tpg.py
+│   │   │   ├── ui_aliastableindices_impl.py
+│   │   │   ├── ui_aliastable.py
+│   │   │   ├── ui_aliastable.ui
+│   │   │   ├── ui_aliastablevariables_impl.py
+│   │   │   ├── ui_documentation_impl.py
+│   │   │   ├── ui_documentation.py
+│   │   │   ├── ui_documentation.ui
+│   │   │   ├── ui_equations_dialog.py
+│   │   │   ├── ui_equations_dialog.ui
+│   │   │   ├── ui_equations_impl.py
+│   │   │   ├── ui_equations.py
+│   │   │   ├── ui_equations.ui
+│   │   │   ├── ui_interface_variable_pick_impl.py
+│   │   │   ├── ui_ontology_design__design.txt
+│   │   │   ├── ui_ontology_design_impl.py
+│   │   │   ├── ui_ontology_design.py
+│   │   │   ├── ui_ontology_design.ui
+│   │   │   ├── ui_physunits_impl.py
+│   │   │   ├── ui_physunits.py
+│   │   │   ├── ui_physunits.ui
+│   │   │   ├── ui_symbol_impl.py
+│   │   │   ├── ui_symbol.py
+│   │   │   ├── ui_symbol.ui
+│   │   │   ├── ui_variabletable_copy.py
+│   │   │   ├── ui_variabletable_impl.py
+│   │   │   ├── ui_variabletable_instantiate.py
+│   │   │   ├── ui_variabletable_pick_impl.py
+│   │   │   ├── ui_variabletable.py
+│   │   │   ├── ui_variabletable_show_impl.py
+│   │   │   ├── ui_variabletable.ui
+│   │   │   ├── variable_framework.py
+│   │   │   └── variable_table.py
+│   │   ├── OntologyFoundationEditor
+│   │   │   ├── editor_foundation_ontology_gui_impl.py
+│   │   │   ├── editor_foundation_ontology_gui.py
+│   │   │   ├── editor_foundation_ontology_gui.ui
+│   │   │   ├── __init__.py
+│   │   │   ├── onto_graph_creator.py
+│   │   │   └── __pycache__
+│   │   │       ├── editor_foundation_ontology_gui.cpython-38.pyc
+│   │   │       ├── editor_foundation_ontology_gui_impl.cpython-38.pyc
+│   │   │       ├── __init__.cpython-38.pyc
+│   │   │       └── onto_graph_creator.cpython-38.pyc
+│   │   ├── __pycache__
+│   │   │   └── __init__.cpython-38.pyc
+│   │   └── TypedTokenEditor
+│   │       ├── editor_typed_token_impl.py
+│   │       ├── editor_typed_token.py
+│   │       ├── editor_typed_token.ui
+│   │       ├── __init__.py
+│   │       └── __pycache__
+│   │           ├── editor_typed_token.cpython-38.pyc
+│   │           ├── editor_typed_token_impl.cpython-38.pyc
+│   │           └── __init__.cpython-38.pyc
+│   ├── __pycache__
+│   │   └── __init__.cpython-38.pyc
+│   └── TaskFactory
+│       ├── code_generator.py
+│       ├── __pycache__
+│       │   └── template_handler.cpython-38.pyc
+│       └── template_handler.py
+├── README.md
+├── requirements.txt
+├── tasks
+│   ├── countfile.txt
+│   ├── CountLinesInProjectTask.py
+│   ├── git_log.txt
+│   ├── git_pull_auto.sh
+│   ├── git_pull.sh
+│   ├── git_push_auto.sh
+│   ├── git_push.sh
+│   ├── __init__.py
+│   ├── message.txt
+│   ├── ProMo_BehaviourLinker.py
+│   ├── ProMo_BL.py
+│   ├── ProMo_ComposerAutomataDesigner.py
+│   ├── ProMo_ComposerGraphComponentDesigner.py
+│   ├── ProMo_install_all.sh
+│   ├── ProMo_ModelComposer.py
+│   ├── ProMo_ModelRenderer.py
+│   ├── ProMo_OntologyDotGraphCreator.py
+│   ├── ProMo_OntologyEquationComposer.py
+│   ├── ProMo_OntologyFoundationDesigner.py
+│   ├── ProMo-readme.odt
+│   ├── ProMo-readme.pdf
+│   ├── ProMo_TypedTokenEditor.py
+│   ├── readme.rst
+│   ├── run.py
+│   ├── show_doc.sh
+│   ├── task.sh
+│   ├── _test.m
+│   ├── test.m
+│   ├── TODO.txt
+│   ├── tree_experiment.py
+│   ├── z_Initialise_system_editor.py
+│   └── z_ModelFactory.py
+├── tests
+│   ├── code_gen
+│   │   ├── 1
+│   │   │   ├── entities.json
+│   │   │   ├── equations.json
+│   │   │   ├── topology_objects.json
+│   │   │   ├── var_eq_info.pdf
+│   │   │   ├── var_eq_info.synctex.gz
+│   │   │   └── var_eq_info.tex
+│   │   ├── 2
+│   │   │   ├── entities.json
+│   │   │   ├── equations.json
+│   │   │   ├── topology_objects.json
+│   │   │   ├── var_eq_info.pdf
+│   │   │   ├── var_eq_info.synctex.gz
+│   │   │   └── var_eq_info.tex
+│   │   ├── 3
+│   │   │   ├── entities.json
+│   │   │   ├── equations.json
+│   │   │   ├── topology_objects.json
+│   │   │   ├── var_eq_info.pdf
+│   │   │   ├── var_eq_info.synctex.gz
+│   │   │   └── var_eq_info.tex
+│   │   ├── 4
+│   │   │   ├── entities.json
+│   │   │   ├── equations.json
+│   │   │   ├── topology_objects.json
+│   │   │   ├── var_eq_info.aux
+│   │   │   ├── var_eq_info.log
+│   │   │   ├── var_eq_info.pdf
+│   │   │   ├── var_eq_info.synctex.gz
+│   │   │   └── var_eq_info.tex
+│   │   ├── Complete
+│   │   │   ├── entities.json
+│   │   │   ├── equations.json
+│   │   │   ├── topology_objects.json
+│   │   │   ├── var_eq_info.aux
+│   │   │   ├── var_eq_info.log
+│   │   │   ├── var_eq_info.pdf
+│   │   │   ├── var_eq_info.synctex.gz
+│   │   │   └── var_eq_info.tex
+│   │   └── test.m
+│   ├── Matlab
+│   │   ├── main.m
+│   │   ├── @MultiDimVar
+│   │   │   ├── abs.m
+│   │   │   ├── blockreduce.m
+│   │   │   ├── ctranspose.m
+│   │   │   ├── disp.m
+│   │   │   ├── expandproduct.m
+│   │   │   ├── formatsize.m
+│   │   │   ├── isscalar.m
+│   │   │   ├── isvector.m
+│   │   │   ├── khatrirao.m
+│   │   │   ├── minus.m
+│   │   │   ├── MultiDimVar.m
+│   │   │   ├── plus.m
+│   │   │   ├── power.m
+│   │   │   ├── product.m
+│   │   │   ├── rdivide.m
+│   │   │   ├── reciprocal.m
+│   │   │   ├── reduceproduct.m
+│   │   │   ├── sign.m
+│   │   │   ├── size.m
+│   │   │   ├── sparse.m
+│   │   │   ├── subsasgn.m
+│   │   │   ├── subsref.m
+│   │   │   └── times.m
+│   │   └── octave-workspace
+│   ├── Other matlab
+│   │   ├── FunctionTest.m
+│   │   ├── MultiDimVar.m
+│   │   └── MultiDimVar_.m
+│   ├── test_entity.py
+│   ├── test_eq_selector_dlg.py
+│   ├── test_equation.py
+│   └── test_instantiation_dlg.py
+└── tree.txt
+
+130 directories, 1164 files

@@ -235,7 +235,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     # self.entity_behaviours = EntityBehaviour()
     # NEW entities and equations classes
     self.all_equations = io.load_equations_from_file(self.ontology_name)
-    self.entity_behaviours = io.load_entities_from_old_file(
+    self.entity_behaviours = io.load_entities_from_file(
       self.ontology_name,
       self.all_equations,
     )

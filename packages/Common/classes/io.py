@@ -3,17 +3,19 @@
 
 import json
 import networkx as nx
+import os
 from typing import List, Dict, Optional, Tuple
 
 from packages.Common.classes import equation
 from packages.Common.classes import entity
 from packages.Common.classes import variable
+from packages.Common.classes import ontology
 from packages.Common import resource_initialisation
 
 
 def load_equations_from_file(
-  ontology_name: str,
-  eq_ids: Optional[List[str]] = None
+    ontology_name: str,
+    eq_ids: Optional[List[str]] = None
 ) -> Dict[str, equation.Equation]:
   """Loads data from file to create Equation objects.
 
@@ -29,7 +31,7 @@ def load_equations_from_file(
         objects.
   """
   path = resource_initialisation.FILES[
-    "global_equation_id"
+      "global_equation_id"
   ] % ontology_name
 
   with open(path, "r", encoding="utf-8",) as file:
@@ -44,12 +46,12 @@ def load_equations_from_file(
   languages = ["matlab"]
   for lang in languages:
     lang_path = resource_initialisation.DIRECTORIES[
-      "ontology_location"
+        "ontology_location"
     ] % ontology_name + "/equations_" + lang + ".json"
 
     with open(lang_path, "r", encoding="utf-8",) as file:
       lang_data = json.load(file)
-    
+
     for eq_id in eq_ids:
       if "representation" not in data[eq_id]:
         data[eq_id]["representation"] = {}
@@ -61,18 +63,20 @@ def load_equations_from_file(
   equations = {}
   for eq_id in eq_ids:
     equations[eq_id] = equation.Equation(
-      eq_id,
-      data[eq_id]["lhs"],
-      data[eq_id]["rhs"],
-      data[eq_id]["network"],
-      data[eq_id]["representation"],
+        eq_id,
+        resource_initialisation.FILES["latex_img"] % (ontology_name, eq_id),
+        data[eq_id]["lhs"],
+        data[eq_id]["rhs"],
+        data[eq_id]["network"],
+        data[eq_id]["representation"],
     )
 
   return equations
 
+
 def load_entities_from_file(
-  ontology_name: str,
-  entity_names: Optional[List[str]] = None
+    ontology_name: str,
+    entity_names: Optional[List[str]] = None
 ) -> Dict[str, entity.Entity]:
   # """Loads data from file to create Entity objects.
 
@@ -103,7 +107,7 @@ def load_entities_from_file(
   #       Entity objects.
   # """
   path = resource_initialisation.FILES[
-    "variable_assignment_to_entity_object"
+      "variable_assignment_to_entity_object"
   ] % ontology_name
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
@@ -116,6 +120,9 @@ def load_entities_from_file(
   if entity_names is None:
     entity_names = data.keys()
 
+  # TODO Find a more elegant way of doing this
+  all_equations = load_equations_from_file(ontology_name)
+
   entities = {}
   for ent_name in entity_names:
     if ent_name not in data:
@@ -123,13 +130,14 @@ def load_entities_from_file(
       continue
 
     new_entity = entity.Entity(
-      ent_name,
-      data[ent_name]["index_set"],
-      data[ent_name]["integrators"],
-      data[ent_name]["var_eq_forest"],
-      data[ent_name]["to_be_init"],
-      data[ent_name]["input_vars"],
-      data[ent_name]["output_vars"],
+        ent_name,
+        all_equations,
+        data[ent_name]["index_set"],
+        data[ent_name]["integrators"],
+        data[ent_name]["var_eq_forest"],
+        data[ent_name]["init_vars"],
+        data[ent_name]["input_vars"],
+        data[ent_name]["output_vars"],
     )
     # TODO Check why it cant be stored as base#
     if "base_" in ent_name:
@@ -139,9 +147,18 @@ def load_entities_from_file(
 
   return entities
 
+
+def load_ontology_from_file(ontology_name: str) -> ontology.Ontology:
+  path = resource_initialisation.FILES["ontology_file"] % ontology_name
+  with open(path, "r", encoding="utf-8",) as file:
+    data = json.load(file)
+
+  return ontology.Ontology(data["ontology_tree"])
+
+
 def load_variables_from_file(
-  ontology_name: str,
-  variable_ids: Optional[List[str]] = None,
+    ontology_name: str,
+    variable_ids: Optional[List[str]] = None,
 ) -> Tuple[Dict[str, variable.Variable], Dict[str, str]]:
   # """Loads data from file to create Variable objects.
 
@@ -181,40 +198,42 @@ def load_variables_from_file(
   variables = {}
   for var_id in variable_ids:
     variables[var_id] = variable.Variable.from_dict(
-      var_id,
-      data[var_id],
+        var_id,
+        resource_initialisation.FILES["latex_img"] % (ontology_name, var_id),
+        data[var_id],
     )
 
   return (variables, indices)
 
+
 def load_topology_from_file(
-  ontology_name: str,
-  model_name: str,
-  all_entities: Dict[str, entity.Entity]
+    ontology_name: str,
+    model_name: str,
+    all_entities: Dict[str, entity.Entity]
 ) -> nx.Graph:
   index_sets = {
-    "general": {},
-    "specific": {},
+      "general": {},
+      "specific": {},
   }
   path = resource_initialisation.FILES["model_flat_file"] % (
-    ontology_name,
-    model_name,
+      ontology_name,
+      model_name,
   )
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
 
   topology_graph = nx.Graph()
   matrices = {
-    "Dc_N_A": {
-      "rows": [],
-      "cols": [],
-      "vals": [],
-    },
-    "Dc_NS_AS": {
-      "rows": [],
-      "cols": [],
-      "vals": [],
-    },
+      "Dc_N_A": {
+          "rows": [],
+          "cols": [],
+          "vals": [],
+      },
+      "Dc_NS_AS": {
+          "rows": [],
+          "cols": [],
+          "vals": [],
+      },
   }
 
   # For the species
@@ -223,7 +242,8 @@ def load_topology_from_file(
     species_set.update(domain_species)
   species_list = list(species_set)
   species_list.sort()
-  species_index = {spec:str(i) for i, spec in enumerate(species_list, start=1)}
+  species_index = {spec: str(i)
+                   for i, spec in enumerate(species_list, start=1)}
 
   # For the nodes
   nodes_index = {}
@@ -241,7 +261,7 @@ def load_topology_from_file(
     # Mapping the species inside the nodes.
     node_species = [species_index[s] for s in node_data["tokens"]["mass"]]
     node_species_index[node] = {
-      spec:(j + offset) for j, spec in enumerate(node_species)
+        spec: (j + offset) for j, spec in enumerate(node_species)
     }
     node_species_index[node]["ini"] = offset
     offset += len(node_species)
@@ -250,11 +270,11 @@ def load_topology_from_file(
     # For the index_sets
     index_sets["general"]["N"].append(node)
     index_sets["general"]["N & S"].append(node_species)
- 
+
     # TODO The domain is usually found using the ontology container
     # Find a way of obtaining this info here.
     networks = ["macroscopic"]
-    intra_domains = {"macroscopic" : ["solid", "liquid", "gas"]}
+    intra_domains = {"macroscopic": ["solid", "liquid", "gas"]}
 
     entity_network = node_data["network"]
     for nw in networks:
@@ -271,10 +291,10 @@ def load_topology_from_file(
     is_reservoir = (entity_type == "constant|infinity")
 
     topology_graph.add_node(
-      "N" + node,
-      entity = all_entities[ent_name],
-      inst_info = data["instantiation_info"]["nodes"][old_node_index],
-      is_reservoir = is_reservoir,
+        "N" + node,
+        entity=all_entities[ent_name],
+        inst_info=data["instantiation_info"]["nodes"][old_node_index],
+        is_reservoir=is_reservoir,
     )
 
     idx_set = all_entities[ent_name].index_set
@@ -297,7 +317,7 @@ def load_topology_from_file(
     # TODO Homogenize the keys in nodes and arcs.
     arc_species = [species_index[s] for s in arc_data["typed_tokens"]]
     arc_species_index[arc] = {
-      spec:(j + offset) for j, spec in enumerate(arc_species) 
+        spec: (j + offset) for j, spec in enumerate(arc_species)
     }
     arc_species_index[arc]["ini"] = offset
     offset += len(node_species)
@@ -310,7 +330,7 @@ def load_topology_from_file(
     # TODO The domain is usually found using the ontology container
     # Find a way of obtaining this info here.
     networks = ["macroscopic"]
-    intra_domains = {"macroscopic" : ["solid", "liquid", "gas"]}
+    intra_domains = {"macroscopic": ["solid", "liquid", "gas"]}
     entity_network = arc_data["network"]
     for nw in networks:
       if entity_network in intra_domains[nw]:
@@ -323,10 +343,10 @@ def load_topology_from_file(
     ent_name = f"{entity_domain}.arc.{entity_type}|{token}.{entity_variant}"
 
     topology_graph.add_node(
-      "A" + arc,
-      entity = all_entities[ent_name],
-      inst_info = data["instantiation_info"]["arcs"][old_arc_index],
-      is_reservoir = False,
+        "A" + arc,
+        entity=all_entities[ent_name],
+        inst_info=data["instantiation_info"]["arcs"][old_arc_index],
+        is_reservoir=False,
     )
 
     idx_set = all_entities[ent_name].index_set
@@ -344,8 +364,8 @@ def load_topology_from_file(
 
     # TODO Generalize for all mechanisms and tokens
     if (
-      arc_data["token"] == "mass" and
-      arc_data["mechanism"] == "convection"
+        arc_data["token"] == "mass" and
+        arc_data["mechanism"] == "convection"
     ):
       matrices["Dc_N_A"]["rows"].extend([int(node1), int(node2)])
       matrices["Dc_N_A"]["cols"].extend([int(arc)]*2)
@@ -353,11 +373,11 @@ def load_topology_from_file(
 
       for spec in arc_species:
         matrices["Dc_NS_AS"]["rows"].extend([
-          node_species_index[node1][spec],
-          node_species_index[node2][spec],
+            node_species_index[node1][spec],
+            node_species_index[node2][spec],
         ])
         matrices["Dc_NS_AS"]["cols"].extend(
-          [arc_species_index[arc][spec]]*2
+            [arc_species_index[arc][spec]]*2
         )
         matrices["Dc_NS_AS"]["vals"].extend([-1, 1])
 
@@ -380,19 +400,19 @@ def load_topology_from_file(
   topology_graph.graph["index_sets_info"] = index_sets
 
   topology_entity = entity.Entity(
-    "Topology",
-    None,
-    {},
-    [],
-    [],
-    [],
-    list(matrices.keys())
+      "Topology",
+      None,
+      {},
+      [],
+      [],
+      [],
+      list(matrices.keys())
   )
   topology_graph.add_node(
-    "T",
-    entity = topology_entity,
-    inst_info = matrices,
-    is_reservoir = False,
+      "T",
+      entity=topology_entity,
+      inst_info=matrices,
+      is_reservoir=False,
   )
 
   for node in topology_graph:
@@ -404,8 +424,25 @@ def load_topology_from_file(
 
   return topology_graph
 
+
+def get_available_ontologies():
+  location = resource_initialisation.DIRECTORIES["ontology_repository"]
+  directories = [
+      f.path
+      for f in os.scandir(location)
+      if f.is_dir() and not f.name.startswith('.')
+  ]
+  ontology_names = [
+      os.path.splitext(os.path.basename(o))[0]
+      for o in directories
+  ]
+
+  return ontology_names
+
+
 class EquationJSONEncoder(json.JSONEncoder):
   """Custom encoder for Equation objects."""
+
   def default(self, o):
     """Represents data from Equation objects as a dictionary.
 
@@ -421,8 +458,18 @@ class EquationJSONEncoder(json.JSONEncoder):
       return o.convert_to_dict()
     return super().default(o)
 
+
+def save_entities_to_file(ontology_name, all_entities):
+  path = resource_initialisation.FILES[
+      "variable_assignment_to_entity_object"
+  ] % ontology_name
+  with open(path, "w", encoding="utf-8",) as file:
+    data = json.dump(all_entities, file, cls=EntityJSONEncoder)
+
+
 class EntityJSONEncoder(json.JSONEncoder):
   """Custom encoder for Entity objects."""
+
   def default(self, o):
     """Represents data from Equation objects as a dictionary.
 
@@ -437,6 +484,7 @@ class EntityJSONEncoder(json.JSONEncoder):
     if isinstance(o, entity.Entity):
       return o.convert_to_dict()
     return super().default(o)
+
 
 class VariableJSONEncoder(json.JSONEncoder):
   # """Custom encoder for Entity objects.
