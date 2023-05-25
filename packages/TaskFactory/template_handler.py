@@ -7,14 +7,15 @@ from packages.Common.classes import variable, equation
 from packages.Common.classes import vareqdigraph
 from packages.Common import resource_initialisation as ri
 
+
 class TemplateHandler:
   def __init__(
-    self,
-    language: str,
-    all_variables: Dict[str, variable.Variable],
-    all_indices: Dict,
-    all_equations: Dict[str, equation.Equation],
-    vareq: vareqdigraph.VarEqDiGraph,
+      self,
+      language: str,
+      all_variables: Dict[str, variable.Variable],
+      all_indices: Dict,
+      all_equations: Dict[str, equation.Equation],
+      vareq: vareqdigraph.VarEqDiGraph,
   ):
     self.language = language
     self.all_variables = all_variables
@@ -23,9 +24,9 @@ class TemplateHandler:
     self.var_eq = vareq
 
     self.enviroment = jinja2.Environment(
-      loader=jinja2.FileSystemLoader(ri.DIRECTORIES["templates"]),
-      trim_blocks=True,
-      lstrip_blocks= True,
+        loader=jinja2.FileSystemLoader(ri.DIRECTORIES["templates"]),
+        trim_blocks=True,
+        lstrip_blocks=True,
     )
 
     self.load_language_filters()
@@ -44,7 +45,7 @@ class TemplateHandler:
 
     # Information about the index sets
     data["index_sets_info"] = copy.deepcopy(
-      self.var_eq.top_graph.graph["index_sets_info"]
+        self.var_eq.top_graph.graph["index_sets_info"]
     )
     # Changing the alias of the index to the language specific ones
     general_info = data["index_sets_info"]["general"]
@@ -59,34 +60,35 @@ class TemplateHandler:
 
     # pp(data["index_sets_info"])
     # THIS COMES FROM THE USER
-    is_sparse = True
+    is_sparse = False
     # Information about the initialization of all variables
     data["instantiations"] = []
+    pp(self.var_eq.inst_variables)
     for var_id, inst_info in self.var_eq.inst_variables.items():
       var_data = self.all_variables[var_id]
       index_structures = var_data.index_structures
 
       index_sets = ", ".join(
-        [
-          self.all_indices[i]["aliases"][self.language] 
-          for i in index_structures
-        ]
+          [
+              self.all_indices[i]["aliases"][self.language]
+              for i in index_structures
+          ]
       )
       index_labels = ", ".join(
-        [
-          self.all_indices[i]["aliases"][self.language] + "_lbl"
-          for i in index_structures
-        ]
+          [
+              self.all_indices[i]["aliases"][self.language] + "_lbl"
+              for i in index_structures
+          ]
       )
 
       data["instantiations"].append({
-        "var_id": var_id,
-        "comment": [var_data.doc],
-        "dimension": inst_info["dimension"],
-        "vals": inst_info["vals"],
-        "index_labels": index_labels,
-        "index_sets": index_sets,
-        "is_sparse": is_sparse,
+          "var_id": var_id,
+          "comment": [var_data.doc],
+          "dimension": inst_info["dimension"],
+          "vals": inst_info["vals"],
+          "index_labels": index_labels,
+          "index_sets": index_sets,
+          "is_sparse": is_sparse,
       })
 
     # Information about the integrators
@@ -110,7 +112,6 @@ class TemplateHandler:
 
       integrator_info["interval"] = ini + ":" + fin
 
-
       data["integrators"].append(integrator_info)
       # pp(data["integrators"])
 
@@ -122,28 +123,31 @@ class TemplateHandler:
       sys_counter = 1
       if len(expr) == 1:
         var_id, eq_id, top_ids, index_sets = expr[0]
+        # TODO: Find a better way of not including the integrals.
+        if eq_id == "E_86":
+          continue
         eq = self.all_equations[eq_id]
 
         if eq.is_explicit_for_var(var_id):
           expr_info["type"] = "simple"
           expr_info["id"] = eq_id
           expr_info["equations"] = [{
-            "eq_id": eq_id,
-            "var_id": var_id,
-            "top_ids": top_ids,
-            "index_sets": index_sets,
-            "dependencies": eq.get_incidence_list(var_id),
+              "eq_id": eq_id,
+              "var_id": var_id,
+              "top_ids": top_ids,
+              "index_sets": index_sets,
+              "dependencies": eq.get_incidence_list(var_id),
           }]
         else:
           expr_info["type"] = "root"
           expr_info["init_guess"] = ["Initial_Guess"]
           expr_info["id"] = "root" + eq_id
           expr_info["equations"] = [{
-            "eq_id": eq_id,
-            "var_id": var_id,
-            "top_ids": top_ids,
-            "index_sets": index_sets,
-            "dependencies": eq.get_incidence_list(var_id) + [var_id],
+              "eq_id": eq_id,
+              "var_id": var_id,
+              "top_ids": top_ids,
+              "index_sets": index_sets,
+              "dependencies": eq.get_incidence_list(var_id) + [var_id],
           }]
 
       else:
@@ -152,7 +156,7 @@ class TemplateHandler:
         sys_counter += 1
         expr_info["equations"] = []
         expr_info["init_guess"] = ["initial_guess"]
-        
+
         part_counter = 1
         for var_id, eq_id, top_ids, index_sets in expr:
           eq = self.all_equations[eq_id]
@@ -160,18 +164,18 @@ class TemplateHandler:
           part_counter += self.size_by_index(var_id, index_sets)
           fin = str(part_counter - 1)
           expr_info["equations"].append({
-            "eq_id": eq_id,
-            "var_id": var_id,
-            "top_ids": top_ids,
-            "interval": ini + ":" + fin,
-            "index_sets": index_sets,
-            "dependencies": eq.get_incidence_list(),            
+              "eq_id": eq_id,
+              "var_id": var_id,
+              "top_ids": top_ids,
+              "interval": ini + ":" + fin,
+              "index_sets": index_sets,
+              "dependencies": eq.get_incidence_list(),
           })
 
       data["expressions"].append(expr_info)
       data["solvers"] = {
-        "root": "fzero",
-        "sys_of_equations": "fsolve",
+          "root": "fzero",
+          "sys_of_equations": "fsolve",
       }
 
     return data
@@ -181,7 +185,8 @@ class TemplateHandler:
 
     index_structures = var_data.index_structures
 
-    index_label = self.all_indices[index_structures[0]]["aliases"]["internal_code"]
+    index_label = self.all_indices[index_structures[0]
+                                   ]["aliases"]["internal_code"]
 
     index_sets_info = self.var_eq.top_graph.graph["index_sets_info"]
 
@@ -204,16 +209,16 @@ class TemplateHandler:
   def load_language_filters(self) -> None:
     # TODO Probably make it a static member
     filters = {
-      "matlab": {
-        "is_list": self.is_list,
-        "label": self.var_label,
-        "sets": self.specific_sets,
-        "var_slice": self.var_slice,
-        "dependencies": self.dependencies,
-        "arguments": self.arguments,
-        "eq_label": self.eq_label,
-        "main_index": self.main_index,
-      }
+        "matlab": {
+            "is_list": self.is_list,
+            "label": self.var_label,
+            "sets": self.specific_sets,
+            "var_slice": self.var_slice,
+            "dependencies": self.dependencies,
+            "arguments": self.arguments,
+            "eq_label": self.eq_label,
+            "main_index": self.main_index,
+        }
     }
     for filt_name, filt_function in filters[self.language].items():
       self.enviroment.filters[filt_name] = filt_function
@@ -222,25 +227,25 @@ class TemplateHandler:
   ############################### MATLAB ###############################
   def is_list(self, variable):
     return isinstance(variable, list)
-  
+
   def var_label(
-    self,
-    var_id: str,
+      self,
+      var_id: str,
   ) -> str:
     return self.all_variables[var_id].aliases[self.language]
-  
+
   def join_sets(self, main_set: str, index_sets: Set[str]) -> List[str]:
     output = []
     for i in index_sets:
       if main_set[0] == i[0]:
         output.append(i)
-    
+
     return output
-  
+
   def specific_sets(
-    self,
-    var_id: str,
-    index_sets: Set[str],
+      self,
+      var_id: str,
+      index_sets: Set[str],
   ) -> str:
     var_data = self.all_variables[var_id]
     index_structures = var_data.index_structures
@@ -256,18 +261,19 @@ class TemplateHandler:
         output.append("indexunion(" + ", ".join(spec_idx_sets) + ")")
 
     return ", ".join(output)
-  
+
   def var_slice(
-    self,
-    var_id: str,
-    index_sets: Set[str],
+      self,
+      var_id: str,
+      index_sets: Set[str],
   ) -> str:
     return self.var_label(var_id) + "(" + self.specific_sets(var_id, index_sets) + ")"
-  
+
   def dependencies(self, expr_info: Dict) -> str:
     if expr_info["type"] in ["simple", "root"]:
       eq_info = expr_info["equations"][0]
-      expr_dependencies = [self.var_label(var_id) for var_id in eq_info["dependencies"]]
+      expr_dependencies = [self.var_label(var_id)
+                           for var_id in eq_info["dependencies"]]
       # TODO: Extend to all main indices
       for main_idx in ["N", "A", "S"]:
         full_set = self.join_sets(main_idx, eq_info["index_sets"])
@@ -284,9 +290,10 @@ class TemplateHandler:
         all_index_sets.update(eq_info["index_sets"])
         all_dependencies.update(eq_info["dependencies"])
 
-      expr_dependencies = [self.var_label(var_id) for var_id in list(all_dependencies)]
+      expr_dependencies = [self.var_label(var_id)
+                           for var_id in list(all_dependencies)]
       expr_dependencies.extend(list(all_index_sets))
-    
+
     return ", ".join(expr_dependencies)
 
   def arguments(self, eq_info: Dict) -> str:
@@ -302,11 +309,10 @@ class TemplateHandler:
 
     return ", ".join(eq_arg)
 
-
   # TODO: merge this with var_label
-  def eq_label(self, eq_id:str, side:str) -> str:
+  def eq_label(self, eq_id: str, side: str) -> str:
     return self.all_equations[eq_id].representation[self.language][side]
-  
+
   def main_index(self, var_id: str) -> str:
     var_data = self.all_variables[var_id]
     index_structures = var_data.index_structures

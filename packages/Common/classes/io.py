@@ -4,7 +4,10 @@
 import json
 import networkx as nx
 import os
+import subprocess
+import copy
 from typing import List, Dict, Optional, Tuple
+from pprint import pprint as pp
 
 from packages.Common.classes import equation
 from packages.Common.classes import entity
@@ -31,7 +34,7 @@ def load_equations_from_file(
         objects.
   """
   path = resource_initialisation.FILES[
-      "global_equation_id"
+      "global_equation_id_new"
   ] % ontology_name
 
   with open(path, "r", encoding="utf-8",) as file:
@@ -43,11 +46,12 @@ def load_equations_from_file(
   if eq_ids is None:
     eq_ids = data.keys()
 
+  # TODO: Get this from resource_initialisation
   languages = ["matlab"]
   for lang in languages:
     lang_path = resource_initialisation.DIRECTORIES[
         "ontology_location"
-    ] % ontology_name + "/equations_" + lang + ".json"
+    ] % ontology_name + "/equations_" + lang + "_new.json"
 
     with open(lang_path, "r", encoding="utf-8",) as file:
       lang_data = json.load(file)
@@ -109,6 +113,13 @@ def load_entities_from_file(
   path = resource_initialisation.FILES[
       "variable_assignment_to_entity_object"
   ] % ontology_name
+
+  # If the file doesnt exists it creates a new one
+  if not os.path.isfile(path):
+    with open(path, "w", encoding="utf-8",) as file:
+      json.dump({}, file, indent=4)
+    return {}
+
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
   # from pprint import pprint as pp
@@ -174,7 +185,7 @@ def load_variables_from_file(
   #       Variable objects.
   # """
 
-  path = resource_initialisation.FILES["variables_file"] % ontology_name
+  path = resource_initialisation.FILES["variables_file_new"] % ontology_name
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
 
@@ -219,17 +230,18 @@ def load_topology_from_file(
       ontology_name,
       model_name,
   )
-  with open(path, "r", encoding="utf-8",) as file:
+  path_new = path[:-5] + "_new.json"
+  with open(path_new, "r", encoding="utf-8",) as file:
     data = json.load(file)
 
   topology_graph = nx.Graph()
   matrices = {
-      "Dc_N_A": {
+      "Dd_N_A": {
           "rows": [],
           "cols": [],
           "vals": [],
       },
-      "Dc_NS_AS": {
+      "Dd_NS_AS": {
           "rows": [],
           "cols": [],
           "vals": [],
@@ -257,6 +269,7 @@ def load_topology_from_file(
 
     # Mapping all the simple nodes to have indexes in [1, N].
     nodes_index[old_node_index] = node
+    # pp(nodes_index)
 
     # Mapping the species inside the nodes.
     node_species = [species_index[s] for s in node_data["tokens"]["mass"]]
@@ -285,7 +298,7 @@ def load_topology_from_file(
     # TODO Check what happens with multiple tokens
     token = list(node_data["tokens"].keys())[0]
     entity_variant = node_data["variant"]
-    ent_name = f"{entity_domain}.node.{entity_type}|{token}.{entity_variant}"
+    ent_name = f"{entity_domain}.node.{token}|{entity_type}.{entity_variant}"
 
     # TODO Check if this is always the case
     is_reservoir = (entity_type == "constant|infinity")
@@ -340,7 +353,7 @@ def load_topology_from_file(
     # TODO Check what happens with multiple tokens
     token = arc_data["token"]
     entity_variant = arc_data["variant"]
-    ent_name = f"{entity_domain}.arc.{entity_type}|{token}.{entity_variant}"
+    ent_name = f"{entity_domain}.arc.{token}|{entity_type}.{entity_variant}"
 
     topology_graph.add_node(
         "A" + arc,
@@ -365,30 +378,28 @@ def load_topology_from_file(
     # TODO Generalize for all mechanisms and tokens
     if (
         arc_data["token"] == "mass" and
-        arc_data["mechanism"] == "convection"
+        arc_data["mechanism"] == "diffusion"
     ):
-      matrices["Dc_N_A"]["rows"].extend([int(node1), int(node2)])
-      matrices["Dc_N_A"]["cols"].extend([int(arc)]*2)
-      matrices["Dc_N_A"]["vals"].extend([-1, 1])
+      matrices["Dd_N_A"]["rows"].extend([int(node1), int(node2)])
+      matrices["Dd_N_A"]["cols"].extend([int(arc)]*2)
+      matrices["Dd_N_A"]["vals"].extend([-1, 1])
 
       for spec in arc_species:
-        matrices["Dc_NS_AS"]["rows"].extend([
+        matrices["Dd_NS_AS"]["rows"].extend([
             node_species_index[node1][spec],
             node_species_index[node2][spec],
         ])
-        matrices["Dc_NS_AS"]["cols"].extend(
+        matrices["Dd_NS_AS"]["cols"].extend(
             [arc_species_index[arc][spec]]*2
         )
-        matrices["Dc_NS_AS"]["vals"].extend([-1, 1])
+        matrices["Dd_NS_AS"]["vals"].extend([-1, 1])
 
   # TODO See how to link this with the equation composer
-  matrices["V_60"] = matrices["Dc_N_A"]             # Fc_N_A
-  matrices["V_61"] = matrices["Dc_NS_AS"]           # Fc_NS_AS
-  matrices["V_66"] = matrices["Dc_N_A"]             # Dc_N_A
-  matrices["V_67"] = matrices["Dc_NS_AS"]           # Dc_NS_AS
+  matrices["V_165"] = matrices["Dd_NS_AS"]           # Fc_NS_AS
+  matrices["V_167"] = matrices["Dd_NS_AS"]           # Dc_NS_AS
 
-  del matrices["Dc_N_A"]
-  del matrices["Dc_NS_AS"]
+  del matrices["Dd_N_A"]
+  del matrices["Dd_NS_AS"]
 
   # TODO Generalize for all indexes
   nr_nodes = len(data["nodes"])
@@ -401,12 +412,13 @@ def load_topology_from_file(
 
   topology_entity = entity.Entity(
       "Topology",
+      {},
       None,
       {},
       [],
+      list(matrices),
       [],
-      [],
-      list(matrices.keys())
+      list(matrices)
   )
   topology_graph.add_node(
       "T",
@@ -440,6 +452,158 @@ def get_available_ontologies():
   return ontology_names
 
 
+def convert_variable_files(ontology_name):
+  path_old = resource_initialisation.FILES["variables_file"] % ontology_name
+  path_new = resource_initialisation.FILES["variables_file_new"] % ontology_name
+  with open(path_old, "r", encoding="utf-8",) as file:
+    data = json.load(file)
+
+  new_data = {"variables": {}}
+  latex_aliases = {}
+  for var_int_key, var_data in data["variables"].items():
+    new_var_data = {}
+    new_var_data["aliases"] = eval(var_data["aliases"])
+    new_var_data["doc"] = var_data["doc"]
+    new_var_data["index_structures"] = eval(var_data["index_structures"])
+    new_var_data["label"] = var_data["label"]
+    new_var_data["network"] = var_data["network"]
+    new_var_data["port_variable"] = var_data["port_variable"]
+    new_var_data["tokens"] = eval(var_data["tokens"])
+    new_var_data["type"] = var_data["type"]
+    new_var_data["units"] = eval(var_data["units"])
+    new_var_data["equations"] = []
+    for int_id in eval(var_data["equations"]):
+      new_var_data["equations"].append("E_" + str(int_id))
+
+    new_data["variables"]["V_" + var_int_key] = new_var_data
+    latex_aliases["V_" + var_int_key] = "$" + \
+        new_var_data["aliases"]["latex"] + "$"
+
+  for key, value in data.items():
+    if key == "variables":
+      continue
+
+    new_data[key] = value
+
+  with open(path_new, "w", encoding="utf-8",) as file:
+    json.dump(new_data, file, indent=4)
+
+  generate_latex_images(latex_aliases, ontology_name)
+
+
+def convert_model_file(ontology_name, model_name):
+  path_old = resource_initialisation.FILES["model_flat_file"] % (
+      ontology_name,
+      model_name,
+  )
+  path_new = path_old[:-5] + "_new.json"
+
+  with open(path_old, "r", encoding="utf-8",) as file:
+    data = json.load(file)
+
+  new_data = copy.deepcopy(data)
+  new_data["instantiation_info"]["nodes"] = {}
+
+  list_ids = ["V_15", "V_66"]  # ["V_66", "V_100", "V_164", "V_169"]
+  node_id_list = []
+
+  for node_id in data["nodes"]:
+    if node_id == "1":
+      continue
+
+    node_id_list.append(node_id)
+
+  nr = 0
+  for node_id in data["instantiation_info"]["nodes"]:
+    new_node_id = node_id
+    if node_id != "1":
+      new_node_id = node_id_list[nr]
+      nr += 1
+    new_data["instantiation_info"]["nodes"][new_node_id] = data["instantiation_info"]["nodes"][node_id]
+
+    for var_id, value in data["instantiation_info"]["nodes"][node_id].items():
+      if var_id in list_ids:
+        new_data["instantiation_info"]["nodes"][new_node_id][var_id] = [value]
+
+  for arc in data["arcs"]:
+    new_data["instantiation_info"]["arcs"][arc] = {}
+    new_data["instantiation_info"]["arcs"][arc]["V_168"] = ["3e-12"]
+
+  with open(path_new, "w", encoding="utf-8",) as file:
+    json.dump(new_data, file, indent=4)
+
+
+def convert_equations_file(ontology_name):
+  path_old = resource_initialisation.FILES[
+      "global_equation_id"
+  ] % ontology_name
+  path_latex = resource_initialisation.FILES["equations_latex"] % ontology_name
+  path_matlab = resource_initialisation.FILES["equations_matlab"] % ontology_name
+  path_matlab_new = path_matlab[:-5] + "_new.json"
+  path_new = resource_initialisation.FILES[
+      "global_equation_id_new"
+  ] % ontology_name
+
+  with open(path_old, "r", encoding="utf-8",) as file:
+    data = json.load(file)
+
+  new_data = {}
+  for int_id, eq_data in data.items():
+    new_data["E_" + int_id] = eq_data
+
+  with open(path_new, "w", encoding="utf-8",) as file:
+    json.dump(new_data, file, indent=4)
+
+  with open(path_matlab, "r", encoding="utf-8",) as file:
+    data = json.load(file)
+
+  new_data = {}
+  for int_id, eq_data in data.items():
+    new_data["E_" + int_id] = eq_data
+
+  with open(path_matlab_new, "w", encoding="utf-8",) as file:
+    json.dump(new_data, file, indent=4)
+
+  with open(path_latex, "r", encoding="utf-8",) as file:
+    latex_data = json.load(file)
+
+  latex_aliases = {}
+  for int_id, eq_data in latex_data.items():
+    latex_aliases["E_" + int_id] = "$" + \
+        eq_data["lhs"] + "=" + eq_data["rhs"] + "$"
+
+  generate_latex_images(latex_aliases, ontology_name)
+
+
+def generate_latex_images(latex_aliases, ontology_name):
+  original_work_dir = os.getcwd()
+  os.chdir(
+      resource_initialisation.DIRECTORIES["latex_doc_location"] % ontology_name)
+
+  for file_name, latex_alias in latex_aliases.items():
+    print(file_name)
+
+    with open(file_name + ".tex", "w") as f:
+      f.write("\\documentclass[border=1pt]{standalone}\n")
+      f.write("\\usepackage{amsmath}\n")
+      f.write("\\begin{document}\n")
+      f.write(latex_alias)
+      f.write("\\end{document}\n")
+
+    subprocess.run(["latex", "-interaction=nonstopmode", file_name + ".tex"],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["dvipng", "-D", "150", "-T", "tight", "-z", "9",
+                    "-bg", "Transparent", "-o", file_name + ".png", file_name + ".dvi"],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    os.remove(file_name + ".tex")
+    os.remove(file_name + ".aux")
+    os.remove(file_name + ".log")
+    os.remove(file_name + ".dvi")
+
+  os.chdir(original_work_dir)
+
+
 class EquationJSONEncoder(json.JSONEncoder):
   """Custom encoder for Equation objects."""
 
@@ -464,7 +628,7 @@ def save_entities_to_file(ontology_name, all_entities):
       "variable_assignment_to_entity_object"
   ] % ontology_name
   with open(path, "w", encoding="utf-8",) as file:
-    data = json.dump(all_entities, file, cls=EntityJSONEncoder)
+    data = json.dump(all_entities, file, cls=EntityJSONEncoder, indent=4)
 
 
 class EntityJSONEncoder(json.JSONEncoder):

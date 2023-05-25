@@ -10,13 +10,14 @@ from packages.Common.classes import variable
 
 from pprint import pprint as pp
 
+
 class VarEqDiGraph:
   def __init__(
-    self,
-    top_graph: nx.Graph,
-    all_equations: Dict[str, equation.Equation],
-    all_indices: Dict,
-    all_variables: Dict[str, variable.Variable],
+      self,
+      top_graph: nx.Graph,
+      all_equations: Dict[str, equation.Equation],
+      all_indices: Dict,
+      all_variables: Dict[str, variable.Variable],
   ):
     self.top_graph = top_graph
     self.all_equations = all_equations
@@ -39,13 +40,13 @@ class VarEqDiGraph:
         if vertex_id in self.digraph:
           self.digraph.nodes[vertex_id]["topology_ids"].add(top_node)
           self.digraph.nodes[vertex_id]["index_sets"].add(
-            associated_entity.index_set
+              associated_entity.index_set
           )
         else:
           self.digraph.add_node(
-            vertex_id,
-            topology_ids = {top_node},
-            index_sets = {associated_entity.index_set},
+              vertex_id,
+              topology_ids={top_node},
+              index_sets={associated_entity.index_set},
           )
 
     for node in self.digraph:
@@ -71,8 +72,8 @@ class VarEqDiGraph:
 
       parent_vertex_id, topology_ids = queue.popleft()
       children_vertexes = self.find_dependencies(
-        parent_vertex_id,
-        topology_ids,
+          parent_vertex_id,
+          topology_ids,
       )
 
       for vertex_id, vertex_info in children_vertexes.items():
@@ -83,21 +84,21 @@ class VarEqDiGraph:
           # case we update the node and queue the new additions for
           # processing
           new_top_ids = vertex_info["topology_ids"].difference(
-            self.digraph.nodes[vertex_id]["topology_ids"]
+              self.digraph.nodes[vertex_id]["topology_ids"]
           )
           if new_top_ids:
             self.digraph.nodes[vertex_id]["topology_ids"].update(
-              vertex_info["topology_ids"]
+                vertex_info["topology_ids"]
             )
             self.digraph.nodes[vertex_id]["index_sets"].update(
-              vertex_info["index_sets"]
+                vertex_info["index_sets"]
             )
             queue.append((vertex_id, new_top_ids))
         else:
           self.digraph.add_node(
-            vertex_id,
-            topology_ids = vertex_info["topology_ids"],
-            index_sets = vertex_info["index_sets"],
+              vertex_id,
+              topology_ids=vertex_info["topology_ids"],
+              index_sets=vertex_info["index_sets"],
           )
           queue.append((vertex_id, vertex_info["topology_ids"]))
         self.digraph.add_edge(parent_vertex_id, vertex_id)
@@ -117,9 +118,9 @@ class VarEqDiGraph:
     # pp(self.inst_variables)
 
   def find_dependencies(
-    self,
-    parent_vertex_id: Tuple[str, str],
-    topology_ids: Set[str],
+      self,
+      parent_vertex_id: Tuple[str, str],
+      topology_ids: Set[str],
   ) -> Dict[Tuple[str, str], Set[str]]:
 
     par_var_id, par_eq_id = parent_vertex_id
@@ -128,8 +129,12 @@ class VarEqDiGraph:
 
     dependencies = {}
     for var_id in linked_vars:
+      # TODO: Find out what to do with time in the integrators
+      if var_id == "V_5":
+        continue
       for top_id in topology_ids:
         var_info = self.get_equations(parent_vertex_id, var_id, top_id)
+        # pp(var_info)
 
         if var_info is None:
           continue
@@ -141,23 +146,25 @@ class VarEqDiGraph:
             dependencies[vertex_id]["index_sets"].add(new_index_set)
           else:
             dependencies[vertex_id] = {
-              "topology_ids": {new_top_id},
-              "index_sets": {new_index_set},
+                "topology_ids": {new_top_id},
+                "index_sets": {new_index_set},
             }
 
     return dependencies
 
   def get_equations(
-    self,
-    parent_vertex_id: Optional[Tuple[str, str]],
-    var_id: str,
-    top_id: str,
+      self,
+      parent_vertex_id: Optional[Tuple[str, str]],
+      var_id: str,
+      top_id: str,
   ) -> Optional[List[Tuple[str, str]]]:
 
     # print("VAR: " + var_id)
     # print("TOP_ID: " + top_id)
     current_entity = self.top_graph.nodes[top_id]["entity"]
     inst_info = self.top_graph.nodes[top_id]["inst_info"]
+    # pp(current_entity.entity_name)
+    # pp(inst_info)
 
     # No equation if the variable is calculated in the main integrators
     # (closing the loop).
@@ -176,14 +183,16 @@ class VarEqDiGraph:
       var_info = []
       # Loop through the neighbors. For more info see NetworkX docs.
       for top_node_id in self.top_graph[top_id]:
+        # print(top_node_id)
         # print("NID: " + top_node_id)
         neighbor_entity = self.top_graph.nodes[top_node_id]["entity"]
+        # print("NEIGHBOR:" + str(neighbor_entity.index_set))
         if neighbor_entity.index_set is not None:
           self.digraph.nodes[parent_vertex_id]["index_sets"].add(
-            neighbor_entity.index_set
+              neighbor_entity.index_set
           )
         if neighbor_entity.is_output(var_id):
-          # A variable cant be input and output at the same time. When 
+          # A variable cant be input and output at the same time. When
           # calling get_equations() on the neighbor parent_vertex_id can
           # be None because we call it only for output variables and
           # parent_vertex_id is only used if the variable is input.
@@ -196,15 +205,15 @@ class VarEqDiGraph:
     eq_id = current_entity.get_eq_for_var(var_id)
     if eq_id is not None:
       # If we can find the info of the variable in the var_eq_forest.
-      return [(eq_id, top_id, current_entity.index_set)]
+      return [(eq_id[0], top_id, current_entity.index_set)]
 
     # If the variable can not be found in the topology object.
     return None
 
   def update_inst_vars(
-    self,
-    var_id: str,
-    top_id: Optional[str],
+      self,
+      var_id: str,
+      top_id: Optional[str],
   ) -> None:
 
     index_structures = self.all_variables[var_id].index_structures
@@ -213,8 +222,8 @@ class VarEqDiGraph:
     if var_id not in self.inst_variables:
       dimension = len(index_structures)
       self.inst_variables[var_id] = {
-        "dimension": dimension,
-        "vals": {},
+          "dimension": dimension,
+          "vals": {},
       }
     else:
       dimension = self.inst_variables[var_id]["dimension"]
@@ -293,8 +302,8 @@ class VarEqDiGraph:
       self.digraph.remove_nodes_from(d_nodes)
 
   def current_dangling_cycles(
-    self,
-    all_cycles: List[Set[Tuple[str, str]]],
+      self,
+      all_cycles: List[Set[Tuple[str, str]]],
   ) -> List[Set[Tuple[str, str]]]:
     dangling_cycles = []
     for cycle in all_cycles:
@@ -307,8 +316,8 @@ class VarEqDiGraph:
     return dangling_cycles
 
   def process_dangling_cycles(
-    self,
-    all_cycles: List[Set[Tuple[str, str]]],
+      self,
+      all_cycles: List[Set[Tuple[str, str]]],
   ) -> None:
 
     while d_cycles := self.current_dangling_cycles(all_cycles):
@@ -324,9 +333,9 @@ class VarEqDiGraph:
         self.digraph.remove_nodes_from(cycle)
 
   def print_graph(
-    self,
-    graph: Optional[nx.Graph] = None, 
-    file_name: Optional[str] = "output.png",
+      self,
+      graph: Optional[nx.Graph] = None,
+      file_name: Optional[str] = "output.png",
   ) -> None:
 
     if graph is None:

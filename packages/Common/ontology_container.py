@@ -67,6 +67,8 @@ from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFro
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
 
+from packages.Common.classes import io
+
 
 def findID(indices, name):
   ID = None
@@ -78,7 +80,8 @@ def findID(indices, name):
 
 
 def makeIndexAliases(index, index_counter, label):
-  for language in LANGUAGES["aliasing"]:  # RULE" blank is the delimiter used for splitting the string
+  # RULE" blank is the delimiter used for splitting the string
+  for language in LANGUAGES["aliasing"]:
     if language == "global_ID":
       s = CODE[language]["index"] % index_counter
       index["aliases"][language] = s  # .strip(" ") # that's not a good idea.
@@ -119,14 +122,16 @@ def makeIndices(ontology_container):
   inverse_lookup = {}
 
   # nodes and arcs =====================================================================================
-  for component in ["node", "arc"]:  # RULE: hard wired components --- the same as in the first stage
+  # RULE: hard wired components --- the same as in the first stage
+  for component in ["node", "arc"]:
     definition_network = "root"  # rule root is root ...
     index = RecordIndex()
     index["label"] = component
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index_counter += 1  # indices.add(**index)
     indices[index_counter] = index
-    makeIndexAliases(indices[index_counter], index_counter, component[0].capitalize())
+    makeIndexAliases(indices[index_counter],
+                     index_counter, component[0].capitalize())
 
   # typed tokens =======================================================================================
   for typed_token in typed_token_definition_nw:
@@ -138,7 +143,8 @@ def makeIndices(ontology_container):
     index_counter += 1  # indices.add(**index)
     indices[index_counter] = index
 
-    makeIndexAliases(indices[index_counter], index_counter, typed_token[0].capitalize())
+    makeIndexAliases(indices[index_counter],
+                     index_counter, typed_token[0].capitalize())
 
   # conversion of typed tokens =========================================================================
   for typed_token in ontology_container.converting_tokens:
@@ -148,10 +154,11 @@ def makeIndices(ontology_container):
     index["label"] = label
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index["tokens"] = ontology_container.converting_tokens[
-      typed_token]  # ontology_container.token_associated_with_typed_token[typed_token]
+        typed_token]  # ontology_container.token_associated_with_typed_token[typed_token]
     index_counter += 1
     indices[index_counter] = index
-    makeIndexAliases(indices[index_counter], index_counter, TEMPLATES["conversion_alias"] % typed_token[0].capitalize())
+    makeIndexAliases(indices[index_counter], index_counter,
+                     TEMPLATES["conversion_alias"] % typed_token[0].capitalize())
 
   # block indices =====================================================================================
   # node | arc & typed tokens ===================
@@ -160,7 +167,8 @@ def makeIndices(ontology_container):
     for typed_token in typed_token_definition_nw:
       definition_network = typed_token_definition_nw[typed_token]
       index = RecordBlockIndex()
-      index_inner_ID = findID(indices, typed_token)  # inverse_lookup[typed_token]
+      # inverse_lookup[typed_token]
+      index_inner_ID = findID(indices, typed_token)
       label = TEMPLATES["block_index"] % (component, typed_token)
       index["label"] = label
       index["network"] = ontology_container.heirs_network_dictionary[definition_network]
@@ -175,7 +183,8 @@ def makeIndices(ontology_container):
           s = CODE[language]["block_index"] % index_counter
           index["aliases"][language] = s  # s.strip(" ")
         else:
-          index["aliases"][language] = CODE[language]["block_index"] % (index_outer_language, index_inner_language)
+          index["aliases"][language] = CODE[language]["block_index"] % (
+              index_outer_language, index_inner_language)
 
   # node & conversion
   component = "node"
@@ -184,13 +193,15 @@ def makeIndices(ontology_container):
     definition_network = typed_token_definition_nw[typed_token]
     index_inner = TEMPLATES["conversion_label"] % typed_token
     index = RecordBlockIndex()
-    index_inner_ID = findID(indices, index_inner)  # inverse_lookup[typed_token]
+    # inverse_lookup[typed_token]
+    index_inner_ID = findID(indices, index_inner)
     label = TEMPLATES["block_index"] % (component, index_inner)
     index["label"] = label
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index["indices"] = [index_outer_ID, index_inner_ID]
     driving_token = ontology_container.converting_tokens[typed_token]
-    index["tokens"] = driving_token  # ontology_container.token_associated_with_typed_token[typed_token]
+    # ontology_container.token_associated_with_typed_token[typed_token]
+    index["tokens"] = driving_token
     index_counter += 1
     indices[index_counter] = index
     index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
@@ -200,7 +211,8 @@ def makeIndices(ontology_container):
         s = CODE[language]["index"] % index_counter
         index["aliases"][language] = s  # .strip(" ")
       else:
-        index["aliases"][language] = CODE[language]["block_index"] % (index_outer_language, index_inner_language)
+        index["aliases"][language] = CODE[language]["block_index"] % (
+            index_outer_language, index_inner_language)
 
   # conversion & typed tokens
   # index_outer_ID = findID(indices, component)  # inverse_lookup[component]
@@ -210,13 +222,15 @@ def makeIndices(ontology_container):
     index_outer_ID = findID(indices, index_outer)
     index_inner = typed_token
     index = RecordBlockIndex()
-    index_inner_ID = findID(indices, index_inner)  # inverse_lookup[typed_token]
+    # inverse_lookup[typed_token]
+    index_inner_ID = findID(indices, index_inner)
     label = TEMPLATES["block_index"] % (index_outer, index_inner)
     index["label"] = label
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index["indices"] = [index_outer_ID, index_inner_ID]
     driving_token = ontology_container.converting_tokens[typed_token]
-    index["tokens"] = [ontology_container.token_associated_with_typed_token[typed_token], driving_token]
+    index["tokens"] = [
+        ontology_container.token_associated_with_typed_token[typed_token], driving_token]
     index_counter += 1
     indices[index_counter] = index
     index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
@@ -226,7 +240,8 @@ def makeIndices(ontology_container):
         s = CODE[language]["index"] % index_counter
         index["aliases"][language] = s  # .strip(" ")
       else:
-        index["aliases"][language] = CODE[language]["block_index"] % (index_outer_language, index_inner_language)
+        index["aliases"][language] = CODE[language]["block_index"] % (
+            index_outer_language, index_inner_language)
 
   return indices
 
@@ -282,23 +297,31 @@ class OntologyContainer():
 
     #
     # TODO: converting tokens
-    file = FILES["typed_token_file"] % ontology_name  # FILES["converting_tokens_file"] % ontology_name
-    self.converting_tokens = getData(file)  # ................................... make available as part of the ontology
+    # FILES["converting_tokens_file"] % ontology_name
+    file = FILES["typed_token_file"] % ontology_name
+    # ................................... make available as part of the ontology
+    self.converting_tokens = getData(file)
 
-    self.ontology_hierarchy = self.__makeOntologyHierarchy()  # .................... constructs hierarchy network labels
+    # .................... constructs hierarchy network labels
+    self.ontology_hierarchy = self.__makeOntologyHierarchy()
     self.networks = walkBreathFirstFnc(self.ontology_tree, "root")
 
-    self.list_leave_networks = self.__makeListOfLeaveNames()  # ................................ list of all leave nodes
+    # ................................ list of all leave nodes
+    self.list_leave_networks = self.__makeListOfLeaveNames()
 
     self.list_inter_branches, \
-    self.list_inter_branches_pairs, \
-    self.intra_domains = self.__makeListInterBranches()  # ..............inter domains --> where tokens can be exchanged
+        self.list_inter_branches_pairs, \
+        self.intra_domains = self.__makeListInterBranches(
+        )  # ..............inter domains --> where tokens can be exchanged
 
     self.interconnection_network_dictionary, \
-    self.intraconnection_network_dictionary = self.__makeConnectionNetworks()  # ...... dict(connection network) of dict
+        self.intraconnection_network_dictionary = self.__makeConnectionNetworks(
+        )  # ...... dict(connection network) of dict
 
-    self.list_interconnection_networks = sorted(self.interconnection_network_dictionary.keys())
-    self.list_intraconnection_networks = sorted(self.intraconnection_network_dictionary.keys())
+    self.list_interconnection_networks = sorted(
+        self.interconnection_network_dictionary.keys())
+    self.list_intraconnection_networks = sorted(
+        self.intraconnection_network_dictionary.keys())
 
     """ 
        variable_types_on_networks: dict
@@ -318,7 +341,8 @@ class OntologyContainer():
     """
 
     self.variable_types_on_networks, \
-    self.variable_types_on_networks_per_component = self.__makeVariableTypeListsNetworks()  # TODO: per_component is
+        self.variable_types_on_networks_per_component = self.__makeVariableTypeListsNetworks(
+        )  # TODO: per_component is
     # not used
 
     self.entity_behaviours = self.__readVariableAssignmentToEntity()
@@ -331,56 +355,64 @@ class OntologyContainer():
     # ............................................  dict(network) of sets of networks that are below the hashtag network
     self.heirs_network_dictionary = self.__makeAllWhoInherit()
     self.interface_networks_accessible_to_networks_dictionary = \
-      self.__makeInterfaceNetworksAccessibleToNetworksDictionary()
-    self.tokens_on_networks = self.__makeTokensOnNetworks()  # ..................... dict(network) of tokens on networks
-    self.tokens = self.__makeTokenList()  # ......................................................... global list of all
+        self.__makeInterfaceNetworksAccessibleToNetworksDictionary()
+    # ..................... dict(network) of tokens on networks
+    self.tokens_on_networks = self.__makeTokensOnNetworks()
+    # ......................................................... global list of all
+    self.tokens = self.__makeTokenList()
     #
-    self.token_typedtoken_on_networks = self.__make_nw_token_typedtoken_dict()  # .. tokens and typed tokens per network
+    # .. tokens and typed tokens per network
+    self.token_typedtoken_on_networks = self.__make_nw_token_typedtoken_dict()
     #
-    self.node_type_list = self.__makeNodeTypesList()  # ........................... global list of node types (dynamics)
-    self.node_types_in_networks = self.__makeNodeTypesInNetworksDict()  # ....... dict(leave networks) of lists of node
+    # ........................... global list of node types (dynamics)
+    self.node_type_list = self.__makeNodeTypesList()
+    # ....... dict(leave networks) of lists of node
+    self.node_types_in_networks = self.__makeNodeTypesInNetworksDict()
     #
     #
-    self.arc_type_list = self.__makeArcTypesList()  # ............. coded list of coded arc types token|mechanism|nature
+    # ............. coded list of coded arc types token|mechanism|nature
+    self.arc_type_list = self.__makeArcTypesList()
 
     self.object_key_list_networks, \
-    self.object_key_list_intra, \
-    self.object_key_list_inter, \
-    self.keys_networks_tokens = self.__makeObjectKeyLists()
+        self.object_key_list_intra, \
+        self.object_key_list_inter, \
+        self.keys_networks_tokens = self.__makeObjectKeyLists()
 
     # self.arc_types_in_leave_networks_list_coded = self.__makeArcTypesInLeaveNetworksDictCoded()
     # self.node_types_in_leave_networks_list_coded = self.__makeNodeTypesInLeaveNetworksDictCoded()
 
     self.list_node_objects_on_networks, \
-    self.list_node_objects_on_networks_with_tokens, \
-    self.list_node_objects_on_intra_networks, \
-    self.list_node_objects_on_intra_networks_with_token, \
-    self.list_node_objects_on_inter_networks, \
-    self.list_arc_objects_on_networks, \
-    self.list_network_node_objects, \
-    self.list_network_node_objects_with_token, \
-    self.list_intra_node_objects, \
-    self.list_intra_node_objects_with_token, \
-    self.list_inter_node_objects, \
-    self.list_arc_objects, \
-    self.list_reduced_network_node_objects, \
-    self.list_reduced_network_arc_objects, \
-    self.list_inter_node_objects_tokens = self.__makeNodeObjectList()
+        self.list_node_objects_on_networks_with_tokens, \
+        self.list_node_objects_on_intra_networks, \
+        self.list_node_objects_on_intra_networks_with_token, \
+        self.list_node_objects_on_inter_networks, \
+        self.list_arc_objects_on_networks, \
+        self.list_network_node_objects, \
+        self.list_network_node_objects_with_token, \
+        self.list_intra_node_objects, \
+        self.list_intra_node_objects_with_token, \
+        self.list_inter_node_objects, \
+        self.list_arc_objects, \
+        self.list_reduced_network_node_objects, \
+        self.list_reduced_network_arc_objects, \
+        self.list_inter_node_objects_tokens = self.__makeNodeObjectList()
 
     self.arc_types_in_networks_tuples = self.__makeArcTypesInNetworks()
-    self.arc_info_dictionary = self.__makeArcTypeDictionary()  # TODO check usage  -->  done is used check structure
+    # TODO check usage  -->  done is used check structure
+    self.arc_info_dictionary = self.__makeArcTypeDictionary()
     self.arc_info_allnetworks_dict = self.__make_arc_type_network_dict()  # TODO: check usage
 
     self.token_definition_nw, \
-    self.typed_token_definition_nw, \
-    self.token_associated_with_typed_token = self.__makeDefinitionNetworkDictionaries()
-    self.typed_token_refining_token = invertDict(self.token_associated_with_typed_token)
+        self.typed_token_definition_nw, \
+        self.token_associated_with_typed_token = self.__makeDefinitionNetworkDictionaries()
+    self.typed_token_refining_token = invertDict(
+        self.token_associated_with_typed_token)
 
     self.variables, \
-    self.indices, \
-    self.variable_record_filter, \
-    self.version, \
-    self.ProMoIRI = self.readVariables()
+        self.indices, \
+        self.variable_record_filter, \
+        self.version, \
+        self.ProMoIRI = self.readVariables()
 
     self.node_arc_SubClasses = self.readNodeArcAssignments()
 
@@ -414,8 +446,8 @@ class OntologyContainer():
     self.equation_dictionary = self.__makeEquationDictionary()
     self.equation_variable_dictionary = self.__makeEquationVariableDictionary()
     self.equations, \
-    self.equation_information, \
-    self.equation_inverse_index = self.__makeEquationAndIndexLists()
+        self.equation_information, \
+        self.equation_inverse_index = self.__makeEquationAndIndexLists()
 
   def checkForRule(self, rule):
     """
@@ -455,7 +487,8 @@ class OntologyContainer():
       # right_nw = list_networks[network]["right"]
       left_variable_types = self.variable_types_on_networks[left_nw]
 
-      interfaces[network] = Interface(network, left_nw, right_nw, left_variable_types)
+      interfaces[network] = Interface(
+          network, left_nw, right_nw, left_variable_types)
 
     # print("debugging -- interface definitions")
     return interfaces
@@ -476,7 +509,8 @@ class OntologyContainer():
           tokens = list(self.ontology_tree[nw]["structure"]["token"].keys())
           typed_tokens = []
           for token in tokens:
-            typed_tokens.extend(self.ontology_tree[nw]["structure"]["token"][token])
+            typed_tokens.extend(
+                self.ontology_tree[nw]["structure"]["token"][token])
           tokens.extend(typed_tokens)
           for token in tokens:
             keys_networks.append((nw, "node", node_type, nature, token))
@@ -484,7 +518,8 @@ class OntologyContainer():
           for token in tokens:
             keys_networks_tokens.append((nw, "node", node_type, nature, token))
           if len(tokens) > 1:
-            keys_networks_tokens.append((nw, "node", node_type, nature, tokens))
+            keys_networks_tokens.append(
+                (nw, "node", node_type, nature, tokens))
 
       arc_info = self.ontology_tree[nw]["structure"]["arc"]
       tokens = list(arc_info.keys())
@@ -507,7 +542,8 @@ class OntologyContainer():
         keys_intra.append((intra_nw, "intra", token))
 
     keys_inter = []
-    for inter_nw in self.list_inter_branches_pairs:  # interconnection_network_dictionary:
+    # interconnection_network_dictionary:
+    for inter_nw in self.list_inter_branches_pairs:
       # left = self.interconnection_network_dictionary[inter_nw]["left"]
       # right = self.interconnection_network_dictionary[inter_nw]["right"]
       # keys_inter.append((inter_nw, "inter", left, right))
@@ -560,7 +596,6 @@ class OntologyContainer():
         nodeObjects_on_networks_with_token[nw].add(dummy)
         set_node_objects_on_networks_with_token.add(dummy)
 
-
       elif component == "arc":
         mechanism = a
         dummy = TEMPLATE_ARC_APPLICATION % (token, mechanism, nature)
@@ -593,26 +628,32 @@ class OntologyContainer():
     list_node_objects_on_networks_with_tokens = {}
     for nw in nodeObjects_on_networks:
       list_node_objects_on_networks[nw] = sorted(nodeObjects_on_networks[nw])
-      list_node_objects_on_networks_with_tokens[nw] = sorted(nodeObjects_on_networks_with_token[nw])
+      list_node_objects_on_networks_with_tokens[nw] = sorted(
+          nodeObjects_on_networks_with_token[nw])
 
     list_node_objects_on_intra_networks = {}
     list_node_objects_on_intra_networks_with_token = {}
     for nw in nodeObjects_on_intra_networks:
-      list_node_objects_on_intra_networks[nw] = sorted(nodeObjects_on_intra_networks[nw])
-      list_node_objects_on_intra_networks_with_token[nw] = sorted(nodeObjects_on_intra_networks_with_token[nw])
+      list_node_objects_on_intra_networks[nw] = sorted(
+          nodeObjects_on_intra_networks[nw])
+      list_node_objects_on_intra_networks_with_token[nw] = sorted(
+          nodeObjects_on_intra_networks_with_token[nw])
 
     list_node_objects_on_inter_networks = {}
     for nw in nodeObjects_on_inter_networks:
-      list_node_objects_on_inter_networks[nw] = sorted(nodeObjects_on_inter_networks[nw])
+      list_node_objects_on_inter_networks[nw] = sorted(
+          nodeObjects_on_inter_networks[nw])
 
     list_arc_objects_on_networks = {}
     for nw in arcObjects_on_networks:
       list_arc_objects_on_networks[nw] = sorted(arcObjects_on_networks[nw])
 
     list_network_node_objects = sorted(set_node_objects_on_networks)
-    list_network_node_objects_with_token = sorted(set_node_objects_on_networks_with_token)
+    list_network_node_objects_with_token = sorted(
+        set_node_objects_on_networks_with_token)
     list_intra_node_objects = sorted(set_node_objects_on_intra_networks)
-    list_intra_node_objects_with_token = sorted(set_node_objects_on_intra_networks_with_token)
+    list_intra_node_objects_with_token = sorted(
+        set_node_objects_on_intra_networks_with_token)
     list_inter_node_objects = sorted(set_node_objects_on_inter_networks)
     list_arc_objects = sorted(set_arc_objects)
 
@@ -621,7 +662,8 @@ class OntologyContainer():
       network_node_list = list_node_objects_on_networks[nw]
       list_reduced_network_node_objects[nw] = []
       for i in network_node_list:
-        if "constant" not in i:  # RULE: reservoirs (time-scale constant) have no state
+        # RULE: reservoirs (time-scale constant) have no state
+        if "constant" not in i:
           list_reduced_network_node_objects[nw].append(i)
 
     list_reduced_network_arc_objects = {}
@@ -651,21 +693,21 @@ class OntologyContainer():
             list_inter_node_objects_tokens[nw].append(ss)
 
     return \
-      list_node_objects_on_networks, \
-      list_node_objects_on_networks_with_tokens, \
-      list_node_objects_on_intra_networks, \
-      list_node_objects_on_intra_networks_with_token, \
-      list_node_objects_on_inter_networks, \
-      list_arc_objects_on_networks, \
-      list_network_node_objects, \
-      list_network_node_objects_with_token, \
-      list_intra_node_objects, \
-      list_intra_node_objects_with_token, \
-      list_inter_node_objects, \
-      list_arc_objects, \
-      list_reduced_network_node_objects, \
-      list_reduced_network_arc_objects, \
-      list_inter_node_objects_tokens
+        list_node_objects_on_networks, \
+        list_node_objects_on_networks_with_tokens, \
+        list_node_objects_on_intra_networks, \
+        list_node_objects_on_intra_networks_with_token, \
+        list_node_objects_on_inter_networks, \
+        list_arc_objects_on_networks, \
+        list_network_node_objects, \
+        list_network_node_objects_with_token, \
+        list_intra_node_objects, \
+        list_intra_node_objects_with_token, \
+        list_inter_node_objects, \
+        list_arc_objects, \
+        list_reduced_network_node_objects, \
+        list_reduced_network_arc_objects, \
+        list_inter_node_objects_tokens
 
   ########################
 
@@ -676,7 +718,8 @@ class OntologyContainer():
       for token in self.ontology_tree[nw]["structure"]["token"]:
         dnary[nw][token] = []
         if self.ontology_tree[nw]["structure"]["token"][token]:
-          dnary[nw][token].append(self.ontology_tree[nw]["structure"]["token"][token][0])
+          dnary[nw][token].append(
+              self.ontology_tree[nw]["structure"]["token"][token][0])
 
     invertDict
     return dnary
@@ -722,57 +765,58 @@ class OntologyContainer():
         if type == "inter":
           cnw = TEMPLATE_INTRACONNECTION_NETWORK % (l, r)
           interconnectionNetworks[cnw] = {
-                  "left" : l,
-                  "right": r,
-                  "type" : type
-                  }
-          cnw = TEMPLATE_INTRACONNECTION_NETWORK % (r, l)  # NOTE: left-right right-left both are enabled
+              "left": l,
+              "right": r,
+              "type": type
+          }
+          # NOTE: left-right right-left both are enabled
+          cnw = TEMPLATE_INTRACONNECTION_NETWORK % (r, l)
           interconnectionNetworks[cnw] = {
-                  "left" : r,
-                  "right": l,
-                  "type" : type
-                  }
+              "left": r,
+              "right": l,
+              "type": type
+          }
         else:
           cnw = TEMPLATE_INTRACONNECTION_NETWORK % (l, r)
           intraconnectionNetworks[cnw] = {
-                  "left" : l,
-                  "right": r,
-                  "type" : type
-                  }
+              "left": l,
+              "right": r,
+              "type": type
+          }
           cnw = TEMPLATE_INTRACONNECTION_NETWORK % (l, l)
           intraconnectionNetworks[cnw] = {
-                  "left" : l,
-                  "right": l,
-                  "type" : type
-                  }
+              "left": l,
+              "right": l,
+              "type": type
+          }
           cnw = TEMPLATE_INTRACONNECTION_NETWORK % (r, r)
           intraconnectionNetworks[cnw] = {
-                  "left" : r,
-                  "right": r,
-                  "type" : type
-                  }
+              "left": r,
+              "right": r,
+              "type": type
+          }
       l = network_leaves[i]
       r = network_leaves[i]
       type = "intra"
       # RULE: but intraconnections within are enabled
       cnw = TEMPLATE_INTRACONNECTION_NETWORK % (l, r)
       intraconnectionNetworks[cnw] = {
-              "left" : l,
-              "right": r,
-              "type" : type
-              }
+          "left": l,
+          "right": r,
+          "type": type
+      }
       cnw = TEMPLATE_INTRACONNECTION_NETWORK % (l, l)
       intraconnectionNetworks[cnw] = {
-              "left" : l,
-              "right": l,
-              "type" : type
-              }
+          "left": l,
+          "right": l,
+          "type": type
+      }
       cnw = TEMPLATE_INTRACONNECTION_NETWORK % (r, r)
       intraconnectionNetworks[cnw] = {
-              "left" : r,
-              "right": r,
-              "type" : type
-              }
+          "left": r,
+          "right": r,
+          "type": type
+      }
 
     return interconnectionNetworks, intraconnectionNetworks
 
@@ -817,9 +861,11 @@ class OntologyContainer():
     for i in range(0, l):
       for j in range(i, l):
         if i != j:  # Note: interconnections are unidirectional thus we need both ways
-          pair = TEMPLATE_INTRACONNECTION_PAIRS % (interbranches[i], interbranches[j])
+          pair = TEMPLATE_INTRACONNECTION_PAIRS % (
+              interbranches[i], interbranches[j])
           interbranch_pairs.append(pair)
-          pair = TEMPLATE_INTRACONNECTION_PAIRS % (interbranches[j], interbranches[i])
+          pair = TEMPLATE_INTRACONNECTION_PAIRS % (
+              interbranches[j], interbranches[i])
           interbranch_pairs.append(pair)
 
     # print("debugging -- end interbranches", interbranches)
@@ -839,7 +885,8 @@ class OntologyContainer():
       variable_types_on_networks[nw] = []
       variable_types_on_networks_per_component[nw] = {}
       for component in self.ontology_tree[nw]["behaviour"]:
-        variable_types_on_networks[nw].extend(self.ontology_tree[nw]["behaviour"][component])
+        variable_types_on_networks[nw].extend(
+            self.ontology_tree[nw]["behaviour"][component])
         # RULE : no state if there is no token
         if self.ontology_tree[nw]["structure"]["token"] != {}:
           variable_types_on_networks_per_component[nw][component] = self.ontology_tree[nw]["behaviour"][component]
@@ -847,25 +894,27 @@ class OntologyContainer():
           if component == "node":
             # RULE: state is required
             try:
-              index = self.ontology_tree[nw]["behaviour"][component].index("state")
+              index = self.ontology_tree[nw]["behaviour"][component].index(
+                  "state")
               variable_types_on_networks_per_component[nw][component] = self.ontology_tree[nw]["behaviour"][component][
-                                                                        :index]
+                  :index]
             except:
               pass
           elif component == "graph":
             variable_types_on_networks_per_component[nw][component] = self.ontology_tree[nw]["behaviour"][component]
           else:
-            variable_types_on_networks_per_component[nw][component] = []  # no variables if there is no tok
+            # no variables if there is no tok
+            variable_types_on_networks_per_component[nw][component] = []
 
     return variable_types_on_networks, \
-           variable_types_on_networks_per_component
+        variable_types_on_networks_per_component
 
   def __makeVariableTypeListInterfaces(self):
 
     variable_types_on_interfaces = {}
     for nw in self.list_inter_branches_pairs:  # interfaces:  # ADDED:
       variable_types_on_interfaces[nw] = self.interfaces[nw][
-        "internal_variable_classes"]  # RULE: interfaces have only one variable class
+          "internal_variable_classes"]  # RULE: interfaces have only one variable class
 
     return variable_types_on_interfaces
 
@@ -878,7 +927,7 @@ class OntologyContainer():
       nw_left = self.intraconnection_network_dictionary[cnw]["left"]
       nw_right = self.intraconnection_network_dictionary[cnw]["right"]
       variable_types[cnw] = sorted(
-              set(self.variable_types_on_networks[nw_left]) | set(self.variable_types_on_networks[nw_right]))
+          set(self.variable_types_on_networks[nw_left]) | set(self.variable_types_on_networks[nw_right]))
 
     return variable_types
 
@@ -907,7 +956,8 @@ class OntologyContainer():
   def __makeTokensOnNetworks(self):
     tokens_on_networks = {}
     for nw in self.networks:
-      tokens_on_networks[nw] = list(self.ontology_tree[nw]["structure"]["token"].keys())
+      tokens_on_networks[nw] = list(
+          self.ontology_tree[nw]["structure"]["token"].keys())
     return tokens_on_networks
 
   def __makeTokenList(self):
@@ -926,7 +976,8 @@ class OntologyContainer():
       typed_tokens_on_networks[nw] = []
       for token in self.ontology_tree[nw]["structure"]["token"]:
         if self.ontology_tree[nw]["structure"]["token"][token]:
-          typed_tokens_on_networks[nw].append(self.ontology_tree[nw]["structure"]["token"][token][0])
+          typed_tokens_on_networks[nw].append(
+              self.ontology_tree[nw]["structure"]["token"][token][0])
         else:  # Already taken care of
           pass
     return typed_tokens_on_networks
@@ -960,7 +1011,8 @@ class OntologyContainer():
     all_arcs = []
     for nw in leave_nws:
       all_arcs.extend(arcs[nw])
-    for cnw in self.list_inter_branches_pairs:  # interconnection_network_dictionary:
+    # interconnection_network_dictionary:
+    for cnw in self.list_inter_branches_pairs:
       all_arcs.extend(arcs[cnw])
     return sorted(set(all_arcs))
 
@@ -986,20 +1038,24 @@ class OntologyContainer():
             # RULE: requiring both mechanism and nature to be given,
             # TODO: this becomes obsolete
             nature = M_None
-            arcs_in_network.append(TEMPLATE_ARC_APPLICATION % (token, mechanism, nature))
+            arcs_in_network.append(TEMPLATE_ARC_APPLICATION %
+                                   (token, mechanism, nature))
           else:
             for nature in self.ontology_tree[nw]["structure"]["arc"][token][mechanism]:
-              arcs_in_network.append(TEMPLATE_ARC_APPLICATION % (token, mechanism, nature))
+              arcs_in_network.append(TEMPLATE_ARC_APPLICATION %
+                                     (token, mechanism, nature))
       arcs[nw] = sorted(set(arcs_in_network))
 
-    for cnw in self.list_inter_branches_pairs:  # interconnection_network_dictionary:  # NOTE: the token is the same
+    # interconnection_network_dictionary:  # NOTE: the token is the same
+    for cnw in self.list_inter_branches_pairs:
       # for all interfaces
       arcs_in_network = []
       # RULE: fixed wired connection from and to interface
       inter_token = self.interfaces[cnw]["token"]
       mechanism = self.interfaces[cnw]["mechanism"]
       nature = self.interfaces[cnw]["nature"]
-      arcs_in_network.append(TEMPLATE_ARC_APPLICATION % (inter_token, mechanism, nature))
+      arcs_in_network.append(TEMPLATE_ARC_APPLICATION %
+                             (inter_token, mechanism, nature))
       arcs[cnw] = sorted(set(arcs_in_network))
 
     return arcs  # arc_type_list
@@ -1057,7 +1113,8 @@ class OntologyContainer():
             if "info" in token:
               passive_typed_tokens_in_nw[nw].append(typed_token)
             else:
-              [s_active_typed_tokens_in_nw[nw].add(i) for i in self.ontology_tree[nw]["structure"]["token"][token]]
+              [s_active_typed_tokens_in_nw[nw].add(
+                  i) for i in self.ontology_tree[nw]["structure"]["token"][token]]
               # RULE: only one active token can be typed, but the typed token may appear in several tokens (control)
       if len(s_active_typed_tokens_in_nw[nw]) > 1:
         print(">>>>>>>>>>>>>>>. error: more than one typed token in network : ", nw, token,
@@ -1107,48 +1164,51 @@ class OntologyContainer():
     equation_variable_dictionary = {}
     for var_ID in self.variables:
       for eq_ID in self.variables[var_ID]["equations"]:
-        equation_variable_dictionary[eq_ID] = (var_ID, self.variables[var_ID]["equations"][eq_ID])
+        equation_variable_dictionary[eq_ID] = (
+            var_ID, self.variables[var_ID]["equations"][eq_ID])
     return equation_variable_dictionary
 
   def __readVariableAssignmentToEntity(self):
-    f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
-    if not os.path.exists(f):
-      entity_behaviours = None
+    return io.load_entities_from_file(self.ontology_name)
+    # pass
+    # f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
+    # if not os.path.exists(f):
+    #   entity_behaviours = None
 
-    # loaded_entity_behaviours = getData(f)
-    data = getData(f)
-    entity_behaviours = VariantRecord()  # make empty structure
-    if data:
-      loaded_entity_behaviours = data["behaviours"]
-      # self.node_arc_associations = data["associations"]
+    # # loaded_entity_behaviours = getData(f)
+    # data = getData(f)
+    # entity_behaviours = VariantRecord()  # make empty structure
+    # if data:
+    #   loaded_entity_behaviours = data["behaviours"]
+    #   # self.node_arc_associations = data["associations"]
 
-      if loaded_entity_behaviours:
-        for entity_str_ID in loaded_entity_behaviours:  # careful there may not be all entities at least during
-          # developments
-          if loaded_entity_behaviours[entity_str_ID]:
-            dummy = VariantRecord()
-            data = loaded_entity_behaviours[entity_str_ID]
-            for atr in dummy:
-              if atr not in data:
-                data[atr] = None
-            tree = {}
-            for treeStrID in data["tree"]:
-              tree[int(treeStrID)] = data["tree"][treeStrID]
-            data["tree"] = tree
+    #   if loaded_entity_behaviours:
+    #     for entity_str_ID in loaded_entity_behaviours:  # careful there may not be all entities at least during
+    #       # developments
+    #       if loaded_entity_behaviours[entity_str_ID]:
+    #         dummy = VariantRecord()
+    #         data = loaded_entity_behaviours[entity_str_ID]
+    #         for atr in dummy:
+    #           if atr not in data:
+    #             data[atr] = None
+    #         tree = {}
+    #         for treeStrID in data["tree"]:
+    #           tree[int(treeStrID)] = data["tree"][treeStrID]
+    #         data["tree"] = tree
 
-            nodes = {}
-            for nodeStrID in data["nodes"]:
-              nodes[int(nodeStrID)] = data["nodes"][nodeStrID]
-            data["nodes"] = nodes
+    #         nodes = {}
+    #         for nodeStrID in data["nodes"]:
+    #           nodes[int(nodeStrID)] = data["nodes"][nodeStrID]
+    #         data["nodes"] = nodes
 
-            entity_behaviours[entity_str_ID] = VariantRecord(tree=data["tree"],
-                                                             nodes=data["nodes"],
-                                                             IDs=data["IDs"],
-                                                             root_variable=data["root_variable"],
-                                                             blocked_list=data["blocked"],
-                                                             buddies_list=data["buddies"],
-                                                             to_be_inisialised=data["to_be_initialised"])
-    return entity_behaviours
+    #         entity_behaviours[entity_str_ID] = VariantRecord(tree=data["tree"],
+    #                                                          nodes=data["nodes"],
+    #                                                          IDs=data["IDs"],
+    #                                                          root_variable=data["root_variable"],
+    #                                                          blocked_list=data["blocked"],
+    #                                                          buddies_list=data["buddies"],
+    #                                                          to_be_inisialised=data["to_be_initialised"])
+    # return entity_behaviours
 
   def __makeEquationAndIndexLists(self):
 
@@ -1164,9 +1224,9 @@ class OntologyContainer():
       nw_eq = self.variables[var_ID]["network"]
 
       rendered_expressions = renderExpressionFromGlobalIDToInternal(
-              equation["rhs"],
-              self.variables,
-              self.indices)
+          equation["rhs"],
+          self.variables,
+          self.indices)
 
       rendered_variable = self.variables[var_ID]["aliases"]["internal_code"]
       equation_label = "%s := %s" % (rendered_variable, rendered_expressions)
@@ -1174,13 +1234,14 @@ class OntologyContainer():
       # equations[eq_ID] = (var_ID, var_type, nw_eq, rendered_equation, pixelled_equation)
       equations.append(equation_label)
       equation_inverse_index[eq_ID] = count
-      equation_information[count] = (eq_ID, var_ID, var_type, nw_eq, equation_label)
+      equation_information[count] = (
+          eq_ID, var_ID, var_type, nw_eq, equation_label)
     return equations, equation_information, equation_inverse_index
 
   def addVariable(self, ID, **args):
-    self.variables[ID]={}
+    self.variables[ID] = {}
     for i in args:
-      self.variables[ID][i]=args[i]
+      self.variables[ID][i] = args[i]
 
   def writeMe(self):
 
@@ -1207,9 +1268,11 @@ class OntologyContainer():
     # RULE: The file name carries also the version at least for the time being
     f_name = FILES["variables_file"] % self.ontology_name
 
-    data = VariableFile(variables, indices, VARIABLE_EQUATIONS_VERSION, self.ProMoIRI)
+    data = VariableFile(variables, indices,
+                        VARIABLE_EQUATIONS_VERSION, self.ProMoIRI)
 
-    saveWithBackup(data, f_name)  # NOTE: every saving generates a backup file -- enables scrolling back
+    # NOTE: every saving generates a backup file -- enables scrolling back
+    saveWithBackup(data, f_name)
     # putData(data, f_name)
 
   def readVariables(self):
@@ -1222,7 +1285,8 @@ class OntologyContainer():
 
     variables_f_name = FILES["variables_file"] % self.ontology_name
     variables_f_name_v7 = FILES["variables_file_v7"] % self.ontology_name
-    variable_record_filter = set(list(RecordVariable().keys()))  # minimal configuration
+    variable_record_filter = set(
+        list(RecordVariable().keys()))  # minimal configuration
 
     if OS.path.exists(variables_f_name):
       return self.__readVariablesEquationFile(variable_record_filter, variables_f_name,)
@@ -1230,14 +1294,13 @@ class OntologyContainer():
     # shift from version 7 to version 8
     elif OS.path.exists(variables_f_name_v7):
       variables, indices, variable_record_filter, version, ProMoIRI = self.__readVariablesEquationFile(
-              variable_record_filter, variables_f_name_v7)
+          variable_record_filter, variables_f_name_v7)
       for ID in variables:
         if len(variables[ID]["equations"].keys()) == 0:
           variables[ID]["port_variable"] = True
         else:
           variables[ID]["port_variable"] = False
       return variables, indices, variable_record_filter, version, ProMoIRI
-
 
     else:
       msg = "There is no variable file \n-- run foundation editor again and save information\n-- to generate an empty " \
@@ -1247,7 +1310,8 @@ class OntologyContainer():
             "" \
             "variable file"
 
-      reply = QtWidgets.QMessageBox.warning(QtWidgets.QWidget(), "ProMo", msg, QtWidgets.QMessageBox.Ok)
+      reply = QtWidgets.QMessageBox.warning(
+          QtWidgets.QWidget(), "ProMo", msg, QtWidgets.QMessageBox.Ok)
       if reply == OK:
         exit(-1)
 
@@ -1260,7 +1324,6 @@ class OntologyContainer():
       return data
     else:
       return None
-
 
     # msg = "There is no variable file \n-- run foundation editor again and save information\n-- to generate an empty " \
     #       "" \
@@ -1296,7 +1359,8 @@ class OntologyContainer():
       variables_raw[ID]["equations"] = e
       aliases = eval(variables_raw[ID]["aliases"])
       variables_raw[ID]["aliases"] = aliases
-      variables_raw[ID]["index_structures"] = eval(variables_raw[ID]["index_structures"])
+      variables_raw[ID]["index_structures"] = eval(
+          variables_raw[ID]["index_structures"])
 
       if "IRI" not in variables_raw[ID]:
         label = variables_raw[ID]["label"]
@@ -1304,28 +1368,26 @@ class OntologyContainer():
         variables_raw[ID]["IRI"] = iri
 
       elif include_network:
-        prefix,_label = variables_raw[ID]["IRI"].split(":")
+        prefix, _label = variables_raw[ID]["IRI"].split(":")
         label = _label.strip(" ")
-        nw = variables_raw[ID]["network"].replace(">","-")
+        nw = variables_raw[ID]["network"].replace(">", "-")
         if prefix == "promo":
-          extended_label = nw + "+%s"%label
+          extended_label = nw + "+%s" % label
           variables_raw[ID]["IRI"] = prefix+":"+extended_label
           print("debugging", variables_raw[ID]["IRI"])
-      elif not include_network:  #  make a simple IRI for promo
-        prefix,_label = variables_raw[ID]["IRI"].split(":")
-        label = variables_raw[ID]["label"] # _label.strip(" ")
+      elif not include_network:  # make a simple IRI for promo
+        prefix, _label = variables_raw[ID]["IRI"].split(":")
+        label = variables_raw[ID]["label"]  # _label.strip(" ")
         if prefix == "promo":
-          extended_label = "%s"%label
+          extended_label = "%s" % label
           variables_raw[ID]["IRI"] = prefix+":"+extended_label
           print("debugging", variables_raw[ID]["IRI"])
-
-
 
       try:
         variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
       except:
         variables_raw[ID][
-          "tokens"] = []  # todo: not sure when it goes wrong. Not defining token results in "" as tokens
+            "tokens"] = []  # todo: not sure when it goes wrong. Not defining token results in "" as tokens
       # token_raw = variables_raw[ID]["tokens"]
       # if token_raw == "":
       #   variables_raw[ID]["tokens"]  = []
@@ -1341,8 +1403,8 @@ class OntologyContainer():
       indices[int(i)] = indices_raw[i]
       label = indices_raw[i]["label"]
       if "IRI" not in indices_raw[i]:
-        l = label.replace(" ","_")
-        indices[int(i)]["IRI"] = "promo:%s"%l
+        l = label.replace(" ", "_")
+        indices[int(i)]["IRI"] = "promo:%s" % l
     ProMoIRI = {}
     for i in ProMoIRI_raw:
       ProMoIRI[i] = int(ProMoIRI_raw[i])
