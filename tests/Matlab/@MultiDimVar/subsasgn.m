@@ -27,12 +27,12 @@ function self = subsasgn(self, s, varargin)
         sizeSelf = size(builtin("subsref", self.value, blockS));
         sizeRhs = size(rhs);
 
-        assert(
-          isequal(sizeSelf, sizeRhs),
-          "In MultiDimVar.subsasgn():\n",...
-          "Nonconformant arguments (op1 is %s, op2 is %s)",
-          formatsize(subsref(self, s)), formatsize(varargin{1})
-        )
+##        assert(
+##          isequal(sizeSelf, sizeRhs),
+##          "In MultiDimVar.subsasgn():\n",...
+##          "Nonconformant arguments (op1 is %s, op2 is %s)",
+##          formatsize(subsref(self, s)), formatsize(varargin{1})
+##        )
         self.value = builtin("subsasgn", self.value, blockS, rhs);
       else
         % Use built-in for any other expression

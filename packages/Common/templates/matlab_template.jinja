@@ -37,7 +37,7 @@ function output_vars = main
       {{-""}});{{-"\n"-}}
       {% if inst.dimension == 1 %}
         {% for index, init_values in inst.vals|items %}
-          {{-"  "}}{{inst.var_id|label}}({{index}}) = [{{init_values|join("; ")}}];
+          {{-"  "}}{{inst.var_id|label}}({{index}}) = [{{init_values|join(";")}}];
         {% endfor %}
         {% if inst.is_sparse %}
           {{-"  "}}{{inst.var_id|label}} = sparse({{inst.var_id|label}});
@@ -61,17 +61,20 @@ function output_vars = main
   % Initial conditions
   {% for i in integrators %}
     {{-"  "}}phi_0({{i.interval}}) =
-      {{-" "}}{{i.init_value|var_slice(i.index_sets)}};
+      {{-" "}}({{i.init_value|var_slice(i.index_sets)}}).value;
   {% endfor %}
 
   % Integration interval
   integration_interval = [
     {{-(integrators|first).int_interval_ini|label-}},
     {{-" "}}{{(integrators|first).int_interval_fin|label-}}
-  ];
+  ];{{"\n"-}}
 
-  % Integrator routine
-  [t, phi] = ode15s(@f, integration_interval, phi_0);
+  {{-"  "}}dt = 0.1;{{"\n"-}}
+  {{-"  "}}options = odeset('InitialStep', dt, 'MaxStep', dt, 'RelTol', 1e-3, 'AbsTol', 1e-3);{{"\n"-}}
+
+  {{-"  "}}% Integrator routine
+  [t, phi] = ode45(@f, integration_interval, phi_0, options);
 
   % Integrand
   function dphidt = f(t, phi) {{"\n"-}}
@@ -96,9 +99,12 @@ function output_vars = main
       {% endif %}
       {{-"\n"-}}
     {% endfor %}
+    {{-"    "}}fprintf("%g    ", t);{{"\n"-}}
+    {{-"    "}}fprintf("%g    ", c.value(N_dyna));{{"\n"-}}
+    {{-"    "}}fprintf("\n");{{"\n"-}}
     {% for i in integrators %}
       {{-"    "}}dphidt({{i.interval}}) = 
-        {{-" "}}{{i.integrand|var_slice(i.index_sets)}}
+        {{-" "}}({{i.integrand|var_slice(i.index_sets)}}).value;
     {% endfor %}
   endfunction
 endfunction

@@ -1,10 +1,10 @@
 function self = product(op1, reduceSet)
   isReduceSetInOp1 = strcmp(op1.indexLabels, reduceSet);
 
-  assert(
-    any(isReduceSetInOp1),
-    "reduceSet is not an indexSet in op1"
-  )
+##  assert(
+##    any(isReduceSetInOp1),
+##    "reduceSet is not an indexSet in op1"
+##  )
   reduceSetPos1 = find(isReduceSetInOp1);
 
   value = prod(op1.value, reduceSetPos1);

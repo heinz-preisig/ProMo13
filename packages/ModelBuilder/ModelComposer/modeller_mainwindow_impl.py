@@ -102,7 +102,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     roundButton(self.ui.pushExit, "exit", "exit without saving")
     roundButton(self.ui.pushSave, "save", "save to file")
     roundButton(self.ui.pushSchnipsel, "schnipsel", "open schnipsel dialog")
-    roundButton(self.ui.pushTakeScreenShot, "screen_shot", "take a screen shot")
+    roundButton(self.ui.pushTakeScreenShot,
+                "screen_shot", "take a screen shot")
     roundButton(self.ui.pushSaveAs, "save_as", "save with a new name")
 
     self.button_logic = self.__setupButtonLogics()
@@ -113,7 +114,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.ui.labelSchnipsel.hide()
 
     # first get ontology
-    ontology_name = getOntologyName(task="task_model_composer", left_icon=None)  # "new.png")
+    ontology_name = getOntologyName(
+        task="task_model_composer", left_icon=None)  # "new.png")
     self.ontology_name = copy.copy(ontology_name)
     self.ui.labelOntology.setText(ontology_name)
     self.ui.labelOntology.show()
@@ -131,7 +133,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     # now ask for model
     self.model_name = ""
     # while self.model_name in [""]:
-    self.model_name, status = askForModelFileGivenOntologyLocation(self.model_library_location, alternative=True)
+    self.model_name, status = askForModelFileGivenOntologyLocation(
+        self.model_library_location, alternative=True)
 
     # print("debugging -- model name and new_model", self.model_name, status)
     if status == "existent":
@@ -147,7 +150,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.__display_model_name(self.model_name)
     # self.model_file = os.path.join(self.model_library_location,
     #                                self.model_name)  # NOTE: extension is added when writing
-    self.model_location = DIRECTORIES["model_location"] % (ontology_name, self.model_name)
+    self.model_location = DIRECTORIES["model_location"] % (
+        ontology_name, self.model_name)
     self.model_file = FILES["model_file"] % (ontology_name, self.model_name)
     # print(self.model_file)
     self.schnipsel_name = None
@@ -166,8 +170,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     for nw in ontology.list_node_objects_on_networks:
       self.nodeObjects_in_networks[nw] = []
       for item in ontology.list_node_objects_on_networks[nw]:
-        if "intraface" not in item: #ontology.list_node_objects_on_networks[nw][item]:
-          self.nodeObjects_in_networks[nw].append(item) #ontology.list_node_objects_on_networks[nw][item])
+        # ontology.list_node_objects_on_networks[nw][item]:
+        if "intraface" not in item:
+          # ontology.list_node_objects_on_networks[nw][item])
+          self.nodeObjects_in_networks[nw].append(item)
 
     # self.arcApplications_in_networks = ontology.list_arcObjects_in_networks  # arc_types_in_leave_networks_list_coded
     self.arcInfoDictionary = ontology.arc_info_dictionary
@@ -176,22 +182,24 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.converting_tokens = ontology.converting_tokens
 
     self.connection_networks = {}
-    self.connection_networks.update(ontology.interconnection_network_dictionary)  # intRA
-    self.connection_networks.update(ontology.intraconnection_network_dictionary)  # intER
+    self.connection_networks.update(
+        ontology.interconnection_network_dictionary)  # intRA
+    self.connection_networks.update(
+        ontology.intraconnection_network_dictionary)  # intER
 
     self.NETWORK, \
-    self.TOKENS, \
-    self.graphics_DATA, \
-    self.state_colours = getGraphData(ontology.networks,
-                                      ontology.list_interconnection_networks,
-                                      ontology.list_intraconnection_networks,
-                                      ontology.list_network_node_objects,
-                                      ontology.list_intra_node_objects,
-                                      ontology.list_inter_node_objects,
-                                      ontology.list_arc_objects,
-                                      ontology.tokens,
-                                      FILES["graph_resource_file_spec"] % ontology_name
-                                      )
+        self.TOKENS, \
+        self.graphics_DATA, \
+        self.state_colours = getGraphData(ontology.networks,
+                                          ontology.list_interconnection_networks,
+                                          ontology.list_intraconnection_networks,
+                                          ontology.list_network_node_objects,
+                                          ontology.list_intra_node_objects,
+                                          ontology.list_inter_node_objects,
+                                          ontology.list_arc_objects,
+                                          ontology.tokens,
+                                          FILES["graph_resource_file_spec"] % ontology_name
+                                          )
     if DEBUG["load data"]:
       # print("node types :", self.nodeTypes)
       print("init - tokens:", self.tokens_on_networks)
@@ -238,10 +246,14 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.current_network = None  # needed by commander
 
     # keep for re-use once defined
-    self.selected_node_type = {nw: self.nodeObjects_in_networks[nw][0] for nw in self.networks}  # per network
-    self.selected_token = {editor_phase: {nw: 0 for nw in self.networks} for editor_phase in EDITOR_PHASES}
-    self.selected_transfer_mechanism = {nw: {token: 0 for token in self.arcInfoDictionary[nw]} for nw in self.networks}
-    self.selected_arc_nature = {nw: {token: 0 for token in self.arcInfoDictionary[nw]} for nw in self.networks}
+    self.selected_node_type = {
+        nw: self.nodeObjects_in_networks[nw][0] for nw in self.networks}  # per network
+    self.selected_token = {editor_phase: {
+        nw: 0 for nw in self.networks} for editor_phase in EDITOR_PHASES}
+    self.selected_transfer_mechanism = {
+        nw: {token: 0 for token in self.arcInfoDictionary[nw]} for nw in self.networks}
+    self.selected_arc_nature = {
+        nw: {token: 0 for token in self.arcInfoDictionary[nw]} for nw in self.networks}
 
     # for short-time use only
     self.selected_set_typed_tokens = set()
@@ -274,7 +286,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     self.radio_selectors = {}
     self.__setupInterface()
-    self.commander.setPanelAsCurrentItem()  # this sets the initial item to the panel
+    # this sets the initial item to the panel
+    self.commander.setPanelAsCurrentItem()
 
     self.initialising = False
 
@@ -294,11 +307,11 @@ class MainWindowImpl(QtWidgets.QMainWindow):
   def __setupButtonLogics(self):
     u = self.ui
     self.buttons = {
-            "pushExit"     : u.pushExit,
-            "pushSave"     : u.pushSave,
-            "pushSaveAs"   : u.pushSaveAs,
-            "pushSchnipsel": u.pushSchnipsel,
-            }
+        "pushExit": u.pushExit,
+        "pushSave": u.pushSave,
+        "pushSaveAs": u.pushSaveAs,
+        "pushSchnipsel": u.pushSchnipsel,
+    }
 
     # l_0 = {}  # "actionOntology"}
     l_1 = ["pushExit",
@@ -308,13 +321,13 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     l_2 = l_1 + ["pushSave"]
 
     e = {
-            "start"           : l_2,
-            "pushExit"        : [],
-            "pushNewModel"    : l_2,
-            "pushLoadFromFile": l_2,
-            "pushSave"        : l_2,
-            "pushSaveAs"      : l_2,
-            }
+        "start": l_2,
+        "pushExit": [],
+        "pushNewModel": l_2,
+        "pushLoadFromFile": l_2,
+        "pushSave": l_2,
+        "pushSaveAs": l_2,
+    }
     return e
 
   def __setupModellerApl(self):
@@ -327,7 +340,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     # self.ui. Logger.setReadOnly(1)  # setup logger window
     self.logger = Logger(self.commander.model_container, self)
-    self.ui.dockWidgetLogger.setWidget(self.logger)  # still needs to be connected to the model container
+    # still needs to be connected to the model container
+    self.ui.dockWidgetLogger.setWidget(self.logger)
 
     self.ui.dockWidgetLogger.show()
 
@@ -376,11 +390,13 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     count = 0
     for k in sorted(self.radio[phase]):
       radio = self.radio[phase][k]
-      self.ui.formKeyAutomaton.setWidget(count, QtWidgets.QFormLayout.LabelRole, radio)
+      self.ui.formKeyAutomaton.setWidget(
+          count, QtWidgets.QFormLayout.LabelRole, radio)
       count += 1
 
     if self.initialising:
-      self.commander.setDefaultEditorState()  # NOTE: only place being used -- caused a lot of
+      # NOTE: only place being used -- caused a lot of
+      self.commander.setDefaultEditorState()
     # problems when using it rules
 
   def __mapAndSave(self):
@@ -392,12 +408,12 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     #   "file": self.model_file
     #   }
     pars = {
-            "nodeID": None,
-            "action": "map&save model",
-            "object": None,
-            "pos"   : None,
-            "file"  : self.model_file
-            }
+        "nodeID": None,
+        "action": "map&save model",
+        "object": None,
+        "pos": None,
+        "file": self.model_file
+    }
     self.commander.processMainEvent(pars)
 
   def __buttonLogics(self, state):
@@ -440,7 +456,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.ui.comboEditorPhase.addItems(enabled_editor_phases)
 
   def __makeInteractionToolPage(self):
-    self.state_inject_or_constrain_or_convert = None  # reset state of the interaction tool box
+    # reset state of the interaction tool box
+    self.state_inject_or_constrain_or_convert = None
     self.__clearLayout(self.ui.layoutInteractiveWidgetTop)
     self.__clearLayout(self.ui.layoutInteractiveWidgetBottom)
 
@@ -455,7 +472,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       tokens = sorted(self.arcInfoDictionary[nw].keys())
       s_tokens = []
       for token in tokens:
-        nature = list(self.ontology.ontology_tree[nw]["structure"]["arc"][token].keys())
+        nature = list(
+            self.ontology.ontology_tree[nw]["structure"]["arc"][token].keys())
         # if "auto" not in nature:
         s_tokens.append(token)
 
@@ -470,12 +488,13 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     network = self.current_network
     node = self.selected_node_type[network]
     token = self.selected_token[self.editor_phase][network]
-    obj_ID = "node.%s|%s"%(node, token)
+    obj_ID = "node.%s|%s" % (token, node)
+    print("ID: " + obj_ID)
     # print("debugging -- make combo node subclass", network, node, token, obj_ID)
 
     self.ui.comboNodeSubClass.clear()
     variants = set()
-    for o in self.ontology.node_arc_SubClasses["behaviours"]:
+    for o in self.ontology.node_arc_SubClasses:
       if obj_ID in o:
         # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
         substrings = o.split('.')
@@ -484,8 +503,9 @@ class MainWindowImpl(QtWidgets.QMainWindow):
           variants.add(substrings[-1])
     if len(variants) == 0:
       if not self.initialising:
-        pass # NOTE: this is a little of a problem for the translator
-        answer = makeMessageBox("there is no association defined -- save and define an association",buttons=["OK"])
+        pass  # NOTE: this is a little of a problem for the translator
+        # answer = makeMessageBox(
+        #     "there is no association defined -- save and define an association", buttons=["OK"])
     self.ui.comboNodeSubClass.addItems(variants)
     self.current_node_variant = self.ui.comboNodeSubClass.currentText()
     pass
@@ -496,12 +516,12 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     token = self.selected_token[self.editor_phase][network]
     mechanism = self.selected_transfer_mechanism[network][token]
     nature = self.selected_arc_nature[network][token]
-    obj_ID = "arc.%s|%s|%s"%(token, mechanism, nature)
+    obj_ID = "arc.%s|%s|%s" % (token, mechanism, nature)
     # print("debugging -- make combo node subclass", network, token, mechanism, nature, obj_ID)
 
     self.ui.comboArcSubClass.clear()
     variants = set()
-    for o in self.ontology.node_arc_SubClasses["behaviours"]:
+    for o in self.ontology.node_arc_SubClasses:
       if obj_ID in o:
         # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
         substrings = o.split('.')
@@ -510,12 +530,12 @@ class MainWindowImpl(QtWidgets.QMainWindow):
           variants.add(substrings[-1])
     if len(variants) == 0:
       if not self.initialising:
-        pass # NOTE: this is a little of a problem for the translator
-        answer = makeMessageBox("there is no association defined -- save and define an association",buttons=["OK"])
+        pass  # NOTE: this is a little of a problem for the translator
+        # answer = makeMessageBox(
+        #     "there is no association defined -- save and define an association", buttons=["OK"])
     self.ui.comboArcSubClass.addItems(variants)
     self.current_arc_variant = self.ui.comboArcSubClass.currentText()
     pass
-
 
   def __clearLayout(self, layout):
     while layout.count():
@@ -548,15 +568,18 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     for item in what:
       list_of_choices.append((str(counter), item, receiver))
       counter += 1
-    radio_selector.addListOfChoices(group_name, list_of_choices, index, autoexclusive=autoexclusive)
+    radio_selector.addListOfChoices(
+        group_name, list_of_choices, index, autoexclusive=autoexclusive)
     return radio_selector
 
   def __selectColour(self, where):
 
-    colour_ = self.named_network_dictionary.getColour(self.current_named_network)
+    colour_ = self.named_network_dictionary.getColour(
+        self.current_named_network)
     colour = self.__colourDialog(colour_)
     self.named_network_dictionary.setColour(self.current_named_network, colour)
-    self.BRUSHES[self.current_named_network] = self.named_network_dictionary.makeBrush(self.current_named_network)
+    self.BRUSHES[self.current_named_network] = self.named_network_dictionary.makeBrush(
+        self.current_named_network)
     self.__showColour(where, colour)
     return
 
@@ -589,7 +612,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.current_network = str(network)
     index = self.networks.index(network)
     self.radio_selectors["networks"].check("networks", index)
-    index = self.named_network_dictionary.indexForNamedNetwork(self.current_network, named_network)
+    index = self.named_network_dictionary.indexForNamedNetwork(
+        self.current_network, named_network)
     self.radio_selectors["named_networks"].check("named_networks", index)
     self.__makeComboNodeSubClass()
 
@@ -604,7 +628,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.__makeComboNodeSubClass()
 
   def setNodeVariant(self, variant):
-    index= self.ui.comboNodeSubClass.findText(variant)
+    index = self.ui.comboNodeSubClass.findText(variant)
     self.ui.comboNodeSubClass.setCurrentIndex(index)
 
   @QtCore.pyqtSlot(str)
@@ -625,7 +649,6 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.current_arc_variant = arc_sub_class
     # print("debugging -- arc subclass", arc_sub_class)
 
-
   def radioReceiverNetworks(self, token_class, token, token_string, toggle):
     # print("debugging -- maybe asked to change network from %s to %s"%(self.current_network, token_string))
     if toggle:
@@ -633,7 +656,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       self.current_network = token_string
 
       self.__trimLayout(1, self.ui.layoutNetworks)
-      named_networks = self.named_network_dictionary.listOfNamedNetworksPerNetwork(self.current_network)
+      named_networks = self.named_network_dictionary.listOfNamedNetworksPerNetwork(
+          self.current_network)
       self.current_named_network = named_networks[0]
       index = named_networks.index(self.current_named_network)
       self.radio_selectors["named_networks"] = self.__makeAndAddSelector("named_networks",
@@ -649,7 +673,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
         s_token = self.selected_token[self.editor_phase][nw]
         s_tokens = []
         for token in tokens:
-          nature = list(self.ontology.ontology_tree[nw]["structure"]["arc"][token].keys())
+          nature = list(
+              self.ontology.ontology_tree[nw]["structure"]["arc"][token].keys())
           # if "auto" not in nature:
           s_tokens.append(token)
         if s_tokens:
@@ -674,7 +699,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     if toggle:
       self.old_named_network_name = token_string
       self.current_named_network = token_string
-      colour = self.named_network_dictionary.getColour(self.current_named_network)
+      colour = self.named_network_dictionary.getColour(
+          self.current_named_network)
       box = self.ui.groupNamed_NetworkColour
       self.__showColour(box, colour)
       self.commander.applyControlAccessRules()
@@ -710,7 +736,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def radioReceiverArcMechanism(self, token_class, token, mechanism, toggle):
     if toggle:
-      # print("radioReceiverArcMechanism: receiver class %s, radio token %s." 
+      # print("radioReceiverArcMechanism: receiver class %s, radio token %s."
       # % (token_class, token))
 
       self.__trimLayout(2, self.ui.layoutInteractiveWidgetBottom)
@@ -759,13 +785,14 @@ class MainWindowImpl(QtWidgets.QMainWindow):
           if len(items_to_inject) > 0:
             # there is something to inject and constrain
             self.items_to_inject = items_to_inject
-          items_to_convert = self.typed_tokens_data[typed_tokens[0]]["conversions"]
+          items_to_convert = self.typed_tokens_data[typed_tokens[0]
+                                                    ]["conversions"]
           if len(items_to_convert) > 0:
             self.items_to_convert = items_to_convert
             ask.append("convert")
             self.radio_selectors["typed token"] = \
-              self.__makeAndAddSelector("typed token", ask, self.radioReceiverTypedTokenTool, -1,
-                                        self.ui.layoutInteractiveWidgetBottom)
+                self.__makeAndAddSelector("typed token", ask, self.radioReceiverTypedTokenTool, -1,
+                                          self.ui.layoutInteractiveWidgetBottom)
         # else:
         #   self.__clearLayout(self.ui.layoutInteractiveWidgetBottom)
 
@@ -791,7 +818,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       elif token_string == "convert":
         items = []
         for item in self.items_to_convert:
-          items.append("%s %s %s" % (item["reactants"], CONVERSION_SEPARATOR, item["products"]))
+          items.append("%s %s %s" % (
+              item["reactants"], CONVERSION_SEPARATOR, item["products"]))
 
         self.radio_selectors["convert"] = self.__makeAndAddSelector("convert", items,
                                                                     self.radioReceiverTypedTokenToConvert, -1,
@@ -821,7 +849,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     """
     ask for and define schnipsel model name
     """
-    self.schnipsel_name, new_model = askForModelFileGivenOntologyLocation(self.model_library_location, alternative=True)
+    self.schnipsel_name, new_model = askForModelFileGivenOntologyLocation(
+        self.model_library_location, alternative=True)
 
     if self.schnipsel_name in ["exit", "", None]:
       return
@@ -829,15 +858,16 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.ui.labelSchnipsel.setText(self.schnipsel_name)
     self.ui.labelSchnipsel.show()
 
-    self.schnipsel_file = FILES["model_file"] % (self.ontology_name, self.schnipsel_name)
+    self.schnipsel_file = FILES["model_file"] % (
+        self.ontology_name, self.schnipsel_name)
     self.__buttonLogics("pushLoadFromFile")
     pars = {
-            "nodeID": None,
-            "action": "library file",
-            "object": None,
-            "pos"   : None,
-            "file"  : self.schnipsel_file
-            }
+        "nodeID": None,
+        "action": "library file",
+        "object": None,
+        "pos": None,
+        "file": self.schnipsel_file
+    }
     self.commander.processMainEvent(pars)
 
   def on_pushTakeScreenShot_pressed(self):
@@ -866,19 +896,21 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     """
 
     pars = {
-            "nodeID"    : None,
-            "action"    : "load from file",
-            "object"    : None,
-            "pos"       : None,
-            "model_name": model_name,
-            "file"      : self.model_file
-            }
+        "nodeID": None,
+        "action": "load from file",
+        "object": None,
+        "pos": None,
+        "model_name": model_name,
+        "file": self.model_file
+    }
     self.commander.processMainEvent(pars)
 
   def injectTypedTokens(self):
     token = self.current_token
-    list_typed_tokens = self.radio_selectors["inject"].getListOfCheckedLabelInGroup("inject")
-    print("inject typed tokens ", list_typed_tokens, "into ", self.commander.node_group, "token:", token)
+    list_typed_tokens = self.radio_selectors["inject"].getListOfCheckedLabelInGroup(
+        "inject")
+    print("inject typed tokens ", list_typed_tokens, "into ",
+          self.commander.node_group, "token:", token)
 
     self.commander.model_container.injectListInToNodes(self.commander.node_group,
                                                        token,
@@ -901,9 +933,11 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.commander.model_container.updateTypedTokensInAllDomains()
 
   def injectConversions(self):
-    token = self.current_token  # self.selected_token[self.editor_phase][self.current_network]
+    # self.selected_token[self.editor_phase][self.current_network]
+    token = self.current_token
     # list_conversions = deepcopy(list(self.selected_set_coversions))
-    list_conversions = self.radio_selectors["convert"].getListOfCheckedLabelInGroup("convert")
+    list_conversions = self.radio_selectors["convert"].getListOfCheckedLabelInGroup(
+        "convert")
     print("inject conversions ", list_conversions)
     self.radio_selectors["convert"].uncheckGroup("convert")
 
@@ -918,8 +952,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.commander.resetGroups()
 
   def injectTypedTokenTransferConstraints(self):
-    token = self.current_token  # self.selected_token[self.editor_phase][self.current_network]
-    list_typed_tokens = self.radio_selectors["constrain"].getListOfCheckedLabelInGroup("constrain")
+    # self.selected_token[self.editor_phase][self.current_network]
+    token = self.current_token
+    list_typed_tokens = self.radio_selectors["constrain"].getListOfCheckedLabelInGroup(
+        "constrain")
     self.radio_selectors["constrain"].uncheckGroup("constrain")
 
     self.commander.model_container.injectListInToNodes(self.commander.node_group,
@@ -939,27 +975,32 @@ class MainWindowImpl(QtWidgets.QMainWindow):
   def on_pushAddNamedNetwork_pressed(self):
 
     all_named_networks = self.named_network_dictionary.listOfNamedNetworksAll()
-    ui = UI_String("edit named network", "give new name", limiting_list=all_named_networks)
+    ui = UI_String("edit named network", "give new name",
+                   limiting_list=all_named_networks)
     ui.exec_()
 
     new_name = ui.getText()
     self.current_named_network = new_name
     if new_name:
       self.named_network_dictionary.add(self.current_network, new_name)
-      self.BRUSHES[self.current_named_network] = self.named_network_dictionary.makeBrush(new_name)
-      self.named_network_dictionary.setColour(new_name, NetworkData()["colour"])
+      self.BRUSHES[self.current_named_network] = self.named_network_dictionary.makeBrush(
+          new_name)
+      self.named_network_dictionary.setColour(
+          new_name, NetworkData()["colour"])
       self.radioReceiverNetworks(None, None, self.current_network, True)
 
   def on_pushEditNamedNetwork_pressed(self):
 
     all_named_networks = self.named_network_dictionary.listOfNamedNetworksAll()
     old_name = self.old_named_network_name
-    ui = UI_String("edit named network", old_name, limiting_list=all_named_networks)
+    ui = UI_String("edit named network", old_name,
+                   limiting_list=all_named_networks)
     ui.exec_()
 
     new_name = ui.getText()
     if new_name:
-      self.named_network_dictionary.rename(self.current_network, old_name, new_name)
+      self.named_network_dictionary.rename(
+          self.current_network, old_name, new_name)
       self.current_named_network = new_name
       self.radioReceiverNetworks(None, None, self.current_network, True)
 
@@ -973,16 +1014,19 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     """
     ask for model file and then map and save it
     """
-    self.model_name, new_name = askForModelFileGivenOntologyLocation(self.model_library_location, alternative=True)
+    self.model_name, new_name = askForModelFileGivenOntologyLocation(
+        self.model_library_location, alternative=True)
 
     if not self.model_name:
       return
 
-    self.model_location = DIRECTORIES["model_location"] % (self.ontology_name, self.model_name)
+    self.model_location = DIRECTORIES["model_location"] % (
+        self.ontology_name, self.model_name)
     print(self.model_location)
     if not os.path.exists(self.model_location):
       os.mkdir(self.model_location)
-    self.model_file = FILES["model_file"] % (self.ontology_name, self.model_name)
+    self.model_file = FILES["model_file"] % (
+        self.ontology_name, self.model_name)
     self.__mapAndSave()
     self.__buttonLogics("pushSaveAs")
     self.__display_model_name(self.model_name)
@@ -1000,20 +1044,20 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       os.mkdir(self.model_location)
 
     pars = {
-            "nodeID": None,
-            "action": "save model",
-            "object": None,
-            "pos"   : None,
-            "file"  : self.model_file
-            }
+        "nodeID": None,
+        "action": "save model",
+        "object": None,
+        "pos": None,
+        "file": self.model_file
+    }
     # print("debugging -- ", self.model_name)
     # print("debugging -- ",self.model_file)
     self.commander.processMainEvent(pars)
 
   def pushReset(self):
     pars = {
-            "action": "reset"
-            }
+        "action": "reset"
+    }
     self.commander.processMainEvent(pars)
 
   def on_pushExit_pressed(self):
@@ -1049,8 +1093,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       msg_box.exec_()
       self.setEditorPhase("topology")
       return {
-              "failed": True
-              }
+          "failed": True
+      }
     else:
       # RULE: all arcs must be closed before the token domain can be computed
       self.writeStatus("shifting to %s" % self.editor_phase)
@@ -1071,7 +1115,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def setSchnipsel(self, schnipsel_name):
     self.schnipsel_name = schnipsel_name
-    self.schnipsel_file = os.path.join(self.model_library_location, self.schnipsel_name)
+    self.schnipsel_file = os.path.join(
+        self.model_library_location, self.schnipsel_name)
     self.ui.labelSchnipsel.setText(self.schnipsel_name)
     self.ui.labelSchnipsel.show()
 
@@ -1106,7 +1151,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     else:
       r, g, b = 255, 255, 255
 
-    self.ui.labelModel.setStyleSheet("QLabel { background-color: rgb(%s,%s,%s) }" % (r, g, b))
+    self.ui.labelModel.setStyleSheet(
+        "QLabel { background-color: rgb(%s,%s,%s) }" % (r, g, b))
 
   # Logger ================================================================
 

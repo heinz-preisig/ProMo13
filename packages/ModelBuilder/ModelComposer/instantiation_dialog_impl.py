@@ -54,12 +54,12 @@ class InstantiationDlg(QtWidgets.QDialog):
   """
 
   def __init__(
-    self,
-    var_data_all: List[VariableInfo],
-    common_entity: Optional[entity.Entity],
-    variables: Dict[str, variable.Variable],
-    single_node: bool,
-    parent: Optional[QtWidgets.QWidget] = None,
+      self,
+      var_data_all: List[VariableInfo],
+      common_entity: Optional[entity.Entity],
+      variables: Dict[str, variable.Variable],
+      single_node: bool,
+      parent: Optional[QtWidgets.QWidget] = None,
   ):
     """Initializes the InstantiationDlg with the required information.
 
@@ -106,7 +106,7 @@ class InstantiationDlg(QtWidgets.QDialog):
       # Separates variable depending if they are required to be
       # instantiated or not. Only needed if a full instantiation is
       # happening.
-      var_required = self.entity.get_variables_to_instantiate()[0]
+      var_required = self.entity.get_init_vars()
       for var_info in var_data_all:
         if var_info["id"] in var_required:
           var_data_required.append((var_info, True))
@@ -133,9 +133,9 @@ class InstantiationDlg(QtWidgets.QDialog):
     # Connections
     self.ui.tab_variables.currentChanged.connect(self._tab_changed)
     self.ui.list_required.itemClicked.connect(
-      lambda item: self._variable_selected(self.ui.list_required.row(item)))
+        lambda item: self._variable_selected(self.ui.list_required.row(item)))
     self.ui.list_others.itemClicked.connect(
-      lambda item: self._variable_selected(self.ui.list_others.row(item)))
+        lambda item: self._variable_selected(self.ui.list_others.row(item)))
     self.ui.pbutton_instantiate.clicked.connect(self._instantiate)
     self.ui.pbutton_accept.clicked.connect(super().accept)
     self.ui.pbutton_cancel.clicked.connect(super().reject)
@@ -175,9 +175,9 @@ class InstantiationDlg(QtWidgets.QDialog):
       var_name = self.variables[var_info["id"]].label
       list_item_name = var_name + ": " + value
       self._add_new_item_to_list(
-        self.lists[self.tab_index_selected],
-        list_item_name,
-        is_enabled)
+          self.lists[self.tab_index_selected],
+          list_item_name,
+          is_enabled)
 
     self._update_tab_title()
     self._set_instantiation_state(False)
@@ -192,13 +192,13 @@ class InstantiationDlg(QtWidgets.QDialog):
     non_initialized_counter = 0
     for var_info, is_enabled in self.var_data[0]:
       if (
-        var_info["same_in_all_nodes"] and
-        var_info["value"] is None and
-        is_enabled
+          var_info["same_in_all_nodes"] and
+          var_info["value"] is None and
+          is_enabled
       ):
         non_initialized_counter += 1
 
-    title = "Required Variables (" + str(non_initialized_counter)  + ")"
+    title = "Required Variables (" + str(non_initialized_counter) + ")"
     self.ui.tab_variables.setTabText(0, title)
 
   def _set_instantiation_state(self, is_allowed: bool) -> None:
@@ -247,19 +247,19 @@ class InstantiationDlg(QtWidgets.QDialog):
         self.ui.line_edit_value.selectAll()
     else:
       message = (
-        "This variable does not have the same\n"
-        "instantiation value in all nodes.\n"
-        "Instantiation will overwrite the previous\n"
-        "value for all nodes.\n"
-        "Do you want to proceed?"
+          "This variable does not have the same\n"
+          "instantiation value in all nodes.\n"
+          "Instantiation will overwrite the previous\n"
+          "value for all nodes.\n"
+          "Do you want to proceed?"
       )
 
       dlg_warning = QtWidgets.QMessageBox.warning(
-        self,
-        "Instantiation warning",
-        message,
-        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-        QtWidgets.QMessageBox.No
+          self,
+          "Instantiation warning",
+          message,
+          QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+          QtWidgets.QMessageBox.No
       )
 
       if dlg_warning != QtWidgets.QMessageBox.Yes:
@@ -299,10 +299,10 @@ class InstantiationDlg(QtWidgets.QDialog):
     self._update_list()
 
   def _add_new_item_to_list(
-    self,
-    parent_list: QtWidgets.QListWidget,
-    item_name: str,
-    is_enabled: bool,
+      self,
+      parent_list: QtWidgets.QListWidget,
+      item_name: str,
+      is_enabled: bool,
   ) -> None:
     """Adds a new item to a **QListWidget**.
 
@@ -333,19 +333,20 @@ class InstantiationDlg(QtWidgets.QDialog):
     anymore. These equations are added to the entity's original blocked
     equations and the tree is constructed from there.
     """
-    # Adding new dummy equations due to instantiation
-    var_eq_info = {}
-    for var_info, _ in self.var_data[1]:
-      if var_info["value"] is not None or not var_info["same_in_all_nodes"]:
-        var_eq_info[var_info["id"]] = ["_"]
+    pass
+    # # Adding new dummy equations due to instantiation
+    # var_eq_info = {}
+    # for var_info, _ in self.var_data[1]:
+    #   if var_info["value"] is not None or not var_info["same_in_all_nodes"]:
+    #     var_eq_info[var_info["id"]] = ["_"]
 
-    # Generating new tree and retrieving changes
-    unused_ids = self.entity.generate_var_eq_tree(var_eq_info)
+    # # Generating new tree and retrieving changes
+    # unused_ids = self.entity.generate_var_eq_tree(var_eq_info)
 
-    # Updating the data
-    for list_id in [0,1]:
-      for i, (var_info, is_enabled) in enumerate(self.var_data[list_id]):
-        if var_info["id"] not in unused_ids and not is_enabled:
-          self.var_data[list_id][i] = (var_info, True)
-        if var_info["id"] in unused_ids and is_enabled:
-          self.var_data[list_id][i] = (var_info, False)
+    # # Updating the data
+    # for list_id in [0, 1]:
+    #   for i, (var_info, is_enabled) in enumerate(self.var_data[list_id]):
+    #     if var_info["id"] not in unused_ids and not is_enabled:
+    #       self.var_data[list_id][i] = (var_info, True)
+    #     if var_info["id"] in unused_ids and is_enabled:
+    #       self.var_data[list_id][i] = (var_info, False)

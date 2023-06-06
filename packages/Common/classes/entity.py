@@ -7,7 +7,8 @@ from typing import List, TypedDict, Optional, Dict, Tuple, Callable
 from typing_extensions import Self
 from pprint import pprint as pp
 
-from Common.classes import equation
+from packages.Common.classes import equation
+
 
 class EntityDict(TypedDict):
   """Creates a new type for a dictionary that stores an entity."""
@@ -52,6 +53,12 @@ class Entity():
     self.input_vars = input_vars
     self.output_vars = output_vars
     self.all_equations = all_equations
+
+    if entity_name != "Topology":
+      network, ent_type, str1, name = entity_name.split(".")
+      token, mechanism, nature = str1.split("|")
+
+      self.index_set = ent_type[0].capitalize() + "_" + mechanism[:4]
 
     self.temp_var_eq_forest = None
     self.merge_conflicts = {}

@@ -9,6 +9,9 @@
 
 """
 
+
+from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtCore
 __project__ = "ProcessModeller  Suite"
 __author__ = "PREISIG, Heinz A"
 __copyright__ = "Copyright 2015, PREISIG, Heinz A"
@@ -22,12 +25,11 @@ import os
 import sys
 
 root = os.path.abspath(os.path.join(".."))
-sys.path.extend([root, os.path.join(root, 'packages'), os.path.join(root, 'tasks')])
-
-from PyQt5 import QtCore
-from PyQt5 import QtGui, QtWidgets
-
+sys.path.extend([root, os.path.join(root, 'packages'),
+                os.path.join(root, 'tasks')])
+# fmt: off
 from ModelBuilder.ModelComposer.modeller_mainwindow_impl import MainWindowImpl
+# fmt: on
 
 QtCore.pyqtRemoveInputHook()
 a = QtWidgets.QApplication(sys.argv)

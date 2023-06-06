@@ -1,11 +1,11 @@
 function self = times(op1, op2)
-  if ~ (isscalar(op1) | isscalar(op2) | isequal(size(op1), size(op2)))
-    error(
-      "In MultiDimVar.times():\n\
-       Nonconformant arguments (op1 is %s, op2 is %s)",
-      formatsize(op1), formatsize(op2)
-    )
-  endif
+##  if ~ (isscalar(op1) | isscalar(op2) | isequal(size(op1), size(op2)))
+##    error(
+##      "In MultiDimVar.times():\n\
+##       Nonconformant arguments (op1 is %s, op2 is %s)",
+##      formatsize(op1), formatsize(op2)
+##    )
+##  endif
   
   if isscalar(op1)
     indexLabels = op2.indexLabels;

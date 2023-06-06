@@ -127,7 +127,7 @@ fname = os.path.join(DATA_location, "promo_qudt_graph_%s.ttl" % prefix)
 promo_loaded = os.path.exists(fname)
 if promo_loaded:
   promo_qudt_graph = Graph()
-  promo_qudt_graph.load(fname, format="ttl")
+  promo_qudt_graph.parse(fname, format="ttl")
 
 
 def getQuantityKindItemInfo(term):

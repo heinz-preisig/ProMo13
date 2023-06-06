@@ -25,7 +25,7 @@ __status__ = "beta"
 import os as OS
 from shutil import copyfile
 
-from Common.pop_up_message_box import makeMessageBox
+from packages.Common.pop_up_message_box import makeMessageBox
 
 # from Common.ui_message_popup_impl import UI_MessagePopUp
 
@@ -173,6 +173,12 @@ FILES["variables_file_v7"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
 
 FILES["variables_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                FILE_NAMES["variables_file_v8"])  # %ontology_name
+
+FILES["variables_file_new"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
+                               "variables_new.json")  # %ontology_name
+
+FILES["global_equation_id_new"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
+                               "equations_new.json")  # %ontology_name
 
 FILES["variablesExpression_ttl_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                FILE_NAMES["VariableExpression_ttl"])  # %ontology_name
@@ -328,6 +334,8 @@ FILES["icons"] = {
 
 FILES["matlab_template"] = JOIN(DIRECTORIES["templates"], FILE_NAMES["matlab_template"])
 
+FILES["equations_latex"] = JOIN(DIRECTORIES["ontology_repository"], "%s", "equations_latex.json")
+FILES["equations_matlab"] = JOIN(DIRECTORIES["ontology_repository"], "%s", "equations_matlab.json")
 
 # compilation of rst to html  NOTE: not a good way of doing things -- generate HTML directly with normal editor
 # import docutils.core

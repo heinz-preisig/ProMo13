@@ -20,6 +20,12 @@ function main
   fnc = sparse(fnc);
   disp(reduceproduct(F, "AS", fnc))
 
+  p = MultiDimVar({"N"}, {N}, [23; 32; 45]);
+  disp(p)
+  
+  new = khatrirao(p, {"N"}, c, {"NS"});
+  disp(new)
+
   % disp(product(fnc, "AS"))
   % % g = MultiDimVar({}, {}, 9.8);
   % % disp(g)

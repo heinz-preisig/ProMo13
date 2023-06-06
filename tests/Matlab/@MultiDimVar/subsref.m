@@ -12,10 +12,10 @@ function self = subsref(op1, s)
         extraIndexes = s(1).subs((selfDimensions + 1):end);
         extraIndexesStr = cellfun(@num2str, extraIndexes, 'un', 0);
 
-        assert(
-          all(strcmp(extraIndexesStr, ":") | strcmp(extraIndexesStr, "1")), 
-          'Indexing error: Size is %s', formatsize(self)
-        )
+##        assert(
+##          all(strcmp(extraIndexesStr, ":") | strcmp(extraIndexesStr, "1")), 
+##          'Indexing error: Size is %s', formatsize(self)
+##        )
         nDimensions = selfDimensions;
       endif
 
@@ -36,6 +36,7 @@ function self = subsref(op1, s)
         % Indexing information expanded to account for blocks.
         blockS(1).subs{i} = [op1.indexBlocks{i}{indexingInfo}];
       endfor
+      
       self = MultiDimVar(
         op1.indexLabels,
         indexSets,

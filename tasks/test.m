@@ -1,246 +1,200 @@
 function output_vars = main
   % Index sets
-  N = cell(1, 4);
+  N = cell(1, 10);
   N(1)  = 1;
   N(2)  = 2;
   N(3)  = 3;
   N(4)  = 4;
+  N(5)  = 5;
+  N(6)  = 6;
+  N(7)  = 7;
+  N(8)  = 8;
+  N(9)  = 9;
+  N(10)  = 10;
   N_lbl = "N";
-  N_x_S = cell(1, 4);
+  N_x_S = cell(1, 10);
   N_x_S(1)  = [1];
-  N_x_S(2)  = [2];
-  N_x_S(3)  = [1, 2];
-  N_x_S(4)  = [1, 2];
+  N_x_S(2)  = [1];
+  N_x_S(3)  = [1];
+  N_x_S(4)  = [1];
+  N_x_S(5)  = [1];
+  N_x_S(6)  = [1];
+  N_x_S(7)  = [1];
+  N_x_S(8)  = [1];
+  N_x_S(9)  = [1];
+  N_x_S(10)  = [1];
   N_x_S_lbl = "N_x_S";
-  A = cell(1, 3);
+  A = cell(1, 9);
   A(1)  = 1;
   A(2)  = 2;
   A(3)  = 3;
+  A(4)  = 4;
+  A(5)  = 5;
+  A(6)  = 6;
+  A(7)  = 7;
+  A(8)  = 8;
+  A(9)  = 9;
   A_lbl = "A";
-  A_x_S = cell(1, 3);
+  A_x_S = cell(1, 9);
   A_x_S(1)  = [1];
-  A_x_S(2)  = [2];
-  A_x_S(3)  = [1, 2];
+  A_x_S(2)  = [1];
+  A_x_S(3)  = [1];
+  A_x_S(4)  = [1];
+  A_x_S(5)  = [1];
+  A_x_S(6)  = [1];
+  A_x_S(7)  = [1];
+  A_x_S(8)  = [1];
+  A_x_S(9)  = [1];
   A_x_S_lbl = "A_x_S";
-  S = cell(1, 2);
+  S = cell(1, 1);
   S(1)  = 1;
-  S(2)  = 2;
   S_lbl = "S";
 
-  N_const = [1, 2, 3];
-  N_dyn = [4];
-  A_conv = [1, 2, 3];
+  N_const = [1];
+  N_dyn = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+  A_diff = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   % Variables
-  % starting time
-  to = to;
-
   % initial condition for species mass in nodes
   no = MultiDimVar({N_x_S_lbl}, {N_x_S});
-  no(4) = [n41; n42];
+  no(7) = [0];
+  no(9) = [0];
+  no(8) = [0];
+  no(2) = [0];
+  no(3) = [0];
+  no(10) = [0];
+  no(4) = [0];
+  no(6) = [0];
+  no(5) = [0];
   no = sparse(no);
 
   % end time
-  te = te;
+  te = 180;
 
-  % net diffusional mass transfer
-  fnd = MultiDimVar({N_x_S_lbl}, {N_x_S});
-  fnd(4) = [zero; zero];
-  fnd = sparse(fnd);
+  % starting time
+  to = 0;
 
-  % production term
-  pn = MultiDimVar({N_x_S_lbl}, {N_x_S});
-  pn(4) = [zero; zero];
-  pn = sparse(pn);
+  % link variable nProd to interface reactions >>> macroscopic
+  _nProd = MultiDimVar({N_x_S_lbl}, {N_x_S});
+  _nProd(7) = [0];
+  _nProd(9) = [0];
+  _nProd(2) = [0];
+  _nProd(3) = [0];
+  _nProd(10) = [0];
+  _nProd(5) = [0];
+  _nProd(4) = [0];
+  _nProd(6) = [0];
+  _nProd(8) = [0];
+  _nProd = sparse(_nProd);
 
-  % incidence matrix of directed graphs for for species NS x AS
-  Fc_NS_AS = MultiDimVar({N_x_S_lbl, A_x_S_lbl}, {N_x_S, A_x_S});
-  Fc_NS_AS.value(1, 1) = -1;
-  Fc_NS_AS.value(5, 1) = 1;
-  Fc_NS_AS.value(2, 3) = -1;
-  Fc_NS_AS.value(6, 3) = 1;
-  Fc_NS_AS.value(5, 5) = -1;
-  Fc_NS_AS.value(3, 5) = 1;
-  Fc_NS_AS.value(6, 6) = -1;
-  Fc_NS_AS.value(4, 6) = 1;
-  Fc_NS_AS = sparse(Fc_NS_AS);
+  % net molar convectional mass flow
+  fnc = MultiDimVar({N_x_S_lbl}, {N_x_S});
+  fnc(7) = [0];
+  fnc(9) = [0];
+  fnc(2) = [0];
+  fnc(3) = [0];
+  fnc(10) = [0];
+  fnc(5) = [0];
+  fnc(4) = [0];
+  fnc(6) = [0];
+  fnc(8) = [0];
+  fnc = sparse(fnc);
 
-  % block difference operator
-  Dc_NS_AS = MultiDimVar({N_x_S_lbl, A_x_S_lbl}, {N_x_S, A_x_S});
-  Dc_NS_AS.value(1, 1) = -1;
-  Dc_NS_AS.value(5, 1) = 1;
-  Dc_NS_AS.value(2, 3) = -1;
-  Dc_NS_AS.value(6, 3) = 1;
-  Dc_NS_AS.value(5, 5) = -1;
-  Dc_NS_AS.value(3, 5) = 1;
-  Dc_NS_AS.value(6, 6) = -1;
-  Dc_NS_AS.value(4, 6) = 1;
-  Dc_NS_AS = sparse(Dc_NS_AS);
+  % species related incidence matrix for diffusion
+  Fd = MultiDimVar({N_x_S_lbl, A_x_S_lbl}, {N_x_S, A_x_S});
+  Fd.value(1, 1) = -1;
+  Fd.value(4, 1) = 1;
+  Fd.value(4, 2) = -1;
+  Fd.value(5, 2) = 1;
+  Fd.value(5, 3) = -1;
+  Fd.value(3, 3) = 1;
+  Fd.value(1, 4) = -1;
+  Fd.value(10, 4) = 1;
+  Fd.value(10, 5) = -1;
+  Fd.value(7, 5) = 1;
+  Fd.value(7, 6) = -1;
+  Fd.value(2, 6) = 1;
+  Fd.value(7, 7) = -1;
+  Fd.value(8, 7) = 1;
+  Fd.value(8, 8) = -1;
+  Fd.value(6, 8) = 1;
+  Fd.value(6, 9) = -1;
+  Fd.value(9, 9) = 1;
+  Fd = sparse(Fd);
 
-  % numerical value one half
-  onehalf = onehalf;
+  % difference operator for species topology (diffusion)
+  Dd_NS_AS = MultiDimVar({N_x_S_lbl, A_x_S_lbl}, {N_x_S, A_x_S});
+  Dd_NS_AS.value(1, 1) = -1;
+  Dd_NS_AS.value(4, 1) = 1;
+  Dd_NS_AS.value(4, 2) = -1;
+  Dd_NS_AS.value(5, 2) = 1;
+  Dd_NS_AS.value(5, 3) = -1;
+  Dd_NS_AS.value(3, 3) = 1;
+  Dd_NS_AS.value(1, 4) = -1;
+  Dd_NS_AS.value(10, 4) = 1;
+  Dd_NS_AS.value(10, 5) = -1;
+  Dd_NS_AS.value(7, 5) = 1;
+  Dd_NS_AS.value(7, 6) = -1;
+  Dd_NS_AS.value(2, 6) = 1;
+  Dd_NS_AS.value(7, 7) = -1;
+  Dd_NS_AS.value(8, 7) = 1;
+  Dd_NS_AS.value(8, 8) = -1;
+  Dd_NS_AS.value(6, 8) = 1;
+  Dd_NS_AS.value(6, 9) = -1;
+  Dd_NS_AS.value(9, 9) = 1;
+  Dd_NS_AS = sparse(Dd_NS_AS);
 
-  % molar concentration
+  % molar composition
   c = MultiDimVar({N_x_S_lbl}, {N_x_S});
-  c(3) = [c31; c32];
-  c(1) = [c11; c12];
-  c(2) = [c21; c22];
+  c(1) = [0; .; 5];
   c = sparse(c);
 
-  % difference operator
-  Dc = MultiDimVar({N_lbl, A_lbl}, {N, A});
-  Dc.value(1, 1) = -1;
-  Dc.value(4, 1) = 1;
-  Dc.value(2, 2) = -1;
-  Dc.value(4, 2) = 1;
-  Dc.value(4, 3) = -1;
-  Dc.value(3, 3) = 1;
-  Dc = sparse(Dc);
+  % Diffusion Coefficient
+  DiffCoeff = MultiDimVar({A_x_S_lbl}, {A_x_S});
+  DiffCoeff(3) = [0.65];
+  DiffCoeff(5) = [0.65];
+  DiffCoeff(1) = [0.65];
+  DiffCoeff(2) = [0.65];
+  DiffCoeff(4) = [0.65];
+  DiffCoeff(9) = [0.65];
+  DiffCoeff(8) = [0.65];
+  DiffCoeff(7) = [0.65];
+  DiffCoeff(6) = [0.65];
+  DiffCoeff = sparse(DiffCoeff);
 
-  % valve constant
-  cv_A = MultiDimVar({A_lbl}, {A});
-  cv_A(3) = [cv3];
-  cv_A(1) = [cv1];
-  cv_A(2) = [cv2];
-  cv_A = sparse(cv_A);
+  % fundamental state -- volume
+  V = MultiDimVar({N_lbl}, {N});
+  V(7) = [1];
+  V(9) = [3];
+  V(8) = [3];
+  V(10) = [1];
+  V(3) = [2];
+  V(2) = [1];
+  V(4) = [3];
+  V(6) = [2];
+  V(5) = [3];
+  V = sparse(V);
 
-  % thermodynamic pressure
-  p = MultiDimVar({N_lbl}, {N});
-  p(3) = [p3];
-  p(1) = [p1];
-  p(2) = [p2];
-  p = sparse(p);
-
-  % 
-  dEdt = MultiDimVar({N_lbl}, {N});
-  dEdt(4) = [zero; zero];
-  dEdt = sparse(dEdt);
-
-  % mass density
-  density = MultiDimVar({N_lbl}, {N});
-  density(4) = [rho_node4];
-  density = sparse(density);
-
-  % 
-  l_A = MultiDimVar({A_lbl}, {A});
-  l_A(1) = [l1];
-  l_A(2) = [l2];
-  l_A(3) = [l3];
-  l_A = sparse(l_A);
-
-  % 
-  kf_A = MultiDimVar({A_lbl}, {A});
-  kf_A(1) = [kfa1];
-  kf_A(2) = [kfa2];
-  kf_A(3) = [kfa3];
-  kf_A = sparse(kf_A);
-
-  % species molecular masses
-  Mm = MultiDimVar({S_lbl}, {S});
-  Mm(1) = [lambda1];
-  Mm(2) = [lambda2];
-  Mm = sparse(Mm);
-
-  % 
-  h_A = MultiDimVar({A_lbl}, {A});
-  h_A(3) = [h3];
-  h_A(1) = [h1];
-  h_A(2) = [h2];
-  h_A = sparse(h_A);
-
-  % 
-  g = g;
-
-  % 
-  A_A = MultiDimVar({A_lbl}, {A});
-  A_A(3) = [A3];
-  A_A(1) = [A1];
-  A_A(2) = [A2];
-  A_A = sparse(A_A);
-
-  % 
-  rho_A = MultiDimVar({A_lbl}, {A});
-  rho_A(3) = [rho_arc3];
-  rho_A(1) = [rho_arc1];
-  rho_A(2) = [rho_arc2];
-  rho_A = sparse(rho_A);
-
-  % species molar mass
+  % fundamental state -- molar mass
   n = MultiDimVar({N_x_S_lbl}, {N_x_S});
   n = sparse(n);
 
-  % differential molar mass balance
+  % differential species balance
   dndt = MultiDimVar({N_x_S_lbl}, {N_x_S});
   dndt = sparse(dndt);
 
-  % net convective molar mass flow
-  fnc = MultiDimVar({N_x_S_lbl}, {N_x_S});
-  fnc = sparse(fnc);
+  % net diffusional mass flow
+  fnd = MultiDimVar({N_x_S_lbl}, {N_x_S});
+  fnd = sparse(fnd);
 
-  % convective molar mass flow per arc
-  fnc_AS = MultiDimVar({A_x_S_lbl}, {A_x_S});
-  fnc_AS = sparse(fnc_AS);
-
-  % moler concentration in convective arc
-  c_AS = MultiDimVar({A_x_S_lbl}, {A_x_S});
-  c_AS = sparse(c_AS);
-
-  % volumetric flow in x-direction
-  fV = MultiDimVar({A_lbl}, {A});
-  fV = sparse(fV);
-
-  % direction of convective flow
-  d = MultiDimVar({A_lbl}, {A});
-  d = sparse(d);
-
-  % foundation state -- volume
-  V = MultiDimVar({N_lbl}, {N});
-  V = sparse(V);
-
-  % 
-  Ev = MultiDimVar({N_lbl}, {N});
-  Ev = sparse(Ev);
-
-  % 
-  Ef = MultiDimVar({N_lbl}, {N});
-  Ef = sparse(Ef);
-
-  % 
-  Ek = MultiDimVar({N_lbl}, {N});
-  Ek = sparse(Ek);
-
-  % 
-  Ep = MultiDimVar({N_lbl}, {N});
-  Ep = sparse(Ep);
-
-  % mass
-  m = MultiDimVar({N_lbl}, {N});
-  m = sparse(m);
-
-  % 
-  Ev_A = MultiDimVar({A_lbl}, {A});
-  Ev_A = sparse(Ev_A);
-
-  % 
-  Ek_A = MultiDimVar({A_lbl}, {A});
-  Ek_A = sparse(Ek_A);
-
-  % 
-  Ep_A = MultiDimVar({A_lbl}, {A});
-  Ep_A = sparse(Ep_A);
-
-  % 
-  v_A = MultiDimVar({A_lbl}, {A});
-  v_A = sparse(v_A);
-
-  % 
-  m_A = MultiDimVar({A_lbl}, {A});
-  m_A = sparse(m_A);
+  % diffusional mass flow in a given stream
+  fnd_AS = MultiDimVar({A_x_S_lbl}, {A_x_S});
+  fnd_AS = sparse(fnd_AS);
 
 
 % Integrators
   % Initial conditions
-  phi_0(1:2) = no(N_dyn);
+  phi_0(1:9) = no(N_dyn);
 
   % Integration interval
   integration_interval = [to, te];
@@ -250,161 +204,40 @@ function output_vars = main
 
   % Integrand
   function dphidt = f(t, phi) 
-    n(N_dyn) = phi(1:2);
+    n(N_dyn) = phi(1:9);
 
-    Ef(N_dyn) = E_30(l_A, F, kf_A, N_dyn, A_conv);
+    c(N_dyn) = E_44(V, n, N_dyn);
 
-    m(N_dyn) = E_23(Mm, n, N_dyn);
+    fnd_AS(A_diff) = E_132(Dd_NS_AS, c, DiffCoeff, indexunion(N_const, N_dyn), A_diff);
 
-    V(N_dyn) = rootE_22(density, m, V, N_dyn);
+    fnd(N_dyn) = E_69(Fd, fnd_AS, N_dyn, A_diff);
 
-    c(N_dyn) = E_21(n, V, N_dyn);
+    dndt(N_dyn) = E_76(_nProd, fnd, fnc, N_dyn);
 
-    sol = system1(Ep_A, g, P_N_A, Ep, Dc, m_A, Ek_A, Ev_A, h_A, cv_A, Ek, p, dEdt, Ev, onehalf, Ef, A_A, rho_A, v_A, F, fV, A_conv, N_const, N_dyn);
-    v_A(A_conv) = sol(1:3);
-    Ep(N_dyn) = sol(4:4);
-    Ev(N_dyn) = sol(5:5);
-    Ev_A(A_conv) = sol(6:8);
-    Ek_A(A_conv) = sol(9:11);
-    Ek(N_dyn) = sol(12:12);
-    m_A(A_conv) = sol(13:15);
-    p(N_dyn) = sol(16:16);
-    fV(A_conv) = sol(17:19);
-    Ep_A(A_conv) = sol(20:22);
+    n(N_dyn) = E_86(no, te, to, t, dndt, N_dyn);
 
-    d(A_conv) = E_20(Dc, p, indexunion(N_const, N_dyn), A_conv);
-
-    c_AS(A_conv) = E_19(Dc_NS_AS, d, onehalf, c, indexunion(N_const, N_dyn), A_conv);
-
-    fnc_AS(A_conv) = E_12(c_AS, fV, A_conv);
-
-    fnc(N_dyn) = E_5(Fc_NS_AS, fnc_AS, N_dyn, A_conv);
-
-    dndt(N_dyn) = E_3(fnd, fnc, pn, N_dyn);
-
-    n(N_dyn) = E_1(dndt, to, no, te, t, N_dyn);
-
-    dphidt(1:2) = dndt(N_dyn)
+    dphidt(1:9) = dndt(N_dyn)
   endfunction
 endfunction
 
 % Functions for the equations
-function sol = E_30(l_A, F, kf_A, N, A)
-  sol =  F(N,A) * (kf_A(A) .* l_A(A));
+function sol = E_44(V, n, N)
+  sol = khatriRao(inv(V), [N], n, [N_x_S]);
 endfunction
 
-function sol = E_23(Mm, n, N)
-  sol = blockReduce(Mm, "S", "NS", n(N);
+function sol = E_132(Dd_NS_AS, c, DiffCoeff, N, A)
+  sol = DiffCoeff .* (( Dd_NS_AS )'  * c);
 endfunction
 
-function sol = rootE_22(density, m, V, N)
-  function F = root(x)
-    V(N) = x
-    F = m(N) .* reciprocal(V(N)) - density(N);
-    F = F.value;
-  endfunction
-
-  init_guess = [Initial_Guess]
-  sol = fsolve(@root, init_guess)
-
+function sol = E_69(Fd, fnd_AS, N, A)
+  sol = Fd * fnd_AS;
 endfunction
 
-function sol = E_21(n, V, N)
-  sol = khatrirao(reciprocal(V(N)), {"N"}, n(N), {"NS"});
+function sol = E_76(_nProd, fnd, fnc, N)
+  sol = fnc + fnd + _nProd;
 endfunction
 
-function sol = system1(Ep_A, g, P_N_A, Ep, Dc, m_A, Ek_A, Ev_A, h_A, cv_A, Ek, p, dEdt, Ev, onehalf, Ef, A_A, rho_A, v_A, F, fV, A_conv, N_const, N_dyn)
-  function F = sys(x)
-    v_A(A_conv) = x(1:3)
-    Ep(N_dyn) = x(4:4)
-    Ev(N_dyn) = x(5:5)
-    Ev_A(A_conv) = x(6:8)
-    Ek_A(A_conv) = x(9:11)
-    Ek(N_dyn) = x(12:12)
-    m_A(A_conv) = x(13:15)
-    p(N_dyn) = x(16:16)
-    fV(A_conv) = x(17:19)
-    Ep_A(A_conv) = x(20:22)
-
-    function sol = E_35(A_A, v_A, fV, A)
-      sol = fV(A) * reciprocal(A_A(A)) - v_A(A);
-      sol = sol.value;
-    endfunction
-    function sol = E_28(Ep_A, F, Ep, N, A)
-      sol = F(N,A) * Ep_A(A) - Ep(N);
-      sol = sol.value;
-    endfunction
-    function sol = E_27(Ev_A, F, Ev, N, A)
-      sol = F(N,A) * Ev_A(A) - Ev(N);
-      sol = sol.value;
-    endfunction
-    function sol = E_31(Ev_A, fV, P_N_A, p, N, A)
-      sol = -fV(A) * (P_N_A(N,A) * p(N)) - Ev_A(A);
-      sol = sol.value;
-    endfunction
-    function sol = E_33(Ek_A, v_A, onehalf, m_A, A)
-      sol =  onehalf * m_A(A) * v_A(A) * v_A(A) - Ek_A(A);
-      sol = sol.value;
-    endfunction
-    function sol = E_29(Ek, F, Ek_A, N, A)
-      sol = F(N,A) * Ek_A(A) - Ek(N);
-      sol = sol.value;
-    endfunction
-    function sol = E_34(m_A, rho_A, fV, A)
-      sol = rho_A(A) * fV(A) - m_A(A);
-      sol = sol.value;
-    endfunction
-    function sol = E_26(dEdt, Ev, Ef, Ek, Ep, N)
-      sol = Ev(N) + Ep(N) + Ek(N) + Ef(N) - dEdt(N);
-      sol = sol.value;
-    endfunction
-    function sol = E_18(Dc, cv_A, p, fV, N, A)
-      sol = cv_A(A) .* (Dc(N,A) * p(N)) - fV(A);
-      sol = sol.value;
-    endfunction
-    function sol = E_32(Ep_A, m_A, h_A, g, A)
-      sol = m_A(A) * g * h_A(A) - Ep_A(A);
-      sol = sol.value;
-    endfunction
-
-    F(1:3) = E_35(A_A, v_A, fV, A_conv)
-    F(4:4) = E_28(Ep_A, F, Ep, N_dyn, A_conv)
-    F(5:5) = E_27(Ev_A, F, Ev, N_dyn, A_conv)
-    F(6:8) = E_31(Ev_A, fV, P_N_A, p, indexunion(N_const, N_dyn), A_conv)
-    F(9:11) = E_33(Ek_A, v_A, onehalf, m_A, A_conv)
-    F(12:12) = E_29(Ek, F, Ek_A, N_dyn, A_conv)
-    F(13:15) = E_34(m_A, rho_A, fV, A_conv)
-    F(16:16) = E_26(dEdt, Ev, Ef, Ek, Ep, N_dyn)
-    F(17:19) = E_18(Dc, cv_A, p, fV, indexunion(N_const, N_dyn), A_conv)
-    F(20:22) = E_32(Ep_A, m_A, h_A, g, A_conv)
-  endfunction
-
-  init_guess = [initial_guess]
-  sol = fsolve(@sys, init_guess)
-
-endfunction
-
-function sol = E_20(Dc, p, N, A)
-  sol = sign(Dc(N,A) * p(N));
-endfunction
-
-function sol = E_19(Dc_NS_AS, d, onehalf, c, N, A)
-  sol = ( (onehalf .* (Dc_NS_AS(N,A) - khatriRao(d(A), {"A"}, abs(Dc_NS_AS(N,A)), {"NS", "AS"}))) ) * c(N);
-endfunction
-
-function sol = E_12(c_AS, fV, A)
-  sol = khatriRao(fV(A), {"A"}, c_AS(A), {"AS"});
-endfunction
-
-function sol = E_5(Fc_NS_AS, fnc_AS, N, A)
-  sol = F_NS_AS(N,A) * fnc_AS(A);
-endfunction
-
-function sol = E_3(fnd, fnc, pn, N)
-  sol = fnc(N) + fnd(N) + pn(N);
-endfunction
-
-function sol = E_1(dndt, to, no, te, t, N)
+function sol = E_86(no, te, to, t, dndt, N)
   sol = Integral(dndt,t,to,te) + no;
 endfunction
 
