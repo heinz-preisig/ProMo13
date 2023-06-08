@@ -455,6 +455,14 @@ def get_available_ontologies():
 def convert_variable_files(ontology_name):
   path_old = resource_initialisation.FILES["variables_file"] % ontology_name
   path_new = resource_initialisation.FILES["variables_file_new"] % ontology_name
+  old_stat = os.stat(path_old)
+  new_stat = os.stat(path_new)
+  dtime =  old_stat.st_mtime - new_stat.st_mtime
+  if dtime < 0:
+    return
+
+  print(old_stat.st_mtime, new_stat.st_mtime, old_stat.st_mtime-new_stat.st_mtime)
+
   with open(path_old, "r", encoding="utf-8",) as file:
     data = json.load(file)
 
@@ -543,6 +551,13 @@ def convert_equations_file(ontology_name):
   path_new = resource_initialisation.FILES[
       "global_equation_id_new"
   ] % ontology_name
+
+
+  old_stat = os.stat(path_old)
+  new_stat = os.stat(path_new)
+  dtime =  old_stat.st_mtime - new_stat.st_mtime
+  if dtime < 0:
+    return
 
   with open(path_old, "r", encoding="utf-8",) as file:
     data = json.load(file)

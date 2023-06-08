@@ -54,15 +54,18 @@ BLOCK_INDEX_SEPARATOR = " & "
 IRIPREFIX_DELIMITER = ":"
 IRINAMESPACE_DELIMITER = "+"
 
-IRI_TEMPLATE = "%s:%s+%s" #%(prefix, namespace, label)
+# IRI_TEMPLATE = "%s:%s+%s" #%(prefix, namespace, label)
+IRI_TEMPLATE = "%s:%s" #%(prefix, label)
 
 def IRI_parse(iri):
   prefix, _rest = iri.split(IRIPREFIX_DELIMITER)
   namespace, label = _rest.split(IRINAMESPACE_DELIMITER)
   return prefix,namespace,label
 
-def IRI_make(prefix,namespace,label):
-  r = IRI_TEMPLATE%(prefix,namespace,label)
+# def IRI_make(prefix,namespace,label):
+def IRI_make(prefix,label):
+  # r = IRI_TEMPLATE%(prefix,namespace,label)
+  r = IRI_TEMPLATE%(prefix,label)
   return r
 
 

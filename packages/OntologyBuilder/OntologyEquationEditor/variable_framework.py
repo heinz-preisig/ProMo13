@@ -1319,7 +1319,8 @@ class PhysicalVariable():
   def changeLabel(self, label):
     self.label = label
     prefix,namespace,old_label = IRI_parse(self.IRI)
-    self.IRI = IRI_make(prefix,namespace,label)
+    # self.IRI = IRI_make(prefix,namespace,label)
+    self.IRI = IRI_make(prefix,label)
 
     for language in LANGUAGES["aliasing"]:
       if language != "global_ID":

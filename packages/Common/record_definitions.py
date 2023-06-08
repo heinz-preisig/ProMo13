@@ -282,7 +282,8 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["aliases"] = aliases  # .....could be in code - not handy and not quite logical: there is also a compiled version
   self["port_variable"] = port_variable  # ............ port variables are at the bottom of the definition -- foundation
   self["tokens"] = tokens # ...................................................................................... token
-  self["IRI"] = IRI_make("promo", network, label)  # NOTE: label is to be adjusted when changed
+  # self["IRI"] = IRI_make("promo", network, label)  # NOTE: label is to be adjusted when changed
+  self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
 
   for language in LANGUAGES["aliasing"]:
     self["aliases"][language] = label

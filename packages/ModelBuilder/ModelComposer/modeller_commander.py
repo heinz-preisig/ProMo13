@@ -2242,10 +2242,10 @@ class Commander(QtCore.QObject):
     if debug:
       print("start redraw node ", nodeID)
 
+    children = self.model_container["ID_tree"].getChildren(nodeID)
     self.applyControlAccessRules()
 
     # nodes
-    children = self.model_container["ID_tree"].getChildren(nodeID)
     for child in children:
       graph_object_class = self.model_container["nodes"][child]["class"]
       application = self.model_container["nodes"][child]["type"]
@@ -2425,11 +2425,13 @@ class Commander(QtCore.QObject):
         self.state_nodes[child] = "blocked"  # default is blocked
     for node in children:
       self.__enableNodeOnRule(node, "nodes_allowing_token_injection")
-      node_tokens = list(self.model_container["nodes"][node]["tokens"].keys())
-      if self.main.selected_token[self.editor_phase][self.main.current_network] in node_tokens:
-        self.state_nodes[node] = "enabled"
-      else:
-        self.state_nodes[node] = "blocked"
+      current_node = self.model_container["nodes"][node]
+      if current_node["network"] != "composite":
+        node_tokens = list(current_node["tokens"].keys())
+        if self.main.selected_token[self.editor_phase][self.main.current_network] in node_tokens:
+          self.state_nodes[node] = "enabled"
+        else:
+          self.state_nodes[node] = "blocked"
 
         pass
       # if self.state_nodes[node] != "selected":

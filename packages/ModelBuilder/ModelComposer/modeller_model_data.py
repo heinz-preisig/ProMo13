@@ -896,9 +896,10 @@ class ModelContainer(dict):
       mechanism = data["arcs"][arcID]["mechanism"]
       token = data["arcs"][arcID]["token"]
       nature = data["arcs"][arcID]["nature"]
+      variant = data["arcs"][arcID]["variant"]
       odata["arcs"][arcID_map[arcID]] = ArcInfo(mapped_arc_source_ID, mapped_arc_sink_ID, network,
                                                 named_network,
-                                                mechanism, token, nature)
+                                                mechanism, token, nature, variant)
 
     for the_hash in self:
       if the_hash == "ID_tree":
