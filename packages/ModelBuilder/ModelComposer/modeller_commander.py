@@ -2425,27 +2425,6 @@ class Commander(QtCore.QObject):
         self.state_nodes[child] = "blocked"  # default is blocked
     for node in children:
       self.__enableNodeOnRule(node, "nodes_allowing_token_injection")
-      current_node = self.model_container["nodes"][node]
-      if current_node["network"] != "composite":
-        node_tokens = list(current_node["tokens"].keys())
-        if self.main.selected_token[self.editor_phase][self.main.current_network] in node_tokens:
-          self.state_nodes[node] = "enabled"
-        else:
-          self.state_nodes[node] = "blocked"
-
-        pass
-      # if self.state_nodes[node] != "selected":
-      #   self.state_nodes[node] = "blocked"
-      #   network = self.main.current_network
-      #   named_network = self.model_container["nodes"][node]["named_network"]
-      #   if named_network == self.main.current_named_network:  # self.main.current_network:
-      #     if "constant" in self.model_container["nodes"][node]["type"]:
-      #       for token in tokens:
-      #         if token in self.main.nw_token_typedtoken_dict[network].keys():
-      #           if token in self.model_container["nodes"][node]["tokens"]:
-      #             self.state_nodes[node] = "enabled"
-
-    # self.setDefaultEditorState()
 
   def __ruleNodeAccessTypedTokensConvert(self):
     # RULE: only simple nodes in a given network
@@ -2453,10 +2432,6 @@ class Commander(QtCore.QObject):
 
     children = self.model_container["ID_tree"].getChildren(
         self.currently_viewed_node)
-
-    # for child in children:  # set the default (initialisation, import etc.)
-    #   if child not in self.state_nodes:
-    #     self.state_nodes[child] = "blocked"  # default is blocked
 
     for node in children:
       self.__enableNodeOnRule(node, "nodes_allowing_token_conversion")
@@ -2534,10 +2509,15 @@ class Commander(QtCore.QObject):
 
   # RULE: the first in the list is the default usually "enabled"  # default is enabled
   def resetNodeStates(self):
-    viewed_node = self.currently_viewed_node
-    children = self.model_container["ID_tree"].getChildren(viewed_node)
-    for child in children:  # set the default (initialisation, import etc.)
-      self.state_nodes[child] = STATES[self.editor_phase]["nodes"][0]
+    # viewed_node = self.currently_viewed_node
+    # children = self.model_container["ID_tree"].getChildren(viewed_node)
+    # for child in children:  # set the default (initialisation, import etc.)
+    #   self.state_nodes[child] = STATES[self.editor_phase]["nodes"][0]
+    # return
+
+    nodes = self.model_container["ID_tree"].getNodes()
+    for node in nodes:  # set the default (initialisation, import etc.)
+      self.state_nodes[node] = STATES[self.editor_phase]["nodes"][0]
     return
 
   def applyNodeDefinitionRules(self, nodetype):

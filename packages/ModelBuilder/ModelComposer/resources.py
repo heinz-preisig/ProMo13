@@ -85,7 +85,8 @@ ACTIONS["token_topology"] = ["zoom in",
                              "inject",
                              "compute"
                              ]
-ACTIONS["equation_topology"] = ["make interface",
+ACTIONS["equation_topology"] = ["zoom in",
+                                "make interface",
                                 "instantiate",
                                 "edit_assignment"]
 
