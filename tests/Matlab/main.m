@@ -7,24 +7,32 @@ function main
   % N = mat2cell([1:5]', 5, 1);
 
   F = MultiDimVar({"NS", "AS"}, {NS, AS}, reshape(1:24, 6, 4));
+  D = MultiDimVar({"NS", "AS"}, {NS, AS}, reshape(1:24, 6, 4));
   c = MultiDimVar({"NS"}, {NS}, [0; 0; 0; 1; 0; 0]);
   fnc = MultiDimVar({"AS"}, {AS}, reshape(1:4, 4, 1));
-  % lambda = MultiDimVar(reshape(1:3, 3, 1), {"S"}, {S});
-  % p = MultiDimVar(reshape(1:3, 3, 1), {"N"}, {N});
-  % fv = MultiDimVar(reshape(1:3, 3, 1), {"A"}, {A});
-  % m1 = MultiDimVar(reshape(1:9, 3, 3), {"N", "A"}, {N, A});
-  % m2 = MultiDimVar(reshape(1:9, 3, 3), {"A", "N"}, {A, N});
+  m = MultiDimVar({"N"}, {N}, [1; 2; 3]);
+  V = MultiDimVar({"N"}, {N}, [2; 3; 4]);
 
-  disp(reduceproduct(F, "AS", fnc))
-  F = sparse(F);
-  fnc = sparse(fnc);
-  disp(reduceproduct(F, "AS", fnc))
 
-  p = MultiDimVar({"N"}, {N}, [23; 32; 45]);
-  disp(p)
+##  disp(reduceproduct(F, "AS", fnc))
+##  F = sparse(F);
+##  fnc = sparse(fnc);
+##  disp(reduceproduct(F, "AS", fnc))
+##
+##  p = MultiDimVar({"N"}, {N}, [23; 32; 45]);
+##  disp(p)
   
-  new = khatrirao(p, {"N"}, c, {"NS"});
-  disp(new)
+##  m = MultiDimVar({"N"}, {N}, [1; 2; 3]);
+##  disp(m)
+  
+##  V = MultiDimVar({"N"}, {N}, [2; 3; 4]);
+##  disp(V)
+##  disp(V.indexLabels)
+##  disp(reciprocal(V))
+##  disp(expandproduct(m, 1 ./ V))
+  
+##  new = khatrirao(p, {"N"}, c, {"NS"});
+##  disp(new)
 
   % disp(product(fnc, "AS"))
   % % g = MultiDimVar({}, {}, 9.8);
@@ -33,6 +41,36 @@ function main
   % disp(product(F, "AS"))
   % size(product(F, "AS"))
 
+  ############################## Transpose #####################################
+  fprintf("Tests for Transpose\n")
+  disp(c')          % The transpose of a 1D is the same 1D (always a column vector)
+  fprintf("========================\n")
+  disp(F')          % The transpose of a 2D behaves as usual
+  ############################ Expand Product ##################################
+  fprintf("Tests for Expand Product\n")
+  a = 3 .* 5        % scalar times scalar
+  fprintf("========================\n")
+  a = 3 .* c;       % scalar times 1D
+  disp(a)
+  fprintf("========================\n")
+  a = F .* 2;       % 2D times scalar
+  disp(a)
+  fprintf("========================\n")
+  a = m .* V;       % 1D times 1D (same indexSet)
+  disp(a)
+  fprintf("========================\n")
+  a = F .* D;       % 2D times 2D (same indexSets)
+  disp(a)
+  fprintf("========================\n")
+  a = c .* F;       % 1D times 2D   x .* x,y -> x,y
+  disp(a)
+  fprintf("========================\n")
+  a = fnc .* F;     % 1D times 2D   y .* x,y -> x,y
+  disp(a)
+  fprintf("========================\n")
+  a = F .* fnc;     % 2D times 1D   x,y .* y -> x,y
+  disp(a)
+  
 endfunction
 function result = indexunion(varargin)
   result = varargin{1};
