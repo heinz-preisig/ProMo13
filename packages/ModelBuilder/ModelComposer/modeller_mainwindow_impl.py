@@ -488,7 +488,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     node = self.selected_node_type[network]
     token = self.selected_token[self.editor_phase][network]
     obj_ID = "node.%s|%s" % (token, node)
-    print("ID: " + obj_ID)
+    # print("ID: " + obj_ID)
     # print("debugging -- make combo node subclass", network, node, token, obj_ID)
 
     self.ui.comboNodeSubClass.clear()
@@ -1122,9 +1122,14 @@ class MainWindowImpl(QtWidgets.QMainWindow):
   def setKeyAutomatonState(self, event):
     self.interface_set = True
     phase = self.commander.editor_phase
-    for r in self.radio[phase]:
-      self.radio[phase][r].setChecked(False)
+
     self.radio[phase][event].setChecked(True)
+
+    for r in self.radio[phase]:
+      if r != event:
+        self.radio[phase][r].setChecked(False)
+    #     print("debugging resetting", r)
+    # print("debugging -- set radio", phase, event)
 
   def showMouseAction(self, item, decoration, cursor, actionLeft, actionRight):
     if cursor != "leave":

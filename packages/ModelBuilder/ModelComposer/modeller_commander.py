@@ -32,7 +32,7 @@ from PyQt5 import QtWidgets
 import Common.common_resources as CR
 import ModelBuilder.ModelComposer.resources as R
 from Common.automata_objects import GRAPH_EDITOR_STATES
-from Common.common_resources import NODE_COMPONENT_SEPARATOR
+from Common.common_resources import NODE_COMPONENT_SEPARATOR,CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import askForModelFileGivenOntologyLocation
 from Common.graphics_objects import INTERFACE
 from Common.graphics_objects import INTRAFACE
@@ -52,6 +52,7 @@ from ModelBuilder.ModelComposer.modeller_model_data import ModelContainer
 from ModelBuilder.ModelComposer.modeller_model_data import ModelGraphicsData
 from ModelBuilder.ModelComposer.modeller_model_data import ROOTID
 from ModelBuilder.ModelComposer.instantiation_dialog_impl import InstantiationDlg
+from ModelBuilder.ModelComposer.instantiation_dialog_HAP_impl import InstantiationDialog
 
 from typing import List, Optional, Tuple
 from typing_extensions import TypedDict
@@ -1477,66 +1478,202 @@ class Commander(QtCore.QObject):
     # Pretty print for debug
     from pprint import pprint as pp
 
-    pp(pars)
+    # pp(pars)
+    # node_id = pars["nodeID"]
+    # nodes_to_instantiate= []
+    # node_groups = {}
+    #
+    # # dictionary node_group[entity_ID][node] = {variable: value}
+    #
+    #
+    # if self.node_group == set():
+    #   mode = "single"
+    #   if node_id > 0:
+    #     nodes_to_instantiate.append(node_id)
+    #   else:
+    #     print("Nothing to instantiate.")
+    #     return {"failed": True}
+    # else:
+    #   for node in self.node_group:
+    #     nodes_to_instantiate.append(node.ID)
+    #
+    # instances = {}
+    # for node_id in nodes_to_instantiate:
+    #   entity_ID = self._get_entity_name_from_node(node_id)
+    #   if entity_ID not in node_groups:
+    #     node_groups[entity_ID] =[node_id]
+    #   entity = self.all_entities[entity_ID]
+    #   init_vars = entity.get_init_vars()
+    #   for v in init_vars:
+    #     instances[v] = self.model_container["nodes"][node_id]["instantiated_variables"]
+    #     # if instances[v]:
+    #     #   dlg = InstantiationDlg(
+    #     #           var_data_all,
+    #     #           entity_behaviour,
+    #     #           self.all_variables,
+    #     #           single_node_instantiation,
+    #     #           self.main,
+    #     #           )
+    #
+    # # =========================================================
+
     node_id = pars["nodeID"]
     nodes_to_instantiate = []
     nodes_selection = []
 
-    if node_id != 0:                    # Case 1 & 2 Simple and composite nodes
-      nodes_selection.append(node_id)
-    else:                               # Case 3: Selection of nodes
-      if self.node_group:
-        for node in self.node_group:
-          nodes_selection.append(node.ID)
+    if self.node_group == set():
+      mode = "single"
+      if node_id > 0:
+        nodes_selection.append(node_id)
       else:
         print("Nothing to instantiate.")
         return {"failed": True}
+    else:
+      for node in self.node_group:
+        nodes_selection.append(node.ID)
 
     # Using a queue to get all the simple nodes inside composite nodes.
     node_queue = deque(nodes_selection)
     while node_queue:
       node_id = node_queue.popleft()
       node_class = self.model_container["nodes"][node_id]["class"]
-      if node_class == "node_simple":
+      if node_class in [ "node_simple", 'node_intraface']:
         nodes_to_instantiate.append(node_id)
       elif node_class == "node_composite":
-        children = self.model_container["ID_tree"].getChildren(node_id)
-        node_queue.extend(children)
+        children = self.model_container["ID_tree"].getLeaves(node_id) #getChildren(node_id)
+        for i in children:
+          node_class = self.model_container["nodes"][i]["class"]
+          if node_class == "node_simple":
+            nodes_to_instantiate.append(i)
+          # node_queue.extend(children)
 
-    # print(nodes_to_instantiate)
+    # make a dictionary: hash: variable ID, value: list of node IDs with this variable
+    vars_to_instantiate = {}
+    for node_id in nodes_to_instantiate:
+      entity = self.get_entity_node(node_id)
+      if entity:
+        vars = entity.init_vars
+        for v in vars:
+          if v not in vars_to_instantiate:
+            vars_to_instantiate[v]= [node_id]
+          else:
+            vars_to_instantiate[v].append(node_id)
+        pass
 
-    entity_behaviour, var_data_all = self._get_instantiation_variables(
-        nodes_to_instantiate
-    )
+    vars_instantiated = {}
+    for node_id in nodes_to_instantiate:
+      values = self.model_container["nodes"][node_id]["instantiated_variables"]
+      for var_id in values:
+        if var_id not in vars_instantiated:
+          vars_instantiated[var_id] = {values[var_id]}
+        else:
+          vars_instantiated[var_id].add(values[var_id])
+      pass
 
-    # pp(var_data_all)
+    dialog = InstantiationDialog(vars_to_instantiate,vars_instantiated, self.all_variables)
+    dialog.exec_()
 
-    if len(nodes_to_instantiate) > 1:
-      single_node_instantiation = False
-    else:
-      single_node_instantiation = True
+    newly_instantiated = dialog.newly_instantiated
 
-    dlg = InstantiationDlg(
-        var_data_all,
-        entity_behaviour,
-        self.all_variables,
-        single_node_instantiation,
-        self.main,
-    )
-
-    if dlg.exec_() == QtWidgets.QDialog.Accepted:
+    for var_id in newly_instantiated:
       for node_id in nodes_to_instantiate:
-        print(node_id)
-        for var_info, _ in itertools.chain(dlg.var_data[0], dlg.var_data[1]):
-          if var_info["same_in_all_nodes"]:
-            self._set_instantiation_value(
-                var_info["id"],
-                var_info["value"],
-                node_id
-            )
-    pp(self.model_container["instantiation_info"]["nodes"])
+        entity = self.get_entity_node(node_id)
+        vars = entity.init_vars
+        if var_id in vars:
+          self.model_container["nodes"][node_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
+    pass
+
+  # ==============================  arcs =========================================
+    arcs_to_instantiate = set()
+    for node_id in nodes_to_instantiate:
+      for arc_id in self.model_container["arcs"]:
+        if node_id == self.model_container["arcs"][arc_id]["source"]:
+          for n_id in nodes_to_instantiate:
+            if n_id == self.model_container["arcs"][arc_id]["sink"]:
+                arcs_to_instantiate.add(arc_id)
+
+    print("debugg - arcs", arcs_to_instantiate)
+
+    # --
+    # make a dictionary: hash: variable ID, value: list of node IDs with this variable
+    vars_to_instantiate = {}
+    for arc_id in arcs_to_instantiate:
+      entity = self.get_entity_arc(arc_id)
+      if entity:
+        vars = entity.init_vars
+        for v in vars:
+          if v not in vars_to_instantiate:
+            vars_to_instantiate[v] = [arc_id]
+          else:
+            vars_to_instantiate[v].append(arc_id)
+        pass
+
+    vars_instantiated = {}
+    for arc_id in arcs_to_instantiate:
+      values = self.model_container["arcs"][arc_id]["instantiated_variables"]
+      for var_id in values:
+        if var_id not in vars_instantiated:
+          vars_instantiated[var_id] = {values[var_id]}
+        else:
+          vars_instantiated[var_id].add(values[var_id])
+      pass
+
+    # --
+
+    dialog = InstantiationDialog(vars_to_instantiate, vars_instantiated, self.all_variables)
+    dialog.exec_()
+
+    # # print(nodes_to_instantiate)
+    #
+    # entity_behaviour, var_data_all = self._get_instantiation_variables(
+    #     nodes_to_instantiate
+    # )
+    #
+    #
+    # # pp(var_data_all)
+    #
+    # if len(nodes_to_instantiate) > 1:
+    #   single_node_instantiation = False
+    # else:
+    #   single_node_instantiation = True
+    #
+    # dlg = InstantiationDlg(
+    #     var_data_all,
+    #     entity_behaviour,
+    #     self.all_variables,
+    #     single_node_instantiation,
+    #     self.main,
+    # )
+    #
+    # if dlg.exec_() == QtWidgets.QDialog.Accepted:
+    #   for node_id in nodes_to_instantiate:
+    #     print(node_id)
+    #     for var_info, _ in itertools.chain(dlg.var_data[0], dlg.var_data[1]):
+    #       if var_info["same_in_all_nodes"]:
+    #         self.model_container["nodes"][node_id]["instantiated_variables"][var_info["id"]] = var_info["value"]
+    #         # self._set_instantiation_value(
+    #         #     var_info["id"],
+    #         #     var_info["value"],
+    #         #     node_id
+    #         # )
+    # # pp(self.model_container["instantiation_info"]["nodes"])
 
     return {"failed": False}
+
+  def get_entity_node(self, node_id):
+    entity_ID = self._get_entity_name_from_node(node_id)
+    if not entity_ID:
+      return None
+    entity = self.all_entities[entity_ID]
+    return entity
+
+
+  def get_entity_arc(self, arc_id):
+    entity_ID = self._get_entity_name_from_arc(arc_id)
+    if not entity_ID:
+      return None
+    entity = self.all_entities[entity_ID]
+    return entity
 
   def _get_instantiation_variables(
       self,
@@ -1747,7 +1884,10 @@ class Commander(QtCore.QObject):
 
     if var_have_same_value:
       var_info["same_in_all_nodes"] = True
-      var_info["value"] = first_var_value
+      if first_var_value:
+        var_info["value"] = first_var_value[var_id]
+      else:
+        var_info["value"] = None
     else:
       var_info["same_in_all_nodes"] = False
       var_info["value"] = None
@@ -1776,13 +1916,20 @@ class Commander(QtCore.QObject):
     if int(var_id.replace("V_", "")) not in self.main.ontology.variables:
       pass  # TODO Code behaviour when the variable file changed
 
-    node_id = str(node_id)  # TODO Remove when the int & str problem is fixed.
-    nodes = self.model_container["instantiation_info"]["nodes"]
-    if node_id in nodes:
-      if var_id in nodes[node_id]:
-        return nodes[node_id][var_id]
+    # node_id = str(node_id)  # TODO Remove when the int & str problem is fixed.
+    values = {}
+    vars = self.model_container["nodes"][node_id]["instantiated_variables"]
+    if var_id not in vars:
+      values= None
+    else:
+      values[var_id] = vars[var_id]
 
-    return None
+    return values
+    # if node_id in values:
+    #   if var_id in values[node_id]:
+    #     return values[node_id][var_id]
+    #
+    # return None
 
   def _set_instantiation_value(
       self,
@@ -1815,24 +1962,45 @@ class Commander(QtCore.QObject):
     Returns:
         entity.Entity: Entity associated to the node.
     """
-    # TODO Associate a node to an entity when inserting the node.
     entity_type = self.model_container["nodes"][node_id]["type"]
-
     entity_nw = self.model_container["nodes"][node_id]["network"]
-    if entity != "intra":
-      nws = list(self.model_container.ontology.intra_domains.keys())
-      for nw in nws:
-        if entity_nw in self.model_container.ontology.intra_domains[nw]:
-          entity_domain = self.model_container.ontology.intra_domains[nw][0]
+    entity_class = self.model_container["nodes"][node_id]["class"]
 
+    if entity_class == NAMES["intraface"]:
+      return None
+
+    entity_domain = self._get_entity_domain(entity_nw)
     tokens = sorted(self.model_container["nodes"][node_id]["tokens"].keys())
-
     entity_variant = self.model_container["nodes"][node_id]["variant"]
 
     for t in tokens:
       ent_name = f"{entity_domain}.node.{t}|{entity_type}.{entity_variant}"
       if ent_name in self.all_entities:
         return ent_name
+      else:
+        return None
+
+  def _get_entity_domain(self, entity_nw):
+    nws = list(self.model_container.ontology.intra_domains.keys())
+    for nw in nws:
+      if entity_nw in self.model_container.ontology.intra_domains[nw]:
+        entity_domain = self.model_container.ontology.intra_domains[nw][0]
+    return entity_domain
+
+  def _get_entity_name_from_arc(self, arc_id: str):
+
+    arc = self.model_container["arcs"][arc_id]
+    entity_mechanism = arc["mechanism"]
+    entity_nature = arc["nature"]
+    entity_nw = arc["network"]
+    token = arc["token"]
+    entity_variant = arc["variant"]
+    entity_domain = self._get_entity_domain(entity_nw)
+    ent_name = f"{entity_domain}.arc.{token}|{entity_mechanism}|{entity_nature}.{entity_variant}"
+    if ent_name in self.all_entities:
+      return ent_name
+    else:
+      return None
 
   # def __getEntityBehaviour(self, nodeID):
   #   selected_entity_behaviour = None
@@ -2506,6 +2674,7 @@ class Commander(QtCore.QObject):
     for event in self.key_automata[self.editor_phase]:
       if self.editor_state == self.key_automata[self.editor_phase][event]["state"]:
         self.main.setKeyAutomatonState(event)
+        break
 
   # RULE: the first in the list is the default usually "enabled"  # default is enabled
   def resetNodeStates(self):

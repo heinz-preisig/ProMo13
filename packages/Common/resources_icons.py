@@ -48,6 +48,7 @@ ICONS["task_automata"] = "task_automata.svg"
 ICONS["update"] = "update_button_hap.svg"
 ICONS["variable_show"] = "variable_show_button.svg"
 ICONS["V"] = "V_button_hap.svg"
+ICONS["number"] = "instantiate_button_hap.svg"
 
 size = 52
 BUTTON_ICON_SIZE = QtCore.QSize(size, size)

@@ -59,6 +59,7 @@ class NodeInfo(dict):  # (OrderedDict): #
     self["class"] = node_class
     self["type"] = node_type
     self["variant"] = None
+    self["instantiated_variables"] = {} # hash :: variable_id
 
 # RULE: feature controls what the node may contain tokens, conversion, left/right tokens, transfer constraints, injection
     if "has_tokens" in features:
@@ -89,6 +90,7 @@ class ArcInfo(dict):  # OrderedDict):  # NOTE: changed to dictionary -- OrderedD
     self["nature"] = nature
     self["variant"] = variant
     # self["type"] = arctype                   # removed
+    self["instantiated_variables"] = {} # hash :: variable_id
 
   def cleanTypedTokens(self):  # Does not work with the current implementation
     self["typed_tokens"] = []  # TODO: Remove
@@ -136,10 +138,10 @@ class ModelContainer(dict):
     self["arcs"] = {}
     self.arcID = 0
     self["scenes"] = {}
-    self["instantiation_info"] = {
-      "nodes": {},
-      "arcs": {},
-    }
+    # self["instantiation_info"] = {
+    #   "nodes": {},
+    #   "arcs": {},
+    # }
 
     rootID = ROOTID  # str(ROOTID)   #HAP: ID string to integer
     self["nodes"][rootID] = NodeInfo(rootID)
@@ -641,7 +643,7 @@ class ModelContainer(dict):
     odata["named_networks"] = data["named_networks"]
 
     # Check if we are saving this info here
-    odata["instantiation_info"] = deepcopy(self["instantiation_info"])
+    # odata["instantiation_info"] = deepcopy(self["instantiation_info"])
 
     for i in self:
       if i != "ID_tree":
@@ -788,7 +790,7 @@ class ModelContainer(dict):
     flat_data["token_incidence_matrix"] = I_tokens
     flat_data["typed_token_incidence_matrix"] = I_typed_tokens
     flat_data["typed_token_lists"] = typed_tokens
-    flat_data["instantiation_info"] = self["instantiation_info"]
+    # flat_data["instantiation_info"] = self["instantiation_info"]
     return flat_data
 
   def getAndFixData(self, f):
@@ -808,6 +810,12 @@ class ModelContainer(dict):
           new_data[d].pop(i)
         new_data[d][i_i] = data[d][i]
 
+    for d in ["arcs", "nodes"]:
+      for a in new_data[d]:
+        if "instantiated_variables" not in new_data[d][a]:
+          new_data[d][a]["instantiated_variables"] = {}
+
+
     # this is not elegant, but there seems to be a python problem if one does it more elegantly
     d = "scenes"
     for i in list(data[d].keys()):
@@ -819,9 +827,9 @@ class ModelContainer(dict):
         new_data[d][i_i]["nodes"][int(ii)] = data[d][i]["nodes"][ii]
         d_ = new_data[d][i_i]["nodes"].pop(ii)
       del new_data[d][i]
-
-
     # print("got here")
+    if "instantiation_info" in new_data:
+      del new_data["instantiation_info"]
     return new_data
 
   def makeFromFile(self, f):
