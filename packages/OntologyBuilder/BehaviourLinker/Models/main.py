@@ -43,8 +43,8 @@ class MainModel(QtCore.QObject):
   def load_ontology(self, ontology_name):
     self.ontology_name = ontology_name
     # TODO: Remove this when the output of the equation editor changes
-    # io.convert_variable_files(ontology_name)
-    # io.convert_equations_file(ontology_name)
+    io.convert_variable_files(ontology_name)
+    io.convert_equations_file(ontology_name)
     # exit()
     # Loading data from files
     self.ontology = io.load_ontology_from_file(self.ontology_name)
