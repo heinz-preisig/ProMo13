@@ -97,6 +97,7 @@ class R_Item(QtWidgets.QGraphicsItem):
       state = M_None
       application = M_None
 
+
       if self.graphics_root_object in NODES + [NAMES["panel"]]:
         if self.graphics_root_object in OBJECTS_with_state:
           if decoration in DECORATIONS_with_state:

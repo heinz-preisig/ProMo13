@@ -395,9 +395,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       count += 1
 
     if self.initialising:
-      # NOTE: only place being used -- caused a lot of
+      # NOTE: only place being used -- caused a lot of problems
       self.commander.setDefaultEditorState()
-    # problems when using it rules
 
   def __mapAndSave(self):
     """
