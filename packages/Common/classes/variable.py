@@ -78,7 +78,7 @@ class Variable():
 
   def get_id(self):
     return self.var_id
-  
+
   def get_img_path(self):
     return self.img_path
 
@@ -133,3 +133,9 @@ class Variable():
       return True
 
     return False
+
+  def get_alias(self, language):
+    return self.aliases[language]
+
+  def get_indices(self):
+    return self.index_structures

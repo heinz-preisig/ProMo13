@@ -26,6 +26,7 @@ io.convert_model_file(ontology_name, model_name)
 # model_name = "TEST_3Pores"
 
 all_variables, all_indices = io.load_variables_from_file(ontology_name)
+io.translate_equations(ontology_name, "matlab")
 all_equations = io.load_equations_from_file(ontology_name)
 all_entities = io.load_entities_from_file(ontology_name)
 topology_graph = io.load_topology_from_file(
@@ -33,6 +34,8 @@ topology_graph = io.load_topology_from_file(
     model_name,
     all_entities,
 )
+
+
 var_eq = vareqdigraph.VarEqDiGraph(
     topology_graph,
     all_equations,

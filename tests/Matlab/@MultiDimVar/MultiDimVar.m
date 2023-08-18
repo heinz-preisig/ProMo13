@@ -58,7 +58,7 @@ classdef MultiDimVar
     self = reduceproduct(op1, reduceSet, op2)
     self = expandproduct(op1, op2)
     self = blockreduce(op1, reduceSet, targetSet, op2)
-    self = khatrirao(op1, splitSet1, op2, splitSet2)
+    self = khatrirao(op1, op2)
   endmethods
 endclassdef
 

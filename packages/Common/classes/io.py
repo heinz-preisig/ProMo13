@@ -15,6 +15,65 @@ from packages.Common.classes import variable
 from packages.Common.classes import ontology
 from packages.Common import resource_initialisation
 
+from packages.Common.classes import translator
+from packages.Common.classes import equation_parser
+
+
+def load_translation_info_from_file(
+    language: str
+) -> translator.TranslationInfo:
+  # TODO: Add to FILES in the resource initialization.
+  packages_path = resource_initialisation.DIRECTORIES["packages"]
+  remaining_path = (
+      f"Utilities/TranslationManager/resources/language_configurations/"
+      f"{language}/translation_template.json"
+  )
+  path = os.path.join(packages_path, remaining_path)
+
+  with open(path, "r", encoding="utf-8",) as file:
+    data = json.load(file)
+
+  info = translator.TranslationInfo(**data)
+
+  return info
+
+
+def translate_equations(ontology_name: str, language: str):
+  # TODO: Maybe move this function to a different module (Utils)
+  # TODO: Make a check if the equations need to be translated
+  path_global_equations = resource_initialisation.FILES[
+      "global_equation_id_new"
+  ] % ontology_name
+
+  with open(path_global_equations, "r", encoding="utf-8",) as file:
+    data_global_equations = json.load(file)
+
+  # TODO: Change this and pass it as arguments
+  all_variables, all_indices = load_variables_from_file(ontology_name)
+
+  parser = equation_parser.EquationParser(language, all_variables, all_indices)
+
+  data_translated_equations = {}
+
+  # equations = ["E_44", "E_132", "E_69", "E_76"]
+  for eq_id, eq_data in data_global_equations.items():
+    # for eq_id in equations:
+    #   eq_data = data_global_equations[eq_id]
+    translated_eq_data = copy.copy(eq_data)
+    # pp(translated_eq_data)
+    translated_eq_data["lhs"] = parser.parse(eq_data["lhs"])
+    # pp(translated_eq_data)
+    translated_eq_data["rhs"] = parser.parse(eq_data["rhs"])
+    # pp(translated_eq_data)
+    data_translated_equations[eq_id] = translated_eq_data
+
+  path_ontology = resource_initialisation.DIRECTORIES["ontology_location"] % ontology_name
+  file_name = f"equations_{language}.json"
+  path_translated_equations = os.path.join(path_ontology, file_name)
+
+  with open(path_translated_equations, "w", encoding="utf-8",) as file:
+    json.dump(data_translated_equations, file, indent=4)
+
 
 def load_equations_from_file(
     ontology_name: str,
@@ -51,7 +110,7 @@ def load_equations_from_file(
   for lang in languages:
     lang_path = resource_initialisation.DIRECTORIES[
         "ontology_location"
-    ] % ontology_name + "/equations_" + lang + "_new.json"
+    ] % ontology_name + "/equations_" + lang + ".json"
 
     with open(lang_path, "r", encoding="utf-8",) as file:
       lang_data = json.load(file)
@@ -466,7 +525,7 @@ def convert_variable_files(ontology_name):
   with open(path_old, "r", encoding="utf-8",) as file:
     data = json.load(file)
 
-  new_data = {"variables": {}}
+  new_data = {"variables": {}, "indices": {}}
   latex_aliases = {}
   for var_int_key, var_data in data["variables"].items():
     new_var_data = {}
@@ -487,8 +546,16 @@ def convert_variable_files(ontology_name):
     latex_aliases["V_" + var_int_key] = "$" + \
         new_var_data["aliases"]["latex"] + "$"
 
+  for idx_int_key, idx_data in data["indices"].items():
+    new_idx_data = dict(idx_data)
+    if "indices" in new_idx_data:
+      new_idx_data["indices"] = [str(value)
+                                 for value in new_idx_data["indices"]]
+
+    new_data["variables"]["I_" + idx_int_key] = new_idx_data
+
   for key, value in data.items():
-    if key == "variables":
+    if key in ("variables", "indices"):
       continue
 
     new_data[key] = value

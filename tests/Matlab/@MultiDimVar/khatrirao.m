@@ -1,4 +1,4 @@
-function self = khatrirao(op1, splitSet1, op2, splitSet2)
+function self = khatrirao(op1, op2)
   % op1 and op2 are matrices
   % Every set in splitSet1 is a subset of one of the sets in splitSet2. 
   % The order is not important. Ex. {"N", "A"} and {"AS", "NS"}.
@@ -9,6 +9,10 @@ function self = khatrirao(op1, splitSet1, op2, splitSet2)
   % is in op2. otherIndex stores the remaining dimension if op2 is a 2D
   % matrix. 
   
+  splitSet1 = op1.indexLabels;
+  splitSet2 = op2.indexLabels;
+
+
   % Using this as octave have not implemented the function contains()
   posIndex = find(not(cellfun('isempty',strfind(splitSet2, splitSet1{1}))));
   otherIndex = 3 - posIndex;
