@@ -37,7 +37,7 @@ DEDICATED_KEY = {
 GRAPH_EDITOR_STATES = OrderedDict()
 GRAPH_EDITOR_STATES["topology"] = ["explore", "insert", "connect_arc", "re-connect_arc", "explode", "delete", ]
 GRAPH_EDITOR_STATES["token_topology"] = ["inject"]
-GRAPH_EDITOR_STATES["equation_topology"] = ["roam", "instantiate" ]
+GRAPH_EDITOR_STATES["equation_topology"] = ["instantiate", "roam" ]
 
 
 class MouseAutomatonEntry(dict):

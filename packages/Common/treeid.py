@@ -418,6 +418,13 @@ class Tree(dict):
     else:
       return False
 
+  def getLeaves(self, id):
+    leaves = []
+    for i in self.walkDepthFirst(id):
+      if self.isLeave(i):
+        leaves.append(i)
+    return leaves
+
   def walkDepthFirst(self, id):
     #   for child in self[id]['children']:
     #     if self[child]['children'] == []:

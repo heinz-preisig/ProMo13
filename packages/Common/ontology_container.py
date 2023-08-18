@@ -1374,14 +1374,14 @@ class OntologyContainer():
         if prefix == "promo":
           extended_label = nw + "+%s" % label
           variables_raw[ID]["IRI"] = prefix+":"+extended_label
-          print("debugging", variables_raw[ID]["IRI"])
+          # print("debugging", variables_raw[ID]["IRI"])
       elif not include_network:  # make a simple IRI for promo
         prefix, _label = variables_raw[ID]["IRI"].split(":")
         label = variables_raw[ID]["label"]  # _label.strip(" ")
         if prefix == "promo":
           extended_label = "%s" % label
           variables_raw[ID]["IRI"] = prefix+":"+extended_label
-          print("debugging", variables_raw[ID]["IRI"])
+          # print("debugging", variables_raw[ID]["IRI"])
 
       try:
         variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
