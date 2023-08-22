@@ -515,12 +515,15 @@ def convert_variable_files(ontology_name):
   path_old = resource_initialisation.FILES["variables_file"] % ontology_name
   path_new = resource_initialisation.FILES["variables_file_new"] % ontology_name
   old_stat = os.stat(path_old)
-  new_stat = os.stat(path_new)
-  dtime =  old_stat.st_mtime - new_stat.st_mtime
-  if dtime < 0:
-    return
+  if os.path.exists(path_new):
+    new_stat = os.stat(path_new)
+    print(old_stat.st_mtime, new_stat.st_mtime,
+          old_stat.st_mtime-new_stat.st_mtime)
+    dtime = old_stat.st_mtime - new_stat.st_mtime
+    if dtime < 0:
+      return
 
-  print(old_stat.st_mtime, new_stat.st_mtime, old_stat.st_mtime-new_stat.st_mtime)
+  # print(old_stat.st_mtime, new_stat.st_mtime, old_stat.st_mtime-new_stat.st_mtime)
 
   with open(path_old, "r", encoding="utf-8",) as file:
     data = json.load(file)
@@ -552,7 +555,7 @@ def convert_variable_files(ontology_name):
       new_idx_data["indices"] = [str(value)
                                  for value in new_idx_data["indices"]]
 
-    new_data["variables"]["I_" + idx_int_key] = new_idx_data
+    new_data["indices"]["I_" + idx_int_key] = new_idx_data
 
   for key, value in data.items():
     if key in ("variables", "indices"):
@@ -619,10 +622,9 @@ def convert_equations_file(ontology_name):
       "global_equation_id_new"
   ] % ontology_name
 
-
   old_stat = os.stat(path_old)
   new_stat = os.stat(path_new)
-  dtime =  old_stat.st_mtime - new_stat.st_mtime
+  dtime = old_stat.st_mtime - new_stat.st_mtime
   if dtime < 0:
     return
 
