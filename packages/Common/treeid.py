@@ -273,6 +273,14 @@ class Tree(dict):
     a = self[id]['ancestors']
     return a
 
+  def getImmediateAncestor(self, nodeID):
+    ancestors = self.getAncestors(nodeID)
+    if ancestors:
+      parent_ID = ancestors[0]
+    else:
+      parent_ID = 0
+    return parent_ID
+
   def getCommonAncestor(self, id1, id2):
     if id1 == self.root:
       return None

@@ -37,6 +37,7 @@ from Common.common_resources import M_None
 from Common.common_resources import Stream
 from Common.common_resources import askForModelFileGivenOntologyLocation
 from Common.common_resources import getOntologyName
+from Common.pop_up_message_box import makeMessageBox
 from Common.graphics_objects import NetworkData
 from Common.graphics_objects import getGraphData
 from Common.ontology_container import OntologyContainer
@@ -48,11 +49,11 @@ from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.save_file_impl import SaveFileDialog
 from Common.ui_string_dialog_impl import UI_String
+from Common.ui_combo_integer_dialog_impl import UI_Combo_Integer
 from ModelBuilder.ModelComposer.modeller_commander import Commander
 from ModelBuilder.ModelComposer.modeller_logger_impl import Logger
 from ModelBuilder.ModelComposer.modeller_mainwindow import Ui_MainWindow
 from OntologyBuilder.TypedTokenEditor.editor_typed_token_impl import TypedTokenData
-from Common.pop_up_message_box import makeMessageBox
 
 LEFT = QtCore.Qt.LeftDockWidgetArea
 RIGHT = QtCore.Qt.RightDockWidgetArea
@@ -105,6 +106,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     roundButton(self.ui.pushTakeScreenShot,
                 "screen_shot", "take a screen shot")
     roundButton(self.ui.pushSaveAs, "save_as", "save with a new name")
+    roundButton(self.ui.pushGoTo, what="next", tooltip="got to node")
 
     self.button_logic = self.__setupButtonLogics()
     # self.__setupButtonWithIcons()
@@ -648,6 +650,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.current_arc_variant = arc_sub_class
     # print("debugging -- arc subclass", arc_sub_class)
 
+
   def radioReceiverNetworks(self, token_class, token, token_string, toggle):
     # print("debugging -- maybe asked to change network from %s to %s"%(self.current_network, token_string))
     if toggle:
@@ -1030,6 +1033,62 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.__buttonLogics("pushSaveAs")
     self.__display_model_name(self.model_name)
     self.writeStatus("saving to file %s" % self.model_name)
+
+
+  def on_pushGoTo_pressed(self):
+
+    response = makeMessageBox("make a choice",
+                              buttons=["cancel"],
+                              custom_buttons=[("node","accept"), ("arc", "accept")])
+    print(response)
+    if response == "cancel":
+      return
+    elif response == "node":
+      self.select_node()
+    elif response == "arc":
+      self.select_arc()
+
+  def select_node(self):
+    nodesIDs = sorted(self.commander.model_container["nodes"])
+    nodeIDstext = [str(n) for n in nodesIDs]
+    dialog = UI_Combo_Integer("select node", placeholdertext="integer", acceptance_list=nodeIDstext)
+    dialog.exec_()
+    node_ID = dialog.value
+    print("change to node -- ", node_ID)
+    parent_ID = self.commander.model_container["ID_tree"].getImmediateAncestor(node_ID)
+    pars ={
+     "action" : "zoom in",
+      "nodeID" : parent_ID}
+    self.commander.processMainEvent(pars)
+
+
+
+  def select_arc(self):
+    arcIDs = sorted(self.commander.model_container["arcs"])
+    arcIDstext = [str(a) for a in arcIDs]
+    dialog = UI_Combo_Integer("select arc", acceptance_list=arcIDstext)
+    dialog.exec_()
+    arc_ID = dialog.value
+    print("show arc -- ", arc_ID)
+    arc_source = self.commander.model_container["arcs"][arc_ID]["source"]
+    arc_sink = self.commander.model_container["arcs"][arc_ID]["sink"]
+    print("select arc -- source, sink nodes", arc_source, arc_sink)
+
+    response = makeMessageBox("selected arc is %s with source %s / sink %s" % (arc_ID, arc_source, arc_sink),
+                              buttons=["cancel"],
+                              custom_buttons=[("source", "accept"),
+                                              ("sink", "accept")
+                                              ]
+                              )
+    if response == "source":
+      parent_ID = self.commander.model_container["ID_tree"].getImmediateAncestor(arc_source)
+    elif response == "sink":
+      parent_ID = self.commander.model_container["ID_tree"].getImmediateAncestor(arc_sink)
+    else:
+      return
+    pars = {"action": "zoom in",
+            "nodeID": parent_ID}
+    self.commander.processMainEvent(pars)
 
   def on_pushSave_pressed(self):
     """

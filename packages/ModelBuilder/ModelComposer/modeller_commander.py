@@ -41,6 +41,7 @@ from Common.graphics_objects import NAMES
 from Common.graphics_objects import OBJECTS_with_state
 from Common.graphics_objects import STATES
 from Common.graphics_objects import TOOLTIP_TEMPLATES
+from Common.pop_up_message_box import makeMessageBox
 from Common.qt_resources import BUTTON_NAMES
 from Common.resource_initialisation import FILES
 from Common.ui_string_dialog_impl import UI_String
@@ -1342,6 +1343,11 @@ class Commander(QtCore.QObject):
     # str(mapped_currently_viewed_node) #HAP: str --> int
     self.currently_viewed_node = (mapped_currently_viewed_node)
     self.__redrawScene(self.currently_viewed_node)
+
+    incomplete_nodes, incomplete_arcs = self.checkIfAllVariablesAreInitialsed()
+    if incomplete_nodes or incomplete_arcs:
+      makeMessageBox("incomplete nodes %s\nincomplete arcs %s"%(incomplete_nodes,incomplete_arcs), buttons=["OK"])
+
     # print("debugging -- __c23_saveData",
     #       "--------- currently node viewed : %s ---> %s" % (self.currently_viewed_node, mapped_currently_viewed_node))
     # print("debugging -- __c23_saveData", "--------- saved graph file:", f)
@@ -1517,84 +1523,88 @@ class Commander(QtCore.QObject):
     #
     # # =========================================================
 
-    node_id = pars["nodeID"]
-    nodes_to_instantiate = []
-    nodes_selection = []
-
-    if self.node_group == set():
-      mode = "single"
-      if node_id > 0:
-        nodes_selection.append(node_id)
-      else:
-        print("Nothing to instantiate.")
-        return {"failed": True}
+    if "arc" in pars:
+      print("debugg -- instantiate arc")
+      arcs_to_instantiate = [pars["arc"]]
     else:
-      for node in self.node_group:
-        nodes_selection.append(node.ID)
+      nodes_selection = set()
 
-    # Using a queue to get all the simple nodes inside composite nodes.
-    node_queue = deque(nodes_selection)
-    while node_queue:
-      node_id = node_queue.popleft()
-      node_class = self.model_container["nodes"][node_id]["class"]
-      if node_class in [ "node_simple", 'node_intraface']:
-        nodes_to_instantiate.append(node_id)
-      elif node_class == "node_composite":
-        children = self.model_container["ID_tree"].getLeaves(node_id) #getChildren(node_id)
-        for i in children:
-          node_class = self.model_container["nodes"][i]["class"]
-          if node_class == "node_simple":
-            nodes_to_instantiate.append(i)
-          # node_queue.extend(children)
+      if self.node_group == set():
+        mode = "single"
+        node_id = pars["nodeID"]
+        if node_id > 0:
+          nodes_selection.add(node_id)
+        else:
+          print("Nothing to instantiate.")
+          return {"failed": True}
+      else:
+        for node in self.node_group:
+          nodes_selection.add(node.ID)
 
-    # make a dictionary: hash: variable ID, value: list of node IDs with this variable
-    vars_to_instantiate = {}
-    for node_id in nodes_to_instantiate:
-      entity = self.get_entity_node(node_id)
-      if entity:
+      nodes_to_instantiate = self.nodes_to_be_instantiated(nodes_selection)
+
+      vars_to_instantiate = self.node_vars_to_be_instantiated(nodes_to_instantiate)
+
+      vars_instantiated = self.node_vars_being_instantiated(nodes_to_instantiate)
+
+      dialog = InstantiationDialog(vars_to_instantiate,vars_instantiated, self.all_variables)
+      dialog.setWindowTitle("define parameters for nodes %s"%nodes_to_instantiate)
+      dialog.exec_()
+
+      newly_instantiated = dialog.newly_instantiated
+
+      for var_id in newly_instantiated:
+        for node_id in nodes_to_instantiate:
+          entity = self.get_entity_node(node_id)
+          vars = entity.init_vars
+          if var_id in vars:
+            if var_id in newly_instantiated:
+              self.model_container["nodes"][node_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
+      pass
+
+  # ==============================  arcs =========================================
+      arcs_to_instantiate = self.arcs_to_be_instantiated(nodes_to_instantiate)
+      # print("debugg - arcs", arcs_to_instantiate)
+
+    # --
+    vars_to_instantiate = self.arc_vars_to_instantiate(arcs_to_instantiate)
+    vars_instantiated = self.arc_vars_being_instantiated(arcs_to_instantiate)
+
+    # --
+
+    if vars_to_instantiate:
+      dialog = InstantiationDialog(vars_to_instantiate, vars_instantiated, self.all_variables)
+      dialog.setWindowTitle("define parameters for arcs: %s"%arcs_to_instantiate)
+      dialog.exec_()
+
+    newly_instantiated = dialog.newly_instantiated
+
+    for var_id in newly_instantiated:
+      for arc_id in arcs_to_instantiate:
+        entity = self.get_entity_arc(arc_id)
         vars = entity.init_vars
-        for v in vars:
-          if v not in vars_to_instantiate:
-            vars_to_instantiate[v]= [node_id]
-          else:
-            vars_to_instantiate[v].append(node_id)
-        pass
+        if var_id in vars:
+          if var_id in newly_instantiated:
+            self.model_container["arcs"][arc_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
+    pass
 
+    self.checkIfAllVariablesAreInitialsed()
+
+    return {"failed": False}
+
+  def arc_vars_being_instantiated(self, arcs_to_instantiate):
     vars_instantiated = {}
-    for node_id in nodes_to_instantiate:
-      values = self.model_container["nodes"][node_id]["instantiated_variables"]
+    for arc_id in arcs_to_instantiate:
+      values = self.model_container["arcs"][arc_id]["instantiated_variables"]
       for var_id in values:
         if var_id not in vars_instantiated:
           vars_instantiated[var_id] = {values[var_id]}
         else:
           vars_instantiated[var_id].add(values[var_id])
       pass
+    return vars_instantiated
 
-    dialog = InstantiationDialog(vars_to_instantiate,vars_instantiated, self.all_variables)
-    dialog.exec_()
-
-    newly_instantiated = dialog.newly_instantiated
-
-    for var_id in newly_instantiated:
-      for node_id in nodes_to_instantiate:
-        entity = self.get_entity_node(node_id)
-        vars = entity.init_vars
-        if var_id in vars:
-          self.model_container["nodes"][node_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
-    pass
-
-  # ==============================  arcs =========================================
-    arcs_to_instantiate = set()
-    for node_id in nodes_to_instantiate:
-      for arc_id in self.model_container["arcs"]:
-        if node_id == self.model_container["arcs"][arc_id]["source"]:
-          for n_id in nodes_to_instantiate:
-            if n_id == self.model_container["arcs"][arc_id]["sink"]:
-                arcs_to_instantiate.add(arc_id)
-
-    print("debugg - arcs", arcs_to_instantiate)
-
-    # --
+  def arc_vars_to_instantiate(self, arcs_to_instantiate):
     # make a dictionary: hash: variable ID, value: list of node IDs with this variable
     vars_to_instantiate = {}
     for arc_id in arcs_to_instantiate:
@@ -1607,58 +1617,61 @@ class Commander(QtCore.QObject):
           else:
             vars_to_instantiate[v].append(arc_id)
         pass
+    return vars_to_instantiate
 
+  def arcs_to_be_instantiated(self, nodes_to_instantiate):
+    arcs_to_instantiate = set()
+    for node_id in nodes_to_instantiate:
+      for arc_id in self.model_container["arcs"]:
+        if node_id == self.model_container["arcs"][arc_id]["source"]:
+          for n_id in nodes_to_instantiate:
+            if n_id == self.model_container["arcs"][arc_id]["sink"]:
+              arcs_to_instantiate.add(arc_id)
+    return arcs_to_instantiate
+
+  def node_vars_being_instantiated(self, nodes_to_instantiate):
     vars_instantiated = {}
-    for arc_id in arcs_to_instantiate:
-      values = self.model_container["arcs"][arc_id]["instantiated_variables"]
+    for node_id in nodes_to_instantiate:
+      values = self.model_container["nodes"][node_id]["instantiated_variables"]
       for var_id in values:
         if var_id not in vars_instantiated:
           vars_instantiated[var_id] = {values[var_id]}
         else:
           vars_instantiated[var_id].add(values[var_id])
       pass
+    return vars_instantiated
 
-    # --
+  def node_vars_to_be_instantiated(self, nodes_to_instantiate):
+    # make a dictionary: hash: variable ID, value: list of node IDs with this variable
+    vars_to_instantiate = {}
+    for node_id in nodes_to_instantiate:
+      entity = self.get_entity_node(node_id)
+      if entity:
+        vars = entity.init_vars
+        for v in vars:
+          if v not in vars_to_instantiate:
+            vars_to_instantiate[v] = [node_id]
+          else:
+            vars_to_instantiate[v].append(node_id)
+        pass
+    return vars_to_instantiate
 
-    dialog = InstantiationDialog(vars_to_instantiate, vars_instantiated, self.all_variables)
-    dialog.exec_()
-
-    # # print(nodes_to_instantiate)
-    #
-    # entity_behaviour, var_data_all = self._get_instantiation_variables(
-    #     nodes_to_instantiate
-    # )
-    #
-    #
-    # # pp(var_data_all)
-    #
-    # if len(nodes_to_instantiate) > 1:
-    #   single_node_instantiation = False
-    # else:
-    #   single_node_instantiation = True
-    #
-    # dlg = InstantiationDlg(
-    #     var_data_all,
-    #     entity_behaviour,
-    #     self.all_variables,
-    #     single_node_instantiation,
-    #     self.main,
-    # )
-    #
-    # if dlg.exec_() == QtWidgets.QDialog.Accepted:
-    #   for node_id in nodes_to_instantiate:
-    #     print(node_id)
-    #     for var_info, _ in itertools.chain(dlg.var_data[0], dlg.var_data[1]):
-    #       if var_info["same_in_all_nodes"]:
-    #         self.model_container["nodes"][node_id]["instantiated_variables"][var_info["id"]] = var_info["value"]
-    #         # self._set_instantiation_value(
-    #         #     var_info["id"],
-    #         #     var_info["value"],
-    #         #     node_id
-    #         # )
-    # # pp(self.model_container["instantiation_info"]["nodes"])
-
-    return {"failed": False}
+  def nodes_to_be_instantiated(self, nodes_selection):
+    # Using a queue to get all the simple nodes inside composite nodes.
+    nodes_to_instantiate = set()
+    node_queue = deque(nodes_selection)
+    while node_queue:
+      node_id = node_queue.popleft()
+      node_class = self.model_container["nodes"][node_id]["class"]
+      if node_class in ["node_simple", 'node_intraface']:
+        nodes_to_instantiate.add(node_id)
+      elif node_class == "node_composite":
+        children = self.model_container["ID_tree"].getLeaves(node_id)  # getChildren(node_id)
+        for i in children:
+          node_class = self.model_container["nodes"][i]["class"]
+          if node_class == "node_simple":
+            nodes_to_instantiate.add(i)
+    return nodes_to_instantiate
 
   def get_entity_node(self, node_id):
     entity_ID = self._get_entity_name_from_node(node_id)
@@ -1675,6 +1688,35 @@ class Commander(QtCore.QObject):
     entity = self.all_entities[entity_ID]
     return entity
 
+  def checkIfAllVariablesAreInitialsed(self):
+    nodes = self.model_container["ID_tree"].getAllLeaveNodes()
+    arcs = sorted(self.model_container["arcs"].keys())
+
+    incomplete_nodes = {}
+    for node_id in nodes:
+      vars_being_instantiated = sorted(self.node_vars_being_instantiated([node_id]))
+      node_vars_must_instantiate = sorted(self.node_vars_to_be_instantiated([node_id]))
+
+      not_instantiated =  set(node_vars_must_instantiate) - set(vars_being_instantiated)
+      if not_instantiated:
+        incomplete_nodes[node_id] = not_instantiated
+
+    incomplete_arcs = {}
+    for arc_id in arcs:
+      vars_being_instantiated = sorted(self.arc_vars_being_instantiated([arc_id]))
+      arc_vars_must_be_instantitate = sorted(self.arc_vars_to_instantiate([arc_id]))
+      not_instantiated =  set(arc_vars_must_be_instantitate) - set(vars_being_instantiated)
+      if not_instantiated:
+        incomplete_arcs[arc_id] = not_instantiated
+
+    print("incomplete nodes: %s" % incomplete_nodes)
+    print("incomplete arcs:  %s" %incomplete_arcs)
+
+    self.main.writeStatus("incomplete nodes: %s\nincomplete arcs: %s"%(incomplete_nodes,incomplete_arcs))
+
+    return incomplete_nodes, incomplete_arcs
+
+  # TODO: check if code is still used
   def _get_instantiation_variables(
       self,
       nodes_to_instantiate: List[int],
@@ -2118,7 +2160,7 @@ class Commander(QtCore.QObject):
     if graphics_root_object in [NAMES["node"], NAMES["reservoir"]]:
       # add tool tip
       data = self.model_container["nodes"][ID]
-      s = "<nobr> <b> node: <b> </nobr><br/>"
+      s = "<nobr> <b> node: %s <b> </nobr><br/>"%ID
       for d in data:
         s += "<nobr> %s -- %s </nobr><br/>" % (d, data[d])
       # s = TOOLTIP_TEMPLATES["nodes"] % (
@@ -2134,7 +2176,7 @@ class Commander(QtCore.QObject):
     if graphics_root_object == NAMES["intraface"]:
       # add tool tip
       data = self.model_container["nodes"][ID]
-      s = "<nobr> <b> intraface: <b> </nobr><br/>"
+      s = "<nobr> <b> intraface: %s <b> </nobr><br/>"%ID
       for d in data:
         s += "<nobr> %s -- %s </nobr><br/>" % (d, data[d])
       # s = TOOLTIP_TEMPLATES["intraface"] % (data["network"],
@@ -2164,7 +2206,7 @@ class Commander(QtCore.QObject):
                    self)
 
     data = self.model_container["arcs"][arcID]
-    s = "<nobr> <b> arc: <b> </nobr><br/>"
+    s = "<nobr> <b> arc: %s <b> </nobr><br/>"%arcID
     for d in data:
       s += "<nobr> %s -- %s </nobr><br/>" % (d, data[d])
 
