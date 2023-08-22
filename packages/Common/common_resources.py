@@ -60,10 +60,10 @@ from Common.ui_string_dialog_impl import UI_String
 DEFAULT = "default"
 
 DIALOGUE = {
-        "choose"   : "make a choice",
-        "new model": "new model",
-        "new case" : "new case"
-        }
+    "choose": "make a choice",
+    "new model": "new model",
+    "new case": "new case"
+}
 
 M_None = "-"  # used in place of None as the latter is not a string.
 M_any = "*"
@@ -74,27 +74,33 @@ NODE_COMPONENT_SEPARATOR = "|"
 ARC_COMPONENT_SEPARATOR = "|"
 ENTITY_OBJECT_SEPARATOR = "."
 EQUATION_COMPONENT_SEPARATOR = "|"
-CONNECTION_NETWORK_SEPARATOR = " >>> "  # RULE: separator is the same for inter and intra networks
+# RULE: separator is the same for inter and intra networks
+CONNECTION_NETWORK_SEPARATOR = " >>> "
 CONVERSION_SEPARATOR = " --> "
 EXTENSION_DUPLICATES_REMOVED = "-D"
 
 TEMPLATE_NODE_OBJECT = "%s" + NODE_COMPONENT_SEPARATOR + "%s"
-TEMPLATE_NODE_OBJECT_WITH_TOKEN = "%s" + NODE_COMPONENT_SEPARATOR + "%s" + NODE_COMPONENT_SEPARATOR + "%s"
+TEMPLATE_NODE_OBJECT_WITH_TOKEN = "%s" + \
+    NODE_COMPONENT_SEPARATOR + "%s" + NODE_COMPONENT_SEPARATOR + "%s"
 TEMPLATE_ENTITY_OBJECT = "%s" + ENTITY_OBJECT_SEPARATOR \
                          + "%s" + ENTITY_OBJECT_SEPARATOR \
                          + "%s" + ENTITY_OBJECT_SEPARATOR \
-                          + "%s"                                     #network, node|arc, object, variant
+    + "%s"  # network, node|arc, object, variant
 TEMPLATE_INTRA_NODE_OBJECT_WITH_TOKEN = "%s" + NODE_COMPONENT_SEPARATOR + "%s"
 TEMPLATE_INTRA_NODE_OBJECT = "%s"
 TEMPLATE_INTER_NODE_OBJECT = "%s"
-TEMPLATE_ARC_APPLICATION = "%s" + ARC_COMPONENT_SEPARATOR + "%s" + ARC_COMPONENT_SEPARATOR + "%s"  # %(token,
+TEMPLATE_ARC_APPLICATION = "%s" + ARC_COMPONENT_SEPARATOR + \
+    "%s" + ARC_COMPONENT_SEPARATOR + "%s"  # %(token,
 # mechanism, nature)
 TEMPLATE_INTERCONNECTION_NETWORK = "%s" + CONNECTION_NETWORK_SEPARATOR + "%s"
 TEMPLATE_INTRACONNECTION_NETWORK = "%s" + CONNECTION_NETWORK_SEPARATOR + "%s"
 TEMPLATE_INTRACONNECTION_PAIRS = "%s" + CONNECTION_NETWORK_SEPARATOR + "%s"
-TEMPLATE_EQUATION_ASSIGNMENT_KEY = "%s" + EQUATION_COMPONENT_SEPARATOR + "%s" + EQUATION_COMPONENT_SEPARATOR + "%s"
+TEMPLATE_EQUATION_ASSIGNMENT_KEY = "%s" + EQUATION_COMPONENT_SEPARATOR + \
+    "%s" + EQUATION_COMPONENT_SEPARATOR + "%s"
 TEMPLATE_CONNECTION_NETWORK = "%s" + CONNECTION_NETWORK_SEPARATOR + "%s"
-TEMPLATE_ENTITY_OBJECT_REMOVED_DUPLICATES = "%s"+ EXTENSION_DUPLICATES_REMOVED
+TEMPLATE_ENTITY_OBJECT_REMOVED_DUPLICATES = "%s" + EXTENSION_DUPLICATES_REMOVED
+
+TEMPLATE_EQUATION_STRING_ID = "E_%s"
 
 VARIABLE_TYPE_INTERFACES = "get"
 
@@ -132,6 +138,7 @@ def getData(file_spec):
     return data
   else:
     return None
+
 
 def getEnumeratedData(file_spec):
   raw_data = getData(file_spec)
@@ -208,11 +215,11 @@ def __getSortedDirList(location):
 
 
 def askForModelFileGivenOntologyLocation(model_library_location,
-                                      left_icon="new",
-                                      left_tooltip= "new",
-                                      right_icon="accept",
-                                      right_tooltip="accept",
-                                      alternative=True):
+                                         left_icon="new",
+                                         left_tooltip="new",
+                                         right_icon="accept",
+                                         right_tooltip="accept",
+                                         alternative=True):
 
   model_names = __getSortedDirList(model_library_location)
 
@@ -223,7 +230,7 @@ def askForModelFileGivenOntologyLocation(model_library_location,
     model_name, status = selectFromList("choose model",
                                         model_names,
                                         left_icon=left_icon,
-                                        left_tooltip= left_tooltip,
+                                        left_tooltip=left_tooltip,
                                         right_icon=right_icon,
                                         right_tooltip=right_tooltip)
 
@@ -237,7 +244,8 @@ def askForModelFileGivenOntologyLocation(model_library_location,
 
   # while (model_name in acceptance_list):
   while not (model_name or (status == "exit")):
-    ui_ask = UI_String("give new model name or type exit ", "model name or exit", limiting_list=model_names)
+    ui_ask = UI_String("give new model name or type exit ",
+                       "model name or exit", limiting_list=model_names)
     ui_ask.exec_()
     model_name = ui_ask.getText()
     # print("new model name defined", model_name)
@@ -247,21 +255,20 @@ def askForModelFileGivenOntologyLocation(model_library_location,
 
 
 def askForCasefileGivenLocation(case_rep_loc,
-                                      left_icon="new",
-                                      left_tooltip= "new",
-                                      right_icon="accept",
-                                      right_tooltip="accept"):
+                                left_icon="new",
+                                left_tooltip="new",
+                                right_icon="accept",
+                                right_tooltip="accept"):
 
   case_names = __getSortedDirList(case_rep_loc)
 
   if case_names:
     case_name, status = selectFromList("choose case",
-                                        case_names,
-                                        left_icon=left_icon,
-                                        left_tooltip= left_tooltip,
-                                        right_icon=right_icon,
-                                        right_tooltip=right_tooltip)
-
+                                       case_names,
+                                       left_icon=left_icon,
+                                       left_tooltip=left_tooltip,
+                                       right_icon=right_icon,
+                                       right_tooltip=right_tooltip)
 
     if (not case_name) and (not status):
       sys.exit()
@@ -273,7 +280,8 @@ def askForCasefileGivenLocation(case_rep_loc,
   status = ""
 
   while not (case_name or (status == "exit")):
-    ui_ask = UI_String("give new case name or type exit ", "case name or exit", limiting_list=case_names)
+    ui_ask = UI_String("give new case name or type exit ",
+                       "case name or exit", limiting_list=case_names)
     ui_ask.exec_()
     case_name = ui_ask.getText()
     # print("debugging -- new model name defined", case_name)
@@ -346,7 +354,8 @@ def makeTreeView(treeWidget, ontology_tree):
           parent = child
         else:
           parent_item = tree_items[parent]
-          tree_items[child] = __addItemToTreeWidget(treeWidget, parent_item, child)
+          tree_items[child] = __addItemToTreeWidget(
+              treeWidget, parent_item, child)
           tree_items[child].name = ontology_tree[child]["name"]
           parent = child
 
@@ -361,8 +370,8 @@ def __addItemToTreeWidget(treeWidget, parent, nodeID):
   item.setText(0, name)
   item.setSelected(True)
 
-  k = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable #\
-    # | QtCore.Qt.ItemIsEditable
+  k = QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable  # \
+  # | QtCore.Qt.ItemIsEditable
   item.setFlags(k)
 
   item.setSelected(False)
@@ -399,18 +408,19 @@ def saveBackupFile(path):
   if os.path.exists(path):
     _f, ver = getFilesAndVersions(abs_name, ext)
     old_path = path
-    new_path = abs_name + ver_temp %str(ver + 1)  + ext
-    next_path = abs_name + ver_temp %str(ver + 2) + ext
+    new_path = abs_name + ver_temp % str(ver + 1) + ext
+    next_path = abs_name + ver_temp % str(ver + 2) + ext
     os.rename(old_path, new_path)
     return old_path, new_path, next_path
   else:
-    print("Error -- no such file : %s"%path, file=sys.stderr)
+    print("Error -- no such file : %s" % path, file=sys.stderr)
     return
+
 
 def saveWithBackup(data, path):
   print("saving")
   old_path, new_path, next_path = saveBackupFile(path)
-  putData(data,path)
+  putData(data, path)
 
 
 def getFilesAndVersions(abs_name, ext):

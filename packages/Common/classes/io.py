@@ -331,13 +331,16 @@ def load_topology_from_file(
     # pp(nodes_index)
 
     # Mapping the species inside the nodes.
-    node_species = [species_index[s] for s in node_data["tokens"]["mass"]]
-    node_species_index[node] = {
-        spec: (j + offset) for j, spec in enumerate(node_species)
-    }
-    node_species_index[node]["ini"] = offset
-    offset += len(node_species)
-    node_species_index[node]["fin"] = offset - 1
+    if "mass" in node_data["tokens"]:
+      node_species = [species_index[s] for s in node_data["tokens"]["mass"]]
+      node_species_index[node] = {
+          spec: (j + offset) for j, spec in enumerate(node_species)
+      }
+      node_species_index[node]["ini"] = offset
+      offset += len(node_species)
+      node_species_index[node]["fin"] = offset - 1
+    else:
+      node_species = []
 
     # For the index_sets
     index_sets["general"]["N"].append(node)
@@ -580,7 +583,24 @@ def convert_model_file(ontology_name, model_name):
     data = json.load(file)
 
   new_data = copy.deepcopy(data)
-  new_data["instantiation_info"]["nodes"] = {}
+
+  # TODO: Change the way the data is read instead of changing the data
+  if "instantiation_info" not in data:  # 2023-07-10 HAP
+    data["instantiation_info"] = {"nodes": {},
+                                  "arcs": {}
+                                  }
+
+  for nodeID in data["nodes"]:
+    instantiated = data["nodes"][nodeID]["instantiated_variables"]
+    data["instantiation_info"]["nodes"][nodeID] = instantiated
+
+  for arcID in data["arcs"]:
+    data["instantiation_info"]["arcs"][arcID] = data["arcs"][arcID]["instantiated_variables"]
+
+  if "instantiation_info" not in new_data:  # 2023-07-10 HAP
+    new_data["instantiation_info"] = {"nodes": {},
+                                      "arcs": {}
+                                      }
 
   list_ids = ["V_15", "V_66"]  # ["V_66", "V_100", "V_164", "V_169"]
   node_id_list = []
