@@ -548,6 +548,12 @@ def convert_variable_files(ontology_name):
     for int_id in eval(var_data["equations"]):
       new_var_data["equations"].append("E_" + str(int_id))
 
+    fix_index_structures = []
+    for s in new_var_data["index_structures"]:
+      _s = "I_" + str(s)
+      fix_index_structures.append(_s)
+    new_var_data["index_structures"] = fix_index_structures
+
     new_data["variables"]["V_" + var_int_key] = new_var_data
     latex_aliases["V_" + var_int_key] = "$" + \
         new_var_data["aliases"]["latex"] + "$"
