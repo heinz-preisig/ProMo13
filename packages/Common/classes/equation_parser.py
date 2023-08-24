@@ -150,14 +150,14 @@ class EquationParser:
     '''expression : expression O_PIPE INDEX O_PIPE expression'''
 
     # TODO: Change after making an index class
-    idx1 = self.indices[p[3][-1]]["aliases"][self.language]
+    idx1 = self.indices[p[3]]["aliases"][self.language]
     p[0] = self.translator.translate_reduce_product(p[1], idx1, p[5])
 
   def p_expr_block_reduce_product(self, p: yacc.YaccProduction) -> None:
     '''expression : expression O_PIPE INDEX O_IN INDEX O_PIPE expression'''
     # TODO: Change after making an index class
-    idx1 = self.indices[p[3][-1]]["aliases"][self.language]
-    idx2 = self.indices[p[5][-1]]["aliases"][self.language]
+    idx1 = self.indices[p[3]]["aliases"][self.language]
+    idx2 = self.indices[p[5]]["aliases"][self.language]
     p[0] = self.translator.translate_block_reduce_product(
         p[1], idx1, idx2, p[7])
 
