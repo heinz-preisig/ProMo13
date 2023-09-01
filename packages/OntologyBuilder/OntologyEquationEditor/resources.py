@@ -266,12 +266,12 @@ LANGUAGES["global_ID"] = "global_ID"
 LANGUAGES["global_ID_to_internal"] = "global_ID_to_internal"
 LANGUAGES["internal_code"] = "internal_code"
 LANGUAGES["internals"] = [LANGUAGES["internal_code"], "global_ID_to_internal"]  # "rename"]
-LANGUAGES["code_generation"] = ["global_ID", "python", "cpp", "matlab"]
+LANGUAGES["code_generation"] = ["matlab"] #["global_ID", "python", "cpp", "matlab"]
 LANGUAGES["documentation"] = ["latex"]
 LANGUAGES["compile"] = LANGUAGES["code_generation"] + LANGUAGES["documentation"]
 LANGUAGES["aliasing"] = LANGUAGES["compile"] + [LANGUAGES["internal_code"]]
 LANGUAGES["aliasing_modify"] = LANGUAGES["compile"].copy()
-LANGUAGES["aliasing_modify"].remove(LANGUAGES["global_ID"])
+# LANGUAGES["aliasing_modify"].remove(LANGUAGES["global_ID"])
 LANGUAGES["rename"] = "rename"
 LANGUAGES["matrix_form"] = ["matlab", "python", "cpp"]
 

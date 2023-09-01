@@ -51,6 +51,8 @@ from Common.resource_initialisation import FILES
 from Common.resources_icons import getIcon
 from Common.resources_icons import roundButton
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
+from Common.classes.io import translate_equations
+
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES, revertInterfaceVariableName, makeInterfaceVariableName
@@ -323,10 +325,11 @@ class UiOntologyDesign(QMainWindow):
     # self.__checkRadios("compile")
     # self.compile_only = True
     for l in LANGUAGES["code_generation"]:
-      try:
-        self.__compile(l)
-      except (EditorError) as error:
-        self.__writeMessage(error.msg)
+      translate_equations(ontology_name=self.ontology_name, language=l)
+      # try:
+      #   self.__compile(l)
+      # except (EditorError) as error:
+      #   self.__writeMessage(error.msg)
 
     self.__compile("latex")
     self.__writeMessage("finished latex document")
