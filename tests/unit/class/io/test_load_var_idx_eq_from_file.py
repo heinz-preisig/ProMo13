@@ -1,10 +1,10 @@
 from datetime import datetime
 import pytest
 
-import conftest
+from tests.unit import test_utils
 
 
-TEST_FILES = conftest.get_test_files_path()
+TEST_FILES = test_utils.get_test_files_path()
 
 
 @pytest.mark.datafiles(TEST_FILES / 'var_idx_eq.json')

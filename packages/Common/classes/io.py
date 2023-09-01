@@ -17,8 +17,7 @@ from packages.Common.classes import entity
 from packages.Common.classes import variable
 from packages.Common.classes import index
 from packages.Common.classes import ontology
-from packages.Common.classes import node
-from packages.Common.classes import arc
+from packages.Common.classes import modeller_classes
 from packages.Common import resource_initialisation
 
 from packages.Common.classes import equation_parser
@@ -254,52 +253,30 @@ def load_ontology_from_file(ontology_name: str) -> ontology.Ontology:
 
 def load_model_from_file(
     ontology_name: str,
-    model_name: str
-) -> Dict[str, Union[node.ModellerNode, arc.ModellerArc]]:
-  path = resource_initialisation.FILES["model_file"] % (
+    model_name: str,
+    all_entities: Dict[str, entity.Entity],
+) -> Dict[str, modeller_classes.TopologyObject]:
+  path = resource_initialisation.FILES["model_flat_file"] % (
       ontology_name,
       model_name,
   )
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
 
-  model_objects = {}
-  for node_id, node_properties in data["nodes"].items():
-    # TODO: Fix all these statements when the output gets fixed.
-    new_id = "N_" + node_id
-    hierarchy = data["ID_tree"]
-    parent_list = hierarchy[node_id]["ancestors"]
-    if parent_list:
-      parent = "N_" + str(parent_list[0])
-    else:
-      parent = None
+  topology_objects = {}
+  for object_id, object_data in data.items():
+    if "entity_name" in object_data.keys():
+      ent_name = object_data.pop("entity_name")
+      object_data["entity_instance"] = all_entities.get(ent_name)
 
-    children = [
-        "N_" + str(child_id)
-        for child_id in hierarchy[node_id]["children"]
-    ]
-    node_properties["modeller_class"] = node_properties["class"]
-    del node_properties["class"]
-
-    model_objects[new_id] = node.ModellerNode(
-        id=new_id,
-        **node_properties,
-        parent=parent,
-        children=children,
+    class_name = object_data.pop("modeller_class")
+    class_obj = modeller_classes.modeller_class_mapping.get(class_name)
+    topology_objects[object_id] = class_obj(
+        id=object_id,
+        **object_data
     )
 
-  for arc_id, arc_properties in data["arcs"].items():
-    # TODO: Fix all these statements when the output gets fixed.
-    new_id = "A_" + arc_id
-    arc_properties["source"] = "N_" + str(arc_properties["source"])
-    arc_properties["sink"] = "N_" + str(arc_properties["sink"])
-
-    model_objects[new_id] = arc.ModellerArc(
-        id=new_id,
-        **arc_properties,
-    )
-
-  return model_objects
+  return topology_objects
 
 
 def load_topology_from_file(
@@ -522,7 +499,7 @@ def load_topology_from_file(
   return topology_graph
 
 
-def get_available_ontologies():
+def get_available_ontologies() -> List[str]:
   location = resource_initialisation.DIRECTORIES["ontology_repository"]
   directories = [
       f.path
@@ -535,6 +512,23 @@ def get_available_ontologies():
   ]
 
   return ontology_names
+
+
+def get_available_models(ontology_name: str) -> List[str]:
+  ontology_path = resource_initialisation.DIRECTORIES["ontology_location"] % ontology_name
+  models_path = ontology_path + "/models/"
+
+  directories = [
+      f.path
+      for f in os.scandir(models_path)
+      if f.is_dir() and not f.name.startswith('.')
+  ]
+  model_names = [
+      os.path.splitext(os.path.basename(o))[0]
+      for o in directories
+  ]
+
+  return model_names
 
 
 def convert_model_file(ontology_name, model_name):

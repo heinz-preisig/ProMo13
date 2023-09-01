@@ -99,21 +99,30 @@
 │   │   ├── automata_objects.py
 │   │   ├── classes
 │   │   │   ├── entity.py
+│   │   │   ├── equation_parser.py
 │   │   │   ├── equation.py
 │   │   │   ├── __init__.py
 │   │   │   ├── io.py
 │   │   │   ├── network.py
+│   │   │   ├── node.py
 │   │   │   ├── ontology.py
+│   │   │   ├── parser.out
+│   │   │   ├── parsetab.py
 │   │   │   ├── __pycache__
 │   │   │   │   ├── entity.cpython-38.pyc
 │   │   │   │   ├── equation.cpython-38.pyc
+│   │   │   │   ├── equation_parser.cpython-38.pyc
 │   │   │   │   ├── equations.cpython-38.pyc
+│   │   │   │   ├── file_io.cpython-38.pyc
 │   │   │   │   ├── __init__.cpython-38.pyc
 │   │   │   │   ├── io.cpython-38.pyc
 │   │   │   │   ├── ontology.cpython-38.pyc
+│   │   │   │   ├── parsetab.cpython-38.pyc
 │   │   │   │   ├── topology_object.cpython-38.pyc
+│   │   │   │   ├── translator.cpython-38.pyc
 │   │   │   │   ├── vareqdigraph.cpython-38.pyc
 │   │   │   │   └── variable.cpython-38.pyc
+│   │   │   ├── translator.py
 │   │   │   ├── vareqdigraph.py
 │   │   │   └── variable.py
 │   │   ├── common_resources.py
@@ -145,6 +154,8 @@
 │   │   │   ├── CC_L_change-R_blank.xpm
 │   │   │   ├── CC_L_goin-R_adda.xcf
 │   │   │   ├── CC_L_goin-R_adda.xpm
+│   │   │   ├── CC_L_goin-R_instantiate.xcf
+│   │   │   ├── CC_L_goin-R_instantiate.xpm
 │   │   │   ├── CC_L_goin-R_name.xcf
 │   │   │   ├── CC_L_goin-R_name.xpm
 │   │   │   ├── CC_L_goin-R_recon.xcf
@@ -273,6 +284,7 @@
 │   │   │   ├── exit_button_hap.png
 │   │   │   ├── exit_button_hap.svg
 │   │   │   ├── exit.xpm
+│   │   │   ├── filter_button_hap.svg
 │   │   │   ├── G_arc_attributes.png
 │   │   │   ├── G_connection_attributes.png
 │   │   │   ├── G_link_attributes.png
@@ -288,13 +300,16 @@
 │   │   │   ├── icon_trash_it.png
 │   │   │   ├── info_button_01.png
 │   │   │   ├── info_button_01.svg
-│   │   │   ├── info_button_hap.png
-│   │   │   ├── info_button_HAP.png
+│   │   │   ├── info_button_hap (Case Conflict 1).png
+│   │   │   ├── info_button_hap (Case Conflict).png
 │   │   │   ├── info_button_hap.svg
 │   │   │   ├── info_button.png
 │   │   │   ├── info_button.svg
 │   │   │   ├── info_icon_.png
 │   │   │   ├── info.png
+│   │   │   ├── instantiate_button_hap.svg
+│   │   │   ├── iri_button_hap.svg
+│   │   │   ├── item_info_button_hap.svg
 │   │   │   ├── latex_button_hap.svg
 │   │   │   ├── left-icon.png
 │   │   │   ├── looks.svg
@@ -336,6 +351,7 @@
 │   │   │   ├── save_button.svg
 │   │   │   ├── schnipsel_button_hap.svg
 │   │   │   ├── screen_shot_button_hap.svg
+│   │   │   ├── SI_units_button_hap.svg
 │   │   │   ├── task_automata (copy).svg
 │   │   │   ├── task_automata.png
 │   │   │   ├── task_automata.svg
@@ -360,6 +376,9 @@
 │   │   │   ├── task_ontology_foundation (copy).svg
 │   │   │   ├── task_ontology_foundation.png
 │   │   │   ├── task_ontology_foundation.svg
+│   │   │   ├── task_ONTO_to_CSV.svg
+│   │   │   ├── task_RDF_render_expressions.svg
+│   │   │   ├── task_RDF_variable_expression.svg
 │   │   │   ├── task_second.svg
 │   │   │   ├── task_token_conversion.svg
 │   │   │   ├── task_typed_token_editor.svg
@@ -367,7 +386,8 @@
 │   │   │   ├── update_button_hap.svg
 │   │   │   ├── up-icon.png
 │   │   │   ├── variable_show_button_01.svg
-│   │   │   └── variable_show_button.svg
+│   │   │   ├── variable_show_button.svg
+│   │   │   └── V_button_hap.svg
 │   │   ├── info_automata_editor.html
 │   │   ├── info_automata_editor.pdf
 │   │   ├── info_behaviour_association_editor.html
@@ -390,6 +410,39 @@
 │   │   ├── logo.py
 │   │   ├── logo.ui
 │   │   ├── message.txt
+│   │   ├── NewIcons
+│   │   ├── ontologies
+│   │   │   ├── __init__.py
+│   │   │   ├── language
+│   │   │   ├── language.pdf
+│   │   │   ├── level1.ttl
+│   │   │   ├── level2.ttl
+│   │   │   ├── make_ProMo_language_ontology.py
+│   │   │   ├── plot_rdf.py
+│   │   │   ├── ProMo_compiler.py
+│   │   │   ├── promo_equations
+│   │   │   ├── promo_equations.pdf
+│   │   │   ├── promo_equations.ttl
+│   │   │   ├── promo_language.pdf
+│   │   │   ├── promo_language.ttl
+│   │   │   ├── promo_qudt_graph_quantitykind.ttl
+│   │   │   ├── promo_qudt_graph_unit.ttl
+│   │   │   ├── ProMo_RDF_Graph_no_lists.py
+│   │   │   ├── ProMo_RDF.pdf
+│   │   │   ├── ProMo_var_expr_ontology.py
+│   │   │   ├── promo_variables_eq_list.ttl
+│   │   │   ├── promo_variables_equations.ttl
+│   │   │   ├── promo_variables.pdf
+│   │   │   ├── qudt_quantitykind.ttl
+│   │   │   ├── qudt_terms_quantitykind.txt
+│   │   │   ├── qudt_terms_unit.txt
+│   │   │   ├── qudt_unit.ttl
+│   │   │   ├── ttl_visualisation.py
+│   │   │   ├── var_equ_rdf
+│   │   │   ├── var_equ_rdf.ld
+│   │   │   ├── var_equ_rdf.n3
+│   │   │   ├── var_equ_rdf.pdf
+│   │   │   └── var_equ_rdf.ttl
 │   │   ├── ontology_container.py
 │   │   ├── pop_up_message_box.py
 │   │   ├── __pycache__
@@ -413,6 +466,8 @@
 │   │   │   ├── single_list_selector.cpython-38.pyc
 │   │   │   ├── single_list_selector_impl.cpython-38.pyc
 │   │   │   ├── treeid.cpython-38.pyc
+│   │   │   ├── ui_combo_dialog.cpython-38.pyc
+│   │   │   ├── ui_combo_integer_dialog_impl.cpython-38.pyc
 │   │   │   ├── ui_radio_selector_w_scroll.cpython-38.pyc
 │   │   │   ├── ui_radio_selector_w_sroll_impl.cpython-38.pyc
 │   │   │   ├── ui_string_dialog.cpython-38.pyc
@@ -482,11 +537,14 @@
 │   │   │       └── table_with_pictures.py
 │   │   ├── toggle_button.py
 │   │   ├── treeid.py
-│   │   ├── tree.pdf
 │   │   ├── ui
 │   │   │   ├── main.py
 │   │   │   ├── main.pyproject
 │   │   │   └── main.pyproject.user
+│   │   ├── ui_combo_dialog.py
+│   │   ├── ui_combo_dialog.ui
+│   │   ├── ui_combo_integer_dialog_impl.py
+│   │   ├── ui_integer_dialog_impl.py
 │   │   ├── ui_list
 │   │   │   ├── main.py
 │   │   │   ├── main.pyproject
@@ -546,7 +604,11 @@
 │   │   │   ├── editor_graphcomponents_gui_impl.py
 │   │   │   ├── editor_graphcomponents_gui.py
 │   │   │   ├── editor_graphcomponents_gui.ui
-│   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── editor_graphcomponents_gui.cpython-38.pyc
+│   │   │       ├── editor_graphcomponents_gui_impl.cpython-38.pyc
+│   │   │       └── __init__.cpython-38.pyc
 │   │   ├── __init__.py
 │   │   ├── Instantiate_case
 │   │   │   ├── Editor
@@ -578,6 +640,9 @@
 │   │   ├── message.txt
 │   │   ├── ModelComposer
 │   │   │   ├── __init__.py
+│   │   │   ├── instantiation_dialog_HAP_impl.py
+│   │   │   ├── instantiation_dialog_HAP.py
+│   │   │   ├── instantiation_dialog_HAP.ui
 │   │   │   ├── instantiation_dialog_impl.py
 │   │   │   ├── instantiation_dialog.ui
 │   │   │   ├── modeller_commander.py
@@ -591,6 +656,8 @@
 │   │   │   ├── modeller_model_data.py
 │   │   │   ├── __pycache__
 │   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   ├── instantiation_dialog_HAP.cpython-38.pyc
+│   │   │   │   ├── instantiation_dialog_HAP_impl.cpython-38.pyc
 │   │   │   │   ├── instantiation_dialog_impl.cpython-38.pyc
 │   │   │   │   ├── modeller_commander.cpython-38.pyc
 │   │   │   │   ├── modeller_graphcomponents.cpython-38.pyc
@@ -603,36 +670,8 @@
 │   │   │   │   └── ui_instantiation_dialog.cpython-38.pyc
 │   │   │   ├── resources.py
 │   │   │   └── ui_instantiation_dialog.py
-│   │   ├── __pycache__
-│   │   │   └── __init__.cpython-38.pyc
-│   │   └── z_Initialise_system_editor
-│   │       ├── Editor
-│   │       │   ├── editor_initialise_system_gui_impl (copy).py
-│   │       │   ├── editor_initialise_system_gui_impl.py
-│   │       │   ├── editor_initialise_system_gui.py
-│   │       │   ├── editor_initialise_system_gui.ui
-│   │       │   ├── __init__.py
-│   │       │   ├── object_initializer_gui.py
-│   │       │   └── object_initializer_gui.ui
-│   │       ├── __init__.py
-│   │       ├── Master_Andreas
-│   │       │   ├── equations-1.json
-│   │       │   ├── HEX_groups.json
-│   │       │   ├── __init__.py
-│   │       │   ├── master_project.py
-│   │       │   ├── Re%3a_Litt_forsinka.zip
-│   │       │   ├── SOFC_GT_SIMPLIFIED.json
-│   │       │   ├── typed_tokens.json
-│   │       │   └── variables-1.json
-│   │       ├── master_project_new_old.py
-│   │       ├── master_project_OLD.py
-│   │       ├── master_project_OLD_TOBIAS.py
-│   │       ├── master_project.py
-│   │       ├── README.rst
-│   │       ├── setup.py
-│   │       └── tests
-│   │           ├── __init__.py
-│   │           └── test_sample.py
+│   │   └── __pycache__
+│   │       └── __init__.cpython-38.pyc
 │   ├── OntologyBuilder
 │   │   ├── Attic_OntologyEquationAssignmentEditor
 │   │   │   ├── assign_equations_gui_impl.py
@@ -646,6 +685,43 @@
 │   │   │   │   ├── assign_equations_gui_v7.ui
 │   │   │   │   ├── assign_equations.py
 │   │   │   │   └── assign_equations.ui
+│   │   │   ├── EMMO_Integration
+│   │   │   │   ├── atic
+│   │   │   │   │   └── emmo
+│   │   │   │   │       └── ontology-rooted_relations
+│   │   │   │   │           └── python
+│   │   │   │   │               ├── emmo
+│   │   │   │   │               │   ├── emmodoc
+│   │   │   │   │               │   │   ├── figs
+│   │   │   │   │               │   │   │   └── __init__.py
+│   │   │   │   │               │   │   └── __init__.py
+│   │   │   │   │               │   ├── scripts
+│   │   │   │   │               │   │   └── __init__.py
+│   │   │   │   │               │   └── tests
+│   │   │   │   │               │       └── __init__.py
+│   │   │   │   │               └── __init__.py
+│   │   │   │   ├── demo
+│   │   │   │   │   ├── horizontal
+│   │   │   │   │   │   └── __init__.py
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── vertical
+│   │   │   │   │       ├── define_ontology.py
+│   │   │   │   │       └── __init__.py
+│   │   │   │   ├── docs
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── requirements.txt
+│   │   │   │   ├── emmo
+│   │   │   │   │   └── tests
+│   │   │   │   │       └── __init__.py
+│   │   │   │   ├── emmo_attach.py
+│   │   │   │   ├── examples
+│   │   │   │   │   ├── emmodoc
+│   │   │   │   │   │   ├── figs
+│   │   │   │   │   │   │   └── __init__.py
+│   │   │   │   │   │   └── __init__.py
+│   │   │   │   │   └── __init__.py
+│   │   │   │   └── tools
+│   │   │   │       └── __init__.py
 │   │   │   ├── EquationAssign.pdf
 │   │   │   ├── __init__.py
 │   │   │   └── scroller.py
@@ -670,11 +746,13 @@
 │   │   │   ├── Controllers
 │   │   │   │   ├── entity_editor.py
 │   │   │   │   ├── entity_generator.py
+│   │   │   │   ├── entity_merger.py
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── main.py
 │   │   │   │   ├── __pycache__
 │   │   │   │   │   ├── entity_editor.cpython-38.pyc
 │   │   │   │   │   ├── entity_generator.cpython-38.pyc
+│   │   │   │   │   ├── entity_merger.cpython-38.pyc
 │   │   │   │   │   ├── __init__.cpython-38.pyc
 │   │   │   │   │   ├── main.cpython-38.pyc
 │   │   │   │   │   └── variable_editor.cpython-38.pyc
@@ -689,6 +767,7 @@
 │   │   │   ├── Models
 │   │   │   │   ├── entity_editor.py
 │   │   │   │   ├── entity_generator.py
+│   │   │   │   ├── entity_merger.py
 │   │   │   │   ├── image_list.py
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── main.py
@@ -696,6 +775,7 @@
 │   │   │   │   ├── __pycache__
 │   │   │   │   │   ├── entity_editor.cpython-38.pyc
 │   │   │   │   │   ├── entity_generator.cpython-38.pyc
+│   │   │   │   │   ├── entity_merger.cpython-38.pyc
 │   │   │   │   │   ├── image_list.cpython-38.pyc
 │   │   │   │   │   ├── __init__.cpython-38.pyc
 │   │   │   │   │   ├── main.cpython-38.pyc
@@ -730,16 +810,22 @@
 │   │   │   │   ├── ontology_selector_view.cpython-38.pyc
 │   │   │   │   └── progress_bar.cpython-38.pyc
 │   │   │   ├── resources
+│   │   │   │   ├── fonts
+│   │   │   │   │   └── Lato-Regular.ttf
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── __pycache__
+│   │   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   │   └── resources_rc.cpython-38.pyc
 │   │   │   │   ├── resources.qrc
 │   │   │   │   ├── resources_rc.py
 │   │   │   │   └── styles
 │   │   │   │       └── stylesheet.qss
-│   │   │   ├── stylesheet.qrc
 │   │   │   └── Views
 │   │   │       ├── Compiled_UIs
 │   │   │       │   ├── entity_changes_ui.py
 │   │   │       │   ├── entity_editor_ui.py
 │   │   │       │   ├── entity_generator_ui.py
+│   │   │       │   ├── entity_merger_ui.py
 │   │   │       │   ├── __init__.py
 │   │   │       │   ├── insert_str_ui.py
 │   │   │       │   ├── main_ui.py
@@ -748,6 +834,7 @@
 │   │   │       │   │   ├── entity_changes_ui.cpython-38.pyc
 │   │   │       │   │   ├── entity_editor_ui.cpython-38.pyc
 │   │   │       │   │   ├── entity_generator_ui.cpython-38.pyc
+│   │   │       │   │   ├── entity_merger_ui.cpython-38.pyc
 │   │   │       │   │   ├── __init__.cpython-38.pyc
 │   │   │       │   │   ├── insert_str_ui.cpython-38.pyc
 │   │   │       │   │   ├── main_ui.cpython-38.pyc
@@ -760,6 +847,7 @@
 │   │   │       ├── entity_changes.py
 │   │   │       ├── entity_editor.py
 │   │   │       ├── entity_generator.py
+│   │   │       ├── entity_merger.py
 │   │   │       ├── __init__.py
 │   │   │       ├── insert_str.py
 │   │   │       ├── main.py
@@ -769,6 +857,7 @@
 │   │   │       │   ├── entity_changes.cpython-38.pyc
 │   │   │       │   ├── entity_editor.cpython-38.pyc
 │   │   │       │   ├── entity_generator.cpython-38.pyc
+│   │   │       │   ├── entity_merger.cpython-38.pyc
 │   │   │       │   ├── __init__.cpython-38.pyc
 │   │   │       │   ├── insert_str.cpython-38.pyc
 │   │   │       │   ├── main.cpython-38.pyc
@@ -780,6 +869,7 @@
 │   │   │       │   ├── entity_changes.ui
 │   │   │       │   ├── entity_editor.ui
 │   │   │       │   ├── entity_generator.ui
+│   │   │       │   ├── entity_merger.ui
 │   │   │       │   ├── insert_str.ui
 │   │   │       │   ├── main.ui
 │   │   │       │   ├── ontology_selector.ui
@@ -787,6 +877,7 @@
 │   │   │       │   └── variable_selection.ui
 │   │   │       ├── variable_editor.py
 │   │   │       └── variable_selection.py
+│   │   ├── editor_foundation_ontology_gui_impl.py
 │   │   ├── EMMO_Integration
 │   │   │   ├── atic
 │   │   │   │   ├── catalog-v001.xml
@@ -1055,6 +1146,7 @@
 │   │   │   │   └── play.owl
 │   │   │   ├── play_06.py
 │   │   │   ├── play.owl
+│   │   │   ├── promo_emmo_bridge.py
 │   │   │   ├── README.md
 │   │   │   ├── requirements.txt
 │   │   │   ├── setup.py
@@ -1071,12 +1163,55 @@
 │   │   ├── message.txt
 │   │   ├── OntologyEquationEditor
 │   │   │   ├── 0_issues.txt
+│   │   │   ├── create_semantic_EquationSet.py
+│   │   │   ├── data_
+│   │   │   │   ├── dawgt-obj.txt
+│   │   │   │   ├── dawgt-pred.txt
+│   │   │   │   ├── dawgt-subj.txt
+│   │   │   │   ├── dbp-obj.txt
+│   │   │   │   ├── dbp-pred.txt
+│   │   │   │   ├── dbp-subj.txt
+│   │   │   │   ├── mf-obj.txt
+│   │   │   │   ├── mf-pred.txt
+│   │   │   │   ├── mf-subj.txt
+│   │   │   │   ├── promo_qudt_graph_quantitykind.ttl
+│   │   │   │   ├── promo_qudt_graph_unit.ttl
+│   │   │   │   ├── qudt_quantitykind.ttl
+│   │   │   │   ├── qudt_quantitykind.txt
+│   │   │   │   ├── qudt_terms_quantitykind.txt
+│   │   │   │   ├── qudt_terms_unit.txt
+│   │   │   │   ├── qudt_unit.ttl
+│   │   │   │   ├── qudt_unit.txt
+│   │   │   │   ├── rev-obj.txt
+│   │   │   │   ├── rev-pred.txt
+│   │   │   │   ├── rev-subj.txt
+│   │   │   │   ├── void-obj.txt
+│   │   │   │   ├── void-pred.txt
+│   │   │   │   └── void-subj.txt
+│   │   │   ├── database
+│   │   │   │   ├── endpoints.csv
+│   │   │   │   ├── languages.csv
+│   │   │   │   ├── log.sqlite
+│   │   │   │   ├── mapping.csv
+│   │   │   │   ├── myDB_default.sqlite
+│   │   │   │   ├── myDB.sqlite
+│   │   │   │   └── settings.sqlite
+│   │   │   ├── define_equation_ontology.py
+│   │   │   ├── demo.sqlite3
 │   │   │   ├── depgraph2dot.py
+│   │   │   ├── emmo_attach.py
 │   │   │   ├── __init__.py
 │   │   │   ├── make_dependency_plot.sh
+│   │   │   ├── namespace_manager_utils.py
+│   │   │   ├── ontology_ontograph.py
+│   │   │   ├── ontology_owldir.py
+│   │   │   ├── ontology.py
+│   │   │   ├── ontology_utils.py
+│   │   │   ├── plot_rdf.py
 │   │   │   ├── py2depgraph.py
 │   │   │   ├── __pycache__
 │   │   │   │   ├── __init__.cpython-38.pyc
+│   │   │   │   ├── qudt_fetcher_backend.cpython-38.pyc
 │   │   │   │   ├── resources.cpython-38.pyc
 │   │   │   │   ├── tpg.cpython-38.pyc
 │   │   │   │   ├── ui_aliastable.cpython-38.pyc
@@ -1086,11 +1221,13 @@
 │   │   │   │   ├── ui_documentation_impl.cpython-38.pyc
 │   │   │   │   ├── ui_equations.cpython-38.pyc
 │   │   │   │   ├── ui_equations_impl.cpython-38.pyc
+│   │   │   │   ├── ui_get_qudt_iri_impl.cpython-38.pyc
 │   │   │   │   ├── ui_interface_variable_pick_impl.cpython-38.pyc
 │   │   │   │   ├── ui_ontology_design.cpython-38.pyc
 │   │   │   │   ├── ui_ontology_design_impl.cpython-38.pyc
 │   │   │   │   ├── ui_physunits.cpython-38.pyc
 │   │   │   │   ├── ui_physunits_impl.cpython-38.pyc
+│   │   │   │   ├── ui_qudt_iri_fetcher_dialog.cpython-38.pyc
 │   │   │   │   ├── ui_symbol.cpython-38.pyc
 │   │   │   │   ├── ui_symbol_impl.cpython-38.pyc
 │   │   │   │   ├── ui_variabletable.cpython-38.pyc
@@ -1100,6 +1237,8 @@
 │   │   │   │   ├── ui_variabletable_show_impl.cpython-38.pyc
 │   │   │   │   ├── variable_framework.cpython-38.pyc
 │   │   │   │   └── variable_table.cpython-38.pyc
+│   │   │   ├── python_owl.py
+│   │   │   ├── qudt_fetcher_backend.py
 │   │   │   ├── resources.py
 │   │   │   ├── template_equation_list_associate.latex
 │   │   │   ├── template_equation_list.latex
@@ -1131,7 +1270,17 @@
 │   │   │   ├── ui_equations_impl.py
 │   │   │   ├── ui_equations.py
 │   │   │   ├── ui_equations.ui
+│   │   │   ├── ui_get_qudt_iri_impl.py
+│   │   │   ├── ui_get_qudt_iri.py
+│   │   │   ├── ui_get_qudt_iri.ui
 │   │   │   ├── ui_interface_variable_pick_impl.py
+│   │   │   ├── ui_namespace_editor_impl.py
+│   │   │   ├── ui_namespace_editor.py
+│   │   │   ├── ui_namespace_manager_impl.py
+│   │   │   ├── ui_namespace_manager.py
+│   │   │   ├── ui_namespace_test_impl.py
+│   │   │   ├── ui_namespace_test.py
+│   │   │   ├── ui_namespace_test.ui
 │   │   │   ├── ui_ontology_design__design.txt
 │   │   │   ├── ui_ontology_design_impl.py
 │   │   │   ├── ui_ontology_design.py
@@ -1139,6 +1288,12 @@
 │   │   │   ├── ui_physunits_impl.py
 │   │   │   ├── ui_physunits.py
 │   │   │   ├── ui_physunits.ui
+│   │   │   ├── ui_qudt_fetch_entity.ui
+│   │   │   ├── ui_qudt_fetch_impl.py
+│   │   │   ├── ui_qudt_fetch.py
+│   │   │   ├── ui_qudt_fetch.ui
+│   │   │   ├── ui_qudt_iri_fetcher_dialog.py
+│   │   │   ├── ui_qudt_iri_fetcher_dialog.ui
 │   │   │   ├── ui_symbol_impl.py
 │   │   │   ├── ui_symbol.py
 │   │   │   ├── ui_symbol.ui
@@ -1175,11 +1330,66 @@
 │   │           └── __init__.cpython-38.pyc
 │   ├── __pycache__
 │   │   └── __init__.cpython-38.pyc
-│   └── TaskFactory
-│       ├── code_generator.py
-│       ├── __pycache__
-│       │   └── template_handler.cpython-38.pyc
-│       └── template_handler.py
+│   ├── TaskFactory
+│   │   ├── code_generator.py
+│   │   ├── Parser
+│   │   │   ├── equation_parser.py
+│   │   │   ├── highlight_line_edit.py
+│   │   │   ├── parser.out
+│   │   │   ├── parsetab.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── equation_parser.cpython-38.pyc
+│   │   │   │   ├── parsetab.cpython-38.pyc
+│   │   │   │   ├── tests.cpython-38.pyc
+│   │   │   │   └── translator.cpython-38.pyc
+│   │   │   ├── tests.py
+│   │   │   └── translator.py
+│   │   ├── __pycache__
+│   │   │   └── template_handler.cpython-38.pyc
+│   │   └── template_handler.py
+│   └── Utilities
+│       ├── InstantiationTool
+│       │   ├── controllers
+│       │   ├── main.py
+│       │   ├── Makefile
+│       │   ├── models
+│       │   └── views
+│       │       ├── Compiled_UIs
+│       │       └── UIs
+│       │           └── untitled.ui
+│       └── TranslationManager
+│           ├── controllers
+│           │   ├── __init__.py
+│           │   └── main.py
+│           ├── __init__.py
+│           ├── main.py
+│           ├── Makefile
+│           ├── models
+│           │   ├── __init__.py
+│           │   └── main.py
+│           ├── resources
+│           │   ├── icons
+│           │   │   ├── files
+│           │   │   │   ├── add.png
+│           │   │   │   ├── copy.png
+│           │   │   │   ├── delete.png
+│           │   │   │   └── save.png
+│           │   │   └── list
+│           │   │       ├── add.png
+│           │   │       └── remove.png
+│           │   ├── language_configurations
+│           │   │   ├── base_template.json
+│           │   │   └── matlab
+│           │   │       └── translation_template.json
+│           │   ├── resources.qrc
+│           │   └── resources_rc.py
+│           └── views
+│               ├── Compiled_UIs
+│               │   └── main_ui.py
+│               ├── __init__.py
+│               ├── main.py
+│               └── UIs
+│                   └── main.ui
 ├── README.md
 ├── requirements.txt
 ├── tasks
@@ -1191,20 +1401,27 @@
 │   ├── git_push_auto.sh
 │   ├── git_push.sh
 │   ├── __init__.py
+│   ├── Makefile
 │   ├── message.txt
 │   ├── ProMo_BehaviourLinker.py
 │   ├── ProMo_BL.py
 │   ├── ProMo_ComposerAutomataDesigner.py
 │   ├── ProMo_ComposerGraphComponentDesigner.py
+│   ├── ProMo_CSV_generator.py
 │   ├── ProMo_install_all.sh
 │   ├── ProMo_ModelComposer.py
 │   ├── ProMo_ModelRenderer.py
 │   ├── ProMo_OntologyDotGraphCreator.py
 │   ├── ProMo_OntologyEquationComposer.py
 │   ├── ProMo_OntologyFoundationDesigner.py
+│   ├── ProMo_QUDT_handler.py
+│   ├── ProMo_RDF_Graph.py
+│   ├── ProMo_RDF_VariableExpressionGenerator.py
 │   ├── ProMo-readme.odt
 │   ├── ProMo-readme.pdf
+│   ├── ProMo_TaskFactory.py
 │   ├── ProMo_TypedTokenEditor.py
+│   ├── ProMo_var_expr_ontology.py
 │   ├── readme.rst
 │   ├── run.py
 │   ├── show_doc.sh
@@ -1257,41 +1474,146 @@
 │   │   │   ├── var_eq_info.synctex.gz
 │   │   │   └── var_eq_info.tex
 │   │   └── test.m
+│   ├── gugus.ttl
+│   ├── level1.ttl
 │   ├── Matlab
 │   │   ├── main.m
-│   │   ├── @MultiDimVar
-│   │   │   ├── abs.m
-│   │   │   ├── blockreduce.m
-│   │   │   ├── ctranspose.m
-│   │   │   ├── disp.m
-│   │   │   ├── expandproduct.m
-│   │   │   ├── formatsize.m
-│   │   │   ├── isscalar.m
-│   │   │   ├── isvector.m
-│   │   │   ├── khatrirao.m
-│   │   │   ├── minus.m
-│   │   │   ├── MultiDimVar.m
-│   │   │   ├── plus.m
-│   │   │   ├── power.m
-│   │   │   ├── product.m
-│   │   │   ├── rdivide.m
-│   │   │   ├── reciprocal.m
-│   │   │   ├── reduceproduct.m
-│   │   │   ├── sign.m
-│   │   │   ├── size.m
-│   │   │   ├── sparse.m
-│   │   │   ├── subsasgn.m
-│   │   │   ├── subsref.m
-│   │   │   └── times.m
-│   │   └── octave-workspace
+│   │   └── @MultiDimVar
+│   │       ├── abs.m
+│   │       ├── blockreduce.m
+│   │       ├── ctranspose.m
+│   │       ├── disp.m
+│   │       ├── formatsize.m
+│   │       ├── isscalar.m
+│   │       ├── isvector.m
+│   │       ├── khatrirao.m
+│   │       ├── minus.m
+│   │       ├── MultiDimVar.m
+│   │       ├── plus.m
+│   │       ├── power.m
+│   │       ├── product.m
+│   │       ├── rdivide.m
+│   │       ├── reciprocal.m
+│   │       ├── reduceproduct.m
+│   │       ├── sign.m
+│   │       ├── size.m
+│   │       ├── sparse.m
+│   │       ├── subsasgn.m
+│   │       ├── subsref.m
+│   │       └── times.m
 │   ├── Other matlab
 │   │   ├── FunctionTest.m
 │   │   ├── MultiDimVar.m
 │   │   └── MultiDimVar_.m
-│   ├── test_entity.py
-│   ├── test_eq_selector_dlg.py
-│   ├── test_equation.py
-│   └── test_instantiation_dlg.py
+│   ├── pizza.ttl
+│   ├── pizza_.ttl
+│   ├── ProMo_RDF
+│   ├── ProMo_RDF.pdf
+│   ├── tests_heinz
+│   │   ├── classes_holistic.txt
+│   │   ├── classes_isq.txt
+│   │   ├── classes_manufacturing.txt
+│   │   ├── classes_math.txt
+│   │   ├── classes_metrology.txt
+│   │   ├── classes_middle.txt
+│   │   ├── classes_models.txt
+│   │   ├── classes_ordinal.txt
+│   │   ├── classes_perceptual.txt
+│   │   ├── classes_perspective.txt
+│   │   ├── classes_physicalistic.txt
+│   │   ├── classes_properties.txt
+│   │   ├── classes_reductionistic.txt
+│   │   ├── classes_semiotics.txt
+│   │   ├── classes_siunits.txt
+│   │   ├── classes_units-extension.txt
+│   │   ├── class_list.txt
+│   │   ├── demo.sqlite3
+│   │   ├── equation_instances
+│   │   ├── equation_instances.pdf
+│   │   ├── equations
+│   │   ├── equations.pdf
+│   │   ├── equations_small_test.py
+│   │   ├── equations_small_test.ttl
+│   │   ├── equations.ttl
+│   │   ├── explore_emmo_middle.py
+│   │   ├── foaf_check.py
+│   │   ├── FOAF.md
+│   │   ├── gugus
+│   │   ├── gugus1.ttl
+│   │   ├── gugus.dot
+│   │   ├── gugus.json
+│   │   ├── gugus.pdf
+│   │   ├── gugus.ttl
+│   │   ├── lab1.png
+│   │   ├── lab1.py
+│   │   ├── language
+│   │   ├── language.pdf
+│   │   ├── lecture_example_0.py
+│   │   ├── list_test.py
+│   │   ├── message_box_01.py
+│   │   ├── message_box_02.py
+│   │   ├── multi_graph_demo_2.py
+│   │   ├── multi_graph_demo.py
+│   │   ├── multi_graph.trig
+│   │   ├── obj.txt
+│   │   ├── plot_rdf.py
+│   │   ├── pred.txt
+│   │   ├── promo_language.ttl
+│   │   ├── QuantityKind_triples.txt
+│   │   ├── QuantityKind.txt
+│   │   ├── qudt_quantitykind.ttl
+│   │   ├── qudt_quantitykind.txt
+│   │   ├── qudt_terms_quantitykind.txt
+│   │   ├── qudt_terms_unit.txt
+│   │   ├── qudt_unit_extract.ttl
+│   │   ├── qudt_unit.ttl
+│   │   ├── qudt_unit.txt
+│   │   ├── Sou_triples.txt
+│   │   ├── Sou.txt
+│   │   ├── subj.txt
+│   │   ├── test_04.py
+│   │   ├── test_05.py
+│   │   ├── test06.py
+│   │   ├── test_entity.py
+│   │   ├── test_eq_selector_dlg.py
+│   │   ├── test_equation.py
+│   │   ├── test_extract_from_promo_ontology.py
+│   │   ├── test_instantiation_dlg.py
+│   │   ├── test_ontospy.py
+│   │   ├── test_qudt.py
+│   │   ├── test_sparql.py
+│   │   ├── test_table_filtering_example.py
+│   │   ├── test_triple_store_vars.py
+│   │   ├── test_var_eq.py
+│   │   ├── test_variable_namespaces.py
+│   │   ├── ttl
+│   │   ├── Unit_triples.txt
+│   │   ├── Unit.txt
+│   │   ├── var_eq_01.pdf
+│   │   ├── var_eq_instances
+│   │   ├── var_eq_instances.pdf
+│   │   ├── var_eq_instances.ttl
+│   │   ├── var_eq_scheme
+│   │   ├── var_eq_scheme.pdf
+│   │   ├── var_eq.ttl
+│   │   ├── var_equ_rdf.ttl
+│   │   ├── variable_instances
+│   │   ├── variable_instances.pdf
+│   │   ├── variable_namespace_test.ttl
+│   │   ├── variables
+│   │   ├── variables.pdf
+│   │   ├── variables.ttl
+│   │   ├── Vinay_rdf_test.py
+│   │   └── Vinay_rdf_test.ttl
+│   ├── tests_vinay
+│   │   ├── graph-testcase1.pdf
+│   │   ├── graph-testcase2.pdf
+│   │   ├── testcase1.ttl
+│   │   └── testcase2.ttl
+│   ├── ui_qudt_fetch.ui
+│   └── unit
+│       └── class
+│           └── test_node.py
 └── tree.txt
 
-130 directories, 1164 files
+178 directories, 1438 files
