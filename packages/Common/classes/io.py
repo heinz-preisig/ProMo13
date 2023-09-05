@@ -608,7 +608,7 @@ def convert_model_file(ontology_name, model_name):
                                       "arcs": {}
                                       }
 
-  list_ids = ["V_15", "V_66"]  # ["V_66", "V_100", "V_164", "V_169"]
+  list_ids = ["V_15", "V_66", "V_100", "V_164", "V_169"]
   node_id_list = []
 
   for node_id in data["nodes"]:
