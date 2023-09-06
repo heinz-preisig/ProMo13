@@ -4,7 +4,7 @@ import os
 import json
 
 sys.path.insert(0, os.path.abspath("../../../../"))
-from packages.Common.classes import io
+from packages.Common.classes import file_io
 from packages.Common.classes import entity
 from packages.Common.classes import equation
 
@@ -52,7 +52,7 @@ def test_dummy():
   test_entity.generate_var_eq_tree({"V_5": ["E_6"]})
   test_entity.update_var_eq_tree()
 
-  print(json.dumps(test_entity, cls=io.EntityJSONEncoder, indent=2))
+  print(json.dumps(test_entity, cls=file_io.EntityJSONEncoder, indent=2))
 
 def test_real_system():
   """Test with current system."""
@@ -63,14 +63,14 @@ def test_real_system():
     path_ontology,
     "variable_assignment_to_entity_object.json"
   ])
-  all_eq = io.load_equations_from_file(path_equations)
+  all_eq = file_io.load_equations_from_file(path_equations)
   ent_name = "macroscopic.node.event|lumped|mass.test"
-  test_entity = io.load_entities_from_old_file(
+  test_entity = file_io.load_entities_from_old_file(
     path_entities,
     all_eq,
     [ent_name],
   )
 
-  print(json.dumps(test_entity, cls=io.EntityJSONEncoder, indent=2))
+  print(json.dumps(test_entity, cls=file_io.EntityJSONEncoder, indent=2))
 
 test_dummy()

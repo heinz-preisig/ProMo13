@@ -20,7 +20,9 @@ __status__ = "beta"
 
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
+from copy import copy
 
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.ui_documentation import Ui_DocumentationDialog
 
 
@@ -47,8 +49,11 @@ class UI_DocumentationDialog(QtWidgets.QDialog):
     self.ui.pushCancle.show()
 
   def on_lineDocumentation_editingFinished(self):
+    doc_before = copy(self.phys_var.doc)
     doc = str(self.ui.lineDocumentation.text())
-    self.phys_var.doc = doc
+    if doc_before != doc:
+      self.phys_var.doc = doc
+      self.phys_var.modified = dateString()
     self.finished.emit()
     self.hide()
 

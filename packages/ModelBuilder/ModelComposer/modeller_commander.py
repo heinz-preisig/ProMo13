@@ -57,7 +57,7 @@ from ModelBuilder.ModelComposer.instantiation_dialog_HAP_impl import Instantiati
 
 from typing import List, Optional, Tuple
 from typing_extensions import TypedDict
-from packages.Common.classes import io
+from packages.Common.classes import file_io
 from packages.Common.classes import entity
 
 EDITOR_PHASES = list(GRAPH_EDITOR_STATES.keys())
@@ -108,10 +108,10 @@ class Commander(QtCore.QObject):
         self.main.networks, self.main.ontology)
 
     # Loading Equations and Entities in the new form.
-    self.all_equations = io.load_equations_from_file(self.main.ontology_name)
-    self.all_entities = io.load_entities_from_file(
+    self.all_equations = file_io.load_equations_from_file(self.main.ontology_name)
+    self.all_entities = file_io.load_entities_from_file(
         self.main.ontology_name)
-    self.all_variables, _ = io.load_variables_from_file(
+    self.all_variables, _ = file_io.load_variables_from_file(
         self.main.ontology_name
     )
 

@@ -3,7 +3,7 @@ import copy
 
 from PyQt5 import QtCore
 
-from packages.Common.classes import io
+from packages.Common.classes import file_io
 from packages.Common.classes import entity
 
 from packages.Common import resource_initialisation
@@ -43,14 +43,14 @@ class MainModel(QtCore.QObject):
   def load_ontology(self, ontology_name):
     self.ontology_name = ontology_name
     # TODO: Remove this when the output of the equation editor changes
-    io.convert_variable_files(ontology_name)
-    io.convert_equations_file(ontology_name)
+    file_io.convert_variable_files(ontology_name)
+    file_io.convert_equations_file(ontology_name)
     # exit()
     # Loading data from files
-    self.ontology = io.load_ontology_from_file(self.ontology_name)
-    self.all_variables, _ = io.load_variables_from_file(self.ontology_name)
-    self.all_equations = io.load_equations_from_file(self.ontology_name)
-    self.all_entities = io.load_entities_from_file(self.ontology_name)
+    self.ontology = file_io.load_ontology_from_file(self.ontology_name)
+    self.all_variables, _ = file_io.load_variables_from_file(self.ontology_name)
+    self.all_equations = file_io.load_equations_from_file(self.ontology_name)
+    self.all_entities = file_io.load_entities_from_file(self.ontology_name)
 
     self._update_tree_model()
 
@@ -134,4 +134,4 @@ class MainModel(QtCore.QObject):
     return self.entity_tree_model.get_depth(index) == tree.LEAF_DEPTH
 
   def save(self):
-    io.save_entities_to_file(self.ontology_name, self.all_entities)
+    file_io.save_entities_to_file(self.ontology_name, self.all_entities)

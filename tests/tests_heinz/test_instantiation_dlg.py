@@ -8,7 +8,7 @@ from PyQt5 import QtWidgets
 
 sys.path.insert(0, os.path.abspath("../.."))
 
-from packages.Common.classes import io
+from packages.Common.classes import file_io
 from packages.Common.classes import variable
 from packages.Common.classes import equation
 from packages.Common.classes import entity

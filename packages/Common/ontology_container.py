@@ -63,11 +63,11 @@ from Common.resource_initialisation import ONTOLOGY_VERSION
 from Common.resource_initialisation import VARIABLE_EQUATIONS_VERSION
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
+from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal, dateString
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
 
-from packages.Common.classes import io
+from packages.Common.classes import file_io
 
 
 def findID(indices, name):
@@ -1169,7 +1169,7 @@ class OntologyContainer():
     return equation_variable_dictionary
 
   def __readVariableAssignmentToEntity(self):
-    return io.load_entities_from_file(self.ontology_name)
+    return file_io.load_entities_from_file(self.ontology_name)
     # pass
     # f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
     # if not os.path.exists(f):
@@ -1353,15 +1353,14 @@ class OntologyContainer():
     variables = {}
     for ID in variables_raw:
       u = eval(variables_raw[ID]["units"])
-      a = Units(ALL=u)
-      variables_raw[ID]["units"] = a
-      e = eval(variables_raw[ID]["equations"])
-      variables_raw[ID]["equations"] = e
+      variables_raw[ID]["units"] = Units(ALL=u)
+      variables_raw[ID]["equations"] = eval(variables_raw[ID]["equations"])
       aliases = eval(variables_raw[ID]["aliases"])
       variables_raw[ID]["aliases"] = aliases
       variables_raw[ID]["index_structures"] = eval(
           variables_raw[ID]["index_structures"])
 
+    # rule: incorporate an iri for each variable
       if "IRI" not in variables_raw[ID]:
         label = variables_raw[ID]["label"]
         iri = "promo:%s" % label
@@ -1383,20 +1382,30 @@ class OntologyContainer():
           variables_raw[ID]["IRI"] = prefix+":"+extended_label
           # print("debugging", variables_raw[ID]["IRI"])
 
+    # rule: add tokens to all variables
+      # note: not sure when it goes wrong. Not defining token results in "" as tokens
       try:
         variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
       except:
-        variables_raw[ID][
-            "tokens"] = []  # todo: not sure when it goes wrong. Not defining token results in "" as tokens
-      # token_raw = variables_raw[ID]["tokens"]
-      # if token_raw == "":
-      #   variables_raw[ID]["tokens"]  = []
-      # else:
-      #   variables_raw[ID]["tokens"] = eval(token_raw)
-      # convert from 8 to 8.1 adding tokens
-      # if "tokens" not in variables_raw[ID]:
-      #   variables_raw[ID]["tokens"] = ""
+        variables_raw[ID]["tokens"] = []
+
       variables[int(ID)] = variables_raw[ID]
+
+
+    # rule: add creation and modification data to each variable
+    date_string = dateString()
+    for ID in variables:
+      if "create" not in variables[ID]:
+        variables[ID]["create"] = date_string
+        variables[ID]["modified"] = date_string
+
+      equations = variables[ID]["equations"]
+      if equations:
+        for eqID in equations:
+          if "create" not in equations[eqID]:
+            equations[eqID]["create"] = date_string
+            equations[eqID]["modified"] = date_string
+
     indices = {}
     for i in indices_raw:  # DOC: indices are stored in a dictionary with the hash being the enumeration integer
       # for the index
@@ -1408,6 +1417,7 @@ class OntologyContainer():
     ProMoIRI = {}
     for i in ProMoIRI_raw:
       ProMoIRI[i] = int(ProMoIRI_raw[i])
+
     return variables, indices, variable_record_filter, version, ProMoIRI
 
   def __readVariableAssignmentFile(self, file_name):

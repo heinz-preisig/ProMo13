@@ -23,6 +23,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
 from OntologyBuilder.OntologyEquationEditor.ui_physunits import Ui_PysUnitsDialog
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 
 
 class UI_PhysUnitsDialog(QtWidgets.QDialog):
@@ -67,36 +68,43 @@ class UI_PhysUnitsDialog(QtWidgets.QDialog):
   def on_spinBoxTime_valueChanged(self, number):
     # LOGGER.info('time: %s' % number)
     self.physvar.units.time = number  # setTime( int( number ) )
+    self.physvar.modified = dateString()
 
   @QtCore.pyqtSlot(int)
   def on_spinBoxLength_valueChanged(self, number):
     # LOGGER.info('length: %s' % number)
     self.physvar.units.length = number  # setLength( int( number ) )
+    self.physvar.modified = dateString()
 
   @QtCore.pyqtSlot(int)
   def on_spinBoxAmount_valueChanged(self, number):
     # LOGGER.info('amount: %s' % number)
     self.physvar.units.amount = number  # setAmount( int( number ) )
+    self.physvar.modified = dateString()
 
   @QtCore.pyqtSlot(int)
   def on_spinBoxMass_valueChanged(self, number):
     # LOGGER.info('mass: %s' % number)
     self.physvar.units.mass = number  # setMass( int( number ) )
+    self.physvar.modified = dateString()
 
   @QtCore.pyqtSlot(int)
   def on_spinBoxTemperature_valueChanged(self, number):
     # LOGGER.info('temperature: %s' % number)
     self.physvar.units.temperature = number  # setTemperature( int( number ) )
+    self.physvar.modified = dateString()
 
   @QtCore.pyqtSlot(int)
   def on_spinBoxCurrent_valueChanged(self, number):
     # LOGGER.info('current: %s' % number)
     self.physvar.units.current = number  # setCurrent( int( number ) )
+    self.physvar.modified = dateString()
 
   @QtCore.pyqtSlot(int)
   def on_spinBoxTime_valueLight(self, number):
     # LOGGER.info('time: %s' % number)
     self.physvar.light = number  # setLight( int( number ) )
+    self.physvar.modified = dateString()
 
   def on_pushOK_pressed(self):
     self.finished.emit()

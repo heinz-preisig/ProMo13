@@ -2,7 +2,7 @@ from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 
-from packages.Common.classes import io
+from packages.Common.classes import file_io
 
 from packages.OntologyBuilder.BehaviourLinker.Views.main import MainView
 from packages.OntologyBuilder.BehaviourLinker.Models.main import MainModel
@@ -66,7 +66,7 @@ class MainController(QObject):
     name.
     """
     dlg = OntologySelectorView(
-        io.get_available_ontologies(),
+        file_io.get_available_ontologies(),
         self._view
     )
 

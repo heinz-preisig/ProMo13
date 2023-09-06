@@ -16,6 +16,8 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 import os
+from datetime import datetime
+
 import subprocess
 from os.path import abspath
 from os.path import dirname
@@ -58,9 +60,11 @@ IRINAMESPACE_DELIMITER = "+"
 IRI_TEMPLATE = "%s:%s" #%(prefix, label)
 
 def IRI_parse(iri):
-  prefix, _rest = iri.split(IRIPREFIX_DELIMITER)
-  namespace, label = _rest.split(IRINAMESPACE_DELIMITER)
-  return prefix,namespace,label
+  # prefix, _rest = iri.split(IRIPREFIX_DELIMITER)
+  # namespace, label = _rest.split(IRINAMESPACE_DELIMITER)
+  namespace, label = iri.split(IRIPREFIX_DELIMITER)
+  # return prefix,namespace,label
+  return namespace,namespace,label
 
 # def IRI_make(prefix,namespace,label):
 def IRI_make(prefix,label):
@@ -1224,3 +1228,8 @@ def showPDF(file_name):
   args = ["okular", file_name]
   view_it = subprocess.Popen(args, start_new_session=True)
   out, error = view_it.communicate()
+
+def dateString():
+  now = datetime.now()  # datetime object containing current date and time
+  now_string = now.strftime("%Y-%m-%d %H:%M:%S")
+  return now_string

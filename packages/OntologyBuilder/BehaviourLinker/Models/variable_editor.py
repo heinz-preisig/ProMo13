@@ -3,7 +3,7 @@ from typing import Dict
 
 from PyQt5 import QtCore
 
-from packages.Common.classes import io
+from packages.Common.classes import file_io
 from packages.Common.classes import equation
 from packages.Common.classes import variable
 from packages.Common.classes import entity
