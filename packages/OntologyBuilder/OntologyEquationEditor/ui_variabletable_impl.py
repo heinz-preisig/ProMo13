@@ -15,28 +15,28 @@ __author__ = "Preisig, Heinz A"
 
 MAX_HEIGHT = 800
 
+from copy import copy
+
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
-from Common.resources_icons import roundButton
+from Common.pop_up_message_box import makeMessageBox
 # from Common.common_resources import globalVariableID
-from Common.qt_resources import NO
-from Common.qt_resources import YES
-from Common.record_definitions import makeCompleteVariableRecord, makeCompletEquationRecord
+from Common.record_definitions import makeCompleteVariableRecord
+from Common.resources_icons import roundButton
 from Common.single_list_selector_impl import SingleListSelector
 from Common.ui_radio_selector_w_sroll_impl import UI_RadioSelector
-from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS, CODE
-from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidentList
+from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_VAR
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.ui_documentation_impl import UI_DocumentationDialog
+from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
 from OntologyBuilder.OntologyEquationEditor.ui_physunits_impl import UI_PhysUnitsDialog
 from OntologyBuilder.OntologyEquationEditor.ui_symbol_impl import UI_SymbolDialog
-from OntologyBuilder.OntologyEquationEditor.variable_framework import simulateDeletion
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
+from OntologyBuilder.OntologyEquationEditor.variable_framework import simulateDeletion
 from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
-from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
-from Common.pop_up_message_box import makeMessageBox
 
 
 class UI_VariableTableDialog(VariableTable):
@@ -86,6 +86,7 @@ class UI_VariableTableDialog(VariableTable):
     self.variable_types_on_networks = variable_types_on_networks
     self.selected_variable_type = choice
     self.tokens_on_networks = tokens_on_networks
+
 
     VariableTable.__init__(self,
                            title,
@@ -183,7 +184,10 @@ class UI_VariableTableDialog(VariableTable):
     iri,new_iri = iri_getter.getSelection()
     print("debugging:", new_iri, iri)
     if iri:
+      iri_before = copy(v.IRI)
       v.IRI = iri
+      if iri_before != v.IRI:
+        v.modified = dateString()
     self.reset_table()
 
   def on_pushNew_pressed(self):
@@ -205,23 +209,6 @@ class UI_VariableTableDialog(VariableTable):
       self.variables[self.selected_ID].shiftType(selection)
       self.variables.indexVariables()
       self.close()
-
-  # def __showNewVariableDialog(self):
-  #   msg = "new port variable ?"
-  #   if self.has_port_variables:
-  #     reply = QtWidgets.QMessageBox.question(self, "choose", msg, YES, NO)
-  #   else:
-  #     reply = NO
-  #
-  #   if reply == YES:
-  #     print("yes")
-  #     self.defineGivenVariable()
-  #   elif reply == NO:
-  #     print("no")
-  #     self.__defineNewVarWithEquation()
-  #   else:
-  #     print("none")
-  #   self.reset_table()
 
   def __defineNewVarWithEquation(self):
     self.new_variable.emit(self.selected_variable_type)
@@ -268,6 +255,7 @@ class UI_VariableTableDialog(VariableTable):
     not_yet_used = (self.variables.inv_incidence_dictionary[selected_ID] == []) and \
                    (len(self.variables[selected_ID].equations.keys()) == 0)
 
+
     if c == 0:
       self.__change_variable_type_dialogue()
       return
@@ -281,7 +269,7 @@ class UI_VariableTableDialog(VariableTable):
       self.__changeDocumentation(v)
     elif c == 3:
       self.__changeToken(v)
-      print("debugging token dialog")
+      # print("debugging token dialog")
     elif c == 4:
       print("clicked 4 - units ", v.units)
       if not_yet_used:
@@ -297,7 +285,7 @@ class UI_VariableTableDialog(VariableTable):
       # print("clicked 7 - delete ")
       self.__showDeleteDialog(selected_ID)
     elif c == 10:
-      print("clicked 10 -- IRI")
+      # print("clicked 10 -- IRI")
       self.__iriDialog(v)
     return
 
@@ -357,16 +345,16 @@ class UI_VariableTableDialog(VariableTable):
     self.enable_column_selection(enabled_columns)
 
   def __changeSymbol(self, variable): #, forbidden_symbols):
-    forbidden_symbols = self.variables.index_accessible_variables_on_networks[self.network]#nameSpacesForVariableLabelGlobal
-    # forbidden_symbols = []
-    # for ID in self.variables_in_table:
-    #   forbidden_symbols.append(self.variables[ID].label)
+    accessible_variables_per_class = self.variables.index_accessible_variables_on_networks[self.network]#nameSpacesForVariableLabelGlobal
+    forbidden_symbols = []
+    for var_classes in accessible_variables_per_class:
+      for var_ID in accessible_variables_per_class[var_classes]:
+        forbidden_symbols.append(self.variables[var_ID].label)
     self.ui_symbol.setUp(variable, forbidden_symbols)
     self.ui_symbol.show()
 
   def __changeUnits(self, phys_var):
-    self.ui_units.setUp(phys_var)  # = UI_PhysUnitsDialog("new physical units", phys_var)
-    # self.ui_units.finished.connect(self.reset_table)
+    self.ui_units.setUp(phys_var)
     self.ui_units.show()
 
   def __changeDocumentation(self, phys_var):
@@ -415,9 +403,12 @@ class UI_VariableTableDialog(VariableTable):
     return label_ID_dict
 
   def __gotNewIndexStrucList(self, strucs_list):
+    indexing_sets_before = copy(self.phys_var.index_structures)
     indexing_sets = [ind_ID for ind_ID in self.indices if self.indices[ind_ID][
       "label"] in strucs_list]
-    self.phys_var.index_structures = indexing_sets
+    if indexing_sets_before != indexing_sets:
+      self.phys_var.index_structures = indexing_sets
+      self.phys_var.modified = dateString()
     self.reset_table()
 
   def __changeToken(self, phys_var):
@@ -446,7 +437,10 @@ class UI_VariableTableDialog(VariableTable):
 
   def __gotNewTokens(self, token_list):
     print("debugging got tokens", token_list)
-    self.phys_var.tokens = token_list
+    token_list_before = copy(self.phys_var.tokens)
+    if token_list_before != token_list:
+      self.phys_var.tokens = token_list
+      self.phys_var.modified = dateString()
     self.reset_table()
 
 

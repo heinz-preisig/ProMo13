@@ -21,6 +21,7 @@ from PyQt5 import QtWidgets
 
 from OntologyBuilder.OntologyEquationEditor.resources import setValidator
 from OntologyBuilder.OntologyEquationEditor.ui_symbol import Ui_SymbolDialog
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 
 ALLREADY_DEFINED = 'already defined -- give new variable'
 
@@ -82,6 +83,7 @@ class UI_SymbolDialog(QtWidgets.QDialog):
       # self.phys_var.label = str(self.ui.lineSymbol.text())
       label = str(self.ui.lineSymbol.text())
       self.phys_var.changeLabel(label)
+      self.phys_var.modified = dateString()
       self.finished.emit()
       self.close()
     else:

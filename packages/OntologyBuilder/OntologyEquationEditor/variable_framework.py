@@ -1068,6 +1068,9 @@ class Variables(OrderedDict):
 
   def replaceEquation(self, var_ID, old_equ_ID, equation_record):
     variable_record = self[var_ID]
+    old_equation_record = variable_record.equations[old_equ_ID]
+    creation = old_equation_record["creation"]
+    equation_record["creation"] = creation
     variable_record.equations[old_equ_ID] = equation_record
     print("debugging -- replace equation")
 

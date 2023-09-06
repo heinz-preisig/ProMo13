@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(".."))
 from packages.TaskFactory import template_handler
 from packages.Common.classes import vareqdigraph
 from packages.Common.classes import equation
-from packages.Common.classes import io
+from packages.Common.classes import file_io
 from packages.Common import resource_initialisation
 # fmt: on
 
@@ -22,14 +22,14 @@ if len(sys.argv) != 2:
 ontology_name = sys.argv[0]  # "DEMO"
 model_name = sys.argv[1]  # "DEMO"
 
-io.convert_model_file(ontology_name, model_name)
+file_io.convert_model_file(ontology_name, model_name)
 # model_name = "TEST_3Pores"
 
-all_variables, all_indices = io.load_variables_from_file(ontology_name)
-io.translate_equations(ontology_name, "matlab")
-all_equations = io.load_equations_from_file(ontology_name)
-all_entities = io.load_entities_from_file(ontology_name)
-topology_graph = io.load_topology_from_file(
+all_variables, all_indices = file_io.load_variables_from_file(ontology_name)
+file_io.translate_equations(ontology_name, "matlab")
+all_equations = file_io.load_equations_from_file(ontology_name)
+all_entities = file_io.load_entities_from_file(ontology_name)
+topology_graph = file_io.load_topology_from_file(
     ontology_name,
     model_name,
     all_entities,

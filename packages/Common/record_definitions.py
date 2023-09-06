@@ -56,18 +56,18 @@ class VariableFile(dict):
     self["Ontology_global_IDs"] = ProMoIRI  # ................... RULE: variable and equation ID is global to ontology
 
 
-class RecordVariable_6(dict):  # obsolete as soon as Tobias is finished
-  def __init__(self):
-    super()
-    self["label"] = ''
-    self["type"] = ''
-    self["network"] = ''
-    self["doc"] = ''
-    self["index_structures"] = []
-    self["units"] = None,  # TODO= list of 8 zeros ?
-    self["equation_list"] = []
-    self["aliases"] = {}
-    self["token"] = []
+# class RecordVariable_6(dict):  # obsolete as soon as Tobias is finished
+#   def __init__(self):
+#     super()
+#     self["label"] = ''
+#     self["type"] = ''
+#     self["network"] = ''
+#     self["doc"] = ''
+#     self["index_structures"] = []
+#     self["units"] = None,  # TODO= list of 8 zeros ?
+#     self["equation_list"] = []
+#     self["aliases"] = {}
+#     self["token"] = []
 
 
 class RecordVariable(dict):
@@ -89,6 +89,8 @@ class RecordVariable(dict):
     self["port_variable"] = False  # ................. port variables are at the bottom of the definition -- foundation
     self["tokens"] = []  # ...................................................................................... token
     self["IRI"] = "None" # ......................................................... qudt or promo IRI for the variable
+    self["create"] = None # .....................................................................  creation data & time
+    self["modified"] = None # ...............................................................  modification data & time
 
 
 class RecordEquation(dict):
@@ -97,9 +99,11 @@ class RecordEquation(dict):
     " the equation_ID is the hash tag -- enumberation type"
     self["rhs"] = ""  # ..................................................... global_ID coded string for the expression
     self["doc"] = ""  # ............................................................................ documention string
-    self["network"] = ""  # may not be the same as the variable, but further out in the tree
+    self["network"] = ""  # ...........................may not be the same as the variable, but further out in the tree
     self["incidence_list"] = []  # .................................................. list of variables in the equation
     self["type"] = ""  # ............................................................................... equation class
+    self["create"] = None # .....................................................................  creation data & time
+    self["modified"] = None # ...............................................................  modification data & time
 
 
 class RecordEquation_6(dict):  # TODO: obsolete once Tobias is finished
@@ -254,6 +258,7 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
                                port_variable=False,
                                tokens=[],
                                IRI=None,
+                               created=None,
                                ):
   """
   NOTE: there is a problem here with the defaults -- do not use them, but define everthing explicitly.
@@ -284,6 +289,8 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["tokens"] = tokens # ...................................................................................... token
   # self["IRI"] = IRI_make("promo", network, label)  # NOTE: label is to be adjusted when changed
   self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
+  self["created"] = created
+  self["modified"] = created
 
   for language in LANGUAGES["aliasing"]:
     self["aliases"][language] = label
@@ -298,6 +305,7 @@ def makeCompletEquationRecord(rhs="",
                               network="",
                               doc="",
                               incidence_list=[],
+                              created=None,
                               ):
   self = {}
 
@@ -306,6 +314,8 @@ def makeCompletEquationRecord(rhs="",
   self["doc"] = doc
   self["network"] = network  # may not be the same as the variable, but further out in the tree
   self["incidence_list"] = incidence_list
+  self["created"] = created
+  self["modified"] = created
   return self
 
 # def makeLinkEquationRecord(lhs_ID = "",

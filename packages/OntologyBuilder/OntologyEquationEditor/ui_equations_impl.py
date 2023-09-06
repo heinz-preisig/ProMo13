@@ -37,7 +37,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
 from OntologyBuilder.OntologyEquationEditor.resources import UNDEF_EQ_NO
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal
-from OntologyBuilder.OntologyEquationEditor.resources import setValidator
+from OntologyBuilder.OntologyEquationEditor.resources import setValidator, dateString
 from OntologyBuilder.OntologyEquationEditor.tpg import LexicalError
 from OntologyBuilder.OntologyEquationEditor.tpg import SemanticError
 from OntologyBuilder.OntologyEquationEditor.tpg import SyntacticError
@@ -238,7 +238,8 @@ class UI_Equations(QtWidgets.QWidget):
     self.MSG("new variable")
 
   def setupNewEquation(self, variable_ID):
-    self.selected_variable_type = self.variables[variable_ID].type
+    v = self.variables[variable_ID]
+    self.selected_variable_type = v.type
     self.setupEquationList(variable_ID)
     self.ui.groupEquationEditor.show()
 
@@ -410,10 +411,12 @@ class UI_Equations(QtWidgets.QWidget):
     documentation = str(self.ui.lineDocumentation.text())
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
+
     equation_record = makeCompletEquationRecord(rhs=rhs,
                                                 doc=documentation,
                                                 network=self.network_for_expression,
-                                                incidence_list=incidence_list
+                                                incidence_list=incidence_list,
+                                                created=dateString(),
                                                 )
     # Note: think about allowing for editing an equation. It easily destroys the sequence.
     # Note:   by adding a term with a variable that depends on "later" information......!!! (H)
@@ -427,6 +430,8 @@ class UI_Equations(QtWidgets.QWidget):
 
     print("status new variable, new equation, edit expression", self.status_new_variable, self.status_new_equation,
           self.status_edit_expr)
+
+
 
     log = (self.status_new_variable, self.status_new_equation, self.status_edit_expr)
     # new variable true, true, false
@@ -448,6 +453,7 @@ class UI_Equations(QtWidgets.QWidget):
                                                    aliases={},
                                                    port_variable=False,
                                                    tokens=tokens,
+                                                   created=dateString(),
                                                    )
 
       self.variables.addNewVariable(ID=var_ID, **variable_record)
