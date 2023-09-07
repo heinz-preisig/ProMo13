@@ -67,7 +67,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFro
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
 
-from packages.Common.classes import file_io
+from packages.Common.classes.io import load_entities_from_file
 
 
 def findID(indices, name):
@@ -1169,7 +1169,7 @@ class OntologyContainer():
     return equation_variable_dictionary
 
   def __readVariableAssignmentToEntity(self):
-    return file_io.load_entities_from_file(self.ontology_name)
+    return load_entities_from_file(self.ontology_name)
     # pass
     # f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
     # if not os.path.exists(f):

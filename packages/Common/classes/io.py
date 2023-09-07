@@ -74,6 +74,8 @@ def translate_equations(ontology_name: str, language: str):
   with open(path_translated_equations, "w", encoding="utf-8",) as file:
     json.dump(data_translated_equations, file, indent=4)
 
+def load_entities_from_old_file(a,b,c):  #TODO: this method is used in various places, but did not exist
+  print("does not exist")
 
 def load_equations_from_file(
     ontology_name: str,

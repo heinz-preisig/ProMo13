@@ -1,18 +1,19 @@
-import os
 import copy
 
 from PyQt5 import QtCore
 
-from packages.Common.classes import file_io
 from packages.Common.classes import entity
-
-from packages.Common import resource_initialisation
-
+from packages.Common.classes.io import convert_equations_file
+from packages.Common.classes.io import convert_variable_files
+from packages.Common.classes.io import load_entities_from_file
+from packages.Common.classes.io import load_equations_from_file
+from packages.Common.classes.io import load_ontology_from_file
+from packages.Common.classes.io import load_variables_from_file
+from packages.Common.classes.io import save_entities_to_file
+from packages.OntologyBuilder.BehaviourLinker.Models import entity_editor
+from packages.OntologyBuilder.BehaviourLinker.Models import entity_generator
 from packages.OntologyBuilder.BehaviourLinker.Models import image_list
 from packages.OntologyBuilder.BehaviourLinker.Models import tree
-from packages.OntologyBuilder.BehaviourLinker.Models import entity_generator
-from packages.OntologyBuilder.BehaviourLinker.Models import entity_editor
-
 from packages.OntologyBuilder.BehaviourLinker.Models.entity_merger import EntityMergerModel
 
 
@@ -32,25 +33,25 @@ class MainModel(QtCore.QObject):
     # PyQt models
     self.entity_tree_model = tree.TreeModel()
     self.entity_list_models = [
-        image_list.ImageListModel(self),    # Integrators
-        image_list.ImageListModel(self),    # Equations
-        image_list.ImageListModel(self),    # Input_vars
-        image_list.ImageListModel(self),    # Output_vars
-        image_list.ImageListModel(self),    # Init_vars
-        image_list.ImageListModel(self),    # Pending_vars
-    ]
+            image_list.ImageListModel(self),  # Integrators
+            image_list.ImageListModel(self),  # Equations
+            image_list.ImageListModel(self),  # Input_vars
+            image_list.ImageListModel(self),  # Output_vars
+            image_list.ImageListModel(self),  # Init_vars
+            image_list.ImageListModel(self),  # Pending_vars
+            ]
 
   def load_ontology(self, ontology_name):
     self.ontology_name = ontology_name
     # TODO: Remove this when the output of the equation editor changes
-    file_io.convert_variable_files(ontology_name)
-    file_io.convert_equations_file(ontology_name)
+    convert_variable_files(ontology_name)
+    convert_equations_file(ontology_name)
     # exit()
     # Loading data from files
-    self.ontology = file_io.load_ontology_from_file(self.ontology_name)
-    self.all_variables, _ = file_io.load_variables_from_file(self.ontology_name)
-    self.all_equations = file_io.load_equations_from_file(self.ontology_name)
-    self.all_entities = file_io.load_entities_from_file(self.ontology_name)
+    self.ontology = load_ontology_from_file(self.ontology_name)
+    self.all_variables, _ = load_variables_from_file(self.ontology_name)
+    self.all_equations = load_equations_from_file(self.ontology_name)
+    self.all_entities = load_entities_from_file(self.ontology_name)
 
     self._update_tree_model()
 
@@ -66,19 +67,19 @@ class MainModel(QtCore.QObject):
       return False
 
     entity_data = [
-        [self.all_equations[eq_id]
-         for eq_id in current_entity.get_integrators_eq()],
-        [self.all_equations[eq_id]
-         for eq_id in current_entity.get_equations()],
-        [self.all_variables[var_id]
-         for var_id in current_entity.get_input_vars()],
-        [self.all_variables[var_id]
-         for var_id in current_entity.get_output_vars()],
-        [self.all_variables[var_id]
-         for var_id in current_entity.get_init_vars()],
-        [self.all_variables[var_id]
-         for var_id in current_entity.get_pending_vars()],
-    ]
+            [self.all_equations[eq_id]
+             for eq_id in current_entity.get_integrators_eq()],
+            [self.all_equations[eq_id]
+             for eq_id in current_entity.get_equations()],
+            [self.all_variables[var_id]
+             for var_id in current_entity.get_input_vars()],
+            [self.all_variables[var_id]
+             for var_id in current_entity.get_output_vars()],
+            [self.all_variables[var_id]
+             for var_id in current_entity.get_init_vars()],
+            [self.all_variables[var_id]
+             for var_id in current_entity.get_pending_vars()],
+            ]
     for model, data in zip(self.entity_list_models, entity_data):
       model.load_data(data)
 
@@ -88,17 +89,17 @@ class MainModel(QtCore.QObject):
 
   def get_entity_generator_model(self):
     return entity_generator.EntityGeneratorModel(
-        self.ontology,
-        list(self.all_entities.keys())
-    )
+            self.ontology,
+            list(self.all_entities.keys())
+            )
 
   def get_entity_editor_model(self, index):
     entity_id = self.entity_tree_model.path_from_index(index)
     return entity_editor.EntityEditorModel(
-        copy.deepcopy(self.all_entities[entity_id]),
-        self.all_variables,
-        self.all_equations,
-    )
+            copy.deepcopy(self.all_entities[entity_id]),
+            self.all_variables,
+            self.all_equations,
+            )
 
   def add_entity(self, new_entity_id, bases):
     new_entity = None
@@ -134,4 +135,4 @@ class MainModel(QtCore.QObject):
     return self.entity_tree_model.get_depth(index) == tree.LEAF_DEPTH
 
   def save(self):
-    file_io.save_entities_to_file(self.ontology_name, self.all_entities)
+    save_entities_to_file(self.ontology_name, self.all_entities)

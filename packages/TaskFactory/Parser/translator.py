@@ -68,7 +68,7 @@ class Translator:
     self.FUNCTIONS = FunctionsMappings()
     # TODO: Call a function from the io module to load the
     # translation information.
-    # self.translation_info = file_io.get_translation_info(self.language)
+    # self.translation_info = get_translation_info(self.language)
     self.translation_info = TranslationInfo(
         variable_with_index="{variable_name}({index_list})",
         variable_no_index="{variable_name}",
