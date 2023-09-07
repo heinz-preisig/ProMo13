@@ -1,18 +1,20 @@
-
 import os
-import sys
 import shutil
-
-from pprint import pprint as pp
+import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
 # fmt: off
 from packages.TaskFactory import template_handler
 from packages.Common.classes import vareqdigraph
-from packages.Common.classes import equation
-from packages.Common.classes import file_io
+from packages.Common.classes.io import convert_model_file
+from packages.Common.classes.io import translate_equations
+from packages.Common.classes.io import load_entities_from_file
+from packages.Common.classes.io import load_equations_from_file
+from packages.Common.classes.io import load_topology_from_file
+from packages.Common.classes.io import load_variables_from_file
 from packages.Common import resource_initialisation
+
 # fmt: on
 
 if len(sys.argv) != 2:
@@ -22,26 +24,25 @@ if len(sys.argv) != 2:
 ontology_name = sys.argv[0]  # "DEMO"
 model_name = sys.argv[1]  # "DEMO"
 
-file_io.convert_model_file(ontology_name, model_name)
+convert_model_file(ontology_name, model_name)
 # model_name = "TEST_3Pores"
 
-all_variables, all_indices = file_io.load_variables_from_file(ontology_name)
-file_io.translate_equations(ontology_name, "matlab")
-all_equations = file_io.load_equations_from_file(ontology_name)
-all_entities = file_io.load_entities_from_file(ontology_name)
-topology_graph = file_io.load_topology_from_file(
-    ontology_name,
-    model_name,
-    all_entities,
-)
-
+all_variables, all_indices = load_variables_from_file(ontology_name)
+translate_equations(ontology_name, "matlab")
+all_equations = load_equations_from_file(ontology_name)
+all_entities = load_entities_from_file(ontology_name)
+topology_graph = load_topology_from_file(
+        ontology_name,
+        model_name,
+        all_entities,
+        )
 
 var_eq = vareqdigraph.VarEqDiGraph(
-    topology_graph,
-    all_equations,
-    all_indices,
-    all_variables,
-)
+        topology_graph,
+        all_equations,
+        all_indices,
+        all_variables,
+        )
 var_eq.find_solving_order()
 # pp(var_eq.expressions)
 # pp(var_eq.expressions)
@@ -49,17 +50,17 @@ var_eq.find_solving_order()
 
 # TODO Check what else is needed ex: solvers, initial guesses for solvers, etc
 temp = template_handler.TemplateHandler(
-    "matlab",
-    all_variables,
-    all_indices,
-    all_equations,
-    var_eq,
-)
+        "matlab",
+        all_variables,
+        all_indices,
+        all_equations,
+        var_eq,
+        )
 
 content = temp.generate_content()
 
 dir_path = resource_initialisation.DIRECTORIES["model_location"] % (
-    ontology_name, model_name)
+        ontology_name, model_name)
 file_path = os.path.join(dir_path, "main.m")
 
 with open(file_path, mode="w", encoding="utf-8") as message:
@@ -67,7 +68,7 @@ with open(file_path, mode="w", encoding="utf-8") as message:
 
 # To copy the @MultiDimVar
 lib_path = os.path.join(
-    resource_initialisation.DIRECTORIES["ProMo_root"], "ProMo/tests/Matlab/@MultiDimVar")
+        resource_initialisation.DIRECTORIES["ProMo_root"], "ProMo/tests/Matlab/@MultiDimVar")
 shutil.copytree(lib_path, dir_path + "/@MultiDimVar")
 
 # ######### To ask for initial conditions in an equation system ##########

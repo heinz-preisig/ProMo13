@@ -1,7 +1,7 @@
-from typing import Dict, List
 from dataclasses import dataclass
+from typing import List
 
-from packages.Common.classes import file_io
+from packages.Common.classes.io import load_translation_info_from_file
 
 
 @dataclass
@@ -72,7 +72,7 @@ class Translator:
     self.FUNCTIONS = FunctionsMappings()
     # TODO: Call a function from the io module to load the
     # translation information.
-    self.translation_info = file_io.load_translation_info_from_file(self.language)
+    self.translation_info = load_translation_info_from_file(self.language)
 
     # self.translation_info = TranslationInfo(
     #     variable_with_index="{variable_name}({index_list})",

@@ -40,7 +40,9 @@ from packages.OntologyBuilder.BehaviourAssociation import ui_equation_selector_d
 from packages.OntologyBuilder.BehaviourAssociation import ctrl_equation_selector_dialog
 
 import collections
-from packages.Common.classes import file_io
+from packages.Common.classes.io import load_entities_from_file
+from packages.Common.classes.io import load_equations_from_file
+from packages.Common.classes.io import save_entities_to_old_file
 from packages.Common.classes import entity
 
 base_variant = "base"  # RULE: nomenclature for base case
@@ -234,8 +236,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     # self.entity_behaviours = EntityBehaviour()
     # NEW entities and equations classes
-    self.all_equations = file_io.load_equations_from_file(self.ontology_name)
-    self.entity_behaviours = file_io.load_entities_from_file(
+    self.all_equations = load_equations_from_file(self.ontology_name)
+    self.entity_behaviours = load_entities_from_file(
       self.ontology_name,
       self.all_equations,
     )
@@ -713,7 +715,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def on_pushButtonSave_pressed(self):
     # print("debugging -- save file")
-    file_io.save_entities_to_old_file(self.ontology_name, self.entity_behaviours)
+    save_entities_to_old_file(self.ontology_name, self.entity_behaviours)
     # f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
     # for obj in self.entity_behaviours:
     #   if self.entity_behaviours[obj]:
