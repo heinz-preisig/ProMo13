@@ -54,7 +54,7 @@ from Common.qt_resources import OK
 from Common.qt_resources import YES
 from Common.record_definitions import Interface
 from Common.record_definitions import OntologyContainerFile
-from Common.record_definitions import RecordVariable
+from Common.record_definitions import RecordVariable, makeCompleteVariableRecord
 from Common.record_definitions import VariableFile
 from Common.record_definitions_equation_linking import VariantRecord
 from Common.resource_initialisation import DIRECTORIES
@@ -447,7 +447,8 @@ class OntologyContainer():
     self.equation_variable_dictionary = self.__makeEquationVariableDictionary()
     self.equations, \
         self.equation_information, \
-        self.equation_inverse_index = self.__makeEquationAndIndexLists()
+        self.equation_inverse_index = self.__makeEquationAndIndexLists()  #TODO: equation_inverse_index not used anymore???
+    print("debugging -- indexing equations")
 
   def checkForRule(self, rule):
     """
@@ -1224,7 +1225,7 @@ class OntologyContainer():
       nw_eq = self.variables[var_ID]["network"]
 
       rendered_expressions = renderExpressionFromGlobalIDToInternal(
-          equation["rhs"],
+          equation["rhs"]["global_ID"],
           self.variables,
           self.indices)
 
@@ -1286,21 +1287,21 @@ class OntologyContainer():
     variables_f_name = FILES["variables_file"] % self.ontology_name
     variables_f_name_v7 = FILES["variables_file_v7"] % self.ontology_name
     variable_record_filter = set(
-        list(RecordVariable().keys()))  # minimal configuration
+        list(makeCompleteVariableRecord(0).keys()))  # minimal configuration
 
     if OS.path.exists(variables_f_name):
       return self.__readVariablesEquationFile(variable_record_filter, variables_f_name,)
 
-    # shift from version 7 to version 8
-    elif OS.path.exists(variables_f_name_v7):
-      variables, indices, variable_record_filter, version, ProMoIRI = self.__readVariablesEquationFile(
-          variable_record_filter, variables_f_name_v7)
-      for ID in variables:
-        if len(variables[ID]["equations"].keys()) == 0:
-          variables[ID]["port_variable"] = True
-        else:
-          variables[ID]["port_variable"] = False
-      return variables, indices, variable_record_filter, version, ProMoIRI
+    # # shift from version 7 to version 8
+    # elif OS.path.exists(variables_f_name_v7):
+    #   variables, indices, variable_record_filter, version, ProMoIRI = self.__readVariablesEquationFile(
+    #       variable_record_filter, variables_f_name_v7)
+    #   for ID in variables:
+    #     if len(variables[ID]["equations"].keys()) == 0:
+    #       variables[ID]["port_variable"] = True
+    #     else:
+    #       variables[ID]["port_variable"] = False
+    #   return variables, indices, variable_record_filter, version, ProMoIRI
 
     else:
       msg = "There is no variable file \n-- run foundation editor again and save information\n-- to generate an empty " \
@@ -1346,8 +1347,7 @@ class OntologyContainer():
       try:
         ad = sorted(variables_raw[ID].keys())
       except:
-        ad = []
-        pass
+          pass
       variable_record_filter.update(ad)  # TODO: do we still need this ?
     # print("debugging read variables filter:", filter)
     variables = {}
@@ -1389,22 +1389,51 @@ class OntologyContainer():
       except:
         variables_raw[ID]["tokens"] = []
 
-      variables[int(ID)] = variables_raw[ID]
+      # variables[int(ID)] = variables_raw[ID]
 
+      # Note: change to new labels toDO: may be removed once the change is completed
+      if "V" in ID:
+        variables[ID] = variables_raw[ID]
+      else:
+        variables["V_%s"%ID] = variables_raw[ID]
 
     # rule: add creation and modification data to each variable
     date_string = dateString()
     for ID in variables:
-      if "create" not in variables[ID]:
-        variables[ID]["create"] = date_string
+
+      # Note: change to new labels toDO: may be removed once the change is completed
+      if "created" not in variables[ID]:
+        variables[ID]["created"] = date_string
         variables[ID]["modified"] = date_string
 
       equations = variables[ID]["equations"]
       if equations:
-        for eqID in equations:
-          if "create" not in equations[eqID]:
-            equations[eqID]["create"] = date_string
+        # if len(equations) >1:
+        #   print("debugging got more than one")
+        for eqID in sorted(equations.keys()):
+          if "lhs" not in equations[eqID]:
+            equations[eqID]["lhs"] = {"global_ID": ID}
+
+          # Note: change to new labels toDO: may be removed once the change is completed
+          if "created" not in equations[eqID]:
+            equations[eqID]["created"] = date_string
             equations[eqID]["modified"] = date_string
+          if  isinstance(eqID, int):
+            eq_new_ID = "E_%s"%eqID
+            new_equations = copy(equations[eqID])
+            del equations[eqID]
+            equations[eq_new_ID] = new_equations
+            rhs = copy(equations[eq_new_ID]["rhs"])
+            equations[eq_new_ID]["rhs"] = {"global_ID" : rhs}
+
+            # fix incidence lists
+            incidence_list = equations[eq_new_ID]["incidence_list"]
+            new_list = []
+            for i in incidence_list:
+              new_list.append("V_%s"%i)
+            equations[eq_new_ID]["incidence_list"] = new_list
+
+
 
     indices = {}
     for i in indices_raw:  # DOC: indices are stored in a dictionary with the hash being the enumeration integer
@@ -1413,6 +1442,7 @@ class OntologyContainer():
       label = indices_raw[i]["label"]
       if "IRI" not in indices_raw[i]:
         l = label.replace(" ", "_")
+        # indices[int(i)]["IRI"] = "promo:%s" % l
         indices[int(i)]["IRI"] = "promo:%s" % l
     ProMoIRI = {}
     for i in ProMoIRI_raw:

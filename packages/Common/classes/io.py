@@ -67,15 +67,14 @@ def translate_equations(ontology_name: str, language: str):
     # pp(translated_eq_data)
     data_translated_equations[eq_id] = translated_eq_data
 
-  path_ontology = resource_initialisation.DIRECTORIES["ontology_location"] % ontology_name
-  file_name = f"equations_{language}.json"
-  path_translated_equations = os.path.join(path_ontology, file_name)
+  # path_ontology = resource_initialisation.DIRECTORIES["ontology_location"] % ontology_name
+  # file_name = f"equations_{language}.json"
+  # path_translated_equations = os.path.join(path_ontology, file_name)
+  #
+  # with open(path_translated_equations, "w", encoding="utf-8",) as file:
+  #   json.dump(data_translated_equations, file, indent=4)
 
-  with open(path_translated_equations, "w", encoding="utf-8",) as file:
-    json.dump(data_translated_equations, file, indent=4)
-
-def load_entities_from_old_file(a,b,c):  #TODO: this method is used in various places, but did not exist
-  print("does not exist")
+  return data_translated_equations
 
 def load_equations_from_file(
     ontology_name: str,
@@ -247,6 +246,7 @@ def load_variables_from_file(
   # """
 
   path = resource_initialisation.FILES["variables_file_new"] % ontology_name
+  # path = resource_initialisation.FILES["variables_file"] % ontology_name
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
 

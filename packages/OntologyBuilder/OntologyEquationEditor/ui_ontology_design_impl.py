@@ -117,7 +117,6 @@ class UiOntologyDesign(QMainWindow):
     QMainWindow.__init__(self)
     self.ui = Ui_OntologyDesigner()
     self.ui.setupUi(self)
-    # self.ui.pushBack.setIcon(getIcon('^'))
     self.ui.pushWrite.setIcon(getIcon('->'))
     self.setWindowTitle("OntologyFoundationEditor Design")
     roundButton(self.ui.pushInfo, "info", tooltip="information")
@@ -165,7 +164,6 @@ class UiOntologyDesign(QMainWindow):
     # self.ui.groupOntology.setStyleSheet(style)
 
     self.variable_types_on_networks = self.ontology_container.variable_types_on_networks
-    # self.variable_types_on_networks_per_component = self.ontology_container.variable_types_on_networks_per_component
     self.converting_tokens = self.ontology_container.converting_tokens
 
     self.rules = self.ontology_container.rules
@@ -174,13 +172,11 @@ class UiOntologyDesign(QMainWindow):
     self.interconnection_nws = self.ontology_container.interconnection_network_dictionary
     self.intraconnection_nws = self.ontology_container.intraconnection_network_dictionary
     self.intraconnection_nws_list = list(self.intraconnection_nws.keys())
-    self.interconnection_nws_list = self.ontology_container.list_inter_branches_pairs  # list(
-    # self.interconnection_nws.keys())
+    self.interconnection_nws_list = self.ontology_container.list_inter_branches_pairs
 
-    self.indices = self.ontology_container.indices  # readIndices()  # indices
+    self.indices = self.ontology_container.indices
     self.variables = Variables(self.ontology_container)
-    self.variables.importVariables(self.ontology_container.variables,
-                                   self.indices)  # also link the indices for compilation
+    self.variables.importVariables(self.ontology_container.variables,self.indices)  # link the indices for compilation
 
     self.state = "edit"
 
@@ -193,7 +189,7 @@ class UiOntologyDesign(QMainWindow):
     self.ui.combo_IntraConnectionNetwork.clear()
     self.ui.combo_InterConnectionNetwork.addItems(sorted(self.interconnection_nws_list))
     nws = self.ontology_container.networks
-    self.ui.combo_IntraConnectionNetwork.addItems(nws)  # intraconnection_nws_list))
+    self.ui.combo_IntraConnectionNetwork.addItems(nws)
 
     self.ui.combo_InterConnectionNetwork.show()
     self.ui.combo_IntraConnectionNetwork.show()
@@ -201,11 +197,13 @@ class UiOntologyDesign(QMainWindow):
     self.ui.groupEdit.hide()
 
     # prepare for compiled versions
+    # issue: remove compiled_equations. It is currently used in generating a file with the rendered equations
     self.compiled_equations = {language: {} for language in LANGUAGES["compile"]}
     self.compiled_equations[LANGUAGES["global_ID_to_internal"]] = {}
     self.compiled_variable_labels = {}
 
     self.compile_only = True
+
 
     # if not self.ontology_container.checkForRule("name_space"):
     #   answer = makeMessageBox(
@@ -257,7 +255,6 @@ class UiOntologyDesign(QMainWindow):
       self.__setupVariablesAliasTable()
     else:
       self.__writeMessage("select variable type first")
-      # self.ui.radioVariablesAliases.setDown(False)
 
   def on_radioIndicesAliases_pressed(self):
     self.__checkRadios("indices_aliases")
@@ -322,15 +319,17 @@ class UiOntologyDesign(QMainWindow):
     self.pick_instantiate.exec_()
 
   def on_pushCompile_pressed(self):
-    # self.__checkRadios("compile")
-    # self.compile_only = True
-    for l in LANGUAGES["code_generation"]:
-      translate_equations(ontology_name=self.ontology_name, language=l)
-      # try:
-      #   self.__compile(l)
-      # except (EditorError) as error:
-      #   self.__writeMessage(error.msg)
 
+    for l in LANGUAGES["code_generation"]:
+      translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
+      for eqID in translated_equations:
+        var_ID = "V_%s"%translated_equations[eqID]["variable_ID"]
+        translated_equations[eqID]["vaiable_ID"] = var_ID
+        self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
+        self.ontology_container.variables[var_ID]["equations"][eqID]["lhs"][l] = translated_equations[eqID]["lhs"]
+
+
+    self.__makeOWLFile()
     self.__compile("latex")
     self.__writeMessage("finished latex document")
 
@@ -356,8 +355,6 @@ class UiOntologyDesign(QMainWindow):
     variable_table.exec_()
 
   def on_pushMakeAllVarEqPictures_pressed(self):
-    # self.variables.changes["equations"].changedAll()
-    # self.variables.changes["variables"].changedAll()
     if not self.compiled_variable_labels:
       self.__writeMessage("compile first")
       self.on_pushCompile_pressed()
@@ -393,7 +390,6 @@ class UiOntologyDesign(QMainWindow):
   def on_treeWidget_clicked(self, index):  # state network_selected
     self.current_network = str(self.ui.treeWidget.currentItem().name)
     self.__writeMessage("current network selected: %s" % self.current_network)
-    # print(">>> ", self.ui.radioVariablesAliases.isDown(), self.ui.radioVariablesAliases.isChecked())
     if self.ui.radioVariablesAliases.isChecked():
       # self.ui.radioVariablesAliases.setDown(False)
       self.on_radioVariablesAliases_pressed()
@@ -417,14 +413,6 @@ class UiOntologyDesign(QMainWindow):
     if self.ui.radioVariablesAliases.isChecked():
       self.on_radioVariablesAliases_pressed()
     else:
-      #   if self.global_name_space:
-      #     try:
-      #       self.dialog_interface.close()
-      #     except:
-      #       pass
-      # return
-      # else:
-      #   self.__setupEdit("interface")
       self.__setupEdit("interface")  # TODO need to think a better way of delete the equations
       self.__setupEditInterface()
       self.__showFilesControl()
@@ -457,17 +445,7 @@ class UiOntologyDesign(QMainWindow):
     for var_class in enabled_var_classes:
       for var_ID in self.variables.index_accessible_variables_on_networks[left_nw][var_class]:
         set_left_variables.add(var_ID)
-    print("debugging -- variable lists", set_left_variables)  # , set_right_variables)
-
-    # if self.global_name_space:
-    #   self.__writeMessage("define link")
-    #   self.__writeMessage("currently not possible")
-    # self.dialog_interface = UI_SourceSinkLinking(left_nw, sorted(set_left_variables), right_nw, sorted(set_right_variables), list_link_equations, self.variables)
-    # self.dialog_interface.selected.connect(self.makeLinkEquation)
-    # self.dialog_interface.delete_equ.connect(self.deleteLinkEquation)
-    # self.dialog_interface.exec_()
-
-    # else:
+    print("debugging -- variable lists", set_left_variables)
     self.pick = UI_VariableTableInterfacePick("make interface cut equation",
                                               self.variables, self.indices,
                                               self.current_network,
@@ -475,14 +453,6 @@ class UiOntologyDesign(QMainWindow):
                                               enabled_types=enabled_var_classes)
     self.pick.picked.connect(self.__makeLinkEquation)
     self.pick.exec_()
-    # self.show_interface_variables = UI_VariableTableInterfacePick("show interface variables",
-    #                                           self.variables, self.indices,
-    #                                           self.current_network,
-    #                                           hide_vars=not_yet_defined_variables,
-    #                                           enabled_types=enabled_var_classes)
-    # self.show_interface_variables.exec_()
-
-    # print("debugging pick table")
 
   def __alreadyDefinedVariables(self):
     already_defined_variables = set()
@@ -513,11 +483,8 @@ class UiOntologyDesign(QMainWindow):
     variable_type = VARIABLE_TYPE_INTERFACES
 
     incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(rhs=rhs,
-                                              type="interface_link_equation",
-                                              network=self.current_network,
-                                              doc="interface equation",
-                                              incidence_list=incident_list)
+    link_equation = makeCompletEquationRecord(lhs=symbol, rhs=rhs, type="interface_link_equation", network=self.current_network,
+                                              doc="interface equation", incidence_list=incident_list)
     new_var_ID = self.variables.newProMoVariableIRI()
     new_equ_ID = self.variables.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
 
@@ -546,14 +513,6 @@ class UiOntologyDesign(QMainWindow):
 
     print("debugging -- link_equation", link_equation)
 
-    # vars_types_on_network_variable = self.ontology_container.interfaces[nw]["internal_variable_classes"]
-    # self.ui.combo_EditVariableTypes.clear()
-    # self.ui.combo_EditVariableTypes.addItems(vars_types_on_network_variable)
-    # network_for_variable = nw
-    # network_for_expression = nw  # self.ontology_container.interfaces[nw]["left_network"]
-    # network_variable_source = self.ontology_container.interfaces[nw]["left_network"]
-    # vars_types_on_network_expression = self.ontology_container.interfaces[nw]["left_variable_classes"]
-
   def deleteLinkEquation(self, equ_ID, var_ID):
     print("debugging -- deleting equation ", var_ID, equ_ID)
     self.variables[var_ID].removeEquation(equ_ID)
@@ -561,7 +520,6 @@ class UiOntologyDesign(QMainWindow):
 
   def __setupEdit(self, what):
     """
-
     @param what: string "network" | "interface" | "intraface"
     @return: None
     """
@@ -598,8 +556,7 @@ class UiOntologyDesign(QMainWindow):
       # network_for_expression]
       self.ui.combo_EditVariableTypes.clear()
       self.ui.combo_EditVariableTypes.addItems(vars_types_on_network_variable)
-      vars_types_on_network_expression = sorted(
-              _set)  # self.ontology_container.variable_types_on_networks[network_for_expression]
+      vars_types_on_network_expression = sorted(_set)
     else:
       self.ui.radioNode.toggle()
       self.on_radioNode_clicked()
@@ -611,11 +568,9 @@ class UiOntologyDesign(QMainWindow):
       interface_variable_list = []
       oc = self.variables.ontology_container
       for nw in oc.heirs_network_dictionary[network_for_expression]:
-        for inter_nw in oc.interfaces:  # oc.interconnection_network_dictionary:
-          # if oc.interconnection_network_dictionary[inter_nw]["right"] == nw:
+        for inter_nw in oc.interfaces:
           if oc.interfaces[inter_nw]["right_network"] == nw:
             interface_variable_list.append(inter_nw)
-          # print("debugging -- inter_nw", inter_nw)
 
       network_variable_source = network_for_expression
       vars_types_on_network_expression = sorted(
@@ -669,7 +624,7 @@ class UiOntologyDesign(QMainWindow):
 
     self.compile_only = False
 
-    for l in LANGUAGES["compile"]:  # ["code_generation"]:
+    for l in LANGUAGES["compile"]:
       try:
         self.__compile(l)
       except (EditorError) as error:
@@ -678,6 +633,7 @@ class UiOntologyDesign(QMainWindow):
     self.__makeRenderedOutput()
 
   def __makeRenderedOutput(self):
+    """idea is to ease the repetition of inputting equations by writing them on a file."""
     self.__writeMessage("generating variable and equation pictures")
     language = LANGUAGES["global_ID_to_internal"]
     incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(self.variables)
@@ -685,7 +641,7 @@ class UiOntologyDesign(QMainWindow):
 
     for equ_ID in sorted(incidence_dictionary):
       lhs_var_ID, incidence_list = incidence_dictionary[equ_ID]
-      expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]
+      expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]["global_ID"]
       network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
       var_label = self.variables[lhs_var_ID].label
       expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
@@ -707,8 +663,11 @@ class UiOntologyDesign(QMainWindow):
 
     # print("debugging --- rendered version", e_name)
 
+
+
   def __compile(self, language):
 
+    # hash is equation ID, value is tuple lhs varID and incidence list of varID
     incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(self.variables)
     e_name = FILES["coded_equations"] % (self.ontology_location, language)
 
@@ -716,11 +675,15 @@ class UiOntologyDesign(QMainWindow):
       # if equ_ID == 87:
       #   print("debugging -- eq 87")
       lhs_var_ID, incidence_list = incidence_dictionary[equ_ID]
-      expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]
+      expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]["global_ID"]
       network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
+
+      # make lhs in the given language
       self.variables[lhs_var_ID].setLanguage(language)
       compiled_label = str(self.variables[lhs_var_ID])
+
       expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
+
       if "Root" in expression:
         self.variables.to_define_variable_name = self.variables[lhs_var_ID].label  # aliases["global_ID"]
       compiler = makeCompiler(self.variables, self.indices, lhs_var_ID, equ_ID, language=language)
@@ -728,12 +691,8 @@ class UiOntologyDesign(QMainWindow):
       try:
         # print("debugging --  expression being translated into language %s:"%language, expression)
         res = str(compiler(expression))
-        self.compiled_equations[language][equ_ID] = {
-                "variable_ID": lhs_var_ID,
-                "lhs"        : compiled_label,  # var_label,
-                "network"    : network,
-                "rhs"        : res
-                }
+        self.ontology_container.variables[lhs_var_ID]["equations"][equ_ID]["lhs"][language] = compiled_label
+        self.ontology_container.variables[lhs_var_ID]["equations"][equ_ID]["rhs"][language] = res
 
       except (SemanticError,
               SyntacticError,
@@ -746,45 +705,17 @@ class UiOntologyDesign(QMainWindow):
         print('checked expression failed %s : %s = %s -- %s' % (
                 equ_ID, self.variables[lhs_var_ID].label, expression, _m))
 
-        compiler = makeCompiler(self.variables, self.indices, lhs_var_ID, equ_ID, language=language, verbose=100)
-        try:
-          res = compiler(expression)  # NOTE: for debugging
-        except:
-          pass
-          exit(-1)
-
-    putData(self.compiled_equations[language], e_name)
-
-    # if language == "latex":
-    #   print("debugging -- processing latex")
-    for var_ID in self.variables:  # used in internally
-      self.variables[var_ID].setLanguage(language)
-      compiled_label = str(self.variables[var_ID])
-      if var_ID not in self.compiled_variable_labels:
-        self.compiled_variable_labels[var_ID] = {}
-      self.compiled_variable_labels[var_ID][language] = compiled_label
-
     if language == "latex":
       self.__makeLatexDocument()
-      # put compiled variable labels into a separate file for convenience -- used in dot graph
-      compiled_latex_variable_labels = {}
-      for var_ID in self.variables:
-        compiled_latex_variable_labels[var_ID] = self.compiled_variable_labels[var_ID]["latex"]
-      v_name = FILES["coded_variables"] % (self.ontology_location, "latex")
-      putData(compiled_latex_variable_labels, v_name)
-
     self.__makeOWLFile()
 
   def __makeOWLFile(self):
 
     this_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # OWL.tex
-    # names_names = []
-
     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
     body = j2_env.get_template(FILES["OWL_template"]).render(variables=self.variables, ProMo="ProMo",
-                                                             ontology=self.ontology_name)  # self.networks)
+                                                             ontology=self.ontology_name)
     f_name = FILES["OWL_variables"] % self.ontology_name
     f = open(f_name, 'w')
     f.write(body)
@@ -806,9 +737,6 @@ class UiOntologyDesign(QMainWindow):
 
     # main.tex
     names_names_for_variables = []
-    # if self.global_name_space:
-    #   nw_list = self.networks + self.intraconnection_nws_list  # + self.interconnection_nws_list
-    # else:
     nw_list = self.networks + self.intraconnection_nws_list + self.interconnection_nws_list
     for nw in nw_list:
       names_names_for_variables.append(str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--'))
@@ -827,14 +755,13 @@ class UiOntologyDesign(QMainWindow):
     f.close()
 
     for nw in self.networks + self.interconnection_nws_list + self.intraconnection_nws_list:
+      # hash: network
+      # value: dictionary
+      #        hash: variable classes/types
+      #        value: list of variables
       index_dictionary = self.variables.index_definition_network_for_variable_component_class
-      # contents = 0
-      # for c in index_dictionary[nw]:
-      #   contents += len(index_dictionary[nw][c])
-      # if contents > 0:
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
       body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
-                                                                           compiled_labels=self.compiled_variable_labels,
                                                                            index=index_dictionary[nw])
       name = str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--')
       f_name = FILES["latex_variables"] % (self.ontology_location, name)
@@ -912,19 +839,14 @@ class UiOntologyDesign(QMainWindow):
     variable_type = VARIABLE_TYPE_INTERFACES
 
     incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(rhs=rhs,
-                                              type="instantiation_equation",
-                                              network=self.current_network,
-                                              doc="instantiation equation",
-                                              incidence_list=incident_list)
+    link_equation = makeCompletEquationRecord(lhs=variable_compiled, rhs=rhs, type="instantiation_equation", network=self.current_network,
+                                              doc="instantiation equation", incidence_list=incident_list)
 
     self.variables.addEquation(var_ID, link_equation)
 
     self.ontology_container.indexEquations()
     self.pick_instantiate.close()
     self.on_pushInstantiate_pressed()
-    # self.variables.indexVariables()
-    # self.__setupEditInterface()
 
   def __makeVariableEquationPictures(self):
 
@@ -941,21 +863,22 @@ class UiOntologyDesign(QMainWindow):
   def __getAllEquationsPerType(self, language):
     eqs = {}
     for e_type in self.variables.equation_type_list:  # split into equation types
-      eqs[e_type] = OrderedDict()
-    for var_ID in self.variables:
-      for equ_ID in self.variables[var_ID].equations:
-        eq = self.variables[var_ID].equations[equ_ID]
-        this_eq_type = eq["type"]  # equation_type
-        eqs[this_eq_type][equ_ID] = {}
-        eqs[this_eq_type][equ_ID]["rhs"] = self.compiled_equations[language][equ_ID][
-          "rhs"]  # [var_ID][equ_ID][language]
-        eqs[this_eq_type][equ_ID]["lhs"] = self.compiled_variable_labels[var_ID][language]
-        if eq["doc"] == "":
-          eq["doc"] = "var doc : %s" % self.variables[var_ID].doc
-        eqs[this_eq_type][equ_ID]["doc"] = eq["doc"].replace("_", " ")  # self.variables[ID].doc
-        eqs[this_eq_type][equ_ID]["var_ID"] = var_ID
-        eqs[this_eq_type][equ_ID]["var_network"] = self.variables[var_ID].network
-        eqs[this_eq_type][equ_ID]["network"] = eq["network"]
+      eqs[e_type] = {} #OrderedDict()
+
+    eq_dic = self.ontology_container.equation_dictionary
+    for equ_ID in eq_dic:
+      e_type = eq_dic[equ_ID]["type"]
+      eq_record = eq_dic[equ_ID]
+
+      eqs[e_type][equ_ID] = {}
+      eqs[e_type][equ_ID]["rhs"] = eq_record["rhs"][language]
+      eqs[e_type][equ_ID]["lhs"] = eq_record["lhs"][language]
+      eqs[e_type][equ_ID]["doc"] = eq_record["doc"].replace("_", " ")
+      var_ID = eq_record["lhs"]["global_ID"] #var_ID
+      eqs[e_type][equ_ID]["var_ID"] = var_ID
+      eqs[e_type][equ_ID]["var_network"] = self.ontology_container.variables[var_ID]["network"]
+      eqs[e_type][equ_ID]["network"] = eq_record["network"]
+
     return eqs
 
   def __makeDotGraphs(self):
@@ -1014,18 +937,12 @@ class UiOntologyDesign(QMainWindow):
               edge = Edge(src=e_ID, dst=i_ID,
                           splines='ortho')
               dot_graph[nw].add_edge(edge)
-            # v_name = self.variables[v_ID].label
-            # e_name = str(self.variables[v_ID].equations[e_ID])
             edge = Edge(src=e_ID, dst=v_ID,
                         splines='ortho')
             vt_cluster[vt].add_edge(edge)
         vt_count += 1
         dot_graph[nw].add_subgraph(vt_cluster[vt])
       f_name = FILES["ontology_graphs_ps"] % (self.ontology_location, nw)
-
-      # dot_graph[nw].write_ps(f_name, )  # prog='fdp')
-      # f_name2 = DIRECTORIES["ontology_graphs_dot"] % (self.ontology_location, nw)
-      # dot_graph[nw].write(f_name2, format='raw')
 
       try:
         dot_graph[nw].write_ps(f_name, )  # prog='fdp')
@@ -1034,8 +951,6 @@ class UiOntologyDesign(QMainWindow):
       except:
         print("cannot generate dot graph", f_name)
 
-    # print("debugging ferdig med det - no of colours") # %s - %s"%(nw_count, vt_count))
-
   def update_tables(self):
     variable_type = self.current_variable_type
     print(">>> udating table :", variable_type)
@@ -1043,8 +958,6 @@ class UiOntologyDesign(QMainWindow):
     self.ui_eq.variable_table.reset_table()
 
   def finished_edit_table(self, what):
-    # print("finished editing table : ", what)
-    # self.__makeAliasDictionary()  # check if all variables are defined
     self.__showFilesControl()
     try:
       self.table_aliases_i.close()
@@ -1253,12 +1166,9 @@ class UiOntologyDesign(QMainWindow):
     variables_ID_list = self.variables.index_definition_networks_for_variable[self.current_network]
     if variables_ID_list:
       self.table_aliases_v = UI_AliasTableVariables(self.variables,
-                                                    self.current_network)  # , self.aliases_v[self.current_network])
-      # self.table_aliases_v.completed.connect(self.__updateAliases_Variables)
+                                                    self.current_network)
       self.table_aliases_v.completed.connect(self.finished_edit_table)
       self.table_aliases_v.show()
-      # self.variables.changes["variables"].changedAll()
-      # self.variables.changes["equations"].changedAll()
       OK = True
     else:
       self.__writeMessage(" no variables in this network %s" % self.current_network)
@@ -1267,8 +1177,7 @@ class UiOntologyDesign(QMainWindow):
 
   def __setupIndicesAliasTable(self):
     # print("gotten here")
-    self.table_aliases_i = UI_AliasTableIndices(self.indices)  # , self.aliases_i)
-    self.table_aliases_i.completed.connect(self.__updateAliases_Indices)
+    self.table_aliases_i = UI_AliasTableIndices(self.indices)
     self.table_aliases_i.completed.connect(self.finished_edit_table)
     self.table_aliases_i.show()
 
@@ -1276,16 +1185,8 @@ class UiOntologyDesign(QMainWindow):
     if not append:
       self.ui.msgWindow.clear()
     self.ui.msgWindow.setText(message)
-    # self.show()
-    # self.ui.msgWindow.show()
     self.ui.msgWindow.update()
 
-  def __updateAliases_Variables(self):
-    pass
-
-  def __updateAliases_Indices(self):
-    pass
-    # self.ontology_container.indices = self.indices
 
   def __checkRadios(self, active):
 

@@ -23,7 +23,7 @@ from PyQt5 import QtWidgets
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 # from Common.common_resources import globalEquationID
 # from Common.common_resources import globalVariableID
-from Common.record_definitions import RecordEquation
+# from Common.record_definitions import RecordEquation
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
 from Common.resources_icons import roundButton
@@ -412,12 +412,8 @@ class UI_Equations(QtWidgets.QWidget):
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
 
-    equation_record = makeCompletEquationRecord(rhs=rhs,
-                                                doc=documentation,
-                                                network=self.network_for_expression,
-                                                incidence_list=incidence_list,
-                                                created=dateString(),
-                                                )
+    equation_record = makeCompletEquationRecord(lhs=symbol, rhs=rhs, network=self.network_for_expression, doc=documentation,
+                                                incidence_list=incidence_list, created=dateString())
     # Note: think about allowing for editing an equation. It easily destroys the sequence.
     # Note:   by adding a term with a variable that depends on "later" information......!!! (H)
     # incremental expansions
@@ -505,11 +501,11 @@ class UI_Equations(QtWidgets.QWidget):
       self.ui.lineExpression.setText(rendered_expression)
       self.ui.lineDocumentation.setText(eq_dict["doc"])
     else:
-      e = RecordEquation()
-      e["name"] = self.selected_variable.doc
-      e["rhs"] = NEW_EQ
-      self.ui.lineExpression.setText(e["rhs"])
-      self.current_equation_name = e["name"]
+      # e = RecordEquation()
+      # e["name"] = self.selected_variable.doc
+      # e["rhs"] = NEW_EQ
+      self.ui.lineExpression.setText(NEW_EQ)
+      self.current_equation_name = self.selected_variable.doc
       eq_IDs = sorted(self.variables[self.selected_variable_ID].equations.keys())
       if eq_IDs:
         doc = self.variables[self.selected_variable_ID].equations[eq_IDs[0]]["doc"]  # copy doc from the first equation

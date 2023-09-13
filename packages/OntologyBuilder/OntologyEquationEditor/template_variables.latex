@@ -15,14 +15,16 @@
 
 {% for var_class in index -%}
     {% for ID in index[var_class] -%}
-    {{ID}}
-             & \hypertarget{"v:{{ID}}"}{ $ {{compiled_labels[ID]["latex"]}} $}
+    {% set vID = ID.replace("V_","") %}
+    {{vID}}
+             & \hypertarget{"v:{{vID}}"}{ $ {} $}
              & \verb|{{variables[ID].label}}|
              & {{ variables[ID].doc.replace("_"," ") }}
              & \begin{lay}{{ variables[ID].type }} \end{lay}
              & $ {{variables[ID].units.prettyPrint() }} $
              & {% for e_ID in variables[ID].equations -%}
-                \hyperlink{"e:{{e_ID}}"}{ {{e_ID}} }
+                {% set eqID = e_ID.replace("E_","") %}
+                \hyperlink{"e:{{eqID}}"}{ {{eqID}} }
                  {% endfor -%} \\
     {% endfor -%}
 {% endfor -%}
