@@ -116,7 +116,7 @@ V_{{var_ID}}.has_function = []
 {% raw %}
 incidence_list = []
 {% endraw %}
-{%- set e = variables[var_ID].equations[eq_ID]["rhs"].split(" ") %}
+{%- set e = variables[var_ID].equations[eq_ID]["rhs"]["global_ID"].split(" ") %}
 {% for v in e %}
 {% if "V_" in v %}
 incidence_list.append( {{v}} )

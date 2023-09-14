@@ -286,15 +286,24 @@ language = LANGUAGES["global_ID"]
 CODE[language] = {}
 
 ID_spacer = " "
-
-ID_delimiter = {
-        "delimiter": ID_spacer + "D_%s",
-        "operator" : ID_spacer + "O_%s",
-        "function" : ID_spacer + "F_%s",
-        "variable" : ID_spacer + "V_%s",
-        "index"    : ID_spacer + "I_%s",
-        "diff_node": ID_spacer + "diff_%s"
+ID_prefix = {
+        "delimiter": "D_",
+        "operator" : "O_",
+        "function" : "F_",
+        "variable" : "V_",
+        "index"    : "I_",
+        "diff_node": "diff_",
+        "equation" : "E_"
         }
+
+ID_delimiter = {i: ID_spacer + ID_prefix[i] +"%s" for i in ID_prefix}
+        # "delimiter": ID_spacer + "D_%s",
+        # "operator" : ID_spacer + "O_%s",
+        # "function" : ID_spacer + "F_%s",
+        # "variable" : ID_spacer + "V_%s",
+        # "index"    : ID_spacer + "I_%s",
+        # "diff_node": ID_spacer + "diff_%s"
+        # }
 
 delimiters = {d: ID_delimiter["delimiter"] % LIST_DELIMITERS.index(d) for d in LIST_DELIMITERS}
 CODE[language]["delimiter"] = delimiters
@@ -828,9 +837,9 @@ def renderExpressionFromGlobalIDToInternal(expression, variables, indices):
       elif w[0] == "V":
         v_ID = int(w.replace("V_", "").strip())
         try:
-          a = variables[v_ID].label  # RULE: label is used not alias TODO: fix alias edit table -- remove alias
+          a = variables[w].label  # RULE: label is used not alias TODO: fix alias edit table -- remove alias
         except:
-          a = variables[v_ID]["label"]
+          a = variables[w]["label"]
       elif w[0] == "I":
         i_ID = int(w.replace("I_", "").strip())
         a = indices[i_ID]["aliases"]["internal_code"]  # RULE: we use alias to reduce length of string

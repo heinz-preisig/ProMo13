@@ -49,17 +49,19 @@ from jinja2 import FileSystemLoader
 # from Common.record_definitions import RecordVariable
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
-from OntologyBuilder.OntologyEquationEditor.resources import ID_delimiter
+from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import ID_spacer
+from OntologyBuilder.OntologyEquationEditor.resources import IRI_make
+from OntologyBuilder.OntologyEquationEditor.resources import IRI_parse
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
+from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
+from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.resources import TEMP_VARIABLE
+from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
 from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_INVERSE_UNITS
 from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_LOOSE_UNITS
 from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_NO_UNITS
 from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_RETAIN_UNITS
-from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
-from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal,IRI_parse, IRI_make
 from OntologyBuilder.OntologyEquationEditor.tpg import *
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -121,16 +123,17 @@ def makeIncidenceDictionaries(variables):
     except:
       equations = variables[v]["equations"]  # variables from variable dict, the variable file format
     for e in equations:
-      if e == 197:
-        print("debugging 197")
-      inc_list = makeIncidentList(equations[e]["rhs"])
+      # if e == 197:
+      #   print("debugging 197")
+      inc_list = makeIncidentList(equations[e]["rhs"]["global_ID"])
       incidence_dictionary[e] = (v, inc_list)
       equations[e]["incidence_list"] = inc_list
 
   for e in incidence_dictionary:
     var, inc_list = incidence_dictionary[e]
     for i in inc_list:
-      inv_incidence_dictionary_set[int(i)].add(e)
+      # inv_incidence_dictionary_set[int(i)].add(e)
+      inv_incidence_dictionary_set[i].add(e)
 
   inv_incidence_dictionary = {}
   for e in inv_incidence_dictionary_set:
@@ -148,12 +151,15 @@ def makeIncidentList(equation_ID_coded_string):
   """
   incidence_list = []
   splited = equation_ID_coded_string.split(ID_spacer)
+  V_id = ID_prefix["variable"]  # ID_delimiter["variable"][1:3]
   for i in splited:
-    test_string = ID_spacer + i
-    # print("debugging", test_string, ID_delimiter["variable"])
-    if test_string[0:2] == ID_delimiter["variable"][0:2]:
-      inc = i.strip(ID_delimiter["variable"])
-      incidence_list.append(inc)
+    if V_id in i:
+      incidence_list.append(i)
+    # test_string = ID_spacer + i
+    # # print("debugging", test_string, ID_delimiter["variable"])
+    # if test_string[0:2] == ID_delimiter["variable"][0:2]:
+    #   inc = i.strip(ID_delimiter["variable"])
+    #   incidence_list.append(inc)
   return sorted(set(incidence_list))
 
 
@@ -551,7 +557,7 @@ class Units():
 
   def product(self, factor):
     u_list = self.asList()
-    u = [ i * factor for i in u_list]
+    u = [i * factor for i in u_list]
     units = Units(ALL=u)
     # units.time = factor * int(self.time)
     # units.lenth = factor * int(self.length)
@@ -718,11 +724,13 @@ class Variables(OrderedDict):
 
   def newProMoVariableIRI(self):
     self.ProMoIRI["variable"] += 1
-    return self.ProMoIRI["variable"]
+    s = ID_prefix["variable"] + str(self.ProMoIRI["variable"])
+    return s
 
   def newProMoEquationIRI(self):
     self.ProMoIRI["equation"] += 1
-    return self.ProMoIRI["equation"]
+    s = ID_prefix["equation"] + str(self.ProMoIRI["equation"])
+    return s
 
   # def addNewVariable(self, ID=globalVariableID(update=True), **kwargs, ):
   def addNewVariable(self, ID=None, **kwargs, ):
@@ -1000,7 +1008,6 @@ class Variables(OrderedDict):
     variables_not_instantiated = sorted(all_variables_in_network - variables_being_instantiate)
     return variables_not_instantiated
 
-
   def variableSpaces(self, which, network, enabled_variable_types, rule=""):
 
     if which == "variable_picking":
@@ -1144,7 +1151,7 @@ class Variables(OrderedDict):
 
     data = OrderedDict()
     for i in sorted(self):
-      if isinstance(i, int):
+      if ID_prefix["variable"] in i:
         data[i] = {}
         for a in dir(self[i]):
           if a in filter:
@@ -1321,9 +1328,9 @@ class PhysicalVariable():
 
   def changeLabel(self, label):
     self.label = label
-    prefix,namespace,old_label = IRI_parse(self.IRI)
+    prefix, namespace, old_label = IRI_parse(self.IRI)
     # self.IRI = IRI_make(prefix,namespace,label)
-    self.IRI = IRI_make(prefix,label)
+    self.IRI = IRI_make(prefix, label)
 
     for language in LANGUAGES["aliasing"]:
       if language != "global_ID":
@@ -1564,7 +1571,7 @@ class Operator(PhysicalVariable):
       # raise IndexStructureError(msg)
     # self.index_structures = sorted(s_index_a.symmetric_difference(s_index_b))
     self.index_structures = sorted((s_index_a | s_index_b) - {self.index_ID})
-    return  s_index_a, s_index_b
+    return s_index_a, s_index_b
 
   def single_reduce_index(self, a, index):
     try:
@@ -1583,11 +1590,12 @@ class Operator(PhysicalVariable):
       self.index_structures = sorted(s_index_a - {self.index_ID})
       # print("debugging")
 
-  def has_equal_index_structures(self, a,b):
+  def has_equal_index_structures(self, a, b):
     if a.index_structures != b.index_structures:
-      raise IndexStructureError("not equal %s != %s" %(a.index_structures, b.index_structures))
+      raise IndexStructureError("not equal %s != %s" % (a.index_structures, b.index_structures))
       return False
     return True
+
 
 class UnitOperator(Operator):
   def __init__(self, op, space):
@@ -1715,7 +1723,6 @@ class ReduceProduct(BinaryOperator):
     standard matrix product with the index defining which dimension is to be reduced.
     """
     # print("this is the reduce product")
-
 
     BinaryOperator.__init__(self, op, a, b, space)
 
@@ -1919,7 +1926,7 @@ class Power(BinaryOperator):
       self.units = a.units
 
     # rule for index structures
-    if self.has_equal_index_structures(a,b):
+    if self.has_equal_index_structures(a, b):
       self.index_structures = sorted(a.index_structures)
     else:
       self.index_structures = []

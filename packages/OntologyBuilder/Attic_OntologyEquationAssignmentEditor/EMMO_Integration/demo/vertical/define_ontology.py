@@ -33,22 +33,20 @@ References
 [1] Khalid et al. Proc. Manufact. 15 (2018) 1407
 
 """
-# pylint: disable=fixme,invalid-name,too-few-public-methods
-from ontopy import World
+import os
+
+from emmo import get_ontology
 
 
 # Load EMMO
-world = World(filename="demo.sqlite3")
-emmo = world.get_ontology(
-    "https://raw.githubusercontent.com/emmo-repo/EMMO/master/emmo.ttl"
-)
+emmo = get_ontology()
 emmo.load()
-# emmo.sync_reasoner()
+#emmo.sync_reasoner()
 
 # Create a new ontology with out extensions that imports EMMO
-onto = world.get_ontology("http://www.emmc.info/emmc-csa/demo#")
+onto = get_ontology('onto.owl')
 onto.imported_ontologies.append(emmo)
-
+onto.base_iri = 'http://www.emmc.info/emmc-csa/demo#'
 
 # Add new classes and object/data properties needed by the use case
 with onto:
@@ -56,61 +54,70 @@ with onto:
     #
     # Relations
     # =========
+    class hasUnit(emmo.hasPart):
+        """Associates a unit to a property."""
+        pass
+
+    class isUnitFor(emmo.hasPart):
+        """Associates a property to a unit."""
+        inverse_property = hasUnit
+
     class hasType(emmo.hasConvention):
         """Associates a type (string, number...) to a property."""
+        pass
 
     class isTypeOf(emmo.hasConvention):
         """Associates a property to a type (string, number...)."""
-
         inverse_property = hasType
+
+    #
+    # Types
+    # =====
+    #class Integer(emmo.Number):
+    #    pass
+    #
+    #class Real(emmo.Number):
+    #    pass
+    #
+    #class String(emmo.number):
+    #    pass
 
     #
     # Units
     # =====
+    class SIUnit(emmo.MeasurementUnit):
+        """Base class for all SI units."""
+        pass
 
-    # TODO: remove
-    class SquareLengthDimension(emmo.PhysicalDimension):
-        """Squared length dimension."""
+    class Meter(SIUnit):
+        label = ['m']
 
-        is_a = [emmo.hasSymbolData.value("T0 L2 M0 I0 Θ0 N0 J0")]
+    class SquareMeter(SIUnit):
+        label = ['m²']
 
-    # TODO: remove
-    class SquareMetre(emmo.SICoherentDerivedUnit):
-        """A square metre unit."""
-
-        emmo.altLabel = ["m²"]
-        is_a = [emmo.hasPhysicalDimension.only(SquareLengthDimension)]
+    class Pascal(SIUnit):
+        label = ['Pa']
 
     #
     # Properties
     # ==========
-
-    # TODO: update instead of redefine Position
-    class Position(emmo.Length):
+    class Position(emmo.PhysicalQuantity):
         """Spatial position of an physical entity."""
+        is_a = [hasUnit.exactly(1, Meter),
+                hasType.exactly(3, emmo.Real)]
 
-        is_a = [
-            emmo.hasReferenceUnit.only(
-                emmo.hasPhysicalDimension.only(emmo.LengthDimension)
-            ),
-            hasType.exactly(3, emmo.Real),
-        ]
+    class Area(emmo.PhysicalQuantity):
+        """Area of a surface."""
+        is_a = [hasUnit.exactly(1, SquareMeter),
+                hasType.exactly(1, emmo.Real)]
 
-    # TODO: remove
-    class Area(emmo.ISQDerivedQuantity):
-        """Extent of a surface."""
+    class Pressure(emmo.PhysicalQuantity):
+        """The force applied perpendicular to the surface of an object per
+        unit area."""
+        is_a = [hasUnit.exactly(1, Pascal),
+                hasType.exactly(1, emmo.Real)]
 
-        is_a = [
-            emmo.hasReferenceUnit.only(
-                emmo.hasPhysicalDimension.only(SquareLengthDimension)
-            ),
-            hasType.exactly(1, emmo.Real),
-        ]
-
-    emmo.Pressure.is_a.append(hasType.exactly(1, emmo.Real))
-
-    # TODO: update when we have dimensionality
-    class StiffnessTensor(emmo.Pressure):
+    class StiffnessTensor(Pressure):
         r"""The stiffness tensor $c_{ijkl}$ is a property of a continuous
         elastic material that relates stresses to strains (Hooks's
         law) according to
@@ -128,122 +135,129 @@ with onto:
             \ c_1211  c_1222  c_1233  c_1223  c_1231  c_1212 /
 
         """
-        is_a = [hasType.exactly(36, emmo.Real)]
+        is_a = [hasUnit.exactly(1, Pascal),
+                hasType.exactly(36, emmo.Real)]
 
-    # class Spacegroup(emmo.DescriptiveProperty):
-    #     """A spacegroup is the symmetry group off all symmetry operations
-    #     that apply to a crystal structure.
+    class AtomicNumber(emmo.PhysicalQuantity):
+        """Number of protons in the nucleus of an atom."""
+        is_a = [hasType.exactly(1, emmo.Integer)]
+
+    class LatticeVector(emmo.PhysicalQuantity):
+        """A vector that participitates defining the unit cell."""
+        is_a = [hasUnit.exactly(1, Meter),
+                hasType.exactly(3, emmo.Real)]
+
+    class Spacegroup(emmo.DescriptiveProperty):
+        """A spacegroup is the symmetry group off all symmetry operations
+        that apply to a crystal structure.
+
+        It is identifies by its Hermann-Mauguin symbol or space group
+        number (and setting) in the International tables of
+        Crystallography."""
+        is_a = [hasType.exactly(1, emmo.String)]
+        pass
+
+    class Plasticity(emmo.PhysicalQuantity):
+        """Describes Yield stress and material hardening."""
+        is_a = [hasUnit.exactly(1, Pascal),
+                hasType.min(2, emmo.Real)]
+
+    class TractionSeparation(Pressure):
+        """The force required to separate two materials a certain distance per
+        interface area.  Hence, traction_separation is a curve, that
+        numerically can be represented as a series of (force,
+        separation_distance) pairs."""
+        is_a = [hasUnit.exactly(1, Pascal),
+                hasType.min(4, emmo.Real)]
+
+    class LoadCurve(Pressure):
+        """A measure for the displacement of a material as function of the
+        appliced force."""
+        is_a = [hasUnit.exactly(1, Pascal),
+                hasType.min(4, emmo.Real)]
+
     #
-    #     It is identifies by its Hermann-Mauguin symbol or space group
-    #     number (and setting) in the International tables of
-    #     Crystallography."""
-    #     is_a = [hasType.exactly(1, emmo.String)]
-    #     pass
+    # Subdimensional
+    # ==============
+    class Interface(emmo.Plane):
+        """A 2D surface associated with a boundary.
 
-    # class Plasticity(emmo.PhysicalQuantity):
-    #     """Describes Yield stress and material hardening."""
-    #     is_a = [hasUnit.exactly(1, Pascal),
-    #             hasType.min(2, emmo.Real)]
+        Commonly referred to as "interface".
+        """
+        is_a = [emmo.hasProperty.exactly(1, Area),
+                emmo.hasProperty.exactly(1, TractionSeparation)]
 
-    # Will be included when dimensionality is in place in EMMO.
-
-    # class TractionSeparation(Pressure):
-    #     """The force required to separate two materials a certain distance
-    #     per interface area.  Hence, traction_separation is a curve, that
-    #     numerically can be represented as a series of (force,
-    #     separation_distance) pairs."""
-    #     is_a = [hasUnit.exactly(1, Pascal),
-    #             hasType.min(4, emmo.Real)]
-
-    # class LoadCurve(Pressure):
-    #     """A measure for the displacement of a material as function of the
-    #     appliced force."""
-    #     is_a = [hasUnit.exactly(1, Pascal),
-    #             hasType.min(4, emmo.Real)]
+    #
+    # Material classes
+    # ================
 
     # Crystallography-related classes
-    # TODO: import crystallography ontology instead
     # -------------------------------
-    class LatticeVector(emmo.Length):
-        """A vector that participitates defining the unit cell."""
-
-        is_a = [hasType.exactly(3, emmo.Real)]
-
-    # FIXME - CrystalUnitCell is not a matter, but a model or a symbolic
-    #         Just use crystalography
-    class CrystalUnitCell(emmo.Material):
+    class CrystalUnitCell(emmo.Mesoscopic):
         """A volume defined by the 3 unit cell vectors.  It contains the atoms
         constituting the unit cell of a crystal."""
-
-        is_a = [
-            emmo.hasSpatialDirectPart.some(emmo.BondedAtom),
-            emmo.hasProperty.exactly(3, LatticeVector),
-            emmo.hasProperty.exactly(1, StiffnessTensor),
-        ]
-
-    class InterfaceModel(CrystalUnitCell):
-        """A crystal interface."""
-
-        is_a = [emmo.hasProperty.some(Area)]
+        is_a = [emmo.hasSpatialDirectPart.some(emmo.BondedAtom),
+                emmo.hasSpatialPart.some(Interface),
+                emmo.hasProperty.exactly(3, LatticeVector),
+                emmo.hasProperty.exactly(1, StiffnessTensor)]
 
     class Crystal(emmo.Solid):
         """A periodic crystal structure."""
-
-        is_a = [emmo.hasSpatialDirectPart.only(CrystalUnitCell)]
+        is_a = [emmo.hasSpatialDirectPart.only(CrystalUnitCell),
+                emmo.hasProperty.exactly(1, Spacegroup)]
 
     # Add some properties to our atoms
-    emmo.Atom.is_a.append(emmo.hasProperty.exactly(1, Position))
+    emmo.BondedAtom.is_a.append(emmo.hasProperty.exactly(1, AtomicNumber))
+    emmo.BondedAtom.is_a.append(emmo.hasProperty.exactly(1, Position))
 
     # Continuum
     # ---------
     class Boundary(emmo.Continuum):
         """A boundary is a 4D region of spacetime shared by two material
         entities."""
-
-        equivalent_to = [emmo.hasSpatialDirectPart.exactly(2, emmo.Continuum)]
-        is_a = [emmo.hasProperty.exactly(1, Area)]
+        equivalient_to = [emmo.hasSpatialDirectPart.exactly(2, emmo.Continuum)]
+        is_a = [emmo.hasSpatialPart.exactly(1, Interface)]
 
     class Phase(emmo.Continuum):
         """A phase is a continuum in which properties are homogeneous and can
         have different state of matter."""
-
-        is_a = [emmo.hasProperty.exactly(1, StiffnessTensor)]
+        is_a = [emmo.hasProperty.exactly(1, StiffnessTensor),
+                emmo.hasProperty.exactly(1, Plasticity)]
 
     class RVE(emmo.Continuum):
         """Representative volume element.  The minimum volume that is
         representative for the system in question."""
+        is_a = [emmo.hasSpatialDirectPart.only(Phase | Boundary)]
 
-        is_a = [
-            emmo.hasSpatialDirectPart.only(
-                Phase | Boundary  # pylint: disable=unsupported-binary-operation
-            )
-        ]
-
-    class WeldedComponent(emmo.EngineeredMaterial):
+    class WeldedComponent(emmo.Component):
         """A welded component consisting of two materials welded together
         using a third welding material.  Hence it has spatial direct
         parts 3 materials and two boundaries."""
-
         is_a = [
             emmo.hasSpatialDirectPart.exactly(3, emmo.Material),
             emmo.hasSpatialDirectPart.exactly(2, Boundary),
-            # emmo.hasProperty.exactly(1, LoadCurve),
-        ]
+            emmo.hasProperty.exactly(1, LoadCurve)]
+
+    #
+    # Models
+    # ======
 
 
 # Sync attributes to make sure that all classes get a `label` and to
 # include the docstrings in the comments
-onto.sync_attributes(name_policy="uuid", name_prefix="DEMO_")
+onto.sync_attributes()
 
 
 # Run the reasoner
-# onto.sync_reasoner()
+#onto.sync_reasoner()
 
-# set version of ontology
-onto.set_version("0.9")
 
-# Save our new EMMO-based ontology to demo.owl
-onto.save("demo.owl", overwrite=True)
-
-# ...and to the sqlite3 database.
-world.save()
+# Save our new EMMO-based ontology.
+#
+# It seems that owlready2 by default is appending to the existing
+# ontology.  To get a clean version, we simply delete the owl file if
+# it already exists.
+owlfile = 'usercase_ontology.owl'
+if os.path.exists(owlfile):
+    os.remove(owlfile)
+onto.save(owlfile)

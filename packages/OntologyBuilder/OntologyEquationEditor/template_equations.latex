@@ -4,7 +4,7 @@
 %\newenvironment{lay}{\catcode`\_=12}{\catcode`\_=8}
 \renewcommand{\arraystretch}{2}
 
-\begin{longtable}{|p{0.5cm}|p{15cm}|p{6cm}|p{3cm}|}\hline
+\begin{longtable}{|p{1cm}|p{15cm}|p{6cm}|p{3cm}|}\hline
 no & equation &documentation &layer \\\hline\hline
 \endhead
 \hline \multicolumn{4}{r}{\textit{Continued on next page}} \\
@@ -14,7 +14,9 @@ no & equation &documentation &layer \\\hline\hline
 {% endraw %}
 
 {% for ID_eq in sequence -%}
-    \hyperlink{"v:{{ equations[ID_eq].var_ID }}"}{ {{ID_eq}} }\hypertarget{"e:{{ID_eq}}"}{ {{""}} } &
+    {% set eqID = ID_eq.replace("E_","") %}
+    {% set vID = equations[ID_eq].var_ID.replace("V_","") %}
+    \hyperlink{"v:{{ vID }}"}{ {{eqID}} }\hypertarget{"e:{{eqID}}"}{ {{""}} } &
     \begin{eq}{{equations[ID_eq].lhs}} := {{equations[ID_eq].rhs}}\end{eq} &
     \begin{lay}{{equations[ID_eq].doc }}\end{lay} &
     \begin{lay}{{equations[ID_eq].network.replace(">>>","-->")}}\end{lay} \\
