@@ -32,9 +32,11 @@ class MainModel(QtCore.QObject):
     # exit()
     # Loading data from files
     self.ontology = file_io.load_ontology_from_file(self.ontology_name)
-    self.all_variables, _ = file_io.load_variables_from_file(self.ontology_name)
+    self.all_variables, _ = file_io.load_variables_from_file(
+        self.ontology_name)
     self.all_equations = file_io.load_equations_from_file(self.ontology_name)
-    self.all_entities = file_io.load_entities_from_file(self.ontology_name)
+    self.all_entities = file_io.load_entities_from_file(
+        self.ontology_name, self.all_variables)
 
     self._update_tree_model()
 

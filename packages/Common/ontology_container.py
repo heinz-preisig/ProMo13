@@ -69,6 +69,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
 
 from packages.Common.classes.io import load_entities_from_file
+from packages.Common.classes.io import load_var_idx_eq_from_file
 
 
 def findID(indices, name):
@@ -130,7 +131,7 @@ def makeIndices(ontology_container):
     index["label"] = component
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index_counter += 1  # indices.add(**index)
-    indexID = ID_prefix["index"]+"%s"%index_counter
+    indexID = ID_prefix["index"]+"%s" % index_counter
     indices[indexID] = index
     makeIndexAliases(indices[indexID],
                      indexID, component[0].capitalize())
@@ -143,7 +144,7 @@ def makeIndices(ontology_container):
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index["tokens"] = ontology_container.token_associated_with_typed_token[typed_token]
     index_counter += 1  # indices.add(**index)
-    indexID = ID_prefix["index"]+"%s"%index_counter
+    indexID = ID_prefix["index"]+"%s" % index_counter
     indices[indexID] = index
 
     makeIndexAliases(indices[indexID],
@@ -159,8 +160,8 @@ def makeIndices(ontology_container):
     index["tokens"] = ontology_container.converting_tokens[
         typed_token]  # ontology_container.token_associated_with_typed_token[typed_token]
     index_counter += 1
-    indexID = ID_prefix["index"]+"%s"%index_counter
-    indices[indexID]= index
+    indexID = ID_prefix["index"]+"%s" % index_counter
+    indices[indexID] = index
     makeIndexAliases(indices[indexID], index_counter,
                      TEMPLATES["conversion_alias"] % typed_token[0].capitalize())
 
@@ -179,7 +180,7 @@ def makeIndices(ontology_container):
       index["indices"] = [index_outer_ID, index_inner_ID]
       index["tokens"] = ontology_container.token_associated_with_typed_token[typed_token]
       index_counter += 1
-      indexID = ID_prefix["index"]+"%s"%index_counter
+      indexID = ID_prefix["index"]+"%s" % index_counter
       indices[indexID] = index
       index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
       index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
@@ -208,7 +209,7 @@ def makeIndices(ontology_container):
     # ontology_container.token_associated_with_typed_token[typed_token]
     index["tokens"] = driving_token
     index_counter += 1
-    indexID = ID_prefix["index"]+"%s"%index_counter
+    indexID = ID_prefix["index"]+"%s" % index_counter
     indices[indexID] = index
     index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
     index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
@@ -238,7 +239,7 @@ def makeIndices(ontology_container):
     index["tokens"] = [
         ontology_container.token_associated_with_typed_token[typed_token], driving_token]
     index_counter += 1
-    indexID = ID_prefix["index"]+"%s"%index_counter
+    indexID = ID_prefix["index"]+"%s" % index_counter
     indices[indexID] = index
     index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
     index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
@@ -341,7 +342,8 @@ class OntologyContainer():
         )  # TODO: consider removing variable_types_on_networks_per_component
     # not used
 
-    self.entity_behaviours = self.__readVariableAssignmentToEntity() # TODO: currently not used
+    # TODO: currently not used
+    self.entity_behaviours = self.__readVariableAssignmentToEntity()
 
     self.interfaces = self.__setupInterfaces()
 
@@ -372,7 +374,8 @@ class OntologyContainer():
     self.object_key_list_networks, \
         self.object_key_list_intra, \
         self.object_key_list_inter, \
-        self.keys_networks_tokens = self.__makeObjectKeyLists() #TODO: consider removing keys_networks_tokens
+        self.keys_networks_tokens = self.__makeObjectKeyLists(
+        )  # TODO: consider removing keys_networks_tokens
 
     # self.arc_types_in_leave_networks_list_coded = self.__makeArcTypesInLeaveNetworksDictCoded()
     # self.node_types_in_leave_networks_list_coded = self.__makeNodeTypesInLeaveNetworksDictCoded()
@@ -391,8 +394,8 @@ class OntologyContainer():
         self.list_arc_objects, \
         self.list_reduced_network_node_objects, \
         self.list_reduced_network_arc_objects, \
-        self.list_inter_node_objects_tokens = self.__makeNodeObjectList() #TODO: consider deleting those that are not used
-
+        self.list_inter_node_objects_tokens = self.__makeNodeObjectList(
+        )  # TODO: consider deleting those that are not used
 
     # self.arc_types_in_networks_tuples = self.__makeArcTypesInNetworks()
     # TODO check usage  -->  done is used check structure
@@ -1128,7 +1131,8 @@ class OntologyContainer():
     return equation_variable_dictionary
 
   def __readVariableAssignmentToEntity(self):
-    return load_entities_from_file(self.ontology_name)
+    _, _, all_variables = load_var_idx_eq_from_file(self.ontology_name)
+    return load_entities_from_file(self.ontology_name, all_variables)
 
   def __makeEquationAndIndexLists(self):
 
@@ -1156,7 +1160,7 @@ class OntologyContainer():
       # equation_inverse_index[eq_ID] = count
       # equation_information[count] = (
       #     eq_ID, var_ID, var_type, nw_eq, equation_label)
-    return equations#, equation_information, equation_inverse_index
+    return equations  # , equation_information, equation_inverse_index
 
   def addVariable(self, ID, **args):
     self.variables[ID] = {}
@@ -1205,7 +1209,8 @@ class OntologyContainer():
       data = getData(variables_f_name)
 
       for v_ID in data["variables"]:
-        u = data["variables"][v_ID]["units"]  # RULE: we use a class units for their representation
+        # RULE: we use a class units for their representation
+        u = data["variables"][v_ID]["units"]
         data["variables"][v_ID]["units"] = Units(ALL=u)
 
       # variables, indices = self.converting_indices(data["variables"],i_data)
@@ -1213,7 +1218,6 @@ class OntologyContainer():
       # return data["variables"], i_data, data["version"], data["Ontology_global_IDs"]
       # variables = self.fix_lhs(data["variables"])
       return data["variables"], data["indices"], data["version"], data["Ontology_global_IDs"]
-
 
     else:
       msg = "There is no variable file \n-- run foundation editor again and save information\n-- to generate an empty " \
@@ -1228,7 +1232,6 @@ class OntologyContainer():
       if reply == OK:
         exit(-1)
 
-
   # def fix_lhs(self,variables):
   #   pass
   #
@@ -1242,7 +1245,6 @@ class OntologyContainer():
   #         del equations[eqID]["lhs"]
   #   return variables
 
-
   # def converting_indices(self, variables, indices):
   #   new_indices = {}
   #   for i in indices:
@@ -1255,7 +1257,6 @@ class OntologyContainer():
   #     variables[v]["index_structures"] = new_structure
   #   return variables, new_indices
 
-
   def readNodeArcAssignments(self):
     # print("debugging -- read node assignments")
 
@@ -1265,7 +1266,6 @@ class OntologyContainer():
       return data
     else:
       return None
-
 
   def __readVariableAssignmentFile(self, file_name):
     data = getData(file_name)

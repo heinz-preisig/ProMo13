@@ -1,6 +1,7 @@
 """Contains the equation class."""
-from typing import TypedDict, List, Optional, Dict
+from typing import TypedDict, List, Optional, Dict, Tuple
 from typing_extensions import Self
+from datetime import datetime
 
 
 class EquationDict(TypedDict):
@@ -21,56 +22,31 @@ class Equation():
       self,
       eq_id: str,
       img_path: str,
-      lhs: str,
-      rhs: str,
+      type: str,
+      lhs: Dict[str, str],
+      rhs: Dict[str, str],
       network: str,
-      representation: Dict[str, str],
+      doc: str,
+      created: str,
+      modified: str,
   ) -> None:
-    # """Initializes the equation.
 
-    # An additional array `variables` is constructed to store the id of
-    # all the variable in the equation. The first position is always the
-    # id of the variable in the lhs.
-
-    # Args:
-    #     eq_id (str): Id of the equation.
-    #     lhs (str): Only contains one term representing a variable.
-    #     rhs (str): Contains several terms describing the rhs of the
-    #       equation.
-    #     network (str): Network where the equation was defined.
-    # """
     self.eq_id = eq_id
     self.img_path = img_path
+    self.type = type
     self.lhs = lhs
     self.rhs = rhs
     self.network = network
-    self.representation = representation
+    self.doc = doc
 
-    self.terms = self.lhs.split()
-    self.terms.extend(self.rhs.split())
+    date_format = "%Y-%m-%d %H:%M:%S"
+    self.created = datetime.strptime(created, date_format)
+    self.modified = datetime.strptime(created, date_format)
 
-  # @classmethod
-  # def from_dict(cls, eq_id: str, eq_dict: EquationDict) -> Self:
-  #   """Provides an alternative constructor.
+    # TODO: Probably throw an exception if "global_ID" is not found
+    self.terms = self.lhs.get("global_ID").split()
+    self.terms.extend(self.rhs.get("global_ID").split())
 
-  #   Uses the equation id and a dictionary containing the information
-  #   about the equation.
-
-  #   Args:
-  #       eq_id (str): Id of the equation.
-  #       eq_dict (EquationDict): Contains information about the equation
-  #         in the following fields:
-
-  #         - lhs (str): Only contains one term representing a variable.
-  #         - rhs (str): Contains several terms describing the rhs of the
-  #             equation.
-  #         - network (str): Network where the equation was defined.
-
-  #   Returns:
-  #       Equation: An instance of the Equation class initialized with the
-  #         values provided.
-  #   """
-  #   return cls(eq_id, eq_dict["lhs"], eq_dict["rhs"], eq_dict["network"])
   def get_id(self):
     return self.eq_id
 
@@ -106,27 +82,6 @@ class Equation():
       return True
 
     return False
-
-  def convert_to_dict(self) -> EquationDict:
-    # """Converts the equation into a dictionary.
-
-    # Returns:
-    #     Dict: Dictionary containing the information of the equation with
-    #       the following fields:
-
-    #       - variable_ID (str): Id of the variable in the lhs.
-    #       - lhs (str): Only contains one term representing a variable.
-    #       - rhs (str): Contains several terms describing the rhs of the
-    #           equation.
-    #       - network (str): Network where the equation was defined.
-    # """
-    eq_dict = {}
-    eq_dict["lhs"] = self.lhs
-    eq_dict["rhs"] = self.rhs
-    eq_dict["network"] = self.network
-    eq_dict["representation"] = self.representation
-
-    return eq_dict
 
   def get_incidence_list(self, var_id: Optional[str] = None) -> List[str]:
     """Returns the incidence list for the equation.
@@ -166,19 +121,20 @@ class Equation():
           with an undetermined value. **False** otherwise.
     """
     # TODO Find a way that is independent from hard coded identifiers.
+    # Probably from variable classes or tags
     if "O_11" in self.rhs and "V_1" in self.rhs:
       return True
     return False
 
   def parse_integrator(self):
-    print(self.eq_id)
-    components = self.rhs.split()
-    print(components)
+    # print(self.eq_id)
+    components = self.rhs.get("global_ID").split()
+    # print(components)
     if components[0] != "O_9":
       return None
 
     return {
-        "var_id": self.lhs.split()[0],
+        "var_id": self.terms[0],
         "int_interval_ini": components[7],
         "int_interval_fin": components[9],
         "integrand": components[2],
@@ -187,8 +143,20 @@ class Equation():
     }
 
   def is_integrator(self):
-    components = self.rhs.split()
+    # TODO: Check for a better way to check this
+    components = self.rhs.get("global_ID").split()
     if components[0] == "O_9":
       return True
 
     return False
+
+  def get_translation(self, language: str) -> Dict[str, str]:
+    translation = {
+        "lhs": self.lhs.get(language),
+        "rhs": self.rhs.get(language)
+    }
+
+    return translation
+
+  def get_mod_date(self):
+    return self.modified
