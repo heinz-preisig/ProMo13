@@ -37,7 +37,7 @@ def getPrefixAndIdentifier(uiref):
 class ProMoOntology:
   def __init__(self, ontology):
     self.graph = Graph()
-    self.graph.load(ontology, format="ttl")
+    self.graph.parse(ontology, format="trig")
 
   def getVarIndexIRI(self, item):
     """
@@ -216,7 +216,7 @@ if __name__ == '__main__':
 
       ontology_name = getOntologyName(task="task_RDF_render_expressions")
 
-      f_promo_ttl = FILES["variablesExpression_ttl_file"] % ontology_name + ".ttl"
+      f_promo_ttl = FILES["variablesExpression_ttl_file"] % ontology_name + ".trig"
 
       ProMoOnto = ProMoOntology(f_promo_ttl)  # "var_equ_rdf.ttl")
       variables = ProMoOnto.getAllVariablesAndExpressions()
