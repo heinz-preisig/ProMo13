@@ -292,7 +292,7 @@ def simulateDeletion(variables, var_ID, indices):
   for eq_ID in d_equs:
     lhs, incidence_list = incidence_dictionary[eq_ID]
     equation = variables[lhs].equations[eq_ID]
-    rhs = equation["rhs"]
+    rhs = equation["rhs"]["global_ID"]
     rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
     # print("debugging -- rhs", rhs, rhs_rendered)
     d_equs_text += "\n %s" % rhs_rendered
@@ -358,7 +358,7 @@ def findDependentVariables(variables, var_ID, indices):
       equation = variables[lhs]["equations"][eq_ID]
     except:
       equation = variables[lhs].equations[eq_ID]
-    rhs = equation["rhs"]
+    rhs = equation["rhs"]["global_ID"]
     rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
     # print("debugging -- rhs", rhs, rhs_rendered)
     found_equs_text += "\n %s" % rhs_rendered
@@ -1145,17 +1145,25 @@ class Variables(OrderedDict):
   def extractVariables(self, filter):
     """
     The variable class holds also information about the structure of the data
-    This method extracts the variable data as an ordered dictionary
+    This method extracts the variable data as an ordred dictionary
     :return: ordered dictionary un-filtered variable data
     """
 
-    data = OrderedDict()
+    data = {}
     for i in sorted(self):
       if ID_prefix["variable"] in i:
         data[i] = {}
         for a in dir(self[i]):
           if a in filter:
-            data[i][a] = str(self[i].__dict__[a])
+            value =  eval("self[i].%s"%a)
+            if a not in  ["units","port_variable"] :
+              data[i][a] = value
+            else:
+              data[i][a] = eval(str(value))
+          # if a in filter:
+          #   for j in self[i].__dict__[a]:
+          #     # data[i][a] = str(self[i].__dict__[a])
+          #     data[i][a] = self[i].j
 
     return data
 

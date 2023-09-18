@@ -493,7 +493,7 @@ class UI_Equations(QtWidgets.QWidget):
     if self.current_alternative != NEW_EQ:
       equs_dict = self.variables[self.selected_variable_ID].equations
       eq_dict = equs_dict[self.current_eq_ID]
-      self.current_expression = eq_dict["rhs"]
+      self.current_expression = eq_dict["rhs"]["global_ID"]
       if len(equs_dict) > 1:
         self.ui.pushDeleteEquation.show()
       rendered_expression = renderExpressionFromGlobalIDToInternal(self.current_expression, self.variables,
@@ -532,7 +532,7 @@ class UI_Equations(QtWidgets.QWidget):
     # _list = [UNDEF_EQ_NO + TEMPLATES['Equation_definition_delimiter'] + NEW_EQ]
     _list = [ask_string % (UNDEF_EQ_NO, lhs, NEW_EQ)]
     for alterntative in equation_list:
-      rhs = self.variables[variable_ID].equations[alterntative]["rhs"]
+      rhs = self.variables[variable_ID].equations[alterntative]["rhs"]["global_ID"]
       equ_rendered = renderExpressionFromGlobalIDToInternal(rhs, self.variables, self.indices)
       # _list.append(str(alterntative)
       #              + TEMPLATES["definition_delimiter"]
