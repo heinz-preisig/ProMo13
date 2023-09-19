@@ -550,7 +550,7 @@ class UI_Equations(QtWidgets.QWidget):
     eq_no, reminder = entry.split(TEMPLATES['definition_delimiter'], 1)
     _reminder, eq_string = reminder.split(TEMPLATES["Equation_definition_delimiter"])
     if eq_no != UNDEF_EQ_NO:
-      self.current_eq_ID = int(eq_no)
+      self.current_eq_ID = eq_no
       self.status_edit_expr = True
     self.current_alternative = eq_string
     self.status_new_equation = (eq_string == NEW_EQ)

@@ -617,7 +617,7 @@ class UiOntologyDesign(QMainWindow):
     self.__showFilesControl()
 
   def on_pushWrite_pressed(self):
-    filter = self.ontology_container.variable_record_filter
+    filter = makeCompleteVariableRecord("dummy").keys() # self.ontology_container.variable_record_filter
     variables = self.variables.extractVariables(filter)
     self.ontology_container.writeVariables(variables, self.indices, self.variables.ProMoIRI)
     self.state = 'edit'
