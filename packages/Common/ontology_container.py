@@ -410,7 +410,6 @@ class OntologyContainer():
 
     self.variables, \
         self.indices, \
-        self.variable_record_filter, \
         self.version, \
         self.ProMoIRI = self.readVariables()
 
@@ -1285,12 +1284,23 @@ class OntologyContainer():
     # print ("----------------------")
 
     variables_f_name = FILES["variables_file"] % self.ontology_name
-    variables_f_name_v7 = FILES["variables_file_v7"] % self.ontology_name
+    # variables_f_name_v7 = FILES["variables_file_v7"] % self.ontology_name
     variable_record_filter = set(
         list(makeCompleteVariableRecord(0).keys()))  # minimal configuration
 
     if OS.path.exists(variables_f_name):
-      return self.__readVariablesEquationFile(variable_record_filter, variables_f_name,)
+      data = getData(variables_f_name)
+      # two things that need to be done:
+      # index hashes are not yet strings
+      i_data = {}
+      for i in data["indices"]:
+        i_data[int(i)] = data["indices"][i]
+      for v_ID in data["variables"]:
+        u = data["variables"][v_ID]["units"]  # RULE: we use a class units for their representation
+        data["variables"][v_ID]["units"] = Units(ALL=u)
+      return data["variables"], i_data, data["version"], data["Ontology_global_IDs"]
+
+      # return self.__readVariablesEquationFile(variable_record_filter, variables_f_name,)
 
     # # shift from version 7 to version 8
     # elif OS.path.exists(variables_f_name_v7):
@@ -1339,6 +1349,8 @@ class OntologyContainer():
 
   def __readVariablesEquationFile(self, variable_record_filter, variables_f_name, include_network=False):
     data = getData(variables_f_name)
+
+
     variables_raw = data["variables"]
     version = data["version"]
     indices_raw = data["indices"]

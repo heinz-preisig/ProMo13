@@ -1049,7 +1049,7 @@ class DotGraphVariableEquations(VarEqTree):
       var_labels[ID] = self.variables[var_id]["aliases"]["internal_code"]  # var_labels_raw[str(var_id)]["latex"] #
       for equ_ID in self.variables[var_id]["equations"]:
         ID = self.TEMPLATE_EQUATION % equ_ID
-        equation = self.variables[var_id]["equations"][equ_ID]["rhs"]
+        equation = self.variables[var_id]["equations"][equ_ID]["rhs"]["global_ID"]
         rendered_expressions = renderExpressionFromGlobalIDToInternal(equation, self.variables,
                                                                       self.indices)
         equ_labels[ID] = rendered_expressions

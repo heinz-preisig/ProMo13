@@ -198,7 +198,7 @@ class RDFProMo():
     # the equations come last. They need the indices and the variables.
     for eID in equation_dictionary:
       e = equation_dictionary[eID]
-      expression_internal = e["rhs"]["global_ID"]
+      expression_internal = e["rhs"]
       type = e["type"]
       doc = e["doc"]
       network = e["network"]
@@ -290,12 +290,12 @@ class RDFProMo():
     f_promo_language = os.path.join(ttl_location, "promo_language.ttl")
     id = URIRef(BASELG)
     promo_language = Graph(store=store, identifier=id)
-    promo_language.parse(f_promo_language, format="trig")
+    promo_language.load(f_promo_language, format="trig")
 
     f_promo_variables = os.path.join(ttl_location, "promo_variables_eq_list.ttl")
     id = URIRef(BASEVARS)
     promo_variables = Graph(store=store, identifier=id)
-    promo_variables.parse(f_promo_variables, format="trig")
+    promo_variables.load(f_promo_variables, format="trig")
 
     # get all namespaces
     namespaces = {}
@@ -374,7 +374,7 @@ class RDFProMo():
           triple = sub, predicate, promolg[key]
           # print(triple)
         elif w[0] == "V":
-          vID = w #int(w.split("V_")[1])
+          vID = int(w.split("V_")[1])
           v = self.variables[vID]
           obj = self.getVarIndexIRI(v)
           triple = sub, predicate, obj
@@ -395,7 +395,7 @@ class RDFProMo():
     return rdf_items
 
   def load(self, ontology_name):
-    self.graph.parse(self.variables_expressions_ontology_file, "ttl")
+    self.graph.load(self.variables_expressions_ontology_file, "ttl")
 
 
   # def plotMe(self):

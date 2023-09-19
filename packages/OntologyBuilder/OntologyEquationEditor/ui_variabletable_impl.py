@@ -48,7 +48,7 @@ class UI_VariableTableDialog(VariableTable):
   completed = QtCore.pyqtSignal(str)
   picked = QtCore.pyqtSignal(str)
   new_variable = QtCore.pyqtSignal(str)
-  new_equation = QtCore.pyqtSignal(int)
+  new_equation = QtCore.pyqtSignal(str)
   deleted_symbol = QtCore.pyqtSignal(str)
 
   def __init__(self,

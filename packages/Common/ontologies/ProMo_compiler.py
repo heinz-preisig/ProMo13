@@ -261,7 +261,7 @@ def simulateDeletion(variables, var_ID, indices):
   for eq_ID in d_equs:
     lhs, incidence_list = incidence_dictionary[eq_ID]
     equation = variables[lhs].equations[eq_ID]
-    rhs = equation["rhs"]
+    rhs = equation["rhs"]["global_ID"]
     rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
     # print("debugging -- rhs", rhs, rhs_rendered)
     d_equs_text += "\n %s" % rhs_rendered

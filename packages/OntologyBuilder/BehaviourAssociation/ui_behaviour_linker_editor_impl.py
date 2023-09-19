@@ -1141,7 +1141,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       if pixel_or_text == "text":
 
         rendered_expressions = renderExpressionFromGlobalIDToInternal(
-                equation["rhs"],
+                equation["rhs"]["global_ID"],
                 self.ontology_container.variables,
                 self.ontology_container.indices)
 
