@@ -254,7 +254,7 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
 
   for language in LANGUAGES["aliasing"]:
     self["aliases"][language] = label
-  self["aliases"]["global_ID"] = CODE["global_ID"]["variable"] % var_ID
+  self["aliases"]["global_ID"] = var_ID #CODE["global_ID"]["variable"] % var_ID
 
   return self
 

@@ -335,7 +335,7 @@ CODE[language]["^"] = "%s" + CODE[language]["operator"]["^"] + \
 CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # Khatri-Rao product
 CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # expand product
 CODE[language]["|"] = "%s " + CODE[language]["operator"]["|"] + "%s" + \
-                      CODE[language]["operator"]["|"] + " %s"  # reduce product
+                      CODE[language]["operator"]["|"] + "%s"  # reduce product
 CODE[language]["BlockReduce"] = "{}" + CODE[language]["operator"]["|"] + "{}" + \
                                 CODE[language]["operator"]["in"] + "{}" + \
                                 CODE[language]["operator"]["|"] + "{}"  # reduce product
@@ -835,13 +835,13 @@ def renderExpressionFromGlobalIDToInternal(expression, variables, indices):
           # print("debugging", hash)
           a = ""
       elif w[0] == "V":
-        v_ID = int(w.replace("V_", "").strip())
+        # v_ID = int(w.replace("V_", "").strip())
         try:
           a = variables[w].label  # RULE: label is used not alias TODO: fix alias edit table -- remove alias
         except:
           a = variables[w]["label"]
       elif w[0] == "I":
-        i_ID = int(w.replace("I_", "").strip())
+        i_ID = w #int(w.replace("I_", "").strip())
         a = indices[i_ID]["aliases"]["internal_code"]  # RULE: we use alias to reduce length of string
       else:
         a = "bla......%s........" % w
