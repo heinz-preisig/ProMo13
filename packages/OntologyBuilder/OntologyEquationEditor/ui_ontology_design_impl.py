@@ -21,7 +21,6 @@ __status__ = "beta"
 
 import os
 import subprocess
-from collections import OrderedDict
 
 from jinja2 import Environment  # sudo apt-get install python-jinja2
 from jinja2 import FileSystemLoader
@@ -34,6 +33,7 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QProgressDialog
 from PyQt5.QtWidgets import QSizePolicy
 
+from Common.classes.io import translate_equations
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import getData
 from Common.common_resources import getOntologyName
@@ -51,13 +51,14 @@ from Common.resource_initialisation import FILES
 from Common.resources_icons import getIcon
 from Common.resources_icons import roundButton
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
-from Common.classes.io import translate_equations
-
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
-from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES, revertInterfaceVariableName, makeInterfaceVariableName
+from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
+from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
+from OntologyBuilder.OntologyEquationEditor.resources import makeInterfaceVariableName
 # from OntologyBuilder.OntologyEquationEditor.resources import make_variable_equation_pngs
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
+from OntologyBuilder.OntologyEquationEditor.resources import revertInterfaceVariableName
 from OntologyBuilder.OntologyEquationEditor.tpg import LexicalError
 from OntologyBuilder.OntologyEquationEditor.tpg import SemanticError
 from OntologyBuilder.OntologyEquationEditor.tpg import SyntacticError
@@ -68,6 +69,7 @@ from OntologyBuilder.OntologyEquationEditor.ui_equations_impl import UI_Equation
 from OntologyBuilder.OntologyEquationEditor.ui_interface_variable_pick_impl import UI_VariableTableInterfacePick
 from OntologyBuilder.OntologyEquationEditor.ui_ontology_design import Ui_OntologyDesigner
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_impl import UI_VariableTableDialog
+from OntologyBuilder.OntologyEquationEditor.ui_variabletable_instantiate import UI_VariableTableInterfaceInstantiate
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_show_impl import UI_VariableTableShow
 from OntologyBuilder.OntologyEquationEditor.variable_framework import IndexStructureError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import makeCompiler
@@ -76,7 +78,6 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncide
 from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
-from OntologyBuilder.OntologyEquationEditor.ui_variabletable_instantiate import UI_VariableTableInterfaceInstantiate
 
 # RULE: fixed wired for initialisation -- needs to be more generic
 INITIALVARIABLE_TYPES = {
@@ -176,7 +177,7 @@ class UiOntologyDesign(QMainWindow):
 
     self.indices = self.ontology_container.indices
     self.variables = Variables(self.ontology_container)
-    self.variables.importVariables(self.ontology_container.variables,self.indices)  # link the indices for compilation
+    self.variables.importVariables(self.ontology_container.variables, self.indices)  # link the indices for compilation
 
     self.state = "edit"
 
@@ -203,7 +204,6 @@ class UiOntologyDesign(QMainWindow):
     self.compiled_variable_labels = {}
 
     self.compile_only = True
-
 
     # if not self.ontology_container.checkForRule("name_space"):
     #   answer = makeMessageBox(
@@ -263,7 +263,6 @@ class UiOntologyDesign(QMainWindow):
     self.ui.groupVariables.hide()
     self.__setupIndicesAliasTable()
 
-
   def on_pushAddIndex_pressed(self):
     print("debugging __ adding index")
     indices = self.ontology_container.indices
@@ -288,6 +287,8 @@ class UiOntologyDesign(QMainWindow):
       index["label"] = new_index
       index["network"] = self.variables.ontology_container.heirs_network_dictionary[self.current_network]
       index_counter = len(indices) + 1
+      indexID = ID_prefix["index"] + "%s" % index_counter
+      indices[indexID] = index
       indices[index_counter] = index
       for language in LANGUAGES["aliasing"]:
         indices[index_counter]["aliases"][language] = new_index
@@ -299,22 +300,21 @@ class UiOntologyDesign(QMainWindow):
 
       print("debugging -- new index defined:", new_index)
 
-
   def on_pushInstantiate_pressed(self):
     # print("debugging -- not yet implemented pushInstantiate")
     variables_not_instantiated = self.variables.indexInstantiated(self.current_network)
     enabled_var_types = self.variable_types_on_networks[self.current_network]
     self.variables.indexVariables()
     self.pick_instantiate = UI_VariableTableInterfaceInstantiate("All not instantiated variables",
-                                          self.variables,
-                                          self.indices,
-                                          self.current_network,
-                                          enabled_types = enabled_var_types,
-                                          hide_vars =  [],
-                                          hide_columns = [3],
-                                          info_file = None,
-                                          variable_IDs = variables_not_instantiated
-                                          )
+                                                                 self.variables,
+                                                                 self.indices,
+                                                                 self.current_network,
+                                                                 enabled_types=enabled_var_types,
+                                                                 hide_vars=[],
+                                                                 hide_columns=[3],
+                                                                 info_file=None,
+                                                                 variable_IDs=variables_not_instantiated
+                                                                 )
     self.pick_instantiate.picked.connect(self.__makeInstantiationEquation)
     self.pick_instantiate.exec_()
 
@@ -330,12 +330,11 @@ class UiOntologyDesign(QMainWindow):
     for l in LANGUAGES["code_generation"]:
       translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
       for eqID in translated_equations:
-        var_ID = "V_%s"%translated_equations[eqID]["variable_ID"]
+        var_ID = "V_%s" % translated_equations[eqID]["variable_ID"]
         translated_equations[eqID]["vaiable_ID"] = var_ID
         self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
         # self.ontology_container.variables[var_ID]["equations"][eqID]["lhs"][l] = translated_equations[eqID]["lhs"]
         self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
-
 
     self.__makeOWLFile()
     # self.__compile("latex")
@@ -492,7 +491,8 @@ class UiOntologyDesign(QMainWindow):
     variable_type = VARIABLE_TYPE_INTERFACES
 
     incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(lhs=symbol, rhs=rhs, type="interface_link_equation", network=self.current_network,
+    link_equation = makeCompletEquationRecord(lhs=symbol, rhs=rhs, type="interface_link_equation",
+                                              network=self.current_network,
                                               doc="interface equation", incidence_list=incident_list)
     new_var_ID = self.variables.newProMoVariableIRI()
     new_equ_ID = self.variables.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
@@ -626,7 +626,7 @@ class UiOntologyDesign(QMainWindow):
     self.__showFilesControl()
 
   def on_pushWrite_pressed(self):
-    filter = makeCompleteVariableRecord("dummy").keys() # self.ontology_container.variable_record_filter
+    filter = makeCompleteVariableRecord("dummy").keys()  # self.ontology_container.variable_record_filter
     variables = self.variables.extractVariables(filter)
     self.ontology_container.writeVariables(variables, self.indices, self.variables.ProMoIRI)
     self.state = 'edit'
@@ -674,8 +674,6 @@ class UiOntologyDesign(QMainWindow):
 
     # print("debugging --- rendered version", e_name)
 
-
-
   def __compile(self, language):
 
     # hash is equation ID, value is tuple lhs varID and incidence list of varID
@@ -694,8 +692,6 @@ class UiOntologyDesign(QMainWindow):
       lhs_var_ID, incidence_list = incidence_dictionary[equ_ID]
       expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]["global_ID"]
       network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
-
-
 
       expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
 
@@ -845,16 +841,16 @@ class UiOntologyDesign(QMainWindow):
         value_ID = ID
         value = self.variables[ID].aliases["global_ID"]
 
-
     self.variables[var_ID].language = "global_ID"
     variable_compiled = self.variables[var_ID].aliases['global_ID']
-    rhs = CODE["global_ID"]["Instantiate"]%(variable_compiled, value )
+    rhs = CODE["global_ID"]["Instantiate"] % (variable_compiled, value)
 
     # TODO: this variable class/type should be centralised. Is currently hard wired in more than one place.
     variable_type = VARIABLE_TYPE_INTERFACES
 
     incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(lhs=variable_compiled, rhs=rhs, type="instantiation_equation", network=self.current_network,
+    link_equation = makeCompletEquationRecord(lhs=variable_compiled, rhs=rhs, type="instantiation_equation",
+                                              network=self.current_network,
                                               doc="instantiation equation", incidence_list=incident_list)
 
     self.variables.addEquation(var_ID, link_equation)
@@ -878,7 +874,7 @@ class UiOntologyDesign(QMainWindow):
   def __getAllEquationsPerType(self, language):
     eqs = {}
     for e_type in self.variables.equation_type_list:  # split into equation types
-      eqs[e_type] = {} #OrderedDict()
+      eqs[e_type] = {}  # OrderedDict()
 
     eq_dic = self.ontology_container.equation_dictionary
     for equ_ID in eq_dic:
@@ -889,7 +885,7 @@ class UiOntologyDesign(QMainWindow):
       eqs[e_type][equ_ID]["rhs"] = eq_record["rhs"][language]
       eqs[e_type][equ_ID]["lhs"] = eq_record["lhs"][language]
       eqs[e_type][equ_ID]["doc"] = eq_record["doc"].replace("_", " ")
-      var_ID = eq_record["lhs"]["global_ID"] #var_ID
+      var_ID = eq_record["lhs"]["global_ID"]  # var_ID
       eqs[e_type][equ_ID]["var_ID"] = var_ID
       eqs[e_type][equ_ID]["var_network"] = self.ontology_container.variables[var_ID]["network"]
       eqs[e_type][equ_ID]["network"] = eq_record["network"]
@@ -1201,7 +1197,6 @@ class UiOntologyDesign(QMainWindow):
       self.ui.msgWindow.clear()
     self.ui.msgWindow.setText(message)
     self.ui.msgWindow.update()
-
 
   def __checkRadios(self, active):
 
