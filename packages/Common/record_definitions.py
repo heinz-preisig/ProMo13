@@ -252,7 +252,7 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
   self["created"] = created
   self["modified"] = created
-  self["compiled_lhs"] = {}
+  self["compiled_lhs"] = {"global_ID": var_ID}
 
   for language in LANGUAGES["aliasing"]:
     self["aliases"][language] = label
@@ -261,9 +261,8 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   return self
 
 
-def makeCompletEquationRecord(lhs="", rhs="", type="generic", network="", doc="", incidence_list=[], created=None):
-  self = {"lhs"           : {"global_ID": lhs},
-          "rhs"           : {"global_ID": rhs},
+def makeCompletEquationRecord(rhs="", type="generic", network="", doc="", incidence_list=[], created=None):
+  self = {"rhs"           : {"global_ID": rhs},
           "type"          : type,
           "doc"           : doc,
           "network"       : network,

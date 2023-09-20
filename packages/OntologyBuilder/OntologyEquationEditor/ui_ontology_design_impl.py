@@ -333,13 +333,13 @@ class UiOntologyDesign(QMainWindow):
       translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
       for eqID in translated_equations:
         var_ID = "V_%s" % translated_equations[eqID]["variable_ID"]
-        translated_equations[eqID]["vaiable_ID"] = var_ID
+        translated_equations[eqID]["variable_ID"] = var_ID
         self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
         # self.ontology_container.variables[var_ID]["equations"][eqID]["lhs"][l] = translated_equations[eqID]["lhs"]
         self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
 
     self.__makeOWLFile()
-    # self.__compile("latex")
+    self.__compile("latex")
     self.__makeLatexDocument()
     self.__writeMessage("finished latex document")
 
@@ -493,7 +493,7 @@ class UiOntologyDesign(QMainWindow):
     variable_type = VARIABLE_TYPE_INTERFACES
 
     incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(lhs=symbol, rhs=rhs, type="interface_link_equation",
+    link_equation = makeCompletEquationRecord(rhs=rhs, type="interface_link_equation",
                                               network=self.current_network,
                                               doc="interface equation", incidence_list=incident_list)
     new_var_ID = self.variables.newProMoVariableIRI()
@@ -637,12 +637,6 @@ class UiOntologyDesign(QMainWindow):
 
     self.on_pushCompile_pressed()
 
-    # for l in LANGUAGES["compile"]:
-    #   try:
-    #     self.__compile(l)
-    #   except (EditorError) as error:
-    #     self.__writeMessage(error.msg)
-
     self.__makeRenderedOutput()
 
   def __makeRenderedOutput(self):
@@ -718,9 +712,9 @@ class UiOntologyDesign(QMainWindow):
         print('checked expression failed %s : %s = %s -- %s' % (
                 equ_ID, self.variables[lhs_var_ID].label, expression, _m))
 
-    if language == "latex":
-      self.__makeLatexDocument()
-    self.__makeOWLFile()
+    # if language == "latex":
+    #   self.__makeLatexDocument()
+    # self.__makeOWLFile()
 
   def __makeOWLFile(self):
 
@@ -851,7 +845,7 @@ class UiOntologyDesign(QMainWindow):
     variable_type = VARIABLE_TYPE_INTERFACES
 
     incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(lhs=variable_compiled, rhs=rhs, type="instantiation_equation",
+    link_equation = makeCompletEquationRecord(rhs=rhs, type="instantiation_equation",
                                               network=self.current_network,
                                               doc="instantiation equation", incidence_list=incident_list)
 
@@ -878,7 +872,7 @@ class UiOntologyDesign(QMainWindow):
     for e_type in self.variables.equation_type_list:  # split into equation types
       eqs[e_type] = {}  # OrderedDict()
 
-    eq_dic = self.ontology_container.equation_dictionary
+    eq_dic = self.ontology_container.makeEquationDictionary()
     for equ_ID in eq_dic:
       e_type = eq_dic[equ_ID]["type"]
       eq_record = eq_dic[equ_ID]
