@@ -320,17 +320,26 @@ class UiOntologyDesign(QMainWindow):
 
   def on_pushCompile_pressed(self):
 
+    # make latex lhs
+    for varID in self.variables:
+      # make lhs in the given language
+      self.variables[varID].setLanguage("latex")
+      compiled_label = str(self.variables[varID])
+      self.ontology_container.variables[varID]["compiled_lhs"]["latex"] = compiled_label
+
     for l in LANGUAGES["code_generation"]:
       translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
       for eqID in translated_equations:
         var_ID = "V_%s"%translated_equations[eqID]["variable_ID"]
         translated_equations[eqID]["vaiable_ID"] = var_ID
         self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
-        self.ontology_container.variables[var_ID]["equations"][eqID]["lhs"][l] = translated_equations[eqID]["lhs"]
+        # self.ontology_container.variables[var_ID]["equations"][eqID]["lhs"][l] = translated_equations[eqID]["lhs"]
+        self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
 
 
     self.__makeOWLFile()
-    self.__compile("latex")
+    # self.__compile("latex")
+    self.__makeLatexDocument()
     self.__writeMessage("finished latex document")
 
     self.__makeRenderedOutput()
@@ -624,11 +633,13 @@ class UiOntologyDesign(QMainWindow):
 
     self.compile_only = False
 
-    for l in LANGUAGES["compile"]:
-      try:
-        self.__compile(l)
-      except (EditorError) as error:
-        self.__writeMessage(error.msg)
+    self.on_pushCompile_pressed()
+
+    # for l in LANGUAGES["compile"]:
+    #   try:
+    #     self.__compile(l)
+    #   except (EditorError) as error:
+    #     self.__writeMessage(error.msg)
 
     self.__makeRenderedOutput()
 
@@ -671,6 +682,12 @@ class UiOntologyDesign(QMainWindow):
     incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(self.variables)
     e_name = FILES["coded_equations"] % (self.ontology_location, language)
 
+    for varID in self.variables:
+      # make lhs in the given language
+      self.variables[varID].setLanguage(language)
+      compiled_label = str(self.variables[varID])
+      self.ontology_container.variables[varID]["compiled_lhs"][language] = compiled_label
+
     for equ_ID in sorted(incidence_dictionary):
       # if equ_ID == 87:
       #   print("debugging -- eq 87")
@@ -678,9 +695,7 @@ class UiOntologyDesign(QMainWindow):
       expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]["global_ID"]
       network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
 
-      # make lhs in the given language
-      self.variables[lhs_var_ID].setLanguage(language)
-      compiled_label = str(self.variables[lhs_var_ID])
+
 
       expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
 
@@ -691,7 +706,7 @@ class UiOntologyDesign(QMainWindow):
       try:
         # print("debugging --  expression being translated into language %s:"%language, expression)
         res = str(compiler(expression))
-        self.ontology_container.variables[lhs_var_ID]["equations"][equ_ID]["lhs"][language] = compiled_label
+        # self.ontology_container.variables[lhs_var_ID]["equations"][equ_ID]["lhs"][language] = compiled_label
         self.ontology_container.variables[lhs_var_ID]["equations"][equ_ID]["rhs"][language] = res
 
       except (SemanticError,
