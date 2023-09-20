@@ -449,7 +449,7 @@ class OntologyContainer():
     # TODO: there is some inconsistency in the equation numbering. Some start with 0 some with 1
     # TODO: equation_dictionary and equation_variable_dictionary start with 1
     # TODO: equation_information and equation_inverse_index start with 0
-    self.equation_dictionary = self.__makeEquationDictionary()
+    self.equation_dictionary = self.makeEquationDictionary()
     self.equation_variable_dictionary = self.__makeEquationVariableDictionary()
     self.equations, \
         self.equation_information, \
@@ -1160,7 +1160,7 @@ class OntologyContainer():
               # token, nw))
     return token_definition_nw, typed_token_definition_nw, token_associated_with_typed_token
 
-  def __makeEquationDictionary(self):
+  def makeEquationDictionary(self):
     equation_dictionary = {}
     for var_ID in self.variables:
       for eq_ID in self.variables[var_ID]["equations"]:

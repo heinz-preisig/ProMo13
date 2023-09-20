@@ -33,7 +33,6 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QProgressDialog
 from PyQt5.QtWidgets import QSizePolicy
 
-from Common.classes.io import translate_equations
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import getData
 from Common.common_resources import getOntologyName
@@ -78,6 +77,9 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncide
 from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
+
+
+from Common.classes.io import translate_equations
 
 # RULE: fixed wired for initialisation -- needs to be more generic
 INITIALVARIABLE_TYPES = {
