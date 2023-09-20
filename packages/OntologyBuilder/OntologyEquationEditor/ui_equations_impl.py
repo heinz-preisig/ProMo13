@@ -418,7 +418,7 @@ class UI_Equations(QtWidgets.QWidget):
       var_ID = self.selected_variable_ID
 
 
-    equation_record = makeCompletEquationRecord(lhs=var_ID, rhs=rhs, network=self.network_for_expression, doc=documentation,
+    equation_record = makeCompletEquationRecord(rhs=rhs, network=self.network_for_expression, doc=documentation,
                                                 incidence_list=incidence_list, created=dateString())
     # Note: think about allowing for editing an equation. It easily destroys the sequence.
     # Note:   by adding a term with a variable that depends on "later" information......!!! (H)
