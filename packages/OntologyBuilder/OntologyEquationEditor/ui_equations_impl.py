@@ -412,7 +412,13 @@ class UI_Equations(QtWidgets.QWidget):
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
 
-    equation_record = makeCompletEquationRecord(lhs=symbol, rhs=rhs, network=self.network_for_expression, doc=documentation,
+    if self.status_new_variable:
+      var_ID = self.variables.newProMoVariableIRI()
+    else:
+      var_ID = self.selected_variable_ID
+
+
+    equation_record = makeCompletEquationRecord(lhs=var_ID, rhs=rhs, network=self.network_for_expression, doc=documentation,
                                                 incidence_list=incidence_list, created=dateString())
     # Note: think about allowing for editing an equation. It easily destroys the sequence.
     # Note:   by adding a term with a variable that depends on "later" information......!!! (H)
@@ -432,7 +438,7 @@ class UI_Equations(QtWidgets.QWidget):
     log = (self.status_new_variable, self.status_new_equation, self.status_edit_expr)
     # new variable true, true, false
     if (log == (True, True, True)) or (log == (True, True, False)):
-      var_ID = self.variables.newProMoVariableIRI()
+
       equ_ID = self.variables.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
       tokens = self.checked_var.tokens  # version_change: and this is the replacement
 
@@ -456,14 +462,12 @@ class UI_Equations(QtWidgets.QWidget):
 
     # new equation to existing variable false, true, false
     elif log == (False, True, False):
-      var_ID = self.selected_variable_ID
       self.variables.addEquation(var_ID, equation_record)
       self.ontology_container.indexEquations()
 
 
     # edit equation false, false, true
     elif log == (False, False, True):
-      var_ID = self.selected_variable_ID
       old_equ_ID = self.current_eq_ID
       # RULE: editing replaces the existing equation -- consquence - sequence is not retained.
       self.variables.replaceEquation(var_ID, old_equ_ID, equation_record)

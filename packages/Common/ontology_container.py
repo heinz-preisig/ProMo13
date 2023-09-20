@@ -1292,26 +1292,19 @@ class OntologyContainer():
       data = getData(variables_f_name)
       # two things that need to be done:
       # index hashes are not yet strings
-      i_data = {}
-      for i in data["indices"]:
-        i_data[int(i)] = data["indices"][i]
+      # i_data = {}
+      # for i in data["indices"]:
+        # i_data[int(i)] = data["indices"][i]
+
       for v_ID in data["variables"]:
         u = data["variables"][v_ID]["units"]  # RULE: we use a class units for their representation
         data["variables"][v_ID]["units"] = Units(ALL=u)
-      return data["variables"], i_data, data["version"], data["Ontology_global_IDs"]
 
-      # return self.__readVariablesEquationFile(variable_record_filter, variables_f_name,)
+      # variables, indices = self.converting_indices(data["variables"],i_data)
+      # return variables, indices, data["version"], data["Ontology_global_IDs"]
+      # return data["variables"], i_data, data["version"], data["Ontology_global_IDs"]
+      return data["variables"], data["indices"], data["version"], data["Ontology_global_IDs"]
 
-    # # shift from version 7 to version 8
-    # elif OS.path.exists(variables_f_name_v7):
-    #   variables, indices, variable_record_filter, version, ProMoIRI = self.__readVariablesEquationFile(
-    #       variable_record_filter, variables_f_name_v7)
-    #   for ID in variables:
-    #     if len(variables[ID]["equations"].keys()) == 0:
-    #       variables[ID]["port_variable"] = True
-    #     else:
-    #       variables[ID]["port_variable"] = False
-    #   return variables, indices, variable_record_filter, version, ProMoIRI
 
     else:
       msg = "There is no variable file \n-- run foundation editor again and save information\n-- to generate an empty " \
@@ -1325,6 +1318,19 @@ class OntologyContainer():
           QtWidgets.QWidget(), "ProMo", msg, QtWidgets.QMessageBox.Ok)
       if reply == OK:
         exit(-1)
+
+  def converting_indices(self, variables, indices):
+    new_indices = {}
+    for i in indices:
+      new_indices["I_%s"%i] = indices[i]
+
+    for v in variables:
+      new_structure = []
+      for i in variables[v]["index_structures"]:
+        new_structure.append("I_%s"%i)
+      variables[v]["index_structures"] = new_structure
+    return variables, new_indices
+
 
   def readNodeArcAssignments(self):
     # print("debugging -- read node assignments")

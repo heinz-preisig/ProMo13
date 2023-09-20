@@ -1361,7 +1361,7 @@ class PhysicalVariable():
       s = j2_env.get_template(temp).render(var=self.aliases[self.language], ind=ind)
     else:
       try:
-        s = self.aliases[self.language]
+        s = ID_spacer + self.aliases[self.language]
       except:
         print("debugging -- 793 -- language :", self.language, "variable:", self.label)
 
