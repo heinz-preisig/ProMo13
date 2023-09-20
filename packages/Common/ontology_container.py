@@ -65,6 +65,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal, dateString
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
+from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.ui_get_qudt_iri_impl import UI_QUDTFetch_IRI
 
 from packages.Common.classes.io import load_entities_from_file
@@ -129,9 +130,10 @@ def makeIndices(ontology_container):
     index["label"] = component
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index_counter += 1  # indices.add(**index)
-    indices[index_counter] = index
-    makeIndexAliases(indices[index_counter],
-                     index_counter, component[0].capitalize())
+    indexID = ID_prefix["index"]+"%s"%index_counter
+    indices[indexID] = index
+    makeIndexAliases(indices[indexID],
+                     indexID, component[0].capitalize())
 
   # typed tokens =======================================================================================
   for typed_token in typed_token_definition_nw:
@@ -141,10 +143,11 @@ def makeIndices(ontology_container):
     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
     index["tokens"] = ontology_container.token_associated_with_typed_token[typed_token]
     index_counter += 1  # indices.add(**index)
-    indices[index_counter] = index
+    indexID = ID_prefix["index"]+"%s"%index_counter
+    indices[indexID] = index
 
-    makeIndexAliases(indices[index_counter],
-                     index_counter, typed_token[0].capitalize())
+    makeIndexAliases(indices[indexID],
+                     indexID, typed_token[0].capitalize())
 
   # conversion of typed tokens =========================================================================
   for typed_token in ontology_container.converting_tokens:
@@ -156,8 +159,9 @@ def makeIndices(ontology_container):
     index["tokens"] = ontology_container.converting_tokens[
         typed_token]  # ontology_container.token_associated_with_typed_token[typed_token]
     index_counter += 1
-    indices[index_counter] = index
-    makeIndexAliases(indices[index_counter], index_counter,
+    indexID = ID_prefix["index"]+"%s"%index_counter
+    indices[indexID]= index
+    makeIndexAliases(indices[indexID], index_counter,
                      TEMPLATES["conversion_alias"] % typed_token[0].capitalize())
 
   # block indices =====================================================================================
@@ -175,7 +179,8 @@ def makeIndices(ontology_container):
       index["indices"] = [index_outer_ID, index_inner_ID]
       index["tokens"] = ontology_container.token_associated_with_typed_token[typed_token]
       index_counter += 1
-      indices[index_counter] = index
+      indexID = ID_prefix["index"]+"%s"%index_counter
+      indices[indexID] = index
       index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
       index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
       for language in LANGUAGES["aliasing"]:
@@ -203,7 +208,8 @@ def makeIndices(ontology_container):
     # ontology_container.token_associated_with_typed_token[typed_token]
     index["tokens"] = driving_token
     index_counter += 1
-    indices[index_counter] = index
+    indexID = ID_prefix["index"]+"%s"%index_counter
+    indices[indexID] = index
     index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
     index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
     for language in LANGUAGES["aliasing"]:
@@ -232,7 +238,8 @@ def makeIndices(ontology_container):
     index["tokens"] = [
         ontology_container.token_associated_with_typed_token[typed_token], driving_token]
     index_counter += 1
-    indices[index_counter] = index
+    indexID = ID_prefix["index"]+"%s"%index_counter
+    indices[indexID] = index
     index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
     index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
     for language in LANGUAGES["aliasing"]:
