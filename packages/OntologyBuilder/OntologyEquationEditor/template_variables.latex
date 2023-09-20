@@ -16,8 +16,9 @@
 {% for var_class in index -%}
     {% for ID in index[var_class] -%}
     {% set vID = ID.replace("V_","") %}
+    {% set vlatex = variables[ID].compiled_lhs["latex"] %}
     {{vID}}
-             & \hypertarget{"v:{{vID}}"}{ $ {} $}
+             & \hypertarget{"v:{{vID}}"}{ $ {{ vlatex }} $}
              & \verb|{{variables[ID].label}}|
              & {{ variables[ID].doc.replace("_"," ") }}
              & \begin{lay}{{ variables[ID].type }} \end{lay}

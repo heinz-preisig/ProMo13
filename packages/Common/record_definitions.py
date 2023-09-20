@@ -219,6 +219,7 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
                                tokens=[],
                                IRI=None,
                                created=None,
+                               compiled_lhs = {}
                                ):
   """
   NOTE: there is a problem here with the defaults -- do not use them, but define everthing explicitly.
@@ -251,6 +252,7 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
   self["created"] = created
   self["modified"] = created
+  self["compiled_lhs"] = {}
 
   for language in LANGUAGES["aliasing"]:
     self["aliases"][language] = label

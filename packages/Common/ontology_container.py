@@ -1158,6 +1158,7 @@ class OntologyContainer():
     for var_ID in self.variables:
       for eq_ID in self.variables[var_ID]["equations"]:
         equation_dictionary[eq_ID] = self.variables[var_ID]["equations"][eq_ID]
+        equation_dictionary[eq_ID]["lhs"] = self.variables[var_ID]["compiled_lhs"]
     return equation_dictionary
 
   def __makeEquationVariableDictionary(self):
@@ -1290,11 +1291,6 @@ class OntologyContainer():
 
     if OS.path.exists(variables_f_name):
       data = getData(variables_f_name)
-      # two things that need to be done:
-      # index hashes are not yet strings
-      # i_data = {}
-      # for i in data["indices"]:
-        # i_data[int(i)] = data["indices"][i]
 
       for v_ID in data["variables"]:
         u = data["variables"][v_ID]["units"]  # RULE: we use a class units for their representation
@@ -1303,6 +1299,7 @@ class OntologyContainer():
       # variables, indices = self.converting_indices(data["variables"],i_data)
       # return variables, indices, data["version"], data["Ontology_global_IDs"]
       # return data["variables"], i_data, data["version"], data["Ontology_global_IDs"]
+      variables = self.fix_lhs(data["variables"])
       return data["variables"], data["indices"], data["version"], data["Ontology_global_IDs"]
 
 
@@ -1318,6 +1315,21 @@ class OntologyContainer():
           QtWidgets.QWidget(), "ProMo", msg, QtWidgets.QMessageBox.Ok)
       if reply == OK:
         exit(-1)
+
+
+  def fix_lhs(self,variables):
+    pass
+
+    for ID in variables:
+      equations = variables[ID]["equations"]
+      if "compiled_lhs" not in variables[ID]:
+        variables[ID]["compiled_lhs"] = {}
+        for eqID in equations:
+          compiled_lhs = equations[eqID]["lhs"]
+          variables[ID]["compiled_lhs"] = compiled_lhs
+          del equations[eqID]["lhs"]
+    return variables
+
 
   def converting_indices(self, variables, indices):
     new_indices = {}
@@ -1353,120 +1365,127 @@ class OntologyContainer():
     # if reply == OK:
     #   exit(-1)
 
-  def __readVariablesEquationFile(self, variable_record_filter, variables_f_name, include_network=False):
-    data = getData(variables_f_name)
-
-
-    variables_raw = data["variables"]
-    version = data["version"]
-    indices_raw = data["indices"]
-    ProMoIRI_raw = data["Ontology_global_IDs"]
-    for ID in variables_raw:
-      try:
-        ad = sorted(variables_raw[ID].keys())
-      except:
-          pass
-      variable_record_filter.update(ad)  # TODO: do we still need this ?
-    # print("debugging read variables filter:", filter)
-    variables = {}
-    for ID in variables_raw:
-      u = eval(variables_raw[ID]["units"])
-      variables_raw[ID]["units"] = Units(ALL=u)
-      variables_raw[ID]["equations"] = eval(variables_raw[ID]["equations"])
-      aliases = eval(variables_raw[ID]["aliases"])
-      variables_raw[ID]["aliases"] = aliases
-      variables_raw[ID]["index_structures"] = eval(
-          variables_raw[ID]["index_structures"])
-
-    # rule: incorporate an iri for each variable
-      if "IRI" not in variables_raw[ID]:
-        label = variables_raw[ID]["label"]
-        iri = "promo:%s" % label
-        variables_raw[ID]["IRI"] = iri
-
-      elif include_network:
-        prefix, _label = variables_raw[ID]["IRI"].split(":")
-        label = _label.strip(" ")
-        nw = variables_raw[ID]["network"].replace(">", "-")
-        if prefix == "promo":
-          extended_label = nw + "+%s" % label
-          variables_raw[ID]["IRI"] = prefix+":"+extended_label
-          # print("debugging", variables_raw[ID]["IRI"])
-      elif not include_network:  # make a simple IRI for promo
-        prefix, _label = variables_raw[ID]["IRI"].split(":")
-        label = variables_raw[ID]["label"]  # _label.strip(" ")
-        if prefix == "promo":
-          extended_label = "%s" % label
-          variables_raw[ID]["IRI"] = prefix+":"+extended_label
-          # print("debugging", variables_raw[ID]["IRI"])
-
-    # rule: add tokens to all variables
-      # note: not sure when it goes wrong. Not defining token results in "" as tokens
-      try:
-        variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
-      except:
-        variables_raw[ID]["tokens"] = []
-
-      # variables[int(ID)] = variables_raw[ID]
-
-      # Note: change to new labels toDO: may be removed once the change is completed
-      if "V" in ID:
-        variables[ID] = variables_raw[ID]
-      else:
-        variables["V_%s"%ID] = variables_raw[ID]
-
-    # rule: add creation and modification data to each variable
-    date_string = dateString()
-    for ID in variables:
-
-      # Note: change to new labels toDO: may be removed once the change is completed
-      if "created" not in variables[ID]:
-        variables[ID]["created"] = date_string
-        variables[ID]["modified"] = date_string
-
-      equations = variables[ID]["equations"]
-      if equations:
-        # if len(equations) >1:
-        #   print("debugging got more than one")
-        for eqID in sorted(equations.keys()):
-          if "lhs" not in equations[eqID]:
-            equations[eqID]["lhs"] = {"global_ID": ID}
-
-          # Note: change to new labels toDO: may be removed once the change is completed
-          if "created" not in equations[eqID]:
-            equations[eqID]["created"] = date_string
-            equations[eqID]["modified"] = date_string
-          if  isinstance(eqID, int):
-            eq_new_ID = "E_%s"%eqID
-            new_equations = copy(equations[eqID])
-            del equations[eqID]
-            equations[eq_new_ID] = new_equations
-            rhs = copy(equations[eq_new_ID]["rhs"])
-            equations[eq_new_ID]["rhs"] = {"global_ID" : rhs}
-
-            # fix incidence lists
-            incidence_list = equations[eq_new_ID]["incidence_list"]
-            new_list = []
-            for i in incidence_list:
-              new_list.append("V_%s"%i)
-            equations[eq_new_ID]["incidence_list"] = new_list
-
-
-
-    indices = {}
-    for i in indices_raw:  # DOC: indices are stored in a dictionary with the hash being the enumeration integer
-      # for the index
-      indices[int(i)] = indices_raw[i]
-      label = indices_raw[i]["label"]
-      if "IRI" not in indices_raw[i]:
-        l = label.replace(" ", "_")
-        # indices[int(i)]["IRI"] = "promo:%s" % l
-        indices[int(i)]["IRI"] = "promo:%s" % l
-    ProMoIRI = {}
-    for i in ProMoIRI_raw:
-      ProMoIRI[i] = int(ProMoIRI_raw[i])
-
-    return variables, indices, variable_record_filter, version, ProMoIRI
+  # def __readVariablesEquationFile(self, variable_record_filter, variables_f_name, include_network=False):
+  #   data = getData(variables_f_name)
+  #
+  #
+  #   variables_raw = data["variables"]
+  #   version = data["version"]
+  #   indices_raw = data["indices"]
+  #   ProMoIRI_raw = data["Ontology_global_IDs"]
+  #   for ID in variables_raw:
+  #     try:
+  #       ad = sorted(variables_raw[ID].keys())
+  #     except:
+  #         pass
+  #     variable_record_filter.update(ad)  # TODO: do we still need this ?
+  #   # print("debugging read variables filter:", filter)
+  #   variables = {}
+  #   for ID in variables_raw:
+  #     u = eval(variables_raw[ID]["units"])
+  #     variables_raw[ID]["units"] = Units(ALL=u)
+  #     variables_raw[ID]["equations"] = eval(variables_raw[ID]["equations"])
+  #     aliases = eval(variables_raw[ID]["aliases"])
+  #     variables_raw[ID]["aliases"] = aliases
+  #     variables_raw[ID]["index_structures"] = eval(
+  #         variables_raw[ID]["index_structures"])
+  #
+  #   # rule: incorporate an iri for each variable
+  #     if "IRI" not in variables_raw[ID]:
+  #       label = variables_raw[ID]["label"]
+  #       iri = "promo:%s" % label
+  #       variables_raw[ID]["IRI"] = iri
+  #
+  #     elif include_network:
+  #       prefix, _label = variables_raw[ID]["IRI"].split(":")
+  #       label = _label.strip(" ")
+  #       nw = variables_raw[ID]["network"].replace(">", "-")
+  #       if prefix == "promo":
+  #         extended_label = nw + "+%s" % label
+  #         variables_raw[ID]["IRI"] = prefix+":"+extended_label
+  #         # print("debugging", variables_raw[ID]["IRI"])
+  #     elif not include_network:  # make a simple IRI for promo
+  #       prefix, _label = variables_raw[ID]["IRI"].split(":")
+  #       label = variables_raw[ID]["label"]  # _label.strip(" ")
+  #       if prefix == "promo":
+  #         extended_label = "%s" % label
+  #         variables_raw[ID]["IRI"] = prefix+":"+extended_label
+  #         # print("debugging", variables_raw[ID]["IRI"])
+  #
+  #   # rule: add tokens to all variables
+  #     # note: not sure when it goes wrong. Not defining token results in "" as tokens
+  #     try:
+  #       variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
+  #     except:
+  #       variables_raw[ID]["tokens"] = []
+  #
+  #     # variables[int(ID)] = variables_raw[ID]
+  #
+  #     # Note: change to new labels toDO: may be removed once the change is completed
+  #     if "V" in ID:
+  #       variables[ID] = variables_raw[ID]
+  #     else:
+  #       variables["V_%s"%ID] = variables_raw[ID]
+  #
+  #   # rule: add creation and modification data to each variable
+  #   date_string = dateString()
+  #   for ID in variables:
+  #
+  #     # Note: change to new labels toDO: may be removed once the change is completed
+  #     if "created" not in variables[ID]:
+  #       variables[ID]["created"] = date_string
+  #       variables[ID]["modified"] = date_string
+  #
+  #     equations = variables[ID]["equations"]
+  #     if equations:
+  #       # if len(equations) >1:
+  #       #   print("debugging got more than one")
+  #       for eqID in sorted(equations.keys()):
+  #         if "lhs" not in equations[eqID]:
+  #           equations[eqID]["lhs"] = {"global_ID": ID}
+  #
+  #         # Note: change to new labels toDO: may be removed once the change is completed
+  #         if "created" not in equations[eqID]:
+  #           equations[eqID]["created"] = date_string
+  #           equations[eqID]["modified"] = date_string
+  #         if  isinstance(eqID, int):
+  #           eq_new_ID = "E_%s"%eqID
+  #           new_equations = copy(equations[eqID])
+  #           del equations[eqID]
+  #           equations[eq_new_ID] = new_equations
+  #           rhs = copy(equations[eq_new_ID]["rhs"])
+  #           equations[eq_new_ID]["rhs"] = {"global_ID" : rhs}
+  #
+  #           # fix incidence lists
+  #           incidence_list = equations[eq_new_ID]["incidence_list"]
+  #           new_list = []
+  #           for i in incidence_list:
+  #             new_list.append("V_%s"%i)
+  #           equations[eq_new_ID]["incidence_list"] = new_list
+  #
+  #   for ID in variables:
+  #     equations = variables[ID]["equations"]
+  #     if "compiled_lhs" not in variables[ID]:
+  #       compiled_lhs = equations[eqID]["lhs"]
+  #       variables[ID]["compiled_lhs"] = compiled_lhs
+  #       del equations[eqID]["lhs"]
+  #
+  #
+  #
+  #   indices = {}
+  #   for i in indices_raw:  # DOC: indices are stored in a dictionary with the hash being the enumeration integer
+  #     # for the index
+  #     indices[int(i)] = indices_raw[i]
+  #     label = indices_raw[i]["label"]
+  #     if "IRI" not in indices_raw[i]:
+  #       l = label.replace(" ", "_")
+  #       # indices[int(i)]["IRI"] = "promo:%s" % l
+  #       indices[int(i)]["IRI"] = "promo:%s" % l
+  #   ProMoIRI = {}
+  #   for i in ProMoIRI_raw:
+  #     ProMoIRI[i] = int(ProMoIRI_raw[i])
+  #
+  #   return variables, indices, variable_record_filter, version, ProMoIRI
 
   def __readVariableAssignmentFile(self, file_name):
     data = getData(file_name)
