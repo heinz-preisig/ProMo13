@@ -339,7 +339,7 @@ class UiOntologyDesign(QMainWindow):
         self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
 
     self.__makeOWLFile()
-    self.__compile("latex")
+    self.__compile("latex")  # make latex rhs
     self.__makeLatexDocument()
     self.__writeMessage("finished latex document")
 

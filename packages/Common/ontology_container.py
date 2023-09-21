@@ -120,7 +120,7 @@ def makeIndices(ontology_container):
 
   indices = {}
   index_counter = 0
-  inverse_lookup = {}
+  # inverse_lookup = {}
 
   # nodes and arcs =====================================================================================
   # RULE: hard wired components --- the same as in the first stage
@@ -288,17 +288,6 @@ class OntologyContainer():
     # NOTE: here we can check for older versions
 
     self.ontology_tree = self.ontology_container["ontology_tree"]
-    # self.interfaces = self.ontology_container["interfaces"]
-
-    #
-    # if "equation_assignment" in self.ontology_container:
-    #   self.equation_assignment = self.ontology_container["equation_assignment"]
-    # else:
-    #   self.equation_assignment = {
-    #         "node"     : {},
-    #         "arc"      : {},
-    #         "interface": {},
-    #         }
 
     self.rules = self.ontology_container["rules"]  #
 
@@ -349,10 +338,10 @@ class OntologyContainer():
 
     self.variable_types_on_networks, \
         self.variable_types_on_networks_per_component = self.__makeVariableTypeListsNetworks(
-        )  # TODO: per_component is
+        )  # TODO: consider removing variable_types_on_networks_per_component
     # not used
 
-    self.entity_behaviours = self.__readVariableAssignmentToEntity()
+    self.entity_behaviours = self.__readVariableAssignmentToEntity() # TODO: currently not used
 
     self.interfaces = self.__setupInterfaces()
 
@@ -374,7 +363,7 @@ class OntologyContainer():
     # ........................... global list of node types (dynamics)
     self.node_type_list = self.__makeNodeTypesList()
     # ....... dict(leave networks) of lists of node
-    self.node_types_in_networks = self.__makeNodeTypesInNetworksDict()
+    # self.node_types_in_networks = self.__makeNodeTypesInNetworksDict()
     #
     #
     # ............. coded list of coded arc types token|mechanism|nature
@@ -383,7 +372,7 @@ class OntologyContainer():
     self.object_key_list_networks, \
         self.object_key_list_intra, \
         self.object_key_list_inter, \
-        self.keys_networks_tokens = self.__makeObjectKeyLists()
+        self.keys_networks_tokens = self.__makeObjectKeyLists() #TODO: consider removing keys_networks_tokens
 
     # self.arc_types_in_leave_networks_list_coded = self.__makeArcTypesInLeaveNetworksDictCoded()
     # self.node_types_in_leave_networks_list_coded = self.__makeNodeTypesInLeaveNetworksDictCoded()
@@ -402,12 +391,13 @@ class OntologyContainer():
         self.list_arc_objects, \
         self.list_reduced_network_node_objects, \
         self.list_reduced_network_arc_objects, \
-        self.list_inter_node_objects_tokens = self.__makeNodeObjectList()
+        self.list_inter_node_objects_tokens = self.__makeNodeObjectList() #TODO: consider deleting those that are not used
 
-    self.arc_types_in_networks_tuples = self.__makeArcTypesInNetworks()
+
+    # self.arc_types_in_networks_tuples = self.__makeArcTypesInNetworks()
     # TODO check usage  -->  done is used check structure
     self.arc_info_dictionary = self.__makeArcTypeDictionary()
-    self.arc_info_allnetworks_dict = self.__make_arc_type_network_dict()  # TODO: check usage
+    # self.arc_info_allnetworks_dict = self.__make_arc_type_network_dict()  # TODO: check usage
 
     self.token_definition_nw, \
         self.typed_token_definition_nw, \
@@ -424,18 +414,18 @@ class OntologyContainer():
 
     if self.indices == {}:  # DOC: make indices if they do not yet exist
       self.indices = makeIndices(self)
-      try:
-        self.indices = makeIndices(self)
-      except:
-        reply = QtWidgets.QMessageBox.question(None, "exception",
-                                               "There are problems with generating the indices probably missing the "
-                                               "definition of refined tokens for example token mass refined by species"
-                                               " --- continue ?",
-                                               OK, NO)
-        if reply in [OK, YES]:
-          pass
-        else:
-          exit(-1)
+      # try:
+      #   self.indices = makeIndices(self)
+      # except:
+      #   reply = QtWidgets.QMessageBox.question(None, "exception",
+      #                                          "There are problems with generating the indices probably missing the "
+      #                                          "definition of refined tokens for example token mass refined by species"
+      #                                          " --- continue ?",
+      #                                          OK, NO)
+      #   if reply in [OK, YES]:
+      #     pass
+      #   else:
+      #     exit(-1)
 
     else:
       for i in self.indices:
@@ -446,41 +436,10 @@ class OntologyContainer():
     pass
 
   def indexEquations(self):
-    # TODO: there is some inconsistency in the equation numbering. Some start with 0 some with 1
-    # TODO: equation_dictionary and equation_variable_dictionary start with 1
-    # TODO: equation_information and equation_inverse_index start with 0
     self.equation_dictionary = self.makeEquationDictionary()
     self.equation_variable_dictionary = self.__makeEquationVariableDictionary()
-    self.equations, \
-        self.equation_information, \
-        self.equation_inverse_index = self.__makeEquationAndIndexLists()  #TODO: equation_inverse_index not used anymore???
-    print("debugging -- indexing equations")
-
-  def checkForRule(self, rule):
-    """
-    checking for what rules exit in the ontology
-    """
-    # fixing changing the ontology adding rule "variable_classes_being_state_variables"
-    if rule not in self.rules:
-      return False
-    else:
-      return True
-
-  # def setRule(self, rule, value):
-  #   self.rules[rule] = value
-  #   self.writeMe()
-
-    #   self.rules["variable_classes_being_state_variables"] = None
-    # if "name_space" not in self.rules:
-    #   answ = makeMessageBox(message="use GLOBAL name space?",
-    #                         buttons=["YES", "NO"],
-    #                         infotext="choose if the equation ontology is based on a global name space or a discipline local one")
-    #   print("choice", answ)
-    #   if answ == "YES":
-    #     print("chosen yes ")
-    #   else:
-    #     print("chosen no ")
-    #   exit()
+    self.equations = self.__makeEquationAndIndexLists()
+    # print("debugging -- indexing equations")
 
   def __setupInterfaces(self):
     # RULE: by default all variable classes from the left network are available
@@ -488,10 +447,7 @@ class OntologyContainer():
     list_networks = self.list_inter_branches_pairs
     interfaces = {}
     for network in list_networks:
-      # if network not in self.list_inter_branches_pairs: #self.interfaces:
       left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
-      # left_nw = list_networks[network]["left"]
-      # right_nw = list_networks[network]["right"]
       left_variable_types = self.variable_types_on_networks[left_nw]
 
       interfaces[network] = Interface(
@@ -542,8 +498,6 @@ class OntologyContainer():
     keys_intra = []
     for intra_nw in self.intraconnection_network_dictionary:
       left = self.intraconnection_network_dictionary[intra_nw]["left"]
-      # right = self.intraconnection_network_dictionary[intra_nw]["right"]
-      # keys_intra.append((intra_nw, "intra", left, right))
       tokens = list(self.ontology_tree[left]["structure"]["token"].keys())
       for token in tokens:
         keys_intra.append((intra_nw, "intra", token))
@@ -551,9 +505,6 @@ class OntologyContainer():
     keys_inter = []
     # interconnection_network_dictionary:
     for inter_nw in self.list_inter_branches_pairs:
-      # left = self.interconnection_network_dictionary[inter_nw]["left"]
-      # right = self.interconnection_network_dictionary[inter_nw]["right"]
-      # keys_inter.append((inter_nw, "inter", left, right))
       inter_token = self.interfaces[inter_nw]["token"]
       keys_inter.append((inter_nw, "inter", inter_token))
 
@@ -867,7 +818,7 @@ class OntologyContainer():
     l = len(interbranches)
     for i in range(0, l):
       for j in range(i, l):
-        if i != j:  # Note: interconnections are unidirectional thus we need both ways
+        if i != j:  # Rule: interconnections are unidirectional thus we need both ways
           pair = TEMPLATE_INTRACONNECTION_PAIRS % (
               interbranches[i], interbranches[j])
           interbranch_pairs.append(pair)
@@ -938,20 +889,20 @@ class OntologyContainer():
 
     return variable_types
 
-  def __makeVariableTypeListInterFaces(self, variable_types_on_networks):
-    variable_types = {}
-    for cnw in self.interfaces:  # interconnection_network_dictionary:
-      variable_types_on_networks[cnw] = []
-      variable_types[cnw] = {}
-      # l = self.interconnection_network_dictionary[cnw]["left"]
-      # r = self.interconnection_network_dictionary[cnw]["right"]
-      l = self.interfaces[cnw]["left_network"]
-      r = self.interfaces[cnw]["right_network"]
-
-      vars = self.ontology_tree[l]["behaviour"]["node"]
-      variable_types[cnw]["left"] = vars
-      variable_types[cnw]["right"] = self.ontology_tree[r]["behaviour"]["node"]
-    return variable_types
+  # def __makeVariableTypeListInterFaces(self, variable_types_on_networks):
+  #   variable_types = {}
+  #   for cnw in self.interfaces:  # interconnection_network_dictionary:
+  #     variable_types_on_networks[cnw] = []
+  #     variable_types[cnw] = {}
+  #     # l = self.interconnection_network_dictionary[cnw]["left"]
+  #     # r = self.interconnection_network_dictionary[cnw]["right"]
+  #     l = self.interfaces[cnw]["left_network"]
+  #     r = self.interfaces[cnw]["right_network"]
+  #
+  #     vars = self.ontology_tree[l]["behaviour"]["node"]
+  #     variable_types[cnw]["left"] = vars
+  #     variable_types[cnw]["right"] = self.ontology_tree[r]["behaviour"]["node"]
+  #   return variable_types
 
   def __makeAllWhoInherit(self):
     heirs = {}
@@ -974,20 +925,20 @@ class OntologyContainer():
         tokens.add(token)
     return sorted(tokens)
 
-  def __makeTypedTokensOnNetworks(self):
-    # rule: only one typed token per network
-    # TODO: we must allow for several typed tokens in a network (species , secondary states ...)
-
-    typed_tokens_on_networks = {}
-    for nw in self.networks:
-      typed_tokens_on_networks[nw] = []
-      for token in self.ontology_tree[nw]["structure"]["token"]:
-        if self.ontology_tree[nw]["structure"]["token"][token]:
-          typed_tokens_on_networks[nw].append(
-              self.ontology_tree[nw]["structure"]["token"][token][0])
-        else:  # Already taken care of
-          pass
-    return typed_tokens_on_networks
+  # def __makeTypedTokensOnNetworks(self):
+  #   # rule: only one typed token per network
+  #   # TODO: we must allow for several typed tokens in a network (species , secondary states ...)
+  #
+  #   typed_tokens_on_networks = {}
+  #   for nw in self.networks:
+  #     typed_tokens_on_networks[nw] = []
+  #     for token in self.ontology_tree[nw]["structure"]["token"]:
+  #       if self.ontology_tree[nw]["structure"]["token"][token]:
+  #         typed_tokens_on_networks[nw].append(
+  #             self.ontology_tree[nw]["structure"]["token"][token][0])
+  #       else:  # Already taken care of
+  #         pass
+  #   return typed_tokens_on_networks
 
   def __makeInterfaceNetworksAccessibleToNetworksDictionary(self):
 
@@ -1023,13 +974,13 @@ class OntologyContainer():
       all_arcs.extend(arcs[cnw])
     return sorted(set(all_arcs))
 
-  def __makeNodeTypesInNetworksDict(self):
-    # RULE: this is a generation rule for graph objects nodes
-    leave_nws = self.list_leave_networks
-    nodetypes = OrderedDict()
-    for nw in leave_nws:
-      nodetypes[nw] = list(self.ontology_tree[nw]["structure"]["node"].keys())
-    return nodetypes
+  # def __makeNodeTypesInNetworksDict(self):
+  #   # RULE: this is a generation rule for graph objects nodes
+  #   leave_nws = self.list_leave_networks
+  #   nodetypes = OrderedDict()
+  #   for nw in leave_nws:
+  #     nodetypes[nw] = list(self.ontology_tree[nw]["structure"]["node"].keys())
+  #   return nodetypes
 
   def __makeArcTypesInLeaveNetworksDictCoded(self):
     # RULE: this is a generation rule for graph objects arcs -- the term "transport" can be obtained from behaviour
@@ -1067,24 +1018,24 @@ class OntologyContainer():
 
     return arcs  # arc_type_list
 
-  def __makeArcTypesInNetworks(self):
-
-    arcs = {}
-    for nw in self.networks:
-      arcs_in_network = []
-      for token in self.ontology_tree[nw]["structure"]["arc"]:
-        for mechanism in self.ontology_tree[nw]["structure"]["arc"][token]:
-          if isinstance(self.ontology_tree[nw]["structure"]["arc"][token], list):
-            # RULE: requiring both mechanism and nature to be given,
-            # TODO: this becomes obsolete
-            nature = M_None
-            arcs_in_network.append((token, mechanism, nature))
-            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ooops")
-          else:
-            for nature in self.ontology_tree[nw]["structure"]["arc"][token][mechanism]:
-              arcs_in_network.append((token, mechanism, nature))
-      arcs[nw] = sorted(set(arcs_in_network))
-    return arcs  # arc_type_list
+  # def __makeArcTypesInNetworks(self):
+  #
+  #   arcs = {}
+  #   for nw in self.networks:
+  #     arcs_in_network = []
+  #     for token in self.ontology_tree[nw]["structure"]["arc"]:
+  #       for mechanism in self.ontology_tree[nw]["structure"]["arc"][token]:
+  #         if isinstance(self.ontology_tree[nw]["structure"]["arc"][token], list):
+  #           # RULE: requiring both mechanism and nature to be given,
+  #           # TODO: this becomes obsolete
+  #           nature = M_None
+  #           arcs_in_network.append((token, mechanism, nature))
+  #           print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ooops")
+  #         else:
+  #           for nature in self.ontology_tree[nw]["structure"]["arc"][token][mechanism]:
+  #             arcs_in_network.append((token, mechanism, nature))
+  #     arcs[nw] = sorted(set(arcs_in_network))
+  #   return arcs  # arc_type_list
 
   def __makeArcTypeDictionary(self):
     arc_type_dict = {}
@@ -1096,50 +1047,50 @@ class OntologyContainer():
           arc_type_dict[nw][token][mech] = self.ontology_tree[nw]["structure"]["arc"][token][mech]
     return arc_type_dict
 
-  def __make_arc_type_network_dict(self):
-    arc_type_dict = {}
-    for nw in self.networks:
-      arc_type_dict[nw] = {}
-      for token in list(self.ontology_tree[nw]["structure"]["arc"].keys()):
-        arc_type_dict[nw][token] = {}
-        for mech in self.ontology_tree[nw]["structure"]["arc"][token]:
-          arc_type_dict[nw][token][mech] = self.ontology_tree[nw]["structure"]["arc"][token][mech]
-    return arc_type_dict
+  # def __make_arc_type_network_dict(self):
+  #   arc_type_dict = {}
+  #   for nw in self.networks:
+  #     arc_type_dict[nw] = {}
+  #     for token in list(self.ontology_tree[nw]["structure"]["arc"].keys()):
+  #       arc_type_dict[nw][token] = {}
+  #       for mech in self.ontology_tree[nw]["structure"]["arc"][token]:
+  #         arc_type_dict[nw][token][mech] = self.ontology_tree[nw]["structure"]["arc"][token][mech]
+  #   return arc_type_dict
 
-  def __makeTypedTokensInNetworksDict(self):
-    s_active_typed_tokens_in_nw = {}
-    passive_typed_tokens_in_nw = {}
-    for nw in self.networks:
-      s_active_typed_tokens_in_nw[nw] = set()
-      passive_typed_tokens_in_nw[nw] = []
-      for token in self.ontology_tree[nw]["structure"]["token"]:
-        typed_token_list = self.ontology_tree[nw]["structure"]["token"][token]
-        if typed_token_list != []:
-          for typed_token in typed_token_list:
-            # RULE: tokens are of the type passive and active -- passive has the string "_info" in its id
-            if "info" in token:
-              passive_typed_tokens_in_nw[nw].append(typed_token)
-            else:
-              [s_active_typed_tokens_in_nw[nw].add(
-                  i) for i in self.ontology_tree[nw]["structure"]["token"][token]]
-              # RULE: only one active token can be typed, but the typed token may appear in several tokens (control)
-      if len(s_active_typed_tokens_in_nw[nw]) > 1:
-        print(">>>>>>>>>>>>>>>. error: more than one typed token in network : ", nw, token,
-              self.ontology_tree[nw]["structure"]["token"])
+  # def __makeTypedTokensInNetworksDict(self):
+  #   s_active_typed_tokens_in_nw = {}
+  #   passive_typed_tokens_in_nw = {}
+  #   for nw in self.networks:
+  #     s_active_typed_tokens_in_nw[nw] = set()
+  #     passive_typed_tokens_in_nw[nw] = []
+  #     for token in self.ontology_tree[nw]["structure"]["token"]:
+  #       typed_token_list = self.ontology_tree[nw]["structure"]["token"][token]
+  #       if typed_token_list != []:
+  #         for typed_token in typed_token_list:
+  #           # RULE: tokens are of the type passive and active -- passive has the string "_info" in its id
+  #           if "info" in token:
+  #             passive_typed_tokens_in_nw[nw].append(typed_token)
+  #           else:
+  #             [s_active_typed_tokens_in_nw[nw].add(
+  #                 i) for i in self.ontology_tree[nw]["structure"]["token"][token]]
+  #             # RULE: only one active token can be typed, but the typed token may appear in several tokens (control)
+  #     if len(s_active_typed_tokens_in_nw[nw]) > 1:
+  #       print(">>>>>>>>>>>>>>>. error: more than one typed token in network : ", nw, token,
+  #             self.ontology_tree[nw]["structure"]["token"])
+  #
+  #   active_typed_tokens_in_nw = {}
+  #   for nw in self.networks:
+  #     active_typed_tokens_in_nw[nw] = list(s_active_typed_tokens_in_nw[nw])
+  #   return active_typed_tokens_in_nw, passive_typed_tokens_in_nw
 
-    active_typed_tokens_in_nw = {}
-    for nw in self.networks:
-      active_typed_tokens_in_nw[nw] = list(s_active_typed_tokens_in_nw[nw])
-    return active_typed_tokens_in_nw, passive_typed_tokens_in_nw
-
-  def __makeTypedTokenList(self):
-    active_typed_token_in_nw, passive_typed_token_in_nw = self.__makeTypedTokensInNetworksDict()
-    typed_token_set = set()
-    for nw in active_typed_token_in_nw:
-      [typed_token_set.add(i) for i in active_typed_token_in_nw[nw]]
-    for nw in passive_typed_token_in_nw:
-      [typed_token_set.add(i) for i in passive_typed_token_in_nw[nw]]
-    return sorted(typed_token_set)
+  # def __makeTypedTokenList(self):
+  #   active_typed_token_in_nw, passive_typed_token_in_nw = self.__makeTypedTokensInNetworksDict()
+  #   typed_token_set = set()
+  #   for nw in active_typed_token_in_nw:
+  #     [typed_token_set.add(i) for i in active_typed_token_in_nw[nw]]
+  #   for nw in passive_typed_token_in_nw:
+  #     [typed_token_set.add(i) for i in passive_typed_token_in_nw[nw]]
+  #   return sorted(typed_token_set)
 
   def __makeDefinitionNetworkDictionaries(self):
     token_definition_nw = {}  # hash is token
@@ -1178,58 +1129,19 @@ class OntologyContainer():
 
   def __readVariableAssignmentToEntity(self):
     return load_entities_from_file(self.ontology_name)
-    # pass
-    # f = FILES["variable_assignment_to_entity_object"] % self.ontology_name
-    # if not os.path.exists(f):
-    #   entity_behaviours = None
-
-    # # loaded_entity_behaviours = getData(f)
-    # data = getData(f)
-    # entity_behaviours = VariantRecord()  # make empty structure
-    # if data:
-    #   loaded_entity_behaviours = data["behaviours"]
-    #   # self.node_arc_associations = data["associations"]
-
-    #   if loaded_entity_behaviours:
-    #     for entity_str_ID in loaded_entity_behaviours:  # careful there may not be all entities at least during
-    #       # developments
-    #       if loaded_entity_behaviours[entity_str_ID]:
-    #         dummy = VariantRecord()
-    #         data = loaded_entity_behaviours[entity_str_ID]
-    #         for atr in dummy:
-    #           if atr not in data:
-    #             data[atr] = None
-    #         tree = {}
-    #         for treeStrID in data["tree"]:
-    #           tree[int(treeStrID)] = data["tree"][treeStrID]
-    #         data["tree"] = tree
-
-    #         nodes = {}
-    #         for nodeStrID in data["nodes"]:
-    #           nodes[int(nodeStrID)] = data["nodes"][nodeStrID]
-    #         data["nodes"] = nodes
-
-    #         entity_behaviours[entity_str_ID] = VariantRecord(tree=data["tree"],
-    #                                                          nodes=data["nodes"],
-    #                                                          IDs=data["IDs"],
-    #                                                          root_variable=data["root_variable"],
-    #                                                          blocked_list=data["blocked"],
-    #                                                          buddies_list=data["buddies"],
-    #                                                          to_be_inisialised=data["to_be_initialised"])
-    # return entity_behaviours
 
   def __makeEquationAndIndexLists(self):
 
     equations = []
-    equation_information = {}
-    equation_inverse_index = {}
+    # equation_information = {}
+    # equation_inverse_index = {}
     equation_variable_dictionary = self.equation_variable_dictionary
     count = -1
     for eq_ID in equation_variable_dictionary:
       count += 1
       var_ID, equation = equation_variable_dictionary[eq_ID]
-      var_type = self.variables[var_ID]["type"]
-      nw_eq = self.variables[var_ID]["network"]
+      # var_type = self.variables[var_ID]["type"]
+      # nw_eq = self.variables[var_ID]["network"]
 
       rendered_expressions = renderExpressionFromGlobalIDToInternal(
           equation["rhs"]["global_ID"],
@@ -1240,31 +1152,24 @@ class OntologyContainer():
       equation_label = "%s := %s" % (rendered_variable, rendered_expressions)
 
       # equations[eq_ID] = (var_ID, var_type, nw_eq, rendered_equation, pixelled_equation)
-      equations.append(equation_label)
-      equation_inverse_index[eq_ID] = count
-      equation_information[count] = (
-          eq_ID, var_ID, var_type, nw_eq, equation_label)
-    return equations, equation_information, equation_inverse_index
+      # equations.append(equation_label)
+      # equation_inverse_index[eq_ID] = count
+      # equation_information[count] = (
+      #     eq_ID, var_ID, var_type, nw_eq, equation_label)
+    return equations#, equation_information, equation_inverse_index
 
   def addVariable(self, ID, **args):
     self.variables[ID] = {}
     for i in args:
       self.variables[ID][i] = args[i]
 
-  def writeMe(self):
-
-    # container = OrderedDict({
-    #       "version"            : ONTOLOGY_VERSION,
-    #       "ontology_tree"      : self.ontology_tree,
-    #       "interfaces"         : self.interfaces,
-    #       "equation_assignment": self.equation_assignment
-    #       })
-
-    container = OntologyContainerFile(ONTOLOGY_VERSION)
-    for hash in list(container.keys()):
-      container[hash] = self.__getattribute__(hash)
-
-    saveWithBackup(self.ontology_file)
+  # def writeMe(self):
+  #
+  #   container = OntologyContainerFile(ONTOLOGY_VERSION)
+  #   for hash in list(container.keys()):
+  #     container[hash] = self.__getattribute__(hash)
+  #
+  #   saveWithBackup(self.ontology_file)
 
   def writeVariables(self, variables, indices, ProMoIRI):
     """
@@ -1306,7 +1211,7 @@ class OntologyContainer():
       # variables, indices = self.converting_indices(data["variables"],i_data)
       # return variables, indices, data["version"], data["Ontology_global_IDs"]
       # return data["variables"], i_data, data["version"], data["Ontology_global_IDs"]
-      variables = self.fix_lhs(data["variables"])
+      # variables = self.fix_lhs(data["variables"])
       return data["variables"], data["indices"], data["version"], data["Ontology_global_IDs"]
 
 
@@ -1324,31 +1229,31 @@ class OntologyContainer():
         exit(-1)
 
 
-  def fix_lhs(self,variables):
-    pass
+  # def fix_lhs(self,variables):
+  #   pass
+  #
+  #   for ID in variables:
+  #     equations = variables[ID]["equations"]
+  #     if "compiled_lhs" not in variables[ID]:
+  #       variables[ID]["compiled_lhs"] = {}
+  #       for eqID in equations:
+  #         compiled_lhs = equations[eqID]["lhs"]
+  #         variables[ID]["compiled_lhs"] = compiled_lhs
+  #         del equations[eqID]["lhs"]
+  #   return variables
 
-    for ID in variables:
-      equations = variables[ID]["equations"]
-      if "compiled_lhs" not in variables[ID]:
-        variables[ID]["compiled_lhs"] = {}
-        for eqID in equations:
-          compiled_lhs = equations[eqID]["lhs"]
-          variables[ID]["compiled_lhs"] = compiled_lhs
-          del equations[eqID]["lhs"]
-    return variables
 
-
-  def converting_indices(self, variables, indices):
-    new_indices = {}
-    for i in indices:
-      new_indices["I_%s"%i] = indices[i]
-
-    for v in variables:
-      new_structure = []
-      for i in variables[v]["index_structures"]:
-        new_structure.append("I_%s"%i)
-      variables[v]["index_structures"] = new_structure
-    return variables, new_indices
+  # def converting_indices(self, variables, indices):
+  #   new_indices = {}
+  #   for i in indices:
+  #     new_indices["I_%s"%i] = indices[i]
+  #
+  #   for v in variables:
+  #     new_structure = []
+  #     for i in variables[v]["index_structures"]:
+  #       new_structure.append("I_%s"%i)
+  #     variables[v]["index_structures"] = new_structure
+  #   return variables, new_indices
 
 
   def readNodeArcAssignments(self):
@@ -1361,138 +1266,6 @@ class OntologyContainer():
     else:
       return None
 
-    # msg = "There is no variable file \n-- run foundation editor again and save information\n-- to generate an empty " \
-    #       "" \
-    #       "" \
-    #       "" \
-    #       "" \
-    #       "variable file"
-    #
-    # reply = QtWidgets.QMessageBox.warning(QtWidgets.QWidget(), "ProMo", msg, QtWidgets.QMessageBox.Ok)
-    # if reply == OK:
-    #   exit(-1)
-
-  # def __readVariablesEquationFile(self, variable_record_filter, variables_f_name, include_network=False):
-  #   data = getData(variables_f_name)
-  #
-  #
-  #   variables_raw = data["variables"]
-  #   version = data["version"]
-  #   indices_raw = data["indices"]
-  #   ProMoIRI_raw = data["Ontology_global_IDs"]
-  #   for ID in variables_raw:
-  #     try:
-  #       ad = sorted(variables_raw[ID].keys())
-  #     except:
-  #         pass
-  #     variable_record_filter.update(ad)  # TODO: do we still need this ?
-  #   # print("debugging read variables filter:", filter)
-  #   variables = {}
-  #   for ID in variables_raw:
-  #     u = eval(variables_raw[ID]["units"])
-  #     variables_raw[ID]["units"] = Units(ALL=u)
-  #     variables_raw[ID]["equations"] = eval(variables_raw[ID]["equations"])
-  #     aliases = eval(variables_raw[ID]["aliases"])
-  #     variables_raw[ID]["aliases"] = aliases
-  #     variables_raw[ID]["index_structures"] = eval(
-  #         variables_raw[ID]["index_structures"])
-  #
-  #   # rule: incorporate an iri for each variable
-  #     if "IRI" not in variables_raw[ID]:
-  #       label = variables_raw[ID]["label"]
-  #       iri = "promo:%s" % label
-  #       variables_raw[ID]["IRI"] = iri
-  #
-  #     elif include_network:
-  #       prefix, _label = variables_raw[ID]["IRI"].split(":")
-  #       label = _label.strip(" ")
-  #       nw = variables_raw[ID]["network"].replace(">", "-")
-  #       if prefix == "promo":
-  #         extended_label = nw + "+%s" % label
-  #         variables_raw[ID]["IRI"] = prefix+":"+extended_label
-  #         # print("debugging", variables_raw[ID]["IRI"])
-  #     elif not include_network:  # make a simple IRI for promo
-  #       prefix, _label = variables_raw[ID]["IRI"].split(":")
-  #       label = variables_raw[ID]["label"]  # _label.strip(" ")
-  #       if prefix == "promo":
-  #         extended_label = "%s" % label
-  #         variables_raw[ID]["IRI"] = prefix+":"+extended_label
-  #         # print("debugging", variables_raw[ID]["IRI"])
-  #
-  #   # rule: add tokens to all variables
-  #     # note: not sure when it goes wrong. Not defining token results in "" as tokens
-  #     try:
-  #       variables_raw[ID]["tokens"] = eval(variables_raw[ID]["tokens"])
-  #     except:
-  #       variables_raw[ID]["tokens"] = []
-  #
-  #     # variables[int(ID)] = variables_raw[ID]
-  #
-  #     # Note: change to new labels toDO: may be removed once the change is completed
-  #     if "V" in ID:
-  #       variables[ID] = variables_raw[ID]
-  #     else:
-  #       variables["V_%s"%ID] = variables_raw[ID]
-  #
-  #   # rule: add creation and modification data to each variable
-  #   date_string = dateString()
-  #   for ID in variables:
-  #
-  #     # Note: change to new labels toDO: may be removed once the change is completed
-  #     if "created" not in variables[ID]:
-  #       variables[ID]["created"] = date_string
-  #       variables[ID]["modified"] = date_string
-  #
-  #     equations = variables[ID]["equations"]
-  #     if equations:
-  #       # if len(equations) >1:
-  #       #   print("debugging got more than one")
-  #       for eqID in sorted(equations.keys()):
-  #         if "lhs" not in equations[eqID]:
-  #           equations[eqID]["lhs"] = {"global_ID": ID}
-  #
-  #         # Note: change to new labels toDO: may be removed once the change is completed
-  #         if "created" not in equations[eqID]:
-  #           equations[eqID]["created"] = date_string
-  #           equations[eqID]["modified"] = date_string
-  #         if  isinstance(eqID, int):
-  #           eq_new_ID = "E_%s"%eqID
-  #           new_equations = copy(equations[eqID])
-  #           del equations[eqID]
-  #           equations[eq_new_ID] = new_equations
-  #           rhs = copy(equations[eq_new_ID]["rhs"])
-  #           equations[eq_new_ID]["rhs"] = {"global_ID" : rhs}
-  #
-  #           # fix incidence lists
-  #           incidence_list = equations[eq_new_ID]["incidence_list"]
-  #           new_list = []
-  #           for i in incidence_list:
-  #             new_list.append("V_%s"%i)
-  #           equations[eq_new_ID]["incidence_list"] = new_list
-  #
-  #   for ID in variables:
-  #     equations = variables[ID]["equations"]
-  #     if "compiled_lhs" not in variables[ID]:
-  #       compiled_lhs = equations[eqID]["lhs"]
-  #       variables[ID]["compiled_lhs"] = compiled_lhs
-  #       del equations[eqID]["lhs"]
-  #
-  #
-  #
-  #   indices = {}
-  #   for i in indices_raw:  # DOC: indices are stored in a dictionary with the hash being the enumeration integer
-  #     # for the index
-  #     indices[int(i)] = indices_raw[i]
-  #     label = indices_raw[i]["label"]
-  #     if "IRI" not in indices_raw[i]:
-  #       l = label.replace(" ", "_")
-  #       # indices[int(i)]["IRI"] = "promo:%s" % l
-  #       indices[int(i)]["IRI"] = "promo:%s" % l
-  #   ProMoIRI = {}
-  #   for i in ProMoIRI_raw:
-  #     ProMoIRI[i] = int(ProMoIRI_raw[i])
-  #
-  #   return variables, indices, variable_record_filter, version, ProMoIRI
 
   def __readVariableAssignmentFile(self, file_name):
     data = getData(file_name)
