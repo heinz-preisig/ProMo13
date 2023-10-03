@@ -8,6 +8,8 @@ import subprocess
 import copy
 from typing import List, Dict, Optional, Tuple
 from pprint import pprint as pp
+from pathlib import Path
+from datetime import datetime
 
 from packages.Common.classes import equation
 from packages.Common.classes import entity
@@ -49,97 +51,80 @@ def translate_equations(ontology_name: str, language: str):
     data_global_equations = json.load(file)
 
   # TODO: Change this and pass it as arguments
-  all_variables, all_indices = load_variables_from_file(ontology_name)
+  all_variables, all_indices, all_equations = load_var_idx_eq_from_file(
+      ontology_name
+  )
 
   parser = equation_parser.EquationParser(language, all_variables, all_indices)
 
   data_translated_equations = {}
 
-  # equations = ["E_44", "E_132", "E_69", "E_76"]
-  for eq_id, eq_data in data_global_equations.items():
-    # for eq_id in equations:
-    #   eq_data = data_global_equations[eq_id]
-    translated_eq_data = copy.copy(eq_data)
-    # pp(translated_eq_data)
-    translated_eq_data["lhs"] = parser.parse(eq_data["lhs"])
-    # pp(translated_eq_data)
-    translated_eq_data["rhs"] = parser.parse(eq_data["rhs"])
-    # pp(translated_eq_data)
-    data_translated_equations[eq_id] = translated_eq_data
-
-  # path_ontology = resource_initialisation.DIRECTORIES["ontology_location"] % ontology_name
-  # file_name = f"equations_{language}.json"
-  # path_translated_equations = os.path.join(path_ontology, file_name)
-  #
-  # with open(path_translated_equations, "w", encoding="utf-8",) as file:
-  #   json.dump(data_translated_equations, file, indent=4)
+  for eq_id, eq in all_equations.items():
+    equation_global_id = eq.get_translation("global_ID")
+    data_translated_equations[eq_id] = {
+        "lhs": parser.parse(equation_global_id.get("lhs")),
+        "rhs": parser.parse(equation_global_id.get("rhs"))
+    }
 
   return data_translated_equations
 
-def load_equations_from_file(
+
+def load_var_idx_eq_from_file(
     ontology_name: str,
-    eq_ids: Optional[List[str]] = None
-) -> Dict[str, equation.Equation]:
-  """Loads data from file to create Equation objects.
-
-  Args:
-      ontology_name (str): Name of the ontology.
-      eq_ids (Optional[List[str]], optional): Ids of the equations that
-        will be loaded. If **None** all equations will be loaded.
-        Defaults to **None**.
-
-  Returns:
-      Dict[str, equation.Equation]: Data of the equations. The keys are
-        the  equation ids and the corresponding values are Equation
-        objects.
-  """
-  path = resource_initialisation.FILES[
-      "global_equation_id_new"
-  ] % ontology_name
+) -> Tuple[
+    Dict[str, variable.Variable],
+    Dict[str, str],
+    Dict[str, equation.Equation],
+]:
+  path = resource_initialisation.FILES["variables_file"] % ontology_name
 
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
 
-  # from pprint import pprint as pp
-  # pp(data)
+  # TODO Change behaviour in case of no data.
+  if not data:
+    return {}
 
-  if eq_ids is None:
-    eq_ids = data.keys()
+  # Loading the indices
+  indices = {}
+  # TODO: Remove when indices is a list of strings instead of int.
+  for index, index_data in data["indices"].items():
+    indices[index] = index_data
+    if index_data["type"] == "block_index":
+      indices[index]["indices"] = [str(i) for i in index_data["indices"]]
 
-  # TODO: Get this from resource_initialisation
-  languages = ["matlab"]
-  for lang in languages:
-    lang_path = resource_initialisation.DIRECTORIES[
-        "ontology_location"
-    ] % ontology_name + "/equations_" + lang + ".json"
+  # Loading the variables
+  all_var_data = data["variables"]
 
-    with open(lang_path, "r", encoding="utf-8",) as file:
-      lang_data = json.load(file)
-
-    for eq_id in eq_ids:
-      if "representation" not in data[eq_id]:
-        data[eq_id]["representation"] = {}
-      if lang not in data[eq_id]["representation"]:
-        data[eq_id]["representation"][lang] = {}
-      data[eq_id]["representation"][lang]["rhs"] = lang_data[eq_id]["rhs"]
-      data[eq_id]["representation"][lang]["lhs"] = lang_data[eq_id]["lhs"]
-
+  variables = {}
   equations = {}
-  for eq_id in eq_ids:
-    equations[eq_id] = equation.Equation(
-        eq_id,
-        resource_initialisation.FILES["latex_img"] % (ontology_name, eq_id),
-        data[eq_id]["lhs"],
-        data[eq_id]["rhs"],
-        data[eq_id]["network"],
-        data[eq_id]["representation"],
+  for var_id, var_info in all_var_data.items():
+    eq_list = []
+    for eq_id, eq_info in var_info["equations"].items():
+      # TODO: Remove when this is no longer used.
+      del eq_info["incidence_list"]
+
+      eq_list.append(eq_id)
+
+      equations[eq_id] = equation.Equation(
+          eq_id,
+          resource_initialisation.FILES["latex_img"] % (ontology_name, eq_id),
+          **eq_info,
+      )
+    var_info["equations"] = eq_list
+
+    variables[var_id] = variable.Variable(
+        var_id,
+        resource_initialisation.FILES["latex_img"] % (ontology_name, var_id),
+        **var_info,
     )
 
-  return equations
+  return (variables, indices, equations)
 
 
 def load_entities_from_file(
     ontology_name: str,
+    all_equations: Dict[str, equation.Equation],
     entity_names: Optional[List[str]] = None
 ) -> Dict[str, entity.Entity]:
   # """Loads data from file to create Entity objects.
@@ -191,9 +176,6 @@ def load_entities_from_file(
   if entity_names is None:
     entity_names = data.keys()
 
-  # TODO Find a more elegant way of doing this
-  all_equations = load_equations_from_file(ontology_name)
-
   entities = {}
   for ent_name in entity_names:
     if ent_name not in data:
@@ -225,57 +207,6 @@ def load_ontology_from_file(ontology_name: str) -> ontology.Ontology:
     data = json.load(file)
 
   return ontology.Ontology(data["ontology_tree"])
-
-
-def load_variables_from_file(
-    ontology_name: str,
-    variable_ids: Optional[List[str]] = None,
-) -> Tuple[Dict[str, variable.Variable], Dict[str, str]]:
-  # """Loads data from file to create Variable objects.
-
-  # Args:
-  #     ontology_name (str): _description_
-  #     variable_names (Optional[List[str]]): Ids of the variables that
-  #     will be loaded. If **None** all variables are loaded. Defaults to
-  #     **None**.
-
-  # Returns:
-  #     Dict[str, entity.Entity]: Data of the variables. The keys are
-  #       the ids of the variables and the corresponding values are
-  #       Variable objects.
-  # """
-
-  path = resource_initialisation.FILES["variables_file_new"] % ontology_name
-  # path = resource_initialisation.FILES["variables_file"] % ontology_name
-  with open(path, "r", encoding="utf-8",) as file:
-    data = json.load(file)
-
-  # TODO Change behaviour in case of no data.
-  if not data:
-    return {}
-
-  # Loading the indices
-  indices = {}
-  # TODO: Remove when indices is a list of strings instead of int.
-  for index, index_data in data["indices"].items():
-    indices[index] = index_data
-    if index_data["type"] == "block_index":
-      indices[index]["indices"] = [str(i) for i in index_data["indices"]]
-
-  # Loading the variables
-  data = data["variables"]
-  if variable_ids is None:
-    variable_ids = data.keys()
-
-  variables = {}
-  for var_id in variable_ids:
-    variables[var_id] = variable.Variable.from_dict(
-        var_id,
-        resource_initialisation.FILES["latex_img"] % (ontology_name, var_id),
-        data[var_id],
-    )
-
-  return (variables, indices)
 
 
 def load_topology_from_file(
@@ -516,70 +447,6 @@ def get_available_ontologies():
   return ontology_names
 
 
-def convert_variable_files(ontology_name):
-  path_old = resource_initialisation.FILES["variables_file"] % ontology_name
-  path_new = resource_initialisation.FILES["variables_file_new"] % ontology_name
-  old_stat = os.stat(path_old)
-  if os.path.exists(path_new):
-    new_stat = os.stat(path_new)
-    print(old_stat.st_mtime, new_stat.st_mtime,
-          old_stat.st_mtime-new_stat.st_mtime)
-    dtime = old_stat.st_mtime - new_stat.st_mtime
-    if dtime < 0:
-      return
-
-  # print(old_stat.st_mtime, new_stat.st_mtime, old_stat.st_mtime-new_stat.st_mtime)
-
-  with open(path_old, "r", encoding="utf-8",) as file:
-    data = json.load(file)
-
-  new_data = {"variables": {}, "indices": {}}
-  latex_aliases = {}
-  for var_int_key, var_data in data["variables"].items():
-    new_var_data = {}
-    new_var_data["aliases"] = eval(var_data["aliases"])
-    new_var_data["doc"] = var_data["doc"]
-    new_var_data["index_structures"] = eval(var_data["index_structures"])
-    new_var_data["label"] = var_data["label"]
-    new_var_data["network"] = var_data["network"]
-    new_var_data["port_variable"] = var_data["port_variable"]
-    new_var_data["tokens"] = eval(var_data["tokens"])
-    new_var_data["type"] = var_data["type"]
-    new_var_data["units"] = eval(var_data["units"])
-    new_var_data["equations"] = []
-    for int_id in eval(var_data["equations"]):
-      new_var_data["equations"].append("E_" + str(int_id))
-
-    fix_index_structures = []
-    for s in new_var_data["index_structures"]:
-      _s = "I_" + str(s)
-      fix_index_structures.append(_s)
-    new_var_data["index_structures"] = fix_index_structures
-
-    new_data["variables"]["V_" + var_int_key] = new_var_data
-    latex_aliases["V_" + var_int_key] = "$" + \
-        new_var_data["aliases"]["latex"] + "$"
-
-  for idx_int_key, idx_data in data["indices"].items():
-    new_idx_data = dict(idx_data)
-    if "indices" in new_idx_data:
-      new_idx_data["indices"] = [str(value)
-                                 for value in new_idx_data["indices"]]
-
-    new_data["indices"]["I_" + idx_int_key] = new_idx_data
-
-  for key, value in data.items():
-    if key in ("variables", "indices"):
-      continue
-
-    new_data[key] = value
-
-  with open(path_new, "w", encoding="utf-8",) as file:
-    json.dump(new_data, file, indent=4)
-
-  generate_latex_images(latex_aliases, ontology_name)
-
-
 def convert_model_file(ontology_name, model_name):
   path_old = resource_initialisation.FILES["model_flat_file"] % (
       ontology_name,
@@ -639,60 +506,41 @@ def convert_model_file(ontology_name, model_name):
     json.dump(new_data, file, indent=4)
 
 
-def convert_equations_file(ontology_name):
-  path_old = resource_initialisation.FILES[
-      "global_equation_id"
-  ] % ontology_name
-  path_latex = resource_initialisation.FILES["equations_latex"] % ontology_name
-  path_matlab = resource_initialisation.FILES["equations_matlab"] % ontology_name
-  path_matlab_new = path_matlab[:-5] + "_new.json"
-  path_new = resource_initialisation.FILES[
-      "global_equation_id_new"
-  ] % ontology_name
+def generate_latex_images(ontology_name):
 
-  old_stat = os.stat(path_old)
-  new_stat = os.stat(path_new)
-  dtime = old_stat.st_mtime - new_stat.st_mtime
-  if dtime < 0:
-    return
+  all_variables, _, all_equations = load_var_idx_eq_from_file(ontology_name)
 
-  with open(path_old, "r", encoding="utf-8",) as file:
-    data = json.load(file)
+  latex_folder_path = Path(
+      resource_initialisation.DIRECTORIES["latex_doc_location"] % ontology_name
+  )
 
-  new_data = {}
-  for int_id, eq_data in data.items():
-    new_data["E_" + int_id] = eq_data
+  latex_info = {}
+  for var_id, var in all_variables.items():
+    var_png_file_path = latex_folder_path / (var_id + ".png")
+    if var_png_file_path.exists():
+      png_mod_date = datetime.fromtimestamp(var_png_file_path.stat().st_mtime)
+      var_mod_date = var.get_mod_date()
+      if png_mod_date > var_mod_date:
+        continue
 
-  with open(path_new, "w", encoding="utf-8",) as file:
-    json.dump(new_data, file, indent=4)
+    latex_info[var_id] = "$" + var.get_alias("latex") + "$"
 
-  with open(path_matlab, "r", encoding="utf-8",) as file:
-    data = json.load(file)
+  for eq_id, eq in all_equations.items():
+    eq_png_file_path = latex_folder_path / (eq_id + ".png")
+    if eq_png_file_path.exists():
+      png_mod_date = datetime.fromtimestamp(eq_png_file_path.stat().st_mtime)
+      eq_mod_date = eq.get_mod_date()
+      if png_mod_date > eq_mod_date:
+        continue
+    latex_translation = eq.get_translation("latex")
+    pp(latex_translation)
+    latex_info[eq_id] = "$" + \
+        latex_translation.get("lhs") + "=" + latex_translation.get("rhs") + "$"
 
-  new_data = {}
-  for int_id, eq_data in data.items():
-    new_data["E_" + int_id] = eq_data
-
-  with open(path_matlab_new, "w", encoding="utf-8",) as file:
-    json.dump(new_data, file, indent=4)
-
-  with open(path_latex, "r", encoding="utf-8",) as file:
-    latex_data = json.load(file)
-
-  latex_aliases = {}
-  for int_id, eq_data in latex_data.items():
-    latex_aliases["E_" + int_id] = "$" + \
-        eq_data["lhs"] + "=" + eq_data["rhs"] + "$"
-
-  generate_latex_images(latex_aliases, ontology_name)
-
-
-def generate_latex_images(latex_aliases, ontology_name):
   original_work_dir = os.getcwd()
-  os.chdir(
-      resource_initialisation.DIRECTORIES["latex_doc_location"] % ontology_name)
+  os.chdir(latex_folder_path)
 
-  for file_name, latex_alias in latex_aliases.items():
+  for file_name, latex_alias in latex_info.items():
     print(file_name)
 
     with open(file_name + ".tex", "w") as f:

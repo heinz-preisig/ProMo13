@@ -63,7 +63,7 @@ class TemplateHandler:
     is_sparse = False
     # Information about the initialization of all variables
     data["instantiations"] = []
-    pp(self.var_eq.inst_variables)
+    # pp(self.var_eq.inst_variables)
     for var_id, inst_info in self.var_eq.inst_variables.items():
       var_data = self.all_variables[var_id]
       index_structures = var_data.index_structures
@@ -123,10 +123,10 @@ class TemplateHandler:
       sys_counter = 1
       if len(expr) == 1:
         var_id, eq_id, top_ids, index_sets = expr[0]
-        # TODO: Find a better way of not including the integrals.
-        if eq_id == "E_86":
+
+        eq = self.all_equations.get(eq_id)
+        if eq.is_integrator():
           continue
-        eq = self.all_equations[eq_id]
 
         if eq.is_explicit_for_var(var_id):
           expr_info["type"] = "simple"
@@ -232,7 +232,7 @@ class TemplateHandler:
       self,
       var_id: str,
   ) -> str:
-    return self.all_variables[var_id].aliases[self.language]
+    return self.all_variables.get(var_id).get_alias(self.language)
 
   def join_sets(self, main_set: str, index_sets: Set[str]) -> List[str]:
     output = []
@@ -311,7 +311,10 @@ class TemplateHandler:
 
   # TODO: merge this with var_label
   def eq_label(self, eq_id: str, side: str) -> str:
-    return self.all_equations[eq_id].representation[self.language][side]
+    translated_eq = self.all_equations.get(
+        eq_id).get_translation(self.language)
+
+    return translated_eq.get(side)
 
   def main_index(self, var_id: str) -> str:
     var_data = self.all_variables[var_id]

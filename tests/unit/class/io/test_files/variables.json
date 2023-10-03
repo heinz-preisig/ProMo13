@@ -1,0 +1,480 @@
+{
+  "version": "8",
+  "variables": {
+    "V_1": {
+      "IRI": "promo:value",
+      "aliases": {
+        "global_ID": "V_1", 
+        "python": "value",
+        "cpp": "value",
+        "matlab": "value",
+        "latex": "\\\\#",
+        "internal_code": "value"
+      },
+      "created": "2023-09-14 10:16:31",
+      "doc": "numerical value",
+      "equations": {},
+      "index_structures": [],
+      "label": "value",
+      "modified": "2023-09-14 10:16:31",
+      "network": "root",
+      "port_variable": true,
+      "tokens": [],
+      "type": "constant",
+      "units": [0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    "V_97": {
+      "IRI": "promo:d",
+      "aliases": {
+        "global_ID": " V_97",
+        "python": "d",
+        "cpp": "d",
+        "matlab": "d",
+        "latex": "d",
+        "internal_code": "d"
+      },
+      "created": "2023-09-14 10:16:31",
+      "doc": "flow direction of convectional flow",
+      "equations": {
+        "E_72": {
+          "rhs": {
+            "global_ID": " F_16 D_0 V_8  O_5  I_1 O_5  V_17 D_1",
+            "matlab": "sign(reduceproduct(F_N_A(N, A), \"N\", p(N)))", "latex": "\\\\text{sign} \\\\left( {F}{_{N, A}} \\\\stackrel{N}{\\\\,\\\\star\\\\,} {p}{_{N}} \\\\right)"
+          }, 
+          "type": "generic",
+          "doc": "flow direction of convectional flow",
+          "network": "macroscopic",
+          "incidence_list": ["V_17", "V_8"],
+          "lhs": {"global_ID": "V_97", "matlab": "d(A)", "latex": "{d}{_{A}}"},
+          "created": "2023-09-14 10:16:31",
+          "modified": "2023-09-14 10:16:31"
+        }
+      },
+      "index_structures": ["I_2"],
+      "label": "d",
+      "modified": "2023-09-14 10:16:31",
+      "network": "macroscopic",
+      "port_variable": false,
+      "tokens": ["mass"],
+      "type": "transport",
+      "units": [0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    "V_98": {
+      "IRI": "promo:c_AS",
+      "aliases": {
+        "global_ID": " V_98",
+        "python": "c_AS",
+        "cpp": "c_AS",
+        "matlab": "c_AS",
+        "latex": "c",
+        "internal_code": "c_AS"
+      },
+      "created": "2023-09-14 10:16:31",
+      "doc": "concentration in convectional flow",
+      "equations": {
+        "E_73": {
+          "rhs": {
+            "global_ID": " D_0 V_4 O_4 D_0 V_70 O_1 V_97 O_3 F_10 D_0 V_70 D_1 D_1 D_1  O_5  I_5 O_5  V_66",
+            "matlab": "reduceproduct((onehalf .* (F_NS_AS(N, A) - khatrirao(d(A), abs(F_NS_AS(N, A))))), \"N_x_S\", c(N))",
+            "latex": "\\\\left({0.5}{_{}} \\\\, . \\\\, \\\\left({F}{_{{N S}, {A S}}}  - {d}{_{A}} \\\\, {\\\\odot} \\\\, |{F}{_{{N S}, {A S}}}|\\\\right)\\\\right) \\\\stackrel{{N S}}{\\\\,\\\\star\\\\,} {c}{_{{N S}}}"
+          }, 
+          "type": "generic",
+          "doc": "concentration in convectional flow",
+          "network": "macroscopic",
+          "incidence_list": ["V_4", "V_66", "V_70", "V_97"],
+          "lhs": {
+            "global_ID": "V_98",
+            "matlab": "c_AS(A)",
+            "latex": "{c}{_{{A S}}}"
+          },
+          "created": "2023-09-14 10:16:31",
+          "modified": "2023-09-14 10:16:31"
+        },
+        "E_74": {
+          "rhs": {
+            "global_ID": " V_92 O_3 V_98",
+            "matlab": "khatrirao(fV(A), c_AS(A))", "latex": "{\\\\hat{V}}{_{A}} \\\\, {\\\\odot} \\\\, {c}{_{{A S}}}"
+          }, 
+          "type": "generic",
+          "doc": "molar convectional mass flow in the given stream",
+          "network": "macroscopic",
+          "incidence_list": ["V_92", "V_98"],
+          "lhs": {
+            "global_ID": "V_99",
+            "matlab": "fnc_AS(A)",
+            "latex": "{{\\\\hat{n}^c}}{_{{A S}}}"
+          },
+          "created": "2023-09-14 10:16:31",
+          "modified": "2023-09-14 10:16:31"
+        }
+      },
+      "index_structures": ["I_6"],
+      "label": "c_AS",
+      "modified": "2023-09-14 10:16:31",
+      "network": "macroscopic",
+      "port_variable": false,
+      "tokens": [],
+      "type": "secondaryState",
+      "units": [0, -3, 1, 0, 0, 0, 0, 0]
+    },
+    "V_99": {
+      "IRI": "qudt:MolarFlowRate",
+      "aliases": {
+        "global_ID": " V_99",
+        "python": "fnc_AS",
+        "cpp": "fnc_AS",
+        "matlab": "fnc_AS",
+        "latex": "{\\\\hat{n}^c}",
+        "internal_code": "fnc_AS"
+      },
+      "created": "2023-09-14 10:16:31",
+      "doc": "molar convectional mass flow in the given stream",
+      "equations": {
+        "E_74": {
+          "rhs": {
+            "global_ID": " V_92 O_3 V_98",
+            "matlab": "khatrirao(fV(A), c_AS(A))", "latex": "{\\\\hat{V}}{_{A}} \\\\, {\\\\odot} \\\\, {c}{_{{A S}}}"
+          }, 
+          "type": "generic",
+          "doc": "molar convectional mass flow in the given stream",
+          "network": "macroscopic",
+          "incidence_list": ["V_92", "V_98"],
+          "lhs": {
+            "global_ID": "V_99",
+            "matlab": "fnc_AS(A)",
+            "latex": "{{\\\\hat{n}^c}}{_{{A S}}}"
+          },
+          "created": "2023-09-14 10:16:31",
+          "modified": "2023-09-14 10:16:31"
+        }
+      },
+      "index_structures": ["I_6"],
+      "label": "fnc_AS",
+      "modified": "2023-09-14 10:16:31",
+      "network": "macroscopic",
+      "port_variable": false,
+      "tokens": [],
+      "type": "secondaryState",
+      "units": [-1, 0, 1, 0, 0, 0, 0, 0]
+    }
+  },
+  "indices": {
+    "I_1": {
+      "type": "index",
+      "label": "node",
+      "network": [
+        "root",
+        "physical",
+        "reactions",
+        "material",
+        "macroscopic",
+        "solid",
+        "fluid",
+        "liquid",
+        "gas",
+        "control"
+      ],
+      "aliases": {
+        "global_ID": "I_1",
+        "python": "N",
+        "cpp": "N",
+        "matlab": "N",
+        "latex": "N",
+        "internal_code": "N"
+      },
+      "tokens": null,
+      "IRI": "promo:node"
+    },
+    "I_2": {
+      "type": "index",
+      "label": "arc",
+      "network": [
+        "root",
+        "physical",
+        "reactions",
+        "material",
+        "macroscopic",
+        "solid",
+        "fluid",
+        "liquid",
+        "gas",
+        "control"
+      ],
+      "aliases": {
+        "global_ID": "I_2",
+        "python": "A",
+        "cpp": "A",
+        "matlab": "A",
+        "latex": "A",
+        "internal_code": "A"
+      },
+      "tokens": null,
+      "IRI": "promo:arc"
+    },
+    "I_3": {
+      "type": "index",
+      "label": "species",
+      "network": [
+        "physical",
+        "reactions",
+        "material",
+        "macroscopic",
+        "solid",
+        "fluid",
+        "liquid",
+        "gas"
+      ],
+      "aliases": {
+        "global_ID": "I_3",
+        "python": "S",
+        "cpp": "S",
+        "matlab": "S",
+        "latex": "S",
+        "internal_code": "S"
+      },
+      "tokens": "mass",
+      "IRI": "promo:species"
+    },
+    "I_4": {
+      "type": "index",
+      "label": "species_conversion",
+      "network": [
+        "physical",
+        "reactions",
+        "material",
+        "macroscopic",
+        "solid",
+        "fluid",
+        "liquid",
+        "gas"
+      ],
+      "aliases": {
+        "global_ID": "I_4",
+        "python": "K",
+        "cpp": "K",
+        "matlab": "K",
+        "latex": "K",
+        "internal_code": "K"
+      },
+      "tokens": {
+        "instances": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "conversions": [
+          {
+            "reactants": [
+              "A"
+            ],
+            "products": [
+              "B"
+            ]
+          },
+          {
+            "reactants": [
+              "A",
+              "B"
+            ],
+            "products": [
+              "C",
+              "D"
+            ]
+          }
+        ]
+      },
+      "IRI": "promo:species_conversion"
+    },
+    "I_5": {
+      "type": "block_index",
+      "label": "node & species",
+      "indices": [
+        1,
+        3
+      ],
+      "network": [
+        "physical",
+        "reactions",
+        "material",
+        "macroscopic",
+        "solid",
+        "fluid",
+        "liquid",
+        "gas"
+      ],
+      "aliases": {
+        "global_ID": "I_5",
+        "python": "N_x_S",
+        "cpp": "N_x_S",
+        "matlab": "N_x_S",
+        "latex": "{N S}",
+        "internal_code": "N & S"
+      },
+      "tokens": "mass",
+      "IRI": "promo:node_&_species"
+    },
+    "I_6": {
+      "type": "block_index",
+      "label": "arc & species",
+      "indices": [
+        2,
+        3
+      ],
+      "network": [
+        "physical",
+        "reactions",
+        "material",
+        "macroscopic",
+        "solid",
+        "fluid",
+        "liquid",
+        "gas"
+      ],
+      "aliases": {
+        "global_ID": "I_6",
+        "python": "A_x_S",
+        "cpp": "A_x_S",
+        "matlab": "A_x_S",
+        "latex": "{A S}",
+        "internal_code": "A & S"
+      },
+      "tokens": "mass",
+      "IRI": "promo:arc_&_species"
+    },
+    "I_7": {
+      "type": "block_index",
+      "label": "node & species_conversion",
+      "indices": [
+        1,
+        4
+      ],
+      "network": [
+        "physical",
+        "reactions",
+        "material",
+        "macroscopic",
+        "solid",
+        "fluid",
+        "liquid",
+        "gas"
+      ],
+      "aliases": {
+        "global_ID": "I_7",
+        "python": "N_x_K",
+        "cpp": "N_x_K",
+        "matlab": "N_x_K",
+        "latex": "{N K}",
+        "internal_code": "N & K"
+      },
+      "tokens": {
+        "instances": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "conversions": [
+          {
+            "reactants": [
+              "A"
+            ],
+            "products": [
+              "B"
+            ]
+          },
+          {
+            "reactants": [
+              "A",
+              "B"
+            ],
+            "products": [
+              "C",
+              "D"
+            ]
+          }
+        ]
+      },
+      "IRI": "promo:node_&_species_conversion"
+    },
+    "I_8": {
+      "type": "block_index",
+      "label": "species_conversion & species",
+      "indices": [
+        4,
+        3
+      ],
+      "network": [
+        "physical",
+        "reactions",
+        "material",
+        "macroscopic",
+        "solid",
+        "fluid",
+        "liquid",
+        "gas"
+      ],
+      "aliases": {
+        "global_ID": "I_8",
+        "python": "K_x_S",
+        "cpp": "K_x_S",
+        "matlab": "K_x_S",
+        "latex": "{K S}",
+        "internal_code": "K & S"
+      },
+      "tokens": [
+        "mass",
+        {
+          "instances": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "conversions": [
+            {
+              "reactants": [
+                "A"
+              ],
+              "products": [
+                "B"
+              ]
+            },
+            {
+              "reactants": [
+                "A",
+                "B"
+              ],
+              "products": [
+                "C",
+                "D"
+              ]
+            }
+          ]
+        }
+      ],
+      "IRI": "promo:species_conversion_&_species"
+    },
+    "I_9": {
+      "type": "index",
+      "label": "diffSpace",
+      "network": [
+        "control"
+      ],
+      "aliases": {
+        "global_ID": "I_9",
+        "python": "D",
+        "cpp": "D",
+        "matlab": "D",
+        "latex": "D",
+        "internal_code": "D"
+      },
+      "tokens": null,
+      "IRI": "promo:diffSpace"
+    }
+  },
+  "Ontology_global_IDs": {
+    "variable": 181,
+    "equation": 150
+  }
+}
