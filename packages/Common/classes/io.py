@@ -43,12 +43,6 @@ def load_translation_info_from_file(
 def translate_equations(ontology_name: str, language: str):
   # TODO: Maybe move this function to a different module (Utils)
   # TODO: Make a check if the equations need to be translated
-  path_global_equations = resource_initialisation.FILES[
-      "global_equation_id_new"
-  ] % ontology_name
-
-  with open(path_global_equations, "r", encoding="utf-8",) as file:
-    data_global_equations = json.load(file)
 
   # TODO: Change this and pass it as arguments
   all_variables, all_indices, all_equations = load_var_idx_eq_from_file(
@@ -62,6 +56,7 @@ def translate_equations(ontology_name: str, language: str):
   for eq_id, eq in all_equations.items():
     equation_global_id = eq.get_translation("global_ID")
     data_translated_equations[eq_id] = {
+        "variable_ID": eq.get_main_var_id(),
         "lhs": parser.parse(equation_global_id.get("lhs")),
         "rhs": parser.parse(equation_global_id.get("rhs"))
     }
@@ -86,12 +81,7 @@ def load_var_idx_eq_from_file(
     return {}
 
   # Loading the indices
-  indices = {}
-  # TODO: Remove when indices is a list of strings instead of int.
-  for index, index_data in data["indices"].items():
-    indices[index] = index_data
-    if index_data["type"] == "block_index":
-      indices[index]["indices"] = [str(i) for i in index_data["indices"]]
+  indices = data["indices"]
 
   # Loading the variables
   all_var_data = data["variables"]
