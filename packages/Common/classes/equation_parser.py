@@ -40,6 +40,8 @@ class EquationParser:
       indices: Dict[str, str],  # : Dict[str, index???]
   ):
     self.language = language
+    # TODO: Prolly pass the variables and indices to the translator and
+    # do all the translation there.
     self.translator = translator.Translator(language)
     self.variables = variables
     self.indices = indices
@@ -62,6 +64,7 @@ class EquationParser:
       'O_DOT',
       'O_PIPE',
       'O_IN',
+      'O_PRODUCT',
       'D_LEFT_ROUND',
       'D_RIGHT_ROUND',
       'D_LEFT_SQUARE',
@@ -87,6 +90,7 @@ class EquationParser:
   t_O_COLON = r'O_3'
   t_O_DOT = r'O_4'
   t_O_PIPE = r'O_5'
+  t_O_PRODUCT = r'O_10'
   t_O_IN = r'O_14'
   # DELIMITERS
   t_D_LEFT_ROUND = r'D_0'
@@ -104,7 +108,7 @@ class EquationParser:
   ############################## PRECEDENCE ############################
   precedence = (
       ('left', 'O_PLUS', 'O_MINUS'),
-      ('left', 'O_DOT', 'O_COLON', 'O_PIPE'),
+      ('left', 'O_DOT', 'O_COLON', 'O_PIPE', 'O_PRODUCT'),
       ('left', 'O_HAT'),
       ('right', 'UMINUS'),
   )
@@ -160,6 +164,11 @@ class EquationParser:
     idx2 = self.indices[p[5]]["aliases"][self.language]
     p[0] = self.translator.translate_block_reduce_product(
         p[1], idx1, idx2, p[7])
+
+  def p_expr_product(self, p: yacc.YaccProduction) -> None:
+    '''expression : O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND'''
+    idx1 = self.indices[p[5]]["aliases"][self.language]
+    p[0] = self.translator.translate_product(p[3], idx1)
 
   def p_expr_power(self, p: yacc.YaccProduction) -> None:
     '''expression : expression O_HAT expression'''

@@ -23,43 +23,45 @@ Rule 5     expression -> expression O_DOT expression
 Rule 6     expression -> expression O_COLON expression
 Rule 7     expression -> expression O_PIPE INDEX O_PIPE expression
 Rule 8     expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-Rule 9     expression -> expression O_HAT expression
-Rule 10    expression -> D_LEFT_ROUND expression D_RIGHT_ROUND
-Rule 11    expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-Rule 12    expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-Rule 13    expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+Rule 9     expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+Rule 10    expression -> expression O_HAT expression
+Rule 11    expression -> D_LEFT_ROUND expression D_RIGHT_ROUND
+Rule 12    expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+Rule 13    expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+Rule 14    expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
 Terminals, with rules where they appear
 
-BINARY_FUNCTION      : 12
+BINARY_FUNCTION      : 13
 DELIMITER            : 
 D_AMPERSAND          : 
-D_COMMA              : 12 13 13 13
+D_COMMA              : 9 13 14 14 14
 D_DOUBLE_COLUMN      : 
-D_LEFT_ROUND         : 10 11 12 13
+D_LEFT_ROUND         : 9 11 12 13 14
 D_LEFT_SQUARE        : 
 D_LEFT_WIGGLED       : 
 D_OR                 : 
-D_RIGHT_ROUND        : 10 11 12 13
+D_RIGHT_ROUND        : 9 11 12 13 14
 D_RIGHT_SQUARE       : 
 D_RIGHT_WIGGLED      : 
 D_UNDERLINE          : 
-INDEX                : 7 8 8
+INDEX                : 7 8 8 9
 O_COLON              : 6
 O_DOT                : 5
-O_HAT                : 9
+O_HAT                : 10
 O_IN                 : 8
 O_MINUS              : 3 4
 O_PIPE               : 7 7 8 8
 O_PLUS               : 2
-QUATERNARY_FUNCTION  : 13
-UNARY_FUNCTION       : 11
+O_PRODUCT            : 9
+QUATERNARY_FUNCTION  : 14
+UNARY_FUNCTION       : 12
 VARIABLE             : 1
 error                : 
 
 Nonterminals, with rules where they appear
 
-expression           : 2 2 3 3 4 5 5 6 6 7 7 8 8 9 9 10 11 12 12 13 13 13 13 0
+expression           : 2 2 3 3 4 5 5 6 6 7 7 8 8 9 10 10 11 12 13 13 14 14 14 14 0
 
 Parsing method: LALR
 
@@ -74,18 +76,20 @@ state 0
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
     expression                     shift and go to state 1
 
@@ -98,14 +102,14 @@ state 1
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
 
 state 2
@@ -134,24 +138,33 @@ state 3
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 14
+    expression                     shift and go to state 15
 
 state 4
 
-    (10) expression -> D_LEFT_ROUND . expression D_RIGHT_ROUND
+    (9) expression -> O_PRODUCT . D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+
+    D_LEFT_ROUND    shift and go to state 16
+
+
+state 5
+
+    (11) expression -> D_LEFT_ROUND . expression D_RIGHT_ROUND
     (1) expression -> . VARIABLE
     (2) expression -> . expression O_PLUS expression
     (3) expression -> . expression O_MINUS expression
@@ -160,43 +173,45 @@ state 4
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 15
-
-state 5
-
-    (11) expression -> UNARY_FUNCTION . D_LEFT_ROUND expression D_RIGHT_ROUND
-
-    D_LEFT_ROUND    shift and go to state 16
-
+    expression                     shift and go to state 17
 
 state 6
 
-    (12) expression -> BINARY_FUNCTION . D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-
-    D_LEFT_ROUND    shift and go to state 17
-
-
-state 7
-
-    (13) expression -> QUATERNARY_FUNCTION . D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (12) expression -> UNARY_FUNCTION . D_LEFT_ROUND expression D_RIGHT_ROUND
 
     D_LEFT_ROUND    shift and go to state 18
 
 
+state 7
+
+    (13) expression -> BINARY_FUNCTION . D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+
+    D_LEFT_ROUND    shift and go to state 19
+
+
 state 8
+
+    (14) expression -> QUATERNARY_FUNCTION . D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+
+    D_LEFT_ROUND    shift and go to state 20
+
+
+state 9
 
     (2) expression -> expression O_PLUS . expression
     (1) expression -> . VARIABLE
@@ -207,22 +222,24 @@ state 8
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 19
+    expression                     shift and go to state 21
 
-state 9
+state 10
 
     (3) expression -> expression O_MINUS . expression
     (1) expression -> . VARIABLE
@@ -233,22 +250,24 @@ state 9
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 20
+    expression                     shift and go to state 22
 
-state 10
+state 11
 
     (5) expression -> expression O_DOT . expression
     (1) expression -> . VARIABLE
@@ -259,22 +278,24 @@ state 10
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 21
+    expression                     shift and go to state 23
 
-state 11
+state 12
 
     (6) expression -> expression O_COLON . expression
     (1) expression -> . VARIABLE
@@ -285,32 +306,34 @@ state 11
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 22
+    expression                     shift and go to state 24
 
-state 12
+state 13
 
     (7) expression -> expression O_PIPE . INDEX O_PIPE expression
     (8) expression -> expression O_PIPE . INDEX O_IN INDEX O_PIPE expression
 
-    INDEX           shift and go to state 23
+    INDEX           shift and go to state 25
 
 
-state 13
+state 14
 
-    (9) expression -> expression O_HAT . expression
+    (10) expression -> expression O_HAT . expression
     (1) expression -> . VARIABLE
     (2) expression -> . expression O_PLUS expression
     (3) expression -> . expression O_MINUS expression
@@ -319,22 +342,24 @@ state 13
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 24
+    expression                     shift and go to state 26
 
-state 14
+state 15
 
     (4) expression -> O_MINUS expression .
     (2) expression -> expression . O_PLUS expression
@@ -343,7 +368,7 @@ state 14
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
     O_PLUS          reduce using rule 4 (expression -> O_MINUS expression .)
     O_MINUS         reduce using rule 4 (expression -> O_MINUS expression .)
@@ -355,89 +380,65 @@ state 14
     D_RIGHT_ROUND   reduce using rule 4 (expression -> O_MINUS expression .)
     D_COMMA         reduce using rule 4 (expression -> O_MINUS expression .)
 
-  ! O_PLUS          [ shift and go to state 8 ]
-  ! O_MINUS         [ shift and go to state 9 ]
-  ! O_DOT           [ shift and go to state 10 ]
-  ! O_COLON         [ shift and go to state 11 ]
-  ! O_PIPE          [ shift and go to state 12 ]
-  ! O_HAT           [ shift and go to state 13 ]
+  ! O_PLUS          [ shift and go to state 9 ]
+  ! O_MINUS         [ shift and go to state 10 ]
+  ! O_DOT           [ shift and go to state 11 ]
+  ! O_COLON         [ shift and go to state 12 ]
+  ! O_PIPE          [ shift and go to state 13 ]
+  ! O_HAT           [ shift and go to state 14 ]
 
 
-state 15
+state 16
 
-    (10) expression -> D_LEFT_ROUND expression . D_RIGHT_ROUND
+    (9) expression -> O_PRODUCT D_LEFT_ROUND . expression D_COMMA INDEX D_RIGHT_ROUND
+    (1) expression -> . VARIABLE
+    (2) expression -> . expression O_PLUS expression
+    (3) expression -> . expression O_MINUS expression
+    (4) expression -> . O_MINUS expression
+    (5) expression -> . expression O_DOT expression
+    (6) expression -> . expression O_COLON expression
+    (7) expression -> . expression O_PIPE INDEX O_PIPE expression
+    (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+
+    VARIABLE        shift and go to state 2
+    O_MINUS         shift and go to state 3
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
+
+    expression                     shift and go to state 27
+
+state 17
+
+    (11) expression -> D_LEFT_ROUND expression . D_RIGHT_ROUND
     (2) expression -> expression . O_PLUS expression
     (3) expression -> expression . O_MINUS expression
     (5) expression -> expression . O_DOT expression
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    D_RIGHT_ROUND   shift and go to state 25
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    D_RIGHT_ROUND   shift and go to state 28
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
-
-state 16
-
-    (11) expression -> UNARY_FUNCTION D_LEFT_ROUND . expression D_RIGHT_ROUND
-    (1) expression -> . VARIABLE
-    (2) expression -> . expression O_PLUS expression
-    (3) expression -> . expression O_MINUS expression
-    (4) expression -> . O_MINUS expression
-    (5) expression -> . expression O_DOT expression
-    (6) expression -> . expression O_COLON expression
-    (7) expression -> . expression O_PIPE INDEX O_PIPE expression
-    (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
-
-    VARIABLE        shift and go to state 2
-    O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
-
-    expression                     shift and go to state 26
-
-state 17
-
-    (12) expression -> BINARY_FUNCTION D_LEFT_ROUND . expression D_COMMA expression D_RIGHT_ROUND
-    (1) expression -> . VARIABLE
-    (2) expression -> . expression O_PLUS expression
-    (3) expression -> . expression O_MINUS expression
-    (4) expression -> . O_MINUS expression
-    (5) expression -> . expression O_DOT expression
-    (6) expression -> . expression O_COLON expression
-    (7) expression -> . expression O_PIPE INDEX O_PIPE expression
-    (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
-
-    VARIABLE        shift and go to state 2
-    O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
-
-    expression                     shift and go to state 27
 
 state 18
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND . expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (12) expression -> UNARY_FUNCTION D_LEFT_ROUND . expression D_RIGHT_ROUND
     (1) expression -> . VARIABLE
     (2) expression -> . expression O_PLUS expression
     (3) expression -> . expression O_MINUS expression
@@ -446,22 +447,80 @@ state 18
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 28
+    expression                     shift and go to state 29
 
 state 19
+
+    (13) expression -> BINARY_FUNCTION D_LEFT_ROUND . expression D_COMMA expression D_RIGHT_ROUND
+    (1) expression -> . VARIABLE
+    (2) expression -> . expression O_PLUS expression
+    (3) expression -> . expression O_MINUS expression
+    (4) expression -> . O_MINUS expression
+    (5) expression -> . expression O_DOT expression
+    (6) expression -> . expression O_COLON expression
+    (7) expression -> . expression O_PIPE INDEX O_PIPE expression
+    (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+
+    VARIABLE        shift and go to state 2
+    O_MINUS         shift and go to state 3
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
+
+    expression                     shift and go to state 30
+
+state 20
+
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND . expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (1) expression -> . VARIABLE
+    (2) expression -> . expression O_PLUS expression
+    (3) expression -> . expression O_MINUS expression
+    (4) expression -> . O_MINUS expression
+    (5) expression -> . expression O_DOT expression
+    (6) expression -> . expression O_COLON expression
+    (7) expression -> . expression O_PIPE INDEX O_PIPE expression
+    (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+
+    VARIABLE        shift and go to state 2
+    O_MINUS         shift and go to state 3
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
+
+    expression                     shift and go to state 31
+
+state 21
 
     (2) expression -> expression O_PLUS expression .
     (2) expression -> expression . O_PLUS expression
@@ -470,27 +529,27 @@ state 19
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
     O_PLUS          reduce using rule 2 (expression -> expression O_PLUS expression .)
     O_MINUS         reduce using rule 2 (expression -> expression O_PLUS expression .)
     $end            reduce using rule 2 (expression -> expression O_PLUS expression .)
     D_RIGHT_ROUND   reduce using rule 2 (expression -> expression O_PLUS expression .)
     D_COMMA         reduce using rule 2 (expression -> expression O_PLUS expression .)
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
   ! O_DOT           [ reduce using rule 2 (expression -> expression O_PLUS expression .) ]
   ! O_COLON         [ reduce using rule 2 (expression -> expression O_PLUS expression .) ]
   ! O_PIPE          [ reduce using rule 2 (expression -> expression O_PLUS expression .) ]
   ! O_HAT           [ reduce using rule 2 (expression -> expression O_PLUS expression .) ]
-  ! O_PLUS          [ shift and go to state 8 ]
-  ! O_MINUS         [ shift and go to state 9 ]
+  ! O_PLUS          [ shift and go to state 9 ]
+  ! O_MINUS         [ shift and go to state 10 ]
 
 
-state 20
+state 22
 
     (3) expression -> expression O_MINUS expression .
     (2) expression -> expression . O_PLUS expression
@@ -499,27 +558,27 @@ state 20
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
     O_PLUS          reduce using rule 3 (expression -> expression O_MINUS expression .)
     O_MINUS         reduce using rule 3 (expression -> expression O_MINUS expression .)
     $end            reduce using rule 3 (expression -> expression O_MINUS expression .)
     D_RIGHT_ROUND   reduce using rule 3 (expression -> expression O_MINUS expression .)
     D_COMMA         reduce using rule 3 (expression -> expression O_MINUS expression .)
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
   ! O_DOT           [ reduce using rule 3 (expression -> expression O_MINUS expression .) ]
   ! O_COLON         [ reduce using rule 3 (expression -> expression O_MINUS expression .) ]
   ! O_PIPE          [ reduce using rule 3 (expression -> expression O_MINUS expression .) ]
   ! O_HAT           [ reduce using rule 3 (expression -> expression O_MINUS expression .) ]
-  ! O_PLUS          [ shift and go to state 8 ]
-  ! O_MINUS         [ shift and go to state 9 ]
+  ! O_PLUS          [ shift and go to state 9 ]
+  ! O_MINUS         [ shift and go to state 10 ]
 
 
-state 21
+state 23
 
     (5) expression -> expression O_DOT expression .
     (2) expression -> expression . O_PLUS expression
@@ -528,7 +587,7 @@ state 21
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
     O_PLUS          reduce using rule 5 (expression -> expression O_DOT expression .)
     O_MINUS         reduce using rule 5 (expression -> expression O_DOT expression .)
@@ -538,17 +597,17 @@ state 21
     $end            reduce using rule 5 (expression -> expression O_DOT expression .)
     D_RIGHT_ROUND   reduce using rule 5 (expression -> expression O_DOT expression .)
     D_COMMA         reduce using rule 5 (expression -> expression O_DOT expression .)
-    O_HAT           shift and go to state 13
+    O_HAT           shift and go to state 14
 
   ! O_HAT           [ reduce using rule 5 (expression -> expression O_DOT expression .) ]
-  ! O_PLUS          [ shift and go to state 8 ]
-  ! O_MINUS         [ shift and go to state 9 ]
-  ! O_DOT           [ shift and go to state 10 ]
-  ! O_COLON         [ shift and go to state 11 ]
-  ! O_PIPE          [ shift and go to state 12 ]
+  ! O_PLUS          [ shift and go to state 9 ]
+  ! O_MINUS         [ shift and go to state 10 ]
+  ! O_DOT           [ shift and go to state 11 ]
+  ! O_COLON         [ shift and go to state 12 ]
+  ! O_PIPE          [ shift and go to state 13 ]
 
 
-state 22
+state 24
 
     (6) expression -> expression O_COLON expression .
     (2) expression -> expression . O_PLUS expression
@@ -557,7 +616,7 @@ state 22
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
     O_PLUS          reduce using rule 6 (expression -> expression O_COLON expression .)
     O_MINUS         reduce using rule 6 (expression -> expression O_COLON expression .)
@@ -567,130 +626,150 @@ state 22
     $end            reduce using rule 6 (expression -> expression O_COLON expression .)
     D_RIGHT_ROUND   reduce using rule 6 (expression -> expression O_COLON expression .)
     D_COMMA         reduce using rule 6 (expression -> expression O_COLON expression .)
-    O_HAT           shift and go to state 13
+    O_HAT           shift and go to state 14
 
   ! O_HAT           [ reduce using rule 6 (expression -> expression O_COLON expression .) ]
-  ! O_PLUS          [ shift and go to state 8 ]
-  ! O_MINUS         [ shift and go to state 9 ]
-  ! O_DOT           [ shift and go to state 10 ]
-  ! O_COLON         [ shift and go to state 11 ]
-  ! O_PIPE          [ shift and go to state 12 ]
-
-
-state 23
-
-    (7) expression -> expression O_PIPE INDEX . O_PIPE expression
-    (8) expression -> expression O_PIPE INDEX . O_IN INDEX O_PIPE expression
-
-    O_PIPE          shift and go to state 29
-    O_IN            shift and go to state 30
-
-
-state 24
-
-    (9) expression -> expression O_HAT expression .
-    (2) expression -> expression . O_PLUS expression
-    (3) expression -> expression . O_MINUS expression
-    (5) expression -> expression . O_DOT expression
-    (6) expression -> expression . O_COLON expression
-    (7) expression -> expression . O_PIPE INDEX O_PIPE expression
-    (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
-
-    O_PLUS          reduce using rule 9 (expression -> expression O_HAT expression .)
-    O_MINUS         reduce using rule 9 (expression -> expression O_HAT expression .)
-    O_DOT           reduce using rule 9 (expression -> expression O_HAT expression .)
-    O_COLON         reduce using rule 9 (expression -> expression O_HAT expression .)
-    O_PIPE          reduce using rule 9 (expression -> expression O_HAT expression .)
-    O_HAT           reduce using rule 9 (expression -> expression O_HAT expression .)
-    $end            reduce using rule 9 (expression -> expression O_HAT expression .)
-    D_RIGHT_ROUND   reduce using rule 9 (expression -> expression O_HAT expression .)
-    D_COMMA         reduce using rule 9 (expression -> expression O_HAT expression .)
-
-  ! O_PLUS          [ shift and go to state 8 ]
-  ! O_MINUS         [ shift and go to state 9 ]
-  ! O_DOT           [ shift and go to state 10 ]
-  ! O_COLON         [ shift and go to state 11 ]
-  ! O_PIPE          [ shift and go to state 12 ]
-  ! O_HAT           [ shift and go to state 13 ]
+  ! O_PLUS          [ shift and go to state 9 ]
+  ! O_MINUS         [ shift and go to state 10 ]
+  ! O_DOT           [ shift and go to state 11 ]
+  ! O_COLON         [ shift and go to state 12 ]
+  ! O_PIPE          [ shift and go to state 13 ]
 
 
 state 25
 
-    (10) expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .
+    (7) expression -> expression O_PIPE INDEX . O_PIPE expression
+    (8) expression -> expression O_PIPE INDEX . O_IN INDEX O_PIPE expression
 
-    O_PLUS          reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_MINUS         reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_DOT           reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_COLON         reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_PIPE          reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_HAT           reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    $end            reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    D_RIGHT_ROUND   reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    D_COMMA         reduce using rule 10 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_PIPE          shift and go to state 32
+    O_IN            shift and go to state 33
 
 
 state 26
 
-    (11) expression -> UNARY_FUNCTION D_LEFT_ROUND expression . D_RIGHT_ROUND
+    (10) expression -> expression O_HAT expression .
     (2) expression -> expression . O_PLUS expression
     (3) expression -> expression . O_MINUS expression
     (5) expression -> expression . O_DOT expression
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    D_RIGHT_ROUND   shift and go to state 31
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    O_PLUS          reduce using rule 10 (expression -> expression O_HAT expression .)
+    O_MINUS         reduce using rule 10 (expression -> expression O_HAT expression .)
+    O_DOT           reduce using rule 10 (expression -> expression O_HAT expression .)
+    O_COLON         reduce using rule 10 (expression -> expression O_HAT expression .)
+    O_PIPE          reduce using rule 10 (expression -> expression O_HAT expression .)
+    O_HAT           reduce using rule 10 (expression -> expression O_HAT expression .)
+    $end            reduce using rule 10 (expression -> expression O_HAT expression .)
+    D_RIGHT_ROUND   reduce using rule 10 (expression -> expression O_HAT expression .)
+    D_COMMA         reduce using rule 10 (expression -> expression O_HAT expression .)
+
+  ! O_PLUS          [ shift and go to state 9 ]
+  ! O_MINUS         [ shift and go to state 10 ]
+  ! O_DOT           [ shift and go to state 11 ]
+  ! O_COLON         [ shift and go to state 12 ]
+  ! O_PIPE          [ shift and go to state 13 ]
+  ! O_HAT           [ shift and go to state 14 ]
 
 
 state 27
 
-    (12) expression -> BINARY_FUNCTION D_LEFT_ROUND expression . D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> O_PRODUCT D_LEFT_ROUND expression . D_COMMA INDEX D_RIGHT_ROUND
     (2) expression -> expression . O_PLUS expression
     (3) expression -> expression . O_MINUS expression
     (5) expression -> expression . O_DOT expression
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    D_COMMA         shift and go to state 32
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    D_COMMA         shift and go to state 34
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
 
 state 28
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression . D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (11) expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .
+
+    O_PLUS          reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_MINUS         reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_DOT           reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_COLON         reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_PIPE          reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_HAT           reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    $end            reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    D_RIGHT_ROUND   reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    D_COMMA         reduce using rule 11 (expression -> D_LEFT_ROUND expression D_RIGHT_ROUND .)
+
+
+state 29
+
+    (12) expression -> UNARY_FUNCTION D_LEFT_ROUND expression . D_RIGHT_ROUND
     (2) expression -> expression . O_PLUS expression
     (3) expression -> expression . O_MINUS expression
     (5) expression -> expression . O_DOT expression
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    D_COMMA         shift and go to state 33
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    D_RIGHT_ROUND   shift and go to state 35
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
 
-state 29
+state 30
+
+    (13) expression -> BINARY_FUNCTION D_LEFT_ROUND expression . D_COMMA expression D_RIGHT_ROUND
+    (2) expression -> expression . O_PLUS expression
+    (3) expression -> expression . O_MINUS expression
+    (5) expression -> expression . O_DOT expression
+    (6) expression -> expression . O_COLON expression
+    (7) expression -> expression . O_PIPE INDEX O_PIPE expression
+    (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
+    (10) expression -> expression . O_HAT expression
+
+    D_COMMA         shift and go to state 36
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
+
+
+state 31
+
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression . D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (2) expression -> expression . O_PLUS expression
+    (3) expression -> expression . O_MINUS expression
+    (5) expression -> expression . O_DOT expression
+    (6) expression -> expression . O_COLON expression
+    (7) expression -> expression . O_PIPE INDEX O_PIPE expression
+    (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
+    (10) expression -> expression . O_HAT expression
+
+    D_COMMA         shift and go to state 37
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
+
+
+state 32
 
     (7) expression -> expression O_PIPE INDEX O_PIPE . expression
     (1) expression -> . VARIABLE
@@ -701,72 +780,55 @@ state 29
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 34
-
-state 30
-
-    (8) expression -> expression O_PIPE INDEX O_IN . INDEX O_PIPE expression
-
-    INDEX           shift and go to state 35
-
-
-state 31
-
-    (11) expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .
-
-    O_PLUS          reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_MINUS         reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_DOT           reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_COLON         reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_PIPE          reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    O_HAT           reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    $end            reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    D_RIGHT_ROUND   reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-    D_COMMA         reduce using rule 11 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
-
-
-state 32
-
-    (12) expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA . expression D_RIGHT_ROUND
-    (1) expression -> . VARIABLE
-    (2) expression -> . expression O_PLUS expression
-    (3) expression -> . expression O_MINUS expression
-    (4) expression -> . O_MINUS expression
-    (5) expression -> . expression O_DOT expression
-    (6) expression -> . expression O_COLON expression
-    (7) expression -> . expression O_PIPE INDEX O_PIPE expression
-    (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
-
-    VARIABLE        shift and go to state 2
-    O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
-
-    expression                     shift and go to state 36
+    expression                     shift and go to state 38
 
 state 33
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA . expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (8) expression -> expression O_PIPE INDEX O_IN . INDEX O_PIPE expression
+
+    INDEX           shift and go to state 39
+
+
+state 34
+
+    (9) expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA . INDEX D_RIGHT_ROUND
+
+    INDEX           shift and go to state 40
+
+
+state 35
+
+    (12) expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .
+
+    O_PLUS          reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_MINUS         reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_DOT           reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_COLON         reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_PIPE          reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    O_HAT           reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    $end            reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    D_RIGHT_ROUND   reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+    D_COMMA         reduce using rule 12 (expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND .)
+
+
+state 36
+
+    (13) expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA . expression D_RIGHT_ROUND
     (1) expression -> . VARIABLE
     (2) expression -> . expression O_PLUS expression
     (3) expression -> . expression O_MINUS expression
@@ -775,22 +837,52 @@ state 33
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 37
+    expression                     shift and go to state 41
 
-state 34
+state 37
+
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA . expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (1) expression -> . VARIABLE
+    (2) expression -> . expression O_PLUS expression
+    (3) expression -> . expression O_MINUS expression
+    (4) expression -> . O_MINUS expression
+    (5) expression -> . expression O_DOT expression
+    (6) expression -> . expression O_COLON expression
+    (7) expression -> . expression O_PIPE INDEX O_PIPE expression
+    (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+
+    VARIABLE        shift and go to state 2
+    O_MINUS         shift and go to state 3
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
+
+    expression                     shift and go to state 42
+
+state 38
 
     (7) expression -> expression O_PIPE INDEX O_PIPE expression .
     (2) expression -> expression . O_PLUS expression
@@ -799,7 +891,7 @@ state 34
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
     O_PLUS          reduce using rule 7 (expression -> expression O_PIPE INDEX O_PIPE expression .)
     O_MINUS         reduce using rule 7 (expression -> expression O_PIPE INDEX O_PIPE expression .)
@@ -809,64 +901,71 @@ state 34
     $end            reduce using rule 7 (expression -> expression O_PIPE INDEX O_PIPE expression .)
     D_RIGHT_ROUND   reduce using rule 7 (expression -> expression O_PIPE INDEX O_PIPE expression .)
     D_COMMA         reduce using rule 7 (expression -> expression O_PIPE INDEX O_PIPE expression .)
-    O_HAT           shift and go to state 13
+    O_HAT           shift and go to state 14
 
   ! O_HAT           [ reduce using rule 7 (expression -> expression O_PIPE INDEX O_PIPE expression .) ]
-  ! O_PLUS          [ shift and go to state 8 ]
-  ! O_MINUS         [ shift and go to state 9 ]
-  ! O_DOT           [ shift and go to state 10 ]
-  ! O_COLON         [ shift and go to state 11 ]
-  ! O_PIPE          [ shift and go to state 12 ]
+  ! O_PLUS          [ shift and go to state 9 ]
+  ! O_MINUS         [ shift and go to state 10 ]
+  ! O_DOT           [ shift and go to state 11 ]
+  ! O_COLON         [ shift and go to state 12 ]
+  ! O_PIPE          [ shift and go to state 13 ]
 
 
-state 35
+state 39
 
     (8) expression -> expression O_PIPE INDEX O_IN INDEX . O_PIPE expression
 
-    O_PIPE          shift and go to state 38
+    O_PIPE          shift and go to state 43
 
 
-state 36
+state 40
 
-    (12) expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression . D_RIGHT_ROUND
+    (9) expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX . D_RIGHT_ROUND
+
+    D_RIGHT_ROUND   shift and go to state 44
+
+
+state 41
+
+    (13) expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression . D_RIGHT_ROUND
     (2) expression -> expression . O_PLUS expression
     (3) expression -> expression . O_MINUS expression
     (5) expression -> expression . O_DOT expression
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    D_RIGHT_ROUND   shift and go to state 39
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    D_RIGHT_ROUND   shift and go to state 45
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
 
-state 37
+state 42
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression . D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression . D_COMMA expression D_COMMA expression D_RIGHT_ROUND
     (2) expression -> expression . O_PLUS expression
     (3) expression -> expression . O_MINUS expression
     (5) expression -> expression . O_DOT expression
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    D_COMMA         shift and go to state 40
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    D_COMMA         shift and go to state 46
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
 
-state 38
+state 43
 
     (8) expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE . expression
     (1) expression -> . VARIABLE
@@ -877,39 +976,56 @@ state 38
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 41
+    expression                     shift and go to state 47
 
-state 39
+state 44
 
-    (12) expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .
+    (9) expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .
 
-    O_PLUS          reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
-    O_MINUS         reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
-    O_DOT           reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
-    O_COLON         reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
-    O_PIPE          reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
-    O_HAT           reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
-    $end            reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
-    D_RIGHT_ROUND   reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
-    D_COMMA         reduce using rule 12 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    O_PLUS          reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
+    O_MINUS         reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
+    O_DOT           reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
+    O_COLON         reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
+    O_PIPE          reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
+    O_HAT           reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
+    $end            reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
+    D_RIGHT_ROUND   reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
+    D_COMMA         reduce using rule 9 (expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND .)
 
 
-state 40
+state 45
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA . expression D_COMMA expression D_RIGHT_ROUND
+    (13) expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .
+
+    O_PLUS          reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    O_MINUS         reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    O_DOT           reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    O_COLON         reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    O_PIPE          reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    O_HAT           reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    $end            reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    D_RIGHT_ROUND   reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+    D_COMMA         reduce using rule 13 (expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND .)
+
+
+state 46
+
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA . expression D_COMMA expression D_RIGHT_ROUND
     (1) expression -> . VARIABLE
     (2) expression -> . expression O_PLUS expression
     (3) expression -> . expression O_MINUS expression
@@ -918,22 +1034,24 @@ state 40
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 42
+    expression                     shift and go to state 48
 
-state 41
+state 47
 
     (8) expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression .
     (2) expression -> expression . O_PLUS expression
@@ -942,7 +1060,7 @@ state 41
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
     O_PLUS          reduce using rule 8 (expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression .)
     O_MINUS         reduce using rule 8 (expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression .)
@@ -952,39 +1070,39 @@ state 41
     $end            reduce using rule 8 (expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression .)
     D_RIGHT_ROUND   reduce using rule 8 (expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression .)
     D_COMMA         reduce using rule 8 (expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression .)
-    O_HAT           shift and go to state 13
+    O_HAT           shift and go to state 14
 
   ! O_HAT           [ reduce using rule 8 (expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression .) ]
-  ! O_PLUS          [ shift and go to state 8 ]
-  ! O_MINUS         [ shift and go to state 9 ]
-  ! O_DOT           [ shift and go to state 10 ]
-  ! O_COLON         [ shift and go to state 11 ]
-  ! O_PIPE          [ shift and go to state 12 ]
+  ! O_PLUS          [ shift and go to state 9 ]
+  ! O_MINUS         [ shift and go to state 10 ]
+  ! O_DOT           [ shift and go to state 11 ]
+  ! O_COLON         [ shift and go to state 12 ]
+  ! O_PIPE          [ shift and go to state 13 ]
 
 
-state 42
+state 48
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression . D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression . D_COMMA expression D_RIGHT_ROUND
     (2) expression -> expression . O_PLUS expression
     (3) expression -> expression . O_MINUS expression
     (5) expression -> expression . O_DOT expression
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    D_COMMA         shift and go to state 43
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    D_COMMA         shift and go to state 49
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
 
-state 43
+state 49
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA . expression D_RIGHT_ROUND
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA . expression D_RIGHT_ROUND
     (1) expression -> . VARIABLE
     (2) expression -> . expression O_PLUS expression
     (3) expression -> . expression O_MINUS expression
@@ -993,52 +1111,54 @@ state 43
     (6) expression -> . expression O_COLON expression
     (7) expression -> . expression O_PIPE INDEX O_PIPE expression
     (8) expression -> . expression O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> . expression O_HAT expression
-    (10) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
-    (11) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
-    (12) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
-    (13) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
+    (9) expression -> . O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND
+    (10) expression -> . expression O_HAT expression
+    (11) expression -> . D_LEFT_ROUND expression D_RIGHT_ROUND
+    (12) expression -> . UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND
+    (13) expression -> . BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND
+    (14) expression -> . QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND
 
     VARIABLE        shift and go to state 2
     O_MINUS         shift and go to state 3
-    D_LEFT_ROUND    shift and go to state 4
-    UNARY_FUNCTION  shift and go to state 5
-    BINARY_FUNCTION shift and go to state 6
-    QUATERNARY_FUNCTION shift and go to state 7
+    O_PRODUCT       shift and go to state 4
+    D_LEFT_ROUND    shift and go to state 5
+    UNARY_FUNCTION  shift and go to state 6
+    BINARY_FUNCTION shift and go to state 7
+    QUATERNARY_FUNCTION shift and go to state 8
 
-    expression                     shift and go to state 44
+    expression                     shift and go to state 50
 
-state 44
+state 50
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression . D_RIGHT_ROUND
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression . D_RIGHT_ROUND
     (2) expression -> expression . O_PLUS expression
     (3) expression -> expression . O_MINUS expression
     (5) expression -> expression . O_DOT expression
     (6) expression -> expression . O_COLON expression
     (7) expression -> expression . O_PIPE INDEX O_PIPE expression
     (8) expression -> expression . O_PIPE INDEX O_IN INDEX O_PIPE expression
-    (9) expression -> expression . O_HAT expression
+    (10) expression -> expression . O_HAT expression
 
-    D_RIGHT_ROUND   shift and go to state 45
-    O_PLUS          shift and go to state 8
-    O_MINUS         shift and go to state 9
-    O_DOT           shift and go to state 10
-    O_COLON         shift and go to state 11
-    O_PIPE          shift and go to state 12
-    O_HAT           shift and go to state 13
+    D_RIGHT_ROUND   shift and go to state 51
+    O_PLUS          shift and go to state 9
+    O_MINUS         shift and go to state 10
+    O_DOT           shift and go to state 11
+    O_COLON         shift and go to state 12
+    O_PIPE          shift and go to state 13
+    O_HAT           shift and go to state 14
 
 
-state 45
+state 51
 
-    (13) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .
+    (14) expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .
 
-    O_PLUS          reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
-    O_MINUS         reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
-    O_DOT           reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
-    O_COLON         reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
-    O_PIPE          reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
-    O_HAT           reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
-    $end            reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
-    D_RIGHT_ROUND   reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
-    D_COMMA         reduce using rule 13 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    O_PLUS          reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    O_MINUS         reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    O_DOT           reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    O_COLON         reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    O_PIPE          reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    O_HAT           reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    $end            reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    D_RIGHT_ROUND   reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
+    D_COMMA         reduce using rule 14 (expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND .)
 

@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'leftO_PLUSO_MINUSleftO_DOTO_COLONO_PIPEleftO_HATrightUMINUSBINARY_FUNCTION DELIMITER D_AMPERSAND D_COMMA D_DOUBLE_COLUMN D_LEFT_ROUND D_LEFT_SQUARE D_LEFT_WIGGLED D_OR D_RIGHT_ROUND D_RIGHT_SQUARE D_RIGHT_WIGGLED D_UNDERLINE INDEX O_COLON O_DOT O_HAT O_IN O_MINUS O_PIPE O_PLUS QUATERNARY_FUNCTION UNARY_FUNCTION VARIABLEexpression : VARIABLEexpression : expression O_PLUS expressionexpression : expression O_MINUS expressionexpression : O_MINUS expression %prec UMINUSexpression : expression O_DOT expressionexpression : expression O_COLON expressionexpression : expression O_PIPE INDEX O_PIPE expressionexpression : expression O_PIPE INDEX O_IN INDEX O_PIPE expressionexpression : expression O_HAT expressionexpression : D_LEFT_ROUND expression D_RIGHT_ROUNDexpression : UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUNDexpression : BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUNDexpression : QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND'
+_lr_signature = 'leftO_PLUSO_MINUSleftO_DOTO_COLONO_PIPEO_PRODUCTleftO_HATrightUMINUSBINARY_FUNCTION DELIMITER D_AMPERSAND D_COMMA D_DOUBLE_COLUMN D_LEFT_ROUND D_LEFT_SQUARE D_LEFT_WIGGLED D_OR D_RIGHT_ROUND D_RIGHT_SQUARE D_RIGHT_WIGGLED D_UNDERLINE INDEX O_COLON O_DOT O_HAT O_IN O_MINUS O_PIPE O_PLUS O_PRODUCT QUATERNARY_FUNCTION UNARY_FUNCTION VARIABLEexpression : VARIABLEexpression : expression O_PLUS expressionexpression : expression O_MINUS expressionexpression : O_MINUS expression %prec UMINUSexpression : expression O_DOT expressionexpression : expression O_COLON expressionexpression : expression O_PIPE INDEX O_PIPE expressionexpression : expression O_PIPE INDEX O_IN INDEX O_PIPE expressionexpression : O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUNDexpression : expression O_HAT expressionexpression : D_LEFT_ROUND expression D_RIGHT_ROUNDexpression : UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUNDexpression : BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUNDexpression : QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND'
     
-_lr_action_items = {'VARIABLE':([0,3,4,8,9,10,11,13,16,17,18,29,32,33,38,40,43,],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,]),'O_MINUS':([0,1,2,3,4,8,9,10,11,13,14,15,16,17,18,19,20,21,22,24,25,26,27,28,29,31,32,33,34,36,37,38,39,40,41,42,43,44,45,],[3,9,-1,3,3,3,3,3,3,3,-4,9,3,3,3,-2,-3,-5,-6,-9,-10,9,9,9,3,-11,3,3,-7,9,9,3,-12,3,-8,9,3,9,-13,]),'D_LEFT_ROUND':([0,3,4,5,6,7,8,9,10,11,13,16,17,18,29,32,33,38,40,43,],[4,4,4,16,17,18,4,4,4,4,4,4,4,4,4,4,4,4,4,4,]),'UNARY_FUNCTION':([0,3,4,8,9,10,11,13,16,17,18,29,32,33,38,40,43,],[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,]),'BINARY_FUNCTION':([0,3,4,8,9,10,11,13,16,17,18,29,32,33,38,40,43,],[6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,]),'QUATERNARY_FUNCTION':([0,3,4,8,9,10,11,13,16,17,18,29,32,33,38,40,43,],[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,]),'$end':([1,2,14,19,20,21,22,24,25,31,34,39,41,45,],[0,-1,-4,-2,-3,-5,-6,-9,-10,-11,-7,-12,-8,-13,]),'O_PLUS':([1,2,14,15,19,20,21,22,24,25,26,27,28,31,34,36,37,39,41,42,44,45,],[8,-1,-4,8,-2,-3,-5,-6,-9,-10,8,8,8,-11,-7,8,8,-12,-8,8,8,-13,]),'O_DOT':([1,2,14,15,19,20,21,22,24,25,26,27,28,31,34,36,37,39,41,42,44,45,],[10,-1,-4,10,10,10,-5,-6,-9,-10,10,10,10,-11,-7,10,10,-12,-8,10,10,-13,]),'O_COLON':([1,2,14,15,19,20,21,22,24,25,26,27,28,31,34,36,37,39,41,42,44,45,],[11,-1,-4,11,11,11,-5,-6,-9,-10,11,11,11,-11,-7,11,11,-12,-8,11,11,-13,]),'O_PIPE':([1,2,14,15,19,20,21,22,23,24,25,26,27,28,31,34,35,36,37,39,41,42,44,45,],[12,-1,-4,12,12,12,-5,-6,29,-9,-10,12,12,12,-11,-7,38,12,12,-12,-8,12,12,-13,]),'O_HAT':([1,2,14,15,19,20,21,22,24,25,26,27,28,31,34,36,37,39,41,42,44,45,],[13,-1,-4,13,13,13,13,13,-9,-10,13,13,13,-11,13,13,13,-12,13,13,13,-13,]),'D_RIGHT_ROUND':([2,14,15,19,20,21,22,24,25,26,31,34,36,39,41,44,45,],[-1,-4,25,-2,-3,-5,-6,-9,-10,31,-11,-7,39,-12,-8,45,-13,]),'D_COMMA':([2,14,19,20,21,22,24,25,27,28,31,34,37,39,41,42,45,],[-1,-4,-2,-3,-5,-6,-9,-10,32,33,-11,-7,40,-12,-8,43,-13,]),'INDEX':([12,30,],[23,35,]),'O_IN':([23,],[30,]),}
+_lr_action_items = {'VARIABLE':([0,3,5,9,10,11,12,14,16,18,19,20,32,36,37,43,46,49,],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,]),'O_MINUS':([0,1,2,3,5,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,26,27,28,29,30,31,32,35,36,37,38,41,42,43,44,45,46,47,48,49,50,51,],[3,10,-1,3,3,3,3,3,3,3,-4,3,10,3,3,3,-2,-3,-5,-6,-10,10,-11,10,10,10,3,-12,3,3,-7,10,10,3,-9,-13,3,-8,10,3,10,-14,]),'O_PRODUCT':([0,3,5,9,10,11,12,14,16,18,19,20,32,36,37,43,46,49,],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,]),'D_LEFT_ROUND':([0,3,4,5,6,7,8,9,10,11,12,14,16,18,19,20,32,36,37,43,46,49,],[5,5,16,5,18,19,20,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,]),'UNARY_FUNCTION':([0,3,5,9,10,11,12,14,16,18,19,20,32,36,37,43,46,49,],[6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,]),'BINARY_FUNCTION':([0,3,5,9,10,11,12,14,16,18,19,20,32,36,37,43,46,49,],[7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,]),'QUATERNARY_FUNCTION':([0,3,5,9,10,11,12,14,16,18,19,20,32,36,37,43,46,49,],[8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,]),'$end':([1,2,15,21,22,23,24,26,28,35,38,44,45,47,51,],[0,-1,-4,-2,-3,-5,-6,-10,-11,-12,-7,-9,-13,-8,-14,]),'O_PLUS':([1,2,15,17,21,22,23,24,26,27,28,29,30,31,35,38,41,42,44,45,47,48,50,51,],[9,-1,-4,9,-2,-3,-5,-6,-10,9,-11,9,9,9,-12,-7,9,9,-9,-13,-8,9,9,-14,]),'O_DOT':([1,2,15,17,21,22,23,24,26,27,28,29,30,31,35,38,41,42,44,45,47,48,50,51,],[11,-1,-4,11,11,11,-5,-6,-10,11,-11,11,11,11,-12,-7,11,11,-9,-13,-8,11,11,-14,]),'O_COLON':([1,2,15,17,21,22,23,24,26,27,28,29,30,31,35,38,41,42,44,45,47,48,50,51,],[12,-1,-4,12,12,12,-5,-6,-10,12,-11,12,12,12,-12,-7,12,12,-9,-13,-8,12,12,-14,]),'O_PIPE':([1,2,15,17,21,22,23,24,25,26,27,28,29,30,31,35,38,39,41,42,44,45,47,48,50,51,],[13,-1,-4,13,13,13,-5,-6,32,-10,13,-11,13,13,13,-12,-7,43,13,13,-9,-13,-8,13,13,-14,]),'O_HAT':([1,2,15,17,21,22,23,24,26,27,28,29,30,31,35,38,41,42,44,45,47,48,50,51,],[14,-1,-4,14,14,14,14,14,-10,14,-11,14,14,14,-12,14,14,14,-9,-13,14,14,14,-14,]),'D_RIGHT_ROUND':([2,15,17,21,22,23,24,26,28,29,35,38,40,41,44,45,47,50,51,],[-1,-4,28,-2,-3,-5,-6,-10,-11,35,-12,-7,44,45,-9,-13,-8,51,-14,]),'D_COMMA':([2,15,21,22,23,24,26,27,28,30,31,35,38,42,44,45,47,48,51,],[-1,-4,-2,-3,-5,-6,-10,34,-11,36,37,-12,-7,46,-9,-13,-8,49,-14,]),'INDEX':([13,33,34,],[25,39,40,]),'O_IN':([25,],[33,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'expression':([0,3,4,8,9,10,11,13,16,17,18,29,32,33,38,40,43,],[1,14,15,19,20,21,22,24,26,27,28,34,36,37,41,42,44,]),}
+_lr_goto_items = {'expression':([0,3,5,9,10,11,12,14,16,18,19,20,32,36,37,43,46,49,],[1,15,17,21,22,23,24,26,27,29,30,31,38,41,42,47,48,50,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,17 +27,18 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> expression","S'",1,None,None,None),
-  ('expression -> VARIABLE','expression',1,'p_expr_variable','equation_parser.py',114),
-  ('expression -> expression O_PLUS expression','expression',3,'p_expr_plus','equation_parser.py',128),
-  ('expression -> expression O_MINUS expression','expression',3,'p_expr_minus','equation_parser.py',132),
-  ('expression -> O_MINUS expression','expression',2,'p_expr_uminus','equation_parser.py',136),
-  ('expression -> expression O_DOT expression','expression',3,'p_expr_expand_product','equation_parser.py',140),
-  ('expression -> expression O_COLON expression','expression',3,'p_expr_khatri_rao','equation_parser.py',144),
-  ('expression -> expression O_PIPE INDEX O_PIPE expression','expression',5,'p_expr_reduce_product','equation_parser.py',148),
-  ('expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression','expression',7,'p_expr_block_reduce_product','equation_parser.py',153),
-  ('expression -> expression O_HAT expression','expression',3,'p_expr_power','equation_parser.py',160),
-  ('expression -> D_LEFT_ROUND expression D_RIGHT_ROUND','expression',3,'p_expr_parentheses','equation_parser.py',164),
-  ('expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND','expression',4,'p_unary_function','equation_parser.py',168),
-  ('expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND','expression',6,'p_binary_function','equation_parser.py',172),
-  ('expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND','expression',10,'p_quaternary_function','equation_parser.py',176),
+  ('expression -> VARIABLE','expression',1,'p_expr_variable','equation_parser.py',116),
+  ('expression -> expression O_PLUS expression','expression',3,'p_expr_plus','equation_parser.py',132),
+  ('expression -> expression O_MINUS expression','expression',3,'p_expr_minus','equation_parser.py',136),
+  ('expression -> O_MINUS expression','expression',2,'p_expr_uminus','equation_parser.py',140),
+  ('expression -> expression O_DOT expression','expression',3,'p_expr_expand_product','equation_parser.py',144),
+  ('expression -> expression O_COLON expression','expression',3,'p_expr_khatri_rao','equation_parser.py',148),
+  ('expression -> expression O_PIPE INDEX O_PIPE expression','expression',5,'p_expr_reduce_product','equation_parser.py',152),
+  ('expression -> expression O_PIPE INDEX O_IN INDEX O_PIPE expression','expression',7,'p_expr_block_reduce_product','equation_parser.py',159),
+  ('expression -> O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND','expression',6,'p_expr_product','equation_parser.py',167),
+  ('expression -> expression O_HAT expression','expression',3,'p_expr_power','equation_parser.py',171),
+  ('expression -> D_LEFT_ROUND expression D_RIGHT_ROUND','expression',3,'p_expr_parentheses','equation_parser.py',175),
+  ('expression -> UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND','expression',4,'p_unary_function','equation_parser.py',179),
+  ('expression -> BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND','expression',6,'p_binary_function','equation_parser.py',183),
+  ('expression -> QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND','expression',10,'p_quaternary_function','equation_parser.py',187),
 ]
