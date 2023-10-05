@@ -342,9 +342,8 @@ class UiOntologyDesign(QMainWindow):
     for l in LANGUAGES["code_generation"]:
       translated_equations = translate_equations(
           ontology_name=self.ontology_name, language=l)
-      print(translated_equations)
       for eqID in translated_equations:
-        var_ID = translated_equations[eqID]["variable_ID"]
+        var_ID, _ = self.variables.incidence_dictionary[eqID]
         # translated_equations[eqID]["variable_ID"] = var_ID
         self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
         # self.ontology_container.variables[var_ID]["equations"][eqID]["lhs"][l] = translated_equations[eqID]["lhs"]
