@@ -147,7 +147,7 @@ def getEnumeratedData(file_spec):
   else:
     data = {}
     for str_ID in raw_data:
-      data[int(str_ID)] = raw_data[str_ID]
+      data[str_ID] = raw_data[str_ID]
     return data
 
 

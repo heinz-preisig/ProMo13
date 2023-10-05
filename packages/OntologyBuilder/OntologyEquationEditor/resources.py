@@ -970,10 +970,10 @@ class VarEqTree():
     return None
 
   def get_equs(self, var_ID):
-    return self.variables[int(var_ID)]["equations"]
+    return sorted(self.variables[var_ID]["equations"].keys())
 
   def get_equation_incidence_list(self, var_ID, eq_ID):
-    return self.variables[int(var_ID)]["equations"][eq_ID]["incidence_list"]
+    return self.variables[var_ID]["equations"][eq_ID]["incidence_list"]
 
 
 class DotGraphVariableEquations(VarEqTree):
@@ -1059,16 +1059,16 @@ class DotGraphVariableEquations(VarEqTree):
   def addVariable(self, var_ID_label, first=False):
 
     node_ID_label = str(var_ID_label)
-    _dummy, ID_str = node_ID_label.split("_")
-    var_ID = int(ID_str)
+    _dummy, ID_str = node_ID_label.split("_",1)
+    V_ID_picture = ID_str
     # node_label = self.var_labels[var_ID_label]
     if first:
       colour = "red"
     else:
       colour = "cornsilk"
-      if self.variables[var_ID]["port_variable"] and (self.variables[var_ID]["type"] == "state"):
+      if self.variables[ID_str]["port_variable"] and (self.variables[ID_str]["type"] == "state"):
         colour = "blue"
-    image = os.path.join(self.latex_directory, "%s.png" % var_ID_label)
+    image = os.path.join(self.latex_directory, "%s.png" % ID_str)
     if not os.path.exists(image):
       print("missing picture file:", image)
       reply = makeMessageBox("equation picture file missing %s " % image, buttons=["OK"],
@@ -1078,8 +1078,9 @@ class DotGraphVariableEquations(VarEqTree):
   def addEquation(self, eq_ID_label, first=False):
     node_ID_label = str(eq_ID_label)
     node_label = self.equ_labels[eq_ID_label]  # Note: can be used instead of picture
+    _dummy, ID_str = node_ID_label.split("_",1)
     colour = "cyan"
-    image = os.path.join(self.latex_directory, "%s.png" % eq_ID_label)
+    image = os.path.join(self.latex_directory, "%s.png" % ID_str)
     if not os.path.exists(image):
       print("missing picture file %s" % image)
       reply = makeMessageBox("equation picture file missing %s" % image, buttons=["OK"],
@@ -1097,7 +1098,7 @@ def AnalyseBiPartiteGraph(variable_ID, ontology_container, ontology_name, blocke
                                            file_name=file_name,
                                            start_equation=start_equation)
 
-  print("debugging -- dotgrap done")
+  print("debugging -- dotgraph done")
   buddies = getListOfBuddies(ontology_container, var_equ_tree, variable_ID)
 
   assignments = VariantRecord(tree=var_equ_tree.tree["tree"],
@@ -1119,15 +1120,13 @@ def getListOfBuddies(ontology_container, var_equ_tree, variable_ID):
   buddies = set()
   the_network = ontology_container.variables[variable_ID]["network"]
   for id in var_equ_tree.tree["IDs"]:
-    o, str_ID = id.split("_")
-    ID = int(str_ID)
+    o, str_ID = id.split("_",1)
+    ID = str_ID
     if o == "variable":
       network = ontology_container.variables[ID]['network']
       if CONNECTION_NETWORK_SEPARATOR in network:
         buddies.add((ID, network))
 
-      # if network in ontology_container.list_leave_networks:
-      #   buddies.add((ID, network))
   return buddies
 
 
@@ -1140,60 +1139,28 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
   compiled_variable_labels = getEnumeratedData(latex_variable_file)
   variables = ontology_container.variables
 
-  # # var_ID = assignments["root_variable"]
-  # # tree = VarEqTree(variables,var_ID,[])
-  # print("debugging")
-  # # tree_var_ID = assignments["nodes"][0]
-  # try:
-  #   walked_nodes = walkDepthFirstFnc(assignments["tree"], 0)
-  # except:
-  #   print("problem, there is a problem here")
-  # nodes = []
-  # for n in walked_nodes:
-  #   nodes.append(assignments["nodes"][n])
-  #   print(assignments["nodes"][n])
-  # nodes = assignments["nodes"]
   latex_var_equ = []
   count = 0
 
-  # for a in nodes:
-  #   if "equation" in nodes[a]:
-  #     print("debugging -- found equation:", nodes[a])
-  #     e, eq_str_ID = nodes[a].split("_")
-  #     var_ID = latex_equations[eq_str_ID]["variable_ID"]
-  #     eq = "%s := %s" % (latex_equations[eq_str_ID]["lhs"], latex_equations[eq_str_ID]["rhs"])
-  #     s = [count, str(var_ID), eq_str_ID, eq, str(variables[var_ID]["tokens"])]
-  #     latex_var_equ.append(s)
-  #     count += 1
-
-  # for a in nodes:
-  #   if "variable" in nodes[a]:
-  #     print("debugging -- found variable:", nodes[a])
-  #     v, var_str_ID = nodes[a].split("_")
-  #     var_ID = int(var_str_ID)
-  #     eqs = variables[var_ID]["equations"]
-  #     if not eqs:
-  #       eq = "%s :: %s" % (compiled_variable_labels[var_ID],"\\text{port variable}")# (variables[var_ID]["aliases"]["latex"], "\\text{port variable}")
-  #       s = [count, var_str_ID, "-", eq, str(variables[var_ID]["tokens"])]
-  #       latex_var_equ.append(s)
-  #       count += 1
-  for node in assignments.var_eq_tree:
-    if "E" in node:
-      eq_str_ID = node.replace("E_", "")
+  for ID in assignments["tree"]:
+    component = assignments["nodes"][ID]
+    if "E_" in component:
+      _,eq_str_ID = component.split("_",1)
       var_ID = latex_equations[eq_str_ID]["variable_ID"]
       eq = "%s := %s" % (latex_equations[eq_str_ID]["lhs"], latex_equations[eq_str_ID]["rhs"])
       s = [count, str(var_ID), eq_str_ID, eq, str(variables[var_ID]["tokens"])]
       latex_var_equ.append(s)
       count += 1
 
-  for node in assignments.var_eq_tree:
-    if "V" in node:
-      var_str_ID = node.replace("V_", "")
-      var_ID = int(var_str_ID)
+  for ID in assignments["tree"]:
+    component = assignments["nodes"][ID]
+    if "V_" in component:
+      _,var_str_ID = component.split("_",1)
+      var_ID = var_str_ID
       eqs = variables[var_ID]["equations"]
       if not eqs:
         eq = "%s :: %s" % (compiled_variable_labels[var_ID],
-                           "\\text{port variable}")  # (variables[var_ID]["aliases"]["latex"], "\\text{port variable}")
+                           "\\text{port variable}")
         s = [count, var_str_ID, "-", eq, str(variables[var_ID]["tokens"])]
         latex_var_equ.append(s)
         count += 1
@@ -1201,10 +1168,8 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
   print("debugging -- got here")
 
   # get variable in LaTex form
-  root_var = assignments.root_variable_id
-  var_str_ID = root_var.replace("V_", "")
-  var_ID = int(var_str_ID)
-  lhs = variables[var_ID]["aliases"]["latex"]
+  root_var = assignments["root_variable"]
+  lhs = compiled_variable_labels[root_var]
 
   latex_var_equ = reversed(latex_var_equ)
   THIS_DIR = dirname(abspath(__file__))
@@ -1218,7 +1183,7 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
 
   shell_name = FILES["latex_shell_var_equ_list_command"] % ontology_name
   latex_location = DIRECTORIES["latex_location"] % ontology_name
-  args = ['bash', shell_name, latex_location, file_name]  # ontology_location + '/']
+  args = ['bash', shell_name, latex_location, file_name]
   print('ARGS: ', args)
 
   try:  # reports an error after completing the last one -- no idea
@@ -1234,7 +1199,7 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
 
 
 def showPDF(file_name):
-  args = ["okular", file_name]
+  args = ["evince", file_name]
   view_it = subprocess.Popen(args, start_new_session=True)
   out, error = view_it.communicate()
 
