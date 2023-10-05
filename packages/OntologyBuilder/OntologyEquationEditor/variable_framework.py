@@ -756,10 +756,11 @@ class Variables(OrderedDict):
     :param variables: From standard json file as read by the ontology container
     :param indices: From standard json file as read by the ontology container
     :return: None
+    Note adding the all indices to all variables is not nice. Think about an alternative.
     """
 
     for ID in variables:
-      variables[ID]["indices"] = indices
+      variables[ID]["indices"] = indices   # todo: alternative?
       self[ID] = PhysicalVariable(**variables[ID])
 
     self.indexVariables()

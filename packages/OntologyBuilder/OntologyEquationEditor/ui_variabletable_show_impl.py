@@ -133,7 +133,7 @@ class UI_VariableTableShow(VariableTable):
       data[c] = item(row, c).text()
       # print("debugging -- chose:", c, str(data[c]))
     self.selected_variable_symbol = data[1]
-    self.selected_variable_ID = int(data[9])
+    self.selected_variable_ID = data[9]
     print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
 
     self.buttons["LaTex"].show()
@@ -151,7 +151,8 @@ class UI_VariableTableShow(VariableTable):
                                                             self.ontology_name,
                                                             [],
                                                             "%s_graph"%self.selected_variable_symbol)
-    var_equ_tree_graph.render_expression_to_list()
+    # var_equ_tree_graph.render_expression_to_list()
+    var_equ_tree_graph.render()
     dot_graph_file = var_equ_tree_graph.outputFile + ".pdf"
     file_name = self.selected_variable_symbol
     return assignments, dot_graph_file, file_name
