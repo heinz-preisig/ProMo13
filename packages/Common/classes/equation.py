@@ -41,11 +41,14 @@ class Equation():
 
     date_format = "%Y-%m-%d %H:%M:%S"
     self.created = datetime.strptime(created, date_format)
-    self.modified = datetime.strptime(created, date_format)
+    self.modified = datetime.strptime(modified, date_format)
 
     # TODO: Probably throw an exception if "global_ID" is not found
     self.terms = self.lhs.get("global_ID").split()
     self.terms.extend(self.rhs.get("global_ID").split())
+
+  def get_main_var_id(self):
+    return self.terms[0]
 
   def get_id(self):
     return self.eq_id
