@@ -56,7 +56,6 @@ def translate_equations(ontology_name: str, language: str):
   for eq_id, eq in all_equations.items():
     equation_global_id = eq.get_translation("global_ID")
     data_translated_equations[eq_id] = {
-        "variable_ID": eq.get_main_var_id(),
         "lhs": parser.parse(equation_global_id.get("lhs")),
         "rhs": parser.parse(equation_global_id.get("rhs"))
     }
