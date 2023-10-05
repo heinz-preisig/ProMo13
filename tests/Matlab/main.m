@@ -70,7 +70,16 @@ function main
   fprintf("========================\n")
   a = F .* fnc;     % 2D times 1D   x,y .* y -> x,y
   disp(a)
-  
+  ############################# Product #############################################
+  fprintf("Tests for Product\n")
+  a = product(m, "N");  % 1D
+  disp(a)
+  fprintf("========================\n")
+  a = product(F, "NS"); % 2D reducing 1st index
+  disp(a)
+  fprintf("========================\n")
+  a = product(F, "AS"); % 2D reducing 2nd index
+  disp(a)
 endfunction
 function result = indexunion(varargin)
   result = varargin{1};

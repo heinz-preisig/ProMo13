@@ -4,6 +4,7 @@ from typing import List
 # from packages.Common.classes.io import load_translation_info_from_file
 from packages.Common.classes import io
 
+
 @dataclass
 class FunctionsMappings:
   EXP: str = "F_0"
@@ -25,7 +26,6 @@ class FunctionsMappings:
   SIGN: str = "F_16"
   PAR_DIFF: str = "F_17"
   TOTAL_DIFF: str = "F_18"
-  PRODUCT: str = "F_19"
   INTEGRAL: str = "F_20"
 
 
@@ -169,6 +169,11 @@ class Translator:
 
     return self.translation_info.block_reduce_product.format(**values)
 
+  def translate_product(self, op1: str, idx1: str):
+    values = {item: value for item, value in locals().items()
+              if item != "self"}
+    return self.translation_info.product.format(**values)
+
   def translate_power(self, op1, op2):
     values = {item: value for item, value in locals().items()
               if item != "self"}
@@ -309,8 +314,6 @@ class Translator:
       return self._translate_par_diff(op1, op2)
     elif function_id == self.FUNCTIONS.TOTAL_DIFF:
       return self._translate_total_diff(op1, op2)
-    elif function_id == self.FUNCTIONS.PRODUCT:
-      return self._translate_product(op1, op2)
 
     return None
 
@@ -323,11 +326,6 @@ class Translator:
     values = {item: value for item, value in locals().items()
               if item != "self"}
     return self.translation_info.total_diff.format(**values)
-
-  def _translate_product(self, op1: str, op2: str):
-    values = {item: value for item, value in locals().items()
-              if item != "self"}
-    return self.translation_info.product.format(**values)
 
   def translate_quaternary_function(self, function_id, op1, op2, op3, op4):
     # TODO: Move to a match structure when updating to python10+
