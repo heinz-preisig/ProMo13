@@ -14,6 +14,7 @@ from datetime import datetime
 from packages.Common.classes import equation
 from packages.Common.classes import entity
 from packages.Common.classes import variable
+from packages.Common.classes import index
 from packages.Common.classes import ontology
 from packages.Common import resource_initialisation
 
@@ -67,7 +68,7 @@ def load_var_idx_eq_from_file(
     ontology_name: str,
 ) -> Tuple[
     Dict[str, variable.Variable],
-    Dict[str, str],
+    Dict[str, index.Index],
     Dict[str, equation.Equation],
 ]:
   path = resource_initialisation.FILES["variables_file"] % ontology_name
@@ -80,7 +81,11 @@ def load_var_idx_eq_from_file(
     return {}
 
   # Loading the indices
-  indices = data["indices"]
+  indices = {}
+  for idx_id, idx_info in data["indices"].items():
+    # TODO: Go over the tokens in the indices
+    del idx_info["tokens"]
+    indices[idx_id] = index.Index(idx_id, **idx_info)
 
   # Loading the variables
   all_var_data = data["variables"]
@@ -242,8 +247,8 @@ def load_topology_from_file(
   nodes_index = {}
   node_species_index = {}
   offset = 1
-  index_sets["general"]["N"] = []
-  index_sets["general"]["N & S"] = []
+  index_sets["general"]["I_1"] = []         # Nodes
+  index_sets["general"]["I_5"] = []         # Nodes & Species
   for i, old_node_index in enumerate(data["nodes"], start=1):
     node = str(i)
     node_data = data["nodes"][old_node_index]
@@ -265,8 +270,8 @@ def load_topology_from_file(
       node_species = []
 
     # For the index_sets
-    index_sets["general"]["N"].append(node)
-    index_sets["general"]["N & S"].append(node_species)
+    index_sets["general"]["I_1"].append(node)
+    index_sets["general"]["I_5"].append(node_species)
 
     # TODO The domain is usually found using the ontology container
     # Find a way of obtaining this info here.
@@ -304,8 +309,8 @@ def load_topology_from_file(
   # For the arcs
   arc_species_index = {}
   offset = 1
-  index_sets["general"]["A"] = []
-  index_sets["general"]["A & S"] = []
+  index_sets["general"]["I_2"] = []         # Arcs
+  index_sets["general"]["I_6"] = []         # Arcs & Species
   for i, old_arc_index in enumerate(data["arcs"], start=1):
     arc = str(i)
     arc_data = data["arcs"][old_arc_index]
@@ -321,8 +326,8 @@ def load_topology_from_file(
     arc_species_index[arc]["fin"] = offset - 1
 
     # For the index_sets
-    index_sets["general"]["A"].append(arc)
-    index_sets["general"]["A & S"].append(arc_species)
+    index_sets["general"]["I_2"].append(arc)
+    index_sets["general"]["I_6"].append(arc_species)
 
     # TODO The domain is usually found using the ontology container
     # Find a way of obtaining this info here.
@@ -379,8 +384,8 @@ def load_topology_from_file(
         matrices["Dd_NS_AS"]["vals"].extend([-1, 1])
 
   # TODO See how to link this with the equation composer
-  matrices["V_165"] = matrices["Dd_NS_AS"]           # Fc_NS_AS
-  matrices["V_167"] = matrices["Dd_NS_AS"]           # Dc_NS_AS
+  matrices["V_70"] = matrices["Dd_NS_AS"]           # Fc_NS_AS
+  matrices["V_91"] = matrices["Dd_NS_AS"]           # Dc_NS_AS
 
   del matrices["Dd_N_A"]
   del matrices["Dd_NS_AS"]
@@ -390,7 +395,7 @@ def load_topology_from_file(
   nr_arcs = len(data["arcs"])
   nr_specs = len(species_list)
   # TODO Probably change this
-  index_sets["general"]["S"] = [str(x) for x in range(1, nr_specs + 1)]
+  index_sets["general"]["I_3"] = [str(x) for x in range(1, nr_specs + 1)] # Species
 
   topology_graph.graph["index_sets_info"] = index_sets
 
@@ -466,7 +471,7 @@ def convert_model_file(ontology_name, model_name):
                                       "arcs": {}
                                       }
 
-  list_ids = ["V_15", "V_66", "V_100", "V_164", "V_169"]
+  list_ids = ["V_15", "V_66", "V_100", "V_164", "V_169", "V_110"]
   node_id_list = []
 
   for node_id in data["nodes"]:
@@ -487,9 +492,15 @@ def convert_model_file(ontology_name, model_name):
       if var_id in list_ids:
         new_data["instantiation_info"]["nodes"][new_node_id][var_id] = [value]
 
-  for arc in data["arcs"]:
-    new_data["instantiation_info"]["arcs"][arc] = {}
-    new_data["instantiation_info"]["arcs"][arc]["V_168"] = ["3e-12"]
+  # HACK: Manually converting instantiated values to list
+  for arc_id in data["arcs"]:
+    new_data["instantiation_info"]["arcs"][arc_id] = {
+      var_id: [value]
+      for var_id, value in data["instantiation_info"]["arcs"][arc_id].items()
+    }  
+    
+
+    # new_data["instantiation_info"]["arcs"][arc]["V_168"] = ["3e-12"]
 
   with open(path_new, "w", encoding="utf-8",) as file:
     json.dump(new_data, file, indent=4)

@@ -3,7 +3,9 @@ import jinja2
 from typing import Dict, List, Tuple, Set, Optional
 from pprint import pprint as pp
 
-from packages.Common.classes import variable, equation
+from packages.Common.classes import variable
+from packages.Common.classes import equation
+from packages.Common.classes import index
 from packages.Common.classes import vareqdigraph
 from packages.Common import resource_initialisation as ri
 
@@ -13,7 +15,7 @@ class TemplateHandler:
       self,
       language: str,
       all_variables: Dict[str, variable.Variable],
-      all_indices: Dict,
+      all_indices: Dict[str, index.Index],
       all_equations: Dict[str, equation.Equation],
       vareq: vareqdigraph.VarEqDiGraph,
   ):
@@ -47,16 +49,13 @@ class TemplateHandler:
     data["index_sets_info"] = copy.deepcopy(
         self.var_eq.top_graph.graph["index_sets_info"]
     )
+    # pp(data["index_sets_info"])
     # Changing the alias of the index to the language specific ones
-    general_info = data["index_sets_info"]["general"]
-    general_info_copy = general_info.copy()
-
-    for alias, index_data in general_info_copy.items():
-      for index_data in self.all_indices.values():
-        if index_data["aliases"]["internal_code"] == alias:
-          lang_alias = index_data["aliases"][self.language]
-          general_info[lang_alias] = general_info.pop(alias)
-          break
+    general_idx_info = data["index_sets_info"]["general"]
+    idx_list = list(general_idx_info.keys())
+    for idx_id in idx_list:
+      translated_idx = self.all_indices.get(idx_id).get_translation(self.language)
+      general_idx_info[translated_idx] = general_idx_info.pop(idx_id)
 
     # pp(data["index_sets_info"])
     # THIS COMES FROM THE USER
@@ -70,14 +69,14 @@ class TemplateHandler:
 
       index_sets = ", ".join(
           [
-              self.all_indices[i]["aliases"][self.language]
-              for i in index_structures
+              self.all_indices.get(idx).get_translation(self.language)
+              for idx in index_structures
           ]
       )
       index_labels = ", ".join(
           [
-              self.all_indices[i]["aliases"][self.language] + "_lbl"
-              for i in index_structures
+              self.all_indices.get(idx).get_translation(self.language) + "_lbl"
+              for idx in index_structures
           ]
       )
 
@@ -103,8 +102,8 @@ class TemplateHandler:
       integrator_info["index_sets"] = index_sets
       integrator_info["top_ids"] = top_ids
 
-      var_data = self.all_variables[var_id]
-      index_structures = var_data.index_structures
+      # var_data = self.all_variables[var_id]
+      # index_structures = var_data.index_structures
 
       ini = str(count)
       count += self.size_by_index(var_id, index_sets)
@@ -181,12 +180,13 @@ class TemplateHandler:
     return data
 
   def size_by_index(self, var_id, index_sets):
+    # TODO: Rewrite this, make a separation between index and index sets
     var_data = self.all_variables[var_id]
 
     index_structures = var_data.index_structures
 
-    index_label = self.all_indices[index_structures[0]
-                                   ]["aliases"]["internal_code"]
+    idx_id = index_structures[0]
+    index_label = self.all_indices[idx_id].get_translation("internal_code")
 
     index_sets_info = self.var_eq.top_graph.graph["index_sets_info"]
 
@@ -198,7 +198,7 @@ class TemplateHandler:
     sum = 0
     # pp(index_sets_info)
     for i in index_union:
-      element = index_sets_info["general"][index_label][int(i) - 1]
+      element = index_sets_info["general"][idx_id][int(i) - 1]
       if isinstance(element, list):
         sum += len(element)
       else:
@@ -253,7 +253,7 @@ class TemplateHandler:
     output = []
 
     for idx in index_structures:
-      index_label = self.all_indices[idx]["aliases"]["internal_code"]
+      index_label = self.all_indices[idx].get_translation("internal_code")
       spec_idx_sets = self.join_sets(index_label, index_sets)
       if len(spec_idx_sets) == 1:
         output.append(spec_idx_sets[0])

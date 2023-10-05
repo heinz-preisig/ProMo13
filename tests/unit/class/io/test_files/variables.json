@@ -11,6 +11,9 @@
         "latex": "\\\\#",
         "internal_code": "value"
       },
+      "compiled_lhs": {
+        "latex": "{\\#}{_{}}"
+      },
       "created": "2023-09-14 10:16:31",
       "doc": "numerical value",
       "equations": {},
@@ -32,6 +35,11 @@
         "matlab": "d",
         "latex": "d",
         "internal_code": "d"
+      },
+      "compiled_lhs": {
+        "global_ID": "V_97",
+        "matlab": "d(A)",
+        "latex": "{d}{_{A}}"
       },
       "created": "2023-09-14 10:16:31",
       "doc": "flow direction of convectional flow",
@@ -68,6 +76,11 @@
         "matlab": "c_AS",
         "latex": "c",
         "internal_code": "c_AS"
+      },
+      "compiled_lhs": {
+        "global_ID": "V_98",
+        "matlab": "c_AS(A)",
+        "latex": "{c}{_{{A S}}}"
       },
       "created": "2023-09-14 10:16:31",
       "doc": "concentration in convectional flow",
@@ -126,6 +139,11 @@
         "matlab": "fnc_AS",
         "latex": "{\\\\hat{n}^c}",
         "internal_code": "fnc_AS"
+      },
+      "compiled_lhs": {
+        "global_ID": "V_99",
+        "matlab": "fnc_AS(A)",
+        "latex": "{{\\hat{n}^c}}{_{{A S}}}"
       },
       "created": "2023-09-14 10:16:31",
       "doc": "molar convectional mass flow in the given stream",
@@ -290,8 +308,8 @@
       "type": "block_index",
       "label": "node & species",
       "indices": [
-        1,
-        3
+        "I_1",
+        "I_3"
       ],
       "network": [
         "physical",
@@ -318,8 +336,8 @@
       "type": "block_index",
       "label": "arc & species",
       "indices": [
-        2,
-        3
+        "I_2",
+        "I_3"
       ],
       "network": [
         "physical",
@@ -346,8 +364,8 @@
       "type": "block_index",
       "label": "node & species_conversion",
       "indices": [
-        1,
-        4
+        "I_1",
+        "I_4"
       ],
       "network": [
         "physical",
@@ -401,8 +419,8 @@
       "type": "block_index",
       "label": "species_conversion & species",
       "indices": [
-        4,
-        3
+        "I_4",
+        "I_3"
       ],
       "network": [
         "physical",

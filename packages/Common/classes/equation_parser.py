@@ -3,7 +3,8 @@ from ply import lex, yacc
 import logging
 
 from packages.Common.classes import translator
-# from packages.Common.classes import variable
+from packages.Common.classes import variable
+from packages.Common.classes import index
 
 # Setting up a logger
 logger = logging.getLogger(__name__)
@@ -36,15 +37,12 @@ class EquationParser:
   def __init__(
       self,
       language: str,
-      variables,  # : Dict[str, variable.Variable]
-      indices: Dict[str, str],  # : Dict[str, index???]
+      all_variables: Dict[str, variable.Variable],
+      all_indices: Dict[str, index.Index],
   ):
-    self.language = language
-    # TODO: Prolly pass the variables and indices to the translator and
-    # do all the translation there.
-    self.translator = translator.Translator(language)
-    self.variables = variables
-    self.indices = indices
+    # TODO: Possibly remove: O_INSTANTIATE
+    self.translator = translator.Translator(
+        language, all_variables, all_indices)
 
   # Define the rule for ignoring whitespace
   t_ignore = ' \t'
@@ -63,8 +61,12 @@ class EquationParser:
       'O_COLON',
       'O_DOT',
       'O_PIPE',
+      'O_PARTIAL_DIFF',
+      'O_TOTAL_DIFF',
+      'O_INTEGRAL',
       'O_IN',
       'O_PRODUCT',
+      'O_INSTANTIATE',
       'D_LEFT_ROUND',
       'D_RIGHT_ROUND',
       'D_LEFT_SQUARE',
@@ -79,9 +81,9 @@ class EquationParser:
   )
 
   t_VARIABLE = r'V_\d+'
-  t_UNARY_FUNCTION = r'F_(?:1[0-6]|[0-9])(?!\d)'
-  t_BINARY_FUNCTION = r'F_1[7-9]'
-  t_QUATERNARY_FUNCTION = r'F_20'
+  t_UNARY_FUNCTION = r'F_(?:1[0-8]|[0-9])(?!\d)'
+  # t_BINARY_FUNCTION = r'F_1[7-9]'
+  # t_QUATERNARY_FUNCTION = r'F_20'
   t_INDEX = r'I_\d+'
   # OPERATORS
   t_O_PLUS = r'O_0'
@@ -90,7 +92,11 @@ class EquationParser:
   t_O_COLON = r'O_3'
   t_O_DOT = r'O_4'
   t_O_PIPE = r'O_5'
+  t_O_PARTIAL_DIFF = r'O_7'
+  t_O_TOTAL_DIFF = r'O_8'
+  t_O_INTEGRAL = r'O_9'
   t_O_PRODUCT = r'O_10'
+  t_O_INSTANTIATE = r'O_11'
   t_O_IN = r'O_14'
   # DELIMITERS
   t_D_LEFT_ROUND = r'D_0'
@@ -116,19 +122,7 @@ class EquationParser:
 
   def p_expr_variable(self, p: yacc.YaccProduction) -> None:
     '''expression : VARIABLE'''
-
-    var_id = p[1]
-    if var_id not in self.variables:
-      raise ValueError(
-          f"Variable {var_id} not found."
-      )
-    var_name = self.variables[var_id].get_alias(self.language)
-    # TODO: Probably make an INDEX class
-    var_indices = []
-    for index in self.variables[var_id].get_indices():
-      var_indices.append(self.indices[str(index)]["aliases"][self.language][0])
-
-    p[0] = self.translator.translate_variable(var_name, var_indices)
+    p[0] = self.translator.translate_variable(p[1])
 
   def p_expr_plus(self, p: yacc.YaccProduction) -> None:
     '''expression : expression O_PLUS expression'''
@@ -152,23 +146,16 @@ class EquationParser:
 
   def p_expr_reduce_product(self, p: yacc.YaccProduction) -> None:
     '''expression : expression O_PIPE INDEX O_PIPE expression'''
-
-    # TODO: Change after making an index class
-    idx1 = self.indices[p[3]]["aliases"][self.language]
-    p[0] = self.translator.translate_reduce_product(p[1], idx1, p[5])
+    p[0] = self.translator.translate_reduce_product(p[1], p[3], p[5])
 
   def p_expr_block_reduce_product(self, p: yacc.YaccProduction) -> None:
     '''expression : expression O_PIPE INDEX O_IN INDEX O_PIPE expression'''
-    # TODO: Change after making an index class
-    idx1 = self.indices[p[3]]["aliases"][self.language]
-    idx2 = self.indices[p[5]]["aliases"][self.language]
     p[0] = self.translator.translate_block_reduce_product(
-        p[1], idx1, idx2, p[7])
+        p[1], p[3], p[5], p[7])
 
   def p_expr_product(self, p: yacc.YaccProduction) -> None:
     '''expression : O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND'''
-    idx1 = self.indices[p[5]]["aliases"][self.language]
-    p[0] = self.translator.translate_product(p[3], idx1)
+    p[0] = self.translator.translate_product(p[3], p[5])
 
   def p_expr_power(self, p: yacc.YaccProduction) -> None:
     '''expression : expression O_HAT expression'''
@@ -177,6 +164,22 @@ class EquationParser:
   def p_expr_parentheses(self, p: yacc.YaccProduction) -> None:
     '''expression : D_LEFT_ROUND expression D_RIGHT_ROUND'''
     p[0] = self.translator.translate_parentheses(p[2])
+
+  def p_expr_partial_diff(self, p: yacc.YaccProduction) -> None:
+    '''expression : O_PARTIAL_DIFF D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND'''
+    p[0] = self.translator.translate_partial_diff(p[3], p[5])
+
+  def p_expr_total_diff(self, p: yacc.YaccProduction) -> None:
+    '''expression : O_TOTAL_DIFF D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND'''
+    p[0] = self.translator.translate_total_diff(p[3], p[5])
+
+  def p_expr_integral(self, p: yacc.YaccProduction) -> None:
+    '''expression : O_INTEGRAL D_LEFT_ROUND expression D_DOUBLE_COLUMN expression O_IN D_LEFT_SQUARE expression D_COMMA expression D_RIGHT_SQUARE D_RIGHT_ROUND'''
+    p[0] = self.translator.translate_integral(p[3], p[5], p[8], p[10])
+
+  def p_expr_instantiate(self, p: yacc.YaccProduction) -> None:
+    '''expression : O_INSTANTIATE D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND'''
+    p[0] = self.translator.translate_instantiate(p[3], p[5])
 
   def p_unary_function(self, p: yacc.YaccProduction) -> None:
     '''expression : UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND'''

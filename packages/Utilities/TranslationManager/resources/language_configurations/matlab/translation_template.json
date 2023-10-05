@@ -30,6 +30,8 @@
   "sign": "sign({op1})",
   "par_diff": "pardiff({op1}, {op2})",
   "total_diff": "totaldiff({op1}, {op2})",
+  "instantiate": "instantiate({op1}, {op2})",
   "product": "product({op1}, \"{idx1}\")",
-  "integral": "integral({op1}, {op2}, {op3}, {op4})"
+  "integral": "integral({op1}, {op2}, {op3}, {op4})",
+  "root": "root({op1})"
 }

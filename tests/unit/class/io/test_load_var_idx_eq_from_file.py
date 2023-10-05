@@ -189,3 +189,57 @@ def test_load_var_idx_eq_from_file(datafiles):
       "2023-09-14 10:16:31", date_format)
   assert eq_test.modified == datetime.strptime(
       "2023-09-14 10:16:31", date_format)
+
+  ######################################################################
+  ########################### Indices tests ############################
+  ######################################################################
+
+  idx_test = all_indices.get("I_1")
+  assert idx_test.type == "index"
+  assert idx_test.label == "node"
+  assert idx_test.network == [
+      "root",
+      "physical",
+      "reactions",
+      "material",
+      "macroscopic",
+      "solid",
+      "fluid",
+      "liquid",
+      "gas",
+      "control"
+  ]
+  assert idx_test.aliases == {
+      "global_ID": "I_1",
+      "python": "N",
+      "cpp": "N",
+      "matlab": "N",
+      "latex": "N",
+      "internal_code": "N"
+  }
+  assert idx_test.iri == "promo:node"
+  assert idx_test.indices == []
+
+  idx_test = all_indices.get("I_5")
+  assert idx_test.type == "block_index"
+  assert idx_test.label == "node & species"
+  assert idx_test.network == [
+      "physical",
+      "reactions",
+      "material",
+      "macroscopic",
+      "solid",
+      "fluid",
+      "liquid",
+      "gas"
+  ]
+  assert idx_test.aliases == {
+      "global_ID": "I_5",
+      "python": "N_x_S",
+      "cpp": "N_x_S",
+      "matlab": "N_x_S",
+      "latex": "{N S}",
+      "internal_code": "N & S"
+  }
+  assert idx_test.iri == "promo:node_&_species"
+  assert idx_test.indices == ["I_1", "I_3"]
