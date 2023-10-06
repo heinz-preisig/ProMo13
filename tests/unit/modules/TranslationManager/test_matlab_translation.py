@@ -30,7 +30,32 @@ def test_load_var_idx_eq_from_file(datafiles):
     parser = equation_parser.EquationParser(
         "matlab", all_variables, all_indices)
 
-  # Product test
+  # Product
   translation = parser.parse(
       all_equations["E_129"].get_translation("global_ID")["rhs"])
   assert translation == "product(x(N, K) .^ (N_NK_KS(N, K)), \"K_x_S\")"
+
+  # Partial diff
+  translation = parser.parse(
+      all_equations["E_6"].get_translation("global_ID")["rhs"])
+  assert translation == "-1 .* pardiff(U(N), V(N))"
+
+  # Total diff
+  translation = parser.parse(
+      all_equations["E_89"].get_translation("global_ID")["rhs"])
+  assert translation == "totaldiff(charge(N), t)"
+
+  # Integral
+  translation = parser.parse(
+      all_equations["E_87"].get_translation("global_ID")["rhs"])
+  assert translation == "integral(dHdt(N), t, to, te)"
+
+  # Instantiate
+  translation = parser.parse(
+      all_equations["E_79"].get_translation("global_ID")["rhs"])
+  assert translation == "instantiate(fHc_A(A), value)"
+
+  # Root
+  translation = parser.parse(
+      all_equations["E_97"].get_translation("global_ID")["rhs"])
+  assert translation == "root(Ue(N))"

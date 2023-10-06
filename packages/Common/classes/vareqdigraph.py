@@ -7,6 +7,7 @@ import disjoint_set
 from packages.Common.classes import entity
 from packages.Common.classes import equation
 from packages.Common.classes import variable
+from packages.Common.classes import index
 
 from pprint import pprint as pp
 
@@ -16,7 +17,7 @@ class VarEqDiGraph:
       self,
       top_graph: nx.Graph,
       all_equations: Dict[str, equation.Equation],
-      all_indices: Dict,
+      all_indices: Dict[str, index.Index],
       all_variables: Dict[str, variable.Variable],
   ):
     self.top_graph = top_graph
@@ -242,7 +243,8 @@ class VarEqDiGraph:
     elif dimension == 1:
       # TODO Fix this, maybe a new node in the topology graph: "S"
       index = index_structures[0]
-      index_label = self.all_indices[index]["aliases"]["internal_code"]
+      index_label = self.all_indices[index].get_translation("internal_code")
+
       if index_label == "S":
         for i, val in enumerate(inst_info[var_id], start=1):
           self.inst_variables[var_id]["vals"][str(i)] = [val]

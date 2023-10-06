@@ -110,6 +110,9 @@ class Variable():
   def get_alias(self, language):
     return self.aliases.get(language)
 
+  def get_translation(self, language):
+    return self.compiled_lhs.get(language)
+
   def get_indices(self):
     return self.index_structures
 
