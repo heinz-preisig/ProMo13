@@ -48,7 +48,7 @@ class MainModel(QtCore.QObject):
     )
     self.all_entities = io.load_entities_from_file(
         self.ontology_name,
-        self.all_variables
+        self.all_equations
     )
 
     self._update_tree_model()
