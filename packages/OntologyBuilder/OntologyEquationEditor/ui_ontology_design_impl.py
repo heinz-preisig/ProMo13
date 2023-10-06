@@ -22,6 +22,9 @@ __status__ = "beta"
 import os
 import subprocess
 
+from datetime import datetime
+from pathlib import Path
+
 from jinja2 import Environment  # sudo apt-get install python-jinja2
 from jinja2 import FileSystemLoader
 from pydotplus.graphviz import Cluster
@@ -32,6 +35,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QProgressDialog
 from PyQt5.QtWidgets import QSizePolicy
+
 
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import getData
@@ -79,13 +83,15 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
 
 
-from Common.classes.io import translate_equations
+from Common.classes.io import translate_equations         # must be last
+from Common.classes.io import generate_latex_images       # must be last
+
 
 # RULE: fixed wired for initialisation -- needs to be more generic
 INITIALVARIABLE_TYPES = {
-    "initialise": ["state", "frame"],
-    "connections": ["constant", "transposition"]
-}
+        "initialise" : ["state", "frame"],
+        "connections": ["constant", "transposition"]
+        }
 
 CHOOSE_NETWORK = "choose network"
 CHOOSE_INTER_CONNECTION = "choose INTER connection"
@@ -133,10 +139,10 @@ class UiOntologyDesign(QMainWindow):
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
 
     self.radio = [
-        self.ui.radioVariables,
-        self.ui.radioVariablesAliases,
-        self.ui.radioIndicesAliases,
-    ]
+            self.ui.radioVariables,
+            self.ui.radioVariablesAliases,
+            self.ui.radioIndicesAliases,
+            ]
     [i.hide() for i in self.radio]
 
     self.ui.groupFiles.hide()
@@ -160,7 +166,7 @@ class UiOntologyDesign(QMainWindow):
 
     # get ontology
     self.ontology_location = DIRECTORIES["ontology_location"] % str(
-        self.ontology_name)
+            self.ontology_name)
     self.ontology_container = OntologyContainer(self.ontology_name)
     self.ui.groupOntology.setTitle("ontology : %s" % self.ontology_name)
     # works only for colour and background not font size and font style
@@ -183,7 +189,7 @@ class UiOntologyDesign(QMainWindow):
     self.variables = Variables(self.ontology_container)
     # link the indices for compilation
     self.variables.importVariables(
-        self.ontology_container.variables, self.indices)
+            self.ontology_container.variables, self.indices)
 
     self.state = "edit"
 
@@ -195,7 +201,7 @@ class UiOntologyDesign(QMainWindow):
     self.ui.combo_InterConnectionNetwork.clear()
     self.ui.combo_IntraConnectionNetwork.clear()
     self.ui.combo_InterConnectionNetwork.addItems(
-        sorted(self.interconnection_nws_list))
+            sorted(self.interconnection_nws_list))
     nws = self.ontology_container.networks
     self.ui.combo_IntraConnectionNetwork.addItems(nws)
 
@@ -313,7 +319,7 @@ class UiOntologyDesign(QMainWindow):
   def on_pushInstantiate_pressed(self):
     # print("debugging -- not yet implemented pushInstantiate")
     variables_not_instantiated = self.variables.indexInstantiated(
-        self.current_network)
+            self.current_network)
     enabled_var_types = self.variable_types_on_networks[self.current_network]
     self.variables.indexVariables()
     self.pick_instantiate = UI_VariableTableInterfaceInstantiate("All not instantiated variables",
@@ -323,7 +329,7 @@ class UiOntologyDesign(QMainWindow):
                                                                  enabled_types=enabled_var_types,
                                                                  hide_vars=[],
                                                                  hide_columns=[
-                                                                     3],
+                                                                         3],
                                                                  info_file=None,
                                                                  variable_IDs=variables_not_instantiated
                                                                  )
@@ -332,6 +338,16 @@ class UiOntologyDesign(QMainWindow):
 
   def on_pushCompile_pressed(self):
 
+    for l in LANGUAGES["code_generation"]:
+      translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
+      # put them into the container
+      for eqID in translated_equations:
+        var_ID, _ = self.variables.incidence_dictionary[eqID]
+        self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
+        self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
+
+      self.__writeMessage("finished compilation into ", l)
+
     # make latex lhs
     for varID in self.variables:
       # make lhs in the given language
@@ -339,22 +355,17 @@ class UiOntologyDesign(QMainWindow):
       compiled_label = str(self.variables[varID])
       self.ontology_container.variables[varID]["compiled_lhs"]["latex"] = compiled_label
 
-    for l in LANGUAGES["code_generation"]:
-      translated_equations = translate_equations(
-          ontology_name=self.ontology_name, language=l)
-      for eqID in translated_equations:
-        var_ID, _ = self.variables.incidence_dictionary[eqID]
-        # translated_equations[eqID]["variable_ID"] = var_ID
-        self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
-        # self.ontology_container.variables[var_ID]["equations"][eqID]["lhs"][l] = translated_equations[eqID]["lhs"]
-        self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
+    # make latex rhs and put into container
+    self.__compile("latex")
 
-    self.__makeOWLFile()
-    self.__compile("latex")  # make latex rhs
     self.__makeLatexDocument()
     self.__writeMessage("finished latex document")
 
+    self.__makeOWLFile()
+    self.__writeMessage("finished owl document")
+
     self.__makeRenderedOutput()
+    self.__writeMessage("finished rendered document")
 
   def on_pushShowVariables_pressed(self):
     # print("debugging -- make variable table")
@@ -382,7 +393,7 @@ class UiOntologyDesign(QMainWindow):
 
     self.__writeMessage("wait for completion of compilation")
 
-    self.__makeVariableEquationPictures()
+    # self.__makeVariableEquationPictures()
 
   def on_pushExit_pressed(self):
     self.close()
@@ -394,19 +405,19 @@ class UiOntologyDesign(QMainWindow):
     self.__hideTable()
     self.ui.combo_EditVariableTypes.clear()
     self.ui.combo_EditVariableTypes.addItems(
-        self.ontology_container.ontology_tree[self.current_network]["behaviour"]["graph"])
+            self.ontology_container.ontology_tree[self.current_network]["behaviour"]["graph"])
 
   def on_radioNode_clicked(self):
     self.__hideTable()
     self.ui.combo_EditVariableTypes.clear()
     self.ui.combo_EditVariableTypes.addItems(
-        self.ontology_container.ontology_tree[self.current_network]["behaviour"]["node"])
+            self.ontology_container.ontology_tree[self.current_network]["behaviour"]["node"])
 
   def on_radioArc_clicked(self):
     self.__hideTable()
     self.ui.combo_EditVariableTypes.clear()
     self.ui.combo_EditVariableTypes.addItems(
-        self.ontology_container.ontology_tree[self.current_network]["behaviour"]["arc"])
+            self.ontology_container.ontology_tree[self.current_network]["behaviour"]["arc"])
 
   def on_treeWidget_clicked(self, index):  # state network_selected
     self.current_network = str(self.ui.treeWidget.currentItem().name)
@@ -460,7 +471,7 @@ class UiOntologyDesign(QMainWindow):
     print("debugging -- left and right network:", left_nw, right_nw)
     set_left_variables = set()
     enabled_var_classes = list(
-        self.variables.index_accessible_variables_on_networks[left_nw].keys())
+            self.variables.index_accessible_variables_on_networks[left_nw].keys())
 
     # RULE: what to hide -- all that have already be put into the interface
     already_defined_variables, not_yet_defined_variables = self.__alreadyDefinedVariables()
@@ -515,16 +526,16 @@ class UiOntologyDesign(QMainWindow):
 
     variable_record = makeCompleteVariableRecord(new_var_ID,
                                                  label=makeInterfaceVariableName(
-                                                     symbol),
+                                                         symbol),
                                                  type=variable_type,
                                                  network=self.current_network,
                                                  doc="link variable %s to interface %s" % (
-                                                     symbol, self.current_network),
+                                                         symbol, self.current_network),
                                                  index_structures=index_structures,
                                                  units=units,
                                                  equations={
-                                                     new_equ_ID: link_equation
-                                                 },
+                                                         new_equ_ID: link_equation
+                                                         },
                                                  aliases={},
                                                  port_variable=False,
                                                  tokens=tokens,
@@ -556,7 +567,7 @@ class UiOntologyDesign(QMainWindow):
 
     if what == "interface":
       vars_types_on_network_variable = self.ontology_container.interfaces[
-          nw]["internal_variable_classes"]
+        nw]["internal_variable_classes"]
       self.ui.combo_EditVariableTypes.clear()
       self.ui.combo_EditVariableTypes.addItems(vars_types_on_network_variable)
       network_for_variable = nw
@@ -564,7 +575,7 @@ class UiOntologyDesign(QMainWindow):
       network_for_expression = nw
       # network_variable_source = self.ontology_container.interfaces[nw]["left_network"]
       vars_types_on_network_expression = self.ontology_container.interfaces[
-          nw]["left_variable_classes"]
+        nw]["left_variable_classes"]
     elif what in "intraface":
       network_for_variable = nw  # self.intraconnection_nws[nw]["right"]
       _types = self.ontology_container.variable_types_on_networks
@@ -594,7 +605,7 @@ class UiOntologyDesign(QMainWindow):
       network_for_expression = nw
 
       vars_types_on_network_variable = sorted(
-          self.ontology_container.variable_types_on_networks[network_for_variable])
+              self.ontology_container.variable_types_on_networks[network_for_variable])
 
       interface_variable_list = []
       oc = self.variables.ontology_container
@@ -605,12 +616,12 @@ class UiOntologyDesign(QMainWindow):
 
       network_variable_source = network_for_expression
       vars_types_on_network_expression = sorted(
-          self.ontology_container.variable_types_on_networks[network_variable_source])
+              self.ontology_container.variable_types_on_networks[network_variable_source])
       for nw in interface_variable_list:
         for var_type in self.ontology_container.variable_types_on_interfaces[nw]:
           vars_types_on_network_expression.append(var_type)
       vars_types_on_network_expression = list(
-          set(vars_types_on_network_expression))
+              set(vars_types_on_network_expression))
 
     self.ui_eq = UI_Equations(what,  # what: string "network" | "interface" | "intraface"
                               self.variables,
@@ -653,21 +664,21 @@ class UiOntologyDesign(QMainWindow):
     filter = makeCompleteVariableRecord("dummy").keys()
     variables = self.variables.extractVariables(filter)
     self.ontology_container.writeVariables(
-        variables, self.indices, self.variables.ProMoIRI)
+            variables, self.indices, self.variables.ProMoIRI)
     self.state = 'edit'
 
     self.compile_only = False
 
     self.on_pushCompile_pressed()
 
-    self.__makeRenderedOutput()
+    self.generate_latex_images(self.ontology_name)
 
   def __makeRenderedOutput(self):
     """idea is to ease the repetition of inputting equations by writing them on a file."""
     self.__writeMessage("generating variable and equation pictures")
     language = LANGUAGES["global_ID_to_internal"]
     incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(
-        self.variables)
+            self.variables)
     e_name = FILES["coded_equations"] % (self.ontology_location, language)
 
     for equ_ID in sorted(incidence_dictionary):
@@ -676,17 +687,17 @@ class UiOntologyDesign(QMainWindow):
       network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
       var_label = self.variables[lhs_var_ID].label
       expression = renderExpressionFromGlobalIDToInternal(
-          expression_ID, self.variables, self.indices)
+              expression_ID, self.variables, self.indices)
       self.compiled_equations[language][equ_ID] = {
-          "lhs": var_label,
-          "network": network,
-          "rhs": expression
-      }
+              "lhs"    : var_label,
+              "network": network,
+              "rhs"    : expression
+              }
 
     putData(self.compiled_equations[language], e_name)
 
     e_name = FILES["coded_equations"] % (
-        self.ontology_location, "just_list_internal_format")
+            self.ontology_location, "just_list_internal_format")
     e_name = e_name.replace(".json", ".txt")
     file = open(e_name, 'w')
     for equ_ID in sorted(incidence_dictionary):
@@ -700,7 +711,7 @@ class UiOntologyDesign(QMainWindow):
 
     # hash is equation ID, value is tuple lhs varID and incidence list of varID
     incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(
-        self.variables)
+            self.variables)
     e_name = FILES["coded_equations"] % (self.ontology_location, language)
 
     for varID in self.variables:
@@ -717,7 +728,7 @@ class UiOntologyDesign(QMainWindow):
       network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
 
       expression = renderExpressionFromGlobalIDToInternal(
-          expression_ID, self.variables, self.indices)
+              expression_ID, self.variables, self.indices)
 
       if "Root" in expression:
         # aliases["global_ID"]
@@ -740,7 +751,7 @@ class UiOntologyDesign(QMainWindow):
               VarError,
               ) as _m:
         print('checked expression failed %s : %s = %s -- %s' % (
-            equ_ID, self.variables[lhs_var_ID].label, expression, _m))
+                equ_ID, self.variables[lhs_var_ID].label, expression, _m))
 
     # if language == "latex":
     #   self.__makeLatexDocument()
@@ -775,10 +786,10 @@ class UiOntologyDesign(QMainWindow):
     # main.tex
     names_names_for_variables = []
     nw_list = self.networks + self.intraconnection_nws_list + \
-        self.interconnection_nws_list
+              self.interconnection_nws_list
     for nw in nw_list:
       names_names_for_variables.append(
-          str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--'))
+              str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--'))
 
     e_types = sorted(self.variables.equation_type_list)
     e_types_cleaned = []
@@ -814,7 +825,7 @@ class UiOntologyDesign(QMainWindow):
       print("debugging -- equation type", e_type)
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
       completed_template = j2_env.get_template(FILES["latex_template_equations"]). \
-          render(equations=eqs[e_type], sequence=_s)
+        render(equations=eqs[e_type], sequence=_s)
       o = self.__cleanStrings(str(e_type))
       f_name = FILES["latex_equations"] % (self.ontology_location, str(o))
       f = open(f_name, 'w')
@@ -830,11 +841,11 @@ class UiOntologyDesign(QMainWindow):
     args = ['sh', f_name, location]
     print('ARGS: ', args)
     make_it = subprocess.Popen(
-        args,
-        # start_new_session=True,
-        # stdout=subprocess.PIPE,
-        # stderr=subprocess.PIPE
-    )
+            args,
+            # start_new_session=True,
+            # stdout=subprocess.PIPE,
+            # stderr=subprocess.PIPE
+            )
     out, error = make_it.communicate()
     # print("debugging -- ", out, error)
 
@@ -887,19 +898,19 @@ class UiOntologyDesign(QMainWindow):
     self.pick_instantiate.close()
     self.on_pushInstantiate_pressed()
 
-  def __makeVariableEquationPictures(self):
-
-    # make_it.wait()
-    # Note: make the png variable and equation files
-
-    # msg_box = wait()
-    # msg_box.exec()
-    self.progress_dialog("compiling")
-    # self.variables, self.ontology_container)
-    self.make_variable_equation_pngs()
-    # self.__writeMessage("Wrote {} output".format(language), append=True)
-    self.__writeMessage("compilation completed")
-
+  # def __makeVariableEquationPictures(self):
+  #
+  #   # make_it.wait()
+  #   # Note: make the png variable and equation files
+  #
+  #   # msg_box = wait()
+  #   # msg_box.exec()
+  #   self.progress_dialog("compiling")
+  #   # self.variables, self.ontology_container)
+  #   self.make_variable_equation_pngs()
+  #   # self.__writeMessage("Wrote {} output".format(language), append=True)
+  #   self.__writeMessage("compilation completed")
+  #
   def __getAllEquationsPerType(self, language):
     eqs = {}
     for e_type in self.variables.equation_type_list:  # split into equation types
@@ -1017,107 +1028,109 @@ class UiOntologyDesign(QMainWindow):
     self.ui.groupFiles.show()
     self.ui.pushWrite.show()
 
-  def make_variable_equation_pngs(self):  # , variables, ontology_container):
-    """
-    generates pictures of the equations extracting the latex code from the latex equation file
-    """
-    self.make_equation_pngs()
-    self.make_variable_pngs()
+  # def make_variable_equation_pngs(self):  # , variables, ontology_container):
+  #   """
+  #   generates pictures of the equations extracting the latex code from the latex equation file
+  #   """
+  #   self.
+  # from Common.classes.io import load_var_idx_eq_from_file
+  # from Common.classes.io import translate_equations()
+  #   self.make_variable_pngs()
 
-  def make_equation_pngs(self, source=None, ID=None):
-    """
-    undefined source takes the data from the compiled file, thus the equations_latex.json file
-    otherwise it is taken from the variables dictionary being physical variables
-    """
-    ontology_name = self.ontology_container.ontology_name
-    ontology_location = DIRECTORIES["ontology_location"] % ontology_name
-    f_name = FILES["pnglatex"]
-    header = self.__makeHeader(ontology_name)
+  # def make_equation_pngs(self, source=None, ID=None):
+  #   """
+  #   undefined source takes the data from the compiled file, thus the equations_latex.json file
+  #   otherwise it is taken from the variables dictionary being physical variables
+  #   """
+  #   ontology_name = self.ontology_container.ontology_name
+  #   ontology_location = DIRECTORIES["ontology_location"] % ontology_name
+  #   f_name = FILES["pnglatex"]
+  #   header = self.__makeHeader(ontology_name)
+  #
+  #   if not source:
+  #     eqs = {}
+  #     latex_file = os.path.join(
+  #             DIRECTORIES["ontology_location"] % ontology_name, "equations_latex.json")
+  #     latex_translations = getData(latex_file)
+  #     for eq_ID_str in latex_translations:
+  #       eq_ID = int(eq_ID_str)
+  #       if ID:
+  #         e = latex_translations[ID]
+  #         eqs[ID] = r"%s = %s" % (e["lhs"], e["rhs"])
+  #         break
+  #       else:
+  #         e = latex_translations[eq_ID_str]
+  #         eqs[eq_ID] = r"%s = %s" % (e["lhs"], e["rhs"])
+  #
+  #   for eq_ID in eqs:
+  #     out = os.path.join(ontology_location, "LaTeX", "equation_%s.png" % eq_ID)
+  #     args = ['bash', f_name, "-P5", "-H", header, "-o", out, "-f", eqs[eq_ID],
+  #             ontology_location]
+  #
+  #     try:  # reports an error after completing the last one -- no idea
+  #       make_it = subprocess.Popen(
+  #               args,
+  #               start_new_session=True,
+  #               # restore_signals=False,
+  #               # stdout=subprocess.PIPE,
+  #               # stderr=subprocess.PIPE
+  #               )
+  #       out, error = make_it.communicate()
+  #     except:
+  #       print("equation generation failed")
+  #       pass
+  #
+  # def make_variable_pngs(self, source=None, ID=None):
+  #   ontology_name = self.ontology_container.ontology_name
+  #   variables = self.ontology_container.variables
+  #
+  #   f_name = FILES["pnglatex"]
+  #   ontology_location = DIRECTORIES["ontology_location"] % ontology_name
+  #   header = self.__makeHeader(ontology_name)
+  #   for var_ID in variables:
+  #
+  #     out = os.path.join(ontology_location, "LaTeX",
+  #                        "variable_%s.png" % var_ID)
+  #
+  #     var_latex = self.compiled_variable_labels[var_ID]["latex"]
+  #
+  #     if (not ID) or (var_ID == ID):
+  #       args = ['bash', f_name, "-P5", "-H", header, "-o", out, "-f", var_latex,  # lhs[var_ID],
+  #               ontology_location]
+  #
+  #       try:  # reports an error after completing the last one -- no idea
+  #         make_it = subprocess.Popen(
+  #                 args,
+  #                 start_new_session=True,
+  #                 restore_signals=False,
+  #                 # stdout=subprocess.PIPE,
+  #                 # stderr=subprocess.PIPE
+  #                 )
+  #         out, error = make_it.communicate()
+  #         # print("debugging -- made:", var_ID)
+  #       except:
+  #         print("debugging -- failed to make:", var_ID)
+  #         pass
 
-    if not source:
-      eqs = {}
-      latex_file = os.path.join(
-          DIRECTORIES["ontology_location"] % ontology_name, "equations_latex.json")
-      latex_translations = getData(latex_file)
-      for eq_ID_str in latex_translations:
-        eq_ID = int(eq_ID_str)
-        if ID:
-          e = latex_translations[ID]
-          eqs[ID] = r"%s = %s" % (e["lhs"], e["rhs"])
-          break
-        else:
-          e = latex_translations[eq_ID_str]
-          eqs[eq_ID] = r"%s = %s" % (e["lhs"], e["rhs"])
-
-    for eq_ID in eqs:
-      out = os.path.join(ontology_location, "LaTeX", "equation_%s.png" % eq_ID)
-      args = ['bash', f_name, "-P5", "-H", header, "-o", out, "-f", eqs[eq_ID],
-              ontology_location]
-
-      try:  # reports an error after completing the last one -- no idea
-        make_it = subprocess.Popen(
-            args,
-            start_new_session=True,
-            # restore_signals=False,
-            # stdout=subprocess.PIPE,
-            # stderr=subprocess.PIPE
-        )
-        out, error = make_it.communicate()
-      except:
-        print("equation generation failed")
-        pass
-
-  def make_variable_pngs(self, source=None, ID=None):
-    ontology_name = self.ontology_container.ontology_name
-    variables = self.ontology_container.variables
-
-    f_name = FILES["pnglatex"]
-    ontology_location = DIRECTORIES["ontology_location"] % ontology_name
-    header = self.__makeHeader(ontology_name)
-    for var_ID in variables:
-
-      out = os.path.join(ontology_location, "LaTeX",
-                         "variable_%s.png" % var_ID)
-
-      var_latex = self.compiled_variable_labels[var_ID]["latex"]
-
-      if (not ID) or (var_ID == ID):
-        args = ['bash', f_name, "-P5", "-H", header, "-o", out, "-f", var_latex,  # lhs[var_ID],
-                ontology_location]
-
-        try:  # reports an error after completing the last one -- no idea
-          make_it = subprocess.Popen(
-              args,
-              start_new_session=True,
-              restore_signals=False,
-              # stdout=subprocess.PIPE,
-              # stderr=subprocess.PIPE
-          )
-          out, error = make_it.communicate()
-          # print("debugging -- made:", var_ID)
-        except:
-          print("debugging -- failed to make:", var_ID)
-          pass
-
-  def __makeHeader(self, ontology_name):
-    header = FILES["latex_png_header_file"] % ontology_name
-    # if not os.path.exists(header):                  # removed when copying an ontology tree --> generate
-    header_file = open(header, 'w')
-    # RULE: make header for equation and variable latex compilations.
-    # math packages
-    # \usepackage{amsmath}
-    # \usepackage{amssymb}
-    # \usepackage{calligra}
-    # \usepackage{array}
-    # \input{../../Ontology_Repository/HAP_playground_02_extend_ontology/LaTeX/resources/defs.tex}
-    header_file.write(r"\usepackage{amsmath}")
-    header_file.write(r"\usepackage{amssymb}")
-    header_file.write(r"\usepackage{calligra}")
-    header_file.write(r"\usepackage{array}")
-    header_file.write(
-        r"\input{../../Ontology_Repository/%s/LaTeX/resources/defs.tex}" % ontology_name)
-    header_file.close()
-    return header
+  # def __makeHeader(self, ontology_name):
+  #   header = FILES["latex_png_header_file"] % ontology_name
+  #   # if not os.path.exists(header):                  # removed when copying an ontology tree --> generate
+  #   header_file = open(header, 'w')
+  #   # RULE: make header for equation and variable latex compilations.
+  #   # math packages
+  #   # \usepackage{amsmath}
+  #   # \usepackage{amssymb}
+  #   # \usepackage{calligra}
+  #   # \usepackage{array}
+  #   # \input{../../Ontology_Repository/HAP_playground_02_extend_ontology/LaTeX/resources/defs.tex}
+  #   header_file.write(r"\usepackage{amsmath}")
+  #   header_file.write(r"\usepackage{amssymb}")
+  #   header_file.write(r"\usepackage{calligra}")
+  #   header_file.write(r"\usepackage{array}")
+  #   header_file.write(
+  #           r"\input{../../Ontology_Repository/%s/LaTeX/resources/defs.tex}" % ontology_name)
+  #   header_file.close()
+  #   return header
 
   def closeEvent(self, event):
     self.close_children(event)
@@ -1208,7 +1221,7 @@ class UiOntologyDesign(QMainWindow):
 
     # variables = self.variables.getVariableList(self.current_network)
     variables_ID_list = self.variables.index_definition_networks_for_variable[
-        self.current_network]
+      self.current_network]
     if variables_ID_list:
       self.table_aliases_v = UI_AliasTableVariables(self.variables,
                                                     self.current_network)
@@ -1264,3 +1277,82 @@ class UiOntologyDesign(QMainWindow):
                       variable_network, v_ID, network_v)
                 # TODO: introduce code for generating a cut equation and delete the direct link equation.
                 found = True
+
+
+  def generate_latex_images(self, ontology_name):
+
+    # all_variables, _, all_equations = load_var_idx_eq_from_file(ontology_name)
+
+    variables = self.ontology_container.variables
+    equations = self.ontology_container.equation_dictionary
+    incidence_dictionary = self.variables.incidence_dictionary
+    inv_incidence_dictionary = self.variables.inv_incidence_dictionary
+
+    latex_folder_path =  Path(DIRECTORIES["latex_doc_location"] % ontology_name  )
+
+
+    latex_info = {}
+    modified_vars = []
+    for var_id in variables:
+      var_png_file_path = latex_folder_path / (var_id + ".png")
+      if os.path.exists(var_png_file_path): #.exists():
+        png_mod_date = datetime.fromtimestamp(var_png_file_path.stat().st_mtime)
+        modified = variables[var_id]["modified"]
+        date_format = "%Y-%m-%d %H:%M:%S"
+        var_mod_date = datetime.strptime(modified, date_format)
+        if png_mod_date > var_mod_date:
+          continue
+
+      var_latex_alias = variables[var_id]["aliases"]["latex"]
+      latex_info[var_id] = "$" + var_latex_alias + "$" #"$" + var.get_alias("latex") + "$"
+      modified_vars.append(var_id)
+
+    for eq_id in equations: #, eq in all_equations.items():
+      eq_png_file_path = latex_folder_path / (eq_id + ".png")
+      if eq_png_file_path.exists():
+        png_mod_date = datetime.fromtimestamp(eq_png_file_path.stat().st_mtime)
+        modified = equations[eq_id]["modified"] #eq.get_mod_date()
+        date_format = "%Y-%m-%d %H:%M:%S"
+        eq_mod_date = datetime.strptime(modified, date_format)
+        if png_mod_date > eq_mod_date:
+          continue
+      lhs = equations[eq_id]["lhs"]["latex"]
+      rhs = equations[eq_id]["rhs"]["latex"] #eq.get_translation("latex")
+      # pp(latex_translation)
+      latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
+
+  # pick up the equations that are modified due to changing variable
+    for var_id in modified_vars:
+      for eq_id in inv_incidence_dictionary[var_id]:
+
+        lhs = equations[eq_id]["lhs"]["latex"]
+        rhs = equations[eq_id]["rhs"]["latex"] #eq.get_translation("latex")
+        # pp(latex_translation)
+        latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
+
+
+    original_work_dir = os.getcwd()
+    os.chdir(latex_folder_path)
+  #
+    for file_name, latex_alias in latex_info.items():
+      print(file_name)
+
+      with open(file_name + ".tex", "w") as f:
+        f.write("\\documentclass[border=1pt]{standalone}\n")
+        f.write("\\usepackage{amsmath}\n")
+        f.write("\\begin{document}\n")
+        f.write(latex_alias)
+        f.write("\\end{document}\n")
+
+      subprocess.run(["latex", "-interaction=nonstopmode", file_name + ".tex"],
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+      subprocess.run(["dvipng", "-D", "150", "-T", "tight", "-z", "9",
+                      "-bg", "Transparent", "-o", file_name + ".png", file_name + ".dvi"],
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+      os.remove(file_name + ".tex")
+      os.remove(file_name + ".aux")
+      os.remove(file_name + ".log")
+      os.remove(file_name + ".dvi")
+
+    os.chdir(original_work_dir)
