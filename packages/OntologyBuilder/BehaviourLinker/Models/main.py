@@ -55,7 +55,9 @@ class MainModel(QtCore.QObject):
 
   def load_entity(self, index: QtCore.QModelIndex):
     if not index.isValid():
-      return False
+      entity_data = [[]]*6
+      self._update_entity_models(entity_data)
+      return
 
     entity_id = self.entity_tree_model.path_from_index(index)
 
@@ -78,6 +80,9 @@ class MainModel(QtCore.QObject):
         [self.all_variables[var_id]
          for var_id in current_entity.get_pending_vars()],
     ]
+    self._update_entity_models(entity_data)
+
+  def _update_entity_models(self, entity_data):
     for model, data in zip(self.entity_list_models, entity_data):
       model.load_data(data)
 
@@ -126,8 +131,11 @@ class MainModel(QtCore.QObject):
       self.load_entity(index)
 
   def delete_entity(self, index):
-    self.entity_tree_model.remove_element(index)
-    self._update_tree_model
+    entity_id = self.entity_tree_model.path_from_index(index)
+    del self.all_entities[entity_id]
+    # self.entity_tree_model.remove_element(index)
+    self._update_tree_model()
+    self.load_entity(QtCore.QModelIndex())
 
   def is_a_leaf(self, index):
     return self.entity_tree_model.get_depth(index) == tree.LEAF_DEPTH
