@@ -83,10 +83,10 @@ class Variable():
 
     own_type = ""
     index = self.index_structures[0]
-    if index == "1" or index == "5" or index == "7":
+    if index == "I_1" or index == "I_5" or index == "I_7":
       own_type = "node"
 
-    if index == "2" or index == "6":
+    if index == "I_2" or index == "I_6":
       own_type = "arc"
 
     # print(str(index) + own_type + " ## " + ent_type)
