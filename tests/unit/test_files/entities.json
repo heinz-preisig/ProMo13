@@ -1,0 +1,113 @@
+{
+    "macroscopic.node.mass|constant|infinity.Source": {
+        "index_set": "N_cons",
+        "integrators": {},
+        "var_eq_forest": [
+            {
+                "V_66": []
+            }
+        ],
+        "init_vars": [
+            "V_66"
+        ],
+        "input_vars": [],
+        "output_vars": [
+            "V_66"
+        ]
+    },
+    "macroscopic.node.mass|dynamic|lumped.Pore": {
+        "index_set": "N_dyna",
+        "integrators": {
+            "V_16": "E_86"
+        },
+        "var_eq_forest": [
+            {
+                "V_66": [
+                    "E_44"
+                ],
+                "E_44": [
+                    "V_15"
+                ],
+                "V_15": []
+            },
+            {
+                "E_86": [
+                    "V_110",
+                    "V_101",
+                    "V_7",
+                    "V_5",
+                    "V_6"
+                ],
+                "V_110": [],
+                "V_101": [
+                    "E_76"
+                ],
+                "V_7": [],
+                "V_5": [],
+                "V_6": [],
+                "E_76": [
+                    "V_100",
+                    "V_164",
+                    "V_94"
+                ],
+                "V_100": [],
+                "V_164": [],
+                "V_94": [
+                    "E_69"
+                ],
+                "E_69": [
+                    "V_93",
+                    "V_70"
+                ],
+                "V_93": [],
+                "V_70": []
+            }
+        ],
+        "init_vars": [
+            "V_110",
+            "V_100",
+            "V_7",
+            "V_15",
+            "V_164",
+            "V_6"
+        ],
+        "input_vars": [
+            "V_93",
+            "V_70",
+            "V_5"
+        ],
+        "output_vars": [
+            "V_66",
+            "V_16"
+        ]
+    },
+    "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion": {
+        "index_set": "A_diff",
+        "integrators": {},
+        "var_eq_forest": [
+            {
+                "V_93": [
+                    "E_151"
+                ],
+                "E_151": [
+                    "V_182",
+                    "V_91",
+                    "V_66"
+                ],
+                "V_182": [],
+                "V_91": [],
+                "V_66": []
+            }
+        ],
+        "init_vars": [
+            "V_182"
+        ],
+        "input_vars": [
+            "V_91",
+            "V_66"
+        ],
+        "output_vars": [
+            "V_93"
+        ]
+    }
+}
