@@ -1,34 +1,16 @@
-from pprint import pprint as pp
 import pytest
-from unittest.mock import mock_open, patch
-from pathlib import Path
-from datetime import datetime
 
-from packages.Common.classes.io import load_var_idx_eq_from_file
-from packages.Common.classes import equation_parser
+import conftest
 
-FIXTURE_DIR = Path(__file__).parent.resolve() / 'test_files'
+TEST_FILES = conftest.get_test_files_path()
 
 
 @pytest.mark.datafiles(
-    FIXTURE_DIR / 'variables.json',
-    FIXTURE_DIR / 'translation_template_matlab.json')
-def test_load_var_idx_eq_from_file(datafiles):
+    TEST_FILES / 'var_idx_eq.json',
+    TEST_FILES / 'translation_template_matlab.json')
+def test_matlab_translation(datafiles, var_idx_eq, parser):
   ontology_name = "TEST"
-
-  with open(datafiles / "variables.json", "r", encoding="utf-8") as file:
-    m_file = mock_open(read_data=file.read())
-
-  with patch('builtins.open', m_file):
-    all_variables, all_indices, all_equations = load_var_idx_eq_from_file(
-        ontology_name)
-
-  with open(datafiles / "translation_template_matlab.json", "r", encoding="utf-8") as file:
-    m_file = mock_open(read_data=file.read())
-
-  with patch('builtins.open', m_file):
-    parser = equation_parser.EquationParser(
-        "matlab", all_variables, all_indices)
+  _, _, all_equations = var_idx_eq
 
   # Product
   translation = parser.parse(

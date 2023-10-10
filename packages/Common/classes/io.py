@@ -6,7 +6,7 @@ import networkx as nx
 import os
 import subprocess
 import copy
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Union
 from pprint import pprint as pp
 from pathlib import Path
 from datetime import datetime
@@ -16,6 +16,8 @@ from packages.Common.classes import entity
 from packages.Common.classes import variable
 from packages.Common.classes import index
 from packages.Common.classes import ontology
+from packages.Common.classes import node
+from packages.Common.classes import arc
 from packages.Common import resource_initialisation
 
 from packages.Common.classes import translator
@@ -153,11 +155,14 @@ def load_entities_from_file(
       "variable_assignment_to_entity_object"
   ] % ontology_name
 
-  # If the file doesnt exists it creates a new one
-  if not os.path.isfile(path):
-    with open(path, "w", encoding="utf-8",) as file:
-      json.dump({}, file, indent=4)
-    return {}
+  # TODO: This file needs to be created empty when the ontology is
+  # created. In here should be only an exception in case the file is not found.
+
+  # # If the file doesnt exists it creates a new one
+  # if not os.path.isfile(path):
+  #   with open(path, "w", encoding="utf-8",) as file:
+  #     json.dump({}, file, indent=4)
+  #   return {}
 
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
@@ -201,6 +206,56 @@ def load_ontology_from_file(ontology_name: str) -> ontology.Ontology:
     data = json.load(file)
 
   return ontology.Ontology(data["ontology_tree"])
+
+
+def load_model_from_file(
+    ontology_name: str,
+    model_name: str
+) -> Dict[str, Union[node.ModellerNode, arc.ModellerArc]]:
+  path = resource_initialisation.FILES["model_file"] % (
+      ontology_name,
+      model_name,
+  )
+  with open(path, "r", encoding="utf-8",) as file:
+    data = json.load(file)
+
+  model_objects = {}
+  for node_id, node_properties in data["nodes"].items():
+    # TODO: Fix all these statements when the output gets fixed.
+    new_id = "N_" + node_id
+    hierarchy = data["ID_tree"]
+    parent_list = hierarchy[node_id]["ancestors"]
+    if parent_list:
+      parent = "N_" + str(parent_list[0])
+    else:
+      parent = None
+
+    children = [
+        "N_" + str(child_id)
+        for child_id in hierarchy[node_id]["children"]
+    ]
+    node_properties["modeller_class"] = node_properties["class"]
+    del node_properties["class"]
+
+    model_objects[new_id] = node.ModellerNode(
+        id=new_id,
+        **node_properties,
+        parent=parent,
+        children=children,
+    )
+
+  for arc_id, arc_properties in data["arcs"].items():
+    # TODO: Fix all these statements when the output gets fixed.
+    new_id = "A_" + arc_id
+    arc_properties["source"] = "N_" + str(arc_properties["source"])
+    arc_properties["sink"] = "N_" + str(arc_properties["sink"])
+
+    model_objects[new_id] = arc.ModellerArc(
+        id=new_id,
+        **arc_properties,
+    )
+
+  return model_objects
 
 
 def load_topology_from_file(
@@ -395,7 +450,8 @@ def load_topology_from_file(
   nr_arcs = len(data["arcs"])
   nr_specs = len(species_list)
   # TODO Probably change this
-  index_sets["general"]["I_3"] = [str(x) for x in range(1, nr_specs + 1)] # Species
+  index_sets["general"]["I_3"] = [str(x)
+                                  for x in range(1, nr_specs + 1)]  # Species
 
   topology_graph.graph["index_sets_info"] = index_sets
 
@@ -495,10 +551,9 @@ def convert_model_file(ontology_name, model_name):
   # HACK: Manually converting instantiated values to list
   for arc_id in data["arcs"]:
     new_data["instantiation_info"]["arcs"][arc_id] = {
-      var_id: [value]
-      for var_id, value in data["instantiation_info"]["arcs"][arc_id].items()
-    }  
-    
+        var_id: [value]
+        for var_id, value in data["instantiation_info"]["arcs"][arc_id].items()
+    }
 
     # new_data["instantiation_info"]["arcs"][arc]["V_168"] = ["3e-12"]
 
