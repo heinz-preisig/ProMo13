@@ -1335,9 +1335,10 @@ class UiOntologyDesign(QMainWindow):
     os.chdir(latex_folder_path)
   #
     for file_name, latex_alias in latex_info.items():
-      print(file_name)
-
-      with open(file_name + ".tex", "w") as f:
+      f_path = DIRECTORIES["latex_location"]%self.ontology_name
+      f_name = os.path.join(f_path, file_name)
+      print(f_name)
+      with open(f_name + ".tex", "w") as f:
         f.write("\\documentclass[border=1pt]{standalone}\n")
         f.write("\\usepackage{amsmath}\n")
         f.write("\\begin{document}\n")
