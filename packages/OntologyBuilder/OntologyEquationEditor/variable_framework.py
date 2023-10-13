@@ -49,6 +49,7 @@ from jinja2 import FileSystemLoader
 # from Common.record_definitions import RecordVariable
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import ID_spacer
 from OntologyBuilder.OntologyEquationEditor.resources import IRI_make
@@ -1033,7 +1034,13 @@ class Variables(OrderedDict):
 
   def changeVariableAlias(self, variable_ID, language, new_alias):
     self[variable_ID].aliases[language] = new_alias
-    affected_equations = self.inv_incidence_dictionary[variable_ID]
+
+    self[variable_ID].aliases[language] = new_alias
+    # self[variable_ID].modified=dateString()
+    self.ontology_container.variables[variable_ID]["modified"]=dateString()  #NOTE: that was the problem
+    print("changed variable", variable_ID, self[variable_ID].modified)
+
+    # affected_equations = self.inv_incidence_dictionary[variable_ID]
     # self.changes["variables"].changed(variable_ID)
     # for eq_ID in affected_equations:
     #   self.changes["equations"].changed(eq_ID)

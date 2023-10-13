@@ -21,6 +21,7 @@ __status__ = "beta"
 
 import os
 import subprocess
+import time
 
 from datetime import datetime
 from pathlib import Path
@@ -1240,7 +1241,7 @@ class UiOntologyDesign(QMainWindow):
     self.table_aliases_i.completed.connect(self.finished_edit_table)
     self.table_aliases_i.show()
 
-  def __writeMessage(self, message, append=False):
+  def __writeMessage(self, message, append=True):
     if not append:
       self.ui.msgWindow.clear()
     self.ui.msgWindow.setText(message)
@@ -1300,12 +1301,15 @@ class UiOntologyDesign(QMainWindow):
         modified = variables[var_id]["modified"]
         date_format = "%Y-%m-%d %H:%M:%S"
         var_mod_date = datetime.strptime(modified, date_format)
+        # if "165" in var_id:
+        #   print("got it",png_mod_date, var_mod_date,  png_mod_date > var_mod_date)
         if png_mod_date > var_mod_date:
           continue
 
       var_latex_alias = variables[var_id]["aliases"]["latex"]
       latex_info[var_id] = "$" + var_latex_alias + "$" #"$" + var.get_alias("latex") + "$"
       modified_vars.append(var_id)
+      self.__writeMessage("modified variable",var_id)
 
     for eq_id in equations: #, eq in all_equations.items():
       eq_png_file_path = latex_folder_path / (eq_id + ".png")
@@ -1331,24 +1335,32 @@ class UiOntologyDesign(QMainWindow):
         latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
 
 
+
     original_work_dir = os.getcwd()
     os.chdir(latex_folder_path)
   #
     for file_name, latex_alias in latex_info.items():
-      print(file_name)
+      # f_path = DIRECTORIES["latex_location"]%self.ontology_name
+      # f_name = os.path.join(f_path, file_name)
+      # print(f_name)
+      f = open(file_name + ".tex", "w") # as f:
+      f.write("\\documentclass[border=1pt]{standalone}\n")
+      f.write("\\usepackage{amsmath}\n")
+      f.write("\\begin{document}\n")
+      f.write(latex_alias)
+      f.write("\\end{document}\n")
+      f.close()
 
-      with open(file_name + ".tex", "w") as f:
-        f.write("\\documentclass[border=1pt]{standalone}\n")
-        f.write("\\usepackage{amsmath}\n")
-        f.write("\\begin{document}\n")
-        f.write(latex_alias)
-        f.write("\\end{document}\n")
+      print("......................................................................................................................")
+      time.sleep(1)
 
       subprocess.run(["latex", "-interaction=nonstopmode", file_name + ".tex"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
       subprocess.run(["dvipng", "-D", "150", "-T", "tight", "-z", "9",
                       "-bg", "Transparent", "-o", file_name + ".png", file_name + ".dvi"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+      print("cwd", os.getcwd(), "--", file_name + ".tex")
 
       os.remove(file_name + ".tex")
       os.remove(file_name + ".aux")
