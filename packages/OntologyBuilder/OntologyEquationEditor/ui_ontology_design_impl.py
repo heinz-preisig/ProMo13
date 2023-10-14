@@ -467,8 +467,8 @@ class UiOntologyDesign(QMainWindow):
     left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
     right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
     self.equations = self.ontology_container.equations
-    self.equation_information = self.ontology_container.equation_information
-    self.equation_inverse_index = self.ontology_container.equation_inverse_index
+    # self.equation_information = self.ontology_container.equation_information
+    # self.equation_inverse_index = self.ontology_container.equation_inverse_index
     print("debugging -- left and right network:", left_nw, right_nw)
     set_left_variables = set()
     enabled_var_classes = list(

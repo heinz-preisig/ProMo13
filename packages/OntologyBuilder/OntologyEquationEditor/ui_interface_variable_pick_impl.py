@@ -28,7 +28,7 @@ class UI_VariableTableInterfacePick(VariableTable):
   """
   #
   # completed = QtCore.pyqtSignal(str)
-  picked = QtCore.pyqtSignal(int)
+  picked = QtCore.pyqtSignal(str)
   # new_variable = QtCore.pyqtSignal(str)
   # new_equation = QtCore.pyqtSignal(str, str)
   # deleted_symbol = QtCore.pyqtSignal(str)
@@ -96,7 +96,7 @@ class UI_VariableTableInterfacePick(VariableTable):
   def on_tableVariable_itemClicked(self, item):
     row = int(item.row())
     item = self.ui.tableVariable.item
-    var_ID = int(item(row,9).text()) #str(item(row, 1).text())
+    var_ID = str(item(row,9).text()) #str(item(row, 1).text())
     self.picked.emit(var_ID)
     return
 
