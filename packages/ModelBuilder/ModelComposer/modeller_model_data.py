@@ -76,7 +76,7 @@ class NodeInfo(dict):  # (OrderedDict): #
 
 class ArcInfo(dict):  # OrderedDict):  # NOTE: changed to dictionary -- OrderedDict failed to be copied (extract
   # subtree)
-  def __init__(self, fromNodeID, toNodeID, network, named_network, mechanism, token, nature, variant):
+  def __init__(self, fromNodeID, toNodeID, network, named_network, mechanism, token, nature, variant,instantiated_variables):
     # OrderedDict.__init__(self)
     dict.__init__(self)
     self["name"] = str("%s | %s" % (fromNodeID, toNodeID))
@@ -90,7 +90,7 @@ class ArcInfo(dict):  # OrderedDict):  # NOTE: changed to dictionary -- OrderedD
     self["nature"] = nature
     self["variant"] = variant
     # self["type"] = arctype                   # removed
-    self["instantiated_variables"] = {} # hash :: variable_id
+    self["instantiated_variables"] = instantiated_variables # hash :: variable_id
 
   def cleanTypedTokens(self):  # Does not work with the current implementation
     self["typed_tokens"] = []  # TODO: Remove
@@ -379,7 +379,7 @@ class ModelContainer(dict):
     else:
       self.arcID = max(arcsIDList) + 1
     arcID = self.arcID  # str(self.arcID)   #HAP:  str -- int
-    self["arcs"][arcID] = ArcInfo(fromNodeID, toNodeID, network, named_network, mechanism, token, nature, variant)
+    self["arcs"][arcID] = ArcInfo(fromNodeID, toNodeID, network, named_network, mechanism, token, nature, variant,{})
     subarcsIDs = self.getArcOnNodeScene(arcID)
     nodes_with_arcIDs = list(subarcsIDs.keys())
 
@@ -905,9 +905,10 @@ class ModelContainer(dict):
       token = data["arcs"][arcID]["token"]
       nature = data["arcs"][arcID]["nature"]
       variant = data["arcs"][arcID]["variant"]
+      instantiated_variables = data["arcs"][arcID]["instantiated_variables"]
       odata["arcs"][arcID_map[arcID]] = ArcInfo(mapped_arc_source_ID, mapped_arc_sink_ID, network,
                                                 named_network,
-                                                mechanism, token, nature, variant)
+                                                mechanism, token, nature, variant, instantiated_variables)
 
     for the_hash in self:
       if the_hash == "ID_tree":
