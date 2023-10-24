@@ -930,10 +930,10 @@ class Commander(QtCore.QObject):
     self.__redrawScene(self.current_ID_node_or_arc)
 
     # add info knot
-    self.model_container.getArcGraphicalData(
-        self.current_ID_node_or_arc, arcID)
+    # self.model_container.getArcGraphicalData(
+    #     self.current_ID_node_or_arc, arcID)
     # print("debugging find arc on scene")
-    self.__C12_insertArcInfoKnot(arcID)
+    # self.__C12_insertArcInfoKnot(arcID)
 
     return {
         "added arc": arcID,
@@ -941,24 +941,24 @@ class Commander(QtCore.QObject):
         "failed": False
     }
 
-  def __C12_insertArcInfoKnot(self, arcID):
-
-    # Note: this only introduces a node in the middle if the two connected nodes are simple nodes on the same scene
-    # Note: adding one to each subarc takes more work.
-
-    # for scenes in self.model_container["scenes"]:
-    #   if arcID in self.model_container["scenes"][scenes]["arcs"]:
-    #     print("debugging -- got one", scenes, arcID)
-
-    sourceCoordinates, sinkCoordinates = self.model_container.getArcGraphicalData(
-        self.current_ID_node_or_arc, arcID)
-    position = (sinkCoordinates[0] + sourceCoordinates[0]) / \
-        2, (sinkCoordinates[1] + sourceCoordinates[1]) / 2
-    # self.model_container.insertKnot(scenes, arcID, -1, -1, position)
-    self.model_container.insertKnot(
-        self.current_ID_node_or_arc, arcID, -1, -1, position)
-
-    self.redrawCurrentScene()
+  # def __C12_insertArcInfoKnot(self, arcID): #Note: this did not work test for subarc on the same scene failed.
+  #
+  #   # Note: this only introduces a node in the middle if the two connected nodes are simple nodes on the same scene
+  #   # Note: adding one to each subarc takes more work.
+  #
+  #   # for scenes in self.model_container["scenes"]:
+  #   #   if arcID in self.model_container["scenes"][scenes]["arcs"]:
+  #   #     print("debugging -- got one", scenes, arcID)
+  #
+  #   sourceCoordinates, sinkCoordinates = self.model_container.getArcGraphicalData(
+  #       self.current_ID_node_or_arc, arcID)
+  #   position = (sinkCoordinates[0] + sourceCoordinates[0]) / \
+  #       2, (sinkCoordinates[1] + sourceCoordinates[1]) / 2
+  #   # self.model_container.insertKnot(scenes, arcID, -1, -1, position)
+  #   self.model_container.insertKnot(
+  #       self.current_ID_node_or_arc, arcID, -1, -1, position)
+  #
+  #   self.redrawCurrentScene()
 
   def __c11_insertKnot(self):
     """
