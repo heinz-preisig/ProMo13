@@ -101,7 +101,7 @@ class R_Item(QtWidgets.QGraphicsItem):
       if self.graphics_root_object in NODES + [NAMES["panel"]]:
         if self.graphics_root_object in OBJECTS_with_state:
           if decoration in DECORATIONS_with_state:
-            state = self.commander.state_nodes[self.ID]
+            state = self.commander.state_nodes[self.ID]  #TODO: there is an error here if one deletes an element and saves
         if self.graphics_root_object in OBJECTS_with_application:
           if decoration in DECORATIONS_with_application:
             application = self.commander.model_container.getNodeApplication(self.ID)

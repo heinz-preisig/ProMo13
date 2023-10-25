@@ -31,9 +31,13 @@ class InstantiationDialog(QtWidgets.QDialog):
     self.selected_variable_ID = None
 
 
-    roundButton(self.ui.pushInstantiate, "number", tooltip="instantiate variables with numbers")
+    roundButton(self.ui.pushInstantiate, "accept", tooltip="instantiate variables with numbers")
     roundButton(self.ui.pushAccept, "accept", tooltip="save instantiations")
     roundButton(self.ui.pushCancel, "reject", tooltip="cancel")
+
+    self.ui.pushInstantiate.setAutoDefault(False)
+    self.ui.pushAccept.setAutoDefault(False)
+    self.ui.pushCancel.setAutoDefault(False)
 
     self.ui.pushInstantiate.hide()
 
@@ -95,13 +99,14 @@ class InstantiationDialog(QtWidgets.QDialog):
   # def on_lineEdit_returnPressed(self):
   def on_pushInstantiate_pressed(self):
     s = self.ui.lineEdit.text()
-    print(s)
-    self.defined_value = float(s)
-    self.newly_instantiated[self.selected_variable_ID] = self.defined_value
-    self.ui.listValues.clear()
-    self.ui.listValues.addItem(str(self.defined_value))
-    self.ui.listValues.show()
-    self.ui.listVariables.setFocus()
+    if s:
+      print(s)
+      self.defined_value = float(s)
+      self.newly_instantiated[self.selected_variable_ID] = self.defined_value
+      self.ui.listValues.clear()
+      self.ui.listValues.addItem(str(self.defined_value))
+      self.ui.listValues.show()
+      self.ui.listVariables.setFocus()
 
   def on_pushAccept_pressed(self):
     print("accept")
