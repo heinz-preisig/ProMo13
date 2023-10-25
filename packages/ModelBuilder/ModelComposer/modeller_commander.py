@@ -1522,6 +1522,7 @@ class Commander(QtCore.QObject):
     #
     # # =========================================================
 
+    nodes_to_instantiate = []
     if "arc" in pars:
       print("debugg -- instantiate arc")
       arcs_to_instantiate = [pars["arc"]]
@@ -1556,6 +1557,7 @@ class Commander(QtCore.QObject):
 
       newly_instantiated = dialog.newly_instantiated
 
+
       for var_id in newly_instantiated:
         for node_id in nodes_to_instantiate:
           entity = self.get_entity_node(node_id)
@@ -1582,15 +1584,15 @@ class Commander(QtCore.QObject):
                             arcs_to_instantiate)
       dialog.exec_()
 
-    newly_instantiated = dialog.newly_instantiated
+      newly_instantiated = dialog.newly_instantiated
 
-    for var_id in newly_instantiated:
-      for arc_id in arcs_to_instantiate:
-        entity = self.get_entity_arc(arc_id)
-        vars = entity.init_vars
-        if var_id in vars:
-          if var_id in newly_instantiated:
-            self.model_container["arcs"][arc_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
+      for var_id in newly_instantiated:
+        for arc_id in arcs_to_instantiate:
+          entity = self.get_entity_arc(arc_id)
+          vars = entity.init_vars
+          if var_id in vars:
+            if var_id in newly_instantiated:
+              self.model_container["arcs"][arc_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
     pass
 
     self.checkIfAllVariablesAreInitialsed()
@@ -1698,24 +1700,29 @@ class Commander(QtCore.QObject):
     arcs = sorted(self.model_container["arcs"].keys())
 
     incomplete_nodes = {}
+    node_vars_must_instantiate = {}
+    arc_vars_must_be_instantitate = {}
+
+
     for node_id in nodes:
       vars_being_instantiated = sorted(
           self.node_vars_being_instantiated([node_id]))
-      node_vars_must_instantiate = sorted(
+      node_vars_must_instantiate[node_id] = sorted(
           self.node_vars_to_be_instantiated([node_id]))
 
-      not_instantiated = set(node_vars_must_instantiate) - \
+      not_instantiated = set(node_vars_must_instantiate[node_id]) - \
           set(vars_being_instantiated)
       if not_instantiated:
         incomplete_nodes[node_id] = not_instantiated
+
 
     incomplete_arcs = {}
     for arc_id in arcs:
       vars_being_instantiated = sorted(
           self.arc_vars_being_instantiated([arc_id]))
-      arc_vars_must_be_instantitate = sorted(
+      arc_vars_must_be_instantitate[arc_id] = sorted(
           self.arc_vars_to_instantiate([arc_id]))
-      not_instantiated = set(arc_vars_must_be_instantitate) - \
+      not_instantiated = set(arc_vars_must_be_instantitate[arc_id]) - \
           set(vars_being_instantiated)
       if not_instantiated:
         incomplete_arcs[arc_id] = not_instantiated
@@ -1725,6 +1732,23 @@ class Commander(QtCore.QObject):
 
     self.main.writeStatus("incomplete nodes: %s\nincomplete arcs: %s" % (
         incomplete_nodes, incomplete_arcs))
+
+    for node_id in self.model_container["nodes"]:
+      instances = self.model_container["nodes"][node_id]["instantiated_variables"]
+      vars_in_the_list =  list(instances.keys())
+      for var_ID in vars_in_the_list:
+        if var_ID not in node_vars_must_instantiate[node_id]:
+          instances.pop(var_ID)
+          print("node pop", var_ID)
+
+    for arc_id in self.model_container["arcs"]:
+      instances = self.model_container["arcs"][arc_id]["instantiated_variables"]
+      vars_in_the_list =  list(instances.keys())
+      for var_ID in vars_in_the_list:
+        if var_ID not in arc_vars_must_be_instantitate[arc_id]:
+          instances.pop(var_ID)
+          print("arc pop", var_ID)
+
 
     return incomplete_nodes, incomplete_arcs
 
