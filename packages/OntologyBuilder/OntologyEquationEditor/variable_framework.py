@@ -39,6 +39,9 @@ __status__ = "beta"
 
 # TODO: think about removing the compilation from the physvar package
 
+
+from PyQt5 import QtCore
+
 import copy
 import os
 from collections import OrderedDict
@@ -636,54 +639,54 @@ class Units():
     return str(self.asList())
 
 
-class Tracking(dict):
-  def __init__(self):
-    super().__init__(self)
-    for item in ["unchanged", "changed", "deleted"]:
-      self[item] = []
+# class Tracking(dict):
+#   def __init__(self):
+#     super().__init__(self)
+#     for item in ["unchanged", "changed", "deleted"]:
+#       self[item] = []
+#
+#   def importIDList(self, ID_list):
+#     self["unchanged"].extend(ID_list)
+#
+#   def importID(self, ID):
+#     self["unchanged"].append(ID)
+#
+#   def add(self, ID):
+#     self["changed"].append(ID)
+#
+#   def changed(self, ID):
+#     if ID in self["unchanged"]:
+#       self["unchanged"].remove(ID)
+#       self["changed"].add(ID)
+#       return
+#     elif ID in self["changed"]:
+#       return
+#     else:
+#       raise TrackingError("mp sicj OD %s " % ID)
+#
+#   def changedAll(self):
+#     self["changed"].extend(self["unchanged"])
+#     self["unchanged"] = []
+#
+#   def remove(self, ID):
+#     for item in ["unchanged", "changed"]:
+#       if ID in self[item]:
+#         self[item].remove(ID)
+#         self["deleted"].append(ID)
+#         return
+#     # raise TrackingError("no such ID %s recorded"%ID)
+#     print("Tracking Error -- no such ID %s recorded" % ID)
 
-  def importIDList(self, ID_list):
-    self["unchanged"].extend(ID_list)
 
-  def importID(self, ID):
-    self["unchanged"].append(ID)
-
-  def add(self, ID):
-    self["changed"].append(ID)
-
-  def changed(self, ID):
-    if ID in self["unchanged"]:
-      self["unchanged"].remove(ID)
-      self["changed"].add(ID)
-      return
-    elif ID in self["changed"]:
-      return
-    else:
-      raise TrackingError("mp sicj OD %s " % ID)
-
-  def changedAll(self):
-    self["changed"].extend(self["unchanged"])
-    self["unchanged"] = []
-
-  def remove(self, ID):
-    for item in ["unchanged", "changed"]:
-      if ID in self[item]:
-        self[item].remove(ID)
-        self["deleted"].append(ID)
-        return
-    # raise TrackingError("no such ID %s recorded"%ID)
-    print("Tracking Error -- no such ID %s recorded" % ID)
-
-
-class TrackChanges(dict):
-  def __init__(self):
-    super().__init__(self)
-    for target in ["variables", "equations"]:
-      self[target] = Tracking()
-
-  def replaceEquation(self, old_ID, new_ID):
-    self["equations"].remove(old_ID)
-    self["equations"].add(new_ID)
+# class TrackChanges(dict):
+#   def __init__(self):
+#     super().__init__(self)
+#     for target in ["variables", "equations"]:
+#       self[target] = Tracking()
+#
+#   def replaceEquation(self, old_ID, new_ID):
+#     self["equations"].remove(old_ID)
+#     self["equations"].add(new_ID)
 
 
 class Variables(OrderedDict):
@@ -696,6 +699,7 @@ class Variables(OrderedDict):
   Constraint: the container has data and properties
   Data are extracted using the function extractVariables using a filter for the attributes
   """
+
 
   def __init__(self, ontology_container):
     super()
@@ -1036,14 +1040,8 @@ class Variables(OrderedDict):
     self[variable_ID].aliases[language] = new_alias
 
     self[variable_ID].aliases[language] = new_alias
-    # self[variable_ID].modified=dateString()
     self.ontology_container.variables[variable_ID]["modified"]=dateString()  #NOTE: that was the problem
     print("changed variable", variable_ID, self[variable_ID].modified)
-
-    # affected_equations = self.inv_incidence_dictionary[variable_ID]
-    # self.changes["variables"].changed(variable_ID)
-    # for eq_ID in affected_equations:
-    #   self.changes["equations"].changed(eq_ID)
 
   def removeVariable(self, variable_ID):
     """
@@ -1584,7 +1582,7 @@ class Operator(PhysicalVariable):
       msg += "\n first argument indices : %s" % pretty_a_indices
       msg += "\n second argument indices: %s" % pretty_b_indices
       print(msg)
-      # raise IndexStructureError(msg)
+      raise IndexStructureError(msg)
     # self.index_structures = sorted(s_index_a.symmetric_difference(s_index_b))
     self.index_structures = sorted((s_index_a | s_index_b) - {self.index_ID})
     return s_index_a, s_index_b

@@ -304,7 +304,6 @@ class UI_VariableTableDialog(VariableTable):
                                                  aliases={},
                                                  port_variable=True,
                                                  tokens=[],
-                                                 IRI=None
                                                  )
 
     self.variables.addNewVariable(ID=var_ID, **variable_record)

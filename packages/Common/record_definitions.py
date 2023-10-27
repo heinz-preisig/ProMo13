@@ -24,9 +24,11 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 from collections import OrderedDict
+from datetime import datetime
 
 from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.resources import IRI_make
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
@@ -38,6 +40,7 @@ TEMPLATES = {
         "ratio_matrix"              : "R_%s",
         }
 
+date_format = "%Y-%m-%d %H:%M:%S"
 
 class OntologyContainerFile(dict):  # TODO: integrate typed token conversion into file
   def __init__(self, version):
@@ -217,9 +220,6 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
                                aliases={},
                                port_variable=False,
                                tokens=[],
-                               IRI=None,
-                               created=None,
-                               compiled_lhs = {}
                                ):
   """
   NOTE: there is a problem here with the defaults -- do not use them, but define everthing explicitly.
@@ -250,8 +250,8 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["tokens"] = tokens  # ..................................................................................... token
   # self["IRI"] = IRI_make("promo", network, label)  # NOTE: label is to be adjusted when changed
   self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
-  self["created"] = created
-  self["modified"] = created
+  self["created"] = dateString()
+  self["modified"] = self["created"]
   self["compiled_lhs"] = {"global_ID": var_ID}
 
   for language in LANGUAGES["aliasing"]:
@@ -262,12 +262,13 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
 
 
 def makeCompletEquationRecord(rhs="", type="generic", network="", doc="", incidence_list=[], created=None):
+  date = dateString()
   self = {"rhs"           : {"global_ID": rhs},
           "type"          : type,
           "doc"           : doc,
           "network"       : network,
           "incidence_list": incidence_list,
-          "created"       : created,
-          "modified"      : created
+          "created" : date,
+          "modified" : date
           }
   return self

@@ -167,7 +167,16 @@ class VariableTable(QtWidgets.QDialog):
       if variable_type in self.enabled_variable_types:
         for i in self.variable_space[nw][variable_type]:
           variable_ID_list.add(i)
-    return variable_ID_list
+    variable_dict = {}
+    if variable_ID_list:
+      for var_ID in variable_ID_list:
+        variable_dict[self.variables[var_ID].label] = var_ID
+      variable_ID_list_sorted = []
+      for var_symbol in sorted(variable_dict.keys()):
+        variable_ID_list_sorted.append(variable_dict[var_symbol])
+
+
+    return variable_ID_list_sorted #variable_ID_list
 
   def populateTable(self, table, variable_ID_list):
     table.clearContents()

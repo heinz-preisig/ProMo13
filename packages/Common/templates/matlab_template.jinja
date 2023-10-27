@@ -70,11 +70,12 @@ function output_vars = main
     {{-" "}}{{(integrators|first).int_interval_fin|label-}}
   ];{{"\n"-}}
 
-  {{-"  "}}dt = 0.1;{{"\n"-}}
+  {{-"  "}}dt = 1;{{"\n"-}}
   {{-"  "}}options = odeset('InitialStep', dt, 'MaxStep', dt, 'RelTol', 1e-3, 'AbsTol', 1e-3);{{"\n"-}}
 
   {{-"  "}}% Integrator routine
   [t, phi] = ode45(@f, integration_interval, phi_0, options);
+  save out.txt t phi
 
   % Integrand
   function dphidt = f(t, phi) {{"\n"-}}
@@ -99,9 +100,9 @@ function output_vars = main
       {% endif %}
       {{-"\n"-}}
     {% endfor %}
-    {{-"    "}}fprintf("%g    ", t);{{"\n"-}}
-    {{-"    "}}fprintf("%g    ", c.value(N_dyna));{{"\n"-}}
-    {{-"    "}}fprintf("\n");{{"\n"-}}
+    {{-"    "}}%fprintf("%g    ", t);{{"\n"-}}
+    {{-"    "}}%fprintf("%g    ", c.value(N_dyna));{{"\n"-}}
+    {{-"    "}}%fprintf("\n");{{"\n"-}}
     {% for i in integrators %}
       {{-"    "}}dphidt({{i.interval}}) = 
         {{-" "}}({{i.integrand|var_slice(i.index_sets)}}).value;
