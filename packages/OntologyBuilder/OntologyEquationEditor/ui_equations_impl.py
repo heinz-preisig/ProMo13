@@ -455,7 +455,6 @@ class UI_Equations(QtWidgets.QWidget):
                                                    aliases={},
                                                    port_variable=False,
                                                    tokens=tokens,
-                                                   created=dateString(),
                                                    )
 
       self.variables.addNewVariable(ID=var_ID, **variable_record)

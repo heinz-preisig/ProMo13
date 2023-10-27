@@ -255,26 +255,26 @@ class UiOntologyDesign(QMainWindow):
     if self.current_network:
       self.ui.groupEdit.show()
       self.ui.combo_EditVariableTypes.show()
-      self.__writeMessage("edit variables/equations")
+      self.writeMessage("edit variables/equations")
     else:
-      self.__writeMessage("select variable type first")
+      self.writeMessage("select variable type first")
 
   def on_radioVariablesAliases_pressed(self):
     self.__checkRadios("variable_aliases")
     self.__hideTable()
-    self.__writeMessage("edit variable alias table")
+    self.writeMessage("edit variable alias table")
     self.ui.groupVariables.show()
     self.ui.groupEdit.hide()
     self.ui.combo_EditVariableTypes.hide()
     if self.current_network:
       self.__setupVariablesAliasTable()
     else:
-      self.__writeMessage("select variable type first")
+      self.writeMessage("select variable type first")
 
   def on_radioIndicesAliases_pressed(self):
     self.__checkRadios("indices_aliases")
     self.__hideTable()
-    self.__writeMessage("edit alias table")
+    self.writeMessage("edit alias table")
     self.ui.groupVariables.hide()
     self.__setupIndicesAliasTable()
 
@@ -347,7 +347,7 @@ class UiOntologyDesign(QMainWindow):
         self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
         self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
 
-      self.__writeMessage("finished compilation into ", l)
+      self.writeMessage("finished compilation into ", l)
 
     # make latex lhs
     for varID in self.variables:
@@ -360,13 +360,13 @@ class UiOntologyDesign(QMainWindow):
     self.__compile("latex")
 
     self.__makeLatexDocument()
-    self.__writeMessage("finished latex document")
+    self.writeMessage("finished latex document")
 
     self.__makeOWLFile()
-    self.__writeMessage("finished owl document")
+    self.writeMessage("finished owl document")
 
     self.__makeRenderedOutput()
-    self.__writeMessage("finished rendered document")
+    self.writeMessage("finished rendered document")
 
   def on_pushShowVariables_pressed(self):
     # print("debugging -- make variable table")
@@ -389,10 +389,10 @@ class UiOntologyDesign(QMainWindow):
 
   def on_pushMakeAllVarEqPictures_pressed(self):
     if not self.compiled_variable_labels:
-      self.__writeMessage("compile first")
+      self.writeMessage("compile first")
       self.on_pushCompile_pressed()
 
-    self.__writeMessage("wait for completion of compilation")
+    self.writeMessage("wait for completion of compilation")
 
     # self.__makeVariableEquationPictures()
 
@@ -422,7 +422,7 @@ class UiOntologyDesign(QMainWindow):
 
   def on_treeWidget_clicked(self, index):  # state network_selected
     self.current_network = str(self.ui.treeWidget.currentItem().name)
-    self.__writeMessage("current network selected: %s" % self.current_network)
+    self.writeMessage("current network selected: %s" % self.current_network)
     if self.ui.radioVariablesAliases.isChecked():
       # self.ui.radioVariablesAliases.setDown(False)
       self.on_radioVariablesAliases_pressed()
@@ -676,7 +676,7 @@ class UiOntologyDesign(QMainWindow):
 
   def __makeRenderedOutput(self):
     """idea is to ease the repetition of inputting equations by writing them on a file."""
-    self.__writeMessage("generating variable and equation pictures")
+    self.writeMessage("generating variable and equation pictures")
     language = LANGUAGES["global_ID_to_internal"]
     incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(
             self.variables)
@@ -838,7 +838,7 @@ class UiOntologyDesign(QMainWindow):
     documentation_file = FILES["latex_documentation"] % self.ontology_name
     if not self.compile_only:
       saveBackupFile(documentation_file)
-    self.__writeMessage("busy making var/eq images")
+    self.writeMessage("busy making var/eq images")
     args = ['sh', f_name, location]
     print('ARGS: ', args)
     make_it = subprocess.Popen(
@@ -1230,8 +1230,8 @@ class UiOntologyDesign(QMainWindow):
       self.table_aliases_v.show()
       OK = True
     else:
-      self.__writeMessage(" no variables in this network %s" %
-                          self.current_network)
+      self.writeMessage(" no variables in this network %s" %
+                        self.current_network)
       OK = False
     return OK
 
@@ -1241,7 +1241,7 @@ class UiOntologyDesign(QMainWindow):
     self.table_aliases_i.completed.connect(self.finished_edit_table)
     self.table_aliases_i.show()
 
-  def __writeMessage(self, message, append=True):
+  def writeMessage(self, message, append=True):
     if not append:
       self.ui.msgWindow.clear()
     self.ui.msgWindow.setText(message)
@@ -1309,7 +1309,7 @@ class UiOntologyDesign(QMainWindow):
       var_latex_alias = variables[var_id]["aliases"]["latex"]
       latex_info[var_id] = "$" + var_latex_alias + "$" #"$" + var.get_alias("latex") + "$"
       modified_vars.append(var_id)
-      self.__writeMessage("modified variable",var_id)
+      self.writeMessage("modified variable", var_id)
 
     for eq_id in equations: #, eq in all_equations.items():
       eq_png_file_path = latex_folder_path / (eq_id + ".png")
