@@ -54,12 +54,34 @@ class TemplateHandler:
     general_idx_info = data["index_sets_info"]["general"]
     idx_list = list(general_idx_info.keys())
     for idx_id in idx_list:
-      translated_idx = self.all_indices.get(idx_id).get_translation(self.language)
+      translated_idx = self.all_indices.get(
+          idx_id).get_translation(self.language)
       general_idx_info[translated_idx] = general_idx_info.pop(idx_id)
 
     # pp(data["index_sets_info"])
-    # THIS COMES FROM THE USER
+    # TODO: THIS COMES FROM THE USER
     is_sparse = False
+    # This info will be refined in the load_model function after the gui for
+    # the task manager is done.
+    names_info = self.var_eq.top_graph.graph["extra_info"]
+    to_print = {
+        "V_66": [
+            {
+                "extra_name": names_info["nodes"][3] + ":" + names_info["species"][1],
+                "position": 3,
+            },
+            {
+                "extra_name": names_info["nodes"][4] + ":" + names_info["species"][1],
+                "position": 4,
+            },
+            {
+                "extra_name": names_info["nodes"][5] + ":" + names_info["species"][1],
+                "position": 5,
+            },
+        ],
+    }
+    data["print_info"] = to_print
+
     # Information about the initialization of all variables
     data["instantiations"] = []
     # pp(self.var_eq.inst_variables)
