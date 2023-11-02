@@ -914,15 +914,15 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     print("inject typed tokens ", list_typed_tokens, "into ",
           self.commander.node_group, "token:", token)
 
-    self.commander.model_container.injectListInToNodes(self.commander.node_group,
-                                                       token,
-                                                       list_typed_tokens,
-                                                       "injected_typed_tokens")
     # RULE: injected tokens are also entered into the tokens
     self.commander.model_container.injectListInToNodes(self.commander.node_group,
                                                        token,
                                                        list_typed_tokens,
                                                        "tokens")
+    self.commander.model_container.injectListInToNodes(self.commander.node_group,
+                                                       token,
+                                                       list_typed_tokens,
+                                                       "injected_typed_tokens")
     self.computeTypedTokenDistribution(token)
     self.commander.clearSelectedNodes()
     self.commander.redrawCurrentScene()
