@@ -30,6 +30,7 @@ import sys
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QRadioButton
 
 from Common.automata_objects import GRAPH_EDITOR_STATES
 from Common.common_resources import CONVERSION_SEPARATOR
@@ -376,6 +377,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
         # Note: key simulation through radio buttons
         self.radio[phase][k].radio_signal.connect(self.__keyAutomatonSignal)
+        # self.radio[phase][k].clicked.connect(self.__keyAutomatonSignal)
 
       if keys != []:  # Note: fully functioning in 5.01
         k = keys[0]
@@ -395,6 +397,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       self.ui.formKeyAutomaton.setWidget(
           count, QtWidgets.QFormLayout.LabelRole, radio)
       count += 1
+
+    #self.__setupKeyAutomatonIndicator()
 
     if self.initialising:
       # NOTE: only place being used -- caused a lot of problems
@@ -1188,7 +1192,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       if r != event:
         self.radio[phase][r].setChecked(False)
     #     print("debugging resetting", r)
-    # print("debugging -- set radio", phase, event)
+    print("debugging -- set radio", phase, event)
 
   def showMouseAction(self, item, decoration, cursor, actionLeft, actionRight):
     if cursor != "leave":

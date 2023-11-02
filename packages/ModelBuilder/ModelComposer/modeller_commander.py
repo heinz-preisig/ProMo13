@@ -901,6 +901,9 @@ class Commander(QtCore.QObject):
 
     self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(
         toNodeID)
+
+    self.model_container.updateTokensInAllDomains()
+    self.model_container.updateTypedTokensInAllDomains()
     self.__redrawScene(self.current_ID_node_or_arc)
 
     # add info knot

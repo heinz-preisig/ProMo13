@@ -397,6 +397,7 @@ class ModelContainer(dict):
       else:
         self.setTokenToNode(nodeID, token)
 
+
     return arcID, nodes_with_arcIDs
 
   def setTokenToNode(self, nodeID, token):

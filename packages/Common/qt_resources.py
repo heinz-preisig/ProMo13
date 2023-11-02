@@ -342,6 +342,7 @@ class ModellerRadioButton(QtWidgets.QRadioButton):
     self.setAutoExclusive(autoexclusive)
     self.toggled.connect(self.beenToggled)
     self.initialisation = True
+    self.isCheckable()
 
   def beenToggled(self, value):
     self.radio_signal.emit(self.token_class, self.token, self.strID, value)
