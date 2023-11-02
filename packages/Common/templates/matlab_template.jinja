@@ -57,7 +57,7 @@ function output_vars = main
     {{-"\n"-}}
   {% endfor%}
 
-% Integrators
+  % Integrators
   % Initial conditions
   {% for i in integrators %}
     {{-"  "}}phi_0({{i.interval}}) =
@@ -75,10 +75,28 @@ function output_vars = main
 
   {{-"  "}}% Integrator routine
   [t, phi] = ode45(@f, integration_interval, phi_0, options);
-  save out.txt t phi
+
+  % Printing output
+  % HEADERS{{"\n"-}}
+  {{-"  "}}fprintf("%s", "time");
+  {% for var_id, var_data in print_info|items %}
+    {% for ref_var_info in var_data %}
+      {{-"  "}}fprintf("\t%s", "{{var_id|label}}:{{ref_var_info.extra_name}}");
+    {% endfor %}
+  {% endfor %}
+  {{-"  "}}fprintf("\n");
+
+  % DATA
+  time_steps = length(t);
+  for i = 1:time_steps
+    [integrand, other_vars] = f(t(i), phi(i,:));
+    fprintf("%d\t", t(i));
+    fprintf("%d\t", other_vars);
+    fprintf("\n");
+  endfor
 
   % Integrand
-  function dphidt = f(t, phi) {{"\n"-}}
+  function [dphidt, extra_output] = f(t, phi) {{"\n"-}}
     {% for i in integrators %}
       {{-"    "}}{{i.var_id|var_slice(i.index_sets)}} =
         {{-" "}}phi({{i.interval}});{{"\n"-}}
@@ -100,9 +118,15 @@ function output_vars = main
       {% endif %}
       {{-"\n"-}}
     {% endfor %}
-    {{-"    "}}%fprintf("%g    ", t);{{"\n"-}}
-    {{-"    "}}%fprintf("%g    ", c.value(N_dyna));{{"\n"-}}
-    {{-"    "}}%fprintf("\n");{{"\n"-}}
+
+    {{-"    "}}extra_output = [
+    {% for var_id, var_data in print_info|items %}
+      {% for ref_var_info in var_data %}
+        {{-"      "}}{{var_id|label}}.value({{ref_var_info.position}});
+      {% endfor %}
+    {% endfor %}
+    ];
+
     {% for i in integrators %}
       {{-"    "}}dphidt({{i.interval}}) = 
         {{-" "}}({{i.integrand|var_slice(i.index_sets)}}).value;

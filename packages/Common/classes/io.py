@@ -288,6 +288,8 @@ def load_topology_from_file(
           "vals": [],
       },
   }
+  # Stores index to name lists for nodes, arcs, species, etc
+  extra_info = {}
 
   # For the species
   species_set = set()
@@ -298,15 +300,20 @@ def load_topology_from_file(
   species_index = {spec: str(i)
                    for i, spec in enumerate(species_list, start=1)}
 
+  extra_info["species"] = [""] + species_list
+
   # For the nodes
   nodes_index = {}
   node_species_index = {}
   offset = 1
   index_sets["general"]["I_1"] = []         # Nodes
   index_sets["general"]["I_5"] = []         # Nodes & Species
+  # First element is empty to account for the offset
+  extra_info["nodes"] = [""]
   for i, old_node_index in enumerate(data["nodes"], start=1):
     node = str(i)
     node_data = data["nodes"][old_node_index]
+    extra_info["nodes"].append(node_data["name"])
 
     # Mapping all the simple nodes to have indexes in [1, N].
     nodes_index[old_node_index] = node
@@ -366,9 +373,11 @@ def load_topology_from_file(
   offset = 1
   index_sets["general"]["I_2"] = []         # Arcs
   index_sets["general"]["I_6"] = []         # Arcs & Species
+  extra_info["arcs"] = [""]  # To account for offset
   for i, old_arc_index in enumerate(data["arcs"], start=1):
     arc = str(i)
     arc_data = data["arcs"][old_arc_index]
+    extra_info["arcs"].append(arc_data["name"])
 
     # Mapping the species inside the arcs.
     # TODO Homogenize the keys in nodes and arcs.
@@ -454,6 +463,7 @@ def load_topology_from_file(
                                   for x in range(1, nr_specs + 1)]  # Species
 
   topology_graph.graph["index_sets_info"] = index_sets
+  topology_graph.graph["extra_info"] = extra_info
 
   topology_entity = entity.Entity(
       "Topology",
