@@ -53,9 +53,11 @@ from Common.ui_string_dialog_impl import UI_String
 from Common.ui_combo_integer_dialog_impl import UI_Combo_Integer
 from ModelBuilder.ModelComposer.modeller_commander import Commander
 from ModelBuilder.ModelComposer.modeller_logger_impl import Logger
-from ModelBuilder.ModelComposer.modeller_mainwindow_new import Ui_MainWindow
+from ModelBuilder.ModelComposer.modeller_mainwindow import Ui_MainWindow
 from OntologyBuilder.TypedTokenEditor.editor_typed_token_impl import TypedTokenData
 
+LEFT = QtCore.Qt.LeftDockWidgetArea
+RIGHT = QtCore.Qt.RightDockWidgetArea
 
 SPACING = 20
 
@@ -106,9 +108,6 @@ class MainWindowImpl(QtWidgets.QMainWindow):
                 "screen_shot", "take a screen shot")
     roundButton(self.ui.pushSaveAs, "save_as", "save with a new name")
     roundButton(self.ui.pushGoTo, what="next", tooltip="got to node")
-    roundButton(self.ui.pushEditNamedNetworks, what = "edit", tooltip="edit named network")
-
-    self.edit_active = False
 
     self.button_logic = self.__setupButtonLogics()
     # self.__setupButtonWithIcons()
@@ -152,10 +151,12 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     # model file and schnipsel file without extension
     self.__display_model_name(self.model_name)
+    # self.model_file = os.path.join(self.model_library_location,
+    #                                self.model_name)  # NOTE: extension is added when writing
     self.model_location = DIRECTORIES["model_location"] % (
         ontology_name, self.model_name)
     self.model_file = FILES["model_file"] % (ontology_name, self.model_name)
-
+    # print(self.model_file)
     self.schnipsel_name = None
     self.schnipsel_file = None
 
@@ -172,9 +173,12 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     for nw in ontology.list_node_objects_on_networks:
       self.nodeObjects_in_networks[nw] = []
       for item in ontology.list_node_objects_on_networks[nw]:
+        # ontology.list_node_objects_on_networks[nw][item]:
         if "intraface" not in item:
+          # ontology.list_node_objects_on_networks[nw][item])
           self.nodeObjects_in_networks[nw].append(item)
 
+    # self.arcApplications_in_networks = ontology.list_arcObjects_in_networks  # arc_types_in_leave_networks_list_coded
     self.arcInfoDictionary = ontology.arc_info_dictionary
     self.nw_token_typedtoken_dict = ontology.token_typedtoken_on_networks
     self.typed_tokens_data = TypedTokenData(file=self.typed_token_file_spec)
@@ -366,12 +370,14 @@ class MainWindowImpl(QtWidgets.QMainWindow):
         label = str("%s - %s" % (k, state))
         l = label.replace("Key_", "")
         l = l.replace("Escape", "Esc")
+        # print("make radio %s - key %s" %(l,k))
         r = ModellerRadioButton(M_None, M_None, k, l, autoexclusive=True)
         # r.setDisabled(True)
         self.radio[phase][k] = r
 
         # Note: key simulation through radio buttons
         self.radio[phase][k].radio_signal.connect(self.__keyAutomatonSignal)
+        # self.radio[phase][k].clicked.connect(self.__keyAutomatonSignal)
 
       if keys != []:  # Note: fully functioning in 5.01
         k = keys[0]
@@ -402,7 +408,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     """
     renumber nodes
     """
-
+    # pars = {
+    #   "action": "map&save model",
+    #   "file": self.model_file
+    #   }
     pars = {
         "nodeID": None,
         "action": "map&save model",
@@ -425,6 +434,11 @@ class MainWindowImpl(QtWidgets.QMainWindow):
   # =============== make tool pages
 
   def __makeMainToolPage(self):
+    # add editor phase toggle button
+    # self.editor_phase_button = ToggleButton(EDITOR_PHASES[0], EDITOR_PHASES[1])
+    # self.ui.layoutEditorPhase.addWidget(self.editor_phase_button)
+    # self.editor_phase_button.hide()
+    # self.editor_phase_button.changed.connect(self.setEditorPhase)
 
     enabled_editor_phases = ["topology"]
 
@@ -449,10 +463,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
   def __makeInteractionToolPage(self):
     # reset state of the interaction tool box
     self.state_inject_or_constrain_or_convert = None
-    self.__clearLayout(self.ui.layoutNodes)
-    self.__clearLayout(self.ui.layoutInteractive)
-    self.__clearLayout(self.ui.layoutTokens)
-    self.__clearLayout(self.ui.layoutTypedTokens)
+    self.__clearLayout(self.ui.layoutInteractiveWidgetTop)
+    self.__clearLayout(self.ui.layoutInteractiveWidgetBottom)
 
     nw = self.current_network
     if self.editor_phase == EDITOR_PHASES[0]:
@@ -460,19 +472,21 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       self.radio_selectors["nodes"] = self.__makeAndAddSelector("nodes", self.nodeObjects_in_networks[nw],
                                                                 self.radioReceiverNode,
                                                                 index,
-                                                                self.ui.layoutNodes)
+                                                                self.ui.layoutInteractiveWidgetTop)
     else:
       tokens = sorted(self.arcInfoDictionary[nw].keys())
       s_tokens = []
       for token in tokens:
+        nature = list(
+            self.ontology.ontology_tree[nw]["structure"]["arc"][token].keys())
+        # if "auto" not in nature:
         s_tokens.append(token)
 
       if s_tokens:
         index = self.selected_token[self.editor_phase][nw]
-        self.__clearLayout(self.ui.layoutTokens)
         self.radio_selectors["node_token"] = self.__makeAndAddSelector("token", s_tokens, self.radioReceiverNodeToken,
                                                                        index,
-                                                                       self.ui.layoutTokens)
+                                                                       self.ui.layoutInteractiveWidgetTop)
 
   def __makeComboNodeSubClass(self):
     # print("debugging -- make combo node subclass")
@@ -647,26 +661,39 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       # print("debugging -- do change network from radio button from %s to %s"%(self.current_network, token_string))
       self.current_network = token_string
 
-      # self.__trimLayout(1, self.ui.layoutNetworks)
-      self.__clearLayout(self.ui.layoutNamedNetworks)
-      named_networks = self.named_network_dictionary.listOfNamedNetworksPerNetwork(self.current_network)
+      self.__trimLayout(1, self.ui.layoutNetworks)
+      named_networks = self.named_network_dictionary.listOfNamedNetworksPerNetwork(
+          self.current_network)
       self.current_named_network = named_networks[0]
       index = named_networks.index(self.current_named_network)
       self.radio_selectors["named_networks"] = self.__makeAndAddSelector("named_networks",
                                                                          named_networks,
                                                                          self.radioReceiverNamedNetworks,
                                                                          index,
-                                                                         self.ui.layoutNamedNetworks)
+                                                                         self.ui.layoutNetworks)
 
       if self.editor_phase == "topology":
 
         nw = self.current_network
+        tokens = sorted(self.arcInfoDictionary[nw].keys())
+        s_token = self.selected_token[self.editor_phase][nw]
+        s_tokens = []
+        for token in tokens:
+          nature = list(
+              self.ontology.ontology_tree[nw]["structure"]["arc"][token].keys())
+          # if "auto" not in nature:
+          s_tokens.append(token)
+        if s_tokens:
+          self.__clearLayout(self.ui.layoutInteractiveWidgetBottom)
+          self.radio_selectors["arc_token"] = self.__makeAndAddSelector("token", s_tokens, self.radioReceiverArcToken,
+                                                                        s_token,
+                                                                        self.ui.layoutInteractiveWidgetBottom)
         index = self.selected_node_type[nw]
-        self.__clearLayout(self.ui.layoutNodes)
+        self.__clearLayout(self.ui.layoutInteractiveWidgetTop)
         self.radio_selectors["nodes"] = self.__makeAndAddSelector("nodes", self.nodeObjects_in_networks[nw],
                                                                   self.radioReceiverNode,
                                                                   index,
-                                                                  self.ui.layoutNodes)
+                                                                  self.ui.layoutInteractiveWidgetTop)
         self.__makeComboNodeSubClass()
 
       elif self.editor_phase == "token_topology":
@@ -692,7 +719,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def radioReceiverArcToken(self, token_class, token, token_string, toggle):
     if toggle:
-      self.__trimLayout(0, self.ui.layoutInteractive)
+      # print("radioReceiverArcToken: reciever class %s, radio token %s. token_string %s"
+      # % (token_class, token, token_string))
+
+      self.__trimLayout(1, self.ui.layoutInteractiveWidgetBottom)
       nw = self.current_network
       self.selected_token[self.editor_phase][nw] = token_string
       s_token = self.selected_token[self.editor_phase][nw]
@@ -700,16 +730,22 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       index = self.selected_transfer_mechanism[self.current_network][s_token]
       self.radio_selectors["mechanism"] = self.__makeAndAddSelector("mechanism", mechanisms,
                                                                     self.radioReceiverArcMechanism, index,
-                                                                    self.ui.layoutInteractive)
+                                                                    self.ui.layoutInteractiveWidgetBottom)
+      # self.setSelectorChecked("mechanism", "mechanism", 1)
+      # self.radio_selectors["mechanism"].check("mechanism", 1)
       self.__makeComboNodeSubClass()
       self.__makeComboArcSubClass()
+      # print("debugging -- finding how to toggle mechanism")
 
   def setSelectorChecked(self, selector, group, item_number):
     self.radio_selectors[selector].check(group, item_number)
 
   def radioReceiverArcMechanism(self, token_class, token, mechanism, toggle):
     if toggle:
-      self.__trimLayout(1, self.ui.layoutInteractive)
+      # print("radioReceiverArcMechanism: receiver class %s, radio token %s."
+      # % (token_class, token))
+
+      self.__trimLayout(2, self.ui.layoutInteractiveWidgetBottom)
       nw = self.current_network
       s_token = self.selected_token[self.editor_phase][nw]
       self.selected_transfer_mechanism[nw][s_token] = mechanism
@@ -717,11 +753,13 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       nature = self.selected_arc_nature[self.current_network][s_token]
       self.radio_selectors["nature"] = self.__makeAndAddSelector("nature", distributions,
                                                                  self.radioReceiverArcDistribution, nature,
-                                                                 self.ui.layoutInteractive)
+                                                                 self.ui.layoutInteractiveWidgetBottom)
       self.__makeComboArcSubClass()
 
   def radioReceiverArcDistribution(self, token_class, token, token_string, toggle):
     if toggle:
+      # print("radioReceiverArcDistribution: reciever class %s, radio token %s. token_string %s" % (
+      # token_class, token, token_string))
       nw = self.current_network
       s_token = self.selected_token[self.editor_phase][nw]
       self.selected_arc_nature[nw][s_token] = token_string
@@ -729,12 +767,22 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
   def radioReceiverNodeToken(self, token_class, token, token_string, toggle):
     if toggle:
+      # print("radioReceiverNodeToken: receiver class %s, radio token %s. token_string %s" % (
+      # token_class, token, token_string))
       self.current_token = token_string
       nw = self.current_network
+      #
+      # fixme: the following dictionary is probably obsolete because of changed control structure
+      # fixme: -- which is the network is the main "changer" in the new logic scheme
       self.selected_token[self.editor_phase][nw] = token_string
 
+      self.__clearLayout(self.ui.layoutInteractiveWidgetBottom)
       ask = []
       if token_string in self.ontology.token_typedtoken_on_networks[nw].keys():
+        # nature = list(
+        #         self.ontology.ontology_tree[nw]["structure"]["arc"][self.selected_token[self.editor_phase][nw]].keys())
+
+        # if "auto" not in nature:
         typed_tokens = self.nw_token_typedtoken_dict[nw][token_string]
         # OPS!
         if typed_tokens:
@@ -748,24 +796,20 @@ class MainWindowImpl(QtWidgets.QMainWindow):
           if len(items_to_convert) > 0:
             self.items_to_convert = items_to_convert
             ask.append("convert")
-
-            self.__clearLayout(self.ui.layoutTypedTokens)
             self.radio_selectors["typed token"] = \
                 self.__makeAndAddSelector("typed token", ask, self.radioReceiverTypedTokenTool, -1,
-                                          self.ui.layoutTypedTokens)
-        else:
-          self.__clearLayout(self.ui.layoutTypedTokens)
-          self.__clearLayout(self.ui.layoutInteractive)
+                                          self.ui.layoutInteractiveWidgetBottom)
+        # else:
+        #   self.__clearLayout(self.ui.layoutInteractiveWidgetBottom)
 
         self.writeStatus("")
       else:
-        self.__clearLayout(self.ui.layoutTypedTokens)
-        self.__clearLayout(self.ui.layoutInteractive)
+        self.__clearLayout(self.ui.layoutInteractiveWidgetBottom)
         self.writeStatus("no typed tokens for this token : %s" % token_string)
 
   def radioReceiverTypedTokenTool(self, token_class, token, token_string, toggle):
     if toggle:
-      self.__trimLayout(0, self.ui.layoutInteractive)
+      self.__trimLayout(1, self.ui.layoutInteractiveWidgetBottom)
       # print( "debugging -- ",
       #         "radioReceiverTypedTokenTool: reciever class -%s-, radio token -%s-.,token_string -%s-, "
       #         "self.items_to_inject -%s-"
@@ -775,7 +819,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       if token_string in ["inject", "constrain"]:
         self.radio_selectors[token_string] = self.__makeAndAddSelector(token_string, self.items_to_inject,
                                                                        self.radioReceiverTypedTokenInject, -1,
-                                                                       self.ui.layoutInteractive,
+                                                                       self.ui.layoutInteractiveWidgetBottom,
                                                                        autoexclusive=False)
       elif token_string == "convert":
         items = []
@@ -785,7 +829,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
         self.radio_selectors["convert"] = self.__makeAndAddSelector("convert", items,
                                                                     self.radioReceiverTypedTokenToConvert, -1,
-                                                                    self.ui.layoutInteractive,
+                                                                    self.ui.layoutInteractiveWidgetBottom,
                                                                     autoexclusive=False)
         pass
 
@@ -806,14 +850,6 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.commander.applyControlAccessRules()
     self.commander.redrawCurrentScene()
     return
-
-  def on_pushEditNamedNetworks_pressed(self):
-    self.edit_active = not self.edit_active
-    if self.edit_active:
-      self.ui.groupBoxNamedNetworks.hide()
-    else:
-      self.ui.groupBoxNamedNetworks.show()
-
 
   def showSchnipselPopWindow(self):
     """
@@ -903,7 +939,9 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.commander.model_container.updateTypedTokensInAllDomains()
 
   def injectConversions(self):
+    # self.selected_token[self.editor_phase][self.current_network]
     token = self.current_token
+    # list_conversions = deepcopy(list(self.selected_set_coversions))
     list_conversions = self.radio_selectors["convert"].getListOfCheckedLabelInGroup(
         "convert")
     print("inject conversions ", list_conversions)
@@ -920,6 +958,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.commander.resetGroups()
 
   def injectTypedTokenTransferConstraints(self):
+    # self.selected_token[self.editor_phase][self.current_network]
     token = self.current_token
     list_typed_tokens = self.radio_selectors["constrain"].getListOfCheckedLabelInGroup(
         "constrain")
@@ -1073,6 +1112,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
         "pos": None,
         "file": self.model_file
     }
+    # print("debugging -- ", self.model_name)
+    # print("debugging -- ",self.model_file)
     self.commander.processMainEvent(pars)
 
   def pushReset(self):
@@ -1108,7 +1149,6 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     # RULE: allow change only if there are no open arcs
     open_arcs = self.commander.model_container.checkforOpenArcs()
 
-    self.editor_phase = phase
     if len(open_arcs) != 0:
       msg_box = QtWidgets.QMessageBox()
       msg_box.setText("there are open arcs - close them ! %s" % open_arcs)
@@ -1130,10 +1170,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.commander.setDefaultEditorState()
     self.commander.resetNodeStates()
 
-    if phase in ["equation_topology"]:
-      self.ui.groupBoxInteraction.hide()
-    else:
-      self.ui.groupBoxInteraction.show()
+    self.editor_phase = phase
     self.__makeInteractionToolPage()
     self.__shiftKeyAutomaton(phase)
     self.commander.redrawCurrentScene()
