@@ -25,17 +25,21 @@ from Common.resources_icons import roundButton
 from packages.ModelBuilder.ModelComposer.variant_selection import Ui_Dialog
 
 def extract(variants, filter_and, filter_or):
-  selection = []
+  remove_them = set()
   for f in filter_and:
     for v in variants:
-      if f in v:
-        selection.append(v)
+      if f not in v:
+        remove_them.add(v)
 
-  selection_2 = []
-  for v in selection:
-    for f in filter_or:
-      if f in v:
-        selection_2.append(v)
+  selection = set(variants) - remove_them
+  if filter_or:
+    selection_2 = []
+    for v in selection:
+      for f in filter_or:
+        if f in v:
+          selection_2.append(v)
+  else:
+    selection_2 = list(selection)
 
   return selection_2
 
@@ -88,7 +92,7 @@ if __name__ == '__main__':
               "macroscopic.arc.charge|convection|lumped.ConvectiveFlowPulse",
               "macroscopic.arc.energy|convection|lumped.ConvectiveFlowPulse",
               ]
-  var = extract(variants, ["arc"],["mass","energy"])
+  var = extract(variants, ["arc","macroscopic"],["mass","energy"])
 
   print(var)
   w = VariantGUI(var)

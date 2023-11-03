@@ -474,32 +474,32 @@ class MainWindowImpl(QtWidgets.QMainWindow):
                                                                        index,
                                                                        self.ui.layoutTokens)
 
-  def __makeComboNodeSubClass(self):
-    # print("debugging -- make combo node subclass")
-    network = self.current_network
-    node = self.selected_node_type[network]
-    token = self.selected_token[self.editor_phase][network]
-    obj_ID = "%s" % node #(token, node)
-    # print("ID: " + obj_ID)
-    # print("debugging -- make combo node subclass", network, node, token, obj_ID)
-
-    self.ui.comboNodeSubClass.clear()
-    variants = set()
-    for o in sorted(self.ontology.node_arc_SubClasses.keys()):
-      if obj_ID in o:
-        # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
-        substrings = o.split('.')
-        variant = substrings[-1]
-        if "base" not in variant:
-          variants.add(substrings[-1])
-    if len(variants) == 0:
-      if not self.initialising:
-        pass  # NOTE: this is a little of a problem for the translator
-        # answer = makeMessageBox(
-        #     "there is no association defined -- save and define an association", buttons=["OK"])
-    self.ui.comboNodeSubClass.addItems(variants)
-    self.current_node_variant = self.ui.comboNodeSubClass.currentText()
-    pass
+  # def __makeComboNodeSubClass(self):
+  #   # print("debugging -- make combo node subclass")
+  #   network = self.current_network
+  #   node = self.selected_node_type[network]
+  #   token = self.selected_token[self.editor_phase][network]
+  #   obj_ID = "%s" % node #(token, node)
+  #   # print("ID: " + obj_ID)
+  #   # print("debugging -- make combo node subclass", network, node, token, obj_ID)
+  #
+  #   self.ui.comboNodeSubClass.clear()
+  #   variants = set()
+  #   for o in sorted(self.ontology.node_arc_SubClasses.keys()):
+  #     if obj_ID in o:
+  #       # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
+  #       substrings = o.split('.')
+  #       variant = substrings[-1]
+  #       if "base" not in variant:
+  #         variants.add(substrings[-1])
+  #   if len(variants) == 0:
+  #     if not self.initialising:
+  #       pass  # NOTE: this is a little of a problem for the translator
+  #       # answer = makeMessageBox(
+  #       #     "there is no association defined -- save and define an association", buttons=["OK"])
+  #   self.ui.comboNodeSubClass.addItems(variants)
+  #   self.current_node_variant = self.ui.comboNodeSubClass.currentText()
+  #   pass
 
   # def __makeComboArcSubClass(self):
   #   # print("debugging -- arc subclass exposure")
@@ -606,7 +606,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     index = self.named_network_dictionary.indexForNamedNetwork(
         self.current_network, named_network)
     self.radio_selectors["named_networks"].check("named_networks", index)
-    self.__makeComboNodeSubClass()
+    # self.__makeComboNodeSubClass()
 
   def setNodeType(self, node_type):
     # print("debugging -- node type", node_type)
@@ -616,11 +616,11 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     self.radio_selectors["nodes"].check("nodes", index)
 
-    self.__makeComboNodeSubClass()
+    # self.__makeComboNodeSubClass()
 
-  def setNodeVariant(self, variant):
-    index = self.ui.comboNodeSubClass.findText(variant)
-    self.ui.comboNodeSubClass.setCurrentIndex(index)
+  # def setNodeVariant(self, variant):
+  #   index = self.ui.comboNodeSubClass.findText(variant)
+  #   self.ui.comboNodeSubClass.setCurrentIndex(index)
 
   @QtCore.pyqtSlot(str)
   def on_comboEditorPhase_currentTextChanged(self, phase):
@@ -667,7 +667,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
                                                                   self.radioReceiverNode,
                                                                   index,
                                                                   self.ui.layoutNodes)
-        self.__makeComboNodeSubClass()
+        # self.__makeComboNodeSubClass()
 
       elif self.editor_phase == "token_topology":
         self.__makeInteractionToolPage()
@@ -688,7 +688,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
   def radioReceiverNode(self, token_class, token, token_string, toggle):
     nw = self.current_network
     self.selected_node_type[nw] = token_string
-    self.__makeComboNodeSubClass()
+    # self.__makeComboNodeSubClass()
 
   # def radioReceiverArcToken(self, token_class, token, token_string, toggle):
   #   if toggle:

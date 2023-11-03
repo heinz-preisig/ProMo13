@@ -202,8 +202,8 @@ class Commander(QtCore.QObject):
       # print("node simple network:", network)
       if network in self.main.networks:
         self.main.setNetwork(network, named_network)
-      self.main.setNodeType(node_type)
-      self.main.setNodeVariant(variant)
+      # self.main.setNodeType(node_type)
+      # self.main.setNodeVariant(variant)
     if graphics_root_object == NAMES["connection"]:
       network = self.model_container["arcs"][self.current_ID_node_or_arc]["network"]
       named_network = self.model_container["arcs"][self.current_ID_node_or_arc]["named_network"]
@@ -472,10 +472,6 @@ class Commander(QtCore.QObject):
     x, y = pos.x(), pos.y()
 
     if not network:
-      # if not self.main.current_network:
-      #   return {
-      #         "failed"  : True
-      #         }
       network = self.main.current_network  # default
       named_network = self.main.current_named_network
 
@@ -484,8 +480,7 @@ class Commander(QtCore.QObject):
 
       node_characteristics, app = node_type.split(NODE_COMPONENT_SEPARATOR)
       if "intra" in node_characteristics:
-        node_class = "node_intraface"  # constructionsite;
-        # self.__addBoundaryNode(pos,NAMES["boundary"],)
+        node_class = NAMES["intraface"]  # constructionsite;
         self.main.writeStatus(
             "cannot be inserted -- this is done automatically")
 
@@ -496,6 +491,35 @@ class Commander(QtCore.QObject):
       node_characteristics = ""
 
     features = self.applyNodeDefinitionRules(node_characteristics)
+
+    if not network == "composite":
+      current_inter_branch = None
+      for inter_branch in self.main.ontology.list_inter_branches:
+        for domain in self.main.ontology.intra_domains[inter_branch]:
+          print("debugging -- ", inter_branch, domain)
+          if network == domain:
+            current_inter_branch = inter_branch
+            break
+      print("debugging -- found:", current_inter_branch, network )
+      if not current_inter_branch:
+        self.__abortNodeGeneration("no current item defined")
+        return {"failed": True}
+
+      entities = list(self.main.ontology.node_arc_SubClasses.keys())
+      selections = extract(entities, filter_and=[current_inter_branch, "node"],filter_or=[])
+
+
+      if not selections:
+        self.__abortNodeGeneration("no entity defined")
+        return {"failed": True}
+
+      dia = VariantGUI(selections)
+      dia.exec_()
+      entity_selection = dia.selection
+
+      nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity_selection)
+    else:
+      variant = "composite"
 
     state = STATES[self.editor_phase]["nodes"][0]
     decoration_positions = ModelGraphicsData(node_class,
@@ -512,7 +536,7 @@ class Commander(QtCore.QObject):
                                               node_class,
                                               node_type,
                                               features=features,
-                                              variant=self.main.current_node_variant)
+                                              variant=variant)#self.main.current_node_variant)
 
     self.state_nodes[newnodeID] = STATES[self.editor_phase]["nodes"][0]
 
@@ -920,7 +944,11 @@ class Commander(QtCore.QObject):
 
   def __abortArcGeneration(self, msg):
     self.__resetNodeStatesAndSelectedArc()
-    self.__c15_reset()
+    self.main.writeStatus(msg)
+    return {"failed": True}
+
+  def __abortNodeGeneration(self, msg):
+    self.__resetNodeStatesAndSelectedArc()
     self.main.writeStatus(msg)
     return {"failed": True}
 
