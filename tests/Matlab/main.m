@@ -12,74 +12,62 @@ function main
   fnc = MultiDimVar({"AS"}, {AS}, reshape(1:4, 4, 1));
   m = MultiDimVar({"N"}, {N}, [1; 2; 3]);
   V = MultiDimVar({"N"}, {N}, [2; 3; 4]);
+  h = MultiDimVar({"A"}, {A}, [1; 1; 1]);
+  k = MultiDimVar({"N_x_S", "A"}, {NS, A}, reshape(1:18, 6, 3));
+  base = MultiDimVar({"N", "A"}, {N, A}, [1 0 0; 0 0 1]);
+  exponent = MultiDimVar({"N", "A"}, {N, A}, [2 3 4; 0 6 7]);
+  one = MultiDimVar({"A"}, {A}, ones(3, 1));
 
-
-##  disp(reduceproduct(F, "AS", fnc))
-##  F = sparse(F);
-##  fnc = sparse(fnc);
-##  disp(reduceproduct(F, "AS", fnc))
-##
-##  p = MultiDimVar({"N"}, {N}, [23; 32; 45]);
-##  disp(p)
-  
-##  m = MultiDimVar({"N"}, {N}, [1; 2; 3]);
-##  disp(m)
-  
-##  V = MultiDimVar({"N"}, {N}, [2; 3; 4]);
-##  disp(V)
-##  disp(V.indexLabels)
-##  disp(reciprocal(V))
-##  disp(expandproduct(m, 1 ./ V))
-  
-##  new = khatrirao(p, {"N"}, c, {"NS"});
-##  disp(new)
-
-  % disp(product(fnc, "AS"))
-  % % g = MultiDimVar({}, {}, 9.8);
-  % % disp(g)
-  % disp(F)
-  % disp(product(F, "AS"))
-  % size(product(F, "AS"))
-
-  ############################## Transpose #####################################
-  fprintf("Tests for Transpose\n")
-  disp(c')          % The transpose of a 1D is the same 1D (always a column vector)
-  fprintf("========================\n")
-  disp(F')          % The transpose of a 2D behaves as usual
-  ############################ Expand Product ##################################
-  fprintf("Tests for Expand Product\n")
-  a = 3 .* 5        % scalar times scalar
-  fprintf("========================\n")
-  a = 3 .* c;       % scalar times 1D
+  % ############################## Transpose #####################################
+  % fprintf("Tests for Transpose\n")
+  % disp(c')          % The transpose of a 1D is the same 1D (always a column vector)
+  % fprintf("========================\n")
+  % disp(F')          % The transpose of a 2D behaves as usual
+  % ############################ Expand Product ##################################
+  % fprintf("Tests for Expand Product\n")
+  % a = 3 .* 5        % scalar times scalar
+  % fprintf("========================\n")
+  % a = 3 .* c;       % scalar times 1D
+  % disp(a)
+  % fprintf("========================\n")
+  % a = F .* 2;       % 2D times scalar
+  % disp(a)
+  % fprintf("========================\n")
+  % a = m .* V;       % 1D times 1D (same indexSet)
+  % disp(a)
+  % fprintf("========================\n")
+  a = c .* one;       % 1D times 1D (different indexSet)
   disp(a)
-  fprintf("========================\n")
-  a = F .* 2;       % 2D times scalar
-  disp(a)
-  fprintf("========================\n")
-  a = m .* V;       % 1D times 1D (same indexSet)
-  disp(a)
-  fprintf("========================\n")
-  a = F .* D;       % 2D times 2D (same indexSets)
-  disp(a)
-  fprintf("========================\n")
-  a = c .* F;       % 1D times 2D   x .* x,y -> x,y
-  disp(a)
-  fprintf("========================\n")
-  a = fnc .* F;     % 1D times 2D   y .* x,y -> x,y
-  disp(a)
-  fprintf("========================\n")
-  a = F .* fnc;     % 2D times 1D   x,y .* y -> x,y
-  disp(a)
+  % fprintf("========================\n")
+  % a = F .* D;       % 2D times 2D (same indexSets)
+  % disp(a)
+  % fprintf("========================\n")
+  % a = c .* F;       % 1D times 2D   x .* x,y -> x,y
+  % disp(a)
+  % fprintf("========================\n")
+  % a = fnc .* F;     % 1D times 2D   y .* x,y -> x,y
+  % disp(a)
+  % fprintf("========================\n")
+  % a = F .* fnc;     % 2D times 1D   x,y .* y -> x,y
+  % disp(a)
   ############################# Product #############################################
-  fprintf("Tests for Product\n")
-  a = product(m, "N");  % 1D
-  disp(a)
-  fprintf("========================\n")
-  a = product(F, "NS"); % 2D reducing 1st index
-  disp(a)
-  fprintf("========================\n")
-  a = product(F, "AS"); % 2D reducing 2nd index
-  disp(a)
+  % fprintf("Tests for Product\n")
+  % a = product(m, "N");  % 1D
+  % disp(a)
+  % fprintf("========================\n")
+  % a = product(F, "NS"); % 2D reducing 1st index
+  % disp(a)
+  % fprintf("========================\n")
+  % a = product(F, "AS"); % 2D reducing 2nd index
+  % disp(a)
+  % fprintf("========================\n")
+  % a = product(k, "S"); % 2D reducing 1st inner index
+  % disp(a)
+  ############################### Power ########################################
+  % fprintf("Tests for Power\n")
+  % a = base .^ exponent;  % 1D
+  % disp(a)
+  % fprintf("========================\n")
 endfunction
 function result = indexunion(varargin)
   result = varargin{1};
