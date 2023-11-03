@@ -479,13 +479,13 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     network = self.current_network
     node = self.selected_node_type[network]
     token = self.selected_token[self.editor_phase][network]
-    obj_ID = "node.%s|%s" % (token, node)
+    obj_ID = "%s" % node #(token, node)
     # print("ID: " + obj_ID)
     # print("debugging -- make combo node subclass", network, node, token, obj_ID)
 
     self.ui.comboNodeSubClass.clear()
     variants = set()
-    for o in self.ontology.node_arc_SubClasses:
+    for o in sorted(self.ontology.node_arc_SubClasses.keys()):
       if obj_ID in o:
         # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
         substrings = o.split('.')
@@ -501,32 +501,32 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.current_node_variant = self.ui.comboNodeSubClass.currentText()
     pass
 
-  def __makeComboArcSubClass(self):
-    # print("debugging -- arc subclass exposure")
-    network = self.current_network
-    token = self.selected_token[self.editor_phase][network]
-    mechanism = self.selected_transfer_mechanism[network][token]
-    nature = self.selected_arc_nature[network][token]
-    obj_ID = "arc.%s|%s|%s" % (token, mechanism, nature)
-    # print("debugging -- make combo node subclass", network, token, mechanism, nature, obj_ID)
-
-    self.ui.comboArcSubClass.clear()
-    variants = set()
-    for o in self.ontology.node_arc_SubClasses:
-      if obj_ID in o:
-        # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
-        substrings = o.split('.')
-        variant = substrings[-1]
-        if "base" not in variant:
-          variants.add(substrings[-1])
-    if len(variants) == 0:
-      if not self.initialising:
-        pass  # NOTE: this is a little of a problem for the translator
-        # answer = makeMessageBox(
-        #     "there is no association defined -- save and define an association", buttons=["OK"])
-    self.ui.comboArcSubClass.addItems(variants)
-    self.current_arc_variant = self.ui.comboArcSubClass.currentText()
-    pass
+  # def __makeComboArcSubClass(self):
+  #   # print("debugging -- arc subclass exposure")
+  #   network = self.current_network
+  #   token = self.selected_token[self.editor_phase][network]
+  #   mechanism = self.selected_transfer_mechanism[network][token]
+  #   nature = self.selected_arc_nature[network][token]
+  #   obj_ID = "arc.%s|%s|%s" % (token, mechanism, nature)
+  #   # print("debugging -- make combo node subclass", network, token, mechanism, nature, obj_ID)
+  #
+  #   self.ui.comboArcSubClass.clear()
+  #   variants = set()
+  #   for o in self.ontology.node_arc_SubClasses:
+  #     if obj_ID in o:
+  #       # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
+  #       substrings = o.split('.')
+  #       variant = substrings[-1]
+  #       if "base" not in variant:
+  #         variants.add(substrings[-1])
+  #   if len(variants) == 0:
+  #     if not self.initialising:
+  #       pass  # NOTE: this is a little of a problem for the translator
+  #       # answer = makeMessageBox(
+  #       #     "there is no association defined -- save and define an association", buttons=["OK"])
+  #   self.ui.comboArcSubClass.addItems(variants)
+  #   self.current_arc_variant = self.ui.comboArcSubClass.currentText()
+  #   pass
 
   def __clearLayout(self, layout):
     while layout.count():
@@ -690,42 +690,42 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.selected_node_type[nw] = token_string
     self.__makeComboNodeSubClass()
 
-  def radioReceiverArcToken(self, token_class, token, token_string, toggle):
-    if toggle:
-      self.__trimLayout(0, self.ui.layoutInteractive)
-      nw = self.current_network
-      self.selected_token[self.editor_phase][nw] = token_string
-      s_token = self.selected_token[self.editor_phase][nw]
-      mechanisms = sorted(self.arcInfoDictionary[nw][s_token].keys())
-      index = self.selected_transfer_mechanism[self.current_network][s_token]
-      self.radio_selectors["mechanism"] = self.__makeAndAddSelector("mechanism", mechanisms,
-                                                                    self.radioReceiverArcMechanism, index,
-                                                                    self.ui.layoutInteractive)
-      self.__makeComboNodeSubClass()
-      self.__makeComboArcSubClass()
-
-  def setSelectorChecked(self, selector, group, item_number):
-    self.radio_selectors[selector].check(group, item_number)
-
-  def radioReceiverArcMechanism(self, token_class, token, mechanism, toggle):
-    if toggle:
-      self.__trimLayout(1, self.ui.layoutInteractive)
-      nw = self.current_network
-      s_token = self.selected_token[self.editor_phase][nw]
-      self.selected_transfer_mechanism[nw][s_token] = mechanism
-      distributions = self.arcInfoDictionary[nw][s_token][mechanism]
-      nature = self.selected_arc_nature[self.current_network][s_token]
-      self.radio_selectors["nature"] = self.__makeAndAddSelector("nature", distributions,
-                                                                 self.radioReceiverArcDistribution, nature,
-                                                                 self.ui.layoutInteractive)
-      self.__makeComboArcSubClass()
-
-  def radioReceiverArcDistribution(self, token_class, token, token_string, toggle):
-    if toggle:
-      nw = self.current_network
-      s_token = self.selected_token[self.editor_phase][nw]
-      self.selected_arc_nature[nw][s_token] = token_string
-      self.__makeComboArcSubClass()
+  # def radioReceiverArcToken(self, token_class, token, token_string, toggle):
+  #   if toggle:
+  #     self.__trimLayout(0, self.ui.layoutInteractive)
+  #     nw = self.current_network
+  #     self.selected_token[self.editor_phase][nw] = token_string
+  #     s_token = self.selected_token[self.editor_phase][nw]
+  #     mechanisms = sorted(self.arcInfoDictionary[nw][s_token].keys())
+  #     index = self.selected_transfer_mechanism[self.current_network][s_token]
+  #     self.radio_selectors["mechanism"] = self.__makeAndAddSelector("mechanism", mechanisms,
+  #                                                                   self.radioReceiverArcMechanism, index,
+  #                                                                   self.ui.layoutInteractive)
+  #     self.__makeComboNodeSubClass()
+  #     # self.__makeComboArcSubClass()
+  #
+  # def setSelectorChecked(self, selector, group, item_number):
+  #   self.radio_selectors[selector].check(group, item_number)
+  #
+  # def radioReceiverArcMechanism(self, token_class, token, mechanism, toggle):
+  #   if toggle:
+  #     self.__trimLayout(1, self.ui.layoutInteractive)
+  #     nw = self.current_network
+  #     s_token = self.selected_token[self.editor_phase][nw]
+  #     self.selected_transfer_mechanism[nw][s_token] = mechanism
+  #     distributions = self.arcInfoDictionary[nw][s_token][mechanism]
+  #     nature = self.selected_arc_nature[self.current_network][s_token]
+  #     self.radio_selectors["nature"] = self.__makeAndAddSelector("nature", distributions,
+  #                                                                self.radioReceiverArcDistribution, nature,
+  #                                                                self.ui.layoutInteractive)
+  #     # self.__makeComboArcSubClass()
+  #
+  # def radioReceiverArcDistribution(self, token_class, token, token_string, toggle):
+  #   if toggle:
+  #     nw = self.current_network
+  #     s_token = self.selected_token[self.editor_phase][nw]
+  #     self.selected_arc_nature[nw][s_token] = token_string
+  #     # self.__makeComboArcSubClass()
 
   def radioReceiverNodeToken(self, token_class, token, token_string, toggle):
     if toggle:
@@ -1149,13 +1149,16 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.interface_set = True
     phase = self.commander.editor_phase
 
-    self.radio[phase][event].setChecked(True)
+    # self.radio[phase][event].setChecked(True)
 
     for r in self.radio[phase]:
-      if r != event:
+      # if r != event:
         self.radio[phase][r].setChecked(False)
     #     print("debugging resetting", r)
     print("debugging -- set radio", phase, event)
+
+    self.radio[phase][event].setChecked(True)
+    self.radio[phase][event].setChecked(True)
 
   def showMouseAction(self, item, decoration, cursor, actionLeft, actionRight):
     if cursor != "leave":

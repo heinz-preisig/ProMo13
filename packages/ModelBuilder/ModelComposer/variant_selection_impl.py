@@ -20,6 +20,8 @@ __status__ = "beta"
 """
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QDialog
+
+from Common.resources_icons import roundButton
 from packages.ModelBuilder.ModelComposer.variant_selection import Ui_Dialog
 
 def extract(variants, filter_and, filter_or):
@@ -52,6 +54,10 @@ class VariantGUI(QDialog):
     super().__init__(flags=QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint)
     self.ui = Ui_Dialog()
     self.ui.setupUi(self)
+
+
+    roundButton(self.ui.pushAccept, "accept", "accept choice")
+    roundButton(self.ui.pushCancel, "reject", "reject choices")
 
     self.variants = variants
     self.ui.comboBoxVariations.addItems(variants)
