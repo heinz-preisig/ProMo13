@@ -76,7 +76,16 @@ class NodeInfo(dict):  # (OrderedDict): #
 
 class ArcInfo(dict):  # OrderedDict):  # NOTE: changed to dictionary -- OrderedDict failed to be copied (extract
   # subtree)
-  def __init__(self, fromNodeID, toNodeID, network, named_network, mechanism, token, nature, variant,instantiated_variables):
+  def __init__(self,
+               fromNodeID=None,
+               toNodeID=None,
+               network=None,
+               named_network=None,
+               mechanism=None,
+               token=None,
+               nature=None,
+               variant=None,
+               instantiated_variables=None):
     # OrderedDict.__init__(self)
     dict.__init__(self)
     self["name"] = str("%s | %s" % (fromNodeID, toNodeID))
@@ -328,6 +337,8 @@ class ModelContainer(dict):
     for arc in arcs:
       tokens.add(self["arcs"][arc]["token"])
 
+    for t in list(self["nodes"][nodeID]["tokens"].keys()):
+      tokens.add(t)
     return list(tokens)
 
   def getNodeApplication(self, nodeID):

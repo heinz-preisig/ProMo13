@@ -54,7 +54,7 @@ from ModelBuilder.ModelComposer.modeller_graphcomponents import Knot
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Node
 from ModelBuilder.ModelComposer.modeller_graphcomponents import NodeView
 from ModelBuilder.ModelComposer.modeller_model_data import ModelContainer
-from ModelBuilder.ModelComposer.modeller_model_data import ModelGraphicsData
+from ModelBuilder.ModelComposer.modeller_model_data import ModelGraphicsData, NodeInfo
 from ModelBuilder.ModelComposer.modeller_model_data import ROOTID
 from ModelBuilder.ModelComposer.variant_selection_impl import VariantGUI, splitEntity, extract
 from packages.Common.classes import entity
@@ -775,34 +775,20 @@ class Commander(QtCore.QObject):
 
     fromNodeID = self.arcSourceID
 
-    source_network = self.model_container["nodes"][self.arcSourceID][NAMES["network"]]
-    sink_network = self.model_container["nodes"][toNodeID][NAMES["network"]]
-    source_named_network = self.model_container["nodes"][fromNodeID][NAMES["named_network"]]
-    sink_named_network = self.model_container["nodes"][toNodeID][NAMES["named_network"]]
+    source = self.model_container["nodes"][fromNodeID]
+    sink =  self.model_container["nodes"][toNodeID]
 
-    # Note: there are not tokens need to test via variants -- lit of a job
-    # source_node_tokens = list(self.model_container["nodes"][fromNodeID]["tokens"].keys())
-    # sink_node_tokens = list(self.model_container["nodes"][toNodeID]["tokens"].keys())
-    #
-    # common_token = []
-    # for t_source in source_node_tokens:
-    #   for t_sink in sink_node_tokens:
-    #     if t_source == t_sink:
-    #       common_token.append(t_sink)
-    #
-    # if not common_token:
-    #   return self.__abortArcGeneration("no common token -- abort")
 
 
     # RULE s :
     # RULE: - boundary can only be introduced automatically, not manually  --> automaton
     # RULE: - both sides of the boundaries are in-arcs  --> controlled here
     # RULE: - only two arcs allowed one from each side
-    cnw = CR.TEMPLATE_CONNECTION_NETWORK % (source_network, sink_network)
-    cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink_network, source_network)
+    cnw = CR.TEMPLATE_CONNECTION_NETWORK % (source["network"], sink["network"])
+    cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink["network"], source["network"])
     named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (
-        source_named_network, sink_named_network)
-    if source_network != sink_network:  # two different networks
+        source["named_network"], sink["named_network"])
+    if source["network"] != sink["network"]:  # two different networks
       # Constructionsite : first determine if it is an intra or an inter face
       # Constructionsite : split source and sink and then build decision on it.
       if cnw in self.intraconnections_dictionary:
@@ -823,17 +809,30 @@ class Commander(QtCore.QObject):
         connection_network = cnw
         insert_intraface = True
 
+    variant_source = source["variant"]
+    variant_sink = sink["variant"]
+
     entities = list(self.main.ontology.node_arc_SubClasses.keys())
-    selections = extract(entities, filter_and=["arc"],filter_or=["mass"])
+
+    source_entity =  extract(entities, filter_and=[variant_source],filter_or=[])
+    sink_entity = extract(entities, filter_and=[variant_sink],filter_or=[])
+
+    s_domain_branch,s_node, s_token, s_mechanism, s_nature, s_variant = splitEntity(source_entity[0])
+    t_domain_branch,t_node, t_token, t_mechanism, t_nature, t_variant = splitEntity(sink_entity[0])
+
+    ands = ["arc"]
+    ors = list(set([s_token]) | set([t_token]))
+    selections = extract(entities, filter_and=ands,filter_or=ors)
     dia = VariantGUI(selections)
     dia.exec_()
     entity = dia.selection
 
+    parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(self.arcSourceID)
     if not entity:
-      return self.__abortArcGeneration()
+      self.current_ID_node_or_arc=parent_nodeID_source
+      return self.__abortArcGeneration("there was no entity")
 
     nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity)
-    parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(self.arcSourceID)
 
     self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
 
@@ -857,7 +856,7 @@ class Commander(QtCore.QObject):
 
       named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
       arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
-                                                          source_network,
+                                                          source["network"],
                                                           named_network,
                                                           mechanism,
                                                           token,
@@ -867,7 +866,7 @@ class Commander(QtCore.QObject):
       self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = []
       named_network = self.model_container["nodes"][toNodeID]["named_network"]
       arcID, views_with_arc = self.model_container.addArc(newnodeID, toNodeID,
-                                                          sink_network,
+                                                          sink["network"],
                                                           named_network,
                                                           mechanism,
                                                           token,
@@ -885,7 +884,7 @@ class Commander(QtCore.QObject):
         variant = "undefined"
 
         arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
-                                                            source_network,
+                                                            source["network"],
                                                             named_network,
                                                             mechanism,
                                                             token,
@@ -893,7 +892,7 @@ class Commander(QtCore.QObject):
                                                             variant= variant)
 
         # arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
-        #                                                     source_network,
+        #                                                     source["network"],
         #                                                     named_network,
         #                                                     mechanism,
         #                                                     token,
@@ -945,6 +944,7 @@ class Commander(QtCore.QObject):
   def __abortArcGeneration(self, msg):
     self.__resetNodeStatesAndSelectedArc()
     self.main.writeStatus(msg)
+    self.__redrawScene(self.current_ID_node_or_arc)
     return {"failed": True}
 
   def __abortNodeGeneration(self, msg):
@@ -2395,10 +2395,10 @@ class Commander(QtCore.QObject):
   def __drawNode(self, x, y, ID, graphics_root_object, application):
     node = Node(ID, graphics_root_object, application,
                 x, y, self.scene, self.view, self)
-    # print("draw node %s indicators %s " % (ID, indicator))
     if graphics_root_object == NAMES["node"]:  # only add to simple nodes
       if (graphics_root_object not in [INTRAFACE, INTERFACE]) or ():
         indicator = self.__makeIndicators(ID)
+        print("draw node %s indicators %s " % (ID, indicator))
         for i in indicator:
           name = indicator[i]["name"]
           type = indicator[i]["type"]
@@ -2721,11 +2721,8 @@ class Commander(QtCore.QObject):
       if arcID not in self.state_arcs:
         self.state_arcs[arcID] = STATES[self.editor_phase]["arcs"][0]
 
-      # str(self.model_container["arcs"][arcID][
       fromNodeID = self.model_container["arcs"][arcID]["source"]
-      # "source"]) #HAP: str --> int
-      toNodeID = self.model_container["arcs"][arcID][
-          "sink"]  # str(self.model_container["arcs"][arcID]["sink"])   #HAP: str --> int
+      toNodeID = self.model_container["arcs"][arcID]["sink"]
       nodes_IDs = self.model_container["ID_tree"].getNodes()
 
       if fromNodeID not in nodes_IDs:
@@ -2750,10 +2747,7 @@ class Commander(QtCore.QObject):
         fNode = fromNode
         for k in range(no_knots):
           (x, y) = self.model_container["scenes"][nodeID]["arcs"][arcID][k]
-          # current_view_object, self)
           knot = Knot(k, arcID, x, y, self.scene, self.view, self)
-          # print("redraw -- adding knot")
-          # self.scene.addItem(knot)
           data = self.model_container["arcs"][arcID]
           s = '<b> %s - %s <b><br>%s <br>%s <br>%s - %s ' % (data["network"],
                                                              data["named_network"],
