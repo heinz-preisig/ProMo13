@@ -54,8 +54,9 @@ from ModelBuilder.ModelComposer.modeller_graphcomponents import Knot
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Node
 from ModelBuilder.ModelComposer.modeller_graphcomponents import NodeView
 from ModelBuilder.ModelComposer.modeller_model_data import ModelContainer
-from ModelBuilder.ModelComposer.modeller_model_data import ModelGraphicsData
+from ModelBuilder.ModelComposer.modeller_model_data import ModelGraphicsData, NodeInfo
 from ModelBuilder.ModelComposer.modeller_model_data import ROOTID
+from ModelBuilder.ModelComposer.variant_selection_impl import VariantGUI, splitEntity, extract
 from packages.Common.classes import entity
 from packages.Common.classes.io import load_entities_from_file
 from packages.Common.classes.io import load_var_idx_eq_from_file
@@ -201,8 +202,8 @@ class Commander(QtCore.QObject):
       # print("node simple network:", network)
       if network in self.main.networks:
         self.main.setNetwork(network, named_network)
-      self.main.setNodeType(node_type)
-      self.main.setNodeVariant(variant)
+      # self.main.setNodeType(node_type)
+      # self.main.setNodeVariant(variant)
     if graphics_root_object == NAMES["connection"]:
       network = self.model_container["arcs"][self.current_ID_node_or_arc]["network"]
       named_network = self.model_container["arcs"][self.current_ID_node_or_arc]["named_network"]
@@ -471,10 +472,6 @@ class Commander(QtCore.QObject):
     x, y = pos.x(), pos.y()
 
     if not network:
-      # if not self.main.current_network:
-      #   return {
-      #         "failed"  : True
-      #         }
       network = self.main.current_network  # default
       named_network = self.main.current_named_network
 
@@ -483,8 +480,7 @@ class Commander(QtCore.QObject):
 
       node_characteristics, app = node_type.split(NODE_COMPONENT_SEPARATOR)
       if "intra" in node_characteristics:
-        node_class = "node_intraface"  # constructionsite;
-        # self.__addBoundaryNode(pos,NAMES["boundary"],)
+        node_class = NAMES["intraface"]  # constructionsite;
         self.main.writeStatus(
             "cannot be inserted -- this is done automatically")
 
@@ -495,6 +491,39 @@ class Commander(QtCore.QObject):
       node_characteristics = ""
 
     features = self.applyNodeDefinitionRules(node_characteristics)
+
+    if not network == "composite":
+      current_inter_branch = None
+      for inter_branch in self.main.ontology.list_inter_branches:
+        for domain in self.main.ontology.intra_domains[inter_branch]:
+          print("debugging -- ", inter_branch, domain)
+          if network == domain:
+            current_inter_branch = inter_branch
+            break
+      print("debugging -- found:", current_inter_branch, network )
+      if not current_inter_branch:
+        self.__abortNodeGeneration("no current item defined")
+        return {"failed": True}
+
+      entities = list(self.main.ontology.node_arc_SubClasses.keys())
+      selections = extract(entities, filter_and=[current_inter_branch, "node"],filter_or=[])
+
+
+      if not selections:
+        self.__abortNodeGeneration("no entity defined")
+        return {"failed": True}
+
+      dia = VariantGUI(selections)
+      dia.exec_()
+      entity_selection = dia.selection
+
+      if not entity_selection:
+        self.__abortNodeGeneration("no entity selected")
+        return {"failed": True}
+
+      nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity_selection)
+    else:
+      variant = "composite"
 
     state = STATES[self.editor_phase]["nodes"][0]
     decoration_positions = ModelGraphicsData(node_class,
@@ -511,7 +540,7 @@ class Commander(QtCore.QObject):
                                               node_class,
                                               node_type,
                                               features=features,
-                                              variant=self.main.current_node_variant)
+                                              variant=variant)#self.main.current_node_variant)
 
     self.state_nodes[newnodeID] = STATES[self.editor_phase]["nodes"][0]
 
@@ -715,18 +744,15 @@ class Commander(QtCore.QObject):
     #  start an arc
     self.state_nodes[nodeID] = "selected"
     nw = self.main.current_network
-    # token = copy.copy(self.main.selected_token[self.main.editor_phase][nw])
-    # mechanism = copy.copy(self.main.selected_transfer_mechanism[nw][token])
-    # nature = copy.copy(self.main.selected_arc_nature[nw][token])
-    token = self.main.selected_token[self.main.editor_phase][nw]
-    mechanism = self.main.selected_transfer_mechanism[nw][token]
-    nature = self.main.selected_arc_nature[nw][token]
+    # token = self.main.selected_token[self.main.editor_phase][nw]
+    # mechanism = self.main.selected_transfer_mechanism[nw][token]
+    # nature = self.main.selected_arc_nature[nw][token]
     self.arcSourceID = nodeID  # keep for inserting boundary
-    self.selected_arc_specs = (token, mechanism, nature)
+    # self.selected_arc_specs = (token, mechanism, nature)
     self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(
         nodeID)
 
-    self.selected_intraface_node = None
+    # self.selected_intraface_node = None
     # self.__ruleNodeAccessTopologyAcrossNetworks()
     self.__redrawScene(self.current_ID_node_or_arc)
 
@@ -751,130 +777,107 @@ class Commander(QtCore.QObject):
     insert_interface = False
     connection_network = None
 
-    if self.model_container["nodes"][self.arcSourceID]["class"] not in [NAMES["intraface"], NAMES["interface"]]:
-      source_network = self.model_container["nodes"][self.arcSourceID][NAMES["network"]]
-      sink_network = self.model_container["nodes"][toNodeID][NAMES["network"]]
-      source_named_network = self.model_container["nodes"][self.arcSourceID][NAMES["named_network"]]
-      sink_named_network = self.model_container["nodes"][toNodeID][NAMES["named_network"]]
-      # print("__c11_addTheArc", " from network %s to network %s"%(source_network,sink_network))
+    fromNodeID = self.arcSourceID
 
-      # introducing boundary
-      # print("debugging -- finding out if it is inter or intra face")
+    source = self.model_container["nodes"][fromNodeID]
+    sink =  self.model_container["nodes"][toNodeID]
 
-      # RULE s :
-      # RULE: - boundary can only be introduced automatically, not manually  --> automaton
-      # RULE: - both sides of the boundaries are in-arcs  --> controlled here
-      # RULE: - only two arcs allowed one from each side
-      cnw = CR.TEMPLATE_CONNECTION_NETWORK % (source_network, sink_network)
-      cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink_network, source_network)
-      named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (
-          source_named_network, sink_named_network)
-      if source_network != sink_network:  # two different networks
-        # Constructionsite : first determine if it is an intra or an inter face
-        # Constructionsite : split source and sink and then build decision on it.
-        if cnw in self.intraconnections_dictionary:
-          connection_network = cnw
-          insert_intraface = True
-        elif cnwi in self.intraconnections_dictionary:
-          connection_network = cnwi
-          insert_intraface = True
-        elif cnw in self.interconnections_dictionary:
-          connection_network = cnw
-          insert_interface = True
-        elif cnwi in self.interconnections_dictionary:
-          connection_network = cnwi
-          insert_interface = True
-      # RULE: - intraface if the two named networkds are not the same.
-      else:
-        if source_named_network != sink_named_network:
-          connection_network = cnw
-          insert_intraface = True
 
-    token = self.main.selected_token[self.main.editor_phase][source_network]
-    if insert_intraface or insert_interface:
-      if insert_intraface:
-        # Rule : mechanism left must be equal to the mechanism right
-        mech_left = self.main.selected_transfer_mechanism[source_network][token]
-        mech_right = self.main.selected_transfer_mechanism[sink_network][token]
-        if mech_left != mech_right:
-          # Rule: if they are not the same then we set the right one equal to the left
-          # self.__resetNodeStatesAndSelectedArc()
-          # self.redrawCurrentScene()
-          # self.main.writeStatus("the mechanisms on both sides must be the same")
-          # return {"failed": True}
 
-          mechanisms = sorted(
-              self.main.arcInfoDictionary[sink_network][token].keys())
-          index = mechanisms.index(mech_left)
-          self.main.setSelectorChecked("mechanism", "mechanism", index)
-          self.main.writeStatus(
-              "the mechanism on the right has be set identical to the mechanism on the left")
+    # RULE s :
+    # RULE: - boundary can only be introduced automatically, not manually  --> automaton
+    # RULE: - both sides of the boundaries are in-arcs  --> controlled here
+    # RULE: - only two arcs allowed one from each side
+    cnw = CR.TEMPLATE_CONNECTION_NETWORK % (source["network"], sink["network"])
+    cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink["network"], source["network"])
+    named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (
+        source["named_network"], sink["named_network"])
+    if source["network"] != sink["network"]:  # two different networks
+      # Constructionsite : first determine if it is an intra or an inter face
+      # Constructionsite : split source and sink and then build decision on it.
+      if cnw in self.intraconnections_dictionary:
+        connection_network = cnw
+        insert_intraface = True
+      elif cnwi in self.intraconnections_dictionary:
+        connection_network = cnwi
+        insert_intraface = True
+      elif cnw in self.interconnections_dictionary:
+        connection_network = cnw
+        insert_interface = True
+      elif cnwi in self.interconnections_dictionary:
+        connection_network = cnwi
+        insert_interface = True
+    # RULE: - intraface if the two named networkds are not the same.
+    else:
+      if source["named_network"] != sink["named_network"]:
+        connection_network = cnw
+        insert_intraface = True
 
-        nature_left = self.main.selected_arc_nature[source_network][token]
-        nature_right = self.main.selected_arc_nature[sink_network][token]
+    variant_source = source["variant"]
+    variant_sink = sink["variant"]
 
-        # Rule: nature left must be equal to the mechanism right
-        if nature_left != nature_right:
-          self.__resetNodeStatesAndSelectedArc()
-          self.__c15_reset()
-          self.main.writeStatus(
-              "the nature of the transfer on both sides must be the same")
-          return {"failed": True}
-      # if insert_interface:
-      #   status = self.__c41_makeInterface()
-      # seems all is ok so go ahead and put the intraface
+    entities = list(self.main.ontology.node_arc_SubClasses.keys())
 
-      parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(
-          self.arcSourceID)
+    source_entity =  extract(entities, filter_and=[variant_source],filter_or=[])
+    sink_entity = extract(entities, filter_and=[variant_sink],filter_or=[])
+
+    s_domain_branch,s_node, s_token, s_mechanism, s_nature, s_variant = splitEntity(source_entity[0])
+    t_domain_branch,t_node, t_token, t_mechanism, t_nature, t_variant = splitEntity(sink_entity[0])
+
+    ands = ["arc"]
+    ors = list(set([s_token]) | set([t_token]))
+    selections = extract(entities, filter_and=ands,filter_or=ors)
+    dia = VariantGUI(selections)
+    dia.exec_()
+    entity = dia.selection
+
+    parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(self.arcSourceID)
+    if not entity:
+      self.current_ID_node_or_arc=parent_nodeID_source
+      return self.__abortArcGeneration("there was no entity")
+
+    nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity)
+
+    self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
+
+    if insert_intraface:
       x_source = self.model_container["scenes"][parent_nodeID_source]["nodes"][self.arcSourceID]["position_x"]
       y_source = self.model_container["scenes"][parent_nodeID_source]["nodes"][self.arcSourceID]["position_y"]
 
       parent_nodeID_sink = self.model_container["ID_tree"].getImmediateParent(
-          toNodeID)
+        toNodeID)
       x_sink = self.model_container["scenes"][parent_nodeID_sink]["nodes"][toNodeID]["position_x"]
       y_sink = self.model_container["scenes"][parent_nodeID_sink]["nodes"][toNodeID]["position_y"]
       x_mid = x_sink + (x_source - x_sink) / 2
       y_mid = y_sink + (y_source - y_sink) / 2
       pos = QtCore.QPoint(x_mid, y_mid)
 
-      if insert_intraface:
-        if self.selected_intraface_node == None:
-          self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
-          pars = self.__addBoundaryNode(
-              pos, NAMES["intraface"], connection_network, named_connection_network)
-          newnodeID = pars["new node"]
-        else:
-          newnodeID = self.selected_intraface_node
-      else:
-        self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
-        # pars = self.__addBoundaryNode(pos, NAMES["interface"], connection_network, named_connection_network)
-        # newnodeID = pars["new node"]
 
-      if insert_intraface:
-        # RULE: mechanisms are dependent on network
-        # thus only the source is known at this point and the sink one must be done manually.
-        token, mechanism, arctype = self.selected_arc_specs
-        named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
+      self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
+      pars = self.__addBoundaryNode(pos, NAMES["intraface"], connection_network, named_connection_network)
+      newnodeID = pars["new node"]
 
-        arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
-                                                            source_network,
-                                                            named_network,
-                                                            mechanism,
-                                                            token,
-                                                            arctype,
-                                                            variant=self.main.current_arc_variant)
-        # used in colouring
-        self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = [
-        ]
-        named_network = self.model_container["nodes"][toNodeID]["named_network"]
-        arcID, views_with_arc = self.model_container.addArc(newnodeID, toNodeID,
-                                                            sink_network,
-                                                            named_network,
-                                                            mechanism,
-                                                            token,
-                                                            arctype,
-                                                            variant=self.main.current_arc_variant)
-      elif insert_interface:
+
+      named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
+      arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
+                                                          source["network"],
+                                                          named_network,
+                                                          mechanism,
+                                                          token,
+                                                          nature,
+                                                          variant=variant)
+      # used in colouring
+      self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = []
+      named_network = self.model_container["nodes"][toNodeID]["named_network"]
+      arcID, views_with_arc = self.model_container.addArc(newnodeID, toNodeID,
+                                                          sink["network"],
+                                                          named_network,
+                                                          mechanism,
+                                                          token,
+                                                          nature,
+                                                          variant=variant) #self.main.current_arc_variant)
+      if insert_interface:
+
         # RULE: interfaces are connected from reading state information writing property
         # rule = self.main.ontology.rules["interface-connections"]
         # interface = self.main.ontology.interfaces[connection_network]
@@ -882,17 +885,18 @@ class Commander(QtCore.QObject):
         mechanism = "link"  # interface["mechanism"]
         arctype = "unidirectional"  # interface["nature"]
         named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
+        variant = "undefined"
 
         arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
-                                                            source_network,
+                                                            source["network"],
                                                             named_network,
                                                             mechanism,
                                                             token,
                                                             arctype,
-                                                            variant=self.main.current_arc_variant)
+                                                            variant= variant)
 
         # arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
-        #                                                     source_network,
+        #                                                     source["network"],
         #                                                     named_network,
         #                                                     mechanism,
         #                                                     token,
@@ -911,13 +915,10 @@ class Commander(QtCore.QObject):
       arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
                                                           self.main.current_network,
                                                           named_network,
-                                                          self.main.selected_transfer_mechanism[
-                                                              self.main.current_network][token],
-                                                          self.main.selected_token[self.main.editor_phase][
-                                                              self.main.current_network],
-                                                          self.main.selected_arc_nature[self.main.current_network][
-                                                              token],
-                                                          variant=self.main.current_arc_variant)
+                                                          mechanism,
+                                                          token,
+                                                          nature,
+                                                          variant=variant)
 
     self.state_nodes[self.arcSourceID] = STATES[self.editor_phase]["arcs"][0]
     self.arcSourceID = None
@@ -927,6 +928,9 @@ class Commander(QtCore.QObject):
 
     self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(
         toNodeID)
+
+    self.model_container.updateTokensInAllDomains()
+    self.model_container.updateTypedTokensInAllDomains()
     self.__redrawScene(self.current_ID_node_or_arc)
 
     # add info knot
@@ -940,6 +944,224 @@ class Commander(QtCore.QObject):
         "sink node": toNodeID,
         "failed": False
     }
+
+  def __abortArcGeneration(self, msg):
+    self.__resetNodeStatesAndSelectedArc()
+    self.main.writeStatus(msg)
+    self.__redrawScene(self.current_ID_node_or_arc)
+    return {"failed": True}
+
+  def __abortNodeGeneration(self, msg):
+    self.__resetNodeStatesAndSelectedArc()
+    self.main.writeStatus(msg)
+    return {"failed": True}
+
+  #
+  # def __c07_addTheArc(self, toNodeID):
+  #   """
+  #   Command: add arc from marked node to "toNodeID" node completes what started with begin arc
+  #   @param toNodeID: destination node ID
+  #   @return: dictionary
+  #           "added arc":  arcID,
+  #           "source node": self.selected_node.getNodeID(),
+  #           "sink node":   toNodeID,
+  #           "failed":      False
+  #   """
+  #   #  this affects all pannels where the arc shows
+  #
+  #   insert_intraface = False
+  #   insert_interface = False
+  #   connection_network = None
+  #
+  #   if self.model_container["nodes"][self.arcSourceID]["class"] not in [NAMES["intraface"], NAMES["interface"]]:
+  #     source_network = self.model_container["nodes"][self.arcSourceID][NAMES["network"]]
+  #     sink_network = self.model_container["nodes"][toNodeID][NAMES["network"]]
+  #     source_named_network = self.model_container["nodes"][self.arcSourceID][NAMES["named_network"]]
+  #     sink_named_network = self.model_container["nodes"][toNodeID][NAMES["named_network"]]
+  #     # print("__c11_addTheArc", " from network %s to network %s"%(source_network,sink_network))
+  #
+  #     # introducing boundary
+  #     # print("debugging -- finding out if it is inter or intra face")
+  #
+  #     # RULE s :
+  #     # RULE: - boundary can only be introduced automatically, not manually  --> automaton
+  #     # RULE: - both sides of the boundaries are in-arcs  --> controlled here
+  #     # RULE: - only two arcs allowed one from each side
+  #     cnw = CR.TEMPLATE_CONNECTION_NETWORK % (source_network, sink_network)
+  #     cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink_network, source_network)
+  #     named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (
+  #         source_named_network, sink_named_network)
+  #     if source_network != sink_network:  # two different networks
+  #       # Constructionsite : first determine if it is an intra or an inter face
+  #       # Constructionsite : split source and sink and then build decision on it.
+  #       if cnw in self.intraconnections_dictionary:
+  #         connection_network = cnw
+  #         insert_intraface = True
+  #       elif cnwi in self.intraconnections_dictionary:
+  #         connection_network = cnwi
+  #         insert_intraface = True
+  #       elif cnw in self.interconnections_dictionary:
+  #         connection_network = cnw
+  #         insert_interface = True
+  #       elif cnwi in self.interconnections_dictionary:
+  #         connection_network = cnwi
+  #         insert_interface = True
+  #     # RULE: - intraface if the two named networkds are not the same.
+  #     else:
+  #       if source_named_network != sink_named_network:
+  #         connection_network = cnw
+  #         insert_intraface = True
+  #
+  #   token = self.main.selected_token[self.main.editor_phase][source_network]
+  #   if insert_intraface or insert_interface:
+  #     if insert_intraface:
+  #       # Rule : mechanism left must be equal to the mechanism right
+  #       mech_left = self.main.selected_transfer_mechanism[source_network][token]
+  #       mech_right = self.main.selected_transfer_mechanism[sink_network][token]
+  #       if mech_left != mech_right:
+  #         # Rule: if they are not the same then we set the right one equal to the left
+  #         # self.__resetNodeStatesAndSelectedArc()
+  #         # self.redrawCurrentScene()
+  #         # self.main.writeStatus("the mechanisms on both sides must be the same")
+  #         # return {"failed": True}
+  #
+  #         mechanisms = sorted(
+  #             self.main.arcInfoDictionary[sink_network][token].keys())
+  #         index = mechanisms.index(mech_left)
+  #         self.main.setSelectorChecked("mechanism", "mechanism", index)
+  #         self.main.writeStatus(
+  #             "the mechanism on the right has be set identical to the mechanism on the left")
+  #
+  #       nature_left = self.main.selected_arc_nature[source_network][token]
+  #       nature_right = self.main.selected_arc_nature[sink_network][token]
+  #
+  #       # Rule: nature left must be equal to the mechanism right
+  #       if nature_left != nature_right:
+  #         self.__resetNodeStatesAndSelectedArc()
+  #         self.__c15_reset()
+  #         self.main.writeStatus(
+  #             "the nature of the transfer on both sides must be the same")
+  #         return {"failed": True}
+  #     # if insert_interface:
+  #     #   status = self.__c41_makeInterface()
+  #     # seems all is ok so go ahead and put the intraface
+  #
+  #     parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(
+  #         self.arcSourceID)
+  #     x_source = self.model_container["scenes"][parent_nodeID_source]["nodes"][self.arcSourceID]["position_x"]
+  #     y_source = self.model_container["scenes"][parent_nodeID_source]["nodes"][self.arcSourceID]["position_y"]
+  #
+  #     parent_nodeID_sink = self.model_container["ID_tree"].getImmediateParent(
+  #         toNodeID)
+  #     x_sink = self.model_container["scenes"][parent_nodeID_sink]["nodes"][toNodeID]["position_x"]
+  #     y_sink = self.model_container["scenes"][parent_nodeID_sink]["nodes"][toNodeID]["position_y"]
+  #     x_mid = x_sink + (x_source - x_sink) / 2
+  #     y_mid = y_sink + (y_source - y_sink) / 2
+  #     pos = QtCore.QPoint(x_mid, y_mid)
+  #
+  #     if insert_intraface:
+  #       if self.selected_intraface_node == None:
+  #         self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
+  #         pars = self.__addBoundaryNode(
+  #             pos, NAMES["intraface"], connection_network, named_connection_network)
+  #         newnodeID = pars["new node"]
+  #       else:
+  #         newnodeID = self.selected_intraface_node
+  #     else:
+  #       self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
+  #       # pars = self.__addBoundaryNode(pos, NAMES["interface"], connection_network, named_connection_network)
+  #       # newnodeID = pars["new node"]
+  #
+  #     if insert_intraface:
+  #       # RULE: mechanisms are dependent on network
+  #       # thus only the source is known at this point and the sink one must be done manually.
+  #       token, mechanism, arctype = self.selected_arc_specs
+  #       named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
+  #
+  #       arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
+  #                                                           source_network,
+  #                                                           named_network,
+  #                                                           mechanism,
+  #                                                           token,
+  #                                                           arctype,
+  #                                                           variant=self.main.current_arc_variant)
+  #       # used in colouring
+  #       self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = [
+  #       ]
+  #       named_network = self.model_container["nodes"][toNodeID]["named_network"]
+  #       arcID, views_with_arc = self.model_container.addArc(newnodeID, toNodeID,
+  #                                                           sink_network,
+  #                                                           named_network,
+  #                                                           mechanism,
+  #                                                           token,
+  #                                                           arctype,
+  #                                                           variant=self.main.current_arc_variant)
+  #     elif insert_interface:
+  #       # RULE: interfaces are connected from reading state information writing property
+  #       # rule = self.main.ontology.rules["interface-connections"]
+  #       # interface = self.main.ontology.interfaces[connection_network]
+  #       token = "information"  # interface["token"]
+  #       mechanism = "link"  # interface["mechanism"]
+  #       arctype = "unidirectional"  # interface["nature"]
+  #       named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
+  #
+  #       arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
+  #                                                           source_network,
+  #                                                           named_network,
+  #                                                           mechanism,
+  #                                                           token,
+  #                                                           arctype,
+  #                                                           variant=self.main.current_arc_variant)
+  #
+  #       # arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
+  #       #                                                     source_network,
+  #       #                                                     named_network,
+  #       #                                                     mechanism,
+  #       #                                                     token,
+  #       #                                                     arctype)
+  #       #
+  #       # named_network = self.model_container["nodes"][toNodeID]["named_network"]
+  #       # arcID, views_with_arc = self.model_container.addArc(newnodeID, toNodeID,
+  #       #                                                     sink_network,
+  #       #                                                     named_network,
+  #       #                                                     mechanism,
+  #       #                                                     token,
+  #       #                                                     arctype)
+  #
+  #   else:
+  #     named_network = self.model_container["nodes"][toNodeID]["named_network"]
+  #     arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
+  #                                                         self.main.current_network,
+  #                                                         named_network,
+  #                                                         self.main.selected_transfer_mechanism[
+  #                                                             self.main.current_network][token],
+  #                                                         self.main.selected_token[self.main.editor_phase][
+  #                                                             self.main.current_network],
+  #                                                         self.main.selected_arc_nature[self.main.current_network][
+  #                                                             token],
+  #                                                         variant=self.main.current_arc_variant)
+  #
+  #   self.state_nodes[self.arcSourceID] = STATES[self.editor_phase]["arcs"][0]
+  #   self.arcSourceID = None
+  #
+  #   self.clearSelectedNodes()
+  #   self.clearBlockedNodes()
+  #
+  #   self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(
+  #       toNodeID)
+  #   self.__redrawScene(self.current_ID_node_or_arc)
+  #
+  #   # add info knot
+  #   # self.model_container.getArcGraphicalData(
+  #   #     self.current_ID_node_or_arc, arcID)
+  #   # print("debugging find arc on scene")
+  #   # self.__C12_insertArcInfoKnot(arcID)
+  #
+  #   return {
+  #       "added arc": arcID,
+  #       "sink node": toNodeID,
+  #       "failed": False
+  #   }
 
   # def __C12_insertArcInfoKnot(self, arcID): #Note: this did not work test for subarc on the same scene failed.
   #
@@ -1561,7 +1783,10 @@ class Commander(QtCore.QObject):
       for var_id in newly_instantiated:
         for node_id in nodes_to_instantiate:
           entity = self.get_entity_node(node_id)
-          vars = entity.init_vars
+          try:
+            vars = entity.init_vars
+          except:
+            print("error -- this is a problem with node ", node_id)
           if var_id in vars:
             if var_id in newly_instantiated:
               self.model_container["nodes"][node_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
@@ -2049,6 +2274,8 @@ class Commander(QtCore.QObject):
 
     entity_domain = self._get_entity_domain(entity_nw)
     tokens = sorted(self.model_container["nodes"][node_id]["tokens"].keys())
+    # if not tokens:
+    #   return "no tokens defined"
     entity_variant = self.model_container["nodes"][node_id]["variant"]
 
     for t in tokens:
@@ -2177,10 +2404,10 @@ class Commander(QtCore.QObject):
   def __drawNode(self, x, y, ID, graphics_root_object, application):
     node = Node(ID, graphics_root_object, application,
                 x, y, self.scene, self.view, self)
-    # print("draw node %s indicators %s " % (ID, indicator))
     if graphics_root_object == NAMES["node"]:  # only add to simple nodes
       if (graphics_root_object not in [INTRAFACE, INTERFACE]) or ():
         indicator = self.__makeIndicators(ID)
+        print("draw node %s indicators %s " % (ID, indicator))
         for i in indicator:
           name = indicator[i]["name"]
           type = indicator[i]["type"]
@@ -2503,11 +2730,8 @@ class Commander(QtCore.QObject):
       if arcID not in self.state_arcs:
         self.state_arcs[arcID] = STATES[self.editor_phase]["arcs"][0]
 
-      # str(self.model_container["arcs"][arcID][
       fromNodeID = self.model_container["arcs"][arcID]["source"]
-      # "source"]) #HAP: str --> int
-      toNodeID = self.model_container["arcs"][arcID][
-          "sink"]  # str(self.model_container["arcs"][arcID]["sink"])   #HAP: str --> int
+      toNodeID = self.model_container["arcs"][arcID]["sink"]
       nodes_IDs = self.model_container["ID_tree"].getNodes()
 
       if fromNodeID not in nodes_IDs:
@@ -2532,10 +2756,7 @@ class Commander(QtCore.QObject):
         fNode = fromNode
         for k in range(no_knots):
           (x, y) = self.model_container["scenes"][nodeID]["arcs"][arcID][k]
-          # current_view_object, self)
           knot = Knot(k, arcID, x, y, self.scene, self.view, self)
-          # print("redraw -- adding knot")
-          # self.scene.addItem(knot)
           data = self.model_container["arcs"][arcID]
           s = '<b> %s - %s <b><br>%s <br>%s <br>%s - %s ' % (data["network"],
                                                              data["named_network"],
