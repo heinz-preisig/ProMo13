@@ -517,6 +517,10 @@ class Commander(QtCore.QObject):
       dia.exec_()
       entity_selection = dia.selection
 
+      if not entity_selection:
+        self.__abortNodeGeneration("no entity selected")
+        return {"failed": True}
+
       nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity_selection)
     else:
       variant = "composite"
@@ -805,7 +809,7 @@ class Commander(QtCore.QObject):
         insert_interface = True
     # RULE: - intraface if the two named networkds are not the same.
     else:
-      if source_named_network != sink_named_network:
+      if source["named_network"] != sink["named_network"]:
         connection_network = cnw
         insert_intraface = True
 
@@ -912,7 +916,7 @@ class Commander(QtCore.QObject):
                                                           self.main.current_network,
                                                           named_network,
                                                           mechanism,
-                                                          named_network,
+                                                          token,
                                                           nature,
                                                           variant=variant)
 
@@ -1779,7 +1783,10 @@ class Commander(QtCore.QObject):
       for var_id in newly_instantiated:
         for node_id in nodes_to_instantiate:
           entity = self.get_entity_node(node_id)
-          vars = entity.init_vars
+          try:
+            vars = entity.init_vars
+          except:
+            print("error -- this is a problem with node ", node_id)
           if var_id in vars:
             if var_id in newly_instantiated:
               self.model_container["nodes"][node_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
@@ -2267,6 +2274,8 @@ class Commander(QtCore.QObject):
 
     entity_domain = self._get_entity_domain(entity_nw)
     tokens = sorted(self.model_container["nodes"][node_id]["tokens"].keys())
+    # if not tokens:
+    #   return "no tokens defined"
     entity_variant = self.model_container["nodes"][node_id]["variant"]
 
     for t in tokens:
