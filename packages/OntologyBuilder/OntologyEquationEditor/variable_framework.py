@@ -385,7 +385,7 @@ def iterateBipartiteGraph(inv_incidence_dictionary, variables, incidence_diction
   :param var_ID: variable ID (integer)
   :return: None
   """
-  var = variables[var_ID]
+  # var = variables[var_ID]
   d_vars.add(var_ID)
 
   for eq_id in inv_incidence_dictionary[var_ID]:
@@ -2085,10 +2085,10 @@ class Implicit(Operator):
     if self.space.language == "global_ID":
       l, r = str(arg).split("_")
       print("debugging", self.space.language)
-      var_function_ID = int(r)
+      # var_function_ID = int(r)
       self.var_to_solve = self.space.getVariable(self.space.variables.to_define_variable_name)  # var_to_solve
       l, r = str(self.var_to_solve).split("_")
-      var_to_solve_ID = int(r)
+      var_to_solve_ID = str(self.var_to_solve).strip() #int(r)
 
       if self.var_to_solve.label not in space.eq_variable_incidence_list:
         # TODO: this searches only one level down...
