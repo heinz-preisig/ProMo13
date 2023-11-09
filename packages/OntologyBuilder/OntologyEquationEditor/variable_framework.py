@@ -2160,7 +2160,7 @@ class UnitaryFunction(Operator):
     # print(">>>> got Ufunc")
     if fct in UNITARY_RETAIN_UNITS:  # RULE: unitary functions -- retain units
       self.units = copy.deepcopy(arg.units)
-    elif fct in UNITARY_INVERSE_UNITS:
+    elif fct in UNITARY_INVERSE_UNITS:  #RULE: unitary functions -- inverse units
       _units = Units.asList(arg.units)
       _u = [-1 * _units[i] for i in range(len(_units))]
       self.units = Units(ALL=_u)
