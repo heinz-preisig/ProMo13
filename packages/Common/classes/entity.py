@@ -29,11 +29,11 @@ class Entity():
       entity_name: str,
       all_equations: Dict[str, equation.Equation],
       index_set: Optional[str] = None,
-      integrators: Optional[Dict[str, str]] = {},
-      var_eq_forest: Optional[List[Dict[str, List[str]]]] = [],
-      init_vars: Optional[List[str]] = [],
-      input_vars: Optional[List[str]] = [],
-      output_vars: Optional[List[str]] = [],
+      integrators: Optional[Dict[str, str]] = None,
+      var_eq_forest: Optional[List[Dict[str, List[str]]]] = None,
+      init_vars: Optional[List[str]] = None,
+      input_vars: Optional[List[str]] = None,
+      output_vars: Optional[List[str]] = None,
   ) -> None:
     # """Initializes the entity.
 
@@ -45,16 +45,17 @@ class Entity():
     #     init_vars (Optional[List[str]], optional): Ids of the variables
     #       that require initialization. Defaults to None.
     # """
+    # TODO: Add modification date field.
     self.entity_name = entity_name
     self.index_set = index_set
-    self.integrators = integrators
-    self.var_eq_forest = var_eq_forest
-    self.init_vars = init_vars
-    self.input_vars = input_vars
-    self.output_vars = output_vars
-    self.all_equations = all_equations
+    self.integrators = integrators if integrators is not None else {}
+    self.var_eq_forest = var_eq_forest if var_eq_forest is not None else []
+    self.init_vars = init_vars if init_vars is not None else []
+    self.input_vars = input_vars if input_vars is not None else []
+    self.output_vars = output_vars if output_vars is not None else []
+    self.all_equations = all_equations 
 
-    if entity_name != "Topology":
+    if entity_name != "Topology" and ">>>" not in entity_name:
       network, ent_type, str1, name = entity_name.split(".")
       token, mechanism, nature = str1.split("|")
 
@@ -292,6 +293,7 @@ class Entity():
           needed in the newly generated tree compared with the original
           tree.
     """
+    # TODO: Check if there is a simpler way to add only one equation.
     # Creates a new forest
     self.temp_var_eq_forest = []
 
@@ -737,6 +739,7 @@ class Entity():
     }
     return list(merge_set)
 
+  # TODO: Check for possible duplication
   def _find_all_equations(self, var_id: str, parents: List[Self]) -> List[str]:
     equation_lists = [ent.get_eq_for_var(var_id) for ent in parents]
     all_equations = set()
@@ -745,3 +748,7 @@ class Entity():
         all_equations.update(eq_list)
 
     return list(all_equations)
+
+  def is_interface_ent(self) -> bool:
+    # TODO: Check if we should add a new field (entity type) instead.
+    return ">>>" in self.entity_name

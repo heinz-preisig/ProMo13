@@ -1,4 +1,5 @@
 import copy
+from typing import Optional
 
 from PyQt5 import QtCore
 
@@ -51,7 +52,79 @@ class MainModel(QtCore.QObject):
         self.all_equations
     )
 
+    self._update_interfaces()
+
     self._update_tree_model()
+
+  def _update_interfaces(self):
+    interface_entities = [
+      ent
+      for ent_name, ent in self.all_entities.items()
+      if ent.is_interface_ent()
+    ]
+    interface_equations = {
+      eq_id
+      for eq_id, eq in self.all_equations.items()
+      if eq.is_interface_eq()
+    }
+
+    for ent in interface_entities:
+      main_eq_id = ent.get_equations()[0]
+
+      # Delete the entity if there is not an interface equation
+      if main_eq_id not in interface_equations:
+        del self.all_entities[ent.entity_name]
+        continue
+
+      # TODO: Check for modification dates to see if the entity needs to be updated.
+      update_needed = True
+      if update_needed:
+        new_ent = self.create_entity_from_eq(main_eq_id, ent)
+        self.all_entities[ent.entity_name] = new_ent
+
+      interface_equations.remove(main_eq_id)
+
+    for eq_id in interface_equations:
+      new_ent = self.create_entity_from_eq(eq_id)
+      self.all_entities[new_ent.entity_name] = new_ent
+
+    io.save_entities_to_file(self.ontology_name, self.all_entities)
+
+  def create_entity_from_eq(
+      self,
+      eq_id: str,
+      base_entity: Optional[entity.Entity] = None,
+  ) -> entity.Entity:
+
+    eq = self.all_equations[eq_id]
+
+    output_var_id = eq.get_main_var_id()
+    input_var_id = eq.get_incidence_list(output_var_id)[0]
+
+    if base_entity is None:
+      output_var_alias = self.all_variables[output_var_id].get_alias("internal_code")
+      input_var_alias = self.all_variables[input_var_id].get_alias("internal_code")
+
+      new_ent = entity.Entity(
+        f"{eq.network} ({input_var_alias} -> {output_var_alias})",
+        self.all_equations,
+      )
+    else:
+      new_ent = entity.Entity(
+          base_entity.entity_name,
+          self.all_equations,
+          base_entity.index_set,
+        )
+
+    new_ent.set_input_var(input_var_id, True)
+    new_ent.set_output_var(output_var_id, True)
+    new_ent.generate_var_eq_forest({output_var_id: [eq_id]})
+    new_ent.update_var_eq_tree()
+
+    return new_ent
+
+
+
 
   def load_entity(self, index: QtCore.QModelIndex):
     if not index.isValid():

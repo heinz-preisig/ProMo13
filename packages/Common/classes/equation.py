@@ -163,3 +163,6 @@ class Equation():
 
   def get_mod_date(self):
     return self.modified
+
+  def is_interface_eq(self) -> bool:
+    return ">>>" in self.network
