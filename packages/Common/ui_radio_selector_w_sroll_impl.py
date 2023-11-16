@@ -116,8 +116,8 @@ if __name__ == '__main__':
   a = QtWidgets.QApplication([])
   selection = 'b'
   w = UI_RadioSelector(
-          ['a', 'befg', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'], [],
-          maxheight=100)
+          ['a', 'befg', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'], [],allowed=10,
+          maxheight=1000)
   w.newSelection.connect(print)
   w.show()
   a.exec_()
@@ -126,3 +126,5 @@ if __name__ == '__main__':
   else:
     print(selection)
   w.show()
+
+  print("again ", w.checked)

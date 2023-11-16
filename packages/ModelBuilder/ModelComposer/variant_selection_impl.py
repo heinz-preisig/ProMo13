@@ -24,11 +24,19 @@ from PyQt5.QtWidgets import QApplication, QDialog
 from Common.resources_icons import roundButton
 from packages.ModelBuilder.ModelComposer.variant_selection import Ui_Dialog
 
-def extract(variants, filter_and, filter_or):
+def extract(variants, filter_and, filter_or, filter_not):
   remove_them = set()
   for f in filter_and:
+    if "solid" in f:
+      print("debugging", f)
     for v in variants:
+      if "solid" in v:
+        print("debugging", f, v)
       if f not in v:
+        remove_them.add(v)
+  for f in filter_not:
+    for v in variants:
+      if f in v:
         remove_them.add(v)
 
   selection = set(variants) - remove_them
@@ -92,7 +100,7 @@ if __name__ == '__main__':
               "macroscopic.arc.charge|convection|lumped.ConvectiveFlowPulse",
               "macroscopic.arc.energy|convection|lumped.ConvectiveFlowPulse",
               ]
-  var = extract(variants, ["arc","macroscopic"],["mass","energy"])
+  var = extract(variants, ["arc","macroscopic"],["mass","energy"], ["MassDiffusionFick"])
 
   print(var)
   w = VariantGUI(var)

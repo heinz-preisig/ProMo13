@@ -46,7 +46,9 @@ from Common.graphics_objects import STATES
 from Common.graphics_objects import TOOLTIP_TEMPLATES
 from Common.pop_up_message_box import makeMessageBox
 from Common.qt_resources import BUTTON_NAMES
+from Common.record_definitions import Interface
 from Common.resource_initialisation import FILES
+from Common.ui_radio_selector_w_sroll_impl import UI_RadioSelector
 from Common.ui_string_dialog_impl import UI_String
 from ModelBuilder.ModelComposer.instantiation_dialog_HAP_impl import InstantiationDialog
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Arc_Edge
@@ -505,17 +507,21 @@ class Commander(QtCore.QObject):
         self.__abortNodeGeneration("no current item defined")
         return {"failed": True}
 
+      node_type = self.main.selected_node_type[self.main.current_network]
+
       entities = list(self.main.ontology.node_arc_SubClasses.keys())
-      selections = extract(entities, filter_and=[current_inter_branch, "node"],filter_or=[])
+      selections = extract(entities, filter_and=[current_inter_branch, "node", node_type], filter_or=[], filter_not=CR.CONNECTION_NETWORK_SEPARATOR)
 
 
       if not selections:
         self.__abortNodeGeneration("no entity defined")
         return {"failed": True}
-
-      dia = VariantGUI(selections)
-      dia.exec_()
-      entity_selection = dia.selection
+      elif len(selections) == 1:
+        entity_selection = selections[0]
+      else:
+        dia = VariantGUI(selections)
+        dia.exec_()
+        entity_selection = dia.selection
 
       if not entity_selection:
         self.__abortNodeGeneration("no entity selected")
@@ -573,7 +579,7 @@ class Commander(QtCore.QObject):
     # RULE: node type for boundary is constraint to event dynamic
 
     if boundary == NAMES["intraface"]:
-      application = self.main.ontology.list_intra_node_objects[0]
+      application = self.main.ontology.list_intra_node_objects[0] #TODO: intra?
       features = self.applyNodeDefinitionRules("intraface")
     elif boundary == NAMES["interface"]:
       application = self.main.ontology.list_inter_node_objects[0]
@@ -744,16 +750,9 @@ class Commander(QtCore.QObject):
     #  start an arc
     self.state_nodes[nodeID] = "selected"
     nw = self.main.current_network
-    # token = self.main.selected_token[self.main.editor_phase][nw]
-    # mechanism = self.main.selected_transfer_mechanism[nw][token]
-    # nature = self.main.selected_arc_nature[nw][token]
-    self.arcSourceID = nodeID  # keep for inserting boundary
-    # self.selected_arc_specs = (token, mechanism, nature)
+    self.arcSourceID = nodeID  # used in addThe Arc
     self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(
         nodeID)
-
-    # self.selected_intraface_node = None
-    # self.__ruleNodeAccessTopologyAcrossNetworks()
     self.__redrawScene(self.current_ID_node_or_arc)
 
     return {
@@ -783,11 +782,23 @@ class Commander(QtCore.QObject):
     sink =  self.model_container["nodes"][toNodeID]
 
 
+    parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(self.arcSourceID)
+    self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
+
+
 
     # RULE s :
     # RULE: - boundary can only be introduced automatically, not manually  --> automaton
     # RULE: - both sides of the boundaries are in-arcs  --> controlled here
     # RULE: - only two arcs allowed one from each side
+    for d in self.main.ontology.intra_domains:
+      if sink["network"] in self.main.ontology.intra_domains[d]:
+        sink_domain = d
+      if source["network"] in self.main.ontology.intra_domains[d]:
+        source_domain = d
+
+    cdw = CR.TEMPLATE_CONNECTION_NETWORK % (source_domain, sink_domain)
+    cdwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink_domain, source_domain)
     cnw = CR.TEMPLATE_CONNECTION_NETWORK % (source["network"], sink["network"])
     cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink["network"], source["network"])
     named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (
@@ -814,33 +825,60 @@ class Commander(QtCore.QObject):
         insert_intraface = True
 
     variant_source = source["variant"]
+    type_source = source["type"]
     variant_sink = sink["variant"]
+    type_sink = sink["type"]
 
     entities = list(self.main.ontology.node_arc_SubClasses.keys())
 
-    source_entity =  extract(entities, filter_and=[variant_source],filter_or=[])
-    sink_entity = extract(entities, filter_and=[variant_sink],filter_or=[])
+    source_entity =  extract(entities, filter_and=[variant_source, type_source],filter_or=[])  # this should yield only one
+    sink_entity = extract(entities, filter_and=[variant_sink, type_sink],filter_or=[])         # ditto
 
-    s_domain_branch,s_node, s_token, s_mechanism, s_nature, s_variant = splitEntity(source_entity[0])
-    t_domain_branch,t_node, t_token, t_mechanism, t_nature, t_variant = splitEntity(sink_entity[0])
 
-    ands = ["arc"]
-    ors = list(set([s_token]) | set([t_token]))
-    selections = extract(entities, filter_and=ands,filter_or=ors)
-    dia = VariantGUI(selections)
-    dia.exec_()
-    entity = dia.selection
-
-    parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(self.arcSourceID)
-    if not entity:
-      self.current_ID_node_or_arc=parent_nodeID_source
-      return self.__abortArcGeneration("there was no entity")
-
-    nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity)
-
-    self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
 
     if insert_intraface:
+      s_domain_branch, s_node, s_token, s_mechanism, s_nature, s_variant = splitEntity(source_entity[0])
+      t_domain_branch, t_node, t_token, t_mechanism, t_nature, t_variant = splitEntity(sink_entity[0])
+      # source_tokens = set(list(source["tokens"].keys()))  # these are the present tokens
+      # sink_tokens = set(list(sink["tokens"].keys()))
+
+      source_tokens = s_token.split(CR.TOKEN_DELIMITER)
+      sink_tokens = t_token.split(CR.TOKEN_DELIMITER)
+
+      allowed_tokens = list(set(source_tokens) | set(sink_tokens))
+      if len(allowed_tokens) == 1:
+        selected_token = allowed_tokens[0]
+      else:
+        dialog = UI_RadioSelector(allowed_tokens, checked=[], allowed=1)
+        dialog.exec_()
+        selected_token = dialog.checked
+      if selected_token:
+        print("debugging ", selected_token)
+      ands = ["arc"]
+      # ors = list(set() | set(l)
+      ors = []
+    else:
+      ands = [cdw]
+      ors = []
+
+
+
+    selections = extract(entities, filter_and=ands,filter_or=ors)
+    if len(selections) == 1:
+      entity = selections[0]
+    elif len(selections) == 0:
+      return self.__abortArcGeneration("there is no entity defined")
+
+    else:
+      dia = VariantGUI(selections)
+      dia.exec_()
+      entity = dia.selection
+
+    if not entity:
+      return self.__abortArcGeneration("there was no entity")
+
+
+    if insert_intraface or insert_interface:
       x_source = self.model_container["scenes"][parent_nodeID_source]["nodes"][self.arcSourceID]["position_x"]
       y_source = self.model_container["scenes"][parent_nodeID_source]["nodes"][self.arcSourceID]["position_y"]
 
@@ -853,47 +891,58 @@ class Commander(QtCore.QObject):
       pos = QtCore.QPoint(x_mid, y_mid)
 
 
-      self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
-      pars = self.__addBoundaryNode(pos, NAMES["intraface"], connection_network, named_connection_network)
+      if insert_intraface:
+        boundary = NAMES["intraface"]
+        nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity)
+      else:
+        boundary = NAMES["interface"]
+        dummy_Interface = Interface("label", "left_network", "right_network", "left_variable_classes")
+        token = dummy_Interface["token"]
+        mechanism = dummy_Interface["mechanism"]
+        nature = dummy_Interface["nature"]
+        variant = "interface"   #RULE: variant is being fixed for the time being
+
+
+      pars = self.__addBoundaryNode(pos, boundary, connection_network, named_connection_network)
       newnodeID = pars["new node"]
 
 
-      named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
       arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
                                                           source["network"],
-                                                          named_network,
+                                                          source["named_network"],
                                                           mechanism,
                                                           token,
                                                           nature,
                                                           variant=variant)
       # used in colouring
-      self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = []
+      if insert_intraface:
+        self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = []
       named_network = self.model_container["nodes"][toNodeID]["named_network"]
       arcID, views_with_arc = self.model_container.addArc(newnodeID, toNodeID,
                                                           sink["network"],
-                                                          named_network,
+                                                          sink["named_network"],
                                                           mechanism,
                                                           token,
                                                           nature,
                                                           variant=variant) #self.main.current_arc_variant)
-      if insert_interface:
-
-        # RULE: interfaces are connected from reading state information writing property
-        # rule = self.main.ontology.rules["interface-connections"]
-        # interface = self.main.ontology.interfaces[connection_network]
-        token = "information"  # interface["token"]
-        mechanism = "link"  # interface["mechanism"]
-        arctype = "unidirectional"  # interface["nature"]
-        named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
-        variant = "undefined"
-
-        arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
-                                                            source["network"],
-                                                            named_network,
-                                                            mechanism,
-                                                            token,
-                                                            arctype,
-                                                            variant= variant)
+      # if insert_interface:
+      #
+      #   # RULE: interfaces are connected from reading state information writing property
+      #   # rule = self.main.ontology.rules["interface-connections"]
+      #   # interface = self.main.ontology.interfaces[connection_network]
+      #   token = "information"  # interface["token"]
+      #   mechanism = "link"  # interface["mechanism"]
+      #   arctype = "unidirectional"  # interface["nature"]
+      #   named_network = self.model_container["nodes"][self.arcSourceID]["named_network"]
+      #   variant = "undefined"
+      #
+      #   arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
+      #                                                       source["network"],
+      #                                                       named_network,
+      #                                                       mechanism,
+      #                                                       token,
+      #                                                       arctype,
+      #                                                       variant= variant)
 
         # arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, newnodeID,
         #                                                     source["network"],
@@ -911,10 +960,10 @@ class Commander(QtCore.QObject):
         #                                                     arctype)
 
     else:
-      named_network = self.model_container["nodes"][toNodeID]["named_network"]
+      nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity)
       arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
                                                           self.main.current_network,
-                                                          named_network,
+                                                          sink["named_network"],
                                                           mechanism,
                                                           token,
                                                           nature,
@@ -2269,7 +2318,7 @@ class Commander(QtCore.QObject):
     entity_nw = self.model_container["nodes"][node_id]["network"]
     entity_class = self.model_container["nodes"][node_id]["class"]
 
-    if entity_class == NAMES["intraface"]:
+    if entity_class in [NAMES["intraface"], NAMES["interface"]]:
       return None
 
     entity_domain = self._get_entity_domain(entity_nw)

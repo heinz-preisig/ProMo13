@@ -399,7 +399,7 @@ class ModelContainer(dict):
 
     for nodeID in [fromNodeID, toNodeID]:  # Rule: here is were tokens are added
       if self["nodes"][nodeID]["class"] == NAMES["interface"]:
-        return
+        return arcID, nodes_with_arcIDs
 
       if self["nodes"][nodeID]["class"] == NAMES["intraface"]:
         self.setTokenToNode(nodeID, token)
