@@ -831,21 +831,21 @@ class Commander(QtCore.QObject):
 
     entities = list(self.main.ontology.node_arc_SubClasses.keys())
 
-    source_entity =  extract(entities, filter_and=[variant_source, type_source],filter_or=[])  # this should yield only one
-    sink_entity = extract(entities, filter_and=[variant_sink, type_sink],filter_or=[])         # ditto
+    source_entity =  extract(entities, filter_and=[variant_source, type_source],filter_or=[],filter_not=[])  # this should yield only one
+    sink_entity = extract(entities, filter_and=[variant_sink, type_sink],filter_or=[], filter_not=[])         # ditto
 
+    _, _, s_token, _, _, _ = splitEntity(source_entity[0])
+    _, _, t_token, _, _, _ = splitEntity(sink_entity[0])
+    # source_tokens = set(list(source["tokens"].keys()))  # these are the present tokens
+    # sink_tokens = set(list(sink["tokens"].keys()))
+
+    source_tokens = s_token.split(CR.TOKEN_DELIMITER)
+    sink_tokens = t_token.split(CR.TOKEN_DELIMITER)
+    allowed_tokens = list(set(source_tokens) | set(sink_tokens))
 
 
     if insert_intraface:
-      s_domain_branch, s_node, s_token, s_mechanism, s_nature, s_variant = splitEntity(source_entity[0])
-      t_domain_branch, t_node, t_token, t_mechanism, t_nature, t_variant = splitEntity(sink_entity[0])
-      # source_tokens = set(list(source["tokens"].keys()))  # these are the present tokens
-      # sink_tokens = set(list(sink["tokens"].keys()))
 
-      source_tokens = s_token.split(CR.TOKEN_DELIMITER)
-      sink_tokens = t_token.split(CR.TOKEN_DELIMITER)
-
-      allowed_tokens = list(set(source_tokens) | set(sink_tokens))
       if len(allowed_tokens) == 1:
         selected_token = allowed_tokens[0]
       else:
@@ -857,13 +857,17 @@ class Commander(QtCore.QObject):
       ands = ["arc"]
       # ors = list(set() | set(l)
       ors = []
-    else:
-      ands = [cdw]
+    elif source_domain == sink_domain:
+      ands = allowed_tokens
+      ands.append("arc")
       ors = []
+    else:
+      return self.__abortArcGeneration("error >>> source domain must be the same as the sink domain")
 
 
 
-    selections = extract(entities, filter_and=ands,filter_or=ors)
+
+    selections = extract(entities, filter_and=ands,filter_or=ors, filter_not=[])
     if len(selections) == 1:
       entity = selections[0]
     elif len(selections) == 0:
