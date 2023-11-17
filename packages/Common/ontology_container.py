@@ -48,6 +48,7 @@ from Common.common_resources import putDataOrdered
 from Common.common_resources import saveWithBackup
 from Common.common_resources import walkBreathFirstFnc
 from Common.common_resources import walkDepthFirstFnc
+from Common.graphics_objects import NAMES
 from Common.pop_up_message_box import makeMessageBox
 from Common.qt_resources import NO
 from Common.qt_resources import OK
@@ -504,12 +505,13 @@ class OntologyContainer():
       tokens = list(self.ontology_tree[left]["structure"]["token"].keys())
       for token in tokens:
         keys_intra.append((intra_nw, "intra", token))
+        keys_intra.append((intra_nw, NAMES["intraface"], token))
 
     keys_inter = []
     # interconnection_network_dictionary:
     for inter_nw in self.list_inter_branches_pairs:
       inter_token = self.interfaces[inter_nw]["token"]
-      keys_inter.append((inter_nw, "inter", inter_token))
+      keys_inter.append((inter_nw, NAMES["interface"], inter_token))
 
     return keys_networks, keys_intra, keys_inter, keys_networks_tokens
 
