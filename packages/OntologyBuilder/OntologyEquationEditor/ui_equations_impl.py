@@ -464,12 +464,20 @@ class UI_Equations(QtWidgets.QWidget):
       self.variables.addEquation(var_ID, equation_record)
       self.ontology_container.indexEquations()
 
+    # edit equation false, true, true
+    elif log == (False, True, True):
+      self.variables.addEquation(var_ID, equation_record)
+      self.ontology_container.indexEquations()
+
 
     # edit equation false, false, true
     elif log == (False, False, True):
       old_equ_ID = self.current_eq_ID
       # RULE: editing replaces the existing equation -- consquence - sequence is not retained.
       self.variables.replaceEquation(var_ID, old_equ_ID, equation_record)
+
+    else:
+      self.MSG("wrong logics")
 
     self.variables.indexVariables()
     self.ontology_container.indexEquations()
@@ -550,11 +558,13 @@ class UI_Equations(QtWidgets.QWidget):
 
   def __selectedEquation(self, entry):
     # print('debugging got it', entry)
-    eq_no, reminder = entry.split(TEMPLATES['definition_delimiter'], 1)
-    _reminder, eq_string = reminder.split(TEMPLATES["Equation_definition_delimiter"])
-    if eq_no != UNDEF_EQ_NO:
+    eq_string = NEW_EQ
+    if UNDEF_EQ_NO not in entry:
+      eq_no, reminder = entry.split(TEMPLATES['definition_delimiter'], 1)
+      _reminder, eq_string = reminder.split(TEMPLATES["Equation_definition_delimiter"])
       self.current_eq_ID = eq_no
       self.status_edit_expr = True
+
     self.current_alternative = eq_string
     self.status_new_equation = (eq_string == NEW_EQ)
     if eq_string == PORT:

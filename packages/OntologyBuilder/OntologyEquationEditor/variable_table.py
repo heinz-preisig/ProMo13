@@ -174,6 +174,8 @@ class VariableTable(QtWidgets.QDialog):
       variable_ID_list_sorted = []
       for var_symbol in sorted(variable_dict.keys()):
         variable_ID_list_sorted.append(variable_dict[var_symbol])
+    else:
+      variable_ID_list_sorted = []
 
 
     return variable_ID_list_sorted #variable_ID_list

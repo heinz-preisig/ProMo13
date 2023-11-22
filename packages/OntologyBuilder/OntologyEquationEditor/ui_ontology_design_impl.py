@@ -127,7 +127,7 @@ class UiOntologyDesign(QMainWindow):
     QMainWindow.__init__(self)
     self.ui = Ui_OntologyDesigner()
     self.ui.setupUi(self)
-    self.ui.pushWrite.setIcon(getIcon('->'))
+    # self.ui.pushWrite.setIcon(getIcon('->'))
     self.setWindowTitle("OntologyFoundationEditor Design")
     roundButton(self.ui.pushInfo, "info", tooltip="information")
     roundButton(self.ui.pushCompile, "compile", tooltip="compile")
@@ -138,6 +138,8 @@ class UiOntologyDesign(QMainWindow):
     roundButton(self.ui.pushMakeAllVarEqPictures, "equation",
                 tooltip="prepare all variables & equations for generating pictures")
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
+
+    self.ui.pushMakeAllVarEqPictures.hide()  # TODO: 2023-11-20 not used anymore -- remove
 
     self.radio = [
             self.ui.radioVariables,
@@ -850,7 +852,7 @@ class UiOntologyDesign(QMainWindow):
     out, error = make_it.communicate()
     # print("debugging -- ", out, error)
 
-    # self.__makeDotGraphs()
+    self.__makeDotGraphs()
     # self.__makeVariableEquationPictures(language)
 
   def progress_dialog(self, message):
@@ -938,8 +940,11 @@ class UiOntologyDesign(QMainWindow):
 
     vt_colour = ['white', 'yellow', 'darkolivegreen1', 'salmon', 'tan',
                  'tomato', 'cyan', 'green', 'grey',
-                 'lightcyan', 'lightcyan1', 'lightcyan2',
-                 'lightcyan3', 'lightcyan4',
+                 'lightcyan', 'lightcyan1', 'lightcyan2', 'lightcyan3', 'lightcyan4',
+                 'seagreen', 'seagreen1', 'seagreen2','seagreen3', 'seagreen4',
+                 'skyblue','skyblue1','skyblue2','skyblue3','skyblue4',
+                 'violetred', 'violetred1', 'violetred2','violetred4',
+                 'yellow', 'yellow1', 'yellow2', 'yellow3','yellow4',
                  ]
 
     dot_graph = {}
@@ -976,22 +981,25 @@ class UiOntologyDesign(QMainWindow):
                         fontsize=12,
                         label=self.variables[v_ID].label)
           vt_cluster[vt].add_node(v_node)
-        for v_ID, e_ID in self.variables.index_equation_in_definition_network[nw]:
-          if self.variables[v_ID].type == vt:
-            e_node = Node(name=e_ID,
-                          shape='box',
-                          style='filled',
-                          fillcolor='pink',
-                          fontsize=12)
-            vt_cluster[vt].add_node(e_node)
-            equation = self.variables[v_ID].equations[e_ID]["rhs"]
-            for i_ID in makeIncidentList(equation):
-              edge = Edge(src=e_ID, dst=i_ID,
-                          splines='ortho')
-              dot_graph[nw].add_edge(edge)
-            edge = Edge(src=e_ID, dst=v_ID,
-                        splines='ortho')
-            vt_cluster[vt].add_edge(edge)
+        # for v_ID, e_ID in self.variables.index_equation_in_definition_network[nw]:
+        for v_ID in self.variables:
+          if nw == self.variables[v_ID].network:
+            for e_ID in self.variables[v_ID].equations:
+              if self.variables[v_ID].type == vt:
+                e_node = Node(name=e_ID,
+                              shape='box',
+                              style='filled',
+                              fillcolor='pink',
+                              fontsize=12)
+                vt_cluster[vt].add_node(e_node)
+                equation = self.variables[v_ID].equations[e_ID]["rhs"]["global_ID"]
+                for i_ID in makeIncidentList(equation):
+                  edge = Edge(src=e_ID, dst=i_ID,
+                              splines='ortho')
+                  dot_graph[nw].add_edge(edge)
+                edge = Edge(src=e_ID, dst=v_ID,
+                            splines='ortho')
+                vt_cluster[vt].add_edge(edge)
         vt_count += 1
         dot_graph[nw].add_subgraph(vt_cluster[vt])
       f_name = FILES["ontology_graphs_ps"] % (self.ontology_location, nw)
