@@ -187,11 +187,7 @@ class VarEqDiGraph:
         # print(top_node_id)
         # print("NID: " + top_node_id)
         neighbor_entity = self.top_graph.nodes[top_node_id]["entity"]
-        # print("NEIGHBOR:" + str(neighbor_entity.index_set))
-        if neighbor_entity.index_set is not None:
-          self.digraph.nodes[parent_vertex_id]["index_sets"].add(
-              neighbor_entity.index_set
-          )
+        # print("NEIGHBOR:" + str(neighbor_entity.index_set))        
         if neighbor_entity.is_output(var_id):
           # A variable cant be input and output at the same time. When
           # calling get_equations() on the neighbor parent_vertex_id can
@@ -200,6 +196,13 @@ class VarEqDiGraph:
           neighbor_var_info = self.get_equations(None, var_id, top_node_id)
           if neighbor_var_info is not None:
             var_info.extend(neighbor_var_info)
+
+          # The index set of the neighbor is only added if the variable
+          # that we are looking for is an output there.
+          if neighbor_entity.index_set is not None:
+            self.digraph.nodes[parent_vertex_id]["index_sets"].add(
+              neighbor_entity.index_set
+            )
 
       return var_info
 
