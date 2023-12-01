@@ -106,7 +106,7 @@ class R_Item(QtWidgets.QGraphicsItem):
           if decoration in DECORATIONS_with_application:
             application = self.commander.model_container.getNodeApplication(self.ID)
 
-      elif self.graphics_root_object == NAMES["connection"]:
+      elif self.graphics_root_object in [NAMES["connection"], NAMES["left arc"], NAMES["right arc"]]:
         if decoration in DECORATIONS_with_state:
           state = self.commander.state_arcs[(self.ID)]
         if self.graphics_root_object in OBJECTS_with_application:
@@ -276,8 +276,14 @@ class R_Node(R_Item):  # root component
   @staticmethod
   def __prepareEdgeDrawing(destPoint, edge, sourcePoint):
     edge.items[NAMES["root"]].prepare(sourcePoint, destPoint)
-    edge.items[NAMES["tail"]].prepare(sourcePoint)
-    edge.items[NAMES["head"]].prepare(destPoint)
+    try:
+      edge.items[NAMES["tail"]].prepare(sourcePoint)
+    except:
+      pass
+    try:
+      edge.items[NAMES["head"]].prepare(destPoint)
+    except:
+      pass
 
   def removeInEdge(self, edge):
     i = self.__inList.index(edge)
@@ -649,7 +655,7 @@ def getShapeData(graphics_root_object, graph_object, parent):
   if graphics_root_object in NODES + [NAMES["panel"]]:  # [NAMES["node"], NAMES["panel"]]:
     application = parent.commander.model_container.getNodeApplication(parent.ID)  # ["nodes"][parent.ID]["type"]
     state = parent.commander.state_nodes[parent.ID]
-  elif graphics_root_object == NAMES["connection"]:
+  elif graphics_root_object in [NAMES["connection"], NAMES["left arc"], NAMES["right arc"]]:
     application = parent.commander.model_container.getArcApplication(parent.ID)
     # print("get shape >>> application:", application)
     state = parent.commander.state_arcs[parent.ID]
@@ -770,15 +776,20 @@ class ShapeLine(QtWidgets.QGraphicsLineItem, G_Item):
     self.sourcePoint = QtCore.QPointF()
     self.destPoint = QtCore.QPointF()
 
-    head_data = getShapeData(parent.graphics_root_object, NAMES["head"], parent)
-    tail_data = getShapeData(parent.graphics_root_object, NAMES["tail"], parent)
-    head_width = head_data["width"]
-    head_height = head_data["height"]
-    tail_width = tail_data["width"]
-    tail_height = tail_data["height"]
-
-    self.header_offset = QtCore.QPointF(head_height / 2, head_width / 2)
-    self.tail_offset = QtCore.QPointF(tail_height / 2, tail_width / 2)
+    try:
+      head_data = getShapeData(parent.graphics_root_object, NAMES["head"], parent)
+      head_width = head_data["width"]
+      head_height = head_data["height"]
+      self.header_offset = QtCore.QPointF(head_height / 2, head_width / 2)
+    except:
+      pass
+    try:
+      tail_data = getShapeData(parent.graphics_root_object, NAMES["tail"], parent)
+      tail_width = tail_data["width"]
+      tail_height = tail_data["height"]
+      self.tail_offset = QtCore.QPointF(tail_height / 2, tail_width / 2)
+    except:
+      pass
     self.extra = 10
 
   def boundingRect(self):  # essential for moving arc
@@ -923,14 +934,15 @@ class Arc_Edge(R_Item):
       edge_structure
   """
 
-  def __init__(self, arcID, sourceNode, destNode, scene, view, commander):
+  def __init__(self, arcID, sourceNode, destNode, arc_type, scene, view, commander):
     QtWidgets.QGraphicsItem.__init__(self, None)
     self.scene = scene
     self.view = view
-    R_Item.__init__(self, arcID, NAMES["connection"], scene, view, commander)
+    # R_Item.__init__(self, arcID, NAMES["connection"], scene, view, commander)
+    R_Item.__init__(self, arcID, arc_type, scene, view, commander)
 
     self.arcID = arcID
-    self.graphics_root_object = NAMES["connection"]
+    self.graphics_root_object = arc_type #NAMES["connection"]
     self.now_open = False
 
     self.source = sourceNode

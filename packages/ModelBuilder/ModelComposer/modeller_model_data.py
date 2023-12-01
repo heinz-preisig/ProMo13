@@ -1407,7 +1407,7 @@ class ModelContainer(dict):
   def colourBranch(self, named_network, node, token, typed_token, adj_matrix, conversions):
     node_data = self["nodes"][node]
     # boundaries have two sides
-    boundary = NAMES["intraface"] == node_data["class"]
+    boundary = node_data["class"] in [ NAMES["intraface"] ]#, NAMES["arc node"]]
     if boundary:
       left_network, right_network = node_data["named_network"].split(CR.CONNECTION_NETWORK_SEPARATOR)
       left = left_network == named_network
@@ -1464,7 +1464,12 @@ class ModelContainer(dict):
 
   def __isCoveredByRule(self, node_type, rule):
     if NODE_COMPONENT_SEPARATOR in node_type:
-      node_component, app = node_type.split(NODE_COMPONENT_SEPARATOR)
+      l = node_type.split(NODE_COMPONENT_SEPARATOR)
+      if len(l) == 2:
+        [node_component, app] = l
+      elif len(l) == 3:
+        print("this is a arc node")
+        return False
     else:
       node_component = node_type
     test = (node_component in self.ontology.rules[rule])

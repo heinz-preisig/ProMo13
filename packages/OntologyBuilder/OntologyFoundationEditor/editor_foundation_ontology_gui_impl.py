@@ -1095,13 +1095,14 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
   def __addFixedRules(self):  # RULE: fixed rules
 
     # RULE: main rules
+    # FIX: use NAMES from graphics objects
     RULES = {
             "variable_classes_having_port_variables": [],
             "variable_classes_being_state_variables": [],
             "numerical_value"                       : "value",
             "nodes_allowing_token_injection"        : ["constant"],
             "nodes_allowing_token_conversion"       : ["dynamic", "event"],
-            "nodes_allowing_token_transfer"         : ["intraface"],
+            "nodes_allowing_token_transfer"         : ["intraface","node_arc"],
             "name_space"                            : None,
             }
 
