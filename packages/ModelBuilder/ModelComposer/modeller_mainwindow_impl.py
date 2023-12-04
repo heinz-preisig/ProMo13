@@ -51,7 +51,7 @@ from Common.resources_icons import roundButton
 from Common.save_file_impl import SaveFileDialog
 from Common.ui_string_dialog_impl import UI_String
 from Common.ui_combo_integer_dialog_impl import UI_Combo_Integer
-from ModelBuilder.ModelComposer.modeller_commander import Commander
+from ModelBuilder.ModelComposer.modeller_commander_experimental import Commander
 from ModelBuilder.ModelComposer.modeller_logger_impl import Logger
 from ModelBuilder.ModelComposer.modeller_mainwindow_new import Ui_MainWindow
 from OntologyBuilder.TypedTokenEditor.editor_typed_token_impl import TypedTokenData

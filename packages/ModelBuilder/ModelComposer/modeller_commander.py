@@ -58,6 +58,7 @@ from ModelBuilder.ModelComposer.modeller_graphcomponents import NodeView
 from ModelBuilder.ModelComposer.modeller_model_data import ModelContainer
 from ModelBuilder.ModelComposer.modeller_model_data import ModelGraphicsData, NodeInfo
 from ModelBuilder.ModelComposer.modeller_model_data import ROOTID
+from ModelBuilder.ModelComposer.variant_selection_impl import splitApplication
 from ModelBuilder.ModelComposer.variant_selection_impl import VariantGUI, splitEntity, extract
 from packages.Common.classes import entity
 from packages.Common.classes.io import load_entities_from_file
@@ -528,6 +529,7 @@ class Commander(QtCore.QObject):
         return {"failed": True}
 
       nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity_selection)
+      token, mechanism, nature = splitApplication(application)
     else:
       variant = "composite"
 
@@ -797,8 +799,8 @@ class Commander(QtCore.QObject):
       if source["network"] in self.main.ontology.intra_domains[d]:
         source_domain = d
 
-    cdw = CR.TEMPLATE_CONNECTION_NETWORK % (source_domain, sink_domain)
-    cdwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink_domain, source_domain)
+    # cdw = CR.TEMPLATE_CONNECTION_NETWORK % (source_domain, sink_domain)
+    # cdwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink_domain, source_domain)
     cnw = CR.TEMPLATE_CONNECTION_NETWORK % (source["network"], sink["network"])
     cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink["network"], source["network"])
     named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (
@@ -834,8 +836,10 @@ class Commander(QtCore.QObject):
     source_entity =  extract(entities, filter_and=[variant_source, type_source],filter_or=[],filter_not=[])  # this should yield only one
     sink_entity = extract(entities, filter_and=[variant_sink, type_sink],filter_or=[], filter_not=[])         # ditto
 
-    _, _, s_token, _, _, _ = splitEntity(source_entity[0])
-    _, _, t_token, _, _, _ = splitEntity(sink_entity[0])
+    _, _, application, _ = splitEntity(source_entity[0])
+    s_token, _, _, = splitApplication(application)
+    _, _, application, _ = splitEntity(sink_entity[0])
+    t_token, _, _, = splitApplication(application)
     # source_tokens = set(list(source["tokens"].keys()))  # these are the present tokens
     # sink_tokens = set(list(sink["tokens"].keys()))
 
@@ -897,7 +901,8 @@ class Commander(QtCore.QObject):
 
       if insert_intraface:
         boundary = NAMES["intraface"]
-        nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity)
+        nw, node_or_arc, application, variant = splitEntity(entity)
+        token, mechanism, nature = splitApplication(application)
       else:
         boundary = NAMES["interface"]
         dummy_Interface = Interface("label", "left_network", "right_network", "left_variable_classes")
@@ -964,7 +969,9 @@ class Commander(QtCore.QObject):
         #                                                     arctype)
 
     else:
-      nw, node_or_arc, token, mechanism, nature, variant = splitEntity(entity)
+
+      nw, node_or_arc, application, variant = splitEntity(entity)
+      token, mechanism, nature = splitApplication(application)
       arcID, views_with_arc = self.model_container.addArc(self.arcSourceID, toNodeID,
                                                           self.main.current_network,
                                                           sink["named_network"],

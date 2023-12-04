@@ -52,9 +52,12 @@ def extract(variants, filter_and, filter_or, filter_not):
   return selection_2
 
 def splitEntity(entity):
-  nw, node_or_arc, info, variant = entity.split(".")
-  token, mechanism, nature = info.split("|")
-  return nw,node_or_arc, token, mechanism, nature, variant
+  nw, node_or_arc, application, variant = entity.split(".")
+  return nw,node_or_arc, application, variant
+
+def splitApplication(application):
+  token, mechanism, nature = application.split("|")
+  return token, mechanism, nature
 
 
 

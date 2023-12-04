@@ -61,7 +61,7 @@ def debugPrint(source, what):
 
 
 # Debugging -------------------------------------------------------------------
-DEBUG_ME = False
+DEBUG_ME = True
 
 
 class EditorError(Exception):
@@ -723,7 +723,7 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
 
   def __makeComboApplication(self):
 
-    if self.selected_root_object == NAMES["connection"]:
+    if self.selected_root_object in [ NAMES["connection"], NAMES["arc node"], NAMES["left arc"], NAMES["right arc"]]: #Note: this is defining the arc as a node
       applications = self.ontology.list_arc_objects
     else:
       if self.network_type == "network":

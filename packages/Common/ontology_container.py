@@ -504,7 +504,7 @@ class OntologyContainer():
       left = self.intraconnection_network_dictionary[intra_nw]["left"]
       tokens = list(self.ontology_tree[left]["structure"]["token"].keys())
       for token in tokens:
-        keys_intra.append((intra_nw, "intra", token))
+        keys_intra.append((intra_nw, "intra", token))  # NOTE that's a fix as intra should be replaced by NAMES["intraface"]
         keys_intra.append((intra_nw, NAMES["intraface"], token))
 
     keys_inter = []

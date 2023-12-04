@@ -41,10 +41,13 @@ NAMES = {
         "connector"            : "connector",
         "intraface"            : "node_intraface",
         "interface"            : "node_interface",
+        "arc node"             : "node_arc",
         "reservoir"            : "constant",
         "parent"               : "ancestor",
         "sibling"              : "sibling",
         "connection"           : "arc_edge",
+        "left arc"             : "arc_left",
+        "right arc"            : "arc_right",
         "left panel"           : "pane_ancestors",
         "right panel"          : "pane_siblings",
         "root"                 : "root",
@@ -347,6 +350,11 @@ STRUCTURES_Graph_Item[NAMES["intraface"]] = {
         NAMES["name"]: "text",
         }
 
+STRUCTURES_Graph_Item[NAMES["arc node"]] = {
+        NAMES["root"]: "panel",
+        NAMES["name"]: "text",
+        }
+
 STRUCTURES_Graph_Item[NAMES["interface"]] = {
         NAMES["root"]: "ellipse",
         NAMES["name"]: "text",
@@ -375,6 +383,14 @@ STRUCTURES_Graph_Item[NAMES["connection"]] = {
         NAMES["root"]: "line",
         NAMES["head"]: "ellipse",
         NAMES["tail"]: "ellipse"
+        }
+STRUCTURES_Graph_Item[NAMES["left arc"]] = {
+        NAMES["root"]: "line",
+        NAMES["tail"]: "ellipse"
+        }
+STRUCTURES_Graph_Item[NAMES["right arc"]] = {
+        NAMES["root"]: "line",
+        NAMES["head"]: "ellipse",
         }
 
 # -------------------------------------------------------------------------
@@ -413,21 +429,28 @@ NODES = [NAMES["node"],
          NAMES["branch"],
          NAMES["intraface"],
          NAMES["interface"],
+         NAMES["arc node"],
          # NAMES["boundary"],
          # NAMES["panel"],
          NAMES["connector"],
          NAMES["parent"],
          NAMES["sibling"]]
 KNOTS = [NAMES["elbow"]]
-ARCS = [NAMES["connection"]]
+ARCS = [NAMES["connection"],
+        NAMES["left arc"],
+        NAMES["right arc"]]
 
-INTERFACE = [NAMES["interface"], NAMES["connection"]]
+INTERFACE = [NAMES["interface"],] # NAMES["connection"]] # Note: a problem?
 INTRAFACE = [NAMES["intraface"], ]
 
 OBJECTS_nodes_with_states = [NAMES["node"],
                              NAMES["intraface"],
-                             NAMES["interface"], ]
-OBJECTS_arcs_with_states = [NAMES["connection"]]
+                             NAMES["interface"],
+                             NAMES["arc node"]]
+
+OBJECTS_arcs_with_states = [NAMES["connection"],
+                            NAMES["left arc"],
+                            NAMES["right arc"]]
 OBJECTS_with_state = OBJECTS_nodes_with_states + OBJECTS_arcs_with_states
 
 OBJECTS_without_state = [NAMES["branch"],
@@ -445,8 +468,11 @@ DECORATIONS_with_application = ["root"]
 
 OBJECTS_with_application = [NAMES["node"],
                             NAMES["connection"],
+                            NAMES["left arc"],
+                            NAMES["right arc"],
                             NAMES["interface"],
-                            NAMES["intraface"]
+                            NAMES["intraface"],
+                            NAMES["arc node"]
                             ]
 
 OBJECTS_not_move = [NAMES["panel"],
@@ -469,6 +495,7 @@ OBJECTS_changing_position = [NAMES["node"],
                              NAMES["branch"],
                              NAMES["intraface"],
                              NAMES["interface"],
+                             NAMES["arc node"],
                              # NAMES["boundary"],
                              NAMES["elbow"]]
 
@@ -512,7 +539,7 @@ class GraphDataObjects(OrderedDict):
           if (decoration in DECORATIONS_with_state) and (graphics_object in OBJECTS_with_state):
             # print("debugging -- object with state", graphics_object, decoration)
             pass
-            if graphics_object != NAMES["connection"]:
+            if graphics_object not in OBJECTS_arcs_with_states: #!= NAMES["connection"]:
               applications = dict_application_node_types[graphics_object]
               for application in applications:
                 self[phase][graphics_object][decoration][application] = {}
@@ -599,14 +626,16 @@ class GraphDataObjects(OrderedDict):
         application = M_None
 
     # Note: safety valve:
+    # if root_object == "node_arc":
+    #   print(" found node_arc")
     if application not in self[phase][root_object][decoration]:
       # self.__makeData(phase, root_object, decoration, application, state)
-      print(" warning >>> should not come here")
+      print(" warning >>> should not come here -- phase, root_object::, decoration",phase, root_object, decoration )
     try:
       a = self[phase][root_object][decoration][application][state]
     except:
       # self.__makeData(phase, root_object, decoration, application, state)
-      print("exception occurred")
+      print("exception occurred, phase, root_object, decoration, application, state::", phase, root_object, decoration, application, state)
     return self[phase][root_object][decoration][application][state]
 
   def makeBrushesAndPens(self):
@@ -750,7 +779,9 @@ def getGraphData(networks,
   # get graph data
   dict_application_node_types = {NAMES["node"]     : list_NetworkNodeObjects,
                                  NAMES["intraface"]: list_IntraNodeObjects,
-                                 NAMES["interface"]: list_InterNodeObjects}
+                                 NAMES["interface"]: list_InterNodeObjects,
+                                 NAMES["arc node"] : list_arcObjects
+                                 }
 
   application_arc_types = list_arcObjects
   DATA = GraphDataObjects(dict_application_node_types,
