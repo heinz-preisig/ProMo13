@@ -1067,7 +1067,7 @@ class DotGraphVariableEquations(VarEqTree):
     else:
       colour = "cornsilk"
       if self.variables[ID_str]["port_variable"] and (self.variables[ID_str]["type"] == "state"):
-        colour = "blue"
+        colour = "green"
     image = os.path.join(self.latex_directory, "%s.png" % ID_str)
     if not os.path.exists(image):
       print("missing picture file:", image)
@@ -1133,21 +1133,25 @@ def getListOfBuddies(ontology_container, var_equ_tree, variable_ID):
 def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_graph_file=""):
   ontology_location = ontology_container.ontology_location
   ontology_name = ontology_container.ontology_name
-  latex_equation_file = FILES["coded_equations"] % (ontology_location, "latex")
-  latex_variable_file = FILES["coded_variables"] % (ontology_location, "latex")
-  latex_equations = getData(latex_equation_file)
-  compiled_variable_labels = getEnumeratedData(latex_variable_file)
+  # latex_equation_file = FILES["coded_equations"] % (ontology_location, "latex")
+  # latex_variable_file = FILES["coded_variables"] % (ontology_location, "latex")
+  # latex_equations = getData(latex_equation_file)
+  # compiled_variable_labels = getEnumeratedData(latex_variable_file)
   variables = ontology_container.variables
 
   latex_var_equ = []
   count = 0
 
+  equation_dictionary = ontology_container.equation_variable_dictionary
+
   for ID in assignments["tree"]:
     component = assignments["nodes"][ID]
     if "E_" in component:
       _,eq_str_ID = component.split("_",1)
-      var_ID = latex_equations[eq_str_ID]["variable_ID"]
-      eq = "%s := %s" % (latex_equations[eq_str_ID]["lhs"], latex_equations[eq_str_ID]["rhs"])
+      var_ID = equation_dictionary[eq_str_ID][0] #["variable_ID"]
+      lhs = equation_dictionary[eq_str_ID][1]["lhs"]["latex"]
+      rhs = equation_dictionary[eq_str_ID][1]["rhs"]["latex"]
+      eq = "%s := %s" % (lhs, rhs)
       s = [count, str(var_ID), eq_str_ID, eq, str(variables[var_ID]["tokens"])]
       latex_var_equ.append(s)
       count += 1
@@ -1159,7 +1163,7 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
       var_ID = var_str_ID
       eqs = variables[var_ID]["equations"]
       if not eqs:
-        eq = "%s :: %s" % (compiled_variable_labels[var_ID],
+        eq = "%s :: %s" % (variables[var_ID]["compiled_lhs"]["latex"],
                            "\\text{port variable}")
         s = [count, var_str_ID, "-", eq, str(variables[var_ID]["tokens"])]
         latex_var_equ.append(s)
@@ -1169,7 +1173,7 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
 
   # get variable in LaTex form
   root_var = assignments["root_variable"]
-  lhs = compiled_variable_labels[root_var]
+  lhs = variables[root_var]["compiled_lhs"]["latex"] #compiled_variable_labels[root_var]
 
   latex_var_equ = reversed(latex_var_equ)
   THIS_DIR = dirname(abspath(__file__))
