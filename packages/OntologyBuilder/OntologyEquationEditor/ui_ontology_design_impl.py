@@ -510,7 +510,13 @@ class UiOntologyDesign(QMainWindow):
 
     variables = self.ontology_container.variables
     self.variables[var_ID].language = "global_ID"
-    rhs = str(self.variables[var_ID])
+    rhs_internal = str(self.variables[var_ID])
+    self.variables[var_ID].language = "latex"
+    rhs_latex = str(self.variables[var_ID])
+
+    rhs_dic = {"global_ID": rhs_internal,
+               "latex"    : rhs_latex}
+
     symbol = self.variables[var_ID].label
     index_structures = self.variables[var_ID].index_structures
     units = self.variables[var_ID].units
@@ -520,7 +526,7 @@ class UiOntologyDesign(QMainWindow):
     variable_type = VARIABLE_TYPE_INTERFACES
 
     incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(rhs=rhs, type="interface_link_equation",
+    link_equation = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
                                               network=self.current_network,
                                               doc="interface equation", incidence_list=incident_list)
     new_var_ID = self.variables.newProMoVariableIRI()
@@ -883,15 +889,21 @@ class UiOntologyDesign(QMainWindow):
         value_ID = ID
         value = self.variables[ID].aliases["global_ID"]
 
-    self.variables[var_ID].language = "global_ID"
+    # self.variables[var_ID].language = "global_ID"
     variable_compiled = self.variables[var_ID].aliases['global_ID']
-    rhs = CODE["global_ID"]["Instantiate"] % (variable_compiled, value)
+    rhs_internal = CODE["global_ID"]["Instantiate"] % (variable_compiled, value)
+
+    variable_latex = self.variables[var_ID].aliases['latex']
+    rhs_latex = CODE["latex"]["Instantiate"] % (variable_latex, value)
+
+    rhs_dic = {"global_ID": rhs_internal,
+               "latex" : rhs_latex}
 
     # TODO: this variable class/type should be centralised. Is currently hard wired in more than one place.
     variable_type = VARIABLE_TYPE_INTERFACES
 
     incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(rhs=rhs, type="instantiation_equation",
+    link_equation = makeCompletEquationRecord(rhs=rhs_dic, type="instantiation_equation",
                                               network=self.current_network,
                                               doc="instantiation equation", incidence_list=incident_list)
 

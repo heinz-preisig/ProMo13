@@ -261,9 +261,9 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   return self
 
 
-def makeCompletEquationRecord(rhs="", type="generic", network="", doc="", incidence_list=[], created=None):
+def makeCompletEquationRecord(rhs={}, type="generic", network="", doc="", incidence_list=[], created=None):
   date = dateString()
-  self = {"rhs"           : {"global_ID": rhs},
+  self = {"rhs"           : rhs, #{"global_ID": rhs},
           "type"          : type,
           "doc"           : doc,
           "network"       : network,
