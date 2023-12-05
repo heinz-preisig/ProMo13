@@ -379,6 +379,11 @@ class UI_Equations(QtWidgets.QWidget):
       self.MSG(msg)
       #       print("debugging: ", msg)
 
+      self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
+                                        self.network_for_variable, language="latex")
+      expression = Expression(self.compile_space)
+      self.expression_latex = expression(self.expr)
+
       return True
 
     except (VarError,
@@ -411,6 +416,8 @@ class UI_Equations(QtWidgets.QWidget):
     documentation = str(self.ui.lineDocumentation.text())
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
+    rhs_dic = {"global_ID": rhs,
+               "latex"    : str(self.expression_latex)}
 
     if self.status_new_variable:
       var_ID = self.variables.newProMoVariableIRI()
@@ -418,7 +425,7 @@ class UI_Equations(QtWidgets.QWidget):
       var_ID = self.selected_variable_ID
 
 
-    equation_record = makeCompletEquationRecord(rhs=rhs, network=self.network_for_expression, doc=documentation,
+    equation_record = makeCompletEquationRecord(rhs=rhs_dic, network=self.network_for_expression, doc=documentation,
                                                 incidence_list=incidence_list, created=dateString())
     # Note: think about allowing for editing an equation. It easily destroys the sequence.
     # Note:   by adding a term with a variable that depends on "later" information......!!! (H)
