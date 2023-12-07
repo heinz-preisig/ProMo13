@@ -67,6 +67,7 @@ FILE_NAMES = {
         "latex_shell_automata_doc_command"    : "make_automata_table.sh",
         "latex_shell_var_equ_list_command"    : "latex_compile.sh",
         "variable_assignment_to_entity_object": "variable_assignment_to_entity_object.json",
+        "arc_options"                         : "arc_options.json",
         "matlab_template"                     : "matlab_template.jinja",
         # TODO Verify that all these files are still used.
         "equations_global_id": "equations_global_ID.json", # Added new
@@ -229,6 +230,9 @@ FILES["graph_resource_file_spec"] = JOIN(DIRECTORIES["ontology_repository"], "%s
 FILES["variable_assignment_to_entity_object"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                                      FILE_NAMES[
                                                          "variable_assignment_to_entity_object"])  # %ontology_name
+FILES["arc_options"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
+                                  FILE_NAMES["arc_options"])  # %ontology_name
+
 
 FILES["template_variable"] = JOIN(DIRECTORIES["equation_templates"], FILE_NAMES["template_variable"])
 

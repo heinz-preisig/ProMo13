@@ -23,6 +23,7 @@ class EntityDict(TypedDict):
 class Entity():
   """Models an entity."""
   # TODO Add an explanation of what is an entity.
+  # TODO: PRobably add fields for network, type, etc
 
   def __init__(
       self,
@@ -752,3 +753,34 @@ class Entity():
   def is_interface_ent(self) -> bool:
     # TODO: Check if we should add a new field (entity type) instead.
     return ">>>" in self.entity_name
+
+  def get_type(self) -> Optional[str]:
+    if self.entity_name == "Topology":
+      return None
+    
+    if self.is_interface_ent():
+      return "interface"
+      
+    _, ent_type, _, _ = self.entity_name.split(".")
+    return ent_type
+  
+  def get_network(self) -> Optional[List[str]]:
+    if self.entity_name == "Topology":
+      return None
+    
+    if ">>>" in self.entity_name:
+      return [self.entity_name.split(" ")[0], self.entity_name.split(" ")[2]]
+    
+    return [self.entity_name.split(".")[0]]
+
+  def get_tokens(self) -> Optional[List[str]]:
+    if self.entity_name == "Topology":
+      return None
+    
+    if ">>>" in self.entity_name:
+      return None
+    
+    str1 = self.entity_name.split(".")[2]
+    token_str = str1.split("|")[0]
+    tokens = token_str.split("_")
+    return tokens

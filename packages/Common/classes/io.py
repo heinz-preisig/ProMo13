@@ -42,6 +42,14 @@ def load_translation_info_from_file(
 
   return info
 
+def save_arc_options_to_file(ontology_name: str, arc_options: Dict[str, Dict[str, str]]):
+  # TODO: Merge it with write entities to file
+  path = resource_initialisation.FILES[
+      "arc_options"
+  ] % ontology_name
+  with open(path, "w", encoding="utf-8",) as file:
+    json.dump(arc_options, file, indent=4)
+
 
 def translate_equations(ontology_name: str, language: str):
   # TODO: Maybe move this function to a different module (Utils)
