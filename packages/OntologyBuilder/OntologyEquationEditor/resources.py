@@ -129,7 +129,7 @@ TEMPLATES["temp_variable"] = "temp_%s"
 TEMPLATES["Equation_definition_delimiter"] = ":="
 TEMPLATES["definition_delimiter"] = " :: "
 TEMPLATES["index_diff_state"] = "d%s"
-TEMPLATES["block_index"] = "%s" + BLOCK_INDEX_SEPARATOR + "%s"
+# TEMPLATES["block_index"] = "%s" + BLOCK_INDEX_SEPARATOR + "%s"
 TEMPLATES["conversion_label"] = "%s_conversion"
 TEMPLATES["conversion_alias"] = "C%s"
 TEMPLATES["interface_variable"] = "_%s"
@@ -255,7 +255,7 @@ UNITARY_NO_UNITS = ["exp", "log", "ln", "sqrt", "sin", "cos", "tan", "asin", "ac
 UNITARY_RETAIN_UNITS = ["abs", "neg", "diffSpace", "left", "right"]
 UNITARY_INVERSE_UNITS = ["inv"]
 UNITARY_LOOSE_UNITS = ["sign"]
-NAMED_FUNCTIONS = ["blockProd", "Root", "MixedStack", "Stack"]
+NAMED_FUNCTIONS = ["Root",]
 
 LIST_FUNCTIONS_SINGLE_ARGUMENT = UNITARY_NO_UNITS + UNITARY_RETAIN_UNITS + UNITARY_INVERSE_UNITS + UNITARY_LOOSE_UNITS
 
@@ -374,22 +374,22 @@ CODE[language]["min"] = CODE[language]["operator"]["min"] + CODE[language]["comb
 for f in LIST_FUNCTIONS_SINGLE_ARGUMENT:
   CODE[language][f] = CODE[language]["function"][f] + CODE[language]["combi"]["single_argument"]
 
-CODE[language]["blockProd"] = CODE[language]["function"]["blockProd"] + \
-                              CODE[language]["delimiter"]["("] + "{}" + \
-                              CODE[language]["delimiter"][","] + "{}" + \
-                              CODE[language]["operator"]["in"] + "{}" + \
-                              CODE[language]["delimiter"][")"]
+# CODE[language]["blockProd"] = CODE[language]["function"]["blockProd"] + \
+#                               CODE[language]["delimiter"]["("] + "{}" + \
+#                               CODE[language]["delimiter"][","] + "{}" + \
+#                               CODE[language]["operator"]["in"] + "{}" + \
+#                               CODE[language]["delimiter"][")"]
 
 CODE[language]["Root"] = CODE[language]["function"]["Root"] + CODE[language]["combi"]["single_argument"]
 
-CODE[language]["Stack"] = CODE[language]["function"]["Stack"] + \
-                          CODE[language]["delimiter"]["("] + \
-                          "%s" + \
-                          CODE[language]["delimiter"][")"]
-CODE[language]["MixedStack"] = CODE[language]["function"]["MixedStack"] + \
-                               CODE[language]["delimiter"]["("] + \
-                               "%s" + \
-                               CODE[language]["delimiter"][")"]
+# CODE[language]["Stack"] = CODE[language]["function"]["Stack"] + \
+#                           CODE[language]["delimiter"]["("] + \
+#                           "%s" + \
+#                           CODE[language]["delimiter"][")"]
+# CODE[language]["MixedStack"] = CODE[language]["function"]["MixedStack"] + \
+#                                CODE[language]["delimiter"]["("] + \
+#                                "%s" + \
+#                                CODE[language]["delimiter"][")"]
 
 CODE[language]["()"] = "%s"  # used by temporary variables
 
@@ -826,8 +826,8 @@ def renderExpressionFromGlobalIDToInternal(expression, variables, indices):
     if w:
       hash = " " + w
       if w[0] in ["D", "O", "F"]:
-        if "{" in w:
-          print("found a {")
+        # if "{" in w:
+        #   print("found a {")
         r = CODE[LANGUAGES["global_ID_to_internal"]]
         try:
           a = CODE[LANGUAGES["global_ID_to_internal"]][hash]

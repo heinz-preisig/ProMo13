@@ -168,89 +168,89 @@ def makeIndices(ontology_container):
 
   # block indices =====================================================================================
   # node | arc & typed tokens ===================
-  for component in ["node", "arc"]:
-    index_outer_ID = findID(indices, component)  # inverse_lookup[component]
-    for typed_token in typed_token_definition_nw:
-      definition_network = typed_token_definition_nw[typed_token]
-      index = RecordBlockIndex()
-      # inverse_lookup[typed_token]
-      index_inner_ID = findID(indices, typed_token)
-      label = TEMPLATES["block_index"] % (component, typed_token)
-      index["label"] = label
-      index["network"] = ontology_container.heirs_network_dictionary[definition_network]
-      index["indices"] = [index_outer_ID, index_inner_ID]
-      index["tokens"] = ontology_container.token_associated_with_typed_token[typed_token]
-      index_counter += 1
-      indexID = ID_prefix["index"]+"%s" % index_counter
-      indices[indexID] = index
-      index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
-      index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
-      for language in LANGUAGES["aliasing"]:
-        if language == "global_ID":
-          s = CODE[language]["block_index"] % index_counter
-          index["aliases"][language] = s  # s.strip(" ")
-        else:
-          index["aliases"][language] = CODE[language]["block_index"] % (
-              index_outer_language, index_inner_language)
-
-  # node & conversion
-  component = "node"
-  index_outer_ID = findID(indices, component)  # inverse_lookup[component]
-  for typed_token in ontology_container.converting_tokens:
-    definition_network = typed_token_definition_nw[typed_token]
-    index_inner = TEMPLATES["conversion_label"] % typed_token
-    index = RecordBlockIndex()
-    # inverse_lookup[typed_token]
-    index_inner_ID = findID(indices, index_inner)
-    label = TEMPLATES["block_index"] % (component, index_inner)
-    index["label"] = label
-    index["network"] = ontology_container.heirs_network_dictionary[definition_network]
-    index["indices"] = [index_outer_ID, index_inner_ID]
-    driving_token = ontology_container.converting_tokens[typed_token]
-    # ontology_container.token_associated_with_typed_token[typed_token]
-    index["tokens"] = driving_token
-    index_counter += 1
-    indexID = ID_prefix["index"]+"%s" % index_counter
-    indices[indexID] = index
-    index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
-    index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
-    for language in LANGUAGES["aliasing"]:
-      if language == "global_ID":
-        s = CODE[language]["index"] % index_counter
-        index["aliases"][language] = s  # .strip(" ")
-      else:
-        index["aliases"][language] = CODE[language]["block_index"] % (
-            index_outer_language, index_inner_language)
-
-  # conversion & typed tokens
+  # for component in ["node", "arc"]:
+  #   index_outer_ID = findID(indices, component)  # inverse_lookup[component]
+  #   for typed_token in typed_token_definition_nw:
+  #     definition_network = typed_token_definition_nw[typed_token]
+  #     index = RecordBlockIndex()
+  #     # inverse_lookup[typed_token]
+  #     index_inner_ID = findID(indices, typed_token)
+  #     label = TEMPLATES["block_index"] % (component, typed_token)
+  #     index["label"] = label
+  #     index["network"] = ontology_container.heirs_network_dictionary[definition_network]
+  #     index["indices"] = [index_outer_ID, index_inner_ID]
+  #     index["tokens"] = ontology_container.token_associated_with_typed_token[typed_token]
+  #     index_counter += 1
+  #     indexID = ID_prefix["index"]+"%s" % index_counter
+  #     indices[indexID] = index
+  #     index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
+  #     index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
+  #     for language in LANGUAGES["aliasing"]:
+  #       if language == "global_ID":
+  #         s = CODE[language]["block_index"] % index_counter
+  #         index["aliases"][language] = s  # s.strip(" ")
+  #       else:
+  #         index["aliases"][language] = CODE[language]["block_index"] % (
+  #             index_outer_language, index_inner_language)
+  #
+  # # node & conversion
+  # component = "node"
   # index_outer_ID = findID(indices, component)  # inverse_lookup[component]
-  for typed_token in ontology_container.converting_tokens:
-    definition_network = typed_token_definition_nw[typed_token]
-    index_outer = TEMPLATES["conversion_label"] % typed_token
-    index_outer_ID = findID(indices, index_outer)
-    index_inner = typed_token
-    index = RecordBlockIndex()
-    # inverse_lookup[typed_token]
-    index_inner_ID = findID(indices, index_inner)
-    label = TEMPLATES["block_index"] % (index_outer, index_inner)
-    index["label"] = label
-    index["network"] = ontology_container.heirs_network_dictionary[definition_network]
-    index["indices"] = [index_outer_ID, index_inner_ID]
-    driving_token = ontology_container.converting_tokens[typed_token]
-    index["tokens"] = [
-        ontology_container.token_associated_with_typed_token[typed_token], driving_token]
-    index_counter += 1
-    indexID = ID_prefix["index"]+"%s" % index_counter
-    indices[indexID] = index
-    index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
-    index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
-    for language in LANGUAGES["aliasing"]:
-      if language == "global_ID":
-        s = CODE[language]["index"] % index_counter
-        index["aliases"][language] = s  # .strip(" ")
-      else:
-        index["aliases"][language] = CODE[language]["block_index"] % (
-            index_outer_language, index_inner_language)
+  # for typed_token in ontology_container.converting_tokens:
+  #   definition_network = typed_token_definition_nw[typed_token]
+  #   index_inner = TEMPLATES["conversion_label"] % typed_token
+  #   index = RecordBlockIndex()
+  #   # inverse_lookup[typed_token]
+  #   index_inner_ID = findID(indices, index_inner)
+  #   label = TEMPLATES["block_index"] % (component, index_inner)
+  #   index["label"] = label
+  #   index["network"] = ontology_container.heirs_network_dictionary[definition_network]
+  #   index["indices"] = [index_outer_ID, index_inner_ID]
+  #   driving_token = ontology_container.converting_tokens[typed_token]
+  #   # ontology_container.token_associated_with_typed_token[typed_token]
+  #   index["tokens"] = driving_token
+  #   index_counter += 1
+  #   indexID = ID_prefix["index"]+"%s" % index_counter
+  #   indices[indexID] = index
+  #   index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
+  #   index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
+  #   for language in LANGUAGES["aliasing"]:
+  #     if language == "global_ID":
+  #       s = CODE[language]["index"] % index_counter
+  #       index["aliases"][language] = s  # .strip(" ")
+  #     else:
+  #       index["aliases"][language] = CODE[language]["block_index"] % (
+  #           index_outer_language, index_inner_language)
+  #
+  # # conversion & typed tokens
+  # # index_outer_ID = findID(indices, component)  # inverse_lookup[component]
+  # for typed_token in ontology_container.converting_tokens:
+  #   definition_network = typed_token_definition_nw[typed_token]
+  #   index_outer = TEMPLATES["conversion_label"] % typed_token
+  #   index_outer_ID = findID(indices, index_outer)
+  #   index_inner = typed_token
+  #   index = RecordBlockIndex()
+  #   # inverse_lookup[typed_token]
+  #   index_inner_ID = findID(indices, index_inner)
+  #   label = TEMPLATES["block_index"] % (index_outer, index_inner)
+  #   index["label"] = label
+  #   index["network"] = ontology_container.heirs_network_dictionary[definition_network]
+  #   index["indices"] = [index_outer_ID, index_inner_ID]
+  #   driving_token = ontology_container.converting_tokens[typed_token]
+  #   index["tokens"] = [
+  #       ontology_container.token_associated_with_typed_token[typed_token], driving_token]
+  #   index_counter += 1
+  #   indexID = ID_prefix["index"]+"%s" % index_counter
+  #   indices[indexID] = index
+  #   index_outer_language = indices[index_outer_ID]["aliases"]["internal_code"]
+  #   index_inner_language = indices[index_inner_ID]["aliases"]["internal_code"]
+  #   for language in LANGUAGES["aliasing"]:
+  #     if language == "global_ID":
+  #       s = CODE[language]["index"] % index_counter
+  #       index["aliases"][language] = s  # .strip(" ")
+  #     else:
+  #       index["aliases"][language] = CODE[language]["block_index"] % (
+  #           index_outer_language, index_inner_language)
 
   return indices
 

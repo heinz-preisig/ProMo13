@@ -374,8 +374,8 @@ class UI_Equations(QtWidgets.QWidget):
           return False
       # else:
       # print("debugging : ", expression)
-      msg = 'modified expression OK\n index struct: %s\n units: %s\n tokens: %s\n' % (
-              pretty_check_var_indices, pretty_check_var_units, self.checked_var.tokens)
+      msg = 'modified expression OK\n index struct: %s\n units: %s\n \n' % (
+              pretty_check_var_indices, pretty_check_var_units)
       self.MSG(msg)
       #       print("debugging: ", msg)
 
@@ -447,7 +447,7 @@ class UI_Equations(QtWidgets.QWidget):
     if (log == (True, True, True)) or (log == (True, True, False)):
 
       equ_ID = self.variables.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
-      tokens = self.checked_var.tokens  # version_change: and this is the replacement
+      tokens = [] #self.checked_var.tokens  # version_change: and this is the replacement
 
       variable_record = makeCompleteVariableRecord(var_ID,
                                                    label=symbol,
