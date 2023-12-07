@@ -215,3 +215,64 @@ class MainModel(QtCore.QObject):
 
   def save(self):
     io.save_entities_to_file(self.ontology_name, self.all_entities)
+    # TODO: Maybe merge all in this function
+    self.save_arc_options()
+
+  def save_arc_options(self):
+    arc_entities = []
+    node_entities = []
+    interface_entities = []
+    for ent_name, ent in self.all_entities.items():
+      ent_type = ent.get_type()
+      if ent_type == "interface":
+        interface_entities.append(ent_name)
+      elif ent_type == "arc":
+        arc_entities.append(ent_name)
+      elif ent_type == "node":
+        node_entities.append(ent_name)
+      else:
+        # TODO: Replace for proper logs.
+        print("ERROR: Unknown entity type.")
+
+    arc_options = {}
+    for arc_ent_name in arc_entities:
+      arc_options[arc_ent_name] = {
+        "sources": [],
+        "sinks": [],
+      }
+      arc_network = self.all_entities[arc_ent_name].get_network()[0]
+      # Only one token per arc
+      arc_token = self.all_entities[arc_ent_name].get_tokens()[0]
+      for node_ent_name in node_entities:
+        if self.all_entities[node_ent_name].get_network()[0] != arc_network:
+          continue
+        if arc_token not in self.all_entities[node_ent_name].get_tokens():
+          continue
+
+        # TODO: Add conditions for variables
+
+        arc_options[arc_ent_name]["sources"].append(node_ent_name)
+        arc_options[arc_ent_name]["sinks"].append(node_ent_name)
+
+    for interface_ent_name in interface_entities:
+      arc_options[interface_ent_name] = {
+        "sources": [],
+        "sinks": [],
+      }
+      interface_ent = self.all_entities[interface_ent_name]
+      interface_networks = interface_ent.get_network()
+      interface_input_var = interface_ent.get_input_vars()[0]
+      interface_output_var = interface_ent.get_output_vars()[0]
+
+      for ent_name in node_entities + arc_entities:
+        current_ent = self.all_entities[ent_name]
+        if (current_ent.get_network()[0] == interface_networks[0] and
+            interface_input_var in current_ent.get_output_vars()):
+          arc_options[interface_ent_name]["sources"].append(ent_name)
+
+        if (current_ent.get_network()[0] == interface_networks[1] and
+            interface_output_var in current_ent.get_input_vars()):
+          arc_options[interface_ent_name]["sinks"].append(ent_name)
+
+    io.save_arc_options_to_file(self.ontology_name, arc_options)
+
