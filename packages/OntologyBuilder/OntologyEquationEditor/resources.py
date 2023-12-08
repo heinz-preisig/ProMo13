@@ -201,7 +201,6 @@ LIST_OPERATORS = ["+",  # ................ ordinary plus
                   ":",  # ................ expand product
                   ".",  # ................ Hadamar product
                   "*",  # ................ reduce product
-                  # "BlockReduce",  # ....... block reduce product
                   "ParDiff",  # .......... partial derivative
                   "TotalDiff",  # ........ total derivative
                   "Integral",  # ......... integral
@@ -220,7 +219,6 @@ OPERATORS_alias = {
         ":"          : "KR",  # ................ expand product
         "."          : "expandProduct",  # ................ Hadamar product
         "*"          : "reduceProduct",  # ................ reduce product
-        # "BlockReduce": "BlockReduce",  # ....... block reduce product
         "ParDiff"    : "ParDiff",  # .......... partial derivative
         "TotalDiff"  : "TotalDiff",  # ........ total derivative
         "Integral"   : "Integral",  # ......... integral
@@ -332,13 +330,13 @@ CODE[language]["-"] = "%s" + CODE[language]["operator"]["-"] + "%s"
 CODE[language]["^"] = "%s" + CODE[language]["operator"]["^"] + \
                       CODE[language]["delimiter"]["("] + \
                       "%s" + CODE[language]["delimiter"][")"]  # power
-CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # Khatri-Rao product
-CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # expand product
-CODE[language]["|"] = "%s " + CODE[language]["operator"]["|"] + "%s" + \
-                      CODE[language]["operator"]["|"] + "%s"  # reduce product
-CODE[language]["BlockReduce"] = "{}" + CODE[language]["operator"]["|"] + "{}" + \
-                                CODE[language]["operator"]["in"] + "{}" + \
-                                CODE[language]["operator"]["|"] + "{}"  # reduce product
+CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # expand product
+CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # Hadamar product
+CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s" + \
+                      CODE[language]["operator"]["*"] + "%s"  # reduce product
+# CODE[language]["BlockReduce"] = "{}" + CODE[language]["operator"]["|"] + "{}" + \
+#                                 CODE[language]["operator"]["in"] + "{}" + \
+#                                 CODE[language]["operator"]["|"] + "{}"  # reduce product
 CODE[language]["ParDiff"] = CODE[language]["operator"]["ParDiff"] + \
                             CODE[language]["combi"]["tuple"]
 CODE[language]["TotalDiff"] = CODE[language]["operator"]["TotalDiff"] + \
@@ -395,7 +393,7 @@ CODE[language]["()"] = "%s"  # used by temporary variables
 
 CODE[language]["variable"] = ID_delimiter["variable"]  # ID of the variable
 CODE[language]["index"] = ID_delimiter["index"]  # ID of the index
-CODE[language]["block_index"] = ID_delimiter["index"]  # ID of the blockindex
+# CODE[language]["block_index"] = ID_delimiter["index"]  # ID of the blockindex
 CODE[language]["index_diff_state"] = ID_delimiter["diff_node"]  # ID of the variable
 
 CODE[language]["comment"] = ""
