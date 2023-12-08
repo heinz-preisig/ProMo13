@@ -59,7 +59,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.resources import makeInterfaceVariableName
+from OntologyBuilder.OntologyEquationEditor.resources import makeInterfaceVariableName, sortingVariableAndEquationKeys
 # from OntologyBuilder.OntologyEquationEditor.resources import make_variable_equation_pngs
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.resources import revertInterfaceVariableName
@@ -830,7 +830,8 @@ class UiOntologyDesign(QMainWindow):
 
     print("debugging tex rep")
     for e_type in self.variables.equation_type_list:
-      _s = sorted(eqs[e_type].keys())
+      # _s = sorted(eqs[e_type].keys())
+      _s = sortingVariableAndEquationKeys(eqs[e_type].keys())
       print("debugging -- equation type", e_type)
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
       completed_template = j2_env.get_template(FILES["latex_template_equations"]). \

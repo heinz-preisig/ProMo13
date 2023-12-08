@@ -198,10 +198,10 @@ DELIMITERS_alias = {
 LIST_OPERATORS = ["+",  # ................ ordinary plus
                   "-",  # ................ ordinary minus
                   "^",  # ................ ordinary power
-                  ":",  # ................ Khatri-Rao product
-                  ".",  # ................ expand product
-                  "|",  # ................ reduce product
-                  "BlockReduce",  # ....... block reduce product
+                  ":",  # ................ expand product
+                  ".",  # ................ Hadamar product
+                  "*",  # ................ reduce product
+                  # "BlockReduce",  # ....... block reduce product
                   "ParDiff",  # .......... partial derivative
                   "TotalDiff",  # ........ total derivative
                   "Integral",  # ......... integral
@@ -217,10 +217,10 @@ OPERATORS_alias = {
         "+"          : "plus",  # ................ ordinary plus
         "-"          : "minus",  # ................ ordinary minus
         "^"          : "power",  # ................ ordinary power
-        ":"          : "KR",  # ................ Khatri-Rao product
-        "."          : "expandProduct",  # ................ expand product
-        "|"          : "reduceProduct",  # ................ reduce product
-        "BlockReduce": "BlockReduce",  # ....... block reduce product
+        ":"          : "KR",  # ................ expand product
+        "."          : "expandProduct",  # ................ Hadamar product
+        "*"          : "reduceProduct",  # ................ reduce product
+        # "BlockReduce": "BlockReduce",  # ....... block reduce product
         "ParDiff"    : "ParDiff",  # .......... partial derivative
         "TotalDiff"  : "TotalDiff",  # ........ total derivative
         "Integral"   : "Integral",  # ......... integral
@@ -1211,3 +1211,21 @@ def dateString():
   now = datetime.now()  # datetime object containing current date and time
   now_string = now.strftime("%Y-%m-%d %H:%M:%S")
   return now_string
+
+def sortingVariableAndEquationKeys(keys):
+  keys_dic = {}
+  for k in keys:
+    # print(k)
+    _, num = k.split("_")
+    keys_dic[int(num)] = k
+
+  sorted_keys = []
+  print(sorted(keys_dic.keys()))
+  for k in sorted(keys_dic.keys()):
+    sorted_keys.append(keys_dic[k])
+  return sorted_keys
+
+if __name__ == '__main__':
+  k = ['E_8', 'E_9', 'E_10', 'E_1', 'E_11', 'E_12', 'E_13', 'E_14', 'E_15', 'E_2', 'E_3', 'E_4', 'E_5', 'E_6', 'E_7']
+  dk = sortingVariableAndEquationKeys(k)
+  print("dk", dk)

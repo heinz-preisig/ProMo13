@@ -2020,34 +2020,33 @@ class UnitaryFunction(Operator):
     return CODE[language][self.fct] % (self.args)
 
 
-# class MakeIndex():
-#
-#   def __init__(self, index_name, space):
-#     from Common.record_definitions import RecordIndex
-#     self.space = space
-#
-#     indices = self.space.variables.ontology_container.indices
-#     inc_labels = []
-#     for inc_ID in indices:
-#       inc_labels.append(indices[inc_ID]["label"])
-#     if index_name not in inc_labels:
-#       index = RecordIndex()
-#       index["label"] = index_name
-#       definition_network = self.space.variable_definition_network
-#       index["network"] = self.space.variables.ontology_container.heirs_network_dictionary[definition_network]
-#       index_counter = len(indices) + 1
-#       indices[index_counter] = index
-#       for language in LANGUAGES["aliasing"]:
-#         indices[index_counter]["aliases"][language] = index_name
-#
-#       language = LANGUAGES["global_ID"]
-#       s = CODE[language]["index"] % index_counter
-#       a = s  # .strip(" ")              # TODO: when we "compile" we have to add a space again. See reduceProduct.
-#       indices[index_counter]["aliases"][language] = a
-#       _index = index_counter
-#       self.index_structures = []
-#       self.units = Units()
-#       self.tokens = []
+class MakeIndex():
+
+  def __init__(self, index_name, space):
+    from Common.record_definitions import RecordIndex
+    self.space = space
+
+    indices = self.space.variables.ontology_container.indices
+    inc_labels = []
+    for inc_ID in indices:
+      inc_labels.append(indices[inc_ID]["label"])
+    if index_name not in inc_labels:
+      index = RecordIndex()
+      index["label"] = index_name
+      definition_network = self.space.variable_definition_network
+      index["network"] = self.space.variables.ontology_container.heirs_network_dictionary[definition_network]
+      index_counter = len(indices) + 1
+      indices[index_counter] = index
+      for language in LANGUAGES["aliasing"]:
+        indices[index_counter]["aliases"][language] = index_name
+
+      language = LANGUAGES["global_ID"]
+      s = CODE[language]["index"] % index_counter
+      a = s  # .strip(" ")              # TODO: when we "compile" we have to add a space again. See reduceProduct.
+      indices[index_counter]["aliases"][language] = a
+      _index = index_counter
+      self.index_structures = []
+      self.units = Units()
 
 
 class Instantiate(Operator):
