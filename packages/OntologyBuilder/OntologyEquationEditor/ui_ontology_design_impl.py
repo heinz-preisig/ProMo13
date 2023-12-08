@@ -307,15 +307,15 @@ class UiOntologyDesign(QMainWindow):
       index_counter = len(indices) + 1
       indexID = ID_prefix["index"] + "%s" % index_counter
       indices[indexID] = index
-      indices[index_counter] = index
+      # indices[index_counter] = index
       for language in LANGUAGES["aliasing"]:
-        indices[index_counter]["aliases"][language] = new_index
+        indices[indexID]["aliases"][language] = new_index
 
       language = LANGUAGES["global_ID"]
       s = CODE[language]["index"] % index_counter
       # .strip(" ")              # TODO: when we "compile" we have to add a space again. See reduceProduct.
       a = s
-      indices[index_counter]["aliases"][language] = a
+      indices[indexID]["aliases"][language] = a
 
       print("debugging -- new index defined:", new_index)
 
