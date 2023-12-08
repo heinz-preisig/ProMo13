@@ -28,9 +28,9 @@ class OPERATORS:
   PLUS = "O_0"
   MINUS = "O_1"
   HAT = "O_2"
-  COLON = "O_3"
-  DOT = "O_4"
-  PIPE = "O_5"
+  DOT = "O_3"
+  COLON = "O_4"
+  STAR = "O_5"
 
 
 class EquationParser:
@@ -51,22 +51,23 @@ class EquationParser:
   tokens = (
       'VARIABLE',
       'UNARY_FUNCTION',
-      'BINARY_FUNCTION',
-      'QUATERNARY_FUNCTION',
+      # 'BINARY_FUNCTION',
+      # 'QUATERNARY_FUNCTION',
       'INDEX',
-      'DELIMITER',
+      # 'DELIMITER',
       'O_PLUS',
       'O_MINUS',
       'O_HAT',
-      'O_COLON',
       'O_DOT',
-      'O_PIPE',
+      'O_COLON',
+      'O_STAR',
+      # 'O_PIPE',
       'O_PARTIAL_DIFF',
       'O_TOTAL_DIFF',
       'O_INTEGRAL',
-      'O_IN',
       'O_PRODUCT',
       'O_INSTANTIATE',
+      'O_IN',
       'D_LEFT_ROUND',
       'D_RIGHT_ROUND',
       'D_LEFT_SQUARE',
@@ -86,12 +87,14 @@ class EquationParser:
   # t_QUATERNARY_FUNCTION = r'F_20'
   t_INDEX = r'I_\d+'
   # OPERATORS
+  # TODO: This should be done auto instead of hard coded, it needs to match with
+  # the LIST_OPERATORS and LIST_DELIMITERS in resources.py
   t_O_PLUS = r'O_0'
   t_O_MINUS = r'O_1'
   t_O_HAT = r'O_2'
-  t_O_COLON = r'O_3'
   t_O_DOT = r'O_4'
-  t_O_PIPE = r'O_5'
+  t_O_COLON = r'O_3'
+  t_O_STAR = r'O_5'
   t_O_PARTIAL_DIFF = r'O_7'
   t_O_TOTAL_DIFF = r'O_8'
   t_O_INTEGRAL = r'O_9'
@@ -114,7 +117,7 @@ class EquationParser:
   ############################## PRECEDENCE ############################
   precedence = (
       ('left', 'O_PLUS', 'O_MINUS'),
-      ('left', 'O_DOT', 'O_COLON', 'O_PIPE', 'O_PRODUCT'),
+      ('left', 'O_DOT', 'O_COLON', 'O_PRODUCT'),
       ('left', 'O_HAT'),
       ('right', 'UMINUS'),
   )
@@ -137,21 +140,21 @@ class EquationParser:
     p[0] = self.translator.translate_negation(p[2])
 
   def p_expr_expand_product(self, p: yacc.YaccProduction) -> None:
-    '''expression : expression O_DOT expression'''
+    '''expression : expression O_COLON expression'''
     p[0] = self.translator.translate_expand_product(p[1], p[3])
 
-  def p_expr_khatri_rao(self, p: yacc.YaccProduction) -> None:
-    '''expression : expression O_COLON expression'''
-    p[0] = self.translator.translate_khatri_rao(p[1], p[3])
+  def p_expr_hadamard(self, p: yacc.YaccProduction) -> None:
+    '''expression : expression O_DOT expression'''
+    p[0] = self.translator.translate_hadamard(p[1], p[3])
 
   def p_expr_reduce_product(self, p: yacc.YaccProduction) -> None:
-    '''expression : expression O_PIPE INDEX O_PIPE expression'''
-    p[0] = self.translator.translate_reduce_product(p[1], p[3], p[5])
+    '''expression : expression O_STAR expression'''
+    p[0] = self.translator.translate_reduce_product(p[1], p[3])
 
-  def p_expr_block_reduce_product(self, p: yacc.YaccProduction) -> None:
-    '''expression : expression O_PIPE INDEX O_IN INDEX O_PIPE expression'''
-    p[0] = self.translator.translate_block_reduce_product(
-        p[1], p[3], p[5], p[7])
+  # def p_expr_block_reduce_product(self, p: yacc.YaccProduction) -> None:
+  #   '''expression : expression O_PIPE INDEX O_IN INDEX O_PIPE expression'''
+  #   p[0] = self.translator.translate_block_reduce_product(
+  #       p[1], p[3], p[5], p[7])
 
   def p_expr_product(self, p: yacc.YaccProduction) -> None:
     '''expression : O_PRODUCT D_LEFT_ROUND expression D_COMMA INDEX D_RIGHT_ROUND'''
@@ -185,25 +188,15 @@ class EquationParser:
     '''expression : UNARY_FUNCTION D_LEFT_ROUND expression D_RIGHT_ROUND'''
     p[0] = self.translator.translate_unary_function(p[1], p[3])
 
-  def p_binary_function(self, p: yacc.YaccProduction) -> None:
-    '''expression : BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND'''
-    p[0] = self.translator.translate_binary_function(p[1], p[3], p[5])
+  # def p_binary_function(self, p: yacc.YaccProduction) -> None:
+  #   '''expression : BINARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_RIGHT_ROUND'''
+  #   p[0] = self.translator.translate_binary_function(p[1], p[3], p[5])
 
-  def p_quaternary_function(self, p: yacc.YaccProduction) -> None:
-    '''expression : QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND'''
-    p[0] = self.translator.translate_quaternary_function(
-        p[1], p[3], p[5], p[7], p[9])
+  # def p_quaternary_function(self, p: yacc.YaccProduction) -> None:
+  #   '''expression : QUATERNARY_FUNCTION D_LEFT_ROUND expression D_COMMA expression D_COMMA expression D_COMMA expression D_RIGHT_ROUND'''
+  #   p[0] = self.translator.translate_quaternary_function(
+  #       p[1], p[3], p[5], p[7], p[9])
   ##############################################################################
-
-  # Check for the translations
-  def get_translation(self, item):
-    translation = self.language_specifications.get(item)
-    if translation is None:
-      raise ValueError(
-          f"Translation not found for item: {item}"
-      )
-
-    return translation
 
   def t_error(self, t):
     logger.warning(f"Illegal character '{t.value[0]}' at index {t.lexpos}")
@@ -211,7 +204,7 @@ class EquationParser:
 
   def parse(self, input_string):
     # Create the lexer and parser
-    lexer = lex.lex(module=self)
+    lexer = lex.lex(module=self, debug=False)
     # lexer.input(input_string)
     # for token in lexer:
     #   print(token)

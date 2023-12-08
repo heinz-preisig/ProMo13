@@ -1,22 +1,28 @@
 function main
-  NS = {[1], [1:3], [1 3]};
-  AS = {[1], [2], [1 3]};
-  S = {1, 2, 3};
-  A = {1, 2, 3};
-  N = {1, 2, 3};
-  % N = mat2cell([1:5]', 5, 1);
+  % A = MultiDimVar({"A"}, [3], [1;2;3]);
+  % B = MultiDimVar({"B", "A"}, [2, 3], [1 2 3; 4 5 6]);
+  % A .* B
+  S = 20;
+  S1 = MultiDimVar({}, [1], [10]);
+  S ./ S1;
+  % NS = {[1], [1:3], [1 3]};
+  % AS = {[1], [2], [1 3]};
+  % S = {1, 2, 3};
+  % A = {1, 2, 3};
+  % N = {1, 2, 3};
+  % % N = mat2cell([1:5]', 5, 1);
 
-  F = MultiDimVar({"NS", "AS"}, {NS, AS}, reshape(1:24, 6, 4));
-  D = MultiDimVar({"NS", "AS"}, {NS, AS}, reshape(1:24, 6, 4));
-  c = MultiDimVar({"NS"}, {NS}, [0; 0; 0; 1; 0; 0]);
-  fnc = MultiDimVar({"AS"}, {AS}, reshape(1:4, 4, 1));
-  m = MultiDimVar({"N"}, {N}, [1; 2; 3]);
-  V = MultiDimVar({"N"}, {N}, [2; 3; 4]);
-  h = MultiDimVar({"A"}, {A}, [1; 1; 1]);
-  k = MultiDimVar({"N_x_S", "A"}, {NS, A}, reshape(1:18, 6, 3));
-  base = MultiDimVar({"N", "A"}, {N, A}, [1 0 0; 0 0 1]);
-  exponent = MultiDimVar({"N", "A"}, {N, A}, [2 3 4; 0 6 7]);
-  one = MultiDimVar({"A"}, {A}, ones(3, 1));
+  % F = MultiDimVar({"NS", "AS"}, {NS, AS}, reshape(1:24, 6, 4));
+  % D = MultiDimVar({"NS", "AS"}, {NS, AS}, reshape(1:24, 6, 4));
+  % c = MultiDimVar({"NS"}, {NS}, [0; 0; 0; 1; 0; 0]);
+  % fnc = MultiDimVar({"AS"}, {AS}, reshape(1:4, 4, 1));
+  % m = MultiDimVar({"N"}, {N}, [1; 2; 3]);
+  % V = MultiDimVar({"N"}, {N}, [2; 3; 4]);
+  % h = MultiDimVar({"A"}, {A}, [1; 1; 1]);
+  % k = MultiDimVar({"N_x_S", "A"}, {NS, A}, reshape(1:18, 6, 3));
+  % base = MultiDimVar({"N", "A"}, {N, A}, [1 0 0; 0 0 1]);
+  % exponent = MultiDimVar({"N", "A"}, {N, A}, [2 3 4; 0 6 7]);
+  % one = MultiDimVar({"A"}, {A}, ones(3, 1));
 
   % ############################## Transpose #####################################
   % fprintf("Tests for Transpose\n")
@@ -36,8 +42,8 @@ function main
   % a = m .* V;       % 1D times 1D (same indexSet)
   % disp(a)
   % fprintf("========================\n")
-  a = c .* one;       % 1D times 1D (different indexSet)
-  disp(a)
+  % a = c .* one;       % 1D times 1D (different indexSet)
+  % disp(a)
   % fprintf("========================\n")
   % a = F .* D;       % 2D times 2D (same indexSets)
   % disp(a)
@@ -68,13 +74,13 @@ function main
   % a = base .^ exponent;  % 1D
   % disp(a)
   % fprintf("========================\n")
-endfunction
-function result = indexunion(varargin)
-  result = varargin{1};
-  for i = 2:nargin
-    result = union(result, varargin{i});
-  endfor
-endfunction
+% endfunction
+% function result = indexunion(varargin)
+%   result = varargin{1};
+%   for i = 2:nargin
+%     result = union(result, varargin{i});
+%   endfor
+% endfunction
   
 % - And how do we deal with systems of equations.
 

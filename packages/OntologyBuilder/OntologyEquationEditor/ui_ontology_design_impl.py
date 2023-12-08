@@ -86,7 +86,7 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
 
 # Note: keep
-#from Common.classes.io import translate_equations         # must be last
+from Common.classes.io import translate_equations         # must be last
 
 
 # RULE: fixed wired for initialisation -- needs to be more generic
@@ -342,15 +342,15 @@ class UiOntologyDesign(QMainWindow):
 
   def on_pushCompile_pressed(self):
     # NOTE: keep
-    # for l in LANGUAGES["code_generation"]:
-    #   translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
-    #   # put them into the container
-    #   for eqID in translated_equations:
-    #     var_ID, _ = self.variables.incidence_dictionary[eqID]
-    #     self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
-    #     self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
-    #
-    #   self.writeMessage("finished compilation into ", l)
+    for l in LANGUAGES["code_generation"]:
+      translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
+      # put them into the container
+      for eqID in translated_equations:
+        var_ID, _ = self.variables.incidence_dictionary[eqID]
+        self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
+        self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
+    
+      self.writeMessage("finished compilation into ", l)
 
     # make latex lhs
     for varID in self.variables:

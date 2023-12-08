@@ -1,3 +1,3 @@
 function self = sparse(op1)
-  self = MultiDimVar(op1.indexLabels, op1.indexSets, sparse(op1.value));
+  self = MultiDimVar(op1.indexLabels, size(op1), sparse(op1.value));
 endfunction
