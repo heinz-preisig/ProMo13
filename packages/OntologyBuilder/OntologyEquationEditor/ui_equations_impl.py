@@ -318,8 +318,7 @@ class UI_Equations(QtWidgets.QWidget):
       self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
                                         self.network_for_variable, language="global_ID")
       expression = Expression(self.compile_space)
-      checked_var = expression(self.expr)
-      self.checked_var = copy.copy(checked_var)
+      self.checked_var = expression(self.expr)
       print('self.checked_var:  ', self.checked_var)
 
       if "PhysicalVariable" in str(self.checked_var.__class__):  # RULE: copy of variable is not allowed
@@ -382,10 +381,10 @@ class UI_Equations(QtWidgets.QWidget):
       self.MSG(msg)
       #       print("debugging: ", msg)
 
-      self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
-                                        self.network_for_variable, language="latex")
-      expression = Expression(self.compile_space)
-      self.expression_latex = expression(self.expr)
+      # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
+      #                                   self.network_for_variable, language="latex")
+      # expression = Expression(self.compile_space)
+      # self.expression_latex = expression(self.expr)
 
       return True
 
@@ -419,6 +418,13 @@ class UI_Equations(QtWidgets.QWidget):
     documentation = str(self.ui.lineDocumentation.text())
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
+
+    # now add the latex version of the expression
+    self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
+                                      self.network_for_variable, language="latex")
+    expression = Expression(self.compile_space)
+    self.expression_latex = expression(self.expr)
+
     rhs_dic = {"global_ID": rhs,
                "latex"    : str(self.expression_latex)}
 

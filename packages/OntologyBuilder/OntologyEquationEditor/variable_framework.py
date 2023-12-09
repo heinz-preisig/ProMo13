@@ -2061,10 +2061,7 @@ class Instantiate(Operator):
     # TODO: think about if indeed the second parameter <<value>> is needeed
     Operator.__init__(self, space, equation_type="instantiate")
     self.arg = var
-    if value == ')':
-      self.value = "-"
-    else:
-      self.value = value
+    self.value = value
     self.index_structures = sorted(var.index_structures)
     self.units = var.units
 
@@ -2211,33 +2208,33 @@ class Expression(VerboseParser):
   START/e -> Expression/e
   ;
   Expression/e ->
-    'Instantiate' '\(' Expression/i ( '\)'/v | ',' Expression/v  '\)' )   $e=Instantiate(i, v, self.space)
+    'Instantiate' '\(' Expression/i  ',' Expression/v  '\)'               $e=Instantiate(i, v, self.space)
       | Term/e( sum/op Term/t                                             $e=Add(op,e,t,self.space)
       )*
   ;
   Term/t -> Factor/t (
-   EXPAND/op Factor/f                                                  $t=ExpandProduct(op,t,f,self.space)
-   |HADAMAR/op Factor/f                                                $t=Hadamar(op,t,f,self.space)
+   EXPAND/op Factor/f                                                     $t=ExpandProduct(op,t,f,self.space)
+   |HADAMAR/op Factor/f                                                   $t=Hadamar(op,t,f,self.space)
    |REDUCE/op Factor/f                                                    $t=ReduceProduct(op,t,f,self.space)
    )*
   ;
- Index/u -> Variable/m                                                 $u=m
+ Index/u -> Variable/m                                                    $u=m
  ;
- Identifier/a -> Variable/s                                            $a=self.space.getVariable(s)
+ Identifier/a -> Variable/s                                               $a=self.space.getVariable(s)
  ;
   Factor/fu ->
-       '\(' Expression/b '\)'                                              $fu=Brackets(b, self.space)
+       '\(' Expression/b '\)'                                             $fu=Brackets(b, self.space)
       | 'Integral' '\(' Expression/dx '::'
-          Identifier/s IN '\['Identifier/ll ',' Identifier/ul '\]' '\)'    $fu=Integral(dx,s,ll,ul, self.space)
-      | 'Product'  '\(' Expression/a ',' Index/u '\)'                      $fu=Product(a, u, self.space)
-      | 'Power'/op '\(' Expression/a ',' Expression/b '\)'                 $fu=Power(op, a, b, self.space)
-      | 'Root'  '\(' Identifier/a '\)'                                     $fu=Implicit(a, self.space)
-      | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                 $fu=MaxMin(s, a, b, self.space)
-      | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'              $fu=TotDifferential(x,y, self.space)
-      | 'ParDiff'/f  '\(' Expression/x ',' Expression/y '\)'               $fu=ParDifferential(x,y, self.space)
-      | UnitaryFunction/uf '\(' Expression/a '\)'                          $fu=UnitaryFunction(uf,a,  self.space)
-      | Identifier/v power '\(' Expression/e '\)'                          $fu=Power('^',v,e,self.space)
-      | Identifier/a                                                       $fu=a
+          Identifier/s IN '\['Identifier/ll ',' Identifier/ul '\]' '\)'   $fu=Integral(dx,s,ll,ul, self.space)
+      | 'Product'  '\(' Expression/a ',' Index/u '\)'                     $fu=Product(a, u, self.space)
+      | 'Power'/op '\(' Expression/a ',' Expression/b '\)'                $fu=Power(op, a, b, self.space)
+      | 'Root'  '\(' Identifier/a '\)'                                    $fu=Implicit(a, self.space)
+      | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                $fu=MaxMin(s, a, b, self.space)
+      | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'             $fu=TotDifferential(x,y, self.space)
+      | 'ParDiff'/f  '\(' Expression/x ',' Expression/y '\)'              $fu=ParDifferential(x,y, self.space)
+      | UnitaryFunction/uf '\(' Expression/a '\)'                         $fu=UnitaryFunction(uf,a,  self.space)
+      | Identifier/v power '\(' Expression/e '\)'                         $fu=Power('^',v,e,self.space)
+      | Identifier/a                                                      $fu=a
   ;
   UnitaryFunction/fu ->
         UFuncRetain/fu
