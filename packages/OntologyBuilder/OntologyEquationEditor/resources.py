@@ -216,8 +216,8 @@ OPERATORS_alias = {
         "+"          : "plus",  # ................ ordinary plus
         "-"          : "minus",  # ................ ordinary minus
         "^"          : "power",  # ................ ordinary power
-        ":"          : "KR",  # ................ expand product
-        "."          : "expandProduct",  # ................ Hadamar product
+        ":"          : "expandProduct",  # ................ expand product
+        "."          : "Hadamar",  # ................ Hadamar product
         "*"          : "reduceProduct",  # ................ reduce product
         "ParDiff"    : "ParDiff",  # .......... partial derivative
         "TotalDiff"  : "TotalDiff",  # ........ total derivative
@@ -334,9 +334,6 @@ CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # expand pr
 CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # Hadamar product
 CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s" + \
                       CODE[language]["operator"]["*"] + "%s"  # reduce product
-# CODE[language]["BlockReduce"] = "{}" + CODE[language]["operator"]["|"] + "{}" + \
-#                                 CODE[language]["operator"]["in"] + "{}" + \
-#                                 CODE[language]["operator"]["|"] + "{}"  # reduce product
 CODE[language]["ParDiff"] = CODE[language]["operator"]["ParDiff"] + \
                             CODE[language]["combi"]["tuple"]
 CODE[language]["TotalDiff"] = CODE[language]["operator"]["TotalDiff"] + \
@@ -372,22 +369,7 @@ CODE[language]["min"] = CODE[language]["operator"]["min"] + CODE[language]["comb
 for f in LIST_FUNCTIONS_SINGLE_ARGUMENT:
   CODE[language][f] = CODE[language]["function"][f] + CODE[language]["combi"]["single_argument"]
 
-# CODE[language]["blockProd"] = CODE[language]["function"]["blockProd"] + \
-#                               CODE[language]["delimiter"]["("] + "{}" + \
-#                               CODE[language]["delimiter"][","] + "{}" + \
-#                               CODE[language]["operator"]["in"] + "{}" + \
-#                               CODE[language]["delimiter"][")"]
-
 CODE[language]["Root"] = CODE[language]["function"]["Root"] + CODE[language]["combi"]["single_argument"]
-
-# CODE[language]["Stack"] = CODE[language]["function"]["Stack"] + \
-#                           CODE[language]["delimiter"]["("] + \
-#                           "%s" + \
-#                           CODE[language]["delimiter"][")"]
-# CODE[language]["MixedStack"] = CODE[language]["function"]["MixedStack"] + \
-#                                CODE[language]["delimiter"]["("] + \
-#                                "%s" + \
-#                                CODE[language]["delimiter"][")"]
 
 CODE[language]["()"] = "%s"  # used by temporary variables
 
@@ -417,8 +399,7 @@ CODE[language]["-"] = "%s - %s"
 CODE[language]["^"] = "%s^(%s)"  # power
 CODE[language][":"] = "%s : %s"  # Khatri-Rao product
 CODE[language]["."] = "%s . %s"  # expand product
-CODE[language]["|"] = "%s |%s| %s"  # reduce product
-CODE[language]["BlockReduce"] = "%s |%s in %s| %s"  # reduce product
+CODE[language]["*"] = "%s * %s"  # reduce product
 CODE[language]["ParDiff"] = "ParDiff(%s,%s)"
 CODE[language]["TotalDiff"] = "TotalDiff(%s,%s)"
 CODE[language]["Integral"] = "Integral({integrand!s} :: {differential!s} in [{lower!s},{upper!s} ])"
@@ -432,197 +413,16 @@ for f in LIST_FUNCTIONS_SINGLE_ARGUMENT:  # UNITARY_NO_UNITS + UNITARY_RETAIN_UN
   CODE[language][f] = f + "(%s)"  # identical syntax
 
 CODE[language]["Root"] = "Root(%s)"
-CODE[language]["MixedStack"] = "MixedStack(%s)"
-CODE[language]["Stack"] = "Stack(%s)"
-
-CODE[language]["blockProd"] = "blockProd({}, {}, {})"  # exception from the above
 
 CODE[language]["()"] = "%s"  # "(%s)"   # TODO: remove bracketing of temp variable (L)
 CODE[language]["index"] = "%s"
 CODE[language]["index_diff_state"] = "d%s"
-CODE[language]["block_index.delimiter"] = " & "
-CODE[language]["block_index"] = "%s" + CODE[language]["block_index.delimiter"] + "%s"
 
 CODE[language]["comment"] = ""
 CODE[language]["obj"] = "{}"
 
 CODE[language]["variable"] = "%s"  # label of the variable
 
-# =========================================================================================
-language = "matlab"
-CODE[language] = {}
-CODE[language]["bracket"] = "(" + "%s" + ")"
-CODE[language][","] = ","
-
-CODE[language]["+"] = "%s + %s"
-CODE[language]["-"] = "%s - %s"
-CODE[language]["^"] = "%s ** (%s)"
-CODE[language][":"] = "KhatriRaoProduct(%s, %s)"  # ..................Khatri-Rao product
-CODE[language]["."] = "expandproduct(%s, %s)"  # .....................expand product
-CODE[language]["."] = "%s .* %s"  # ..................................expand product
-CODE[language]["|"] = "%s * %s"  # ...................................reduce product
-CODE[language]["blockProd"] = "blockProduct({}, {}, {})"
-CODE[language]["khatri_rao_matrix"] = "khatriRao(%s, %s, %s, %s)"
-CODE[language]["ParDiff"] = "ParDiff(%s,%s)"
-CODE[language]["TotalDiff"] = "TotalDiff(%s,%s)"
-CODE[language]["Integral"] = "Integral({integrand!s},{differential!s}," \
-                             "{lower!s},{upper!s})"
-CODE[language]["Product"] = "Product( {argument!s} \, {index!s} )"
-# CODE[language]["Interval"] = "interval(%s, %s , %s)"
-CODE[language]["Instantiate"] = "Instantiate(%s, %s)"  # TODO: can be integrated with list with single input
-CODE[language]["max"] = "max(%s, %s)"
-CODE[language]["min"] = "min(%s, %s)"
-
-for f in UNITARY_NO_UNITS + UNITARY_INVERSE_UNITS + UNITARY_LOOSE_UNITS:
-  CODE[language][f] = f + "(%s)"  # identical syntax
-
-CODE[language]["abs"] = "abs(%s)"
-CODE[language]["neg"] = "- %s"
-CODE[language]["diffSpace"] = "%s"
-CODE[language]["left"] = "left(%s)"
-CODE[language]["right"] = "right(%s)"
-
-CODE[language]["blockProd"] = "blockProd({}, {}, {})"
-CODE[language]["Root"] = "Root(%s)"
-CODE[language]["MixedStack"] = "MixedStack(%s)"
-CODE[language]["Stack"] = "Stack(%s)"
-
-CODE[language]["variable"] = "%s"  # label of the variable
-
-CODE[language]["()"] = "%s"  # "(%s)"
-CODE[language]["index"] = "%s"
-CODE[language]["index_diff_state"] = "d%s"
-CODE[language]["block_index.delimiter"] = "_x_"
-CODE[language]["block_index"] = "%s" + CODE[language]["block_index.delimiter"] + "%s"
-CODE[language]["transpose"] = "( %s )' "
-CODE[language]["BlockReduce"] = "blockReduce({0}, {1}, {2}, {3})"
-CODE[language]["matrix_reduce"] = "matrixProduct(%s,%s,%s,%s)"
-CODE[language]["comment"] = "%"
-CODE[language]["obj"] = "{}"
-
-CODE[language]["variable"] = "%s"  # label of the variable
-# ==============================================================================================
-language = "python"
-CODE[language] = {}
-CODE[language]["bracket"] = "(" + "%s" + ")"
-CODE[language][","] = ","
-
-CODE[language]["array"] = "np.array(%s)"
-CODE[language]["list"] = "np.array"
-
-CODE[language]["+"] = "np.add(%s, %s)"
-CODE[language]["-"] = "np.subtract(%s, %s)"
-CODE[language]["^"] = "np.power(%s, %s)"
-CODE[language][":"] = "khatriRao(%s, %s)"  # .......................Khatri-Rao product
-CODE[language]["."] = "np.multiply(%s, %s)"  # .....................expand product
-CODE[language]["|"] = "np.dot(%s, %s)"  # ..........................reduce product
-CODE[language]["BlockReduce"] = "blockReduce({0}, {1}, {2}, {3})"
-CODE[language]["ParDiff"] = "ParDiff(%s, %s)"
-CODE[language]["TotalDiff"] = "TotalDiff(%s, %s)"
-CODE[language]["Integral"] = "Integral({integrand!s},{differential!s}," \
-                             "{lower!s},{upper!s})"
-CODE[language]["Product"] = "Product( {argument!s} \, {index!s} )"
-# CODE[language]["Interval"] = "interval(%s, %s, %s)"
-CODE[language]["Instantiate"] = "np.ones(np.shape(%s)), %s"
-CODE[language]["max"] = "np.fmax(%s, %s)"
-CODE[language]["min"] = "np.fmin(%s, %s)"
-
-CODE[language]["()"] = "%s"  # "(%s)"    # TODO: remove bracketing of temporary variable in code (L)
-CODE[language][","] = ","
-
-CODE[language]["index"] = "%s"
-CODE[language]["index_diff_state"] = "d%s"
-CODE[language]["block_index.delimiter"] = "_x_"
-CODE[language]["block_index"] = "%s" + CODE[language]["block_index.delimiter"] + "%s"
-CODE[language]["transpose"] = "np.transpose(%s)"
-CODE[language]["matrix_reduce"] = "matrixProduct(%s, %s, %s, %s)"
-CODE[language]["khatri_rao_matrix"] = "khatriRao(%s, %s, %s, %s)"
-CODE[language]["comment"] = "#"
-CODE[language]["exp"] = "np.exp(%s)"
-CODE[language]["log"] = "np.log10(%s)"
-CODE[language]["ln"] = "np.log(%s)"
-CODE[language]["sqrt"] = "np.sqrt(%s)"
-CODE[language]["sin"] = "np.sin(%s)"
-CODE[language]["asin"] = "np.arcsin(%s)"
-CODE[language]["tan"] = "np.tan(%s)"
-CODE[language]["atan"] = "np.arctan(%s)"
-CODE[language]["cos"] = "np.cos(%s)"
-CODE[language]["acos"] = "np.arccos(%s)"
-CODE[language]["abs"] = "np.abs(%s )"  # .........................not fabs complex numbers
-CODE[language]["neg"] = "np.negative(%s)"
-CODE[language]["diffSpace"] = "diffSpace(%s)"
-CODE[language]["left"] = "left(%s)"
-CODE[language]["right"] = "right(%s)"
-CODE[language]["inv"] = "np.reciprocal(%s)"
-CODE[language]["sign"] = "np.sign(%s)"
-CODE[language]["blockProd"] = "blockProduct({}, {}, {})"
-CODE[language]["Root"] = "Root(%s)"
-CODE[language]["MixedStack"] = "MixedStack(%s)"
-CODE[language]["Stack"] = "Stack(%s)"
-CODE[language]["obj"] = "self.{}"
-
-CODE[language]["variable"] = "%s"  # label of the variable
-
-# ==============================================================================================
-language = "cpp"
-CODE[language] = {}
-CODE[language]["bracket"] = "(" + "%s" + ")"
-CODE[language][","] = ","
-CODE[language]["array"] = "np.array(%s)"
-CODE[language]["list"] = "liste(%s)"
-
-CODE[language]["+"] = "np.add(%s, %s)"
-CODE[language]["-"] = "np.subtract(%s, %s)"
-CODE[language]["^"] = "np.power(%s, %s)"
-CODE[language][":"] = "khatriRao(%s, %s)"  # ........................Khatri-Rao product
-CODE[language]["."] = "ganger(%s, %s)"  # ...........................expand product
-CODE[language]["|"] = "np.dot(%s, %s)"  # ...........................reduce product
-CODE[language]["BlockReduce"] = "blockReduce({0}, {1}, {2}, {3})"
-CODE[language]["ParDiff"] = "ParDiff(%s, %s)"
-CODE[language]["TotalDiff"] = "TotalDiff(%s, %s)"
-CODE[language]["Integral"] = "integral({integrand!s},{differential!s}," \
-                             "{lower!s},{upper!s})"
-# CODE[language]["Interval"] = "interval(%s, %s, %s)"
-CODE[language]["Product"] = "Product( {argument!s} \, {index!s} )"
-CODE[language]["Instantiate"] = "np.ones(np.shape(%s)), %s"
-CODE[language]["max"] = "np.fmax(%s, %s)"
-CODE[language]["min"] = "np.fmin(%s, %s)"
-
-CODE[language]["exp"] = "np.exp(%s)"
-CODE[language]["log"] = "np.log10(%s)"
-CODE[language]["ln"] = "np.log(%s)"
-CODE[language]["sqrt"] = "np.sqrt(%s)"
-CODE[language]["sin"] = "np.sin(%s)"
-CODE[language]["cos"] = "np.cos(%s)"
-CODE[language]["tan"] = "np.tan(%s)"
-CODE[language]["asin"] = "np.arcsin(%s)"
-CODE[language]["acos"] = "np.arccos(%s)"
-CODE[language]["atan"] = "np.arctan(%s)"
-CODE[language]["abs"] = "np.abs(%s )"  # not fabs complex numbers
-CODE[language]["neg"] = "np.negative(%s)"
-CODE[language]["diffSpace"] = "diffSpace(%s)"
-CODE[language]["left"] = "left(%s)"
-CODE[language]["right"] = "right(%s)"
-CODE[language]["inv"] = "np.reciprocal(%s)"
-CODE[language]["sign"] = "np.sign(%s)"
-
-CODE[language]["blockProd"] = "blockProduct(%s, %s, %s)"
-CODE[language]["Root"] = "Root(%s)"
-CODE[language]["MixedStack"] = "MixedStack(%s)"
-CODE[language]["Stack"] = "Stack(%s)"
-
-CODE[language]["()"] = "%s"  # "(%s)"   # TODO: remove corresponding bracketing in temp variables
-
-CODE[language]["index"] = "%s"
-CODE[language]["index_diff_state"] = "d%s"
-CODE[language]["block_index.delimiter"] = "_x_"
-CODE[language]["block_index"] = "%s" + CODE[language]["block_index.delimiter"] + "%s"
-CODE[language]["transpose"] = "np.transpose(%s)"
-CODE[language]["matrix_reduce"] = "matrixProduct(%s, %s, %s, %s)"
-CODE[language]["khatri_rao_matrix"] = "khatriRao(%s, %s, %s, %s)"
-CODE[language]["comment"] = "#"
-
-CODE[language]["variable"] = "%s"  # label of the variable
 
 # ============================================================================================
 language = "latex"
@@ -749,10 +549,8 @@ Special_TEMPLATE = {
                                                          differential='t',
                                                          lower='l',
                                                          upper='u'),
-        "BlockReduce": [],
         "Product"    : CODE[internal]["Product"].format(argument="a",
                                                         index="I"),
-        "MixedStack" : CODE[internal]["MixedStack"] % ("a,b, ..")
         }
 
 # TODO: not nice needs fixing
@@ -766,8 +564,8 @@ for i in TwoPlace_TEMPLATE:
   except:
     print("failed with :", i)
 
-for i in ThreePlace_TEMPLATE:
-  OPERATOR_SNIPS.append(CODE[internal]['|'] % ('a', 'b', 'c'))
+# for i in ThreePlace_TEMPLATE:
+#   OPERATOR_SNIPS.append(CODE[internal]['|'] % ('a', 'b', 'c'))
 
 for c in Special_TEMPLATE:
   OPERATOR_SNIPS.append(str(Special_TEMPLATE[c]))

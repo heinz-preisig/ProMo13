@@ -17,6 +17,8 @@ __version__ = "6.00"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
+import copy
+
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
@@ -316,7 +318,8 @@ class UI_Equations(QtWidgets.QWidget):
       self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
                                         self.network_for_variable, language="global_ID")
       expression = Expression(self.compile_space)
-      self.checked_var = expression(self.expr)
+      checked_var = expression(self.expr)
+      self.checked_var = copy.copy(checked_var)
       print('self.checked_var:  ', self.checked_var)
 
       if "PhysicalVariable" in str(self.checked_var.__class__):  # RULE: copy of variable is not allowed
@@ -338,17 +341,17 @@ class UI_Equations(QtWidgets.QWidget):
         # elif self.checked_var.units == var.units:
         if self.checked_var.units == var.units:
           if self.checked_var.index_structures == var.index_structures:
-            if self.checked_var.tokens == var.tokens:
+            # if self.checked_var.tokens == var.tokens:
               msg = "variable has \n" \
                     "- index structures : %s\n" \
                     "- units            : %s\n" \
                     "- tokens           : %s\n" % (pretty_var_indices, pretty_var_units, var.tokens)
               self.MSG(msg)
-            else:
-              msg = "missmatch of tokens \n" \
-                    " - variable has   : %s\n" \
-                    " - expression has : %s\n" \
-                    % (self.checked_var.tokens, var.tokens)
+            # else:
+            #   msg = "missmatch of tokens \n" \
+            #         " - variable has   : %s\n" \
+            #         " - expression has : %s\n" \
+            #         % (self.checked_var.tokens, var.tokens)
           else:
             msg = "missmatch of index structures \n" \
                   " - variable has   : %s\n" \
