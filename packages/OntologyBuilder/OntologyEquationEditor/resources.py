@@ -437,8 +437,8 @@ CODE[language][":"] = r"%s \, {\odot} \, %s"  # .........................Khatri-
 CODE[language]["."] = r"%s \, . \, %s"  # ...............................expand product
 CODE[language]["|"] = r"%s \stackrel{%s}{\,\star\,} %s"  # ..............reduce product
 CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
-CODE[language]["ParDiff"] = r"\ParDiff{%s}{%s}"
-CODE[language]["TotalDiff"] = r"\TotDiff{%s}{%s}"
+CODE[language]["ParDiff"] =r"\frac{\partial{%s}}{\partial{%s}}"
+CODE[language]["TotalDiff"] =  r"\frac{d\,{%s}}{d\,{%s}}"
 CODE[language]["Integral"] = r"\int_{{ {lower!s} }}^{{ {upper!s} }} \, {integrand!s} \enskip d\,{differential!s}"
 # CODE[language]["Interval"] = r"%s \in \left[ {%s} , {%s} \right] "
 CODE[language]["Product"] = r"\prod_{index!s}  {argument!s} "
@@ -456,10 +456,10 @@ CODE[language]["neg"] = r"\left( -%s \right)"
 CODE[language]["inv"] = r"\left( %s \right)^{-1}"
 CODE[language]["sign"] = r"\text{sign} \left( %s \right)"
 
-CODE[language]["blockProd"] = r"\displaystyle \prod_{{ {1} \in {2} }} {0}"
+# CODE[language]["blockProd"] = r"\displaystyle \prod_{{ {1} \in {2} }} {0}"
 CODE[language]["Root"] = r"Root\left( %s\right)"
-CODE[language]["MixedStack"] = r"\text{MixedStack}\left( %s \right)"
-CODE[language]["Stack"] = r"\text{Stack}\left( %s \right)"
+# CODE[language]["MixedStack"] = r"\text{MixedStack}\left( %s \right)"
+# CODE[language]["Stack"] = r"\text{Stack}\left( %s \right)"
 
 CODE[language]["diffSpace"] = r"\text{diffSpace}(%s)"
 CODE[language]["left"] = r"\left({%s}\right)^{-\epsilon}"
@@ -944,11 +944,12 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
     component = assignments["nodes"][ID]
     if "E_" in component:
       _,eq_str_ID = component.split("_",1)
-      var_ID = equation_dictionary[eq_str_ID][0] #["variable_ID"]
+      var_str_ID = equation_dictionary[eq_str_ID][0] #["variable_ID"]
+      _,var_ID = var_str_ID.split("_",1)
       lhs = equation_dictionary[eq_str_ID][1]["lhs"]["latex"]
       rhs = equation_dictionary[eq_str_ID][1]["rhs"]["latex"]
       eq = "%s := %s" % (lhs, rhs)
-      s = [count, str(var_ID), eq_str_ID, eq, str(variables[var_ID]["tokens"])]
+      s = [count, str(var_ID), ID, eq, str(variables[var_str_ID]["tokens"])]
       latex_var_equ.append(s)
       count += 1
 
@@ -956,12 +957,12 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
     component = assignments["nodes"][ID]
     if "V_" in component:
       _,var_str_ID = component.split("_",1)
-      var_ID = var_str_ID
-      eqs = variables[var_ID]["equations"]
+      _,var_ID = var_str_ID.split("_",1)
+      eqs = variables[var_str_ID]["equations"]
       if not eqs:
-        eq = "%s :: %s" % (variables[var_ID]["compiled_lhs"]["latex"],
+        eq = "%s :: %s" % (variables[var_str_ID]["compiled_lhs"]["latex"],
                            "\\text{port variable}")
-        s = [count, var_str_ID, "-", eq, str(variables[var_ID]["tokens"])]
+        s = [count, var_ID, "-", eq, str(variables[var_str_ID]["tokens"])]
         latex_var_equ.append(s)
         count += 1
 

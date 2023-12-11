@@ -792,6 +792,13 @@ class UiOntologyDesign(QMainWindow):
 
     eqs = self.__getAllEquationsPerType("latex")
 
+    nw_that_has_equation = set()
+    for e_type in eqs:
+      for e in eqs[e_type]:
+        nw_that_has_equation.add(eqs[e_type][e]["network"])
+
+
+
     # main.tex
     names_names_for_variables = []
     nw_list = self.networks + self.intraconnection_nws_list + \
@@ -806,7 +813,7 @@ class UiOntologyDesign(QMainWindow):
       e_types_cleaned.append(self.__cleanStrings(e))
 
     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
-    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=names_names_for_variables,
+    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=nw_that_has_equation,
                                                                     equationTypes=e_types_cleaned)  # self.networks)
     f_name = FILES["latex_main"] % self.ontology_name
     f = open(f_name, 'w')
