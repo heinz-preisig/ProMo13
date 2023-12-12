@@ -176,7 +176,7 @@ class UI_VariableTableShow(VariableTable):
     for c in range(column_count):
       data[c] = item(row, c).text()
       # print("debugging -- chose:", c, str(data[c]))
-    self.selected_variable_ID = int(data[9])
+    self.selected_variable_ID = data[9]
     print("debugging -- selected ID:", self.selected_variable_ID)
 
   def on_pushFinished_pressed(self):

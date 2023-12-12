@@ -826,12 +826,13 @@ class UiOntologyDesign(QMainWindow):
     f.write(body)
     f.close()
 
-    for nw in self.networks + self.interconnection_nws_list + self.intraconnection_nws_list:
+    index_dictionary = self.variables.index_definition_network_for_variable_component_class
+    interfaces = sorted(self.ontology_container.interfaces.keys())
+    for nw in self.networks + interfaces: #+ self.interconnection_nws_list + self.intraconnection_nws_list:
       # hash: network
       # value: dictionary
       #        hash: variable classes/types
       #        value: list of variables
-      index_dictionary = self.variables.index_definition_network_for_variable_component_class
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
       body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
                                                                            index=index_dictionary[nw])
