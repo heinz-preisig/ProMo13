@@ -1158,7 +1158,9 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     print("model name: ", model_name)
     self.ontology_tree[self.current_network].addChild(model_name)
     self.ontology_tree[model_name] = Ontology(model_name, 'intra', self.ontology_tree[self.current_network])
-    # self.__makeTreeView()
+
+    if self.current_network not in self.ontology["rules"]["network_enable_adding_indices"]:
+      self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = False
     self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
 
   def on_pushRemoveChild_pressed(self):

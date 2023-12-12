@@ -797,6 +797,12 @@ class UiOntologyDesign(QMainWindow):
       for e in eqs[e_type]:
         nw_that_has_equation.add(eqs[e_type][e]["network"])
 
+    # nw_that_has_variables = set()
+    for nw in self.variables.index_definition_networks_for_variable:
+      if self.variables.index_definition_networks_for_variable[nw]:
+        nw_that_has_equation.add(nw)
+
+
 
 
     # main.tex

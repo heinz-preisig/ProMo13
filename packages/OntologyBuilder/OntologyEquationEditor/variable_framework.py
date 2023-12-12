@@ -799,7 +799,7 @@ class Variables(OrderedDict):
     :return:
     """
     self.index_definition_networks_for_variable = {}
-    self.index_definition_network_for_variable_component_class = OrderedDict()
+    self.index_definition_network_for_variable_component_class = {}
     # self.index_equation_in_definition_network = {}
     self.index_networks_for_variable = {}
     self.index_accessible_variables_on_networks = {}  # defines accessible name space
@@ -848,32 +848,33 @@ class Variables(OrderedDict):
     # make index for variables
     for nw in self.networks:
       ontology_behaviour = self.ontology_container.ontology_tree[nw]["behaviour"]
-      self.index_definition_network_for_variable_component_class[nw] = OrderedDict()
+      self.index_definition_network_for_variable_component_class[nw] = {}
       for comp in ontology_behaviour:  # comp is in [arc, graph, node)
         for t in ontology_behaviour[comp]:  # t is variable type / class
           if t not in self.index_definition_network_for_variable_component_class[nw]:
-            self.index_definition_network_for_variable_component_class[nw][t] = []
+            self.index_definition_network_for_variable_component_class[nw][t] = set()
           for ID in self:
             if (self[ID].network == nw) and (self[ID].type == t):
-              self.index_definition_network_for_variable_component_class[nw][t].append(ID)
+              self.index_definition_network_for_variable_component_class[nw][t].add(ID)
 
     for nw in self.interconnection_networks:
-      self.index_definition_network_for_variable_component_class[nw] = OrderedDict()
+      self.index_definition_network_for_variable_component_class[nw] = {}
       for ID in self:
         if self[ID].network == nw:
           t = self[ID].type
           if t not in self.index_definition_network_for_variable_component_class[nw]:
-            self.index_definition_network_for_variable_component_class[nw][t] = []
-          self.index_definition_network_for_variable_component_class[nw][t].append(ID)
+            self.index_definition_network_for_variable_component_class[nw][t] = set()
+          self.index_definition_network_for_variable_component_class[nw][t].add(ID)
 
     for nw in self.intraconnection_networks:
-      self.index_definition_network_for_variable_component_class[nw] = OrderedDict()
+      self.index_definition_network_for_variable_component_class[nw] = {}
       for ID in self:
         if self[ID].network == nw:
           t = self[ID].type
           if t not in self.index_definition_network_for_variable_component_class[nw]:
-            self.index_definition_network_for_variable_component_class[nw][t] = []
-          self.index_definition_network_for_variable_component_class[nw][t].append(ID)
+            self.index_definition_network_for_variable_component_class[nw][t] = set()
+          self.index_definition_network_for_variable_component_class[nw][t].add(ID)
+
 
     # incidence and inverse incidence lists
     self.incidence_dictionary, self.inv_incidence_dictionary = makeIncidenceDictionaries(self)
@@ -951,18 +952,18 @@ class Variables(OrderedDict):
     #         acc[left_nw][variable_class] = []
     #       acc[left_nw][variable_class].extend(acc[right_nw][variable_class])
 
-    for nw in self.intraconnection_networks:
-      acc[nw] = {}
-      [source, sink] = nw.split(CONNECTION_NETWORK_SEPARATOR)
-      acc[nw] = acc[source]
-      for variable_class in acc[sink]:
-        if variable_class in acc[nw]:
-          _set_source = set(acc[source][variable_class])
-          _set_sink = set(acc[sink][variable_class])
-          _set_self = set(self.index_definition_networks_for_variable[nw])
-          acc[nw][variable_class] = sorted(_set_source | _set_sink | _set_self)
-        else:
-          acc[nw][variable_class] = acc[sink]
+    # for nw in self.intraconnection_networks:
+    #   acc[nw] = {}
+    #   [source, sink] = nw.split(CONNECTION_NETWORK_SEPARATOR)
+    #   acc[nw] = acc[source]
+    #   for variable_class in acc[sink]:
+    #     if variable_class in acc[nw]:
+    #       _set_source = set(acc[source][variable_class])
+    #       _set_sink = set(acc[sink][variable_class])
+    #       _set_self = set(self.index_definition_networks_for_variable[nw])
+    #       acc[nw][variable_class] = sorted(_set_source | _set_sink | _set_self)
+    #     else:
+    #       acc[nw][variable_class] = acc[sink]
 
     for nw in self.ontology_container.interface_networks_accessible_to_networks_dictionary:
       for i_nw in self.ontology_container.interface_networks_accessible_to_networks_dictionary[nw]:
@@ -2143,8 +2144,8 @@ class TotDifferential(Operator):
     self.units = Units(ALL=units)
 
 
-    s_index_a = set(a.index_structures)
-    s_index_b = set(b.index_structures)
+    s_index_a = set(x.index_structures)
+    s_index_b = set(y.index_structures)
 
     self.index_structures = sorted(s_index_a | s_index_b)
 
