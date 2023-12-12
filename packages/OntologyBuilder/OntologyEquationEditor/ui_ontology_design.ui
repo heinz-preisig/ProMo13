@@ -35,7 +35,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_networks">
      <attribute name="title">
@@ -157,21 +157,6 @@
       </property>
       <property name="text">
        <string>instantiate</string>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="tab_intranets">
-     <attribute name="title">
-      <string>intr A nets</string>
-     </attribute>
-     <widget class="QComboBox" name="combo_IntraConnectionNetwork">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>50</y>
-        <width>289</width>
-        <height>27</height>
-       </rect>
       </property>
      </widget>
     </widget>

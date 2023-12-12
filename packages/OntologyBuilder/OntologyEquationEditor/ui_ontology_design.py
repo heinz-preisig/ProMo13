@@ -50,12 +50,6 @@ class Ui_OntologyDesigner(object):
         self.pushInstantiate.setGeometry(QtCore.QRect(150, 310, 89, 25))
         self.pushInstantiate.setObjectName("pushInstantiate")
         self.tabWidget.addTab(self.tab_networks, "")
-        self.tab_intranets = QtWidgets.QWidget()
-        self.tab_intranets.setObjectName("tab_intranets")
-        self.combo_IntraConnectionNetwork = QtWidgets.QComboBox(self.tab_intranets)
-        self.combo_IntraConnectionNetwork.setGeometry(QtCore.QRect(30, 50, 289, 27))
-        self.combo_IntraConnectionNetwork.setObjectName("combo_IntraConnectionNetwork")
-        self.tabWidget.addTab(self.tab_intranets, "")
         self.tab_internets = QtWidgets.QWidget()
         self.tab_internets.setObjectName("tab_internets")
         self.combo_InterConnectionNetwork = QtWidgets.QComboBox(self.tab_internets)
@@ -222,7 +216,7 @@ class Ui_OntologyDesigner(object):
         self.msgWindow.setObjectName("msgWindow")
 
         self.retranslateUi(OntologyDesigner)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(OntologyDesigner)
 
     def retranslateUi(self, OntologyDesigner):
@@ -240,7 +234,6 @@ class Ui_OntologyDesigner(object):
         self.pushAddIndex.setText(_translate("OntologyDesigner", "add index"))
         self.pushInstantiate.setText(_translate("OntologyDesigner", "instantiate"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_networks), _translate("OntologyDesigner", "networks"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_intranets), _translate("OntologyDesigner", "intr A nets"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_internets), _translate("OntologyDesigner", "int E rnets"))
         self.groupOntology.setTitle(_translate("OntologyDesigner", "Ontology"))
         self.radioVariables.setToolTip(_translate("OntologyDesigner", "select to edit variables"))

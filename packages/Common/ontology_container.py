@@ -449,7 +449,7 @@ class OntologyContainer():
     # RULE: by default all variable classes from the left network are available
 
     list_networks = self.list_inter_branches_pairs
-    interfaces = {}
+    interfaces = OrderedDict()
     for network in list_networks:
       left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
       left_variable_types = self.variable_types_on_networks[left_nw]

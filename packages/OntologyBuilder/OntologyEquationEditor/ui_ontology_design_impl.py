@@ -202,14 +202,14 @@ class UiOntologyDesign(QMainWindow):
 
     makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
     self.ui.combo_InterConnectionNetwork.clear()
-    self.ui.combo_IntraConnectionNetwork.clear()
+    # self.ui.combo_IntraConnectionNetwork.clear()
     self.ui.combo_InterConnectionNetwork.addItems(
             sorted(self.interconnection_nws_list))
     nws = self.ontology_container.networks
-    self.ui.combo_IntraConnectionNetwork.addItems(nws)
+    # self.ui.combo_IntraConnectionNetwork.addItems(nws)
 
     self.ui.combo_InterConnectionNetwork.show()
-    self.ui.combo_IntraConnectionNetwork.show()
+    # self.ui.combo_IntraConnectionNetwork.show()
     self.ui.groupFiles.hide()
     self.ui.groupEdit.hide()
 
@@ -448,17 +448,17 @@ class UiOntologyDesign(QMainWindow):
     if self.ui.radioVariablesAliases.isChecked():
       self.on_radioVariablesAliases_pressed()
     else:
-      # TODO need to think a better way of delete the equations
+
       self.__setupEdit("interface")
       self.__setupEditInterface()
       self.__showFilesControl()
 
   @QtCore.pyqtSlot(str)  # combo_IntraConnectionNetwork
-  def on_combo_IntraConnectionNetwork_activated(self, choice):
-    self.__hideTable()
-    self.current_network = str(choice)
-    self.state = "intra_connections"
-    self.__setupEdit("intraface")
+  # def on_combo_IntraConnectionNetwork_activated(self, choice):
+  #   self.__hideTable()
+  #   self.current_network = str(choice)
+  #   self.state = "intra_connections"
+  #   self.__setupEdit("intraface")
 
   @QtCore.pyqtSlot(int)
   def on_tabWidget_currentChanged(self, which):
@@ -792,47 +792,45 @@ class UiOntologyDesign(QMainWindow):
 
     eqs = self.__getAllEquationsPerType("latex")
 
+    # clean up network notation in equations
     nw_that_has_equation = set()
+    nw_that_has_equation_cleaned = set()
     for e_type in eqs:
       for e in eqs[e_type]:
-        nw_that_has_equation.add(eqs[e_type][e]["network"])
-
-    # nw_that_has_variables = set()
-    for nw in self.variables.index_definition_networks_for_variable:
-      if self.variables.index_definition_networks_for_variable[nw]:
+        nw = eqs[e_type][e]["network"]
         nw_that_has_equation.add(nw)
+        nw_cleaned = nw.replace(CONNECTION_NETWORK_SEPARATOR, '--')
+        nw_that_has_equation_cleaned.add(nw_cleaned)
 
+    # clean up network and sort them according to ontology tree
+    list_nw_that_has_equation_cleaned = []
+    for snw in self.ontology_container.heirs_network_dictionary["root"]:
+      for nw in nw_that_has_equation_cleaned:
+        if "--" not in nw:
+          if snw in nw:
+            list_nw_that_has_equation_cleaned.append(nw)
+    for nw in nw_that_has_equation_cleaned:
+      if "--" in nw:
+        list_nw_that_has_equation_cleaned.append(nw)
 
-
-
-    # main.tex
-    names_names_for_variables = []
-    nw_list = self.networks + self.intraconnection_nws_list + \
-              self.interconnection_nws_list
-    for nw in nw_list:
-      names_names_for_variables.append(
-              str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--'))
-
+    # clean up equation
     e_types = sorted(self.variables.equation_type_list)
     e_types_cleaned = []
     for e in e_types:
       e_types_cleaned.append(self.__cleanStrings(e))
 
     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
-    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=nw_that_has_equation,
-                                                                    equationTypes=e_types_cleaned)  # self.networks)
+    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=list_nw_that_has_equation_cleaned,
+                                                                    equationTypes=e_types_cleaned)
     f_name = FILES["latex_main"] % self.ontology_name
     f = open(f_name, 'w')
     f.write(body)
     f.close()
 
     index_dictionary = self.variables.index_definition_network_for_variable_component_class
-    interfaces = sorted(self.ontology_container.interfaces.keys())
-    for nw in self.networks + interfaces: #+ self.interconnection_nws_list + self.intraconnection_nws_list:
-      # hash: network
-      # value: dictionary
-      #        hash: variable classes/types
-      #        value: list of variables
+
+
+    for nw in nw_that_has_equation:
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
       body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
                                                                            index=index_dictionary[nw])
@@ -866,9 +864,9 @@ class UiOntologyDesign(QMainWindow):
     print('ARGS: ', args)
     make_it = subprocess.Popen(
             args,
-            # start_new_session=True,
-            # stdout=subprocess.PIPE,
-            # stderr=subprocess.PIPE
+            start_new_session=True,
+            stdout=subprocess.PIPE,  # NOTE: comment out if output is to be seen
+            stderr=subprocess.PIPE
             )
     out, error = make_it.communicate()
     # print("debugging -- ", out, error)
