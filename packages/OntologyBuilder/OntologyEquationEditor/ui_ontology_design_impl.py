@@ -448,7 +448,7 @@ class UiOntologyDesign(QMainWindow):
     if self.ui.radioVariablesAliases.isChecked():
       self.on_radioVariablesAliases_pressed()
     else:
-
+      pass
       self.__setupEdit("interface")
       self.__setupEditInterface()
       self.__showFilesControl()
@@ -483,9 +483,11 @@ class UiOntologyDesign(QMainWindow):
       for var_ID in self.variables.index_accessible_variables_on_networks[left_nw][var_class]:
         set_left_variables.add(var_ID)
     print("debugging -- variable lists", set_left_variables)
+
+    source,sink = self.current_network.split(CONNECTION_NETWORK_SEPARATOR)
     self.pick = UI_VariableTableInterfacePick("make interface cut equation",
                                               self.variables, self.indices,
-                                              self.current_network,
+                                              source, #self.current_network,
                                               hide_vars=already_defined_variables,
                                               enabled_types=enabled_var_classes)
     self.pick.picked.connect(self.__makeLinkEquation)
@@ -577,36 +579,36 @@ class UiOntologyDesign(QMainWindow):
     if what == "interface":
       vars_types_on_network_variable = self.ontology_container.interfaces[
         nw]["internal_variable_classes"]
-      self.ui.combo_EditVariableTypes.clear()
-      self.ui.combo_EditVariableTypes.addItems(vars_types_on_network_variable)
+      # self.ui.combo_EditVariableTypes.clear()
+      # self.ui.combo_EditVariableTypes.addItems(vars_types_on_network_variable)
       network_for_variable = nw
       # self.ontology_container.interfaces[nw]["left_network"]
       network_for_expression = nw
       # network_variable_source = self.ontology_container.interfaces[nw]["left_network"]
       vars_types_on_network_expression = self.ontology_container.interfaces[
         nw]["left_variable_classes"]
-    elif what in "intraface":
-      network_for_variable = nw  # self.intraconnection_nws[nw]["right"]
-      _types = self.ontology_container.variable_types_on_networks
-
-      # building site: what shall be the rule for defining the intrafaces.
-      # _left = self.intraconnection_nws[nw]["left"]
-      # _right = self.intraconnection_nws[nw]["right"]
-      # _set = set(_types[_left]) | set(_types[_right])
-      _set = _types[nw]
-      network_for_expression = nw
-      # network_for_expression = list(_set) #self.intraconnection_nws[nw]["left"]  # NOTE: this should be all from
-      #  both sides
-      # network_variable_source = network_for_expression
-      # vars_types_on_network_variable = self.ontology_container.variable_types_on_networks[network_for_variable]
-      # RULE: NOTE: the variable types are the same on the left, the right and the boundary -- at least for the time
-      # being
-      # self.ontology_container.variable_types_on_networks[
-      vars_types_on_network_variable = sorted(_set)
-      # network_for_expression]
-      self.ui.combo_EditVariableTypes.clear()
-      self.ui.combo_EditVariableTypes.addItems(vars_types_on_network_variable)
-      vars_types_on_network_expression = sorted(_set)
+    # elif what in "intraface":
+    #   network_for_variable = nw  # self.intraconnection_nws[nw]["right"]
+    #   _types = self.ontology_container.variable_types_on_networks
+    #
+    #   # building site: what shall be the rule for defining the intrafaces.
+    #   # _left = self.intraconnection_nws[nw]["left"]
+    #   # _right = self.intraconnection_nws[nw]["right"]
+    #   # _set = set(_types[_left]) | set(_types[_right])
+    #   _set = _types[nw]
+    #   network_for_expression = nw
+    #   # network_for_expression = list(_set) #self.intraconnection_nws[nw]["left"]  # NOTE: this should be all from
+    #   #  both sides
+    #   # network_variable_source = network_for_expression
+    #   # vars_types_on_network_variable = self.ontology_container.variable_types_on_networks[network_for_variable]
+    #   # RULE: NOTE: the variable types are the same on the left, the right and the boundary -- at least for the time
+    #   # being
+    #   # self.ontology_container.variable_types_on_networks[
+    #   vars_types_on_network_variable = sorted(_set)
+    #   # network_for_expression]
+    #   self.ui.combo_EditVariableTypes.clear()
+    #   self.ui.combo_EditVariableTypes.addItems(vars_types_on_network_variable)
+    #   vars_types_on_network_expression = sorted(_set)
     else:
       self.ui.radioNode.toggle()
       self.on_radioNode_clicked()

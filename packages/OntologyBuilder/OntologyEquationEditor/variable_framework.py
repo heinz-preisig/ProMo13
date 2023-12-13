@@ -1017,7 +1017,8 @@ class Variables(OrderedDict):
     if which == "variable_picking":
       variable_space = self.index_accessible_variables_on_networks
     elif which == "interface_picking":
-      left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
+      # left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
+      left_nw = network
       if rule == "only local":
         variable_space = {}
         variable_space[network] = {}

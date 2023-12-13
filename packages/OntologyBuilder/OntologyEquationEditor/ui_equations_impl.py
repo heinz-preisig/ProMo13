@@ -136,12 +136,13 @@ class UI_Equations(QtWidgets.QWidget):
               self.network_for_variable: self.variable_types_variable,
               source                   : self.variable_types_expression
               }
-    elif self.what == "intraface":
-      enabled_var_types = {
-              self.network_for_variable  : self.variable_types_variable,
-              self.network_for_expression: self.variable_types_expression
-              }
-      network = self.network_for_variable
+      which = "interface_picking"
+    # elif self.what == "intraface":
+    #   enabled_var_types = {
+    #           self.network_for_variable  : self.variable_types_variable,
+    #           self.network_for_expression: self.variable_types_expression
+    #           }
+    #   network = self.network_for_variable
 
     else:
       # RULE: the variables from the interconnection nodes that potentially connect are also included as sources
@@ -155,6 +156,7 @@ class UI_Equations(QtWidgets.QWidget):
                 self.network_for_expression: self.variable_types_expression
                 }
       network = self.network_for_variable
+      which = "variable_picking"
 
     self.variable_tables[network] = UI_VariableTablePick('Pick variable symbol \nnetwork %s' % network,
                                                          self.variables,
@@ -163,6 +165,7 @@ class UI_Equations(QtWidgets.QWidget):
                                                          enabled_types=enabled_var_types[network],
                                                          hide_vars=[NEW_VAR],
                                                          hide_columns=[0, 6, 7],
+                                                         which=which,
                                                          )
     self.variable_tables[network].hide()
     self.variable_tables[network].picked.connect(self.__insertSnipp)

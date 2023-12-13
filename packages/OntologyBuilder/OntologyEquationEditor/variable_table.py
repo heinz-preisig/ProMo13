@@ -55,13 +55,13 @@ class VariableTable(QtWidgets.QDialog):
     self.network = network
     self.what = what
     self.info_file = info_file
-    if what == "variable_picking":  # NOTE: Python issue. Is not updated when making table. ???
-      self.variable_space = variables.index_accessible_variables_on_networks
-    else:
-      try:
-        self.variable_space = variables.index_networks_for_variable
-      except:
-        self.variables.indexVariables()
+    # if what == "variable_picking":  # NOTE: Python issue. Is not updated when making table. ???
+    #   self.variable_space = variables.index_accessible_variables_on_networks
+    # else:
+    #   try:
+    #     self.variable_space = variables.index_networks_for_variable
+    #   except:
+    #     self.variables.indexVariables()
     # self.variable_space = variable_space
     self.enabled_variable_types = enabled_variable_types
     self.hide_vars = hide_vars
@@ -116,29 +116,6 @@ class VariableTable(QtWidgets.QDialog):
     # Note: variable space generation has been centralised
     self.variable_space = self.variables.variableSpaces(self.what, self.network, self.enabled_variable_types)
 
-    # # NOTE: fix since update did not work.
-    # if self.what == "variable_picking":
-    #   self.variable_space = self.variables.variableSpaces(self.what, self.network, self.enabled_variable_types) #self.variables.index_accessible_variables_on_networks
-    # elif self.what == "interface_picking": #RULE: variable space for interface is the left variables
-    #
-    # # NOTE: that's to cruel
-    # # left_nw, right_nw = self.network.split(CONNECTION_NETWORK_SEPARATOR)
-    # # self.variable_space[self.network] = self.variables.index_networks_for_variable[left_nw]
-    #
-    # # NOTE: that's probably right
-    #   self.variable_space={}
-    #   self.variable_space[self.network] = {}
-    #   for i in self.enabled_variable_types:
-    #     self.variable_space[self.network][i] =[]
-    #   for ID in self.variables:
-    #     v = self.variables[ID]
-    #     left_nw, right_nw = self.network.split(CONNECTION_NETWORK_SEPARATOR)
-    #     if v.network == left_nw:
-    #       self.variable_space[self.network][v.type].append(ID)
-    #
-    # else:
-    #   self.variable_space = self.variables.index_networks_for_variable
-
     variable_ID_list = self.makeVariableIDList()
 
     table = self.ui.tableVariable
@@ -162,11 +139,18 @@ class VariableTable(QtWidgets.QDialog):
 
   def makeVariableIDList(self):
     variable_ID_list = set()
-    nw = self.network
-    for variable_type in self.variable_space[nw]:
-      if variable_type in self.enabled_variable_types:
-        for i in self.variable_space[nw][variable_type]:
-          variable_ID_list.add(i)
+    if self.what == 'interface_picking':
+      print("debugging -- gugus gugus", self.network)
+      # source,sink = self.network.split(CONNECTION_NETWORK_SEPARATOR)
+      networks = self.variables.ontology_container.heirs_network_dictionary[self.network]
+    else:
+      networks = [self.network]
+    # nw = self.network
+    for nw in networks:
+      for variable_type in self.variable_space[nw]:
+        if variable_type in self.enabled_variable_types:
+          for i in self.variable_space[nw][variable_type]:
+            variable_ID_list.add(i)
     variable_dict = {}
     if variable_ID_list:
       for var_ID in variable_ID_list:
