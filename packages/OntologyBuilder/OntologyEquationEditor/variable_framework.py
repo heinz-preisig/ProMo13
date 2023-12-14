@@ -1012,11 +1012,13 @@ class Variables(OrderedDict):
     variables_not_instantiated = sorted(all_variables_in_network - variables_being_instantiate)
     return variables_not_instantiated
 
-  def variableSpaces(self, which, network, enabled_variable_types):
+  def variableSpaces(self, what, network, enabled_variable_types):
 
-    if which == "variable_picking":
+    print("debugging -- variable spaces -- what:", what)
+    v_counter = 0
+    if what == "variable_picking":
       variable_space = self.index_accessible_variables_on_networks
-    elif which == "interface_picking":
+    elif what == "interface_picking":
       rule = "only local"
       networks = self.ontology_container.heirs_network_dictionary[network]
       variable_space = {}
@@ -1028,6 +1030,7 @@ class Variables(OrderedDict):
             for i in enabled_variable_types:
               if self[v].type == i:
                 variable_space[nw][c].add(v)
+                v_counter += 1
 
 
       print("debugging -- variable space",variable_space)
@@ -1047,7 +1050,8 @@ class Variables(OrderedDict):
     else:
       variable_space = self.index_networks_for_variable
 
-    return variable_space
+
+    return variable_space, v_counter
 
   def changeVariableAlias(self, variable_ID, language, new_alias):
     self[variable_ID].aliases[language] = new_alias

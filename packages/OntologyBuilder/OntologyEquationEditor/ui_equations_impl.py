@@ -113,7 +113,7 @@ class UI_Equations(QtWidgets.QWidget):
     #  physical, then the equation can be edited on physical even though it remains (now) on the macro layer.
 
     self.ui.labelNetwork.setText(network_for_variable)
-    self.__makePickVariableTable()
+    # self.__makePickVariableTable()
 
     self.operator_table = SingleListSelector(thelist=OPERATOR_SNIPS)
     self.operator_table.hide()
@@ -208,7 +208,7 @@ class UI_Equations(QtWidgets.QWidget):
     # self.ui.lineExpression.cursorWordForward(False)
 
   def resetEquationInterface(self):
-    self.__makePickVariableTable()
+    # self.__makePickVariableTable()
     self.ui_indices = SingleListSelector(self.index_list)
     self.ui_indices.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
     self.ui_indices.newSelection.connect(self.__insertSnipp)

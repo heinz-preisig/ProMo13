@@ -227,6 +227,9 @@ class UI_VariableTableDialog(VariableTable):
     # 5 indices
     # 6 equations
     # 7 delete
+    # 8 network
+    # 9 variable ID
+    #10 IRI
 
     c = int(item.column())
     r = int(item.row())
@@ -307,37 +310,6 @@ class UI_VariableTableDialog(VariableTable):
                                                  )
 
     self.variables.addNewVariable(ID=var_ID, **variable_record)
-
-    ## TODO: think about this once more -- problem is that one needs to define the variable first including units and dimensions. Thus a new function (button) must be used for this
-    # # RULE: if we do not define a port variable in class <<state>>, automatically an instantiation is created.
-    # if self.selected_variable_type != "state":
-    #   var = self.variables[var_ID]
-    #   value_internal = None
-    #   for id in self.variables:
-    #     if self.variables[id].label == "value":
-    #       value_internal = self.variables[id].aliases["global_ID"]
-    #
-    #   var_string = var.aliases["global_ID"]
-    #   if value_internal:
-    #     rhs = CODE["global_ID"]["operator"]["Instantiate"] + \
-    #                 CODE["global_ID"]["delimiter"]["("] + \
-    #                 var_string + \
-    #                 CODE["global_ID"]["delimiter"][","] + \
-    #                 value_internal + \
-    #                 CODE["global_ID"]["delimiter"][")"]
-    #   else:
-    #     rhs = CODE["global_ID"]["operator"]["Instantiate"] + \
-    #           CODE["global_ID"]["delimiter"]["("] + \
-    #           var_string + \
-    #           CODE["global_ID"]["delimiter"][")"]
-
-      # print("debugging")
-      #
-      # incidence_list = makeIncidentList(rhs)
-      # equation_record = makeCompletEquationRecord(rhs,network=self.network,incidence_list=incidence_list)
-      #
-      # self.variables.addEquation(var_ID, equation_record)
-
     self.variables.indexVariables()
     self.reset_table()
     enabled_columns = ENABLED_COLUMNS["edit"]["constant"]

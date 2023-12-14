@@ -114,7 +114,9 @@ class VariableTable(QtWidgets.QDialog):
 
   def makeTable(self):
     # Note: variable space generation has been centralised
-    self.variable_space = self.variables.variableSpaces(self.what, self.network, self.enabled_variable_types)
+    self.variable_space, no_of_variables = self.variables.variableSpaces(self.what, self.network, self.enabled_variable_types)
+    if (no_of_variables == 0) and (self.what == "variable_picking"):
+      print("debugging -- should build no table")
 
     variable_ID_list = self.makeVariableIDList()
 
@@ -237,3 +239,6 @@ class VariableTable(QtWidgets.QDialog):
   def on_pushInfo_pressed(self):
     msg_popup = UI_FileDisplayWindow(self.info_file)
     msg_popup.exec_()
+
+  def exit(self):
+    return

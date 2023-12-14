@@ -374,8 +374,8 @@ class UiOntologyDesign(QMainWindow):
   def on_pushShowVariables_pressed(self):
     # print("debugging -- make variable table")
     if self.current_network in self.ontology_container.interfaces:
-      print("debugging")
-      enabled_var_types = VARIABLE_TYPE_INTERFACES
+      # print("debugging")
+      enabled_var_types = [VARIABLE_TYPE_INTERFACES]
     else:
       enabled_var_types = self.variable_types_on_networks[self.current_network]
 
@@ -444,6 +444,7 @@ class UiOntologyDesign(QMainWindow):
       else:
         self.ui.pushAddIndex.hide()
     self.ui.pushInstantiate.show()
+    self.ui.pushShowVariables.show()
 
   @QtCore.pyqtSlot(str)
   def on_combo_InterConnectionNetwork_activated(self, choice):
@@ -457,6 +458,7 @@ class UiOntologyDesign(QMainWindow):
       self.__setupEdit("interface")
       self.__setupEditInterface()
       self.__showFilesControl()
+      self.ui.pushShowVariables.show()
 
   @QtCore.pyqtSlot(str)  # combo_IntraConnectionNetwork
   # def on_combo_IntraConnectionNetwork_activated(self, choice):
@@ -468,6 +470,8 @@ class UiOntologyDesign(QMainWindow):
   @QtCore.pyqtSlot(int)
   def on_tabWidget_currentChanged(self, which):
     print("debugging -- changed tab")
+    self.ui.pushShowVariables.hide()
+    self.current_network = None
     self.ui.combo_EditVariableTypes.hide()
 
   def __setupEditInterface(self):
