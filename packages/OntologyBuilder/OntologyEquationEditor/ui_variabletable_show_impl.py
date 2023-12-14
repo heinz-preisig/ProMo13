@@ -86,9 +86,6 @@ class UI_VariableTableShow(VariableTable):
     showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
                    "LaTex": roundButton(buttons["LaTex"], "LaTex", tooltip="make LaTeX document"),
                    "dot": roundButton(buttons["dot"], "dot_graph", tooltip="show graph"),
-                   # "info": roundButton(buttons["info"], "info", tooltip="information"),
-                   # "new" : roundButton(buttons["new"], "dependent_variable", tooltip="new dependent variable"),
-                   # "port": roundButton(buttons["port"], "port", tooltip="new port variable"),
                    }
 
     for b in buttons:
@@ -97,26 +94,8 @@ class UI_VariableTableShow(VariableTable):
         buttons[b].hide()
 
     buttons["LaTex"].hide()
+    buttons["dot"].hide()
 
-    # buttons = {}
-    # buttons["back"] = self.ui.pushFinished
-    # buttons["info"] = self.ui.pushInfo
-    # buttons["new"] = self.ui.pushNew
-    # buttons["port"] = self.ui.pushPort
-    # buttons["LaTex"] = self.ui.pushLaTex
-    # buttons["dot"] = self.ui.pushDot
-    # self.buttons = buttons
-    #
-    # roundButton(buttons["back"], "back", tooltip="go back")
-    # roundButton(buttons["info"], "info", tooltip="information")
-    # roundButton(buttons["new"], "new", tooltip="new variable")
-    # roundButton(buttons["port"], "port", tooltip="new port variable")
-    # roundButton(buttons["LaTex"], "LaTex", tooltip="make equation list and dot graph")
-    # roundButton(buttons["dot"], "dot_graph", tooltip="show dot graph variable/expression")
-    #
-    # for b in hidden:
-    #   buttons[b].hide()
-    # self.variable_list = []
     self.hide_columns = hide_columns
 
     self.setToolTips("show")

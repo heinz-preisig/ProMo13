@@ -16,7 +16,9 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 import os
+import time
 from datetime import datetime
+from pathlib import Path
 
 import subprocess
 from os.path import abspath
@@ -30,8 +32,6 @@ from jinja2 import FileSystemLoader
 
 from Common.classes import entity
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
-from Common.common_resources import getData
-from Common.common_resources import getEnumeratedData
 from Common.common_resources import invertDict
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions_equation_linking import VariantRecord
@@ -929,10 +929,6 @@ def getListOfBuddies(ontology_container, var_equ_tree, variable_ID):
 def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_graph_file=""):
   ontology_location = ontology_container.ontology_location
   ontology_name = ontology_container.ontology_name
-  # latex_equation_file = FILES["coded_equations"] % (ontology_location, "latex")
-  # latex_variable_file = FILES["coded_variables"] % (ontology_location, "latex")
-  # latex_equations = getData(latex_equation_file)
-  # compiled_variable_labels = getEnumeratedData(latex_variable_file)
   variables = ontology_container.variables
 
   latex_var_equ = []
@@ -944,9 +940,9 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
     component = assignments["nodes"][ID]
     if "E_" in component:
       _,eq_str_ID = component.split("_",1)
-      var_str_ID = equation_dictionary[eq_str_ID][0] #["variable_ID"]
+      var_str_ID = equation_dictionary[eq_str_ID][0]
       _,var_ID = var_str_ID.split("_",1)
-      lhs = equation_dictionary[eq_str_ID][1]["lhs"]["latex"]
+      lhs = variables[var_str_ID]["aliases"]["latex"]
       rhs = equation_dictionary[eq_str_ID][1]["rhs"]["latex"]
       eq = "%s := %s" % (lhs, rhs)
       s = [count, str(var_ID), ID, eq, str(variables[var_str_ID]["tokens"])]
@@ -970,7 +966,7 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
 
   # get variable in LaTex form
   root_var = assignments["root_variable"]
-  lhs = variables[root_var]["compiled_lhs"]["latex"] #compiled_variable_labels[root_var]
+  lhs = variables[root_var]["aliases"]["latex"] #compiled_variable_labels[root_var]
 
   latex_var_equ = reversed(latex_var_equ)
   THIS_DIR = dirname(abspath(__file__))
@@ -1003,6 +999,97 @@ def showPDF(file_name):
   args = ["evince", file_name]
   view_it = subprocess.Popen(args, start_new_session=True)
   out, error = view_it.communicate()
+
+
+def generateLatexImages(ontology_name, ontology_container):
+
+  # all_variables, _, all_equations = load_var_idx_eq_from_file(ontology_name)
+
+  variables = ontology_container.variables
+  equations = ontology_container.equation_dictionary
+  incidence_dictionary = ontology_container.incidence_dictionary
+  inv_incidence_dictionary = ontology_container.inv_incidence_dictionary
+
+  latex_folder_path =  Path(DIRECTORIES["latex_doc_location"] % ontology_name  )
+
+
+  latex_info = {}
+  modified_vars = []
+  for var_id in variables:
+    var_png_file_path = latex_folder_path / (var_id + ".png")
+    if os.path.exists(var_png_file_path): #.exists():
+      png_mod_date = datetime.fromtimestamp(var_png_file_path.stat().st_mtime)
+      modified = variables[var_id]["modified"]
+      date_format = "%Y-%m-%d %H:%M:%S"
+      var_mod_date = datetime.strptime(modified, date_format)
+      # if "165" in var_id:
+      #   print("got it",png_mod_date, var_mod_date,  png_mod_date > var_mod_date)
+      if png_mod_date > var_mod_date:
+        continue
+
+    var_latex_alias = variables[var_id]["aliases"]["latex"]
+    latex_info[var_id] = "$" + var_latex_alias + "$" #"$" + var.get_alias("latex") + "$"
+    modified_vars.append(var_id)
+    # self.writeMessage("modified variable", var_id)
+
+  for eq_id in equations: #, eq in all_equations.items():
+    eq_png_file_path = latex_folder_path / (eq_id + ".png")
+    if eq_png_file_path.exists():
+      png_mod_date = datetime.fromtimestamp(eq_png_file_path.stat().st_mtime)
+      modified = equations[eq_id]["modified"] #eq.get_mod_date()
+      date_format = "%Y-%m-%d %H:%M:%S"
+      eq_mod_date = datetime.strptime(modified, date_format)
+      if png_mod_date > eq_mod_date:
+        continue
+    (var_id,_) = incidence_dictionary[eq_id]
+    lhs = variables[var_id]["aliases"]["latex"]
+    rhs = equations[eq_id]["rhs"]["latex"] #eq.get_translation("latex")
+    # pp(latex_translation)
+    latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
+
+# pick up the equations that are modified due to changing variable
+  for var_id in modified_vars:
+    for eq_id in inv_incidence_dictionary[var_id]:
+      (var_id, _) = incidence_dictionary[eq_id]
+      lhs = variables[var_id]["aliases"]["latex"]
+      rhs = equations[eq_id]["rhs"]["latex"] #eq.get_translation("latex")
+      # pp(latex_translation)
+      latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
+
+
+
+  original_work_dir = os.getcwd()
+  os.chdir(latex_folder_path)
+#
+  for file_name, latex_alias in latex_info.items():
+    # f_path = DIRECTORIES["latex_location"]%self.ontology_name
+    # f_name = os.path.join(f_path, file_name)
+    # print(f_name)
+    f = open(file_name + ".tex", "w") # as f:
+    f.write("\\documentclass[border=1pt]{standalone}\n")
+    f.write("\\usepackage{amsmath}\n")
+    f.write("\\begin{document}\n")
+    f.write(latex_alias)
+    f.write("\\end{document}\n")
+    f.close()
+
+    print("......................................................................................................................")
+    time.sleep(1)
+
+    subprocess.run(["latex", "-interaction=nonstopmode", file_name + ".tex"],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["dvipng", "-D", "150", "-T", "tight", "-z", "9",
+                    "-bg", "Transparent", "-o", file_name + ".png", file_name + ".dvi"],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    print("cwd", os.getcwd(), "--", file_name + ".tex")
+
+    os.remove(file_name + ".tex")
+    os.remove(file_name + ".aux")
+    os.remove(file_name + ".log")
+    os.remove(file_name + ".dvi")
+
+  os.chdir(original_work_dir)
 
 def dateString():
   now = datetime.now()  # datetime object containing current date and time

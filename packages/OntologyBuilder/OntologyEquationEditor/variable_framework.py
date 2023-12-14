@@ -1012,24 +1012,38 @@ class Variables(OrderedDict):
     variables_not_instantiated = sorted(all_variables_in_network - variables_being_instantiate)
     return variables_not_instantiated
 
-  def variableSpaces(self, which, network, enabled_variable_types, rule=""):
+  def variableSpaces(self, which, network, enabled_variable_types):
 
     if which == "variable_picking":
       variable_space = self.index_accessible_variables_on_networks
     elif which == "interface_picking":
+      rule = "only local"
+      networks = self.ontology_container.heirs_network_dictionary[network]
+      variable_space = {}
+      for nw in networks: #self.index_definition_network_for_variable_component_class:
+        variable_space[nw] = {}
+        for c in self.index_definition_network_for_variable_component_class[nw]:
+          variable_space[nw][c] = set()
+          for v in self.index_definition_network_for_variable_component_class[nw][c]:
+            for i in enabled_variable_types:
+              if self[v].type == i:
+                variable_space[nw][c].add(v)
+
+
+      print("debugging -- variable space",variable_space)
       # left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
-      left_nw = network
-      if rule == "only local":
-        variable_space = {}
-        variable_space[network] = {}
-        for i in enabled_variable_types:
-          variable_space[network][i] = []
-        for ID in self:
-          v = self[ID]
-          if v.network == left_nw:
-            variable_space[network][v.type].append(ID)
-      else:
-        variable_space = self.index_accessible_variables_on_networks
+      # left_nw = network
+      # if rule == "only local":
+      #   variable_space = {}
+      #   variable_space[network] = {}
+      #   for i in enabled_variable_types:
+      #     variable_space[network][i] = []
+      #   for ID in self:
+      #     v = self[ID]
+      #     if v.network == left_nw:
+      #       variable_space[network][v.type].append(ID)
+      # else:
+      #   variable_space = self.index_accessible_variables_on_networks
     else:
       variable_space = self.index_networks_for_variable
 

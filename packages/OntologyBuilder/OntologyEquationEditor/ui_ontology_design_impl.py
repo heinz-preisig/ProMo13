@@ -59,8 +59,9 @@ from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.resources import makeInterfaceVariableName, sortingVariableAndEquationKeys
-# from OntologyBuilder.OntologyEquationEditor.resources import make_variable_equation_pngs
+from OntologyBuilder.OntologyEquationEditor.resources import makeInterfaceVariableName
+from OntologyBuilder.OntologyEquationEditor.resources import sortingVariableAndEquationKeys
+from OntologyBuilder.OntologyEquationEditor.resources import generateLatexImages
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.resources import revertInterfaceVariableName
 from OntologyBuilder.OntologyEquationEditor.tpg import LexicalError
@@ -83,9 +84,8 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
 
-
-from Common.classes.io import translate_equations         # must be last
-from Common.classes.io import generate_latex_images       # must be last
+# Note: keep
+#from Common.classes.io import translate_equations         # must be last
 
 
 # RULE: fixed wired for initialisation -- needs to be more generic
@@ -340,16 +340,16 @@ class UiOntologyDesign(QMainWindow):
     self.pick_instantiate.exec_()
 
   def on_pushCompile_pressed(self):
-
-    for l in LANGUAGES["code_generation"]:
-      translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
-      # put them into the container
-      for eqID in translated_equations:
-        var_ID, _ = self.variables.incidence_dictionary[eqID]
-        self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
-        self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
-
-      self.writeMessage("finished compilation into ", l)
+    # NOTE: keep
+    # for l in LANGUAGES["code_generation"]:
+    #   translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
+    #   # put them into the container
+    #   for eqID in translated_equations:
+    #     var_ID, _ = self.variables.incidence_dictionary[eqID]
+    #     self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
+    #     self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
+    #
+    #   self.writeMessage("finished compilation into ", l)
 
     # make latex lhs
     for varID in self.variables:
@@ -360,6 +360,7 @@ class UiOntologyDesign(QMainWindow):
 
     # make latex rhs and put into container
     self.__compile("latex")
+
 
     self.__makeLatexDocument()
     self.writeMessage("finished latex document")
@@ -377,6 +378,10 @@ class UiOntologyDesign(QMainWindow):
       enabled_var_types = VARIABLE_TYPE_INTERFACES
     else:
       enabled_var_types = self.variable_types_on_networks[self.current_network]
+
+    # update incidence dictionaries
+    self.updateLatexImages()
+
     variable_table = UI_VariableTableShow("All defined variables",
                                           self.ontology_container,
                                           self.variables,
@@ -682,7 +687,14 @@ class UiOntologyDesign(QMainWindow):
 
     self.on_pushCompile_pressed()
 
-    self.generate_latex_images(self.ontology_name)
+    # update incidence matrices
+    self.updateLateImages()
+
+  def updateLatexImages(self):
+    (self.ontology_container.incidence_dictionary,
+     self.ontology_container.inv_incidence_dictionary) = makeIncidenceDictionaries(
+            self.ontology_container.variables)
+    generateLatexImages(self.ontology_name, self.ontology_container)
 
   def __makeRenderedOutput(self):
     """idea is to ease the repetition of inputting equations by writing them on a file."""
