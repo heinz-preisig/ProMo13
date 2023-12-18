@@ -285,7 +285,7 @@ class UI_VariableTableDialog(VariableTable):
     elif c == 6:
       # print("clicked 6 - equations ", selected_number_of_equations)
       if v.port_variable:
-        reply = makeMessageBox("this is a port variable -- you cannot define a equation for it?", buttons=["close"])
+        reply = makeMessageBox("this is a port variable -- you cannot define a equation for it", buttons=["close"])
         return
       self.new_equation.emit(selected_ID)
     elif c == 7:
