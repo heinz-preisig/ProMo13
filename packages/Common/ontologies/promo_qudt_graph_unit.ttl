@@ -3,7 +3,29 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://qudt.org/vocab/unit/A> a ns1:Unit ;
-    rdfs:label "Ampere"@en ;
+    rdfs:label "أمبير"@ar,
+        "ампер"@bg,
+        "ampér"@cs,
+        "Ampere"@de,
+        "αμπέρ"@el,
+        "ampere"@en,
+        "amperio"@es,
+        "آمپر"@fa,
+        "ampère"@fr,
+        "אמפר"@he,
+        "एम्पीयर"@hi,
+        "amper"@hu,
+        "ampere"@it,
+        "アンペア"@ja,
+        "amperium"@la,
+        "ampere"@ms,
+        "amper"@pl,
+        "ampere"@pt,
+        "amper"@ro,
+        "ампер"@ru,
+        "amper"@sl,
+        "amper"@tr,
+        "安培"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Ampere"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/A-HR> a ns1:DerivedUnit,
@@ -33,18 +55,56 @@
 <http://qudt.org/vocab/unit/A-PER-DEG_C> a ns1:Unit ;
     rdfs:label "Ampere per Degree Celsius"@en .
 
+<http://qudt.org/vocab/unit/A-PER-GM> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Ampere per Gram"@en .
+
 <http://qudt.org/vocab/unit/A-PER-J> a ns1:Unit ;
     rdfs:label "Ampere per Joule"@en .
 
 <http://qudt.org/vocab/unit/A-PER-M> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Ampere per Metre"@en,
-        "Ampere per Meter"@en-us .
+    rdfs:label "مقياس التبادل، الأس السالب للمتر"@ar,
+        "ampérů na metr"@cs,
+        "Ampere je Meter"@de,
+        "ampere per metre"@en,
+        "Ampere per Meter"@en-us,
+        "amperio por metro"@es,
+        "آمپر بر متر"@fa,
+        "ampère par mètre"@fr,
+        "प्रति मीटर एम्पीयर"@hi,
+        "ampere al metro"@it,
+        "アンペア毎メートル"@ja,
+        "ampere per meter"@ms,
+        "amper na metr"@pl,
+        "ampere por metro"@pt,
+        "ampere pe metru"@ro,
+        "ампер на метр"@ru,
+        "amper na meter"@sl,
+        "amper bölü metre"@tr,
+        "安培每米"@zh .
 
 <http://qudt.org/vocab/unit/A-PER-M2> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Ampere per Square Metre"@en,
-        "Ampere per Square Meter"@en-us .
+    rdfs:label "أمبير في المتر المربع"@ar,
+        "ampér na metr čtvereční"@cs,
+        "Ampere je Quadratmeter"@de,
+        "ampere per square metre"@en,
+        "Ampere per Square Meter"@en-us,
+        "amperio por metro cuadrado"@es,
+        "آمپر بر مترمربع"@fa,
+        "ampère par mètre carré"@fr,
+        "एम्पीयर प्रति वर्ग मीटर"@hi,
+        "ampere al metro quadrato"@it,
+        "アンペア毎平方メートル"@ja,
+        "ampere per meter persegi"@ms,
+        "amper na metr kwadratowy"@pl,
+        "ampere por metro quadrado"@pt,
+        "ampere pe metru pătrat"@ro,
+        "ампер на квадратный метр"@ru,
+        "amper na kvadratni meter"@sl,
+        "amper bölü metre kare"@tr,
+        "安培每平方米"@zh .
 
 <http://qudt.org/vocab/unit/A-PER-M2-K2> a ns1:Unit ;
     rdfs:label "Ampere per Square Metre Square Kelvin"@en,
@@ -77,16 +137,6 @@
         ns1:Unit ;
     rdfs:label "Acre Foot"@en .
 
-<http://qudt.org/vocab/unit/AFN> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Afghani"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Afghani"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/AMD> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Armenian Dram"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Armenian_dram"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/AMU> a ns1:Unit ;
     rdfs:label "Atomic mass unit"@en .
 
@@ -108,11 +158,6 @@
 
 <http://qudt.org/vocab/unit/ARE> a ns1:Unit ;
     rdfs:label "are"@en .
-
-<http://qudt.org/vocab/unit/ARS> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Argentine Peso"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Argentine_peso"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/AT> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -144,21 +189,6 @@
     ns1:dbpediaMatch "http://dbpedia.org/resource/Astronomical_unit"^^xsd:anyURI ;
     ns1:plainTextDescription "An astronomical unit (abbreviated as AU, au, a.u., or ua) is a unit of length equal to 149,597,870,700 metres (92,955,807.273 mi) or approximately the mean Earth Sun distance. The symbol ua is recommended by the International Bureau of Weights and Measures, and the international standard ISO 80000, while au is recommended by the International Astronomical Union, and is more common in Anglosphere countries. In general, the International System of Units only uses capital letters for the symbols of units which are named after individual scientists, while au or a.u. can also mean atomic unit or even arbitrary unit. However, the use of AU to refer to the astronomical unit is widespread. The astronomical constant whose value is one astronomical unit is referred to as unit distance and is given the symbol A. [Wikipedia]" .
 
-<http://qudt.org/vocab/unit/AUD> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Australian Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Australian_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/AWG> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Aruban Guilder"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Aruban_florin"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/AZN> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Azerbaijanian Manat"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Azerbaijani_manat"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/A_Ab> a ns1:Unit ;
     rdfs:label "Abampere"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Abampere"^^xsd:anyURI ;
@@ -186,11 +216,11 @@
 
 <http://qudt.org/vocab/unit/AttoFARAD> a ns1:Unit ;
     rdfs:label "Attofarad"@en ;
-    ns1:plainTextDescription "0,000 000 000 000 000 001-fold of the SI derived unit farad" .
+    ns1:plainTextDescription "0.000000000000000001-fold of the SI derived unit farad" .
 
 <http://qudt.org/vocab/unit/AttoJ> a ns1:Unit ;
     rdfs:label "Attojoule"@en ;
-    ns1:plainTextDescription "0,000 000 000 000 000 001-fold of the derived SI unit joule" .
+    ns1:plainTextDescription "0.000000000000000001-fold of the derived SI unit joule" .
 
 <http://qudt.org/vocab/unit/AttoJ-SEC> a ns1:Unit ;
     rdfs:label "Attojoule Second"@en ;
@@ -199,7 +229,28 @@
 <http://qudt.org/vocab/unit/B> a ns1:DimensionlessUnit,
         ns1:LogarithmicUnit,
         ns1:Unit ;
-    rdfs:label "Bel"@en ;
+    rdfs:label "بل"@ar,
+        "бел"@bg,
+        "bel"@cs,
+        "Bel"@de,
+        "μπέλ"@el,
+        "bel"@en,
+        "belio"@es,
+        "بل"@fa,
+        "bel"@fr,
+        "בל"@he,
+        "बेल"@hi,
+        "bel"@hu,
+        "bel"@it,
+        "ベル"@ja,
+        "bel"@ms,
+        "bel"@pl,
+        "bel"@pt,
+        "bel"@ro,
+        "бел"@ru,
+        "bel"@sl,
+        "bel"@tr,
+        "贝"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Bel"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/BAN> a ns1:Unit ;
@@ -239,11 +290,6 @@
     rdfs:label "Barye"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Barye"^^xsd:anyURI ;
     ns1:latexDefinition "\\(g/(cm\\cdot s{2}\\)"^^ns1:LatexString .
-
-<http://qudt.org/vocab/unit/BBD> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Barbados Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Barbadian_dollar"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/BBL> a ns1:Unit ;
     rdfs:label "Barrel"@en ;
@@ -293,11 +339,6 @@
     rdfs:label "Barrel (US Petroleum) Per Second"@en ;
     ns1:plainTextDescription "unit of the volume barrel (US petroleum) for crude oil according to the Anglo-American system of units divided by the SI base unit second" .
 
-<http://qudt.org/vocab/unit/BDT> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Bangladeshi Taka"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Bangladeshi_taka"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/BEAT-PER-MIN> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Heart Beats per Minute"@en .
@@ -305,11 +346,6 @@
 <http://qudt.org/vocab/unit/BFT> a ns1:Unit ;
     rdfs:label "Beaufort"@en ;
     ns1:plainTextDescription "unit for classification of winds according to their speed, developed by Sir Francis Beaufort as measure for the over-all behaviour of a ship's sail at different wind speeds" .
-
-<http://qudt.org/vocab/unit/BHD> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Bahraini Dinar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Bahraini_dinar"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/BIOT> a ns1:Unit ;
     rdfs:label "Biot"@en ;
@@ -326,7 +362,29 @@
 
 <http://qudt.org/vocab/unit/BQ> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Becquerel"@en ;
+    rdfs:label "بيكريل"@ar,
+        "бекерел"@bg,
+        "becquerel"@cs,
+        "Becquerel"@de,
+        "μπεκερέλ"@el,
+        "becquerel"@en,
+        "becquerel"@es,
+        "بکرل"@fa,
+        "becquerel"@fr,
+        "בקרל"@he,
+        "बैक्वेरल"@hi,
+        "becquerel"@hu,
+        "becquerel"@it,
+        "ベクレル"@ja,
+        "becquerelium"@la,
+        "becquerel"@ms,
+        "bekerel"@pl,
+        "becquerel"@pt,
+        "becquerel"@ro,
+        "беккерель"@ru,
+        "becquerel"@sl,
+        "bekerel"@tr,
+        "贝克勒尔"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Becquerel"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/BQ-PER-KiloGM> a ns1:DerivedUnit,
@@ -354,11 +412,6 @@
 <http://qudt.org/vocab/unit/BREATH-PER-MIN> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Breath per Minute"@en .
-
-<http://qudt.org/vocab/unit/BSD> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Bahamian Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Bahamian_dollar"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/BTU_IT> a ns1:Unit ;
     rdfs:label "British Thermal Unit (International Definition)"@en .
@@ -569,73 +622,75 @@
     rdfs:label "Bushel (US Dry) Per Second"@en ;
     ns1:plainTextDescription "unit of the volume bushel (US dry) for dry measure according to the Anglo-American system of units divided by the SI base unit second" .
 
-<http://qudt.org/vocab/unit/BYR> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Belarussian Ruble"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Belarusian_ruble"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/BYTE> a ns1:CountingUnit,
         ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Byte"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Byte"^^xsd:anyURI .
 
-<http://qudt.org/vocab/unit/BelizeDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Belize Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Belize_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/BermudaDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Bermuda Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Bermudian_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/BolivianMvdol> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Bolivian Mvdol (Funds code)"@en .
-
-<http://qudt.org/vocab/unit/Boliviano> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Boliviano"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Bolivian_boliviano"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/BrazilianReal> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Brazilian Real"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Brazilian_real"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/BruneiDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Brunei Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Brunei_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/BulgarianLev> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Bulgarian Lev"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Bulgarian_lev"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/BurundianFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Burundian Franc"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Burundian_franc"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/C> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Coulomb"@en ;
+    rdfs:label "كولوم"@ar,
+        "кулон"@bg,
+        "coulomb"@cs,
+        "Coulomb"@de,
+        "κουλόμπ"@el,
+        "coulomb"@en,
+        "culombio"@es,
+        "کولمب/کولن"@fa,
+        "coulomb"@fr,
+        "קולון"@he,
+        "कूलम्ब"@hi,
+        "coulomb"@hu,
+        "coulomb"@it,
+        "クーロン"@ja,
+        "coulombium"@la,
+        "coulomb"@ms,
+        "kulomb"@pl,
+        "coulomb"@pt,
+        "coulomb"@ro,
+        "кулон"@ru,
+        "coulomb"@sl,
+        "coulomb"@tr,
+        "库伦"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Coulomb"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/C-M> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Coulomb Metre"@en,
-        "Coulomb Meter"@en-us .
+    rdfs:label "كولوم متر"@ar,
+        "coulomb metr"@cs,
+        "Coulombmeter"@de,
+        "coulomb metre"@en,
+        "Coulomb Meter"@en-us,
+        "culombio metro"@es,
+        "نیوتون متر"@fa,
+        "coulomb-mètre"@fr,
+        "कूलम्ब मीटर"@hi,
+        "coulomb per metro"@it,
+        "クーロンメートル"@ja,
+        "coulomb meter"@ms,
+        "coulomb-metro"@pt,
+        "coulomb-metru"@ro,
+        "кулон-метр"@ru,
+        "coulomb metre"@tr,
+        "库伦米"@zh .
 
 <http://qudt.org/vocab/unit/C-M2> a ns1:Unit ;
-    rdfs:label "Coulomb Square Metre"@en,
-        "Coulomb Square Meter"@en-us .
+    rdfs:label "Coulomb mal Quadratmeter"@de,
+        "coulomb square metre"@en,
+        "Coulomb Square Meter"@en-us,
+        "کولن متر مربع"@fa,
+        "coulomb per metro quadrato"@it,
+        "coulomb meter persegi"@ms,
+        "库仑平方米"@zh .
 
 <http://qudt.org/vocab/unit/C-M2-PER-V> a ns1:Unit ;
-    rdfs:label "Coulomb Square Metre Per Volt"@en,
-        "Coulomb Square Meter Per Volt"@en-us .
+    rdfs:label "Coulomb mal Quadratmeter je Volt"@de,
+        "coulomb square metre per volt"@en,
+        "Coulomb Square Meter Per Volt"@en-us,
+        "کولن متر مربع بر ولت"@fa,
+        "coulomb per metro quadrato al volt"@it,
+        "库伦平方米每伏特"@zh .
 
 <http://qudt.org/vocab/unit/C-PER-CentiM2> a ns1:Unit ;
     rdfs:label "Coulomb Per Square Centimetre"@en,
@@ -661,8 +716,24 @@
         "Coulomb per Meter"@en-us .
 
 <http://qudt.org/vocab/unit/C-PER-M2> a ns1:Unit ;
-    rdfs:label "Coulomb per Square Metre"@en,
-        "Coulomb per Square Meter"@en-us .
+    rdfs:label "كولوم في المتر المربع"@ar,
+        "coulomb na metr čtvereční"@cs,
+        "Coulomb je Quadratmeter"@de,
+        "coulomb per square metre"@en,
+        "Coulomb per Square Meter"@en-us,
+        "culombio por metro cuadrado"@es,
+        "کولمب/کولن بر مترمربع"@fa,
+        "coulomb par mètre carré"@fr,
+        "कूलम्ब प्रति वर्ग मीटर"@hi,
+        "coulomb al metro quadrato"@it,
+        "クーロン毎平方メートル"@ja,
+        "coulomb per meter persegi"@ms,
+        "kulomb na metr kwadratowy"@pl,
+        "coulomb por metro quadrado"@pt,
+        "coulomb pe metru pătrat"@ro,
+        "кулон на квадратный метр"@ru,
+        "coulomb bölü metre kare"@tr,
+        "库伦每平方米"@zh .
 
 <http://qudt.org/vocab/unit/C-PER-M3> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -683,9 +754,9 @@
         "Coulomb Per Cubic Millimeter"@en-us ;
     ns1:plainTextDescription "derived SI unit coulomb divided by the 0.000 000 001-fold of the power of the SI base unit metre by exponent 3" .
 
-<http://qudt.org/vocab/unit/C2-M-PER-J> a ns1:Unit ;
-    rdfs:label "Square Coulomb Metre per Joule"@en,
-        "Square Coulomb Meter per Joule"@en-us .
+<http://qudt.org/vocab/unit/C2-M2-PER-J> a ns1:Unit ;
+    rdfs:label "Square Coulomb Square Metre per Joule"@en,
+        "Square Coulomb Square Meter per Joule"@en-us .
 
 <http://qudt.org/vocab/unit/C3-M-PER-J2> a ns1:Unit ;
     rdfs:label "Cubic Coulomb Metre per Square Joule"@en,
@@ -694,11 +765,6 @@
 <http://qudt.org/vocab/unit/C4-M4-PER-J3> a ns1:Unit ;
     rdfs:label "Quartic Coulomb Metre per Cubic Energy"@en,
         "Quartic Coulomb Meter per Cubic Energy"@en-us .
-
-<http://qudt.org/vocab/unit/CAD> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Canadian Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Canadian_dollar"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/CAL_15_DEG_C> a ns1:Unit ;
     rdfs:label "Calorie (15 Degrees C)"@en ;
@@ -789,8 +855,34 @@
     rdfs:label "Cases per 1000 individuals per year"@en ;
     ns1:plainTextDescription "The typical expression of morbidity rate, expressed as cases per 1000 individuals, per year." .
 
+<http://qudt.org/vocab/unit/CASES-PER-KiloINDIV-YR> a ns1:Unit ;
+    rdfs:label "Cases per 1000 individuals per year"@en ;
+    ns1:plainTextDescription "The typical expression of morbidity rate, expressed as cases per 1000 individuals, per year." .
+
 <http://qudt.org/vocab/unit/CD> a ns1:Unit ;
-    rdfs:label "Candela"@en ;
+    rdfs:label "قنديلة"@ar,
+        "кандела"@bg,
+        "kandela"@cs,
+        "Candela"@de,
+        "καντέλα"@el,
+        "candela"@en,
+        "candela"@es,
+        "کاندلا"@fa,
+        "candela"@fr,
+        "קנדלה"@he,
+        "कॅन्डेला"@hi,
+        "kandela"@hu,
+        "candela"@it,
+        "カンデラ"@ja,
+        "candela"@la,
+        "kandela"@ms,
+        "kandela"@pl,
+        "candela"@pt,
+        "candelă"@ro,
+        "кандела"@ru,
+        "kandela"@sl,
+        "candela"@tr,
+        "坎德拉"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Candela"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/CD-PER-IN2> a ns1:DerivedUnit,
@@ -798,7 +890,7 @@
     rdfs:label "Candela per Square Inch"@en .
 
 <http://qudt.org/vocab/unit/CD-PER-LM> a ns1:Unit ;
-    rdfs:label "Candela per Lumen" .
+    rdfs:label "Candela per Lumen"@en .
 
 <http://qudt.org/vocab/unit/CD-PER-M2> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -865,21 +957,6 @@
 <http://qudt.org/vocab/unit/C_Stat-PER-MOL> a ns1:Unit ;
     rdfs:label "Statcoulomb per Mole"@en .
 
-<http://qudt.org/vocab/unit/CapeVerdeEscudo> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Cape Verde Escudo"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Cape_Verdean_escudo"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/CaymanIslandsDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Cayman Islands Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Cayman_Islands_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Cedi> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Cedi"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Ghanaian_cedi"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/CentiBAR> a ns1:Unit ;
     rdfs:label "Centibar"@en .
 
@@ -926,6 +1003,9 @@
     rdfs:label "Centimetre per Square Second"@en,
         "Centimeter per Square Second"@en-us .
 
+<http://qudt.org/vocab/unit/CentiM-PER-YR> a ns1:Unit ;
+    rdfs:label "Centimetres per year"@en .
+
 <http://qudt.org/vocab/unit/CentiM-SEC-DEG_C> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Centimetre Second Degree Celsius"@en,
@@ -943,6 +1023,10 @@
 
 <http://qudt.org/vocab/unit/CentiM2-PER-CentiM3> a ns1:Unit ;
     rdfs:label "Square centimetres per cubic centimetre"@en .
+
+<http://qudt.org/vocab/unit/CentiM2-PER-GM> a ns1:Unit ;
+    rdfs:label "Square centimetres per gram"@en,
+        "Square centimeters per gram"@en-us .
 
 <http://qudt.org/vocab/unit/CentiM2-PER-SEC> a ns1:Unit ;
     rdfs:label "Square centimetres per second"@en .
@@ -965,22 +1049,26 @@
 <http://qudt.org/vocab/unit/CentiM3-PER-DAY> a ns1:Unit ;
     rdfs:label "Cubic Centimetre Per Day"@en,
         "Cubic Centimeter Per Day"@en-us ;
-    ns1:plainTextDescription "0,000 001-fold of the power of the SI base unit metre with the exponent 3 divided by the unit day" .
+    ns1:plainTextDescription "0.000001-fold of the power of the SI base unit metre with the exponent 3 divided by the unit day" .
+
+<http://qudt.org/vocab/unit/CentiM3-PER-GM> a ns1:Unit ;
+    rdfs:label "Cubic Centimetres per Gram"@en,
+        "Cubic Centimeters per Gram"@en-us .
 
 <http://qudt.org/vocab/unit/CentiM3-PER-HR> a ns1:Unit ;
     rdfs:label "Cubic Centimetre Per Hour"@en,
         "Cubic Centimeter Per Hour"@en-us ;
-    ns1:plainTextDescription "0,000 001-fold of the power of the SI base unit metre with the exponent 3 divided by the unit hour" .
+    ns1:plainTextDescription "0.000001-fold of the power of the SI base unit metre with the exponent 3 divided by the unit hour" .
 
 <http://qudt.org/vocab/unit/CentiM3-PER-K> a ns1:Unit ;
     rdfs:label "Cubic Centimetre Per Kelvin"@en,
         "Cubic Centimeter Per Kelvin"@en-us ;
-    ns1:plainTextDescription "0,000 001-fold of the power of the SI base unit metre with the exponent 3 divided by the SI base unit kelvin" .
+    ns1:plainTextDescription "0.000001-fold of the power of the SI base unit metre with the exponent 3 divided by the SI base unit kelvin" .
 
 <http://qudt.org/vocab/unit/CentiM3-PER-M3> a ns1:Unit ;
     rdfs:label "Cubic Centimetre Per Cubic Metre"@en,
         "Cubic Centimeter Per Cubic Meter"@en-us ;
-    ns1:plainTextDescription "volume ratio consisting of the 0.000 001-fold of the power of the SI base unit metre with the exponent 3 divided by the power of the SI base unit metre with the exponent 3" .
+    ns1:plainTextDescription "volume ratio consisting of the 0.000001-fold of the power of the SI base unit metre with the exponent 3 divided by the power of the SI base unit metre with the exponent 3" .
 
 <http://qudt.org/vocab/unit/CentiM3-PER-MIN> a ns1:Unit ;
     rdfs:label "Cubic Centimetre Per Minute"@en,
@@ -1002,14 +1090,18 @@
         "Cubic Centimeter Per Second"@en-us ;
     ns1:plainTextDescription "0,000 001-fold of the power of the SI base unit metre with the exponent 3 divided by the SI base unit second" .
 
+<http://qudt.org/vocab/unit/CentiMOL> a ns1:Unit ;
+    rdfs:label "CentiMole"@en .
+
 <http://qudt.org/vocab/unit/CentiMOL-PER-KiloGM> a ns1:Unit ;
     rdfs:label "Centimole per kilogram"@en ;
     ns1:plainTextDescription "1/100 of SI unit of amount of substance per kilogram" .
 
+<http://qudt.org/vocab/unit/CentiMOL-PER-L> a ns1:Unit ;
+    rdfs:label "Centimole per litre"@en .
+
 <http://qudt.org/vocab/unit/CentiM_H2O> a ns1:Unit ;
-    rdfs:label "Centimetre of Water"@en,
-        "Conventional Centimetre Of Water"@en,
-        "Centimeter of Water"@en-us,
+    rdfs:label "Conventional Centimetre Of Water"@en,
         "Conventional Centimeter Of Water"@en-us ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Centimetre_of_water"^^xsd:anyURI ;
     ns1:plainTextDescription "non SI conforming unit of pressure that corresponds to the static pressure generated by a water column with a height of 1 centimetre" .
@@ -1018,6 +1110,9 @@
     rdfs:label "Centimetre Of Mercury"@en,
         "Centimeter Of Mercury"@en-us ;
     ns1:plainTextDescription "not SI conform unit of the pressure, that corresponds with the static pressure generated by a mercury column with the height of 1 centimetre" .
+
+<http://qudt.org/vocab/unit/CentiN> a ns1:Unit ;
+    rdfs:label "CentiNewton"@en .
 
 <http://qudt.org/vocab/unit/CentiN-M> a ns1:Unit ;
     rdfs:label "Centinewton Metre"@en,
@@ -1035,58 +1130,15 @@
 <http://qudt.org/vocab/unit/CentiST> a ns1:Unit ;
     rdfs:label "Centistokes"@en .
 
-<http://qudt.org/vocab/unit/ChileanPeso> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Chilean Peso"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Chilean_peso"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/Ci> a ns1:Unit ;
     rdfs:label "Curie"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Curie"^^xsd:anyURI .
 
-<http://qudt.org/vocab/unit/ColombianPeso> a ns1:CurrencyUnit,
+<http://qudt.org/vocab/unit/DARCY> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Colombian Peso"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Colombian_peso"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/ComoroFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Comoro Franc"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Comorian_franc"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/ConvertibleMark> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Convertible Marks"@en .
-
-<http://qudt.org/vocab/unit/CordobaOro> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Cordoba Oro"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Nicaraguan_c%C3%B3rdoba"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/CostaRicanColon> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Costa Rican Colon"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Costa_Rican_col%C3%B3n"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/CroatianKuna> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Croatian Kuna"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Croatian_kuna"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/CubanPeso> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Cuban Peso"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Cuban_peso"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/CyprusPound> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Cyprus Pound"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Cypriot_pound"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/CzechKoruna> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Czech Koruna"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Czech_koruna"^^xsd:anyURI .
+    rdfs:label "Darcy"@en ;
+    ns1:dbpediaMatch "http://dbpedia.org/resource/Darcy_(unit)"^^xsd:anyURI ;
+    ns1:plainTextDescription "The darcy (d) is a unit of permeability named after Henry Darcy. It is not an SI unit, but it is widely used in petroleum engineering and geology. The unit has also been used in biophysics and biomechanics, where the flow of fluids such as blood through capillary beds and cerebrospinal fluid through the brain interstitial space is being examined. A darcy has dimensional units of length²." .
 
 <http://qudt.org/vocab/unit/DAY> a ns1:Unit ;
     rdfs:label "Day"@en ;
@@ -1102,6 +1154,14 @@
 <http://qudt.org/vocab/unit/DEATHS-PER-1000I-YR> a ns1:Unit ;
     rdfs:label "Deaths per 1000 individuals per year"@en ;
     ns1:plainTextDescription "The typical expression of mortality rate, expressed as deaths per 1000 individuals, per year." .
+
+<http://qudt.org/vocab/unit/DEATHS-PER-KiloINDIV-YR> a ns1:Unit ;
+    rdfs:label "Deaths per 1000 individuals per year"@en ;
+    ns1:plainTextDescription "The typical expression of mortality rate, expressed as deaths per 1000 individuals, per year." .
+
+<http://qudt.org/vocab/unit/DEATHS-PER-MegaINDIV-YR> a ns1:Unit ;
+    rdfs:label "Deaths per Million individuals per year"@en ;
+    ns1:plainTextDescription "The expression of mortality rate, expressed as deaths per Million individuals, per year." .
 
 <http://qudt.org/vocab/unit/DECADE> a ns1:DimensionlessUnit,
         ns1:LogarithmicUnit,
@@ -1172,7 +1232,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/DEG_C> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Degree Celsius"@en ;
+    rdfs:label "درجة مئوية"@ar,
+        "градус Целзий"@bg,
+        "stupně celsia"@cs,
+        "Grad Celsius"@de,
+        "βαθμός Κελσίου"@el,
+        "degree Celsius"@en,
+        "grado celsius"@es,
+        "درجه سانتی گراد/سلسیوس"@fa,
+        "degré celsius"@fr,
+        "צלזיוס"@he,
+        "सेल्सियस"@hi,
+        "Celsius-fok"@hu,
+        "grado celsius"@it,
+        "セルシウス度"@ja,
+        "gradus celsii"@la,
+        "darjah celsius"@ms,
+        "stopień celsjusza"@pl,
+        "grau celsius"@pt,
+        "grad celsius"@ro,
+        "градус Цельсия"@ru,
+        "stopinja Celzija"@sl,
+        "celsius"@tr,
+        "摄氏度"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Celsius"^^xsd:anyURI ;
     ns1:latexDefinition "\\(\\,^{\\circ}{\\rm C}\\)"^^ns1:LatexString .
 
@@ -1309,24 +1391,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "Dyne Second Per Cubic Centimeter"@en-us ;
     ns1:plainTextDescription "CGS unit of the acoustic image impedance of the medium" .
 
-<http://qudt.org/vocab/unit/DZD> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Algerian Dinar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Algerian_dinar"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/Da> a ns1:Unit ;
     rdfs:label "Dalton"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Dalton"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Dalasi> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Dalasi"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Gambian_dalasi"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/DanishKrone> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Danish Krone"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Danish_krone"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/Debye> a ns1:Unit ;
     rdfs:label "Debye"@en ;
@@ -1444,16 +1511,26 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "Cubic Decimeter Per Second"@en-us ;
     ns1:plainTextDescription "0,001-fold of the power of the SI base unit metre with the exponent 3 divided by the unit for time second" .
 
+<http://qudt.org/vocab/unit/DeciN> a ns1:Unit ;
+    rdfs:label "DeciNewton"@en .
+
 <http://qudt.org/vocab/unit/DeciN-M> a ns1:Unit ;
     rdfs:label "Decinewton Metre"@en,
         "Decinewton Meter"@en-us ;
     ns1:plainTextDescription "0.1-fold of the product of the derived SI unit joule and the SI base unit metre" .
+
+<http://qudt.org/vocab/unit/DeciS> a ns1:Unit ;
+    rdfs:label "DeciSiemens"@en .
 
 <http://qudt.org/vocab/unit/DeciS-PER-M> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "decisiemens per metre"@en,
         "decisiemens per meter"@en-us ;
     ns1:plainTextDescription "Decisiemens per metre." .
+
+<http://qudt.org/vocab/unit/DeciSEC> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "decisecond"@en .
 
 <http://qudt.org/vocab/unit/DeciTONNE> a ns1:Unit ;
     rdfs:label "DeciTonne"@en .
@@ -1462,29 +1539,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Metric DeciTON"@en ;
     ns1:plainTextDescription "100-fold of the SI base unit kilogram" .
 
-<http://qudt.org/vocab/unit/Denar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Denar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Macedonian_denar"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/Denier> a ns1:Unit ;
     rdfs:label "Denier"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Denier"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/DjiboutiFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Djibouti Franc"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Djiboutian_franc"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Dobra> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Dobra"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Dobra"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/DominicanPeso> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Dominican Peso"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Dominican_peso"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/E> a ns1:Unit ;
     rdfs:label "Elementary Charge"@en .
@@ -1567,44 +1624,8 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 0.0583 Neptune mass (Neptune has 17.147 Earth masses)[4]
 0.000 003 003 Solar mass (\\(M_{\\odot}\\)) (The Sun has 332946 Earth masses)"""^^ns1:LatexString .
 
-<http://qudt.org/vocab/unit/EastCaribbeanDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "East Caribbean Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/East_Caribbean_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/EgyptianPound> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Egyptian Pound"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Egyptian_pound"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/ElementaryCharge> a ns1:Unit ;
     rdfs:label "Elementary Charge"@en .
-
-<http://qudt.org/vocab/unit/EthiopianBirr> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Ethiopian Birr"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Ethiopian_birr"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Euro> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Euro"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Euro"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/EuropeanCompositeUnit> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "European Composite Unit (EURCO) (Bonds market unit)"@en .
-
-<http://qudt.org/vocab/unit/EuropeanMonetaryUnit> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "European Monetary Unit (E.M.U.-6) (Bonds market unit)"@en .
-
-<http://qudt.org/vocab/unit/EuropeanUnitOfAccount17> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "European Unit of Account 17 (E.U.A.-17) (Bonds market unit)"@en .
-
-<http://qudt.org/vocab/unit/EuropeanUnitOfAccount9> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "European Unit of Account 9 (E.U.A.-9) (Bonds market unit)"@en .
 
 <http://qudt.org/vocab/unit/ExaBYTE> a ns1:CountingUnit,
         ns1:Unit ;
@@ -1617,7 +1638,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/ExaJ> a ns1:Unit ;
     rdfs:label "Exajoule"@en ;
-    ns1:plainTextDescription "1 000 000 000 000 000 000-fold of the derived SI unit joule" .
+    ns1:plainTextDescription "1,000,000,000,000,000,000-fold of the derived SI unit joule" .
 
 <http://qudt.org/vocab/unit/ExbiBYTE> a ns1:CountingUnit,
         ns1:Unit ;
@@ -1632,7 +1653,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/FARAD> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Farad"@en ;
+    rdfs:label "فاراد"@ar,
+        "фарад"@bg,
+        "farad"@cs,
+        "Farad"@de,
+        "φαράντ"@el,
+        "farad"@en,
+        "faradio"@es,
+        "فاراد"@fa,
+        "farad"@fr,
+        "פאראד"@he,
+        "फैराड"@hi,
+        "farad"@hu,
+        "farad"@it,
+        "ファラド"@ja,
+        "faradium"@la,
+        "farad"@ms,
+        "farad"@pl,
+        "farad"@pt,
+        "farad"@ro,
+        "фарада"@ru,
+        "farad"@sl,
+        "farad"@tr,
+        "法拉"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Farad"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/FARAD-PER-KiloM> a ns1:Unit ;
@@ -1642,8 +1685,25 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/FARAD-PER-M> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Farad per Metre"@en,
-        "Farad per Meter"@en-us .
+    rdfs:label "مقياس التبادل، الأس السالب للمتر"@ar,
+        "faradů na metr"@cs,
+        "Farad je Meter"@de,
+        "farad per metre"@en,
+        "Farad per Meter"@en-us,
+        "faradio por metro"@es,
+        "فاراد بر متر"@fa,
+        "farad par mètre"@fr,
+        "प्रति मीटर फैराड"@hi,
+        "farad al metro"@it,
+        "ファラド毎メートル"@ja,
+        "farad per meter"@ms,
+        "farad na metr"@pl,
+        "farad por metro"@pt,
+        "farad pe metru"@ro,
+        "фарада на метр"@ru,
+        "farad na meter"@sl,
+        "farad bölü metre"@tr,
+        "法拉每米"@zh .
 
 <http://qudt.org/vocab/unit/FARAD_Ab> a ns1:Unit ;
     rdfs:label "Abfarad"@en ;
@@ -1819,14 +1879,12 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/FUR_Long> a ns1:Unit ;
     rdfs:label "Long Furlong"@en .
 
-<http://qudt.org/vocab/unit/FalklandIslandsPound> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Falkland Islands Pound"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Falkland_Islands_pound"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/FemtoC> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "FemtoCoulomb"@en .
+
+<http://qudt.org/vocab/unit/FemtoGM> a ns1:Unit ;
+    rdfs:label "FemtoGram"@en .
 
 <http://qudt.org/vocab/unit/FemtoGM-PER-KiloGM> a ns1:Unit ;
     rdfs:label "Femtograms per kilogram"@en .
@@ -1836,7 +1894,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/FemtoJ> a ns1:Unit ;
     rdfs:label "Femtojoule"@en ;
-    ns1:plainTextDescription "0,000 000 000 000 001-fold of the derived SI unit joule" .
+    ns1:plainTextDescription "0.000000000000001-fold of the derived SI unit joule" .
 
 <http://qudt.org/vocab/unit/FemtoL> a ns1:Unit ;
     rdfs:label "Femtolitre"@en,
@@ -1847,29 +1905,17 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Femtometre"@en,
         "Femtometer"@en-us .
 
+<http://qudt.org/vocab/unit/FemtoMOL> a ns1:Unit ;
+    rdfs:label "FemtoMole"@en .
+
 <http://qudt.org/vocab/unit/FemtoMOL-PER-KiloGM> a ns1:Unit ;
     rdfs:label "Femtomoles per kilogram"@en .
 
 <http://qudt.org/vocab/unit/FemtoMOL-PER-L> a ns1:Unit ;
     rdfs:label "Femtomoles per litre"@en .
 
-<http://qudt.org/vocab/unit/FijiDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Fiji Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Fijian_dollar"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/Flight> a ns1:Unit ;
     rdfs:label "Flight"@en .
-
-<http://qudt.org/vocab/unit/Forint> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Forint"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Hungarian_forint"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/FrancCongolais> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Franc Congolais"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Congolese_franc"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/G> a ns1:Unit ;
     rdfs:label "Gravity"@en .
@@ -1996,7 +2042,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/GM-PER-CentiM3> a ns1:Unit ;
     rdfs:label "Gram Per Cubic Centimetre"@en,
         "Gram Per Cubic Centimeter"@en-us ;
-    ns1:plainTextDescription "0,001-fold of the SI base unit kilogram divided by the 0.000 001-fold of the power of the SI base unit metre with the exponent 3" .
+    ns1:plainTextDescription "0.001-fold of the SI base unit kilogram divided by the 0.000001-fold of the power of the SI base unit metre with the exponent 3" .
 
 <http://qudt.org/vocab/unit/GM-PER-DAY> a ns1:Unit ;
     rdfs:label "Gram Per Day"@en ;
@@ -2004,6 +2050,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/GM-PER-DEG_C> a ns1:Unit ;
     rdfs:label "Gram Degree Celsius"@en .
+
+<http://qudt.org/vocab/unit/GM-PER-DeciL> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "grams per decilitre"@en,
+        "grams per decilitre"@en-us .
 
 <http://qudt.org/vocab/unit/GM-PER-DeciM3> a ns1:Unit ;
     rdfs:label "Gram Per Cubic Decimetre"@en,
@@ -2078,6 +2129,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "grams Carbon per square meter per day"@en-us ;
     ns1:plainTextDescription "A metric unit of volume over time indicating the amount generated across one square meter over a day. Used to express productivity of an ecosystem." .
 
+<http://qudt.org/vocab/unit/GM_F> a ns1:Unit ;
+    rdfs:label "Gram Force"@en ;
+    ns1:dbpediaMatch "http://dbpedia.org/resource/Kilogram-force"^^xsd:anyURI .
+
 <http://qudt.org/vocab/unit/GM_F-PER-CentiM2> a ns1:Unit ;
     rdfs:label "Gram Force Per Square Centimetre"@en,
         "Gram Force Per Square Centimeter"@en-us ;
@@ -2112,9 +2167,36 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Grain Per Gallon (US)"@en ;
     ns1:plainTextDescription "unit of the density according to the Anglo-American system of units" .
 
+<http://qudt.org/vocab/unit/GRAIN-PER-M3> a ns1:Unit ;
+    rdfs:label "Grains per Cubic Metre"@en,
+        "Grains per Cubic Meter"@en-us ;
+    ns1:plainTextDescription "Grains per cubic metre of volume" .
+
 <http://qudt.org/vocab/unit/GRAY> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Gray"@en ;
+    rdfs:label "جراي; غراي"@ar,
+        "грей"@bg,
+        "gray"@cs,
+        "Gray"@de,
+        "γκρέι"@el,
+        "gray"@en,
+        "gray"@es,
+        "گری"@fa,
+        "gray"@fr,
+        "גריי"@he,
+        "ग्रेय"@hi,
+        "gray"@hu,
+        "gray"@it,
+        "グレイ"@ja,
+        "graium"@la,
+        "gray"@ms,
+        "grej"@pl,
+        "gray"@pt,
+        "gray"@ro,
+        "грэй"@ru,
+        "gray"@sl,
+        "gray"@tr,
+        "戈瑞"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Grey"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/GRAY-PER-SEC> a ns1:DerivedUnit,
@@ -2134,11 +2216,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         ns1:Unit ;
     rdfs:label "GibiByte"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Gibibyte"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/GibraltarPound> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Gibraltar pound"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Gibraltar_pound"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/GigaBIT-PER-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -2184,6 +2261,15 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Gigajoule"@en ;
     ns1:plainTextDescription "1 000 000 000-fold of the SI derived unit joule" .
 
+<http://qudt.org/vocab/unit/GigaJ-PER-HR> a ns1:Unit ;
+    rdfs:label "Gigajoule Per Hour"@en ;
+    ns1:plainTextDescription "SI derived unit gigajoule divided by the 3600 times the SI base unit second" .
+
+<http://qudt.org/vocab/unit/GigaJ-PER-M2> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Gigajoule per Square Metre"@en,
+        "Gigajoule per Square Meter"@en-us .
+
 <http://qudt.org/vocab/unit/GigaOHM> a ns1:Unit ;
     rdfs:label "Gigaohm"@en ;
     ns1:plainTextDescription "1 000 000 000-fold of the SI derived unit ohm" .
@@ -2200,36 +2286,35 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Gigawatt Hour"@en ;
     ns1:plainTextDescription "1 000 000 000-fold of the product of the SI derived unit watt and the unit hour" .
 
-<http://qudt.org/vocab/unit/Gold-OunceTroy> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Gold (one Troy ounce)"@en .
-
-<http://qudt.org/vocab/unit/GoldFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Gold franc (special settlement currency)"@en .
-
 <http://qudt.org/vocab/unit/Gs> a ns1:Unit ;
     rdfs:label "Gs"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Gauss_%28unit%29"^^xsd:anyURI .
 
-<http://qudt.org/vocab/unit/Guarani> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Guarani"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Guaran%C3%AD"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/GuineaFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Guinea Franc"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Guinean_franc"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/GuyanaDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Guyana Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Guyanese_dollar"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/H> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Henry"@en ;
+    rdfs:label "هنري"@ar,
+        "хенри"@bg,
+        "henry"@cs,
+        "Henry"@de,
+        "χένρι"@el,
+        "henry"@en,
+        "henrio"@es,
+        "هنری"@fa,
+        "henry"@fr,
+        "הנרי"@he,
+        "हेनरी"@hi,
+        "henry"@hu,
+        "henry"@it,
+        "ヘンリー"@ja,
+        "henrium"@la,
+        "henry"@ms,
+        "henr"@pl,
+        "henry"@pt,
+        "henry"@ro,
+        "генри"@ru,
+        "henry"@sl,
+        "henry"@tr,
+        "亨利"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Henry"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/H-PER-KiloOHM> a ns1:Unit ;
@@ -2287,7 +2372,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/HZ> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Hertz"@en ;
+    rdfs:label "هرتز"@ar,
+        "херц"@bg,
+        "hertz"@cs,
+        "Hertz"@de,
+        "χερτζ"@el,
+        "hertz"@en,
+        "hercio"@es,
+        "هرتز"@fa,
+        "hertz"@fr,
+        "הרץ"@he,
+        "हर्ट्ज"@hi,
+        "hertz"@hu,
+        "hertz"@it,
+        "ヘルツ"@ja,
+        "hertzium"@la,
+        "hertz"@ms,
+        "herc"@pl,
+        "hertz"@pt,
+        "hertz"@ro,
+        "герц"@ru,
+        "hertz"@sl,
+        "hertz"@tr,
+        "赫兹"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Hertz"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/HZ-M> a ns1:Unit ;
@@ -2296,7 +2403,22 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:plainTextDescription "product of the SI derived unit hertz and the SI base unit metre" .
 
 <http://qudt.org/vocab/unit/HZ-PER-K> a ns1:Unit ;
-    rdfs:label "Hertz per Kelvin"@en .
+    rdfs:label "هرتز لكل كلفن"@ar,
+        "hertz na kelvin"@cs,
+        "Hertz je Kelvin"@de,
+        "hertz per kelvin"@en,
+        "hercio por kelvin"@es,
+        "هرتز بر کلوین"@fa,
+        "hertz par kelvin"@fr,
+        "हर्ट्ज प्रति कैल्विन"@hi,
+        "hertz al kelvin"@it,
+        "ヘルツ毎立方メートル"@ja,
+        "hertz per kelvin"@ms,
+        "herc na kelwin"@pl,
+        "hertz por kelvin"@pt,
+        "hertz pe kelvin"@ro,
+        "герц на кельвин"@ru,
+        "hertz bölü kelvin"@tr .
 
 <http://qudt.org/vocab/unit/HZ-PER-T> a ns1:Unit ;
     rdfs:label "Hertz per Tesla"@en .
@@ -2314,11 +2436,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/H_Stat-PER-CentiM> a ns1:Unit ;
     rdfs:label "Stathenry per Centimetre"@en,
         "Stathenry per Centimeter"@en-us .
-
-<http://qudt.org/vocab/unit/HaitiGourde> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Haiti Gourde"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Haitian_gourde"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/HeartBeat> a ns1:Unit ;
     rdfs:label "Heart Beat"@en .
@@ -2370,16 +2487,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Hectopascal Per Kelvin"@en ;
     ns1:plainTextDescription "100-fold of the SI derived unit pascal divided by the SI base unit kelvin" .
 
-<http://qudt.org/vocab/unit/HongKongDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Hong Kong Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Hong_Kong_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Hryvnia> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Hryvnia"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Ukrainian_hryvnia"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/Hundredweight_UK> a ns1:Unit ;
     rdfs:label "Hundredweight (UK)"@en ;
     ns1:plainTextDescription "out of use unit of the mass according to the Imperial system of units" .
@@ -2395,6 +2502,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/IN-PER-DEG_F> a ns1:Unit ;
     rdfs:label "Inch Per Degree Fahrenheit"@en ;
     ns1:plainTextDescription "unit inch according to the Anglo-American and the Imperial system of units divided by the unit for temperature degree Fahrenheit" .
+
+<http://qudt.org/vocab/unit/IN-PER-MIN> a ns1:Unit ;
+    rdfs:label "Inch per Minute"@en .
 
 <http://qudt.org/vocab/unit/IN-PER-SEC> a ns1:Unit ;
     rdfs:label "Inch per Second"@en .
@@ -2452,29 +2562,34 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "International Unit per milligram"@en ;
     ns1:plainTextDescription "International Units per milligramme." .
 
-<http://qudt.org/vocab/unit/IcelandKrona> a ns1:CurrencyUnit,
+<http://qudt.org/vocab/unit/IU-PER-MilliL> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Iceland Krona"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Icelandic_kr%C3%B3na"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/IndianRupee> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Indian Rupee"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Indian_rupee"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/IranianRial> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Iranian Rial"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Iranian_rial"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/IraqiDinar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Iraqi Dinar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Iraqi_dinar"^^xsd:anyURI .
+    rdfs:label "International Unit per milliliter"@en,
+        "International Unit per milliliter"@en-us .
 
 <http://qudt.org/vocab/unit/J> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Joule"@en ;
+    rdfs:label "джаул"@bg,
+        "joule"@cs,
+        "Joule"@de,
+        "τζάουλ"@el,
+        "joule"@en,
+        "julio"@es,
+        "ژول"@fa,
+        "joule"@fr,
+        "जूल"@hi,
+        "joule"@hu,
+        "joule"@it,
+        "ジュール"@ja,
+        "joulium"@la,
+        "joule"@ms,
+        "dżul"@pl,
+        "joule"@pt,
+        "joule"@ro,
+        "джоуль"@ru,
+        "joule"@sl,
+        "joule"@tr,
+        "焦耳"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Joule"^^xsd:anyURI ;
     ns1:latexDefinition "\\(\\text{J}\\ \\equiv\\ \\text{joule}\\ \\equiv\\ \\text{CV}\\ \\equiv\\ \\text{coulomb.volt}\\ \\equiv\\ \\frac{\\text{eV}}{1.602\\ 10^{-19}}\\ \\equiv\\ \\frac{\\text{electron.volt}}{1.602\\ 10^{-19}}\\)"^^ns1:LatexString ;
     ns1:plainTextDescription "The SI unit of work or energy, defined to be the work done by a force of one newton acting to move an object through a distance of one meter in the direction in which the force is applied. Equivalently, since kinetic energy is one half the mass times the square of the velocity, one joule is the kinetic energy of a mass of two kilograms moving at a velocity of 1 m/s. This is the same as 107 ergs in the CGS system, or approximately 0.737 562 foot-pound in the traditional English system. In other energy units, one joule equals about 9.478 170 x 10-4 Btu, 0.238 846 (small) calories, or 2.777 778 x 10-4 watt hour. The joule is named for the British physicist James Prescott Joule (1818-1889), who demonstrated the equivalence of mechanical and thermal energy in a famous experiment in 1843. " .
@@ -2505,13 +2620,34 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Joule Per Gram"@en ;
     ns1:plainTextDescription "SI derived unit joule divided by the 0.001-fold of the SI base unit kilogram" .
 
+<http://qudt.org/vocab/unit/J-PER-GM-K> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Joule per Gram Kelvin"@en .
+
 <http://qudt.org/vocab/unit/J-PER-HR> a ns1:Unit ;
     rdfs:label "Joule Per Hour"@en ;
     ns1:plainTextDescription "SI derived unit joule divided by the 3600 times the SI base unit second" .
 
 <http://qudt.org/vocab/unit/J-PER-K> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Joule per Kelvin"@en .
+    rdfs:label "جول لكل كلفن"@ar,
+        "joule na kelvin"@cs,
+        "Joule je Kelvin"@de,
+        "joule per kelvin"@en,
+        "julio por kelvin"@es,
+        "ژول بر کلوین"@fa,
+        "joule par kelvin"@fr,
+        "जूल प्रति कैल्विन"@hi,
+        "joule al kelvin"@it,
+        "ジュール毎立方メートル"@ja,
+        "joule per kelvin"@ms,
+        "dżul na kelwin"@pl,
+        "joule por kelvin"@pt,
+        "joule pe kelvin"@ro,
+        "джоуль на кельвин"@ru,
+        "joule na kelvin"@sl,
+        "joule bölü kelvin"@tr,
+        "焦耳每开尔文"@zh .
 
 <http://qudt.org/vocab/unit/J-PER-KiloGM> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -2519,8 +2655,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/J-PER-KiloGM-K> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Joule per Kilogram Kelvin"@en,
-        "Joules per kilogram per Kelvin"@en .
+    rdfs:label "Joule per Kilogram Kelvin"@en .
 
 <http://qudt.org/vocab/unit/J-PER-KiloGM-K-M3> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -2559,7 +2694,24 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/J-PER-MOL> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Joule per Mole"@en .
+    rdfs:label "جول لكل مول"@ar,
+        "joule na mol"@cs,
+        "Joule je Mol"@de,
+        "joule per mole"@en,
+        "julio por mol"@es,
+        "ژول بر مول"@fa,
+        "joule par mole"@fr,
+        "जूल प्रति मोल (इकाई)"@hi,
+        "joule alla mole"@it,
+        "ジュール毎立方メートル"@ja,
+        "joule per mole"@ms,
+        "dżul na mol"@pl,
+        "joule por mol"@pt,
+        "joule pe mol"@ro,
+        "джоуль на моль"@ru,
+        "joule na mol"@sl,
+        "joule bölü metre küp"@tr,
+        "焦耳每摩尔"@zh .
 
 <http://qudt.org/vocab/unit/J-PER-MOL-K> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -2571,35 +2723,75 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/J-PER-T> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Joule per Tesla"@en .
+    rdfs:label "جول لكل تسلا"@ar,
+        "joule na tesla"@cs,
+        "Joule je Tesla"@de,
+        "joule per tesla"@en,
+        "julio por tesla"@es,
+        "ژول بر تسلا"@fa,
+        "joule par tesla"@fr,
+        "जूल प्रति टैस्ला"@hi,
+        "joule al tesla"@it,
+        "ジュール毎立方メートル"@ja,
+        "joule per tesla"@ms,
+        "dżul na tesla"@pl,
+        "joule por tesla"@pt,
+        "joule pe tesla"@ro,
+        "джоуль на тесла"@ru,
+        "joule bölü tesla"@tr,
+        "焦耳每特斯拉"@zh .
 
 <http://qudt.org/vocab/unit/J-PER-T2> a ns1:Unit ;
     rdfs:label "Joule per Square Tesla"@en .
 
 <http://qudt.org/vocab/unit/J-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Joule Second"@en .
+    rdfs:label "جول ثانية"@ar,
+        "joule sekunda"@cs,
+        "Joulesekunde"@de,
+        "joule second"@en,
+        "julio segundo"@es,
+        "ژول ثانیه"@fa,
+        "joule-seconde"@fr,
+        "जूल सैकण्ड"@hi,
+        "joule per secondo"@it,
+        "ジュール秒"@ja,
+        "joule saat"@ms,
+        "dżulosekunda"@pl,
+        "joule-segundo"@pt,
+        "joule-secundă"@ro,
+        "джоуль-секунда"@ru,
+        "joule sekunda"@sl,
+        "joule saniye"@tr,
+        "焦耳秒"@zh .
 
 <http://qudt.org/vocab/unit/J-SEC-PER-MOL> a ns1:Unit ;
     rdfs:label "Joule Second per Mole"@en .
 
-<http://qudt.org/vocab/unit/JamaicanDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Jamaican Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Jamaican_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/JapaneseYen> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Japanese yen"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Japanese_yen"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/JordanianDinar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Jordanian Dinar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Jordanian_dinar"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/K> a ns1:Unit ;
-    rdfs:label "Kelvin"@en ;
+    rdfs:label "كلفن"@ar,
+        "келвин"@bg,
+        "kelvin"@cs,
+        "Kelvin"@de,
+        "κέλβιν"@el,
+        "kelvin"@en,
+        "kelvin"@es,
+        "کلوین"@fa,
+        "kelvin"@fr,
+        "קלווין"@he,
+        "कैल्विन"@hi,
+        "kelvin"@hu,
+        "kelvin"@it,
+        "ケルビン"@ja,
+        "kelvin"@la,
+        "kelvin"@ms,
+        "kelwin"@pl,
+        "kelvin"@pt,
+        "kelvin"@ro,
+        "кельвин"@ru,
+        "kelvin"@sl,
+        "kelvin"@tr,
+        "开尔文"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Kelvin"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/K-DAY> a ns1:Unit ;
@@ -2630,8 +2822,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:plainTextDescription "SI base unit kelvin divided by the SI base unit kelvin" .
 
 <http://qudt.org/vocab/unit/K-PER-M> a ns1:Unit ;
-    rdfs:label "Degrees Kelvin per metre"@en,
-        "Kelvins per metre"@en .
+    rdfs:label "Kelvin per metre"@en .
 
 <http://qudt.org/vocab/unit/K-PER-MIN> a ns1:Unit ;
     rdfs:label "Kelvin per Minute"@en .
@@ -2639,12 +2830,17 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/K-PER-SEC> a ns1:Unit ;
     rdfs:label "Kelvin per Second"@en .
 
+<http://qudt.org/vocab/unit/K-PER-SEC2> a ns1:Unit ;
+    rdfs:label "Kelvin per Square Second"@en .
+
 <http://qudt.org/vocab/unit/K-PER-T> a ns1:Unit ;
     rdfs:label "Kelvin per Tesla"@en .
 
 <http://qudt.org/vocab/unit/K-PER-W> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Kelvin per Watt"@en .
+    rdfs:label "Kelvin je Watt"@de,
+        "kelvin per watt"@en,
+        "kelvin al watt"@it .
 
 <http://qudt.org/vocab/unit/K-SEC> a ns1:Unit ;
     rdfs:label "Kelvin second"@en .
@@ -2654,8 +2850,43 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/KAT> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Katal"@en ;
+    rdfs:label "كاتال"@ar,
+        "катал"@bg,
+        "katal"@cs,
+        "Katal"@de,
+        "κατάλ"@el,
+        "katal"@en,
+        "katal"@es,
+        "کاتال"@fa,
+        "katal"@fr,
+        "קטל"@he,
+        "कटल"@hi,
+        "katal"@hu,
+        "katal"@it,
+        "カタール"@ja,
+        "katal"@ms,
+        "katal"@pl,
+        "katal"@pt,
+        "katal"@ro,
+        "катал"@ru,
+        "katal"@sl,
+        "katal"@tr,
+        "开特"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Katal"^^xsd:anyURI .
+
+<http://qudt.org/vocab/unit/KAT-PER-L> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Katal Per Litre"@en,
+        "Katal Per Liter"@en-us ;
+    ns1:dbpediaMatch "http://dbpedia.org/resource/Katal"^^xsd:anyURI ;
+    ns1:plainTextDescription "A unit of catalytic activity used especially in the chemistry of enzymes. A catalyst is a substance that starts or speeds a chemical reaction. Enzymes are proteins that act as catalysts within the bodies of living plants and animals. A catalyst has an activity of one katal if it enables a reaction to proceed at the rate of one mole per second. " .
+
+<http://qudt.org/vocab/unit/KAT-PER-MicroL> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Katal Per Microlitre"@en,
+        "Katal Per Microliter"@en-us ;
+    ns1:dbpediaMatch "http://dbpedia.org/resource/Katal"^^xsd:anyURI ;
+    ns1:plainTextDescription "A unit of catalytic activity used especially in the chemistry of enzymes. A catalyst is a substance that starts or speeds a chemical reaction. Enzymes are proteins that act as catalysts within the bodies of living plants and animals. A catalyst has an activity of one katal if it enables a reaction to proceed at the rate of one mole per second. " .
 
 <http://qudt.org/vocab/unit/KIP_F> a ns1:Unit ;
     rdfs:label "Kip"@en ;
@@ -2677,14 +2908,13 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Kayser"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Kayser"^^xsd:anyURI .
 
-<http://qudt.org/vocab/unit/KenyanShilling> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Kenyan Shilling"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Kenyan_shilling"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/KibiBYTE> a ns1:CountingUnit,
         ns1:Unit ;
     rdfs:label "KibiByte"@en .
+
+<http://qudt.org/vocab/unit/Kilo-FT3> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Thousand Cubic Foot"@en .
 
 <http://qudt.org/vocab/unit/KiloA> a ns1:Unit ;
     rdfs:label "kiloampere"@en .
@@ -2716,6 +2946,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/KiloBTU_IT> a ns1:Unit ;
     rdfs:label "Kilo British Thermal Unit (International Definition)"@en .
+
+<http://qudt.org/vocab/unit/KiloBTU_IT-PER-FT2> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "kBTU per Square Foot"@en ;
+    ns1:plainTextDescription "kBTU per Square Foot is an Imperial unit for 'Energy Per Area." .
 
 <http://qudt.org/vocab/unit/KiloBTU_IT-PER-HR> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -2847,7 +3082,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:plainTextDescription "1 000-fold of the CGS unit of the magnetic flux density B" .
 
 <http://qudt.org/vocab/unit/KiloGM> a ns1:Unit ;
-    rdfs:label "Kilogram"@en ;
+    rdfs:label "كيلوغرام"@ar,
+        "килограм"@bg,
+        "kilogram"@cs,
+        "Kilogramm"@de,
+        "χιλιόγραμμο"@el,
+        "kilogram"@en,
+        "kilogramo"@es,
+        "کیلوگرم"@fa,
+        "kilogramme"@fr,
+        "קילוגרם"@he,
+        "किलोग्राम"@hi,
+        "kilogramm*"@hu,
+        "chilogrammo"@it,
+        "キログラム"@ja,
+        "chiliogramma"@la,
+        "kilogram"@ms,
+        "kilogram"@pl,
+        "quilograma"@pt,
+        "kilogram"@ro,
+        "килограмм"@ru,
+        "kilogram"@sl,
+        "kilogram"@tr,
+        "公斤"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Kilogram"^^xsd:anyURI ;
     ns1:plainTextDescription "The kilogram or kilogramme (SI symbol: kg), also known as the kilo, is the base unit of mass in the International System of Units and is defined as being equal to the mass of the International Prototype Kilogram (IPK), which is almost exactly equal to the mass of one liter of water. The avoirdupois (or international) pound, used in both the Imperial system and U.S. customary units, is defined as exactly 0.45359237 kg, making one kilogram approximately equal to 2.2046 avoirdupois pounds." .
 
@@ -2862,13 +3119,34 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/KiloGM-M-PER-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Kilogram Metre Per Second"@en,
-        "Kilogram Meter Per Second"@en-us .
+    rdfs:label "Kilogramm mal Meter je Sekunde"@de,
+        "kilogram metre per second"@en,
+        "Kilogram Meter Per Second"@en-us,
+        "کیلوگرم متر بر ثانیه"@fa,
+        "chilogrammo per metro al secondo"@it,
+        "kilogram meter per saat"@ms,
+        "kilogram meter na sekundo"@sl,
+        "千克米每秒"@zh .
 
 <http://qudt.org/vocab/unit/KiloGM-M2> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Kilogram Square Metre"@en,
-        "Kilogram Square Meter"@en-us .
+    rdfs:label "كيلوغرام متر مربع"@ar,
+        "kilogram čtvereční metr"@cs,
+        "Kilogramm mal Quadratmeter"@de,
+        "kilogram square metre"@en,
+        "Kilogram Square Meter"@en-us,
+        "kilogramo metro cuadrado"@es,
+        "نیوتون متر مربع"@fa,
+        "kilogramme-mètre carré"@fr,
+        "किलोग्राम वर्ग मीटर"@hi,
+        "chilogrammo metro quadrato"@it,
+        "キログラム平方メートル"@ja,
+        "kilogram meter persegi"@ms,
+        "quilograma-metro quadrado"@pt,
+        "kilogram-metru pătrat"@ro,
+        "килограмм-квадратный метр"@ru,
+        "kilogram metrekare"@tr,
+        "千克平方米"@zh .
 
 <http://qudt.org/vocab/unit/KiloGM-M2-PER-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -2899,6 +3177,15 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "Kilogram Per Cubic Decimeter"@en-us ;
     ns1:plainTextDescription "SI base unit kilogram divided by the 0.001-fold of the power of the SI base unit metre with the exponent 3" .
 
+<http://qudt.org/vocab/unit/KiloGM-PER-FT2> a ns1:Unit ;
+    rdfs:label "Kilogram Per Square Foot"@en ;
+    ns1:plainTextDescription "SI base unit kilogram divided by the square of the imperial foot" .
+
+<http://qudt.org/vocab/unit/KiloGM-PER-GigaJ> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Kilogram per Gigajoule"@en ;
+    ns1:plainTextDescription "SI base unit kilogram divided by the SI base unit gigajoule" .
+
 <http://qudt.org/vocab/unit/KiloGM-PER-HA> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Kilogram per Hectare"@en .
@@ -2906,6 +3193,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/KiloGM-PER-HR> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Kilogram per Hour"@en .
+
+<http://qudt.org/vocab/unit/KiloGM-PER-J> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Kilogram per Joule"@en ;
+    ns1:plainTextDescription "SI base unit kilogram divided by the SI base unit joule" .
 
 <http://qudt.org/vocab/unit/KiloGM-PER-KiloGM> a ns1:Unit ;
     rdfs:label "Kilogram Per Kilogram"@en ;
@@ -2957,10 +3249,27 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/KiloGM-PER-M3> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Kilogram per Cubic Metre"@en,
+    rdfs:label "كيلوغرام لكل متر مكعب"@ar,
+        "килограм на кубичен метър"@bg,
+        "kilogram na metr krychlový"@cs,
+        "Kilogramm je Kubikmeter"@de,
+        "χιλιόγραμμο ανά κυβικό μέτρο"@el,
         "kilogram per cubic metre"@en,
-        "Kilogram per Cubic Meter"@en-us,
-        "kilogram per cubic meter"@en-us ;
+        "kilogram per cubic meter"@en-us,
+        "kilogramo por metro cúbico"@es,
+        "کیلوگرم بر متر مکعب"@fa,
+        "kilogramme par mètre cube"@fr,
+        "किलोग्राम प्रति घन मीटर"@hi,
+        "chilogrammo al metro cubo"@it,
+        "キログラム毎立方メートル"@ja,
+        "kilogram per meter kubik"@ms,
+        "kilogram na metr sześcienny"@pl,
+        "quilograma por metro cúbico"@pt,
+        "kilogram pe metru cub"@ro,
+        "килограмм на кубический метр"@ru,
+        "kilogram na kubični meter"@sl,
+        "kilogram bölü metre küp"@tr,
+        "千克每立方米"@zh ;
     ns1:plainTextDescription "Kilogram per cubic metre is an SI derived unit of density, defined by mass in kilograms divided by volume in cubic metres. The official SI symbolic abbreviation is kg . m^-3, or equivalently either kg/m^3." .
 
 <http://qudt.org/vocab/unit/KiloGM-PER-M3-SEC> a ns1:Unit ;
@@ -2972,6 +3281,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/KiloGM-PER-MOL> a ns1:Unit ;
     rdfs:label "Kilogram per Mol"@en .
+
+<http://qudt.org/vocab/unit/KiloGM-PER-MegaBTU_IT> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Kilogram per Mega BTU"@en ;
+    ns1:plainTextDescription "Kilogram per Mega BTU is an Imperial Unit for 'Mass Per Energy." .
 
 <http://qudt.org/vocab/unit/KiloGM-PER-MilliM> a ns1:Unit ;
     rdfs:label "Kilogram Per Millimetre"@en,
@@ -3003,18 +3317,18 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:dbpediaMatch "http://dbpedia.org/resource/Kilogram-force"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/KiloGM_F-M> a ns1:Unit ;
-    rdfs:label "Kilogram?force Metre"@en,
-        "Kilogram?force Meter"@en-us ;
+    rdfs:label "Kilogram_force Metre"@en,
+        "Kilogram_force Meter"@en-us ;
     ns1:plainTextDescription "product of the unit kilogram-force and the SI base unit metre" .
 
 <http://qudt.org/vocab/unit/KiloGM_F-M-PER-CentiM2> a ns1:Unit ;
-    rdfs:label "Kilogram?force Metre Per Square Centimetre"@en,
-        "Kilogram?force Meter Per Square Centimeter"@en-us ;
+    rdfs:label "Kilogram Force Metre Per Square Centimetre"@en,
+        "Kilogram Force Meter Per Square Centimeter"@en-us ;
     ns1:plainTextDescription "product of the unit kilogram-force and the SI base unit metre divided by the 0.0001-fold of the power of the SI base unit metre by exponent 2" .
 
 <http://qudt.org/vocab/unit/KiloGM_F-M-PER-SEC> a ns1:Unit ;
-    rdfs:label "Kilogram?force Metre Per Second"@en,
-        "Kilogram?force Meter Per Second"@en-us ;
+    rdfs:label "Kilogram_force Metre Per Second"@en,
+        "Kilogram_force Meter Per Second"@en-us ;
     ns1:plainTextDescription "product of the SI base unit metre and the unit kilogram-force according to the Anglo-American and Imperial system of units divided by the SI base unit second" .
 
 <http://qudt.org/vocab/unit/KiloGM_F-PER-CentiM2> a ns1:Unit ;
@@ -3069,6 +3383,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Kilolitre Per Hour"@en,
         "Kilolitre Per Hour"@en-us ;
     ns1:plainTextDescription "unit of the volume kilolitres divided by the unit hour" .
+
+<http://qudt.org/vocab/unit/KiloLB_F> a ns1:Unit ;
+    rdfs:label "KiloPound Force"@en .
 
 <http://qudt.org/vocab/unit/KiloLB_F-FT-PER-A> a ns1:Unit ;
     rdfs:label "Pound Force Foot Per Ampere"@en ;
@@ -3248,35 +3565,16 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Kilowatt hour per square metre"@en ;
     ns1:plainTextDescription "A unit of energy per unit area, equivalent to 3 600 000 joules per square metre." .
 
+<http://qudt.org/vocab/unit/KiloWB> a ns1:Unit ;
+    rdfs:label "KiloWeber"@en .
+
 <http://qudt.org/vocab/unit/KiloWB-PER-M> a ns1:Unit ;
     rdfs:label "Kiloweber Per Metre"@en,
         "Kiloweber Per Meter"@en-us ;
     ns1:plainTextDescription "1 000-fold of the SI derived unit weber divided by the SI base unit metre" .
 
-<http://qudt.org/vocab/unit/Kina> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Kina"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Kina"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Kroon> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Kroon"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Estonian_kroon"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/KuwaitiDinar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Kuwaiti Dinar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Kuwaiti_dinar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Kwanza> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Kwanza"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Angolan_kwanza"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Kyat> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Kyat"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Myanma_kyat"^^xsd:anyURI .
+<http://qudt.org/vocab/unit/KiloYR> a ns1:Unit ;
+    rdfs:label "KiloYear"@en .
 
 <http://qudt.org/vocab/unit/L> a ns1:Unit ;
     rdfs:label "Litre"@en,
@@ -3464,12 +3762,37 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/LB_F-SEC-PER-IN2> a ns1:Unit ;
     rdfs:label "Pound Force Second per Square Inch"@en .
 
+<http://qudt.org/vocab/unit/LB_M> a ns1:Unit ;
+    rdfs:label "Pound Mass"@en .
+
 <http://qudt.org/vocab/unit/LB_T> a ns1:Unit ;
     rdfs:label "Pound Troy"@en .
 
 <http://qudt.org/vocab/unit/LM> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "lumen"@en ;
+    rdfs:label "لومن"@ar,
+        "лумен"@bg,
+        "lumen"@cs,
+        "Lumen"@de,
+        "λούμεν"@el,
+        "lumen"@en,
+        "lumen"@es,
+        "لومن"@fa,
+        "lumen"@fr,
+        "לומן"@he,
+        "ल्यूमैन"@hi,
+        "lumen"@hu,
+        "lumen"@it,
+        "ルーメン"@ja,
+        "lumen"@la,
+        "lumen"@ms,
+        "lumen"@pl,
+        "lumen"@pt,
+        "lumen"@ro,
+        "лумен"@ru,
+        "lumen"@sl,
+        "lümen"@tr,
+        "流明"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Lumen"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/LM-PER-W> a ns1:Unit ;
@@ -3480,7 +3803,28 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/LUX> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Lux"@en ;
+    rdfs:label "لكس"@ar,
+        "лукс"@bg,
+        "lux"@cs,
+        "Lux"@de,
+        "lux"@el,
+        "lux"@en,
+        "lux"@es,
+        "لوکس"@fa,
+        "lux"@fr,
+        "לוקס"@he,
+        "लक्स"@hi,
+        "lux"@hu,
+        "lux"@it,
+        "ルクス"@ja,
+        "lux"@ms,
+        "luks"@pl,
+        "lux"@pt,
+        "lux"@ro,
+        "люкс"@ru,
+        "luks"@sl,
+        "lüks"@tr,
+        "勒克斯"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Lux"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/LUX-HR> a ns1:DerivedUnit,
@@ -3492,79 +3836,47 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Light Year"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Light-year"^^xsd:anyURI .
 
-<http://qudt.org/vocab/unit/LaoKip> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Lao kip"@en .
-
-<http://qudt.org/vocab/unit/Lari> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Lari"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Lari"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/LatvianLats> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Latvian Lats"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Latvian_lats"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/LebanesePound> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Lebanese Pound"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Lebanese_pound"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Lek> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Lek"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Lek"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Lempira> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Lempira"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Lempira"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Leone> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Leone"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Sierra_Leonean_leone"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/LiberianDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Liberian Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Liberian_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/LibyanDinar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Libyan Dinar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Libyan_dinar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Lilangeni> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Lilangeni"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Swazi_lilangeni"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/LithuanianLitas> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Lithuanian Litas"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Lithuanian_litas"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Loti> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Loti"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Loti"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/LunarMass> a ns1:Unit ;
     rdfs:label "Lunar mass"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Moon"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/M> a ns1:Unit ;
-    rdfs:label "Metre"@en,
-        "Meter"@en-us ;
+    rdfs:label "متر"@ar,
+        "метър"@bg,
+        "metr"@cs,
+        "Meter"@de,
+        "μέτρο"@el,
+        "metre"@en,
+        "Meter"@en-us,
+        "metro"@es,
+        "متر"@fa,
+        "mètre"@fr,
+        "מטר"@he,
+        "मीटर"@hi,
+        "méter"@hu,
+        "metro"@it,
+        "メートル"@ja,
+        "metrum"@la,
+        "meter"@ms,
+        "metr"@pl,
+        "metro"@pt,
+        "metru"@ro,
+        "метр"@ru,
+        "meter"@sl,
+        "metre"@tr,
+        "米"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Metre"^^xsd:anyURI ;
     ns1:plainTextDescription "The metric and SI base unit of distance.   The meter is equal to approximately 1.093 613 3 yards, 3.280 840 feet, or 39.370 079 inches." .
 
 <http://qudt.org/vocab/unit/M-K> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Metre Kelvin"@en,
-        "Meter Kelvin"@en-us .
+    rdfs:label "Meter mal Kelvin"@de,
+        "metre kelvin"@en,
+        "Meter Kelvin"@en-us,
+        "متر کلوین"@fa,
+        "metro per kelvin"@it,
+        "meter kelvin"@ms,
+        "米开尔文"@zh .
 
 <http://qudt.org/vocab/unit/M-K-PER-W> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -3598,8 +3910,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/M-PER-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Metre per Second"@en,
-        "Meter per Second"@en-us .
+    rdfs:label "متر في الثانية"@ar,
+        "метър в секунда"@bg,
+        "metr za sekundu"@cs,
+        "Meter je Sekunde"@de,
+        "μέτρο ανά δευτερόλεπτο"@el,
+        "metre per second"@en,
+        "Meter per Second"@en-us,
+        "metro por segundo"@es,
+        "متر بر ثانیه"@fa,
+        "mètre par seconde"@fr,
+        "מטרים לשנייה"@he,
+        "मीटर प्रति सैकिण्ड"@hi,
+        "metro al secondo"@it,
+        "メートル毎秒"@ja,
+        "metra per secundum"@la,
+        "meter per saat"@ms,
+        "metr na sekundę"@pl,
+        "metro por segundo"@pt,
+        "metru pe secundă"@ro,
+        "метр в секунду"@ru,
+        "meter na sekundo"@sl,
+        "metre bölü saniye"@tr,
+        "米每秒"@zh .
 
 <http://qudt.org/vocab/unit/M-PER-SEC2> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -3611,8 +3944,30 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/M2> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Square Metre"@en,
-        "Square Meter"@en-us ;
+    rdfs:label "متر مربع"@ar,
+        "квадратен метър"@bg,
+        "čtvereční metr"@cs,
+        "Quadratmeter"@de,
+        "τετραγωνικό μέτρο"@el,
+        "square metre"@en,
+        "Square Meter"@en-us,
+        "metro cuadrado"@es,
+        "متر مربع"@fa,
+        "mètre carré"@fr,
+        "מטר רבוע"@he,
+        "वर्ग मीटर"@hi,
+        "négyzetméter"@hu,
+        "metro quadrato"@it,
+        "平方メートル"@ja,
+        "metrum quadratum"@la,
+        "meter persegi"@ms,
+        "metr kwadratowy"@pl,
+        "metro quadrado"@pt,
+        "metru pătrat"@ro,
+        "квадратный метр"@ru,
+        "kvadratni meter"@sl,
+        "metrekare"@tr,
+        "平方米"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Square_metre"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/M2-HR-DEG_C-PER-KiloCAL_IT> a ns1:Unit ;
@@ -3695,8 +4050,25 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/M2-PER-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Square Metre per Second"@en,
-        "Square Meter per Second"@en-us .
+    rdfs:label "متر مربع في الثانية"@ar,
+        "čtvereční metr za sekundu"@cs,
+        "Quadratmeter je Sekunde"@de,
+        "square metre per second"@en,
+        "Square Meter per Second"@en-us,
+        "metro cuadrado por segundo"@es,
+        "متر مربع بر ثانیه"@fa,
+        "mètre carré par seconde"@fr,
+        "वर्ग मीटर प्रति सैकिण्ड"@hi,
+        "metro quadrato al secondo"@it,
+        "平方メートル毎秒"@ja,
+        "meter persegi per saat"@ms,
+        "metr kwadratowy na sekundę"@pl,
+        "metro quadrado por segundo"@pt,
+        "metru pătrat pe secundă"@ro,
+        "квадратный метр в секунду"@ru,
+        "kvadratni meter na sekundo"@sl,
+        "metrekare bölü saniye"@tr,
+        "平方米每秒"@zh .
 
 <http://qudt.org/vocab/unit/M2-PER-SEC2> a ns1:Unit ;
     rdfs:label "Square metres per square second"@en .
@@ -3715,8 +4087,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/M2-PER-V-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Square Metre per Volt Second"@en,
-        "Square Meter per Volt Second"@en-us .
+    rdfs:label "Quadratmeter je Volt und Sekunde"@de,
+        "square metre per volt second"@en,
+        "Square Meter per Volt Second"@en-us,
+        "metro quadrato al volt e al secondo"@it .
 
 <http://qudt.org/vocab/unit/M2-SEC-PER-RAD> a ns1:Unit ;
     rdfs:label "Square metre seconds per radian"@en .
@@ -3728,8 +4102,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/M3> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Cubic Metre"@en,
-        "Cubic Meter"@en-us ;
+    rdfs:label "متر مكعب"@ar,
+        "кубичен метър"@bg,
+        "metr krychlový"@cs,
+        "Kubikmeter"@de,
+        "κυβικό μετρο"@el,
+        "cubic metre"@en,
+        "Cubic Meter"@en-us,
+        "metro cúbico"@es,
+        "متر مکعب"@fa,
+        "mètre cube"@fr,
+        "מטר מעוקב"@he,
+        "घन मीटर"@hi,
+        "metro cubo"@it,
+        "立方メートル"@ja,
+        "metrum cubicum"@la,
+        "meter kubik"@ms,
+        "metr sześcienny"@pl,
+        "metro cúbico"@pt,
+        "metru cub"@ro,
+        "кубический метр"@ru,
+        "kubični meter"@sl,
+        "metreküp"@tr,
+        "立方米"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Cubic_metre"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/M3-PER-C> a ns1:Unit ;
@@ -3765,6 +4160,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Cubic Metre per Kilogram Square Second"@en,
         "Cubic Meter per Kilogram Square Second"@en-us .
 
+<http://qudt.org/vocab/unit/M3-PER-M2> a ns1:Unit ;
+    rdfs:label "Cubic Metre Per Square Metre"@en,
+        "Cubic Meter Per Square Meter"@en-us ;
+    ns1:plainTextDescription "power of the SI base unit metre with the exponent 3 divided by the power of the SI base unit metre with the exponent 2" .
+
 <http://qudt.org/vocab/unit/M3-PER-M3> a ns1:Unit ;
     rdfs:label "Cubic Metre Per Cubic Metre"@en,
         "Cubic Meter Per Cubic Meter"@en-us ;
@@ -3776,8 +4176,30 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:plainTextDescription "power of the SI base unit metre with the exponent 3 divided by the unit minute" .
 
 <http://qudt.org/vocab/unit/M3-PER-MOL> a ns1:Unit ;
-    rdfs:label "Cubic Metre per Mole"@en,
-        "Cubic Meter per Mole"@en-us .
+    rdfs:label "متر مكعب لكل مول"@ar,
+        "metr krychlový na mol"@cs,
+        "Kubikmeter je Mol"@de,
+        "cubic metre per mole"@en,
+        "Cubic Meter per Mole"@en-us,
+        "metro cúbico por mol"@es,
+        "متر مکعب بر مول"@fa,
+        "mètre cube par mole"@fr,
+        "घन मीटर प्रति मोल (इकाई)"@hi,
+        "metro cubo alla mole"@it,
+        "立方メートル 毎立方メートル"@ja,
+        "meter kubik per mole"@ms,
+        "metr sześcienny na mol"@pl,
+        "metro cúbico por mol"@pt,
+        "metru cub pe mol"@ro,
+        "кубический метр на моль"@ru,
+        "kubični meter na mol"@sl,
+        "metreküp bölü metre küp"@tr,
+        "立方米每摩尔"@zh .
+
+<http://qudt.org/vocab/unit/M3-PER-MOL-SEC> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Cubic Centimeter per Mole Second"@en,
+        "Cubic Centimeter per Mole Second"@en-us .
 
 <http://qudt.org/vocab/unit/M3-PER-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -3836,6 +4258,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/MI-PER-MIN> a ns1:Unit ;
     rdfs:label "Mile per Minute"@en .
 
+<http://qudt.org/vocab/unit/MI-PER-SEC> a ns1:Unit ;
+    rdfs:label "Mile per Second"@en .
+
 <http://qudt.org/vocab/unit/MI2> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Square Mile"@en .
@@ -3881,7 +4306,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "\\(1\\:{mohm_{mks}} = 10^{3}\\:\\frac m {N.s}\\:(=\\:10^{3}\\:   \\frac s {kg}\\:in\\:base\\:m.k.s.\\:terms)\\)"^^ns1:LatexString .
 
 <http://qudt.org/vocab/unit/MOL> a ns1:Unit ;
-    rdfs:label "Mole"@en ;
+    rdfs:label "مول"@ar,
+        "мол"@bg,
+        "mol"@cs,
+        "Mol"@de,
+        "μολ"@el,
+        "mole"@en,
+        "mol"@es,
+        "مول"@fa,
+        "mole"@fr,
+        "מול"@he,
+        "मोल (इकाई)"@hi,
+        "mól"@hu,
+        "mole"@it,
+        "モル"@ja,
+        "moles"@la,
+        "mole"@ms,
+        "mol"@pl,
+        "mol"@pt,
+        "mol"@ro,
+        "моль"@ru,
+        "mol"@sl,
+        "mol"@tr,
+        "摩尔"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Mole_%28unit%29"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/MOL-DEG_C> a ns1:DerivedUnit,
@@ -3921,7 +4368,8 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Moles per square metre"@en .
 
 <http://qudt.org/vocab/unit/MOL-PER-M2-DAY> a ns1:Unit ;
-    rdfs:label "Moles per square metre per day" .
+    rdfs:label "Moles per Square Metre per Day"@en,
+        "Moles per Square Meter per Day"@en-us .
 
 <http://qudt.org/vocab/unit/MOL-PER-M2-SEC> a ns1:Unit ;
     rdfs:label "Moles per square metre per second"@en .
@@ -3954,6 +4402,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Mole Per Second"@en ;
     ns1:plainTextDescription "SI base unit mol divided by the SI base unit second" .
 
+<http://qudt.org/vocab/unit/MOL-PER-TONNE> a ns1:Unit ;
+    rdfs:label "Mol per Tonne"@en ;
+    ns1:plainTextDescription "Mole Per Tonne (mol/t) is a unit of Molality" .
+
 <http://qudt.org/vocab/unit/MO_MeanGREGORIAN> a ns1:Unit ;
     rdfs:label "Mean Gregorian Month"@en .
 
@@ -3967,47 +4419,18 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Maxwell"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Maxwell"^^xsd:anyURI .
 
-<http://qudt.org/vocab/unit/MalagasyAriary> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Malagasy Ariary"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Malagasy_ariary"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/MalawiKwacha> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Malawi Kwacha"@en .
-
-<http://qudt.org/vocab/unit/MalaysianRinggit> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Malaysian Ringgit"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Malaysian_ringgit"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/MalteseLira> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Maltese Lira"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Maltese_lira"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Manat> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Manat"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Manat"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/MauritiusRupee> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Mauritius Rupee"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Mauritian_rupee"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/MebiBYTE> a ns1:CountingUnit,
         ns1:Unit ;
     rdfs:label "Mebibyte"@en .
 
 <http://qudt.org/vocab/unit/MegaA> a ns1:Unit ;
     rdfs:label "Megaampere"@en ;
-    ns1:plainTextDescription "1 000 000-fold of the SI base unit ampere" .
+    ns1:plainTextDescription "1,000,000-fold of the SI base unit ampere" .
 
 <http://qudt.org/vocab/unit/MegaA-PER-M2> a ns1:Unit ;
     rdfs:label "Megaampere Per Square Metre"@en,
         "Megaampere Per Square Meter"@en-us ;
-    ns1:plainTextDescription "1 000 000-fold of the SI base unit ampere divided by the power of the SI base unit metre with the exponent 2" .
+    ns1:plainTextDescription "1,000,000-fold of the SI base unit ampere divided by the power of the SI base unit metre with the exponent 2" .
 
 <http://qudt.org/vocab/unit/MegaBAR> a ns1:Unit ;
     rdfs:label "Megabar"@en .
@@ -4018,7 +4441,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/MegaBQ> a ns1:Unit ;
     rdfs:label "Megabecquerel"@en ;
-    ns1:plainTextDescription "1 000 000-fold of the derived unit becquerel" .
+    ns1:plainTextDescription "1,000,000-fold of the derived unit becquerel" .
+
+<http://qudt.org/vocab/unit/MegaBTU_IT-PER-HR> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Mega British Thermal Unit (International Definition) per Hour"@en .
 
 <http://qudt.org/vocab/unit/MegaBYTE> a ns1:CountingUnit,
         ns1:Unit ;
@@ -4037,7 +4464,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/MegaC-PER-M3> a ns1:Unit ;
     rdfs:label "Megacoulomb Per Cubic Metre"@en,
         "Megacoulomb Per Cubic Meter"@en-us ;
-    ns1:plainTextDescription "1 000 000-fold of the SI derived unit coulomb divided by the power of the SI base unit metre with the exponent 3" .
+    ns1:plainTextDescription "1,000,000-fold of the SI derived unit coulomb divided by the power of the SI base unit metre with the exponent 3" .
+
+<http://qudt.org/vocab/unit/MegaDOLLAR_US-PER-FLIGHT> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Million US Dollars per Flight"@en .
 
 <http://qudt.org/vocab/unit/MegaEV> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -4059,6 +4490,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Megagram"@en ;
     ns1:plainTextDescription "1 000-fold of the SI base unit kilogram" .
 
+<http://qudt.org/vocab/unit/MegaGM-PER-HA> a ns1:Unit ;
+    rdfs:label "Megagram Per Hectare"@en,
+        "Megagram Per Hectare"@en-us ;
+    ns1:plainTextDescription "1 000-fold of the SI base unit kilogram divided by the 10,0000-fold of the power of the SI base unit metre with the exponent 2" .
+
 <http://qudt.org/vocab/unit/MegaGM-PER-M3> a ns1:Unit ;
     rdfs:label "Megagram Per Cubic Metre"@en,
         "Megagram Per Cubic Meter"@en-us ;
@@ -4071,7 +4507,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/MegaHZ-M> a ns1:Unit ;
     rdfs:label "Megahertz Metre"@en,
         "Megahertz Meter"@en-us ;
-    ns1:plainTextDescription "product of the 1 000 000-fold of the SI derived unit hertz and the 1 000-fold of the SI base unit metre" .
+    ns1:plainTextDescription "product of the 1,000,000-fold of the SI derived unit hertz and the 1 000-fold of the SI base unit metre" .
 
 <http://qudt.org/vocab/unit/MegaHZ-PER-K> a ns1:Unit ;
     rdfs:label "Mega Hertz per Kelvin"@en .
@@ -4082,6 +4518,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/MegaJ> a ns1:Unit ;
     rdfs:label "Megajoule"@en ;
     ns1:plainTextDescription "1,000,000-fold of the derived unit joule" .
+
+<http://qudt.org/vocab/unit/MegaJ-PER-HR> a ns1:Unit ;
+    rdfs:label "Megajoule Per Hour"@en ;
+    ns1:plainTextDescription "SI derived unit Megajoule divided by the 3600 times the SI base unit second" .
 
 <http://qudt.org/vocab/unit/MegaJ-PER-K> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -4136,6 +4576,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "Megapascal Liter Per Second"@en-us ;
     ns1:plainTextDescription "product out of the 1,000,000-fold of the SI derived unit pascal and the unit litre divided by the SI base unit second" .
 
+<http://qudt.org/vocab/unit/MegaPA-M0pt5> a ns1:Unit ;
+    rdfs:label "Megapascal Square Root Metre"@en,
+        "Megapascal Square Root Meter"@en-us ;
+    ns1:plainTextDescription "1,000,000-fold of the derived unit Pascal Square Root Meter" .
+
 <http://qudt.org/vocab/unit/MegaPA-M3-PER-SEC> a ns1:Unit ;
     rdfs:label "Megapascal Cubic Metre Per Second"@en,
         "Megapascal Cubic Meter Per Second"@en-us ;
@@ -4148,6 +4593,13 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/MegaPA-PER-K> a ns1:Unit ;
     rdfs:label "Megapascal Per Kelvin"@en ;
     ns1:plainTextDescription "1,000,000-fold of the SI derived unit pascal divided by the SI base unit kelvin" .
+
+<http://qudt.org/vocab/unit/MegaPSI> a ns1:Unit ;
+    rdfs:label "MPSI"@en ;
+    ns1:plainTextDescription "Megapounds of force per square inch is a unit for pressure in the Anglo-American system of units." .
+
+<http://qudt.org/vocab/unit/MegaS> a ns1:Unit ;
+    rdfs:label "MegaSiemens"@en .
 
 <http://qudt.org/vocab/unit/MegaS-PER-M> a ns1:Unit ;
     rdfs:label "Megasiemens Per Metre"@en,
@@ -4171,7 +4623,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/MegaV-A_Reactive> a ns1:Unit ;
     rdfs:label "Megavolt Ampere Reactive"@en ;
-    ns1:plainTextDescription "1 000 000-fold of the unit volt ampere reactive" .
+    ns1:plainTextDescription "1,000,000-fold of the unit volt ampere reactive" .
 
 <http://qudt.org/vocab/unit/MegaV-A_Reactive-HR> a ns1:Unit ;
     rdfs:label "Megavolt Ampere Reactive Hour"@en ;
@@ -4193,20 +4645,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         ns1:Unit ;
     rdfs:label "Million Years"@en ;
     ns1:plainTextDescription "1,000,000-fold of the derived unit year." .
-
-<http://qudt.org/vocab/unit/Metical> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Metical"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Mozambican_metical"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/MexicanPeso> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Mexican Peso"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Mexican_peso"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/MexicanUnidadDeInversion> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Mexican Unidad de Inversion (UDI) (Funds code)"@en .
 
 <http://qudt.org/vocab/unit/MicroA> a ns1:Unit ;
     rdfs:label "microampere"@en .
@@ -4274,8 +4712,22 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Microgram"@en ;
     ns1:plainTextDescription "0.000000001-fold of the SI base unit kilogram" .
 
+<http://qudt.org/vocab/unit/MicroGM-PER-CentiM2-WK> a ns1:Unit ;
+    rdfs:label "Micrograms per square centimetre per week"@en,
+        "Micrograms per square centimeter per week"@en-us .
+
+<http://qudt.org/vocab/unit/MicroGM-PER-DeciL> a ns1:Unit ;
+    rdfs:label "Microgram Per Decilitre"@en,
+        "Microgram Per Deciliter"@en-us ;
+    ns1:plainTextDescription "0.0000000001-fold of the SI base unit kilogram divided by the unit decilitre" .
+
 <http://qudt.org/vocab/unit/MicroGM-PER-GM> a ns1:Unit ;
     rdfs:label "Micrograms per gram"@en .
+
+<http://qudt.org/vocab/unit/MicroGM-PER-IN2> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Microgram per Square Inch"@en,
+        "Microgram per Square Inch"@en-us .
 
 <http://qudt.org/vocab/unit/MicroGM-PER-KiloGM> a ns1:Unit ;
     rdfs:label "Microgram Per Kilogram"@en ;
@@ -4301,7 +4753,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Micrograms per cubic metre per hour"@en .
 
 <http://qudt.org/vocab/unit/MicroGM-PER-MilliL> a ns1:Unit ;
-    rdfs:label "Micrograms per millilitre"@en .
+    rdfs:label "Microgram Per MilliLitre"@en,
+        "Microgram Per Milliliter"@en-us ;
+    ns1:plainTextDescription "0.000000000001-fold of the SI base unit kilogram divided by the unit microlitre" .
 
 <http://qudt.org/vocab/unit/MicroGRAY> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -4334,6 +4788,12 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "Micro Joule"@en,
         "Micro Joule"@en-us ;
     ns1:plainTextDescription "0.000001-fold of the SI derived unit joule" .
+
+<http://qudt.org/vocab/unit/MicroKAT-PER-L> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Microkatal Per Litre"@en,
+        "Microkatal Per Liter"@en-us ;
+    ns1:plainTextDescription "A unit of catalytic activity used especially in the chemistry of enzymes. A catalyst is a substance that starts or speeds a chemical reaction. Enzymes are proteins that act as catalysts within the bodies of living plants and animals. A catalyst has an activity of one katal if it enables a reaction to proceed at the rate of one mole per second. " .
 
 <http://qudt.org/vocab/unit/MicroL> a ns1:Unit ;
     rdfs:label "Microlitre"@en,
@@ -4518,6 +4978,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Milliampere Hour"@en ;
     ns1:plainTextDescription "product of the 0.001-fold of the SI base unit ampere and the unit hour" .
 
+<http://qudt.org/vocab/unit/MilliA-HR-PER-GM> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Milliampere Hour per Gram"@en .
+
 <http://qudt.org/vocab/unit/MilliA-PER-IN> a ns1:Unit ;
     rdfs:label "Milliampere Per Inch"@en ;
     ns1:plainTextDescription "0.001-fold of the SI base unit ampere divided by the unit inch according to the Anglo-American and the Imperial system of units" .
@@ -4552,6 +5016,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Millibar Per Kelvin"@en ;
     ns1:plainTextDescription "0.001-fold of the unit bar divided by the unit temperature kelvin" .
 
+<http://qudt.org/vocab/unit/MilliBQ> a ns1:Unit ;
+    rdfs:label "MilliBecquerel"@en .
+
 <http://qudt.org/vocab/unit/MilliBQ-PER-GM> a ns1:Unit ;
     rdfs:label "Millibecquerels per gram"@en .
 
@@ -4585,6 +5052,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/MilliCi> a ns1:Unit ;
     rdfs:label "Millicurie"@en ;
     ns1:plainTextDescription "0.001-fold of the SI derived unit curie" .
+
+<http://qudt.org/vocab/unit/MilliDARCY> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Millidarcy"@en ;
+    ns1:plainTextDescription "The millidarcy (md) is a unit of permeability named after Henry Darcy. It is not an SI unit, but it is widely used in petroleum engineering and geology. The unit has also been used in biophysics and biomechanics, where the flow of fluids such as blood through capillary beds and cerebrospinal fluid through the brain interstitial space is being examined. A millidarcy has dimensional units of length²." .
 
 <http://qudt.org/vocab/unit/MilliDEG_C> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -4716,6 +5188,16 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Millijoule"@en ;
     ns1:plainTextDescription "0.001-fold of the SI derived unit joule" .
 
+<http://qudt.org/vocab/unit/MilliJ-PER-GM> a ns1:Unit ;
+    rdfs:label "Millijoule Per Gram"@en ;
+    ns1:plainTextDescription "The 0.001-fold of the SI base unit joule divided by the 0.001-fold of the SI base unit kilogram" .
+
+<http://qudt.org/vocab/unit/MilliKAT-PER-L> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Millikatal Per Litre"@en,
+        "Millikatal Per Liter"@en-us ;
+    ns1:plainTextDescription "A unit of catalytic activity used especially in the chemistry of enzymes. A catalyst is a substance that starts or speeds a chemical reaction. Enzymes are proteins that act as catalysts within the bodies of living plants and animals. A catalyst has an activity of one katal if it enables a reaction to proceed at the rate of one mole per second. " .
+
 <http://qudt.org/vocab/unit/MilliL> a ns1:Unit ;
     rdfs:label "Millilitre"@en,
         "Millilitre"@en-us ;
@@ -4735,6 +5217,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Millilitre Per Day"@en,
         "Millilitre Per Day"@en-us ;
     ns1:plainTextDescription "0.001-fold of the unit litre divided by the unit day" .
+
+<http://qudt.org/vocab/unit/MilliL-PER-GM> a ns1:Unit ;
+    rdfs:label "Millilitre per Gram"@en,
+        "Milliliter per Gram"@en-us .
 
 <http://qudt.org/vocab/unit/MilliL-PER-HR> a ns1:Unit ;
     rdfs:label "Millilitre Per Hour"@en,
@@ -4825,6 +5311,14 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         ns1:Unit ;
     rdfs:label "Cubic Millimetre"@en,
         "Cubic Millimeter"@en-us .
+
+<http://qudt.org/vocab/unit/MilliM3-PER-GM> a ns1:Unit ;
+    rdfs:label "Cubic Millimetre per Gram"@en,
+        "Cubic Millimeter per Gram"@en-us .
+
+<http://qudt.org/vocab/unit/MilliM3-PER-KiloGM> a ns1:Unit ;
+    rdfs:label "Cubic Millimetre per Kilogram"@en,
+        "Cubic Millimeter per Kilogram"@en-us .
 
 <http://qudt.org/vocab/unit/MilliM3-PER-M3> a ns1:Unit ;
     rdfs:label "Cubic Millimetre Per Cubic Metre"@en,
@@ -4923,6 +5417,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         ns1:Unit ;
     rdfs:label "milliradian"@en .
 
+<http://qudt.org/vocab/unit/MilliRAD_R> a ns1:Unit ;
+    rdfs:label "MilliRad"@en .
+
 <http://qudt.org/vocab/unit/MilliRAD_R-PER-HR> a ns1:Unit ;
     rdfs:label "Millirads per hour"@en .
 
@@ -4988,32 +5485,43 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/MilliW-PER-M2-NanoM-SR> a ns1:Unit ;
     rdfs:label "Milliwatts per square metre per nanometre per steradian"@en .
 
+<http://qudt.org/vocab/unit/MilliW-PER-MilliGM> a ns1:Unit ;
+    rdfs:label "Milliwatt per Milligram"@en ;
+    ns1:plainTextDescription "SI derived unit milliwatt divided by the SI derived unit milligram" .
+
 <http://qudt.org/vocab/unit/MilliWB> a ns1:Unit ;
     rdfs:label "Milliweber"@en ;
     ns1:plainTextDescription "0.001-fold of the SI derived unit weber" .
-
-<http://qudt.org/vocab/unit/MillionUSD> a ns1:CurrencyUnit,
-        ns1:DerivedUnit,
-        ns1:Unit ;
-    rdfs:label "Million US Dollars"@en .
 
 <http://qudt.org/vocab/unit/MillionUSD-PER-YR> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Million US Dollars per Year"@en .
 
-<http://qudt.org/vocab/unit/MoldovanLeu> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Moldovan Leu"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Moldovan_leu"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/MoroccanDirham> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Moroccan Dirham"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Moroccan_dirham"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/N> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Newton"@en ;
+    rdfs:label "نيوتن"@ar,
+        "нютон"@bg,
+        "newton"@cs,
+        "Newton"@de,
+        "νιούτον"@el,
+        "newton"@en,
+        "newton"@es,
+        "نیوتن"@fa,
+        "newton"@fr,
+        "ניוטון"@he,
+        "न्यूटन"@hi,
+        "newton"@hu,
+        "newton"@it,
+        "ニュートン"@ja,
+        "newtonium"@la,
+        "newton"@ms,
+        "niuton"@pl,
+        "newton"@pt,
+        "newton"@ro,
+        "ньютон"@ru,
+        "newton"@sl,
+        "newton"@tr,
+        "牛顿"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Newton"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/N-CentiM> a ns1:Unit ;
@@ -5023,8 +5531,27 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/N-M> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Newton Metre"@en,
-        "Newton Meter"@en-us ;
+    rdfs:label "نيوتن متر"@ar,
+        "нютон-метър"@bg,
+        "newton metr"@cs,
+        "Newtonmeter"@de,
+        "νιούτον επί μέτρο; νιουτόμετρο"@el,
+        "newton metre"@en,
+        "Newton Meter"@en-us,
+        "newton metro"@es,
+        "نیوتون متر"@fa,
+        "newton-mètre"@fr,
+        "न्यूटन मीटर"@hi,
+        "newton per metro"@it,
+        "ニュートンメートル"@ja,
+        "newton meter"@ms,
+        "niutonometr; dżul na radian"@pl,
+        "newton-metro"@pt,
+        "newton-metru"@ro,
+        "ньютон-метр"@ru,
+        "newton meter"@sl,
+        "newton metre"@tr,
+        "牛米"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Newton_metre"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/N-M-PER-A> a ns1:Unit ;
@@ -5044,7 +5571,8 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:plainTextDescription "This is the SI unit for the rolling resistance, which is equivalent to drag force in newton" .
 
 <http://qudt.org/vocab/unit/N-M-PER-M-RAD> a ns1:Unit ;
-    rdfs:label "Newton Metre per Metre per Radians" .
+    rdfs:label "Newton Metre per Metre per Radian"@en,
+        "Newton Meter per Meter per Radian"@en-us .
 
 <http://qudt.org/vocab/unit/N-M-PER-M2> a ns1:Unit ;
     rdfs:label "Newton Metre Per Square Metre"@en,
@@ -5059,8 +5587,24 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/N-M-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Newton Metre Second"@en,
-        "Newton Meter Second"@en-us ;
+    rdfs:label "نيوتن متر ثانية"@ar,
+        "newton metr sekunda"@cs,
+        "Newtonmetersekunde"@de,
+        "newton metre second"@en,
+        "Newton Meter Second"@en-us,
+        "newton metro segundo"@es,
+        "نیوتون ثانیه"@fa,
+        "newton-mètre-seconde"@fr,
+        "न्यूटन मीटर सैकण्ड"@hi,
+        "newton per metro per secondo"@it,
+        "ニュートンメートル秒"@ja,
+        "newton meter saat"@ms,
+        "niutonometrosekunda"@pl,
+        "newton-metro-segundo"@pt,
+        "newton-metru-secundă"@ro,
+        "ньютон-метр-секунда"@ru,
+        "newton metre saniye"@tr,
+        "牛秒"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Newton_metre"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/N-M-SEC-PER-M> a ns1:Unit ;
@@ -5114,8 +5658,25 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/N-PER-M> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Newton per Metre"@en,
-        "Newton per Meter"@en-us .
+    rdfs:label "مقياس التبادل، الأس السالب للمتر"@ar,
+        "newtonů na metr"@cs,
+        "Newton je Meter"@de,
+        "newton per metre"@en,
+        "Newton per Meter"@en-us,
+        "newton por metro"@es,
+        "نیوتن بر متر"@fa,
+        "newton par mètre"@fr,
+        "प्रति मीटर न्यूटन"@hi,
+        "newton al metro"@it,
+        "ニュートン毎メートル"@ja,
+        "newton per meter"@ms,
+        "niuton na metr"@pl,
+        "newton por metro"@pt,
+        "newton pe metru"@ro,
+        "ньютон на метр"@ru,
+        "newton na meter"@sl,
+        "newton bölü metre"@tr,
+        "牛顿每米"@zh .
 
 <http://qudt.org/vocab/unit/N-PER-M2> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -5143,7 +5704,23 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:plainTextDescription "A one-newton force applied for one angle/torsional torque" .
 
 <http://qudt.org/vocab/unit/N-SEC> a ns1:Unit ;
-    rdfs:label "Newton Second"@en ;
+    rdfs:label "نيوتن ثانية"@ar,
+        "newton sekunda"@cs,
+        "Newtonsekunde"@de,
+        "newton second"@en,
+        "newton segundo"@es,
+        "نیوتون ثانیه"@fa,
+        "newton-seconde"@fr,
+        "न्यूटन सैकण्ड"@hi,
+        "newton per secondo"@it,
+        "ニュートン秒"@ja,
+        "newton saat"@ms,
+        "niutonosekunda"@pl,
+        "newton-segundo"@pt,
+        "newton-secundă"@ro,
+        "ньютон-секунда"@ru,
+        "newton saniye"@tr,
+        "牛秒"@zh ;
     ns1:plainTextDescription "product of the SI derived unit newton and the SI base unit second" .
 
 <http://qudt.org/vocab/unit/N-SEC-PER-M> a ns1:DerivedUnit,
@@ -5194,8 +5771,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Number per hectare"@en .
 
 <http://qudt.org/vocab/unit/NUM-PER-HR> a ns1:Unit ;
-    rdfs:label "Number per hour"@en,
-        "Number per individual per hour"@en .
+    rdfs:label "Number per hour"@en .
 
 <http://qudt.org/vocab/unit/NUM-PER-HectoGM> a ns1:Unit ;
     rdfs:label "Number per 100 grams"@en .
@@ -5224,8 +5800,15 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/NUM-PER-MilliGM> a ns1:Unit ;
     rdfs:label "Number per milligram"@en .
 
+<http://qudt.org/vocab/unit/NUM-PER-MilliM3> a ns1:Unit ;
+    rdfs:label "Number per cubic millimeter"@en .
+
 <http://qudt.org/vocab/unit/NUM-PER-NanoL> a ns1:Unit ;
-    rdfs:label "Number per nanolitre"@en .
+    rdfs:label "Number per nanolitre"@en,
+        "Number per nanoliter"@en-us .
+
+<http://qudt.org/vocab/unit/NUM-PER-PicoL> a ns1:Unit ;
+    rdfs:label "Number per picoliter"@en .
 
 <http://qudt.org/vocab/unit/NUM-PER-SEC> a ns1:Unit ;
     rdfs:label "Counts per second"@en .
@@ -5234,23 +5817,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         ns1:Unit ;
     rdfs:label "Number per Year"@en .
 
-<http://qudt.org/vocab/unit/Naira> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Naira"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Nigerian_naira"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Nakfa> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Nakfa"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Nakfa"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NamibianDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Namibian Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Namibian_dollar"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/NanoA> a ns1:Unit ;
     rdfs:label "nanoampere"@en .
+
+<http://qudt.org/vocab/unit/NanoBQ> a ns1:Unit ;
+    rdfs:label "NanoBecquerel"@en .
 
 <http://qudt.org/vocab/unit/NanoBQ-PER-L> a ns1:Unit ;
     rdfs:label "Nanobecquerels per litre"@en .
@@ -5272,8 +5843,22 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/NanoGM> a ns1:Unit ;
     rdfs:label "Nanograms"@en .
 
+<http://qudt.org/vocab/unit/NanoGM-PER-CentiM2> a ns1:Unit ;
+    rdfs:label "Nanograms Per Square Centimetre"@en,
+        "Nanograms Per Square Centimeter"@en-us ;
+    ns1:plainTextDescription "0,000,000,000,001-fold of the SI base unit kilogram divided by the 0.0001-fold of the power of the SI base unit metre and exponent 2" .
+
+<http://qudt.org/vocab/unit/NanoGM-PER-CentiM2-DAY> a ns1:Unit ;
+    rdfs:label "Nanograms per square centimetre per day"@en,
+        "Nanograms per square centimeter per day"@en-us .
+
 <http://qudt.org/vocab/unit/NanoGM-PER-DAY> a ns1:Unit ;
     rdfs:label "Nanograms per day"@en .
+
+<http://qudt.org/vocab/unit/NanoGM-PER-DeciL> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "nanograms per decilitre"@en,
+        "nanograms per decilitre"@en-us .
 
 <http://qudt.org/vocab/unit/NanoGM-PER-KiloGM> a ns1:Unit ;
     rdfs:label "Nanogram Per Kilogram"@en ;
@@ -5305,6 +5890,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "Nanohenry Per Meter"@en-us ;
     ns1:plainTextDescription "0.000000001-fold of the SI derived unit henry divided by the SI base unit metre" .
 
+<http://qudt.org/vocab/unit/NanoKAT-PER-L> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Nanokatal Per Litre"@en,
+        "Nanokatal Per Liter"@en-us .
+
 <http://qudt.org/vocab/unit/NanoL> a ns1:Unit ;
     rdfs:label "Nanolitre"@en,
         "Nanolitre"@en-us ;
@@ -5314,6 +5904,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Nanometre"@en,
         "Nanometer"@en-us ;
     ns1:plainTextDescription "0.000000001-fold of the SI base unit metre" .
+
+<http://qudt.org/vocab/unit/NanoM-PER-CentiM-MegaPA> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Nanometer Per Centimeter Megapascal"@en .
 
 <http://qudt.org/vocab/unit/NanoM-PER-CentiM-PSI> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -5327,6 +5921,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Square Nanometre"@en,
         "Square Nanometer"@en-us ;
     ns1:plainTextDescription "A unit of area equal to that of a square, of sides 1nm" .
+
+<http://qudt.org/vocab/unit/NanoMOL> a ns1:Unit ;
+    rdfs:label "NanoMole"@en .
 
 <http://qudt.org/vocab/unit/NanoMOL-PER-CentiM3-HR> a ns1:Unit ;
     rdfs:label "Nanomoles per cubic centimetre per hour"@en .
@@ -5358,6 +5955,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/NanoMOL-PER-MicroMOL-DAY> a ns1:Unit ;
     rdfs:label "Nanomoles per micromole per day"@en .
 
+<http://qudt.org/vocab/unit/NanoS> a ns1:Unit ;
+    rdfs:label "NanoSiemens"@en .
+
 <http://qudt.org/vocab/unit/NanoS-PER-CentiM> a ns1:Unit ;
     rdfs:label "Nanosiemens Per Centimetre"@en,
         "Nanosiemens Per Centimeter"@en-us ;
@@ -5381,56 +5981,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Nanowatt"@en ;
     ns1:plainTextDescription "0.000000001-fold of the SI derived unit watt" .
 
-<http://qudt.org/vocab/unit/NepaleseRupee> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Nepalese Rupee"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Nepalese_rupee"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NetherlandsAntillianGuilder> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Netherlands Antillian Guilder"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Netherlands_Antillean_guilder"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NewIsraeliShekel> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "New Israeli Shekel"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Israeli_new_sheqel"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NewTaiwanDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "New Taiwan Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/New_Taiwan_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NewTurkishLira> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "New Turkish Lira"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Turkish_lira"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NewZealandDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "New Zealand Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/New_Zealand_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Ngultrum> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Ngultrum"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Bhutanese_ngultrum"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NorthKoreanWon> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "North Korean Won"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/North_Korean_won"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NorwegianKrone> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Norwegian Krone"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Norwegian_krone"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/NuevoSol> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Nuevo Sol"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Peruvian_nuevo_sol"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/OCT> a ns1:DimensionlessUnit,
         ns1:LogarithmicUnit,
         ns1:Unit ;
@@ -5448,12 +5998,49 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/OHM> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Ohm"@en ;
+    rdfs:label "أوم"@ar,
+        "ом"@bg,
+        "ohm"@cs,
+        "Ohm"@de,
+        "ωμ"@el,
+        "ohm"@en,
+        "ohmio"@es,
+        "اهم"@fa,
+        "ohm"@fr,
+        "אוהם"@he,
+        "ओह्म"@hi,
+        "ohm"@hu,
+        "ohm"@it,
+        "オーム"@ja,
+        "ohmium"@la,
+        "ohm"@ms,
+        "om"@pl,
+        "ohm"@pt,
+        "ohm"@ro,
+        "ом"@ru,
+        "ohm"@sl,
+        "ohm"@tr,
+        "欧姆"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Ohm"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/OHM-M> a ns1:Unit ;
-    rdfs:label "Ohm Metre"@en,
-        "Ohm Meter"@en-us .
+    rdfs:label "أوم متر"@ar,
+        "ohm metr"@cs,
+        "Ohmmeter"@de,
+        "ohm metre"@en,
+        "Ohm Meter"@en-us,
+        "ohmio metro"@es,
+        "اهم متر"@fa,
+        "ohm-mètre"@fr,
+        "ओह्म मीटर"@hi,
+        "ohm per metro"@it,
+        "オームメートル"@ja,
+        "ohm meter"@ms,
+        "ohm-metro"@pt,
+        "ohm-metru"@ro,
+        "ом-метр"@ru,
+        "ohm metre"@tr,
+        "欧姆米"@zh .
 
 <http://qudt.org/vocab/unit/OHM-M2-PER-M> a ns1:Unit ;
     rdfs:label "Ohm Square Metre per Metre"@en,
@@ -5524,6 +6111,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/OZ_F-IN> a ns1:Unit ;
     rdfs:label "Imperial Ounce Force Inch"@en .
 
+<http://qudt.org/vocab/unit/OZ_M> a ns1:Unit ;
+    rdfs:label "Ounce Mass"@en .
+
 <http://qudt.org/vocab/unit/OZ_TROY> a ns1:Unit ;
     rdfs:label "Ounce Troy"@en .
 
@@ -5566,19 +6156,31 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Ounce (US Fluid) Per Second"@en ;
     ns1:plainTextDescription "unit of the volume fluid ounce (US) for fluids according to the Anglo-American system of units divided by the SI base unit second" .
 
-<http://qudt.org/vocab/unit/OmaniRial> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Rial Omani"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Omani_rial"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Ouguiya> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Ouguiya"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Mauritanian_ouguiya"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/PA> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Pascal"@en ;
+    rdfs:label "باسكال"@ar,
+        "паскал"@bg,
+        "pascal"@cs,
+        "Pascal"@de,
+        "πασκάλ"@el,
+        "pascal"@en,
+        "pascal"@es,
+        "پاسگال"@fa,
+        "pascal"@fr,
+        "פסקל"@he,
+        "पास्कल"@hi,
+        "pascal"@hu,
+        "pascal"@it,
+        "パスカル"@ja,
+        "pascalium"@la,
+        "pascal"@ms,
+        "paskal"@pl,
+        "pascal"@pt,
+        "pascal"@ro,
+        "паскаль"@ru,
+        "pascal"@sl,
+        "pascal"@tr,
+        "帕斯卡"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Pascal"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/PA-L-PER-SEC> a ns1:Unit ;
@@ -5594,6 +6196,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/PA-M-PER-SEC2> a ns1:Unit ;
     rdfs:label "Pascal metres per square second"@en .
+
+<http://qudt.org/vocab/unit/PA-M0pt5> a ns1:Unit ;
+    rdfs:label "Pascal Square Root Meter"@en ;
+    ns1:plainTextDescription "A metric unit for stress intensity factor and fracture toughness." .
 
 <http://qudt.org/vocab/unit/PA-M3-PER-SEC> a ns1:Unit ;
     rdfs:label "Pascal Cubic Metre Per Second"@en,
@@ -5623,7 +6229,24 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/PA-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Pascal Second"@en .
+    rdfs:label "باسكال ثانية"@ar,
+        "pascal sekunda"@cs,
+        "Pascalsekunde"@de,
+        "pascal second"@en,
+        "pascal segundo"@es,
+        "نیوتون ثانیه"@fa,
+        "pascal-seconde"@fr,
+        "पास्कल सैकण्ड"@hi,
+        "pascal per secondo"@it,
+        "パスカル秒"@ja,
+        "pascal saat"@ms,
+        "paskalosekunda"@pl,
+        "pascal-segundo"@pt,
+        "pascal-secundă"@ro,
+        "паскаль-секунда"@ru,
+        "pascal sekunda"@sl,
+        "pascal saniye"@tr,
+        "帕斯卡秒"@zh .
 
 <http://qudt.org/vocab/unit/PA-SEC-PER-BAR> a ns1:Unit ;
     rdfs:label "Pascal Second Per Bar"@en ;
@@ -5636,8 +6259,23 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/PA-SEC-PER-M3> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Pascal Second Per Cubic Metre"@en,
-        "Pascal Second Per Cubic Meter"@en-us .
+    rdfs:label "باسكال ثانية لكل متر مكعب"@ar,
+        "pascal sekunda na metr krychlový"@cs,
+        "Pascalsekunde je Kubikmeter"@de,
+        "pascal second per cubic metre"@en,
+        "Pascal Second Per Cubic Meter"@en-us,
+        "pascal segundo por metro cúbico"@es,
+        "نیوتون ثانیه بر متر مکعب"@fa,
+        "pascal-seconde par mètre cube"@fr,
+        "पास्कल सैकण्ड प्रति घन मीटर"@hi,
+        "pascal per secondo al metro cubo"@it,
+        "パスカル秒毎立方メートル"@ja,
+        "pascal saat per meter kubik"@ms,
+        "paskalosekunda na metr sześcienny"@pl,
+        "pascal-segundo por metro cúbico"@pt,
+        "pascal-secundă pe metru cub"@ro,
+        "паскаль-секунда на кубический метр"@ru,
+        "pascal saniye bölü metre küp"@tr .
 
 <http://qudt.org/vocab/unit/PA2-PER-SEC2> a ns1:Unit ;
     rdfs:label "Square pascal per square second"@en .
@@ -5645,11 +6283,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/PA2-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Square Pascal Second"@en .
-
-<http://qudt.org/vocab/unit/PAB> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Balboa"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Balboa"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/PARSEC> a ns1:Unit ;
     rdfs:label "Parsec"@en .
@@ -5666,7 +6299,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Poundal per Square Foot"@en .
 
 <http://qudt.org/vocab/unit/PER-ANGSTROM> a ns1:Unit ;
-    rdfs:label "Reciprocal Ã¥ngstrÃ¶m"@en ;
+    rdfs:label "Reciprocal Angstrom"@en ;
     ns1:plainTextDescription "reciprocal of the unit angstrom" .
 
 <http://qudt.org/vocab/unit/PER-BAR> a ns1:Unit ;
@@ -5686,6 +6319,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/PER-DAY> a ns1:Unit ;
     rdfs:label "Reciprocal Day"@en ;
     ns1:plainTextDescription "reciprocal of the unit day" .
+
+<http://qudt.org/vocab/unit/PER-EV2> a ns1:Unit ;
+    rdfs:label "Reciprocal Square Electron Volt"@en .
 
 <http://qudt.org/vocab/unit/PER-FT3> a ns1:Unit ;
     rdfs:label "Reciprocal Cubic Foot"@en ;
@@ -5712,8 +6348,14 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Reciprocal Joule Cubic Metre"@en,
         "Reciprocal Joule Cubic Meter"@en-us .
 
+<http://qudt.org/vocab/unit/PER-J2> a ns1:Unit ;
+    rdfs:label "Reciprocal Square Joule"@en .
+
 <http://qudt.org/vocab/unit/PER-K> a ns1:Unit ;
     rdfs:label "Reciprocal Kelvin"@en .
+
+<http://qudt.org/vocab/unit/PER-KiloGM2> a ns1:Unit ;
+    rdfs:label "Reciprocal Square Kilogram"@en .
 
 <http://qudt.org/vocab/unit/PER-KiloM> a ns1:Unit ;
     rdfs:label "Reciprocal Kilometre"@en,
@@ -5757,7 +6399,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/PER-M2-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Reciprocal Square Metre Second"@en,
-        "Reciprocal square metre per second"@en,
         "Reciprocal Square Meter Second"@en-us .
 
 <http://qudt.org/vocab/unit/PER-M3> a ns1:Unit ;
@@ -5767,7 +6408,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/PER-M3-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "Reciprocal Cubic Metre Second"@en,
-        "Reciprocal cubic metre per second"@en,
         "Reciprocal Cubic Meter Second"@en-us .
 
 <http://qudt.org/vocab/unit/PER-MILLE-PER-PSI> a ns1:Unit ;
@@ -5792,6 +6432,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/PER-MicroMOL-L> a ns1:Unit ;
     rdfs:label "Reciprocal micromole per litre"@en .
+
+<http://qudt.org/vocab/unit/PER-MilliL> a ns1:Unit ;
+    rdfs:label "Reciprocal Millilitre"@en,
+        "Reciprocal Milliliter"@en-us ;
+    ns1:plainTextDescription "reciprocal value of the unit millilitre" .
 
 <http://qudt.org/vocab/unit/PER-MilliM> a ns1:Unit ;
     rdfs:label "Reciprocal Millimetre"@en,
@@ -5906,7 +6551,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:dbpediaMatch "http://dbpedia.org/resource/Relative_static_permittivity"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/PERM_Metric> a ns1:Unit ;
-    rdfs:label "U.S. Perm"@en .
+    rdfs:label "Metric Perm"@en .
 
 <http://qudt.org/vocab/unit/PERM_US> a ns1:Unit ;
     rdfs:label "U.S. Perm"@en .
@@ -6064,29 +6709,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:plainTextDescription "product of the composed unit for pressure (pound-force per square inch) and the square inch) and the composed unit for volume flow (cubic yard per second)" .
 
 <http://qudt.org/vocab/unit/PSU> a ns1:Unit ;
-    rdfs:label "Practical salinity unit" .
+    rdfs:label "Practical Salinity Unit"@en .
 
 <http://qudt.org/vocab/unit/PT> a ns1:Unit ;
     rdfs:label "Point"@en .
-
-<http://qudt.org/vocab/unit/Paanga> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Pa'anga"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Tongan_pa%CA%BBanga"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/PakistanRupee> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Pakistan Rupee"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Pakistani_rupee"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Palladium-OunceTroy> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Palladium (one Troy ounce)"@en .
-
-<http://qudt.org/vocab/unit/Pataca> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Pataca"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Pataca"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/PebiBYTE> a ns1:CountingUnit,
         ns1:Unit ;
@@ -6109,11 +6735,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/PetaJ> a ns1:Unit ;
     rdfs:label "Petajoule"@en ;
     ns1:plainTextDescription "1,000,000,000,000,000-fold of the derived SI unit joule" .
-
-<http://qudt.org/vocab/unit/PhilippinePeso> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Philippine Peso"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Philippine_peso"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/PicoA> a ns1:Unit ;
     rdfs:label "picoampere"@en .
@@ -6145,9 +6766,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Picograms per kilogram"@en .
 
 <http://qudt.org/vocab/unit/PicoGM-PER-L> a ns1:Unit ;
-    rdfs:label "Picofarad Per Metre"@en,
-        "Picograms per litre"@en,
-        "Picofarad Per Meter"@en-us .
+    rdfs:label "Picograms per litre"@en .
 
 <http://qudt.org/vocab/unit/PicoGM-PER-MilliL> a ns1:Unit ;
     rdfs:label "Picograms per millilitre"@en .
@@ -6155,6 +6774,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/PicoH> a ns1:Unit ;
     rdfs:label "Picohenry"@en ;
     ns1:plainTextDescription "0.000000000001-fold of the SI derived unit henry" .
+
+<http://qudt.org/vocab/unit/PicoKAT-PER-L> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Picokatal Per Litre"@en,
+        "Picokatal Per Liter"@en-us .
 
 <http://qudt.org/vocab/unit/PicoL> a ns1:Unit ;
     rdfs:label "Picolitre"@en,
@@ -6165,6 +6789,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Picometre"@en,
         "Picometer"@en-us ;
     ns1:plainTextDescription "0.000000000001-fold of the SI base unit metre" .
+
+<http://qudt.org/vocab/unit/PicoMOL> a ns1:Unit ;
+    rdfs:label "PicoMole"@en .
 
 <http://qudt.org/vocab/unit/PicoMOL-PER-KiloGM> a ns1:Unit ;
     rdfs:label "Picomoles per kilogram"@en .
@@ -6190,10 +6817,16 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/PicoMOL-PER-M3-SEC> a ns1:Unit ;
     rdfs:label "Picomoles per cubic metre per second"@en .
 
+<http://qudt.org/vocab/unit/PicoPA> a ns1:Unit ;
+    rdfs:label "PicoPascal"@en .
+
 <http://qudt.org/vocab/unit/PicoPA-PER-KiloM> a ns1:Unit ;
     rdfs:label "Picopascal Per Kilometre"@en,
         "Picopascal Per Kilometer"@en-us ;
     ns1:plainTextDescription "0.000000000001-fold of the SI derived unit pascal divided by the 1 000-fold of the SI base unit metre" .
+
+<http://qudt.org/vocab/unit/PicoS> a ns1:Unit ;
+    rdfs:label "PicoSiemens"@en .
 
 <http://qudt.org/vocab/unit/PicoS-PER-M> a ns1:Unit ;
     rdfs:label "Picosiemens Per Metre"@en,
@@ -6290,20 +6923,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/PlanckVolume> a ns1:Unit ;
     rdfs:label "Planck Volume"@en .
 
-<http://qudt.org/vocab/unit/Platinum-OunceTroy> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Platinum (one Troy ounce)"@en .
-
-<http://qudt.org/vocab/unit/PoundSterling> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Pound Sterling"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Pound_sterling"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Pula> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Pula"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Pula"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/QT_UK> a ns1:Unit ;
     rdfs:label "Quart (UK)"@en ;
     ns1:plainTextDescription "unit of the volume for fluids according to the Imperial system of units" .
@@ -6350,19 +6969,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Quad"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Quad"^^xsd:anyURI .
 
-<http://qudt.org/vocab/unit/QatariRial> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Qatari Rial"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Qatari_riyal"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/Quarter_UK> a ns1:Unit ;
     rdfs:label "Quarter (UK)"@en ;
     ns1:plainTextDescription "unit of the mass according to the avoirdupois system of units: 1 qr. l. = 28 lb" .
-
-<http://qudt.org/vocab/unit/Quetzal> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Quetzal"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Quetzal"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/R> a ns1:Unit ;
     rdfs:label "Roentgen"@en ;
@@ -6370,7 +6979,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/RAD> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Radian"@en ;
+    rdfs:label "راديان"@ar,
+        "радиан"@bg,
+        "radián"@cs,
+        "Radiant"@de,
+        "ακτίνιο"@el,
+        "radian"@en,
+        "radián"@es,
+        "رادیان"@fa,
+        "radian"@fr,
+        "רדיאן"@he,
+        "वर्ग मीटर"@hi,
+        "radián"@hu,
+        "radiante"@it,
+        "ラジアン"@ja,
+        "radian"@la,
+        "radian"@ms,
+        "radian"@pl,
+        "radiano"@pt,
+        "radian"@ro,
+        "радиан"@ru,
+        "radian"@sl,
+        "radyan"@tr,
+        "弧度"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Radian"^^xsd:anyURI ;
     ns1:plainTextDescription "The radian is the standard unit of angular measure, used in many areas of mathematics. It describes the plane angle subtended by a circular arc as the length of the arc divided by the radius of the arc. The unit was formerly a SI supplementary unit, but this category was abolished in 1995 and the radian is now considered a SI derived unit. The SI unit of solid angle measurement is the steradian.  The radian is represented by the symbol \"rad\" or, more rarely, by the superscript c (for \"circular measure\"). For example, an angle of 1.2 radians would be written as \"1.2 rad\" or \"1.2c\" (the second symbol is often mistaken for a degree: \"1.2u00b0\"). As the ratio of two lengths, the radian is a \"pure number\" that needs no unit symbol, and in mathematical writing the symbol \"rad\" is almost always omitted. In the absence of any symbol radians are assumed, and when degrees are meant the symbol u00b0 is used. [Wikipedia]" .
 
@@ -6387,15 +7018,48 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/RAD-PER-M> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Radian per Metre"@en,
-        "Radian per Meter"@en-us .
+    rdfs:label "مقياس التبادل، الأس السالب للمتر"@ar,
+        "radiánů na metr"@cs,
+        "Radiant je Meter"@de,
+        "radian per metre"@en,
+        "Radian per Meter"@en-us,
+        "radián por metro"@es,
+        "رادیان بر متر"@fa,
+        "radian par mètre"@fr,
+        "प्रति मीटर वर्ग मीटर"@hi,
+        "radiante al metro"@it,
+        "ラジアン毎メートル"@ja,
+        "radian per meter"@ms,
+        "radian na metr"@pl,
+        "radiano por metro"@pt,
+        "radiane pe metru"@ro,
+        "радиан на метр"@ru,
+        "radyan bölü metre"@tr,
+        "弧度每米"@zh .
 
 <http://qudt.org/vocab/unit/RAD-PER-MIN> a ns1:Unit ;
     rdfs:label "Radian per Minute"@en .
 
 <http://qudt.org/vocab/unit/RAD-PER-SEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "radian per second"@en .
+    rdfs:label "راديان في الثانية"@ar,
+        "radián za sekundu"@cs,
+        "Radian je Sekunde"@de,
+        "radian per second"@en,
+        "radián por segundo"@es,
+        "رادیان بر ثانیه"@fa,
+        "radian par seconde"@fr,
+        "वर्ग मीटर प्रति सैकिण्ड"@hi,
+        "radiante al secondo"@it,
+        "ラジアン毎秒"@ja,
+        "radian per saat"@ms,
+        "radian na sekundę"@pl,
+        "radiano por segundo"@pt,
+        "radian pe secundă"@ro,
+        "радиан в секунду"@ru,
+        "radian na sekundo"@sl,
+        "radyan bölü saniye"@tr,
+        "弧度每秒"@zh .
 
 <http://qudt.org/vocab/unit/RAD-PER-SEC2> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -6441,38 +7105,31 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/RT> a ns1:Unit ;
     rdfs:label "Register Ton"@en .
 
-<http://qudt.org/vocab/unit/Riel> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Riel"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Riel"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/RomanianNeLeu> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Romanian New Leu"@en .
-
-<http://qudt.org/vocab/unit/Rufiyaa> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Rufiyaa"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Maldivian_rufiyaa"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Rupiah> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Rupiah"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Indonesian_rupiah"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/RussianRuble> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Russian Ruble"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Russian_ruble"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/RwandaFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Rwanda Franc"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Rwandan_franc"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/S> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Siemens"@en .
+    rdfs:label "سيمنز"@ar,
+        "сименс"@bg,
+        "siemens"@cs,
+        "Siemens"@de,
+        "ζίμενς"@el,
+        "siemens"@en,
+        "siemens"@es,
+        "زیمنس"@fa,
+        "siemens"@fr,
+        "סימנס"@he,
+        "सीमैन्स"@hi,
+        "siemens"@hu,
+        "siemens"@it,
+        "ジーメンス"@ja,
+        "siemens"@la,
+        "siemens"@ms,
+        "simens"@pl,
+        "siemens"@pt,
+        "siemens"@ro,
+        "сименс"@ru,
+        "siemens"@sl,
+        "siemens"@tr,
+        "西门子"@zh .
 
 <http://qudt.org/vocab/unit/S-M2-PER-MOL> a ns1:Unit ;
     rdfs:label "Siemens Square metre per mole"@en,
@@ -6484,15 +7141,54 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     ns1:plainTextDescription "SI derived unit Siemens divided by the 0.01-fold of the SI base unit metre" .
 
 <http://qudt.org/vocab/unit/S-PER-M> a ns1:Unit ;
-    rdfs:label "Siemens Per Metre"@en,
-        "Siemens Per Meter"@en-us ;
+    rdfs:label "مقياس التبادل، الأس السالب للمتر"@ar,
+        "siemensů na metr"@cs,
+        "Siemens je Meter"@de,
+        "siemens per metre"@en,
+        "Siemens Per Meter"@en-us,
+        "siemens por metro"@es,
+        "زیمنس بر متر"@fa,
+        "siemens par mètre"@fr,
+        "प्रति मीटर सीमैन्स"@hi,
+        "siemens al metro"@it,
+        "ジーメンス毎メートル"@ja,
+        "siemens per meter"@ms,
+        "simens na metr"@pl,
+        "siemens por metro"@pt,
+        "siemens pe metru"@ro,
+        "сименс на метр"@ru,
+        "siemens na meter"@sl,
+        "siemens bölü metre"@tr,
+        "西门子每米"@zh ;
     ns1:plainTextDescription "SI derived unit siemens divided by the SI base unit metre" .
 
 <http://qudt.org/vocab/unit/SAMPLE-PER-SEC> a ns1:Unit ;
     rdfs:label "Sample per second"@en .
 
 <http://qudt.org/vocab/unit/SEC> a ns1:Unit ;
-    rdfs:label "Second"@en ;
+    rdfs:label "ثانية"@ar,
+        "секунда"@bg,
+        "sekunda"@cs,
+        "Sekunde"@de,
+        "δευτερόλεπτο"@el,
+        "second"@en,
+        "segundo"@es,
+        "ثانیه"@fa,
+        "seconde"@fr,
+        "שנייה"@he,
+        "सैकण्ड"@hi,
+        "másodperc"@hu,
+        "secondo"@it,
+        "秒"@ja,
+        "secundum"@la,
+        "saat"@ms,
+        "sekunda"@pl,
+        "segundo"@pt,
+        "secundă"@ro,
+        "секунда"@ru,
+        "sekunda"@sl,
+        "saniye"@tr,
+        "秒"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Second"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/SEC-FT2> a ns1:DerivedUnit,
@@ -6553,7 +7249,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/SR> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Steradian"@en ;
+    rdfs:label "ستراديان"@ar,
+        "стерадиан"@bg,
+        "steradián"@cs,
+        "Steradiant"@de,
+        "στερακτίνιο"@el,
+        "steradian"@en,
+        "estereorradián"@es,
+        "استرادیان"@fa,
+        "stéradian"@fr,
+        "סטרדיאן"@he,
+        "घन मीटर"@hi,
+        "szteradián"@hu,
+        "steradiante"@it,
+        "ステラジアン"@ja,
+        "steradian"@la,
+        "steradian"@ms,
+        "steradian"@pl,
+        "esterradiano"@pt,
+        "steradian"@ro,
+        "стерадиан"@ru,
+        "steradian"@sl,
+        "steradyan"@tr,
+        "球面度"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Steradian"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/ST> a ns1:DerivedUnit,
@@ -6572,19 +7290,41 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/SUSCEPTIBILITY_ELEC> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Electric Susceptibility Unit" ;
+    rdfs:label "Electric Susceptibility Unit"@en ;
     ns1:latexDefinition "\\chi_{\\text{e}} = \\frac{{\\mathbf P}}{\\varepsilon_0{\\mathbf E}}"^^ns1:LatexString ;
     ns1:plainTextDescription "Electric susceptibility is a dimensionless proportionality constant that indicates the degree of polarization of a dielectric material in response to an applied electric field. Here P = epsilon_0 * chi_e * E. Where epsilon_0 is the electric permittivity of free space (electric constant), P is the polarization density of the material chi_e is the electric susceptibility and E is the electric field." .
 
 <http://qudt.org/vocab/unit/SUSCEPTIBILITY_MAG> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Magnetic Susceptibility Unit" ;
+    rdfs:label "Magnetic Susceptibility Unit"@en ;
     ns1:latexDefinition "\\chi_\\text{v} = \\frac{\\mathbf{M}}{\\mathbf{H}}"^^ns1:LatexString ;
     ns1:plainTextDescription "Magnetic susceptibility is a dimensionless proportionality constant that indicates the degree of magnetization of a material in response to an applied magnetic field. Here M = chi * H. Where M is the magnetization of the material (the magnetic dipole moment per unit volume), measured in amperes per meter, and H is the magnetic field strength, also measured in amperes per meter. Chi is therefore a dimensionless quantity." .
 
 <http://qudt.org/vocab/unit/SV> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Sievert"@en ;
+    rdfs:label "زيفرت"@ar,
+        "сиверт"@bg,
+        "sievert"@cs,
+        "Sievert"@de,
+        "σίβερτ"@el,
+        "sievert"@en,
+        "sievert"@es,
+        "سیورت"@fa,
+        "sievert"@fr,
+        "זיוורט"@he,
+        "सैवर्ट"@hi,
+        "sievert"@hu,
+        "sievert"@it,
+        "シーベルト"@ja,
+        "sievertum"@la,
+        "sievert"@ms,
+        "siwert"@pl,
+        "sievert"@pt,
+        "sievert"@ro,
+        "зиверт"@ru,
+        "sievert"@sl,
+        "sievert"@tr,
+        "西弗"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Sievert"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/S_Ab> a ns1:Unit ;
@@ -6594,88 +7334,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         ns1:Unit ;
     rdfs:label "Statsiemens"@en .
 
-<http://qudt.org/vocab/unit/SaintHelenaPound> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Saint Helena Pound"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Saint_Helena_pound"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SamoanTala> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Samoan Tala"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Samoan_tala"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SaudiRiyal> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Saudi Riyal"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Saudi_riyal"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SerbianDinar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Serbian Dinar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Serbian_dinar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SeychellesRupee> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Seychelles Rupee"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Seychellois_rupee"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Silver-OunceTroy> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Silver (one Troy ounce)"@en .
-
-<http://qudt.org/vocab/unit/SingaporeDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Singapore Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Singapore_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SlovakKoruna> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Slovak Koruna"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Slovak_koruna"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/SolarMass> a ns1:Unit ;
     rdfs:label "Solar mass"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Solar_mass"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SolomonIslandsDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Solomon Islands Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Solomon_Islands_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Som> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Som"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Som"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SomaliShilling> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Somali Shilling"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Somali_shilling"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Somoni> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Somoni"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Tajikistani_somoni"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SouthAfricanRand> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "South African Rand"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/South_African_rand"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SouthKoreanWon> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "South Korean Won"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/South_Korean_won"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SpecialDrawingRights> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Special Drawing Rights"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Special_Drawing_Rights"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SriLankaRupee> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Sri Lanka Rupee"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Sri_Lankan_rupee"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/Standard> a ns1:Unit ;
     rdfs:label "Standard"@en ;
@@ -6685,34 +7346,31 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Stone (UK)"@en ;
     ns1:plainTextDescription "unit of the mass which is commonly used for the determination of the weight of living beings regarding to the conversion to the avoirdupois system of units: 1 st = 14 lb (av)" .
 
-<http://qudt.org/vocab/unit/SudanesePound> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Sudanese Pound"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Sudanese_pound"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SurinamDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Surinam Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Surinamese_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SwedishKrona> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Swedish Krona"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Swedish_krona"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SwissFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Swiss Franc"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Swiss_franc"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/SyrianPound> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Syrian Pound"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Syrian_pound"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/T> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Tesla"@en ;
+    rdfs:label "تسلا"@ar,
+        "тесла"@bg,
+        "tesla"@cs,
+        "Tesla"@de,
+        "τέσλα"@el,
+        "tesla"@en,
+        "tesla"@es,
+        "تسلا"@fa,
+        "tesla"@fr,
+        "טסלה"@he,
+        "टैस्ला"@hi,
+        "tesla"@hu,
+        "tesla"@it,
+        "テスラ"@ja,
+        "tesla"@la,
+        "tesla"@ms,
+        "tesla"@pl,
+        "tesla"@pt,
+        "tesla"@ro,
+        "тесла"@ru,
+        "tesla"@sl,
+        "tesla"@tr,
+        "特斯拉"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Tesla"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/T-M> a ns1:Unit ;
@@ -6730,16 +7388,15 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Tex"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Tex"^^xsd:anyURI .
 
-<http://qudt.org/vocab/unit/THB> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Baht"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Thai_baht"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/THM_EEC> a ns1:Unit ;
     rdfs:label "THM_EEC"@en .
 
 <http://qudt.org/vocab/unit/THM_US> a ns1:Unit ;
     rdfs:label "Therm US"@en .
+
+<http://qudt.org/vocab/unit/THM_US-PER-HR> a ns1:DerivedUnit,
+        ns1:Unit ;
+    rdfs:label "Therm US per Hour"@en .
 
 <http://qudt.org/vocab/unit/TOE> a ns1:Unit ;
     rdfs:label "Ton of Oil Equivalent"@en .
@@ -6784,6 +7441,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/TON_FG> a ns1:Unit ;
     rdfs:label "Ton of Refrigeration"@en ;
+    ns1:dbpediaMatch "http://dbpedia.org/resource/Ton_of_refrigeration"^^xsd:anyURI .
+
+<http://qudt.org/vocab/unit/TON_FG-HR> a ns1:Unit ;
+    rdfs:label "Ton of Refrigeration Hour"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Ton_of_refrigeration"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/TON_F_US> a ns1:Unit ;
@@ -6842,7 +7503,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/TON_UK> a ns1:Unit ;
     rdfs:label "Ton (UK)"@en ;
-    ns1:plainTextDescription "traditional Imperial unit for volume of cargo, especially in the shipping sector" .
+    ns1:plainTextDescription "unit of the mass according to the Imperial system of units" .
 
 <http://qudt.org/vocab/unit/TON_UK-PER-DAY> a ns1:Unit ;
     rdfs:label "Long Ton (uk) Per Day"@en ;
@@ -6854,7 +7515,7 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/TON_US> a ns1:Unit ;
     rdfs:label "Ton (US)"@en ;
-    ns1:plainTextDescription "unit of the mass according to the Anglo-American system of units" .
+    ns1:plainTextDescription "A ton is a unit of mass in the US customary system, where 1 ton is equal to 2000 pounds of mass." .
 
 <http://qudt.org/vocab/unit/TON_US-PER-DAY> a ns1:Unit ;
     rdfs:label "Short Ton (us) Per Day"@en ;
@@ -6879,20 +7540,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/T_Ab> a ns1:Unit ;
     rdfs:label "Abtesla"@en .
 
-<http://qudt.org/vocab/unit/TanzanianShilling> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Tanzanian Shilling"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Tanzanian_shilling"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/TebiBYTE> a ns1:CountingUnit,
         ns1:Unit ;
     rdfs:label "TebiByte"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Tebibyte"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Tenge> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Tenge"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Kazakhstani_tenge"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/TeraBYTE> a ns1:CountingUnit,
         ns1:Unit ;
@@ -6905,11 +7556,11 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/TeraHZ> a ns1:Unit ;
     rdfs:label "Terahertz"@en ;
-    ns1:plainTextDescription "1 000 000 000 000-fold of the SI derived unit hertz" .
+    ns1:plainTextDescription "1,000,000,000,000-fold of the SI derived unit hertz" .
 
 <http://qudt.org/vocab/unit/TeraJ> a ns1:Unit ;
     rdfs:label "Terajoule"@en ;
-    ns1:plainTextDescription "1 000 000 000 000-fold of the SI derived unit joule" .
+    ns1:plainTextDescription "1,000,000,000,000-fold of the SI derived unit joule" .
 
 <http://qudt.org/vocab/unit/TeraOHM> a ns1:Unit ;
     rdfs:label "Teraohm"@en ;
@@ -6926,84 +7577,57 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/TonEnergy> a ns1:Unit ;
     rdfs:label "Ton Energy"@en .
 
-<http://qudt.org/vocab/unit/TrinidadAndTobagoDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Trinidad and Tobago Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Trinidad_and_Tobago_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Tugrik> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Tugrik"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Mongolian_t%C3%B6gr%C3%B6g"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/TunisianDinar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Tunisian Dinar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Tunisian_dinar"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/U> a ns1:Unit ;
     rdfs:label "Unified Atomic Mass Unit"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Atomic_mass_unit"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/UAEDirham> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "United Arab Emirates dirham"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/United_Arab_Emirates_dirham"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/UICFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "UIC franc (special settlement currency)"@en .
 
 <http://qudt.org/vocab/unit/UNITLESS> a ns1:CountingUnit,
         ns1:DimensionlessUnit,
         ns1:Unit ;
     rdfs:label "Unitless"@en .
 
-<http://qudt.org/vocab/unit/USDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "US Dollar"@en .
-
-<http://qudt.org/vocab/unit/USDollar-NextDay> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "United States Dollar (next day) (funds code)"@en .
-
-<http://qudt.org/vocab/unit/USDollar-SameDay> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "United States Dollar (same day) (funds code)"@en .
-
-<http://qudt.org/vocab/unit/UgandaShilling> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Uganda Shilling"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Ugandan_shilling"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/UnidadDeValorReal> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Unidad de Valor Real"@en .
-
-<http://qudt.org/vocab/unit/UnidadesDeFormento> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Unidades de formento (Funds code)"@en .
+<http://qudt.org/vocab/unit/UNKNOWN> a ns1:Unit ;
+    rdfs:label "Unknown"@en .
 
 <http://qudt.org/vocab/unit/UnitPole> a ns1:Unit ;
     rdfs:label "Unit Pole"@en .
 
-<http://qudt.org/vocab/unit/UruguayPeso> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Peso Uruguayo"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Uruguayan_peso"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/UzbekistanSom> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Uzbekistan Som"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Uzbekistani_som"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/V> a ns1:Unit ;
-    rdfs:label "Volt"@en ;
+    rdfs:label "فولت"@ar,
+        "волт"@bg,
+        "volt"@cs,
+        "Volt"@de,
+        "βολτ"@el,
+        "volt"@en,
+        "voltio"@es,
+        "ولت"@fa,
+        "volt"@fr,
+        "וולט"@he,
+        "वोल्ट"@hi,
+        "volt"@hu,
+        "volt"@it,
+        "ボルト"@ja,
+        "voltium"@la,
+        "volt"@ms,
+        "wolt"@pl,
+        "volt"@pt,
+        "volt"@ro,
+        "вольт"@ru,
+        "volt"@sl,
+        "volt"@tr,
+        "伏特"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Volt"^^xsd:anyURI ;
     ns1:latexDefinition "\\(\\text{V}\\ \\equiv\\ \\text{volt}\\ \\equiv\\ \\frac{\\text{J}}{\\text{C}}\\ \\equiv\\ \\frac{\\text{joule}}{\\text{coulomb}}\\ \\equiv\\ \\frac{\\text{W.s}}{\\text{C}}\\ \\equiv\\ \\frac{\\text{watt.second}}{\\text{coulomb}}\\ \\equiv\\ \\frac{\\text{W}}{\\text{A}}\\ \\equiv\\ \\frac{\\text{watt}}{\\text{amp}}\\)"^^ns1:LatexString .
 
 <http://qudt.org/vocab/unit/V-A> a ns1:Unit ;
-    rdfs:label "Volt Ampere"@en ;
+    rdfs:label "فولت. أمبير"@ar,
+        "Voltampere"@de,
+        "volt ampere"@en,
+        "voltiamperio"@es,
+        "voltampère"@fr,
+        "volt ampere"@it,
+        "volt-ampere"@pt,
+        "вольт-ампер"@ru ;
     ns1:plainTextDescription "product of the SI derived unit volt and the SI base unit ampere" .
 
 <http://qudt.org/vocab/unit/V-A-HR> a ns1:Unit ;
@@ -7035,8 +7659,25 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/V-PER-M> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Volt per Metre"@en,
-        "Volt per Meter"@en-us .
+    rdfs:label "مقياس التبادل، الأس السالب للمتر"@ar,
+        "voltů na metr"@cs,
+        "Volt je Meter"@de,
+        "volt per metre"@en,
+        "Volt per Meter"@en-us,
+        "voltio por metro"@es,
+        "ولت بر متر"@fa,
+        "volt par mètre"@fr,
+        "प्रति मीटर वोल्ट"@hi,
+        "volt al metro"@it,
+        "ボルト毎メートル"@ja,
+        "volt per meter"@ms,
+        "wolt na metr"@pl,
+        "volt por metro"@pt,
+        "volți pe metru"@ro,
+        "вольт на метр"@ru,
+        "volt na meter"@sl,
+        "volt bölü metre"@tr,
+        "伏特每米"@zh .
 
 <http://qudt.org/vocab/unit/V-PER-M2> a ns1:Unit ;
     rdfs:label "Volt per Square Metre"@en,
@@ -7084,27 +7725,40 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
     rdfs:label "Statvolt per Centimetre"@en,
         "Statvolt per Centimeter"@en-us .
 
-<http://qudt.org/vocab/unit/Vatu> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Vatu"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Vanuatu_vatu"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/VenezuelanBolvar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Venezuelan bolvar"@en .
-
-<http://qudt.org/vocab/unit/VietnameseDong> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Vietnamese ??ng"@en .
-
 <http://qudt.org/vocab/unit/W> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Watt"@en ;
+    rdfs:label "واط"@ar,
+        "ват"@bg,
+        "watt"@cs,
+        "Watt"@de,
+        "βατ"@el,
+        "watt"@en,
+        "vatio"@es,
+        "وات"@fa,
+        "watt"@fr,
+        "ואט"@he,
+        "वाट"@hi,
+        "watt"@hu,
+        "watt"@it,
+        "ワット"@ja,
+        "wattium"@la,
+        "watt"@ms,
+        "wat"@pl,
+        "watt"@pt,
+        "watt"@ro,
+        "ватт"@ru,
+        "watt"@sl,
+        "watt"@tr,
+        "瓦特"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Watt"^^xsd:anyURI ;
     ns1:latexDefinition "\\(\\text{W}\\ \\equiv\\ \\text{watt}\\ \\equiv\\ \\frac{\\text{J}}{\\text{s}}\\ \\equiv\\ \\frac{\\text{joule}}{\\text{second}}\\ \\equiv\\ \\frac{\\text{N.m}}{\\text{s}}\\ \\equiv\\ \\frac{\\text{newton.metre}}{\\text{second}}\\ \\equiv\\ \\text{V.A}\\ \\equiv\\ \\text{volt.amp}\\ \\equiv\\ \\Omega\\text{.A}^{2}\\ \\equiv\\ \\text{ohm.amp}^{2}\\)"^^ns1:LatexString .
 
 <http://qudt.org/vocab/unit/W-HR> a ns1:Unit ;
     rdfs:label "Watthour"@en .
+
+<http://qudt.org/vocab/unit/W-HR-PER-M2> a ns1:Unit ;
+    rdfs:label "Watt hour per square metre"@en ;
+    ns1:plainTextDescription "A unit of energy per unit area, equivalent to 3,600 joules per square metre." .
 
 <http://qudt.org/vocab/unit/W-HR-PER-M3> a ns1:Unit ;
     rdfs:label "Watthour per Cubic metre"@en,
@@ -7125,6 +7779,10 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/W-PER-FT2> a ns1:Unit ;
     rdfs:label "Watt per Square Foot"@en .
+
+<http://qudt.org/vocab/unit/W-PER-GM> a ns1:Unit ;
+    rdfs:label "Watt per Gram"@en ;
+    ns1:plainTextDescription "SI derived unit watt divided by the SI derived unit gram" .
 
 <http://qudt.org/vocab/unit/W-PER-IN2> a ns1:Unit ;
     rdfs:label "Watt per Square Inch"@en .
@@ -7147,8 +7805,25 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/W-PER-M2> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Watt per Square Metre"@en,
-        "Watt per Square Meter"@en-us .
+    rdfs:label "واط في المتر المربع"@ar,
+        "watt na metr čtvereční"@cs,
+        "Watt je Quadratmeter"@de,
+        "watt per square metre"@en,
+        "Watt per Square Meter"@en-us,
+        "vatio por metro cuadrado"@es,
+        "وات بر مترمربع"@fa,
+        "watt par mètre carré"@fr,
+        "वाट प्रति वर्ग मीटर"@hi,
+        "watt al metro quadrato"@it,
+        "ワット毎平方メートル"@ja,
+        "watt per meter persegi"@ms,
+        "wat na metr kwadratowy"@pl,
+        "watt por metro quadrado"@pt,
+        "watt pe metru pătrat"@ro,
+        "ватт на квадратный метр"@ru,
+        "watt na kvadratni meter"@sl,
+        "watt bölü metre kare"@tr,
+        "瓦特每平方米"@zh .
 
 <http://qudt.org/vocab/unit/W-PER-M2-K> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -7200,7 +7875,29 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 
 <http://qudt.org/vocab/unit/WB> a ns1:DerivedUnit,
         ns1:Unit ;
-    rdfs:label "Weber"@en ;
+    rdfs:label "ويبر; فيبر"@ar,
+        "вебер"@bg,
+        "weber"@cs,
+        "Weber"@de,
+        "βέμπερ"@el,
+        "weber"@en,
+        "weber"@es,
+        "وبر"@fa,
+        "weber"@fr,
+        "ובר"@he,
+        "वैबर"@hi,
+        "weber"@hu,
+        "weber"@it,
+        "ウェーバ"@ja,
+        "weberium"@la,
+        "weber"@ms,
+        "weber"@pl,
+        "weber"@pt,
+        "weber"@ro,
+        "вебер"@ru,
+        "weber"@sl,
+        "weber"@tr,
+        "韦伯"@zh ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Weber"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/WB-M> a ns1:DerivedUnit,
@@ -7209,8 +7906,24 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "Weber Meter"@en-us .
 
 <http://qudt.org/vocab/unit/WB-PER-M> a ns1:Unit ;
-    rdfs:label "Weber Per Metre"@en,
-        "Weber Per Meter"@en-us ;
+    rdfs:label "مقياس التبادل، الأس السالب للمتر"@ar,
+        "weberů na metr"@cs,
+        "Weber je Meter"@de,
+        "weber per metre"@en,
+        "Weber Per Meter"@en-us,
+        "weber por metro"@es,
+        "وبر بر متر"@fa,
+        "weber par mètre"@fr,
+        "प्रति मीटर वैबर"@hi,
+        "weber al metro"@it,
+        "ウェーバ毎メートル"@ja,
+        "weber per meter"@ms,
+        "weber na metr"@pl,
+        "weber por metro"@pt,
+        "weber pe metru"@ro,
+        "вебер на метр"@ru,
+        "weber bölü metre"@tr,
+        "韦伯每米"@zh ;
     ns1:plainTextDescription "SI derived unit weber divided by the SI base unit metre" .
 
 <http://qudt.org/vocab/unit/WB-PER-MilliM> a ns1:Unit ;
@@ -7218,29 +7931,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         "Weber Per Millimeter"@en-us ;
     ns1:plainTextDescription "derived SI unit weber divided by the 0.001-fold of the SI base unit metre" .
 
-<http://qudt.org/vocab/unit/WIREuro> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "WIR Euro (complementary currency)"@en .
-
-<http://qudt.org/vocab/unit/WIRFranc> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "WIR Franc (complementary currency)"@en .
-
 <http://qudt.org/vocab/unit/WK> a ns1:Unit ;
     rdfs:label "Week"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Week"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/XAF> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "CFA Franc BEAC"@en .
-
-<http://qudt.org/vocab/unit/XOF> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "CFA Franc BCEAO"@en .
-
-<http://qudt.org/vocab/unit/XPF> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "CFP franc"@en .
 
 <http://qudt.org/vocab/unit/YD> a ns1:Unit ;
     rdfs:label "Yard"@en ;
@@ -7291,11 +7984,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/YR_TROPICAL> a ns1:Unit ;
     rdfs:label "Tropical Year"@en .
 
-<http://qudt.org/vocab/unit/YemeniRial> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Yemeni Rial"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Yemeni_rial"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/YoctoC> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "YoctoCoulomb"@en .
@@ -7304,19 +7992,9 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
         ns1:Unit ;
     rdfs:label "YottaCoulomb"@en .
 
-<http://qudt.org/vocab/unit/YuanRenminbi> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Yuan Renminbi"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Renminbi"^^xsd:anyURI .
-
 <http://qudt.org/vocab/unit/Z> a ns1:Unit ;
     rdfs:label "atomic-number"@en ;
     ns1:dbpediaMatch "http://dbpedia.org/resource/Atomic_number"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/ZambianKwacha> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Zambian Kwacha"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Zambian_kwacha"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/ZeptoC> a ns1:DerivedUnit,
         ns1:Unit ;
@@ -7325,16 +8003,6 @@ The Baumé scale is a pair of hydrometer scales developed by French pharmacist A
 <http://qudt.org/vocab/unit/ZettaC> a ns1:DerivedUnit,
         ns1:Unit ;
     rdfs:label "ZettaCoulomb"@en .
-
-<http://qudt.org/vocab/unit/ZimbabweDollar> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Zimbabwe Dollar"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Zimbabwean_dollar"^^xsd:anyURI .
-
-<http://qudt.org/vocab/unit/Zloty> a ns1:CurrencyUnit,
-        ns1:Unit ;
-    rdfs:label "Zloty"@en ;
-    ns1:dbpediaMatch "http://dbpedia.org/resource/Polish_z%C5%82oty"^^xsd:anyURI .
 
 <http://qudt.org/vocab/unit/failures-in-time> a ns1:Unit ;
     rdfs:label "Failures In Time"@en ;

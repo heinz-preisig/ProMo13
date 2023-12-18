@@ -82,6 +82,29 @@ class UI_QUDTFetch(QtWidgets.QWidget):
     except:
       self.ui.push_1.setText("error units")
 
+
+    package = "updateUnitInformation"
+    try:
+      reply = receiver(package)
+      print("reply:", reply)
+      if not error:
+        self.ui.push_1.hide()
+    except:
+      self.ui.push_1.setText("error units")
+
+    package = "updateConstants"
+    reply = receiver(package)
+    try:
+      reply = receiver(package)
+      print("reply:", reply)
+      if not error:
+        self.ui.push_1.hide()
+    except:
+      self.ui.push_1.setText("error constants")
+
+
+    self.ui.push_1.setText("finished")
+
   def on_push_2_pressed(self):
     print("debugging -- push_2 pressed")
     package = "updateQuantityKindInformation"

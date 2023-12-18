@@ -506,7 +506,10 @@ class UI_Equations(QtWidgets.QWidget):
     self.resetEquationInterface()
 
     self.ui_indices.close()
-    [self.variable_tables[nw].close() for nw in self.variable_tables]
+    try:
+      [self.variable_tables[nw].close() for nw in self.variable_tables]
+    except:
+      pass
     self.operator_table.close()
 
     self.hide()
