@@ -39,6 +39,7 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import simulateDe
 from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
 
 
+
 class UI_VariableTableDialog(VariableTable):
   """
   dialog for a variable
@@ -283,6 +284,9 @@ class UI_VariableTableDialog(VariableTable):
         self.__changeIndexing(v)
     elif c == 6:
       # print("clicked 6 - equations ", selected_number_of_equations)
+      if v.port_variable:
+        reply = makeMessageBox("this is a port variable -- you cannot define a equation for it?", buttons=["close"])
+        return
       self.new_equation.emit(selected_ID)
     elif c == 7:
       # print("clicked 7 - delete ")
