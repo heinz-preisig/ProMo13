@@ -80,7 +80,9 @@ class UI_QUDTFetch_IRI(QtWidgets.QDialog):
     self.selection = None
 
   def setup(self):
-    terms = loadListOfTerms("quantitykind")
+    terms_quantitykind = loadListOfTerms("quantitykind")
+    terms_constant = loadListOfTerms("constant")
+    terms = terms_quantitykind+terms_constant
     return terms
 
   def makeTable(self, terms):
