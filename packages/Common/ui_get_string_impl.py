@@ -27,7 +27,7 @@ from Common.ui_string_dialog import Ui_Dialog
 from Common.resources_icons import roundButton
 
 
-class UI_String(QtWidgets.QDialog):
+class UI_GetString(QtWidgets.QDialog):
   '''
   user interface for defining a string
   designed to be either used with the signal mechanism or reading the result
@@ -77,7 +77,7 @@ class UI_String(QtWidgets.QDialog):
 
   def __changedText(self, Qtext):
     self.ui.pushAccept.show()
-    self.text = str(Qtext)
+    # self.text = str(Qtext)
 
   def __accept(self):
     self.accepted.emit(self.ui.lineEdit.text())
@@ -86,6 +86,7 @@ class UI_String(QtWidgets.QDialog):
 
   def getText(self):
     return self.text
+
 
 
 # ============================ testing ======================

@@ -28,8 +28,10 @@ from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 # from Common.record_definitions import RecordEquation
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
+# from Common.record_definitions import makeInitialAliases
 from Common.resources_icons import roundButton
 from Common.single_list_selector_impl import SingleListSelector
+from Common.ui_get_string_impl import UI_GetString
 # from OntologyBuilder.OntologyEquationEditor.resources import INSTANTIATE_EQ_NO
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_EQ
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_VAR
@@ -460,6 +462,9 @@ class UI_Equations(QtWidgets.QWidget):
 
       equ_ID = self.variables.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
       tokens = [] #self.checked_var.tokens  # version_change: and this is the replacement
+
+      # aliases = makeInitialAliases(symbol,var_ID)
+
 
       variable_record = makeCompleteVariableRecord(var_ID,
                                                    label=symbol,

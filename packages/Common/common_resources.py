@@ -52,7 +52,7 @@ from PyQt5 import QtGui
 
 from Common.resource_initialisation import DIRECTORIES
 from Common.single_list_selector_impl import SingleListSelector
-from Common.ui_string_dialog_impl import UI_String
+from Common.ui_get_string_impl import UI_GetString
 
 # global
 # terminology

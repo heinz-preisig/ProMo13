@@ -746,8 +746,6 @@ class Variables(OrderedDict):
       self[ID] = PhysicalVariable(**kwargs)  # NOTE: no check on existence done -- must happen on defining
       self[ID].indices = self.ontology_container.indices  # variable does not know the indices dictionary on definition.
       self.ontology_container.addVariable(ID, **kwargs)
-      # self.indexVariables()
-      # self.changes["variables"].add(ID)
     else:
       raise VarError("no variable ID defined")
     return ID
@@ -1366,6 +1364,7 @@ class PhysicalVariable():
     for language in LANGUAGES["aliasing"]:
       if language != "global_ID":
         self.aliases[language] = label
+
 
   def shiftType(self, type):
     self.type = type

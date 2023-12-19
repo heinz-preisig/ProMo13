@@ -13,6 +13,8 @@
 
 __author__ = "Preisig, Heinz A"
 
+# from Common.record_definitions import makeInitialAliases
+
 MAX_HEIGHT = 800
 
 from copy import copy
@@ -300,6 +302,7 @@ class UI_VariableTableDialog(VariableTable):
     var_ID = self.variables.newProMoVariableIRI()  # globalVariableID(update=True)
     #
     # NOTE: there is something fundamentally wrong as when using the default things go utterly wrong.. python ???
+
     variable_record = makeCompleteVariableRecord(var_ID,
                                                  label=NEW_VAR,
                                                  type=self.selected_variable_type,

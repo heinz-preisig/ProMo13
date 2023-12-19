@@ -27,7 +27,7 @@ from Common.ui_string_dialog import Ui_Dialog
 from Common.resources_icons import roundButton
 
 
-class UI_String(QtWidgets.QDialog):
+class UI_GetInteger(QtWidgets.QDialog):
   '''
   user interface for defining a string
   designed to be either used with the signal mechanism or reading the result
@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
   a = QtWidgets.QApplication([])
   accept = []
-  w = UI_String("give float", "integer",  limiting_list= [100], acceptance_list=accept)
+  w = UI_GetInteger("give float", "integer",  limiting_list= [100], acceptance_list=accept)
   w.show()
   w.accepted.connect(changing)
   a.exec_()

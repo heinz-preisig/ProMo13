@@ -44,11 +44,12 @@ from Common.common_resources import getOntologyName
 from Common.common_resources import makeTreeView
 from Common.common_resources import putData
 from Common.common_resources import saveBackupFile
-from Common.common_resources import UI_String
+from Common.common_resources import UI_GetString
 from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.ontology_container import OntologyContainer
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
+# from Common.record_definitions import makeInitialAliases
 from Common.record_definitions import RecordIndex
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
@@ -292,7 +293,7 @@ class UiOntologyDesign(QMainWindow):
 
     new_index = None
     while not (new_index):
-      ui_ask = UI_String("give index name ",
+      ui_ask = UI_GetString("give index name ",
                          "index name or exit", limiting_list=exist_list)
       ui_ask.exec_()
       new_index = ui_ask.getText()
@@ -544,6 +545,7 @@ class UiOntologyDesign(QMainWindow):
     # globalEquationID(update=True)  # RULE: for global ID
     new_equ_ID = self.variables.newProMoEquationIRI()
 
+
     variable_record = makeCompleteVariableRecord(new_var_ID,
                                                  label=makeInterfaceVariableName(
                                                          symbol),
@@ -560,6 +562,10 @@ class UiOntologyDesign(QMainWindow):
                                                  port_variable=False,
                                                  tokens=tokens,
                                                  )
+
+
+    # aliases = makeInitialAliases(symbol, var_ID)
+    # variable_record.aliases = aliases
 
     self.variables.addNewVariable(ID=new_var_ID, **variable_record)
 

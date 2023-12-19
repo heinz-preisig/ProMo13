@@ -27,7 +27,7 @@ from Common.ui_string_dialog import Ui_Dialog
 from Common.resources_icons import roundButton
 
 
-class UI_String(QtWidgets.QDialog):
+class UI_GetString(QtWidgets.QDialog):
   '''
   user interface for defining a string
   designed to be either used with the signal mechanism or reading the result
@@ -139,7 +139,7 @@ if __name__ == '__main__':
   DIRECTORIES["icon_location"] = JOIN(DIRECTORIES["common"], "icons")
   a = QtWidgets.QApplication([])
 
-  w = UI_String("give name", "name")
+  w = UI_GetString("give name", "name")
   w.show()
   w.accepted.connect(changing)
   a.exec_()
