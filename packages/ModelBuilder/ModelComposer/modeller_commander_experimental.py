@@ -49,7 +49,7 @@ from Common.qt_resources import BUTTON_NAMES
 from Common.record_definitions import Interface
 from Common.resource_initialisation import FILES
 from Common.ui_radio_selector_w_sroll_impl import UI_RadioSelector
-from Common.ui_string_dialog_impl import UI_String
+from Common.ui_get_string_impl import UI_GetString
 from ModelBuilder.ModelComposer.instantiation_dialog_HAP_impl import InstantiationDialog
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Arc_Edge
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Knot
@@ -153,7 +153,7 @@ class Commander(QtCore.QObject):
     self.__makeViewAndScene(rootID)
     self.currently_viewed_node = rootID
 
-    self.string_dialog = UI_String("new node name", "node name")
+    self.string_dialog = UI_GetString("new node name", "node name")
     self.string_dialog.accepted.connect(self.__changeName)
 
   def __loadAutomata(self):

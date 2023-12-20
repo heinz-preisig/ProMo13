@@ -41,7 +41,7 @@ class UI_GetString(QtWidgets.QDialog):
   # aborted = QtCore.pyqtSignal()
   accepted = QtCore.pyqtSignal(str)
 
-  def __init__(self, prompt, placeholdertext="", fokus=True):
+  def __init__(self, prompt, placeholdertext="", limiting_list= [], fokus=True):
     """
     Serves the purpose of defining a string allowing for accepting or rejecting the result
     :param prompt: displayed in the window title
@@ -62,6 +62,7 @@ class UI_GetString(QtWidgets.QDialog):
     self.ui.pushAccept.hide()
 
     self.placeholdertext = placeholdertext
+    self.limiting_list = limiting_list
     self.setWindowTitle(prompt)
     self.text = None
 
@@ -72,12 +73,24 @@ class UI_GetString(QtWidgets.QDialog):
     self.ui.pushReject.setFocus()
     self.ui.lineEdit.setPlaceholderText(placeholdertext)
 
+
     if fokus:
       self.ui.lineEdit.setFocus()
 
   def __changedText(self, Qtext):
-    self.ui.pushAccept.show()
-    # self.text = str(Qtext)
+    text = Qtext
+    if len(text) == 0:
+      return
+
+    if self.limiting_list != []:
+      if (text in self.limiting_list) or (text[0] == " "):
+        self.ui.lineEdit.setStyleSheet("color: red;  background-color: white")
+        self.ui.pushAccept.hide()
+      else:
+        self.ui.lineEdit.setStyleSheet("color: black;  background-color: white")
+    else:
+      self.ui.pushAccept.show()
+      self.text = str(text)
 
   def __accept(self):
     self.accepted.emit(self.ui.lineEdit.text())
@@ -105,7 +118,7 @@ if __name__ == '__main__':
   DIRECTORIES["icon_location"] = JOIN(DIRECTORIES["common"], "icons")
 
   a = QtWidgets.QApplication([])
-  w = UI_String("give text")
+  w = UI_GetString("give text", limiting_list=["abc", "de"])
   w.show()
   a.exec_()
 

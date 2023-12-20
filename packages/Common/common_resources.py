@@ -245,7 +245,7 @@ def askForModelFileGivenOntologyLocation(model_library_location,
 
   # while (model_name in acceptance_list):
   while not (model_name or (status == "exit")):
-    ui_ask = UI_String("give new model name or type exit ",
+    ui_ask = UI_GetString("give new model name or type exit ",
                        "model name or exit", limiting_list=model_names)
     ui_ask.exec_()
     model_name = ui_ask.getText()
@@ -281,7 +281,7 @@ def askForCasefileGivenLocation(case_rep_loc,
   status = ""
 
   while not (case_name or (status == "exit")):
-    ui_ask = UI_String("give new case name or type exit ",
+    ui_ask = UI_GetString("give new case name or type exit ",
                        "case name or exit", limiting_list=case_names)
     ui_ask.exec_()
     case_name = ui_ask.getText()
