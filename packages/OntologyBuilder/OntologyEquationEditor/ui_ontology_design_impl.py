@@ -379,6 +379,7 @@ class UiOntologyDesign(QMainWindow):
       enabled_var_types = [VARIABLE_TYPE_INTERFACES]
     else:
       enabled_var_types = self.variable_types_on_networks[self.current_network]
+      enabled_var_types.append(VARIABLE_TYPE_INTERFACES)
 
     # update incidence dictionaries
     self.updateLatexImages()
@@ -698,7 +699,7 @@ class UiOntologyDesign(QMainWindow):
     self.on_pushCompile_pressed()
 
     # update incidence matrices
-    self.updateLateImages()
+    self.updateLatexImages()
 
   def updateLatexImages(self):
     (self.ontology_container.incidence_dictionary,

@@ -128,6 +128,8 @@ class UI_Equations(QtWidgets.QWidget):
     self.hide()
     self.ui.lineNewVariable.setFocus()
 
+    self.ui.pushPickIndices.hide()
+
   def __makePickVariableTable(self):
 
     self.variable_tables = {}
@@ -609,6 +611,7 @@ class UI_Equations(QtWidgets.QWidget):
     self.def_given_variable.emit()
 
   def on_pushPickVariables_pressed(self):
+    self.__makePickVariableTable()
     [self.variable_tables[nw].show() for nw in self.variable_tables]
 
   def on_pushPickOperations_pressed(self):

@@ -55,14 +55,7 @@ class VariableTable(QtWidgets.QDialog):
     self.network = network
     self.what = what
     self.info_file = info_file
-    # if what == "variable_picking":  # NOTE: Python issue. Is not updated when making table. ???
-    #   self.variable_space = variables.index_accessible_variables_on_networks
-    # else:
-    #   try:
-    #     self.variable_space = variables.index_networks_for_variable
-    #   except:
-    #     self.variables.indexVariables()
-    # self.variable_space = variable_space
+
     self.enabled_variable_types = enabled_variable_types
     self.hide_vars = hide_vars
     self.hide_columns = hide_columns
@@ -70,7 +63,6 @@ class VariableTable(QtWidgets.QDialog):
     QtWidgets.QDialog.__init__(self)
     self.ui = Ui_Dialog()
     self.ui.setupUi(self)
-    # self.ui.labelNetwork.setText(title)
     self.setWindowTitle(title)
     self.reset_table()
     self.hide()
@@ -114,7 +106,9 @@ class VariableTable(QtWidgets.QDialog):
 
   def makeTable(self):
     # Note: variable space generation has been centralised
-    self.variable_space, no_of_variables = self.variables.variableSpaces(self.what, self.network, self.enabled_variable_types)
+    self.variable_space, no_of_variables = self.variables.variableSpaces(self.what,
+                                                                         self.network,
+                                                                         self.enabled_variable_types)
     if (no_of_variables == 0) and (self.what == "variable_picking"):
       print("debugging -- should build no table")
 

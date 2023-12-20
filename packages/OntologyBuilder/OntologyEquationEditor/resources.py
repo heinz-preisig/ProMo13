@@ -332,8 +332,7 @@ CODE[language]["^"] = "%s" + CODE[language]["operator"]["^"] + \
                       "%s" + CODE[language]["delimiter"][")"]  # power
 CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # expand product
 CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # Hadamar product
-CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s" + \
-                      CODE[language]["operator"]["*"] + "%s"  # reduce product
+CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s"   # reduce product
 CODE[language]["ParDiff"] = CODE[language]["operator"]["ParDiff"] + \
                             CODE[language]["combi"]["tuple"]
 CODE[language]["TotalDiff"] = CODE[language]["operator"]["TotalDiff"] + \
@@ -397,8 +396,8 @@ CODE[language][","] = ","
 CODE[language]["+"] = "%s + %s"
 CODE[language]["-"] = "%s - %s"
 CODE[language]["^"] = "%s^(%s)"  # power
-CODE[language][":"] = "%s : %s"  # Khatri-Rao product
-CODE[language]["."] = "%s . %s"  # expand product
+CODE[language][":"] = "%s : %s"  # expand product
+CODE[language]["."] = "%s . %s"  # Hadamar product
 CODE[language]["*"] = "%s * %s"  # reduce product
 CODE[language]["ParDiff"] = "ParDiff(%s,%s)"
 CODE[language]["TotalDiff"] = "TotalDiff(%s,%s)"
@@ -433,9 +432,9 @@ CODE[language][","] = ","
 CODE[language]["+"] = r"%s  + %s"
 CODE[language]["-"] = r"%s  - %s"
 CODE[language]["^"] = r"%s^{%s}"  # power
-CODE[language][":"] = r"%s \, {\odot} \, %s"  # .........................Khatri-Rao product
-CODE[language]["."] = r"%s \, . \, %s"  # ...............................expand product
-CODE[language]["|"] = r"%s \stackrel{%s}{\,\star\,} %s"  # ..............reduce product
+CODE[language][":"] = r"%s \, {\odot} \, %s"  # .........................expand product
+CODE[language]["."] = r"%s \, . \, %s"  # ...............................Hadamar product
+CODE[language]["*"] = r"%s \star %s"  # ..............reduce product
 CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
 CODE[language]["ParDiff"] =r"\frac{\partial{%s}}{\partial{%s}}"
 CODE[language]["TotalDiff"] =  r"\frac{d\,{%s}}{d\,{%s}}"
@@ -532,10 +531,12 @@ CODE[language]["block_index"] = "{%s" + \
 # generating the operator lists for the equation editor
 
 OnePlace_TEMPLATE = LIST_FUNCTIONS_SINGLE_ARGUMENT
-TwoPlace_TEMPLATE = ["+", "-",
+TwoPlace_TEMPLATE = ["+",
+                     "-",
                      "^",
                      ".",
                      ":",
+                     "*",
                      "ParDiff",
                      "TotalDiff",
                      "max",
