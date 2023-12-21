@@ -476,6 +476,8 @@ class UiOntologyDesign(QMainWindow):
     self.current_network = None
     self.ui.combo_EditVariableTypes.hide()
 
+    self.ui.groupEdit.hide()
+
   def __setupEditInterface(self):
     left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
     right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
