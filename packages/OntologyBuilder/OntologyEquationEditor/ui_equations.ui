@@ -30,34 +30,29 @@
      <x>10</x>
      <y>110</y>
      <width>951</width>
-     <height>321</height>
+     <height>381</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>DejaVu Sans Mono</family>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
    </property>
    <property name="toolTip">
     <string>Equation editor</string>
    </property>
    <property name="title">
-    <string>Equation Editor:  Variable := Expression</string>
+    <string>Equation Editor: Variable := Expression                                                            </string>
    </property>
-   <widget class="QLineEdit" name="lineNewVariable">
-    <property name="geometry">
-     <rect>
-      <x>11</x>
-      <y>50</y>
-      <width>181</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>variable field</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>0</y>
-      <width>229</width>
+      <x>540</x>
+      <y>60</y>
+      <width>301</width>
       <height>61</height>
      </rect>
     </property>
@@ -164,18 +159,32 @@ color:rgb(255, 255, 255)</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>150</y>
       <width>941</width>
-      <height>30</height>
+      <height>33</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLineEdit" name="lineNewVariable">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>variable field</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QLabel" name="label">
        <property name="font">
         <font>
          <family>Consolas</family>
          <weight>75</weight>
+         <italic>true</italic>
          <bold>true</bold>
         </font>
        </property>
@@ -189,6 +198,9 @@ color:rgb(255, 255, 255)</string>
        <property name="font">
         <font>
          <family>Consolas</family>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
         </font>
        </property>
        <property name="toolTip">
@@ -198,40 +210,32 @@ color:rgb(255, 255, 255)</string>
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QLabel" name="labelQuestion">
-   <property name="geometry">
-    <rect>
-     <x>1080</x>
-     <y>-470</y>
-     <width>41</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Consolas</family>
-     <pointsize>20</pointsize>
-    </font>
-   </property>
-   <property name="toolTip">
-    <string>Variable equation editor
-Generates new variables and equations
-Resulting bipartite graph (variable|equation) must be complete before ontology can be used
-predefined variables: t, dt, t0</string>
-   </property>
-   <property name="autoFillBackground">
-    <bool>false</bool>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(255, 17, 0);</string>
-   </property>
-   <property name="text">
-    <string>?</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
+   <widget class="QLineEdit" name="lineDocumentation">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>330</y>
+      <width>941</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>describe equation</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="textBrowser">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>190</y>
+      <width>941</width>
+      <height>131</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QLabel" name="labelNetwork">
    <property name="geometry">
@@ -245,7 +249,7 @@ predefined variables: t, dt, t0</string>
    <property name="font">
     <font>
      <family>Consolas</family>
-     <pointsize>12</pointsize>
+     <pointsize>14</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -258,7 +262,7 @@ predefined variables: t, dt, t0</string>
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>450</y>
+     <y>510</y>
      <width>941</width>
      <height>61</height>
     </rect>
@@ -288,6 +292,14 @@ color :rgb(255, 255, 255)</string>
       </item>
       <item>
        <widget class="QPushButton" name="pushPickVariables">
+        <property name="font">
+         <font>
+          <family>DejaVu Sans Mono</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="toolTip">
          <string>pick variable table</string>
         </property>
@@ -298,6 +310,14 @@ color :rgb(255, 255, 255)</string>
       </item>
       <item>
        <widget class="QPushButton" name="pushPickIndices">
+        <property name="font">
+         <font>
+          <family>DejaVu Sans Mono</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="toolTip">
          <string>pick index table</string>
         </property>
@@ -308,6 +328,14 @@ color :rgb(255, 255, 255)</string>
       </item>
       <item>
        <widget class="QPushButton" name="pushPickOperations">
+        <property name="font">
+         <font>
+          <family>DejaVu Sans Mono</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="toolTip">
          <string>pick operations</string>
         </property>
@@ -331,62 +359,14 @@ color :rgb(255, 255, 255)</string>
       </property>
      </spacer>
     </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout"/>
-    </item>
    </layout>
-  </widget>
-  <widget class="QLineEdit" name="lineDocumentation">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>390</y>
-     <width>941</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="placeholderText">
-    <string>describe equation</string>
-   </property>
-  </widget>
-  <widget class="QTextBrowser" name="textBrowser">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>250</y>
-     <width>941</width>
-     <height>131</height>
-    </rect>
-   </property>
   </widget>
   <zorder>layoutWidget</zorder>
   <zorder>labelNetwork</zorder>
   <zorder>groupEquationEditor</zorder>
-  <zorder>labelQuestion</zorder>
-  <zorder>lineDocumentation</zorder>
-  <zorder>textBrowser</zorder>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>lineNewVariable</sender>
-   <signal>editingFinished()</signal>
-   <receiver>lineExpression</receiver>
-   <slot>setFocus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>111</x>
-     <y>173</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>485</x>
-     <y>173</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>lineExpression</sender>
    <signal>editingFinished()</signal>
@@ -400,6 +380,22 @@ color :rgb(255, 255, 255)</string>
     <hint type="destinationlabel">
      <x>380</x>
      <y>353</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineNewVariable</sender>
+   <signal>editingFinished()</signal>
+   <receiver>lineExpression</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>173</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>485</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>

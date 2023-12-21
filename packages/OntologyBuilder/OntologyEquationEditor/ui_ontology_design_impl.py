@@ -475,6 +475,7 @@ class UiOntologyDesign(QMainWindow):
     self.ui.pushShowVariables.hide()
     self.current_network = None
     self.ui.combo_EditVariableTypes.hide()
+    self.ui.treeWidget.clearSelection()
 
     self.ui.groupEdit.hide()
 
