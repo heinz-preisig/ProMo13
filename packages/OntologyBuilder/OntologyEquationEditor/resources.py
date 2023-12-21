@@ -541,17 +541,16 @@ TwoPlace_TEMPLATE = ["+",
                      "TotalDiff",
                      "max",
                      "min",
-                     "Instantiate"
+                     "Instantiate",
+                     "Root"
                      ]
 ThreePlace_TEMPLATE = ["blockProd"]
 internal = LANGUAGES["internal_code"]
 Special_TEMPLATE = {
         "Integral"   : CODE[internal]['Integral'].format(integrand='var',
                                                          differential='t',
-                                                         lower='l',
-                                                         upper='u'),
-        "Product"    : CODE[internal]["Product"].format(argument="a",
-                                                        index="I"),
+                                                         lower='to',
+                                                         upper='te'),
         }
 
 # TODO: not nice needs fixing
@@ -571,7 +570,7 @@ for i in TwoPlace_TEMPLATE:
 for c in Special_TEMPLATE:
   OPERATOR_SNIPS.append(str(Special_TEMPLATE[c]))
 
-OPERATOR_SNIPS.append(CODE[internal]["Root"] % ('expression to be explicit in var'))
+# OPERATOR_SNIPS.append(CODE[internal]["Root"] % ('expression to be explicit in var'))
 
 
 def makeInterfaceVariableName(symbol):
