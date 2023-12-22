@@ -530,7 +530,7 @@ CODE[language]["block_index"] = "{%s" + \
 
 # generating the operator lists for the equation editor
 
-OnePlace_TEMPLATE = LIST_FUNCTIONS_SINGLE_ARGUMENT
+OnePlace_TEMPLATE = LIST_FUNCTIONS
 TwoPlace_TEMPLATE = ["+",
                      "-",
                      "^",
@@ -542,7 +542,6 @@ TwoPlace_TEMPLATE = ["+",
                      "max",
                      "min",
                      "Instantiate",
-                     "Root"
                      ]
 ThreePlace_TEMPLATE = ["blockProd"]
 internal = LANGUAGES["internal_code"]
