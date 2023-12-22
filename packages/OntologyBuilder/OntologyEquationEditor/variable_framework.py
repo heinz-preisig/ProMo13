@@ -1012,7 +1012,7 @@ class Variables(OrderedDict):
 
   def variableSpaces(self, what, network, enabled_variable_types):
 
-    print("debugging -- variable spaces -- what:", what)
+    # print("debugging -- variable spaces -- what:", what)
     v_counter = 0
     if what == "variable_picking":
       variable_space = self.index_accessible_variables_on_networks

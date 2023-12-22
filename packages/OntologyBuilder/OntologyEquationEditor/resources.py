@@ -1076,18 +1076,27 @@ def generateLatexImages(ontology_name, ontology_container):
     print("......................................................................................................................")
     time.sleep(1)
 
-    subprocess.run(["latex", "-interaction=nonstopmode", file_name + ".tex"],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    subprocess.run(["dvipng", "-D", "150", "-T", "tight", "-z", "9",
-                    "-bg", "Transparent", "-o", file_name + ".png", file_name + ".dvi"],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # location = DIRECTORIES["latex_main_location"] % self.ontology_location
+    # f_name = FILES["latex_shell_var_equ_doc_command_exec"] % self.ontology_location
+    # documentation_file = FILES["latex_documentation"] % self.ontology_name
+    # if not self.compile_only:
+    #   saveBackupFile(documentation_file)
+    # self.writeMessage("busy making var/eq images")
+    p = QtCore.QProcess()
+    p.startDetached("sh", ["resources/make_images.sh", file_name])
+
+    # subprocess.run(["latex", "-interaction=nonstopmode", file_name + ".tex"],
+    #                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # subprocess.run(["dvipng", "-D", "150", "-T", "tight", "-z", "9",
+    #                 "-bg", "Transparent", "-o", file_name + ".png", file_name + ".dvi"],
+    #                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     print("cwd", os.getcwd(), "--", file_name + ".tex")
 
-    os.remove(file_name + ".tex")
-    os.remove(file_name + ".aux")
-    os.remove(file_name + ".log")
-    os.remove(file_name + ".dvi")
+    #os.remove(file_name + ".tex")
+    # os.remove(file_name + ".aux")
+    # os.remove(file_name + ".log")
+    # os.remove(file_name + ".dvi")
 
   os.chdir(original_work_dir)
 

@@ -708,7 +708,9 @@ class UiOntologyDesign(QMainWindow):
     (self.ontology_container.incidence_dictionary,
      self.ontology_container.inv_incidence_dictionary) = makeIncidenceDictionaries(
             self.ontology_container.variables)
+    self.writeMessage("generating images")
     generateLatexImages(self.ontology_name, self.ontology_container)
+    self.writeMessage("finished")
 
   def __makeRenderedOutput(self):
     """idea is to ease the repetition of inputting equations by writing them on a file."""
@@ -888,18 +890,21 @@ class UiOntologyDesign(QMainWindow):
     if not self.compile_only:
       saveBackupFile(documentation_file)
     self.writeMessage("busy making var/eq images")
-    args = ['sh', f_name, location]
-    print('ARGS: ', args)
-    make_it = subprocess.Popen(
-            args,
-            start_new_session=True,
-            stdout=subprocess.PIPE,  # NOTE: comment out if output is to be seen
-            stderr=subprocess.PIPE
-            )
-    out, error = make_it.communicate()
+    p = QtCore.QProcess()
+    p.startDetached("sh",[f_name, location])
+    # args = ['sh', f_name, location]
+    # print('ARGS: ', args)
+    # make_it = subprocess.Popen(
+    #         args,
+    #         start_new_session=True,
+    #         stdout=subprocess.PIPE,  # NOTE: comment out if output is to be seen
+    #         stderr=subprocess.PIPE
+    #         )
+    # out, error = make_it.communicate()
     # print("debugging -- ", out, error)
 
     self.__makeDotGraphs()
+
     # self.__makeVariableEquationPictures(language)
 
   def progress_dialog(self, message):
