@@ -271,7 +271,7 @@ LANGUAGES["internals"] = [LANGUAGES["internal_code"], "global_ID_to_internal"]  
 LANGUAGES["code_generation"] = ["matlab"] #["global_ID", "python", "cpp", "matlab"]
 LANGUAGES["documentation"] = ["latex"]
 LANGUAGES["compile"] = LANGUAGES["code_generation"] + LANGUAGES["documentation"]
-LANGUAGES["aliasing"] = LANGUAGES["compile"] + [LANGUAGES["internal_code"]]
+LANGUAGES["aliasing"] = LANGUAGES["compile"] + [LANGUAGES["internal_code"]] + [LANGUAGES["global_ID"]]
 LANGUAGES["aliasing_modify"] = LANGUAGES["compile"].copy()
 # LANGUAGES["aliasing_modify"].remove(LANGUAGES["global_ID"])
 LANGUAGES["rename"] = "rename"
@@ -354,10 +354,15 @@ CODE[language]["Integral"] = CODE[language]["operator"]["Integral"] + \
 #                              "%s" + \
 #                              CODE[language]["operator"]["in"] + \
 #                              CODE[language]["combi"]["range"] + \
-#                              CODE[language]["delimiter"][")"]
+# #                              CODE[language]["delimiter"][")"]
+# CODE[language]["Product"] = CODE[language]["operator"]["Product"] + \
+#                             CODE[language]["delimiter"]["("] + "{argument!s}" + \
+#                             CODE[language]["delimiter"][","] + "{index!s}" + \
+#                             CODE[language]["delimiter"][")"]
+
 CODE[language]["Product"] = CODE[language]["operator"]["Product"] + \
-                            CODE[language]["delimiter"]["("] + "{argument!s}" + \
-                            CODE[language]["delimiter"][","] + "{index!s}" + \
+                            CODE[language]["delimiter"]["("] + "%s" + \
+                            CODE[language]["delimiter"][","] + "%s" + \
                             CODE[language]["delimiter"][")"]
 CODE[language]["Instantiate"] = CODE[language]["operator"]["Instantiate"] + \
                                 CODE[language]["combi"]["tuple"]
@@ -403,7 +408,8 @@ CODE[language]["ParDiff"] = "ParDiff(%s,%s)"
 CODE[language]["TotalDiff"] = "TotalDiff(%s,%s)"
 CODE[language]["Integral"] = "Integral({integrand!s} :: {differential!s} in [{lower!s},{upper!s} ])"
 # CODE[language]["Interval"] = "interval(%s in [%s , %s])"
-CODE[language]["Product"] = "Product( {argument!s} \, {index!s} )"
+# CODE[language]["Product"] = "Product( {argument!s} \, {index!s} )"
+CODE[language]["Product"] = "Product( {%s} \, {%s} )"
 CODE[language]["Instantiate"] = "Instantiate(%s, %s)"
 CODE[language]["max"] = "max(%s, %s)"
 CODE[language]["min"] = "min(%s, %s)"
@@ -440,7 +446,8 @@ CODE[language]["ParDiff"] =r"\frac{\partial{%s}}{\partial{%s}}"
 CODE[language]["TotalDiff"] =  r"\frac{d\,{%s}}{d\,{%s}}"
 CODE[language]["Integral"] = r"\int_{{ {lower!s} }}^{{ {upper!s} }} \, {integrand!s} \enskip d\,{differential!s}"
 # CODE[language]["Interval"] = r"%s \in \left[ {%s} , {%s} \right] "
-CODE[language]["Product"] = r"\prod_{index!s}  {argument!s} "
+# CODE[language]["Product"] = r"\prod_{index!s}  {argument!s} "
+CODE[language]["Product"] = r"\prod_{%s}  {%s} "
 CODE[language]["Instantiate"] = r"\text{Instantiate}(%s, %s)"
 CODE[language]["max"] = r"\mathbf{max}\left( %s, %s \right)"
 CODE[language]["min"] = r"\mathbf{min}\left( %s, %s \right)"
@@ -533,15 +540,16 @@ CODE[language]["block_index"] = "{%s" + \
 OnePlace_TEMPLATE = LIST_FUNCTIONS
 TwoPlace_TEMPLATE = ["+",
                      "-",
-                     "^",
                      ".",
                      ":",
                      "*",
+                     "^",
                      "ParDiff",
                      "TotalDiff",
                      "max",
                      "min",
                      "Instantiate",
+                     "Product",
                      ]
 ThreePlace_TEMPLATE = ["blockProd"]
 internal = LANGUAGES["internal_code"]

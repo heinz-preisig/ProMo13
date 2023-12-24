@@ -1294,6 +1294,13 @@ class CompileSpace:
 
     return v
 
+  def getIndex(self, symbol):
+    for i in self.indices:
+      if self.indices[i]["aliases"]["internal_code"] == symbol:
+        return i
+    return None
+
+
   def newTemp(self):
     '''
     defines the symbol for a new temporary variable
@@ -1941,21 +1948,29 @@ class Product(Operator):
     """
     Operator.__init__(self, space)
 
-    self.argument = argument
-    self.index = index
+    for i in argument.units.asList():
+      if i != 0:
+        raise UnitError('Product expression must have no units', argument, '-')
 
-    # TODO: needs to be tested
-    _u = argument.units.asList()
-    units = Units(ALL=_u)
-    self.units = units.product(3)
-    self.index_structures = argument.index_structures
+    self.argument = argument
+    self.units = argument.units
+    self.index = self.space.getIndex(index)
+    indices = copy.copy(argument.index_structures)
+    indices.remove(self.index)
+    self.index_structures = indices
 
   def __str__(self):
+    # if self.space.language == "global_ID":
+    #   language = "internal_code"
+    # else:
+    #   language = self.space.language
     language = self.space.language
 
-    index = self.space.indices[self.index_ID]["aliases"][language]
-    s = CODE[language]["Product"].format(argument=self.argument,
-                                         index=index)
+    index = self.space.indices[self.index]["aliases"][language]
+    if language == "latex":
+      s = CODE[language]["Product"] % (index, self.argument)
+    else:
+      s = CODE[language]["Product"]%(self.argument, index)
     return s
 
 
@@ -2235,6 +2250,7 @@ class Expression(VerboseParser):
    EXPAND/op Factor/f                                                     $t=ExpandProduct(op,t,f,self.space)
    |HADAMAR/op Factor/f                                                   $t=Hadamar(op,t,f,self.space)
    |REDUCE/op Factor/f                                                    $t=ReduceProduct(op,t,f,self.space)
+   | power/op Factor/b                                                    $fu=Power(op, t, b, self.space)
    )*
   ;
  Index/u -> Variable/m                                                    $u=m
@@ -2246,7 +2262,6 @@ class Expression(VerboseParser):
       | 'Integral' '\(' Expression/dx '::'
           Identifier/s IN '\['Identifier/ll ',' Identifier/ul '\]' '\)'   $fu=Integral(dx,s,ll,ul, self.space)
       | 'Product'  '\(' Expression/a ',' Index/u '\)'                     $fu=Product(a, u, self.space)
-      | 'Power'/op '\(' Expression/a ',' Expression/b '\)'                $fu=Power(op, a, b, self.space)
       | 'Root'  '\(' Identifier/a '\)'                                    $fu=Implicit(a, self.space)
       | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                $fu=MaxMin(s, a, b, self.space)
       | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'             $fu=TotDifferential(x,y, self.space)

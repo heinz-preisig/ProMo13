@@ -88,6 +88,7 @@ class UI_GetString(QtWidgets.QDialog):
         self.ui.pushAccept.hide()
       else:
         self.ui.lineEdit.setStyleSheet("color: black;  background-color: white")
+        self.text = str(text)
     else:
       self.ui.pushAccept.show()
       self.text = str(text)
