@@ -54,6 +54,7 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import IndexStruc
 from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
+from OntologyBuilder.OntologyEquationEditor.variable_framework import EquationDeleteError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidentList
 
 
@@ -410,7 +411,10 @@ class UI_Equations(QtWidgets.QWidget):
 
   def on_pushDeleteEquation_pressed(self):
     v = self.selected_variable
-    v.removeEquation(self.current_eq_ID)  # remove from variable def
+    try:
+      v.removeEquation(self.current_eq_ID)  # remove from variable def
+    except EquationDeleteError:
+      return
     # self.variables.index_equation_in_definition_network()
     self.variables.indexVariables()
     self.ontology_container.indexEquations()
