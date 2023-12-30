@@ -1798,24 +1798,26 @@ class ExpandProduct(BinaryOperator):
                       b.units.prettyPrint(mode="string"))
 
 
-    # RULE: first operand can have only one index set
-    # RULE: second operand cannot have that one index set
+    # RUL-deleted: first operand can have only one index set
+    # RUL-deleted: second operand cannot have that one index set
+    # new RULE: there must be at least one common index
 
     common_index_set = self.s_index_a & self.s_index_b
     l = len(common_index_set)
     if l == 0:
-      self.index_structures = sorted(self.s_index_a | self.s_index_b)
+
       return
-    elif l > 0:
-      msg = "ExpandProduct -- there must be no common index"
-      msg += "\n first argument indices : %s" % self.pretty_a_indices
-      msg += "\n second argument indices: %s" % self.pretty_b_indices
-      raise IndexStructureError(msg)
+    # elif l > 0:
+    #   msg = "ExpandProduct -- there must be no common index"
+    #   msg += "\n first argument indices : %s" % self.pretty_a_indices
+    #   msg += "\n second argument indices: %s" % self.pretty_b_indices
+    #   raise IndexStructureError(msg)
+    #
+    # elif len(a.index_structures) != 1:
+    #   msg = "ExpandProduct -- there must be not more than one indices in the first argument"
+    #   raise IndexStructureError(msg)
 
-    elif len(a.index_structures) != 1:
-      msg = "ExpandProduct -- there must be not more than one indices in the first argument"
-      raise IndexStructureError(msg)
-
+    self.index_structures = sorted(self.s_index_a | self.s_index_b)
 
   def __str__(self):
     language = self.space.language
@@ -1824,7 +1826,7 @@ class ExpandProduct(BinaryOperator):
 
 
 
-class Power(BinaryOperator):
+class Power(Operator):
   def __init__(self, op, a, b, space):
     """
     Binary operator:
@@ -1838,8 +1840,8 @@ class Power(BinaryOperator):
     @param prec: precedence
     """
     # TODO: what happens with the index sets -- currently the ones of a
-    BinaryOperator.__init__(self, op, a, b, space)
-
+    # BinaryOperator.__init__(self, op, a, b, space)
+    Operator.__init__(self, space)
     # self.doc = TEMPLATES[op] % (a, b)
 
     # units of both basis and  exponent must be zero
@@ -2233,24 +2235,24 @@ class Expression(VerboseParser):
   token MaxMin      : '\b(max|min)\b';
   token IN          : '\b(in)\b';
   token Variable    : '[a-zA-Z_]\w*';
-  token sum         : '[+-]'; # plus minus
-  token power       : '\^';   # power
- token EXPAND      : ':';   # expand product
- token REDUCE      : '\*';
- token HADAMAR     : '.';    # Hadamar product
+  token SUM         : '[+-]'; # plus minus
+  token POWER       : '^';   # power
+  token EXPAND      : ':';   # expand product
+  token REDUCE      : '\*';
+  token HADAMAR     : '.';    # Hadamar product
 
   START/e -> Expression/e
   ;
   Expression/e ->
     'Instantiate' '\(' Expression/i  ',' Expression/v  '\)'               $e=Instantiate(i, v, self.space)
-      | Term/e( sum/op Term/t                                             $e=Add(op,e,t,self.space)
+      | Term/e( SUM/op Term/t                                             $e=Add(op,e,t,self.space)
       )*
   ;
   Term/t -> Factor/t (
-   EXPAND/op Factor/f                                                     $t=ExpandProduct(op,t,f,self.space)
-   |HADAMAR/op Factor/f                                                   $t=Hadamar(op,t,f,self.space)
-   |REDUCE/op Factor/f                                                    $t=ReduceProduct(op,t,f,self.space)
-   | power/op Factor/b                                                    $fu=Power(op, t, b, self.space)
+     EXPAND/op Factor/f                                                     $t=ExpandProduct(op,t,f,self.space)
+   | HADAMAR/op Factor/f                                                   $t=Hadamar(op,t,f,self.space)
+   | REDUCE/op Factor/f                                                    $t=ReduceProduct(op,t,f,self.space)
+   | POWER/op Factor/b                                                    $fu=Power(op, t, b, self.space)
    )*
   ;
  Index/u -> Variable/m                                                    $u=m
@@ -2267,7 +2269,6 @@ class Expression(VerboseParser):
       | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'             $fu=TotDifferential(x,y, self.space)
       | 'ParDiff'/f  '\(' Expression/x ',' Expression/y '\)'              $fu=ParDifferential(x,y, self.space)
       | UnitaryFunction/uf '\(' Expression/a '\)'                         $fu=UnitaryFunction(uf,a,  self.space)
-      | Identifier/v power '\(' Expression/e '\)'                         $fu=Power('^',v,e,self.space)
       | Identifier/a                                                      $fu=a
   ;
   UnitaryFunction/fu ->
