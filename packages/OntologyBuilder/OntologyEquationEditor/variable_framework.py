@@ -1758,7 +1758,7 @@ def __str__(self):
 
 
 
-class Hadamar(BinaryOperator):
+class Hadamard(BinaryOperator):
   def __init__(self, op, a, b, space):
     """
     dot product including extension of dimensions
@@ -1786,7 +1786,7 @@ class Hadamar(BinaryOperator):
       common_index_set = self.s_index_a & self.s_index_b
       l = len(common_index_set)
       if l == 0:
-        msg = "Hadamar -- the index sets of the first operant must be a subset of the index sets of the second operand"
+        msg = "Hadamard -- the index sets of the first operant must be a subset of the index sets of the second operand"
         msg += "\n first argument indices : %s" % self.pretty_a_indices
         msg += "\n second argument indices: %s" % self.pretty_b_indices
         print(msg)
@@ -1806,6 +1806,7 @@ class Hadamar(BinaryOperator):
 class ExpandProduct(BinaryOperator):
   def __init__(self, op, a, b, space):
     """
+    RULE: the two operants must not have any common index
     c_{X,Y,...} = a_X : b_{Y,...}
     """
     BinaryOperator.__init__(self, op, a, b, space)
@@ -1819,26 +1820,18 @@ class ExpandProduct(BinaryOperator):
                       b.units.prettyPrint(mode="string"))
 
 
-    # RUL-deleted: first operand can have only one index set
-    # RUL-deleted: second operand cannot have that one index set
-    # new RULE: there must be at least one common index
-
     common_index_set = self.s_index_a & self.s_index_b
     l = len(common_index_set)
     if l == 0:
+      self.index_structures = sorted(self.s_index_a | self.s_index_b)
 
-      return
-    # elif l > 0:
-    #   msg = "ExpandProduct -- there must be no common index"
-    #   msg += "\n first argument indices : %s" % self.pretty_a_indices
-    #   msg += "\n second argument indices: %s" % self.pretty_b_indices
-    #   raise IndexStructureError(msg)
-    #
-    # elif len(a.index_structures) != 1:
-    #   msg = "ExpandProduct -- there must be not more than one indices in the first argument"
-    #   raise IndexStructureError(msg)
+    else:
+      msg = "ExpandProduct -- the two operands must not have any common index"
+      msg += "\n first argument indices : %s" % self.pretty_a_indices
+      msg += "\n second argument indices: %s" % self.pretty_b_indices
+      raise IndexStructureError(msg)
 
-    self.index_structures = sorted(self.s_index_a | self.s_index_b)
+
 
   def __str__(self):
     language = self.space.language
@@ -2260,7 +2253,7 @@ class Expression(VerboseParser):
   token POWER       : '^';   # power
   token EXPAND      : ':';   # expand product
   token REDUCE      : '\*';
-  token HADAMAR     : '.';    # Hadamar product
+  token HADAMARD    : '.';    # Hadamard product
 
   START/e -> Expression/e
   ;
@@ -2270,10 +2263,10 @@ class Expression(VerboseParser):
       )*
   ;
   Term/t -> Factor/t (
-     EXPAND/op Factor/f                                                     $t=ExpandProduct(op,t,f,self.space)
-   | HADAMAR/op Factor/f                                                   $t=Hadamar(op,t,f,self.space)
-   | REDUCE/op Factor/f                                                    $t=ReduceProduct(op,t,f,self.space)
-   | POWER/op Factor/b                                                    $fu=Power(op, t, b, self.space)
+     EXPAND/op Factor/f                                                   $t=ExpandProduct(op,t,f,self.space)
+   | HADAMARD/op Factor/f                                                  $t=Hadamard(op,t,f,self.space)
+   | REDUCE/op Factor/f                                                   $t=ReduceProduct(op,t,f,self.space)
+   | POWER/op Factor/f                                                    $fu=Power(op, t, f, self.space)
    )*
   ;
  Index/u -> Variable/m                                                    $u=m

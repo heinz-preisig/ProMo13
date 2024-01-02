@@ -199,7 +199,7 @@ LIST_OPERATORS = ["+",  # ................ ordinary plus      ..0
                   "-",  # ................ ordinary minus     ..1
                   "^",  # ................ ordinary power     ..2
                   ":",  # ................ expand product     ..3
-                  ".",  # ................ Hadamar product    ..4
+                  ".",  # ................ Hadamard product    ..4
                   "*",  # ................ reduce product     ..5
                   "ParDiff",  # .......... partial derivative ..6
                   "TotalDiff",  # ........ total derivative   ..7
@@ -217,7 +217,7 @@ OPERATORS_alias = {
         "-"          : "minus",  # ................ ordinary minus
         "^"          : "power",  # ................ ordinary power
         ":"          : "expandProduct",  # ................ expand product
-        "."          : "Hadamar",  # ................ Hadamar product
+        "."          : "Hadamard",  # ................ Hadamard product
         "*"          : "reduceProduct",  # ................ reduce product
         "ParDiff"    : "ParDiff",  # .......... partial derivative
         "TotalDiff"  : "TotalDiff",  # ........ total derivative
@@ -331,7 +331,7 @@ CODE[language]["^"] = "%s" + CODE[language]["operator"]["^"] + \
                       CODE[language]["delimiter"]["("] + \
                       "%s" + CODE[language]["delimiter"][")"]  # power
 CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # expand product
-CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # Hadamar product
+CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # Hadamard product
 CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s"   # reduce product
 CODE[language]["ParDiff"] = CODE[language]["operator"]["ParDiff"] + \
                             CODE[language]["combi"]["tuple"]
@@ -403,7 +403,7 @@ CODE[language]["+"] = "%s + %s"
 CODE[language]["-"] = "%s - %s"
 CODE[language]["^"] = "%s^(%s)"  # power
 CODE[language][":"] = "%s : %s"  # expand product
-CODE[language]["."] = "%s . %s"  # Hadamar product
+CODE[language]["."] = "%s . %s"  # Hadamard product
 CODE[language]["*"] = "%s * %s"  # reduce product
 CODE[language]["ParDiff"] = "ParDiff(%s,%s)"
 CODE[language]["TotalDiff"] = "TotalDiff(%s,%s)"
@@ -440,7 +440,7 @@ CODE[language]["+"] = r"%s  + %s"
 CODE[language]["-"] = r"%s  - %s"
 CODE[language]["^"] = r"%s^{%s}"  # power
 CODE[language][":"] = r"%s \, {\odot} \, %s"  # .........................expand product
-CODE[language]["."] = r"%s \, . \, %s"  # ...............................Hadamar product
+CODE[language]["."] = r"%s \, . \, %s"  # ...............................Hadamard product
 CODE[language]["*"] = r"%s \star %s"  # ..............reduce product
 CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
 CODE[language]["ParDiff"] =r"\frac{\partial{%s}}{\partial{%s}}"
