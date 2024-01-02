@@ -85,13 +85,13 @@ def findID(indices, name):
 def makeIndexAliases(index, index_counter, label):
   # RULE" blank is the delimiter used for splitting the string
   for language in LANGUAGES["aliasing"]:
-    # if language == "global_ID":
-    #   s = CODE[language]["index"] % index_counter
-    #   index["aliases"][language] = s  # .strip(" ") # that's not a good idea.
-    # else:
-    #   index["aliases"][language] = label
+    if language == "global_ID":
+      s = index_counter #CODE[language]["index"] % index_counter
+      index["aliases"][language] = s  # .strip(" ") # that's not a good idea.
+    else:
+      index["aliases"][language] = label
 
-    index["aliases"][language] = label
+    # index["aliases"][language] = label
 
 
 def makeIndices(ontology_container):

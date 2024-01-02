@@ -1665,13 +1665,21 @@ class BinaryOperator(Operator):
     self.a = a
     self.b = b
 
-
+    try:
+      _ = a.index_structures
+    except:
+      a.index_structures = []
+      print("warning -- op1 has no index structure")
+    try:
+      _ = b.index_structures
+    except:
+      b.index_structures = []
+      print("warning -- op2 has no index structure")
     self.s_index_a = set(a.index_structures)
     self.s_index_b = set(b.index_structures)
-
-
     self.pretty_a_indices = renderIndexListFromGlobalIDToInternal(self.s_index_a, space.indices)
     self.pretty_b_indices = renderIndexListFromGlobalIDToInternal(self.s_index_b, space.indices)
+
 
   def __str__(self):
     s = stringBinaryOperation(self.space.language, self.op, self.a, self.b)
@@ -1753,33 +1761,46 @@ def __str__(self):
 class Hadamar(BinaryOperator):
   def __init__(self, op, a, b, space):
     """
-    standard matrix product with the index defining which dimension is to be reduced.
+    dot product including extension of dimensions
+    c_XY := a . b_XY
+    c_WXYZ := a_WXY . b_XY    Condition : if both have indices, there must be a common set of indices
     """
-    # print("this is the reduce product")
+    try:
+      _ = a.index_structures
+    except:
+      a.index_structures = []
+      print("warning -- op1 has no index structure")
+    try:
+      _ = b.index_structures
+    except:
+      b.index_structures = []
+      print("warning -- op2 has no index structure")
+
 
     BinaryOperator.__init__(self, op, a, b, space)
 
     self.units = a.units * b.units
 
+    if a.index_structures != [] and b.index_structures != []:
 
-    # RULE: the indices in the first operand must also be in the second
+      common_index_set = self.s_index_a & self.s_index_b
+      l = len(common_index_set)
+      if l == 0:
+        msg = "Hadamar -- the index sets of the first operant must be a subset of the index sets of the second operand"
+        msg += "\n first argument indices : %s" % self.pretty_a_indices
+        msg += "\n second argument indices: %s" % self.pretty_b_indices
+        print(msg)
+        raise IndexStructureError(msg)
 
-    if self.s_index_a <= self.s_index_b:
-      self.index_structures = b.index_structures
-    else:
-      msg = "Hadamar -- the index sets of the first operant must be a subset of the index sets of the second operand"
-      msg += "\n first argument indices : %s" % self.pretty_a_indices
-      msg += "\n second argument indices: %s" % self.pretty_b_indices
-      print(msg)
-      raise IndexStructureError(msg)
 
-def __str__(self):
-    s = stringBinaryOperation(self.space.language, self.op,
-                              self.a, self.b,
-                              index=self.index_ID,
-                              indices=self.space.indices
-                              )
-    return s
+    self.index_structures = sorted(self.s_index_a | self.s_index_b)
+
+  def __str__(self):
+      s = stringBinaryOperation(self.space.language, self.op,
+                                self.a, self.b,
+                                indices=self.space.indices
+                                )
+      return s
 
 
 class ExpandProduct(BinaryOperator):
@@ -1789,7 +1810,7 @@ class ExpandProduct(BinaryOperator):
     """
     BinaryOperator.__init__(self, op, a, b, space)
 
-    self.doc = 'EXPAND '  # EXPAND TEMPLATES[op] % (a.label, b.label)
+    self.doc = 'EXPAND '
     try:
       self.units = a.units * b.units
     except:
@@ -1821,7 +1842,7 @@ class ExpandProduct(BinaryOperator):
 
   def __str__(self):
     language = self.space.language
-    s = CODE[language]["."] % (self.a, self.b)
+    s = CODE[language][":"] % (self.a, self.b)
     return s
 
 
@@ -1968,11 +1989,11 @@ class Product(Operator):
     #   language = self.space.language
     language = self.space.language
 
-    index = self.space.indices[self.index]["aliases"][language]
     if language == "latex":
+      index = self.space.indices[self.index]["aliases"][language]
       s = CODE[language]["Product"] % (index, self.argument)
     else:
-      s = CODE[language]["Product"]%(self.argument, index)
+      s = CODE[language]["Product"]%(self.argument, self.index)
     return s
 
 

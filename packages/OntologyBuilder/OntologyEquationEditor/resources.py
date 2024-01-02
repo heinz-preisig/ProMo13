@@ -195,21 +195,21 @@ DELIMITERS_alias = {
         "_" : "underline"
         }
 
-LIST_OPERATORS = ["+",  # ................ ordinary plus
-                  "-",  # ................ ordinary minus
-                  "^",  # ................ ordinary power
-                  ":",  # ................ expand product
-                  ".",  # ................ Hadamar product
-                  "*",  # ................ reduce product
-                  "ParDiff",  # .......... partial derivative
-                  "TotalDiff",  # ........ total derivative
-                  "Integral",  # ......... integral
-                  "Product",  # ......... interval
-                  "Instantiate",  # ...... instantiate
-                  "max",  # .............. maximum
-                  "min",  # .............. minimum
+LIST_OPERATORS = ["+",  # ................ ordinary plus      ..0
+                  "-",  # ................ ordinary minus     ..1
+                  "^",  # ................ ordinary power     ..2
+                  ":",  # ................ expand product     ..3
+                  ".",  # ................ Hadamar product    ..4
+                  "*",  # ................ reduce product     ..5
+                  "ParDiff",  # .......... partial derivative ..6
+                  "TotalDiff",  # ........ total derivative   ..7
+                  "Integral",  # ......... integral           ..8
+                  "Product",   # ......... interval           ..9
+                  "Instantiate",  # ...... instantiate        ..10
+                  "max",  # .............. maximum            ..11
+                  "min",  # .............. minimum            ..12
                   "in",  # ............... membership    TODO: behaves more like a delimiter...
-                  "MakeIndex",  # ......... make a new index
+                  "MakeIndex",  # ......... make a new index  ..13
                   ]
 
 OPERATORS_alias = {
@@ -360,9 +360,10 @@ CODE[language]["Integral"] = CODE[language]["operator"]["Integral"] + \
 #                             CODE[language]["delimiter"][","] + "{index!s}" + \
 #                             CODE[language]["delimiter"][")"]
 
+# Note insert a space as separator to the index
 CODE[language]["Product"] = CODE[language]["operator"]["Product"] + \
                             CODE[language]["delimiter"]["("] + "%s" + \
-                            CODE[language]["delimiter"][","] + "%s" + \
+                            CODE[language]["delimiter"][","] + " " + "%s" + \
                             CODE[language]["delimiter"][")"]
 CODE[language]["Instantiate"] = CODE[language]["operator"]["Instantiate"] + \
                                 CODE[language]["combi"]["tuple"]
