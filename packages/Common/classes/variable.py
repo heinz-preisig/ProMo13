@@ -78,15 +78,17 @@ class Variable():
     # entities and see if they are eligible.
     # if network != self.network:
     #     return False
-    if len(self.index_structures) != 1:
+
+    # TODO: Check if a variable with no indices can be output
+    if not self.index_structures:
       return False
 
     own_type = ""
     index = self.index_structures[0]
-    if index == "I_1" or index == "I_5" or index == "I_7":
+    if index == "I_1":
       own_type = "node"
 
-    if index == "I_2" or index == "I_6":
+    if index == "I_2":
       own_type = "arc"
 
     # print(str(index) + own_type + " ## " + ent_type)
