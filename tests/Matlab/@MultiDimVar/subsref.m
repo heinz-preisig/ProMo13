@@ -7,6 +7,7 @@ function self = subsref(op1, s)
       self = MultiDimVar(
         op1.indexLabels,
         size(op1.value),
+        op1.indexOrder,
         builtin('subsref', op1.value, s(1))
       );
 

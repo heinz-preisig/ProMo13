@@ -1,7 +1,10 @@
+%!shared indexOrder
+%! indexOrder = {"A", "B"};
+
 %!xtest
 %! ## Testing isscalar in an scalar ##
 % SETUP
-%! S = MultiDimVar(["A"], [1]);
+%! S = MultiDimVar(["A"], [1], indexOrder);
 %! expected_output = true;
 % ACTION
 %! test_output = isscalar(S);
@@ -11,7 +14,7 @@
 %!xtest
 %! ## Testing isscalar in a vector ##
 % SETUP
-%! V = MultiDimVar(["A"], [3]);
+%! V = MultiDimVar(["A"], [3], indexOrder);
 %! expected_output = false;
 % ACTION
 %! test_output = isscalar(V);

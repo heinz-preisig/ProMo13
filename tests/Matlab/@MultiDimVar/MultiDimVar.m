@@ -2,21 +2,35 @@ classdef MultiDimVar
   properties
     value
     indexLabels
+    indexOrder
   endproperties
   methods
     function self = MultiDimVar(varargin)
       self.indexLabels = varargin{1};
       indexSizes = varargin{2};
+      self.indexOrder = varargin{3};
 
       % Initialization to zero if no value is provided
-      if nargin < 3
+      if nargin < 4
         if isscalar(indexSizes)
           self.value = zeros(indexSizes, 1);
         else
           self.value = zeros(indexSizes);
         endif
       else
-        self.value = varargin{3};
+        self.value = varargin{4};
+      endif
+
+      % Checking if the indexLabels are ordered correctly
+      [~, newIndexOrder] = ismember(self.indexOrder, self.indexLabels);
+
+      % Removing the zeros (indexLabels that are not in the current instance)
+      newIndexOrder(newIndexOrder==0) = [];
+
+      % Check if there is a need to reorder (in case is not ordered ascending)
+      if ~isequal(newIndexOrder, sort(newIndexOrder))
+        self.value = permute(self.value, newIndexOrder);
+        self.indexLabels = self.indexLabels(newIndexOrder);
       endif
     endfunction
     
@@ -31,7 +45,6 @@ classdef MultiDimVar
     str = formatsize(op1)
     % Unitary functions and operators
     self = abs(op1)
-    self = ctranspose(op1)
     self = sign(op1)
     self = product(op1, reduceLabel)
     self = sparse(op1)

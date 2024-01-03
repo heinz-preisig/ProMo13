@@ -1,7 +1,10 @@
+%!shared indexOrder
+%! indexOrder = {"A", "B"};
+
 %!test
 %! ## Testing size in a vector ##
 % SETUP
-%! V = MultiDimVar(["A"], [5]);
+%! V = MultiDimVar(["A"], [5], indexOrder);
 %! expected_output = [5, 1];
 % ACTION
 %! test_output = size(V);
@@ -11,7 +14,7 @@
 %!test
 %! ## Testing size in a 2D matrix ##
 % SETUP
-%! M = MultiDimVar(["A"], [2,3]);
+%! M = MultiDimVar(["A"], [2,3], indexOrder);
 %! expected_output = [2, 3];
 % ACTION
 %! test_output = size(M);
