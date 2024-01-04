@@ -1,4 +1,8 @@
+"""
+view variable and its defining equations
 
+currently limited to 4 equations
+"""
 __project__ = "ProcessModeller  Suite"
 __author__ = "PREISIG, Heinz A"
 __copyright__ = "Copyright 2015, PREISIG, Heinz A"
@@ -8,37 +12,40 @@ __version__ = "11"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
+import os
 import sys
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5 import QtGui
 
-from Common.resource_initialisation import FILES
+from Common.pop_up_message_box import makeMessageBox
 from Common.ui_show_variable_equation import Ui_Dialog
+from Common.resources_icons import roundButton
 
+LIMIT = 4
+HEIGNT = 25
 
 class UI_ShowVariableEquation(QtWidgets.QDialog):
-  def __init__(self, v_ID, eq_list_ID):
+  def __init__(self, v_ID, eq_list_ID, image_location):
     QtWidgets.QDialog.__init__(self)
     self.ui = Ui_Dialog()
     self.ui.setupUi(self)
+
+    roundButton(self.ui.pushButtonExit, "exit", "exit" )
 
 
     self.v_ID = v_ID
     self.eq_list_ID = eq_list_ID
 
-    fileLocation = '/home/heinz/Dropbox/workspace/CAM-projects_ProMo/Ontology_Repository/%s/LaTeX/%s.png' #FILES["latex_img"]
-    V_file = fileLocation%("Sandbox20",v_ID)
+
+
+    # image_location = '/home/heinz/Dropbox/workspace/CAM-projects_ProMo/Ontology_Repository/%s/LaTeX/%s.png' #FILES["latex_img"]
+    V_file = os.path.join(image_location,"%s.png"%v_ID)
 
     Vpixmap = QtGui.QPixmap()
     Vpixmap.load(V_file)
-    sVpixmap = Vpixmap.scaledToHeight(20, mode=1) #pyqt bug
+    sVpixmap = Vpixmap.scaledToHeight(HEIGNT, mode=1) #pyqt bug
     self.ui.picture_variable.setPixmap(sVpixmap)
-
-    # self.ui.label_variable1 = QtWidgets.QLabel(self)
-    # self.ui.label_variable1.setGeometry(QtCore.QRect(150, 210, 541, 51))
-    # self.ui.label_variable1.setObjectName("label_variable")
-    # self.ui.label_variable1.setText("gugus")
 
     elabel = [self.ui.label_equation_0,
             self.ui.label_equation_1,
@@ -50,20 +57,30 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
             self.ui.picture_equation_2,
             self.ui.picture_equation_3,
             ]
+
+    if len(eq_list_ID) > LIMIT:
+      makeMessageBox(message="warning -- there are more than 4 equations", buttons=["OK"])
     count = 0
     for eqID in eq_list_ID:
-      E_file = fileLocation%("Sandbox20",eqID)
+      E_file = os.path.join(image_location,"%s.png"%eqID)
       Epixmap = QtGui.QPixmap()
       Epixmap.load(E_file)
-      sEpixmap = Epixmap.scaledToHeight(20, mode=1)  # pyqt bug
+      sEpixmap = Epixmap.scaledToHeight(HEIGNT, mode=1)  # pyqt bug
       epic[count].setPixmap(sEpixmap)
       elabel[count].setText(eqID)
       count += 1
+      if count == LIMIT:
+        break
 
     for c in range(count,4):
       print(c)
       epic[c].hide()
       elabel[c].hide()
+
+    self.exec_()
+
+  def  on_pushButtonExit_pressed(self):
+    self.close()
 
 
 
@@ -73,7 +90,8 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
 
 if __name__ == '__main__':
   a = QtWidgets.QApplication(sys.argv)
-  w = UI_ShowVariableEquation("V_1",["E_2", "E_13"])
+  image_location = '/home/heinz/Dropbox/workspace/CAM-projects_ProMo/Ontology_Repository/Sandbox20/LaTeX'
+  w = UI_ShowVariableEquation("V_1",["E_2", "E_13", "E_52", "E_33", "E_22"], image_location)
   w.show()
-  a.exec_()
+  # a.exec_()
   sys.exit()

@@ -13,6 +13,8 @@
 
 __author__ = 'Preisig, Heinz A'
 
+from Common.ui_show_variable_equation_impl import UI_ShowVariableEquation
+
 MAX_HEIGHT = 800
 
 import os
@@ -106,14 +108,22 @@ class UI_VariableTableShow(VariableTable):
 
     column_count = self.ui.tableVariable.columnCount()
     row = item.row()
+    column = item.column()
     item = self.ui.tableVariable.item
     data = {}
     for c in range(column_count):
       data[c] = item(row, c).text()
       # print("debugging -- chose:", c, str(data[c]))
+
     self.selected_variable_symbol = data[1]
     self.selected_variable_ID = data[9]
     print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
+
+
+    if column == 9:
+      image_location = self.variables.ontology_container.latex_image_location
+      list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+      UI_ShowVariableEquation(self.selected_variable_ID, list_equations, image_location)
 
     self.buttons["LaTex"].show()
     return
