@@ -13,6 +13,9 @@
 
 __author__ = "Preisig, Heinz A"
 
+from Common.resource_initialisation import FILES
+from Common.ui_show_variable_equation_impl import UI_ShowVariableEquation
+
 # from Common.record_definitions import makeInitialAliases
 
 MAX_HEIGHT = 800
@@ -179,6 +182,14 @@ class UI_VariableTableDialog(VariableTable):
     self.variables.indexVariables()  # indexEquationsInNetworks()
     self.reset_table()
 
+  def showVariableEquations(self, v):
+    list_equations = sorted(v.equations.keys())
+    v_ID = v.aliases["global_ID"]
+    # ontology_name = self.variables.ontology_container.ontology_name
+    image_location = self.variables.ontology_container.latex_image_location
+    UI_ShowVariableEquation(list_equations, image_location)
+
+
   def __iriDialog(self, v):
     label = v.label
     iri = v.IRI
@@ -267,33 +278,37 @@ class UI_VariableTableDialog(VariableTable):
       return
 
     # execute requested command
-    if c == 1:
+    if c == 1: # symbol
       # print("clicked 1 - symbol ", self.selected_variable_symbol)
       self.__changeSymbol(v)
-    elif c == 2:
+    elif c == 2: # description
       # print("clicked 2 - description ", v.doc)
       self.__changeDocumentation(v)
-    elif c == 3:
+    elif c == 3: # token todo: obsolete ?
       self.__changeToken(v)
       # print("debugging token dialog")
-    elif c == 4:
+    elif c == 4: # units
       print("clicked 4 - units ", v.units)
       if not_yet_used:
         self.__changeUnits(v)
-    elif c == 5:
-      print("clicked 5 - indexing ", v.index_structures)
+    elif c == 5: # indices
+      # print("clicked 5 - indexing ", v.index_structures)
       if not_yet_used:
         self.__changeIndexing(v)
-    elif c == 6:
+    elif c == 6: # number of equations
       # print("clicked 6 - equations ", selected_number_of_equations)
       if v.port_variable:
         reply = makeMessageBox("this is a port variable", buttons=["close"])
         # return
       self.new_equation.emit(selected_ID)
-    elif c == 7:
+    elif c == 7: # delete variable
       # print("clicked 7 - delete ")
       self.__showDeleteDialog(selected_ID)
-    elif c == 10:
+    elif c == 8:  # network
+      pass
+    elif c == 9:  # variable ID
+      self.showVariableEquations(v)
+    elif c == 10: # IRI
       # print("clicked 10 -- IRI")
       self.__iriDialog(v)
     return

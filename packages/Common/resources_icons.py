@@ -66,7 +66,11 @@ BUTTON_ICON_STYLE_ROUND += 'padding: 6px;'
 def roundButton(button, what, tooltip=None):
   button.setText("")
   button.setFixedSize(BUTTON_ICON_SIZE)
-  button.setIcon(getIcon(what))
+  try:
+    button.setIcon(getIcon(what))
+  except:
+    button.setText(what)
+    return
   button.setStyleSheet(BUTTON_ICON_STYLE_ROUND)
   button.setIconSize(BUTTON_ICON_SIZE)
   button.setToolTip(tooltip)

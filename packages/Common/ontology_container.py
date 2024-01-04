@@ -275,8 +275,11 @@ class OntologyContainer():
         @param ontology_location: location of the ontology, a path
     """
 
-    # get the named ontology
+    # get files locations:
     self.ontology_location = DIRECTORIES["ontology_location"] % ontology_name
+    self.latex_image_location = DIRECTORIES["latex_location"]% ontology_name
+    # get the named ontology
+
     self.ontology_name = ontology_name
     self.ontology_file = FILES["ontology_file"] % ontology_name
     # print('Ontology file: ', self.ontology_file)
