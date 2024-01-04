@@ -9,5 +9,5 @@ function self = expandproduct(op1, op2)
   value = squeeze(reshape(op1.value(:) * op2.value(:).', [size(op1), size(op2)]));
   indexLabels = [op1.indexLabels, op2.indexLabels];
 
-  self = MultiDimVar(indexLabels, size(value), value);
+  self = MultiDimVar(indexLabels, size(value), op1.indexOrder, value);
 endfunction

@@ -21,5 +21,5 @@ function self = product(op1, reduceLabel)
     value = value';
   endif
 
-  self = MultiDimVar(indexLabels, size(value), value);
+  self = MultiDimVar(indexLabels, size(value), op1.indexOrder, value);
 endfunction

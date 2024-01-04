@@ -1,24 +1,27 @@
+%!shared indexOrder
+%! indexOrder = {"A", "B"};
+
 %!error <IndexLabels do not match>
 %! ## Testing minus for vectors with mismatching indexLabel ##
 % SETUP
-%! V1 = MultiDimVar({"A"}, [4], [1; 2; 3; 4]);
-%! V2 = MultiDimVar({"B"}, [4], [1; 2; 3; 4]);
+%! V1 = MultiDimVar({"A"}, [4], indexOrder, [1; 2; 3; 4]);
+%! V2 = MultiDimVar({"B"}, [4], indexOrder, [1; 2; 3; 4]);
 % ACTION
 %! V1 - V2;
 
 %!error <Nonconformant arguments>
 %! ## Testing minus for vectors with different sizes ##
 % SETUP
-%! V1 = MultiDimVar({"A"}, [4], [1; 2; 3; 4]);
-%! V2 = MultiDimVar({"A"}, [3], [1; 2; 3]);
+%! V1 = MultiDimVar({"A"}, [4], indexOrder, [1; 2; 3; 4]);
+%! V2 = MultiDimVar({"A"}, [3], indexOrder, [1; 2; 3]);
 % ACTION
 %! V1 - V2;
 
 %!xtest <## Testing minus for vectors ##>
 % SETUP
-%! V1 = MultiDimVar({"A"}, [4], [1; 2; 3; 4]);
-%! V2 = MultiDimVar({"A"}, [4], [1; 2; 3; 4]);
-%! expected_output = MultiDimVar({"A"}, [4], [0; 0; 0; 0]);
+%! V1 = MultiDimVar({"A"}, [4], indexOrder, [1; 2; 3; 4]);
+%! V2 = MultiDimVar({"A"}, [4], indexOrder, [1; 2; 3; 4]);
+%! expected_output = MultiDimVar({"A"}, [4], indexOrder, [0; 0; 0; 0]);
 % ACTION
 %! test_output = V1 - V2;
 % ASSERT
@@ -26,9 +29,10 @@
 
 %!xtest <## Testing minus for 2D matrices ##>
 % SETUP
-%! M1 = MultiDimVar({"A", "B"}, [2, 3], [1 2 3; 4 5 6]);
-%! M2 = MultiDimVar({"A", "B"}, [2, 3], [1 2 3; 4 5 6]);
-%! expected_output = MultiDimVar({"A", "B"}, [2, 3], [0 0 0; 0 0 0]);
+%! M1 = MultiDimVar({"A", "B"}, [2, 3], indexOrder, [1 2 3; 4 5 6]);
+%! M2 = MultiDimVar({"A", "B"}, [2, 3], indexOrder, [1 2 3; 4 5 6]);
+%! expected_output = MultiDimVar({"A", "B"}, [2, 3], indexOrder, ...
+%!                               [0 0 0; 0 0 0]);
 % ACTION
 %! test_output = M1 - M2;
 % ASSERT

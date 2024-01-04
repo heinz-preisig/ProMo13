@@ -8,5 +8,6 @@ function bool = isequal(op1, op2)
     return
   endif
 
-  bool = isequal(op1.indexLabels, op2.indexLabels) && (op1.value == op2.value);
+  bool = isequal(op1.indexLabels, op2.indexLabels) && ... 
+         isequal(op1.value, op2.value);
 endfunction

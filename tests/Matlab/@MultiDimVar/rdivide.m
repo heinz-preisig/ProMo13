@@ -6,10 +6,10 @@ function self = rdivide(op1, op2)
 
   % To account for scalars that are not MultiDimVar
   if ~isa(op1, "MultiDimVar")
-    op1 = MultiDimVar({}, [1], [op1]);
+    op1 = MultiDimVar({}, [1], op2.indexOrder, [op1]);
   endif
   if ~isa(op2, "MultiDimVar")
-    op2 = MultiDimVar({}, [1], [op2]);
+    op2 = MultiDimVar({}, [1], op1.indexOrder, [op2]);
   endif
 
   if length(op1.indexLabels) > length(op2.indexLabels)
@@ -20,5 +20,5 @@ function self = rdivide(op1, op2)
 
   value = op1.value ./ op2.value;
 
-  self = MultiDimVar(indexLabels, size(value), value);
+  self = MultiDimVar(indexLabels, size(value), op1.indexOrder, value);
 endfunction

@@ -19,5 +19,5 @@ function self = power(op1, op2)
   indexLabels = op1.indexLabels;
   value = op1.value .^ op2.value;
 
-  self = MultiDimVar(indexLabels, size(value), value);
+  self = MultiDimVar(indexLabels, size(value), op1.indexOrder, value);
 endfunction
