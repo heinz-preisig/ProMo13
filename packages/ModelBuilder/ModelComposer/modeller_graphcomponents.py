@@ -131,18 +131,23 @@ class R_Item(QtWidgets.QGraphicsItem):
       else:
         obj_str = str([phase, r, d, a, s])
 
-      # if s == "selected":
-        # print("debugging -- R_Item obj string", obj_str)
-
       shape_data = self.commander.graphics_data.getData(phase, self.graphics_root_object,
                                                         decoration, application, state)
-      if shape_data["movable"]:
-        application_graphical_data = self.commander.model_container.getNodeGraphicsData(self.ID)
-        x = application_graphical_data[decoration]["position_x"]
-        y = application_graphical_data[decoration]["position_y"]
-      else:
-        x = shape_data["position_x"]
-        y = shape_data["position_y"]
+      try:
+        a = shape_data["movable"]
+      except:
+        print("debugging -- shape_data", shape_data)
+
+      try:
+        if shape_data["movable"]:
+          application_graphical_data = self.commander.model_container.getNodeGraphicsData(self.ID)
+          x = application_graphical_data[decoration]["position_x"]
+          y = application_graphical_data[decoration]["position_y"]
+        else:
+          x = shape_data["position_x"]
+          y = shape_data["position_y"]
+      except:
+        pass
 
     # print("addItem - decorator, shape", decoration, shape)
     if shape == 'panel':

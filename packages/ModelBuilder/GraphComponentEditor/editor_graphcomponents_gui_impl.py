@@ -172,13 +172,15 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
     print("debugging -- new editor phase:", str(phase))
     # phase = self.ui.comboEditorPhase.currentText()
     self.current_editor_phase = str(phase)
-    self.__makeComboState()
+    done = self.__makeComboState()
+    if not done:
+      return
     # if not self.selected_root_object:
     #   return
     component_data = self.__getComponentData()
-    if not component_data:
-      print("debugging editor phase -- could not get component data")
-      return
+    # if not component_data:
+    #   print("debugging editor phase -- could not get component data")
+    #   return
     self.__makeListActivity(component_data["action"])
     self.__group_controls("selected_editor_phase")
 
@@ -713,13 +715,13 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
           states = STATES[self.current_editor_phase]["arcs"]
     if not states:
       print("__makeComboState -- no state defined")
+      return False
 
     if states:
       self.ui.comboEditorState.addItems(states)
-      # self.selected_object_state = str(self.ui.comboEditorState.currentText())
     else:
       self.ui.comboEditorState.clear()
-    # self.ui.comboEditorState.show()
+    return True
 
   def __makeComboApplication(self):
 
