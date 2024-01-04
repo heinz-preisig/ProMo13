@@ -404,7 +404,7 @@ STATES["topology"] = {
         "arcs" : ["enabled", "selected", "open"]
         }
 STATES["token_topology"] = {
-        "nodes": ["enabled", "selected", "blocked"],  # hash was typed_tokens
+        "nodes": ["enabled", "blocked", "selected"],  # hash was typed_tokens
         "arcs" : ["enabled"]
         }
 STATES["equation_topology"] = {
@@ -634,7 +634,7 @@ class GraphDataObjects(OrderedDict):
     try:
       a = self[phase][root_object][decoration][application][state]
     except:
-      # self.__makeData(phase, root_object, decoration, application, state)
+      self.__makeData(phase, root_object, decoration, application, state)
       print("exception occurred, phase, root_object, decoration, application, state::", phase, root_object, decoration, application, state)
     return self[phase][root_object][decoration][application][state]
 
@@ -850,4 +850,6 @@ def getGraphData(networks,
       if "states" in data_dict:
         state_colours.update(data_dict["states"])
 
+  if DATA == {}:
+    print("debugging -- empty data")
   return NETWORK, TOKENS, DATA, state_colours

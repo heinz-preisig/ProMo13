@@ -682,7 +682,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
           self.current_named_network)
       box = self.ui.groupNamed_NetworkColour
       self.__showColour(box, colour)
-      self.commander.applyControlAccessRules()
+      # self.commander.applyControlAccessRules()
       self.commander.redrawCurrentScene()
 
   def radioReceiverNode(self, token_class, token, token_string, toggle):

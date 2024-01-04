@@ -101,6 +101,8 @@ class UI_GetString(QtWidgets.QDialog):
   def getText(self):
     return self.text
 
+  def setText(self,text):
+    self.ui.lineEdit.setText(text)
 
 
 # ============================ testing ======================

@@ -2858,13 +2858,13 @@ class Commander(QtCore.QObject):
 
     # print("begin redraw scene")
     self.currently_viewed_node = nodeID
+    self.applyControlAccessRules()
     self.__makeViewAndScene(nodeID)
 
     if debug:
       print("start redraw node ", nodeID)
 
     children = self.model_container["ID_tree"].getChildren(nodeID)
-    self.applyControlAccessRules()
 
     # nodes
     for child in children:
@@ -3076,7 +3076,7 @@ class Commander(QtCore.QObject):
           [node_component, app] = l
         elif len(l) == 3 :
           [token,mechanism,nature] = l        # Note: this is an arc node
-          self.state_nodes[node] = "disabled"
+          self.state_nodes[node] = "blocked"
           return
       else:
         node_component = node_type
