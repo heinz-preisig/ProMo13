@@ -13,6 +13,7 @@
 
 __author__ = 'Preisig, Heinz A'
 
+from Common.pop_up_message_box import makeMessageBox
 from Common.ui_show_variable_equation_impl import UI_ShowVariableEquation
 
 MAX_HEIGHT = 800
@@ -125,11 +126,19 @@ class UI_VariableTableShow(VariableTable):
       list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
       UI_ShowVariableEquation(list_equations, image_location)
 
-    self.buttons["LaTex"].show()
+    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+    if len(list_equations) == 0:
+      makeMessageBox("there are no equation", buttons=["OK"])
+      self.buttons["LaTex"].hide()
+      self.buttons["dot"].hide()
+    else:
+      self.buttons["LaTex"].show()
+      self.buttons["dot"].show()
     return
 
   def on_pushLaTex_pressed(self):
     # print("debugging -- generate latex table", self.selected_variable_symbol)
+
     assignments, dot_graph_file, file_name = self.__makeDotGraph()
     makeLatexDoc(file_name, assignments, self.ontology_container, dot_graph_file)
     self.buttons["dot"].show()
@@ -147,6 +156,10 @@ class UI_VariableTableShow(VariableTable):
     return assignments, dot_graph_file, file_name
 
   def on_pushDot_pressed(self):
+    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+    if len(list_equations) == 0:
+      makeMessageBox("there are no equation", buttons=["OK"])
+      return
     assignments, dot_graph_file, file_name = self.__makeDotGraph()
     showPDF(dot_graph_file)
     # print("debugging -- generate graph")
