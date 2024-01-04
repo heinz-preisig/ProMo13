@@ -187,7 +187,7 @@ class UI_VariableTableDialog(VariableTable):
     v_ID = v.aliases["global_ID"]
     # ontology_name = self.variables.ontology_container.ontology_name
     image_location = self.variables.ontology_container.latex_image_location
-    UI_ShowVariableEquation(v_ID, list_equations, image_location)
+    UI_ShowVariableEquation(list_equations, image_location)
 
 
   def __iriDialog(self, v):

@@ -123,7 +123,7 @@ class UI_VariableTableShow(VariableTable):
     if column == 9:
       image_location = self.variables.ontology_container.latex_image_location
       list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-      UI_ShowVariableEquation(self.selected_variable_ID, list_equations, image_location)
+      UI_ShowVariableEquation(list_equations, image_location)
 
     self.buttons["LaTex"].show()
     return
