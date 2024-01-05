@@ -128,7 +128,6 @@ class UiOntologyDesign(QMainWindow):
     QMainWindow.__init__(self)
     self.ui = Ui_OntologyDesigner()
     self.ui.setupUi(self)
-    # self.ui.pushWrite.setIcon(getIcon('->'))
     self.setWindowTitle("OntologyFoundationEditor Design")
     roundButton(self.ui.pushInfo, "info", tooltip="information")
     roundButton(self.ui.pushCompile, "compile", tooltip="compile")
@@ -136,12 +135,12 @@ class UiOntologyDesign(QMainWindow):
     roundButton(self.ui.pushShowVariables,
                 "variable_show", tooltip="show variables")
     roundButton(self.ui.pushWrite, "save", tooltip="save")
-    roundButton(self.ui.pushMakeAllVarEqPictures, "equation",
-                tooltip="prepare all variables & equations for generating pictures")
+    roundButton(self.ui.pushShowPDF, "PDF",
+                tooltip="show pdf variable equation documentation")
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
 
-    self.ui.pushMakeAllVarEqPictures.hide()  # TODO: 2023-11-20 not used anymore -- remove
-
+    # self.ui.pushMakeAllVarEqPictures.hide()  # TODO: 2023-11-20 not used anymore -- remove
+    self.ui.pushShowVariables.hide()
     self.radio = [
             self.ui.radioVariables,
             self.ui.radioVariablesAliases,
@@ -149,7 +148,7 @@ class UiOntologyDesign(QMainWindow):
             ]
     [i.hide() for i in self.radio]
 
-    self.ui.groupFiles.hide()
+    self.ui.pushShowPDF.hide()
     self.ui.groupVariables.hide()
     self.ui.pushInstantiate.hide()
 
@@ -211,8 +210,8 @@ class UiOntologyDesign(QMainWindow):
 
     self.ui.combo_InterConnectionNetwork.show()
     # self.ui.combo_IntraConnectionNetwork.show()
-    self.ui.groupFiles.hide()
-    self.ui.groupEdit.hide()
+    # self.ui.groupFiles.hide()
+    # self.ui.groupEdit.hide()
 
     # prepare for compiled versions
     # issue: remove compiled_equations. It is currently used in generating a file with the rendered equations
@@ -362,8 +361,10 @@ class UiOntologyDesign(QMainWindow):
     # make latex rhs and put into container
     self.__compile("latex")
 
+    self.updateLatexImages()
 
     self.__makeLatexDocument()
+    self.ui.pushShowPDF.show()
     self.writeMessage("finished latex document")
 
     self.__makeOWLFile()
@@ -396,12 +397,12 @@ class UiOntologyDesign(QMainWindow):
                                           )
     variable_table.exec_()
 
-  def on_pushMakeAllVarEqPictures_pressed(self):
-    if not self.compiled_variable_labels:
-      self.writeMessage("compile first")
-      self.on_pushCompile_pressed()
-
-    self.writeMessage("wait for completion of compilation")
+  # def on_pushMakeAllVarEqPictures_pressed(self):
+  #   if not self.compiled_variable_labels:
+  #     self.writeMessage("compile first")
+  #     self.on_pushCompile_pressed()
+  #
+  #   self.writeMessage("wait for completion of compilation")
 
     # self.__makeVariableEquationPictures()
 
@@ -702,7 +703,7 @@ class UiOntologyDesign(QMainWindow):
     self.on_pushCompile_pressed()
 
     # update incidence matrices
-    self.updateLatexImages()
+    # self.updateLatexImages()
 
   def updateLatexImages(self):
     (self.ontology_container.incidence_dictionary,
@@ -907,6 +908,14 @@ class UiOntologyDesign(QMainWindow):
 
     # self.__makeVariableEquationPictures(language)
 
+  def on_pushShowPDF_pressed(self):
+
+    location = DIRECTORIES["latex_main_location"] % self.ontology_location
+    f_name = FILES["latex_shell_show_pdf"] % self.ontology_location
+    documentation_file = FILES["latex_documentation"] % self.ontology_name
+    p = QtCore.QProcess()
+    p.startDetached("sh",[f_name, location])
+
   def progress_dialog(self, message):
     "https://www.programcreek.com/python/example/108099/PyQt5.QtWidgets.QProgressDialog"
     prgr_dialog = QProgressDialog()
@@ -1092,7 +1101,7 @@ class UiOntologyDesign(QMainWindow):
 
   def __showFilesControl(self):
     self.ui.groupEdit.show()
-    self.ui.groupFiles.show()
+    # self.ui.groupFiles.show()
     self.ui.pushWrite.show()
 
   # def make_variable_equation_pngs(self):  # , variables, ontology_container):

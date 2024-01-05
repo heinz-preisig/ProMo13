@@ -1035,7 +1035,8 @@ def generateLatexImages(ontology_name, ontology_container):
       if png_mod_date > var_mod_date:
         continue
 
-    var_latex_alias = variables[var_id]["aliases"]["latex"]
+    var_latex_alias = variables[var_id]["compiled_lhs"]["latex"]
+
     latex_info[var_id] = "$" + var_latex_alias + "$" #"$" + var.get_alias("latex") + "$"
     modified_vars.append(var_id)
     # self.writeMessage("modified variable", var_id)
@@ -1050,7 +1051,7 @@ def generateLatexImages(ontology_name, ontology_container):
       if png_mod_date > eq_mod_date:
         continue
     (var_id,_) = incidence_dictionary[eq_id]
-    lhs = variables[var_id]["aliases"]["latex"]
+    lhs = variables[var_id]["compiled_lhs"]["latex"]
     rhs = equations[eq_id]["rhs"]["latex"] #eq.get_translation("latex")
     # pp(latex_translation)
     latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
@@ -1059,7 +1060,7 @@ def generateLatexImages(ontology_name, ontology_container):
   for var_id in modified_vars:
     for eq_id in inv_incidence_dictionary[var_id]:
       (var_id, _) = incidence_dictionary[eq_id]
-      lhs = variables[var_id]["aliases"]["latex"]
+      lhs = variables[var_id]["compiled_lhs"]["latex"]
       rhs = equations[eq_id]["rhs"]["latex"] #eq.get_translation("latex")
       # pp(latex_translation)
       latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
