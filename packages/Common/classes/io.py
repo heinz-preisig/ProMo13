@@ -22,6 +22,7 @@ from packages.Common import resource_initialisation
 
 from packages.Common.classes import equation_parser
 
+
 @dataclass
 class TranslationInfo:
   variable_with_index: str
@@ -59,6 +60,7 @@ class TranslationInfo:
   integral: str
   root: str
 
+
 def load_translation_info_from_file(
     language: str
 ) -> TranslationInfo:
@@ -76,6 +78,7 @@ def load_translation_info_from_file(
   info = TranslationInfo(**data)
 
   return info
+
 
 def save_arc_options_to_file(ontology_name: str, arc_options: Dict[str, Dict[str, str]]):
   # TODO: Merge it with write entities to file
@@ -272,11 +275,29 @@ def load_model_from_file(
     class_name = object_data.pop("modeller_class")
     class_obj = modeller_classes.modeller_class_mapping.get(class_name)
     topology_objects[object_id] = class_obj(
-        id=object_id,
+        identifier=object_id,
         **object_data
     )
 
   return topology_objects
+
+
+def save_model_to_file(
+    ontology_name: str,
+    model_name: str,
+    all_topology_objects: Dict[str, modeller_classes.TopologyObject]
+) -> None:
+  path = resource_initialisation.FILES["model_flat_file"] % (
+      ontology_name,
+      model_name,
+  )
+  with open(path, "w", encoding="utf-8",) as file:
+    json.dump(
+        all_topology_objects,
+        file,
+        cls=TopologyObjectJSONEncoder,
+        indent=4
+    )
 
 
 def load_topology_from_file(
@@ -717,4 +738,23 @@ class VariableJSONEncoder(json.JSONEncoder):
     # """
     if isinstance(o, variable.Variable):
       return o.convert_to_dict()
+    return super().default(o)
+
+
+class TopologyObjectJSONEncoder(json.JSONEncoder):
+  """Custom encoder for Topology Objects."""
+
+  def default(self, o):
+    """Represents data from Topology Objects as a dictionary.
+
+    Args:
+        o (TopologyObject): Topology Object that will be encoded.
+
+    Returns:
+        dict: The dictionary representation of the Entity object. If
+          the object is not an Topology Object instance then the default
+          representation is returned.
+    """
+    if isinstance(o, modeller_classes.TopologyObject):
+      return o.to_json()
     return super().default(o)

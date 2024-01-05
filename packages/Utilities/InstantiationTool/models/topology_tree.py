@@ -1,39 +1,67 @@
-from dataclasses import dataclass
-from typing import List, Dict, Optional
-from pprint import pprint as pp
+"""
+Module-level docstring
+
+This module contains the implementation of a custom PyQt5 model to store
+topology objects.
+
+Author: Alberto Rodriguez Fernandez
+"""
+from typing import Dict, Optional, List
 
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
 from packages.Common.classes import modeller_classes
+from packages.shared_components import roles
 
-NAME_ROLE = QtCore.Qt.UserRole
-CLASS_ROLE = QtCore.Qt.UserRole + 1
+CHECKED = QtCore.Qt.CheckState.Checked
+UNCHECKED = QtCore.Qt.CheckState.Unchecked
+PARTIALLY_CHECKED = QtCore.Qt.CheckState.PartiallyChecked
 
 
+# TODO: Make the items be added allways in the same order
 class TopologyTreeModel(QtGui.QStandardItemModel):
+  """Stores the variables in a model
+
+  To be used as a model for one or more views in the GUI.
+  """
+  check_box_state_changed = QtCore.pyqtSignal()
+
   def __init__(self, parent=None):
     super().__init__(parent)
-    self.topology_objects: Dict[str, modeller_classes.TopologyObject] = {}
-    self.var_id: str = ""
-    self.typed_token: Optional[str] = ""
-    self._id_to_index: Dict[str, QtCore.QModelIndex] = {}
-    self._index_to_id: Dict[QtCore.QModelIndex, str] = {}
+    self._all_topology_objects: Dict[str, modeller_classes.TopologyObject] = {}
+    self._index_from_id: Dict[str, QtCore.QModelIndex] = {}
+    self._id_from_index: Dict[QtCore.QModelIndex, str] = {}
 
     self.flag_propagation_allowed = True
-    self.setColumnCount(2)
-    self.setHorizontalHeaderLabels(["Name", "Value"])
+    self.setColumnCount(1)
+    self.setHorizontalHeaderLabels(["Name"])
 
-    self.itemChanged.connect(self.propagate_check_state)
+    self.itemChanged.connect(self._propagate_check_state)
 
   def empty_model(self):
     self.removeRows(0, self.rowCount())
-    self._id_to_index.clear()
-    self._index_to_id.clear()
+    self._index_from_id.clear()
+    self._id_from_index.clear()
+
+  def get_index_from_id(self, top_obj_id: str) -> Optional[QtCore.QModelIndex]:
+    return self._index_from_id.get(top_obj_id)
+
+  def get_number_of_items(
+      self,
+      parent_index: QtCore.QModelIndex = QtCore.QModelIndex()
+  ) -> int:
+    total = 0
+    for row in range(self.rowCount(parent_index)):
+      index = self.index(row, 0, parent_index)
+      total += 1
+      total += self.get_number_of_items(index)
+
+    return total
 
   def load_data(
       self,
-      topology_objects: Dict[str, modeller_classes.TopologyObject],
+      all_topology_objects: Dict[str, modeller_classes.TopologyObject],
       filtered_list: List[str],
   ) -> None:
     """Loads the data into the model
@@ -49,13 +77,13 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
     """
     self.empty_model()
 
-    self.components_data = components_data
+    self._all_topology_objects = all_topology_objects
 
-    for item_id in self.components_data:
-      self.add_ancestors(item_id)
-      self.add_item(item_id)
+    for top_obj_id in filtered_list:
+      self._add_ancestors(top_obj_id)
+      self._add_item(top_obj_id)
 
-  def add_ancestors(self, item_id: str) -> None:
+  def _add_ancestors(self, item_id: str) -> None:
     """Adds the ancestors of the item to the model
 
     This recursive function makes sure that the ancestors are always
@@ -67,20 +95,14 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
         item_id (str): Identifier of the item whose ancestors are being
                          added.
     """
-    item_data = self.components_data.get(item_id)
-    parent_id = item_data.get("parent")
+    parent_id = self._all_topology_objects[item_id].parent_id
 
-    if parent_id not in self._id_to_index and parent_id is not None:
-      self.add_ancestors(parent_id)
-      self.add_item(parent_id)
+    if parent_id not in self._index_from_id and parent_id is not None:
+      self._add_ancestors(parent_id)
+      self._add_item(parent_id)
 
-  def add_item(self, item_id: str) -> None:
+  def _add_item(self, item_id: str) -> None:
     """Adds an item to the model
-
-    In the case where the item to add doesnt belong to the NodeComposite
-    class, a second item is also added in the same row as the main item
-    but in the second column. This item contains the instantiation value
-    corresponding to the data of the item represented by item_id.
 
     The dictionaries _id_to_index and _index_to_id are populated after
     the item has been added.
@@ -88,112 +110,129 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
     Args:
         item_id (str): Identifier of the item that is being added.
     """
-    pp(self.topology_objects)
+    item_obj = self._all_topology_objects[item_id]
+
+    parent_id = item_obj.parent_id
+
     main_item = QtGui.QStandardItem()
+    main_item.setData(item_id, roles.ID_ROLE)
+    main_item.setData(item_obj.name, roles.NAME_ROLE)
+    main_item.setData(item_obj.__class__.__name__, roles.CLASS_ROLE)
     main_item.setCheckable(True)
     main_item.setAutoTristate(True)
-
-    item_obj = self.topology_objects.get(item_id)
-
-    parent_id = item_obj.get_parent_id()
-    main_item.setData(item_obj.get_name(), NAME_ROLE)
-    main_item.setData(item_obj.get_modeller_class(), CLASS_ROLE)
 
     if parent_id is None:
       parent_item = self.invisibleRootItem()
     else:
-      parent_index = self._id_to_index.get(parent_id)
+      parent_index = self._index_from_id.get(parent_id)
       parent_item = self.itemFromIndex(parent_index)
 
-    if isinstance(item_obj, modeller_classes.NodeComposite):
-      parent_item.appendRow(main_item)
-    else:
-      instantiation_value = item_obj.get_instantiation_value(
-          self.var_id, self.typed_token)
-      if instantiation_value is None:
-        instantiation_value = "--"
-
-      print(instantiation_value)
-      instantiation_item = QtGui.QStandardItem(instantiation_value)
-      parent_item.appendRow([main_item, instantiation_item])
+    parent_item.appendRow(main_item)
 
     main_item_index = self.indexFromItem(main_item)
-    self._id_to_index[item_id] = main_item_index
-    self._index_to_id[main_item_index] = item_id
+    self._index_from_id[item_id] = main_item_index
+    self._id_from_index[main_item_index] = item_id
 
-  def propagate_check_state(self, item: QtGui.QStandardItem):
+  def _propagate_check_state(self, item: QtGui.QStandardItem):
+    """Propagates the check state of an item.
+
+    This method first propagates the check state down to all children of
+    the item using the helper method `_propagate_check_state_down`.
+    Then, if the item has a parent, it propagates the check state up to
+    the parent using the helper method `_propagate_check_state_up`.
+
+    Args:
+        item (QtGui.QStandardItem): The item whose check state is to be
+         propagated.
+    """
+    # This flag prevents an infinite loop due the item_changed signal
+    # being emitted every time a propagated change occurs.
     if self.flag_propagation_allowed:
       self.flag_propagation_allowed = False
-      self.propagate_check_state_down(item)
+
+      self._propagate_check_state_down(item)
 
       if item.parent() is not None:
-        self.propagate_check_state_up(item.parent())
+        self._propagate_check_state_up(item.parent())
+
+      # Only emitted for the triggering change
+      self.check_box_state_changed.emit()
+
       self.flag_propagation_allowed = True
 
-  def propagate_check_state_down(self, item: QtGui.QStandardItem):
+  def _propagate_check_state_down(self, item: QtGui.QStandardItem):
+    """Propagates the check state of an item down to all its children.
+
+    Helper method for `_propagate_check_state`. This method sets the
+    check state of all children of the item to the check state of the
+    item. It does this recursively for each child.
+
+    Args:
+        item (QtGui.QStandardItem): The item whose check state is to be
+         propagated down.
+    """
     check_state = item.checkState()
     for row in range(item.rowCount()):
       child_item = item.child(row)
       child_item.setCheckState(check_state)
-      self.propagate_check_state_down(child_item)
+      self._propagate_check_state_down(child_item)
 
-  def propagate_check_state_up(self, item: QtGui.QStandardItem):
+  def _propagate_check_state_up(self, item: QtGui.QStandardItem):
+    """Propagates the check state of an item up to its parent.
+
+    Helper method for `_propagate_check_state`. This method sets the
+    check state of the parent based on the check states of its children.
+        - If any child is partially checked or if some children are
+         checked and others are unchecked, the parent is set to
+         partially checked.
+        - If all children are unchecked, the parent is set to unchecked.
+        - If all children are checked, the parent is set to checked.
+
+    This is done recursively for each parent.
+
+    Args:
+        item (QtGui.QStandardItem): The item whose check state is to be
+         propagated up.
+    """
     any_checked = False
     any_unchecked = False
     any_partially_checked = False
     for row in range(item.rowCount()):
       child_item = item.child(row)
-      if child_item.checkState() == QtCore.Qt.CheckState.Checked:
+      if child_item.checkState() == CHECKED:
         any_checked = True
-      if child_item.checkState() == QtCore.Qt.CheckState.Unchecked:
+      if child_item.checkState() == UNCHECKED:
         any_unchecked = True
-      if child_item.checkState() == QtCore.Qt.CheckState.PartiallyChecked:
+      if child_item.checkState() == PARTIALLY_CHECKED:
         any_partially_checked = True
 
     if any_partially_checked or (any_checked and any_unchecked):
-      item.setCheckState(QtCore.Qt.CheckState.PartiallyChecked)
+      item.setCheckState(PARTIALLY_CHECKED)
     elif not any_checked:
-      item.setCheckState(QtCore.Qt.CheckState.Unchecked)
+      item.setCheckState(UNCHECKED)
     elif not any_unchecked:
-      item.setCheckState(QtCore.Qt.CheckState.Checked)
+      item.setCheckState(CHECKED)
 
     if item.parent() is not None:
-      self.propagate_check_state_up(item.parent())
+      self._propagate_check_state_up(item.parent())
 
-  #     # Dictionary for fast lookup of the tree path from an index and
-  #     # viceversa.
-  #   self._index_to_path = {}
-  #   self._path_to_index = {}
+  def get_checked_items(self, parent=None) -> List[str]:
+    checked_items = []
+    if parent is None:
+      parent = self.invisibleRootItem()
 
-  #   # Dictionary for fast lookup of existing items in the tree.
-  #   items = {}
+    for row in range(parent.rowCount()):
+      child = parent.child(row)
+      child_id = child.data(roles.ID_ROLE)
 
-  #   root = self.invisibleRootItem()
+      if (child.data(roles.CLASS_ROLE) != "NodeComposite" and
+              child.checkState() == CHECKED):
+        checked_items.append(child_id)
 
-  #   for path in data:
-  #     parent = root
-  #     path_nodes = path.split('.')
+      if child.hasChildren():
+        checked_items.extend(self.get_checked_items(child))
 
-  #     for i, node in enumerate(path_nodes):
-  #       # Each item is stored in the lookup dict using the tree path.
-  #       key = '.'.join(path_nodes[:i+1])
-  #       child = items.get(key)
-
-  #       # If the item does not exist yet a new one is created.
-  #       if child is None:
-  #         child = QtGui.QStandardItem(node)
-  #         child.setEditable(False)
-  #         parent.appendRow(child)
-  #         items[key] = child
-  #         # For the fast lookups
-  #         index = self.indexFromItem(child)
-  #         self._index_to_path[index] = key
-  #         self._path_to_index[key] = index
-
-  #       parent = child
-
-  #   # pp(self._index_to_path)
-
+    return checked_items
   # def get_depth(self, index):
   #   """Gets how deep in the tree an item is.
 

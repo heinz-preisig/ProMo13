@@ -1,7 +1,17 @@
+"""
+Module-level docstring
+
+This module contains tests for the functionality in variable_tree.py.
+
+Prerequisites:
+- The testing framework and plugins are installed:
+  * pytest
+  * pytest_mock
+
+Author: Alberto Rodriguez Fernandez
+"""
 import pytest
 from typing import Dict
-
-from PyQt5.QtCore import QModelIndex
 
 from packages.Common.classes.variable import Variable
 from packages.Utilities.InstantiationTool.models.variable_tree import VariableTreeModel
@@ -13,82 +23,117 @@ def tree_model() -> VariableTreeModel:
 
 
 @pytest.fixture
-def all_variables(mocker):
+def variables(mocker) -> Dict[str, Variable]:
   return {
-      "V_1": mocker.Mock(),
-      "V_2": mocker.Mock(),
-      "V_3": mocker.Mock(),
-      "V_4": mocker.Mock(),
+      "V_1": mocker.Mock(spec=Variable),
+      "V_2": mocker.Mock(spec=Variable),
+      "V_3": mocker.Mock(spec=Variable),
+      "V_4": mocker.Mock(spec=Variable),
   }
-
 
 class TestLoadData:
   """Loading the data into the model"""
 
   def test_load_nothing(
       self,
-      mocker,
       tree_model: VariableTreeModel,
-      all_variables: Dict[str, Variable],
   ):
     """Nothing"""
+    # SETUP
+    expected_output = [0]
+    assert_msg = ["Expected {expected} element inserted, {result} obtained."]
+    # ACTION
     tree_model.load_data()
-
-    assert tree_model.rowCount() == 0
+    # COLLECTION
+    test_output = [tree_model.rowCount()]
+    # ASSERT
+    for expected, result, msg in zip(expected_output, test_output, assert_msg):
+      assert expected == result, msg.format(expected=expected, result=result)
 
   def test_load_one_variable(
       self,
       mocker,
       tree_model: VariableTreeModel,
-      all_variables: Dict[str, Variable],
+      variables: Dict[str, Variable],
   ):
     """One variable"""
-    tree_model.load_data(all_variables, ["V_1"])
-
-    # Checking that only one element was added
-    assert tree_model.rowCount() == 1
-    # Checking that the element was correclyt added to the tree
-    assert "V_1" in tree_model._id_to_index
-    assert tree_model._id_to_index.get("V_1") == tree_model.index(0, 0)
+    # SETUP
+    key_list = ["V_1"]
+    filtered_variables = {key: variables[key] for key in key_list}
+    expected_output = [1, "V_1"]
+    assert_msg = [
+      "Expected {expected} element inserted, {result} obtained.",
+      "Expected \"{expected}\" text, \"{result}\" obtained."
+    ]
+    # ACTION
+    tree_model.load_data(filtered_variables)
+    # COLLECTION
+    test_output = [
+      tree_model.rowCount(),
+      tree_model.item(0).text()
+    ]
+    # ASSERT
+    for expected, result, msg in zip(expected_output, test_output, assert_msg):
+      assert expected == result, msg.format(expected=expected, result=result)
 
   def test_load_several_variables(
       self,
-      mocker,
       tree_model: VariableTreeModel,
-      all_variables: Dict[str, Variable],
+      variables: Dict[str, Variable]
   ):
     """Several variables"""
-    tree_model.load_data(all_variables, all_variables.keys())
-
-    # Checking that only one element was added
-    assert tree_model.rowCount() == 4
-    # Checking that the element was correclyt added to the tree
-    assert "V_1" in tree_model._id_to_index
-    assert tree_model._id_to_index.get("V_1") == tree_model.index(0, 0)
-    assert "V_2" in tree_model._id_to_index
-    assert tree_model._id_to_index.get("V_2") == tree_model.index(1, 0)
-    assert "V_3" in tree_model._id_to_index
-    assert tree_model._id_to_index.get("V_3") == tree_model.index(2, 0)
-    assert "V_4" in tree_model._id_to_index
-    assert tree_model._id_to_index.get("V_4") == tree_model.index(3, 0)
+    # SETUP
+    expected_output = [4, "V_1", "V_2", "V_3", "V_4"]
+    assert_msg = [
+      "Expected {expected} element inserted, {result} obtained.",
+      "Expected \"{expected}\" text in position 0, \"{result}\" obtained.",
+      "Expected \"{expected}\" text in position 1, \"{result}\" obtained.",
+      "Expected \"{expected}\" text in position 2, \"{result}\" obtained.",
+      "Expected \"{expected}\" text in position 3, \"{result}\" obtained.",
+    ]
+    # ACTION
+    tree_model.load_data(variables)
+    # COLLECTION
+    test_output = [
+      tree_model.rowCount(),
+      tree_model.item(0).text(),
+      tree_model.item(1).text(),
+      tree_model.item(2).text(),
+      tree_model.item(3).text(),
+    ]
+    # ASSERT
+    for expected, result, msg in zip(expected_output, test_output, assert_msg):
+      assert expected == result, msg.format(expected=expected, result=result)
 
   def test_load_variables_after_model_is_populated(
       self,
       mocker,
       tree_model: VariableTreeModel,
-      all_variables: Dict[str, Variable],
+      variables: Dict[str, Variable],
   ):
-    """Several variables"""
-    tree_model.load_data(all_variables, ["V_1", "V_2"])
-    tree_model.load_data(all_variables, ["V_3", "V_4"])
+    """Variables after the model is populated"""
+    # SETUP
+    key_list = ["V_1", "V_2"]
+    filtered_variables = {key: variables[key] for key in key_list}
+    tree_model.load_data(filtered_variables)
+    key_list = ["V_3", "V_4"]
+    filtered_variables = {key: variables[key] for key in key_list}
 
-    # Checking that only one element was added
-    assert tree_model.rowCount() == 2
-    # Checking that the element was correclyt added to the tree
-    assert "V_1" not in tree_model._id_to_index
-    assert "V_2" not in tree_model._id_to_index
+    expected_output = [2, "V_3", "V_4"]
+    assert_msg = [
+      "Expected {expected} element inserted, {result} obtained.",
+      "Expected \"{expected}\" text in position 0, \"{result}\" obtained.",
+      "Expected \"{expected}\" text in position 1, \"{result}\" obtained.",
+    ]
+    # ACTION
+    tree_model.load_data(filtered_variables)
+    # COLLECTION
+    test_output = [
+      tree_model.rowCount(),
+      tree_model.item(0).text(),
+      tree_model.item(1).text(),
+    ]
+    # ASSERT
+    for expected, result, msg in zip(expected_output, test_output, assert_msg):
+      assert expected == result, msg.format(expected=expected, result=result)
 
-    assert "V_3" in tree_model._id_to_index
-    assert tree_model._id_to_index.get("V_3") == tree_model.index(0, 0)
-    assert "V_4" in tree_model._id_to_index
-    assert tree_model._id_to_index.get("V_4") == tree_model.index(1, 0)

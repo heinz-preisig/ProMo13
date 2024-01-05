@@ -53,7 +53,7 @@ class App(QApplication):
     self.setFont(font)
 
     self.main_model = MainModel()
-    self.main_view = MainView(self.main_model)
+    self.main_view = MainView()
     self.main_controller = MainController(self.main_model, self.main_view)
 
     self.main_view.show()

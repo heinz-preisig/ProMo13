@@ -1,3 +1,4 @@
+from symbol import except_clause
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
@@ -24,8 +25,8 @@ class MainController(QObject):
 
     self._view.ui.tree_required_variables.setModel(
         self._model.variable_tree_model)
-    delegate = ImageItemDelegate(self._view.ui.tree_required_variables)
-    self._view.ui.tree_required_variables.setItemDelegate(delegate)
+    # delegate = ImageItemDelegate(self._view.ui.tree_required_variables)
+    # self._view.ui.tree_required_variables.setItemDelegate(delegate)
 
     self._view.ui.tree_topology_objects.setModel(
         self._model.topology_tree_model)
@@ -50,12 +51,23 @@ class MainController(QObject):
 
     # Connections from the View
     self._view.show_event_triggered.connect(self.select_ontology)
-    self._view.ui.tree_required_variables.selectionModel().selectionChanged.connect(
+    self._view.ui.tree_required_variables.clicked.connect(
         self._model.on_variables_selected
     )
-    # self._view.ui.tree_entities.selectionModel().currentChanged.connect(
-    #     self._view.menu_items_state
+    # self._view.ui.tree_required_variables.selectionModel().currentChanged.connect(
+    #     self._view.change_expansion_state
     # )
+    # self._view.ui.tree_required_variables.clicked.connect(
+    #     self._model.check_element_tree_required_variables
+    # )
+    self._view.ui.pbutton_instantiate.clicked.connect(
+        self.on_instantiate_clicked
+    )
+
+    self._view.ui.action_save.triggered.connect(
+        self._model.save_topology_objects
+    )
+
     # self._view.ui.actionNew.triggered.connect(self.on_action_new_triggered)
     # self._view.ui.tree_entities.doubleClicked.connect(
     #     self.on_tree_double_clicked)
@@ -64,9 +76,23 @@ class MainController(QObject):
     # self._view.ui.actionSave.triggered.connect(self._model.save)
     # # Connections from the Model
     self._model.variable_tree_changed.connect(
-        self._view.on_variable_tree_changed)
+        self._view.on_variable_tree_changed
+    )
     self._model.topology_tree_changed.connect(
-        self._view.on_topology_tree_changed)
+        self._view.on_topology_tree_changed
+    )
+    self._model.selection_changed.connect(
+        self._view.on_selection_changed
+    )
+    self._model.topology_tree_model.check_box_state_changed.connect(
+        self._model.on_topology_tree_model_check_box_changed
+    )
+    self._model.variable_tree_model.top_item_checked.connect(
+        self._view.check_item_required_variable_tree
+    )
+    # self._model.variable_tree_model.user_item_check.connect(
+    #     self._model.check_element_tree_required_variables
+    # )
 
   def select_ontology(self):
     """Launches a Dialog to get the ontology name.
@@ -103,9 +129,22 @@ class MainController(QObject):
       return False
 
     model_name = dlg.ui.list.currentIndex().data()
-    self._model.load_ontology(ontology_name, model_name)
+    self._model.load_ontology_info(ontology_name, model_name)
 
     return True
+
+  def on_instantiate_clicked(self):
+    # TODO: Catch this exception with a suitable notification system.
+    instantiation_value = self._view.ui.ledit_instantiate.text()
+    try:
+      float(instantiation_value)
+    except ValueError:
+      instantiation_value = None
+
+    if instantiation_value is not None:
+      self._model.instantiate(instantiation_value)
+
+    self._view.ui.ledit_instantiate.setText("")
 
   def load_default_data(self):
     # TODO: Corresponding method in the model needs to be implemented.

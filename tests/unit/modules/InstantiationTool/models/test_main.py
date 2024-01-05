@@ -1,89 +1,93 @@
 import pytest
-from pytest_mock import mocker
+from pytest_mock import MockerFixture
 
 from typing import Dict
 
 from tests.unit import test_utils
 
 from packages.Common.classes.entity import Entity
-from packages.Common.classes.modeller_classes import NodeComposite, NodeSimple, Arc, TopologyObject
+from packages.Common.classes.variable import Variable
+from packages.Common.classes.modeller_classes import TopologyObject
 
-from packages.Utilities.InstantiationTool.models.main import MainModel, InvalidEntityError
+from packages.Utilities.InstantiationTool.models.main import (
+    MainModel, InvalidEntityError
+)
 
 TEST_FILES = test_utils.get_test_files_path()
 
 
 @pytest.fixture
-def all_entities(mocker):
-  info = {
-      "E_1": {
-          "init_vars": ["V_1", "V_2", "V_3"],
-      },
-      "E_2": {
-          "init_vars": ["V_2", "V_4"]
-      },
-      "E_3": {
-          "init_vars": ["V_5"]
-      },
-      "E_4": {
-          "init_vars": ["V_1", "V_5"]
-      }
-  }
-  mock_all_entities = {}
-  for ent_id, ent_data in info.items():
-    mock_ent = mocker.Mock(spec=Entity)
-    mock_ent.get_entity_name.return_value = ent_id
-    mock_ent.get_init_vars.return_value = ent_data.get("init_vars")
+def main_model(mocker: MockerFixture) -> MainModel:
+  model = MainModel()
 
-    mock_all_entities[ent_id] = mock_ent
+  model.variable_tree_model = mocker.Mock()
+  model.topology_tree_model = mocker.Mock()
 
-  return mock_all_entities
-
-
-@pytest.fixture
-def topology_objects(mocker: mocker, all_entities: Dict[str, Entity]):
-  info = {
-      "C_root": {
-          "modeller_class": NodeComposite,
-      },
-      "N_1": {
-          "modeller_class": NodeSimple,
-          "entity_name": "E_1",
-      },
-      "A_1": {
-          "modeller_class": Arc,
-          "entity_name": "E_2",
-      },
-      "C_1": {
-          "modeller_class": NodeComposite,
-      },
-      "N_2": {
-          "modeller_class": NodeSimple,
-          "entity_name": "E_6",
-      }
-  }
-  mock_topology_objects = {}
-  for top_obj_id, data in info.items():
-    top_obj_class = data.get("modeller_class")
-    mock_obj = mocker.Mock(spec=top_obj_class)
-
-    if not isinstance(mock_obj, NodeComposite):
-      ent_name = data.get("entity_name")
-      mock_obj.get_entity_name.return_value = ent_name
-      if top_obj_id != "N_2":
-        # Closure function to store the ent_name value
-        def side_effect_contains_init_var(arg, ent_name=ent_name):
-          return arg in all_entities.get(ent_name).get_init_vars()
-        mock_obj.contains_init_var.side_effect = side_effect_contains_init_var
-
-    mock_topology_objects[top_obj_id] = mock_obj
-
-  return mock_topology_objects
-
-
-@pytest.fixture
-def main_model():
   return MainModel()
+
+
+@pytest.fixture
+def mock_io_functions(
+    mocker: MockerFixture,
+    all_variables: Dict[str, Variable],
+    all_entities: Dict[str, Entity],
+    topology_objects: Dict[str, TopologyObject],
+):
+  mock_func1 = mocker.patch(
+      "io.load_var_idx_eq_from_file",
+      return_value=(all_variables, {}, {})
+  )
+  mock_func2 = mocker.patch(
+      "io.load_entities_from_file",
+      return_value=all_entities
+  )
+  mock_func3 = mocker.patch(
+      "io.load_model_from_file",
+      return_value=topology_objects
+  )
+
+  yield mock_func1, mock_func2, mock_func3
+
+
+params = [
+    (),
+
+]
+
+
+class TestLoadOntologyInfo:
+  """Loading the Ontology Information"""
+
+  @pytest.mark.parametrize("all_topology_objects", [(["N_1"])], indirect=True)
+  def test_finding_required_variables(
+      self,
+      mocker: MockerFixture,
+      main_model: MainModel,
+      all_variables: Dict[str, Variable],
+      mock_io_functions,
+  ):
+    """Model with only one root composite node"""
+    # SETUP
+    main_model.variable_tree_model.load_data = mocker.Mock()
+    main_model.topology_tree_model.load_data = mocker.Mock()
+    assert_str = "For id {top_obj_id}: "\
+        "Expected \"{expected}\" value, \""\
+        "{result}\" obtained."
+    assert_msg = [assert_str]
+    var_list = []
+    expected_variables = {var_id: all_variables[var_id] for var_id in var_list}
+    expected_output = [expected_variables]
+    # ACTION
+    main_model.load_ontology_info("ontology_name", "model_name")
+    # COLLECTION
+    test_output = [
+        main_model.variable_tree_model.load_data.call_args[0][0],
+    ]
+    # ASSERT
+    zipped_data = zip(ids, expected_output, test_output, assert_msg)
+    for top_obj_id, expected, result, msg in zipped_data:
+      assert expected == result, \
+          msg.format(top_obj_id=top_obj_id, expected=expected, result=result)
 
 
 class TestDiscoverRequiredVariables:
@@ -96,8 +100,8 @@ class TestDiscoverRequiredVariables:
       topology_objects: Dict[str, TopologyObject],
   ):
     """Only composite node"""
-    main_model.all_entities = all_entities
-    main_model.topology_objects = {
+    main_model._all_entities = all_entities
+    main_model._all_topology_objects = {
         key: topology_objects.get(key)
         for key in ["C_root"]
     }

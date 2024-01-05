@@ -17,8 +17,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'ProMo'
-#copyright = '2022, Alberto Rodriguez Fernandez'
-#author = 'Alberto Rodriguez Fernandez'
+# copyright = '2022, Alberto Rodriguez Fernandez'
+# author = 'Alberto Rodriguez Fernandez'
 release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
@@ -34,16 +34,21 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-    'rinoh.frontend.sphinx',    
+    'rinoh.frontend.sphinx',
     'sphinx.ext.todo',
     'sphinx_rtd_theme',
-#    'autodocsumm',
+    #    'autodocsumm',
 ]
+
+# Preserve the order of members in the source code
+autodoc_member_order = 'bysource'
+
 napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = True
 napoleon_include_private_with_doc = True
 
-#autodoc_default_options = {"autosummary": True}
+
+# autodoc_default_options = {"autosummary": True}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -61,15 +66,15 @@ html_static_path = ['_static']
 # -- Options for LaTeX output ------------------------------------------------
 
 latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').    
+    # The paper size ('letterpaper' or 'a4paper').
     'papersize': 'letterpaper',
 
-    # The font size ('10pt', '11pt' or '12pt').    
+    # The font size ('10pt', '11pt' or '12pt').
     'pointsize': '10pt',
 
-    # Additional stuff for the LaTeX preamble.    
+    # Additional stuff for the LaTeX preamble.
     'preamble': '',
 
-    # Latex figure (float) alignment    
+    # Latex figure (float) alignment
     'figure_align': 'htbp',
 }
