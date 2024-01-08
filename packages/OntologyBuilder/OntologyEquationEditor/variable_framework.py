@@ -1053,8 +1053,9 @@ class Variables(OrderedDict):
 
   def changeVariableAlias(self, variable_ID, language, new_alias):
     self[variable_ID].aliases[language] = new_alias
-
     self[variable_ID].aliases[language] = new_alias
+    if language == "latex":
+      self[variable_ID].compiled_lhs["latex"] = new_alias
     self.ontology_container.variables[variable_ID]["modified"] = dateString()  # NOTE: that was the problem
     print("changed variable", variable_ID, self[variable_ID].modified)
 

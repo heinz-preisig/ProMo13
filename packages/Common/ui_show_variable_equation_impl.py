@@ -15,16 +15,18 @@ __status__ = "beta"
 import os
 import sys
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtCore
 from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
 from Common.pop_up_message_box import makeMessageBox
-from Common.ui_show_variable_equation import Ui_Dialog
 from Common.resources_icons import roundButton
+from Common.ui_show_variable_equation import Ui_Dialog
 
 LIMIT = 4
 HEIGHT = 25
 FACTOR = 0.5
+
 
 class UI_ShowVariableEquation(QtWidgets.QDialog):
   def __init__(self, eq_list_ID, image_location):
@@ -32,7 +34,9 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
     self.ui = Ui_Dialog()
     self.ui.setupUi(self)
 
-    roundButton(self.ui.pushButtonExit, "exit", "exit" )
+    roundButton(self.ui.pushButtonExit, "exit", "exit")
+    # this will hide the title bar
+    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
 
     self.eq_list_ID = eq_list_ID
     if len(eq_list_ID) == 0:
@@ -41,10 +45,10 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
 
     else:
       elabel = [self.ui.label_equation_0,
-              self.ui.label_equation_1,
-              self.ui.label_equation_2,
-              self.ui.label_equation_3,
-              ]
+                self.ui.label_equation_1,
+                self.ui.label_equation_2,
+                self.ui.label_equation_3,
+                ]
       epic = [self.ui.picture_equation_0,
               self.ui.picture_equation_1,
               self.ui.picture_equation_2,
@@ -55,32 +59,27 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
         makeMessageBox(message="warning -- there are more than 4 equations", buttons=["OK"])
       count = 0
       for eqID in eq_list_ID:
-        E_file = str(os.path.join(image_location,"%s.png"%eqID))
+        E_file = str(os.path.join(image_location, "%s.png" % eqID))
         Epixmap = QtGui.QPixmap()
         Epixmap.load(E_file)
         # print("size %s"%eqID,Epixmap.size() )
         size = FACTOR * Epixmap.size()
-        sEpixmap = Epixmap.scaled(size,transformMode=1)
+        sEpixmap = Epixmap.scaled(size, transformMode=1)
         epic[count].setPixmap(sEpixmap)
         elabel[count].setText(eqID)
         count += 1
         if count == LIMIT:
           break
 
-      for c in range(count,4):
+      for c in range(count, 4):
         print(c)
         epic[c].hide()
         elabel[c].hide()
 
       self.exec_()
 
-  def  on_pushButtonExit_pressed(self):
+  def on_pushButtonExit_pressed(self):
     self.close()
-
-
-
-
-
 
 
 if __name__ == '__main__':

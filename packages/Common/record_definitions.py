@@ -253,7 +253,7 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
   self["created"] = dateString()
   self["modified"] = self["created"]
-  self["compiled_lhs"] = {"global_ID": var_ID}
+  self["compiled_lhs"] = {"global_ID": var_ID, "latex": label}
 
   if aliases == {}:
     for language in LANGUAGES["aliasing"]:
