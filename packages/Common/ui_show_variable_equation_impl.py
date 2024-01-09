@@ -72,7 +72,7 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
           break
 
       for c in range(count, 4):
-        print(c)
+        # print(c)
         epic[c].hide()
         elabel[c].hide()
 
