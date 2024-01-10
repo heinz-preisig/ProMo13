@@ -442,33 +442,33 @@ CODE[language]["^"] = r"%s^{%s}"  # power
 CODE[language][":"] = r"%s \, {\odot} \, %s"  # .........................expand product
 CODE[language]["."] = r"%s \, . \, %s"  # ...............................Hadamard product
 CODE[language]["*"] = r"%s \star %s"  # ..............reduce product
-CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
+# CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
 CODE[language]["ParDiff"] =r"\frac{\partial{%s}}{\partial{%s}}"
 CODE[language]["TotalDiff"] =  r"\frac{d\,{%s}}{d\,{%s}}"
 CODE[language]["Integral"] = r"\int_{{ {lower!s} }}^{{ {upper!s} }} \, {integrand!s} \enskip d\,{differential!s}"
 # CODE[language]["Interval"] = r"%s \in \left[ {%s} , {%s} \right] "
 # CODE[language]["Product"] = r"\prod_{index!s}  {argument!s} "
 CODE[language]["Product"] = r"\prod_{%s}  {%s} "
-CODE[language]["Instantiate"] = r"\text{Instantiate}(%s, %s)"
+CODE[language]["Instantiate"] = r"\textbf{Instantiate}(%s, %s)"
 CODE[language]["max"] = r"\mathbf{max}\left( %s, %s \right)"
 CODE[language]["min"] = r"\mathbf{min}\left( %s, %s \right)"
 CODE[language]["index_diff_state"] = r"\dot{%s}"
 
 for f in UNITARY_NO_UNITS:
-  CODE[language][f] = f + r"\left(%s\right)"
+  CODE[language][f] = r"\textbf{%s}"%f + r"\left(%s\right)"
 
 CODE[language]["abs"] = r"|%s|"
 
 CODE[language]["neg"] = r"\left( -%s \right)"
 CODE[language]["inv"] = r"\left( %s \right)^{-1}"
-CODE[language]["sign"] = r"\text{sign} \left( %s \right)"
+CODE[language]["sign"] = r"\textbf{sign} \left( %s \right)"
 
 # CODE[language]["blockProd"] = r"\displaystyle \prod_{{ {1} \in {2} }} {0}"
-CODE[language]["Root"] = r"Root\left( %s\right)"
+CODE[language]["Root"] = r"\textbf{Root}\left( %s\right)"
 # CODE[language]["MixedStack"] = r"\text{MixedStack}\left( %s \right)"
 # CODE[language]["Stack"] = r"\text{Stack}\left( %s \right)"
 
-CODE[language]["diffSpace"] = r"\text{diffSpace}\left(%s\right)"
+CODE[language]["diffSpace"] = r"\textbf{diffSpace}\left(%s\right)"
 CODE[language]["left"] = r"\left({%s}\right)^{-\epsilon}"
 CODE[language]["right"] = r"\left({%s}\right)^{+\epsilon}"
 CODE[language]["equation"] = "%s = %s"
