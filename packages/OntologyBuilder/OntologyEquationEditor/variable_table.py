@@ -237,5 +237,13 @@ class VariableTable(QtWidgets.QDialog):
     msg_popup = UI_FileDisplayWindow(self.info_file)
     msg_popup.exec_()
 
+  def mousePressEvent(self, event):
+    self.oldPos = event.globalPos()
+
+  def mouseMoveEvent(self, event):
+    delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()
+
   def exit(self):
     return
