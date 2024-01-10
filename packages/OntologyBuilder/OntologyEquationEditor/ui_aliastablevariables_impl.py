@@ -33,6 +33,7 @@ class UI_AliasTableVariables(QtWidgets.QWidget):
   '''
 
   completed = QtCore.pyqtSignal(str)
+  changed = QtCore.pyqtSignal(str)
 
   def __init__(self, variables, current_network):
     '''
@@ -133,8 +134,8 @@ class UI_AliasTableVariables(QtWidgets.QWidget):
     language = self.languages[int(item.column())]
     row = int(item.row())
     ID = self.keep_IDs[row]
-    # self.variables[ID].aliases[language] = str(item.text())
     self.variables.changeVariableAlias(ID, language, str(item.text()))
+    # self.changed.emit(ID)
     self.__resize()
 
   def on_pushInfo_pressed(self):

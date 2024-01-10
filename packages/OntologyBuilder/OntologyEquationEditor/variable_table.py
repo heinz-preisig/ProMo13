@@ -50,6 +50,7 @@ class VariableTable(QtWidgets.QDialog):
                hide_columns,
                info_file):
 
+
     self.variables = variables
     self.indices = indices
     self.network = network
@@ -66,6 +67,8 @@ class VariableTable(QtWidgets.QDialog):
     self.setWindowTitle(title)
     self.reset_table()
     self.hide()
+
+    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
 
     #
     self.buttons = {
