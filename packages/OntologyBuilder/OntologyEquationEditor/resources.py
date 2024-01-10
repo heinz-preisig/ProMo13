@@ -455,7 +455,7 @@ CODE[language]["min"] = r"\mathbf{min}\left( %s, %s \right)"
 CODE[language]["index_diff_state"] = r"\dot{%s}"
 
 for f in UNITARY_NO_UNITS:
-  CODE[language][f] = f + r"(%s)"
+  CODE[language][f] = f + r"\left(%s\right)"
 
 CODE[language]["abs"] = r"|%s|"
 
@@ -468,7 +468,7 @@ CODE[language]["Root"] = r"Root\left( %s\right)"
 # CODE[language]["MixedStack"] = r"\text{MixedStack}\left( %s \right)"
 # CODE[language]["Stack"] = r"\text{Stack}\left( %s \right)"
 
-CODE[language]["diffSpace"] = r"\text{diffSpace}(%s)"
+CODE[language]["diffSpace"] = r"\text{diffSpace}\left(%s\right)"
 CODE[language]["left"] = r"\left({%s}\right)^{-\epsilon}"
 CODE[language]["right"] = r"\left({%s}\right)^{+\epsilon}"
 CODE[language]["equation"] = "%s = %s"

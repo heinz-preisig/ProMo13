@@ -93,7 +93,7 @@ class UI_VariableTableShow(VariableTable):
 
     for b in buttons:
       if b not in showButtons:
-        print("debugging -- hide button", b)
+        # print("debugging -- hide button", b)
         buttons[b].hide()
 
     buttons["LaTex"].hide()
