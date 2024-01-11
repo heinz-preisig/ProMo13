@@ -833,6 +833,7 @@ class Commander(QtCore.QObject):
 
     # cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink["network"], source["network"])
     connection_network = CR.TEMPLATE_CONNECTION_NETWORK %(source["network"], sink["network"])
+    connection_network = CR.TEMPLATE_CONNECTION_NETWORK %(source_intra_domain,sink_intra_domain)
 
     selected_token = None
 
@@ -924,7 +925,8 @@ class Commander(QtCore.QObject):
     # nature = dummy_Interface["nature"]
     # variant = "interface"  # RULE: variant is being fixed for the time being
     # application = CR.TEMPLATE_ARC_APPLICATION % (token, mechanism, nature)
-
+    ands = []
+    ors = []
     if insert_intraface or insert_interface or insert_physics_arc:
       pos = self.__getMidPoint(fromNodeID, toNodeID)
 
@@ -937,6 +939,12 @@ class Commander(QtCore.QObject):
       elif insert_physics_arc:
         ands = [source_intra_domain, "arc"]
         ors = [selected_token]
+      elif insert_interface:
+        ands = [connection_network, ]
+        ors = []
+      else:
+        self.__abortArcGeneration("cannot generate arc")
+
     elif insert_arc:
       ands = [source_intra_domain, "arc"]
       ors = [selected_token]
