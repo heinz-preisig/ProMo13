@@ -131,7 +131,7 @@ class VarEqDiGraph:
     dependencies = {}
     for var_id in linked_vars:
       # TODO: Find out what to do with time in the integrators
-      if var_id == "V_5":
+      if var_id == "V_4":
         continue
       for top_id in topology_ids:
         var_info = self.get_equations(parent_vertex_id, var_id, top_id)
@@ -187,7 +187,7 @@ class VarEqDiGraph:
         # print(top_node_id)
         # print("NID: " + top_node_id)
         neighbor_entity = self.top_graph.nodes[top_node_id]["entity"]
-        # print("NEIGHBOR:" + str(neighbor_entity.index_set))        
+        # print("NEIGHBOR:" + str(neighbor_entity.index_set))
         if neighbor_entity.is_output(var_id):
           # A variable cant be input and output at the same time. When
           # calling get_equations() on the neighbor parent_vertex_id can
@@ -201,7 +201,7 @@ class VarEqDiGraph:
           # that we are looking for is an output there.
           if neighbor_entity.index_set is not None:
             self.digraph.nodes[parent_vertex_id]["index_sets"].add(
-              neighbor_entity.index_set
+                neighbor_entity.index_set
             )
 
       return var_info
@@ -219,18 +219,9 @@ class VarEqDiGraph:
       var_id: str,
       top_id: Optional[str],
   ) -> None:
-
-    index_structures = self.all_variables[var_id].index_structures
-
     # Initializing variables that are not already in the dict.
     if var_id not in self.inst_variables:
-      dimension = len(index_structures)
-      self.inst_variables[var_id] = {
-          "dimension": dimension,
-          "vals": {},
-      }
-    else:
-      dimension = self.inst_variables[var_id]["dimension"]
+      self.inst_variables[var_id] = {}
 
     # Variables that are not instantiated are also added to the dict
     # with vals: {} to help with the initialization. top_id = None is
@@ -239,29 +230,8 @@ class VarEqDiGraph:
       return
 
     # Storing values
-    inst_info = self.top_graph.nodes[top_id]["inst_info"]
-
-    if dimension == 0:
-      self.inst_variables[var_id]["vals"] = inst_info[var_id]
-    elif dimension == 1:
-      # TODO Fix this, maybe a new node in the topology graph: "S"
-      index = index_structures[0]
-      index_label = self.all_indices[index].get_translation("internal_code")
-
-      if index_label == "S":
-        for i, val in enumerate(inst_info[var_id], start=1):
-          self.inst_variables[var_id]["vals"][str(i)] = [val]
-      else:
-        # print(var_id)
-        # pp(inst_info[var_id])
-        self.inst_variables[var_id]["vals"][top_id[1:]] = inst_info[var_id]
-    elif dimension == 2:
-      # TODO Find a better way of storing the matrices
-      # So far only matrices from topology are instantiated
-      # Change as needed to allow for instantiation of other things.
-      self.inst_variables[var_id]["vals"]["rows"] = inst_info[var_id]["rows"]
-      self.inst_variables[var_id]["vals"]["cols"] = inst_info[var_id]["cols"]
-      self.inst_variables[var_id]["vals"]["vals"] = inst_info[var_id]["vals"]
+    node_inst_info = self.top_graph.nodes[top_id]["inst_info"]
+    self.inst_variables[var_id].update(node_inst_info[var_id])
 
   def find_solving_order(self) -> None:
     all_cycles = self.find_cycles()

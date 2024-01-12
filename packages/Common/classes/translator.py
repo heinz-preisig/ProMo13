@@ -29,44 +29,6 @@ class FunctionsMappings:
   ROOT: str = "F_18"
 
 
-@dataclass
-class TranslationInfo:
-  variable_with_index: str
-  variable_no_index: str
-  index: str
-  addition: str
-  substraction: str
-  negation: str
-  expand_product: str
-  hadamard: str
-  reduce_product: str
-  power: str
-  parentheses: str
-  exp: str
-  log: str
-  ln: str
-  sqrt: str
-  sin: str
-  cos: str
-  tan: str
-  asin: str
-  acos: str
-  atan: str
-  abs: str
-  neg: str
-  diffspace: str
-  left: str
-  right: str
-  inv: str
-  sign: str
-  par_diff: str
-  total_diff: str
-  instantiate: str
-  product: str
-  integral: str
-  root: str
-
-
 class Translator:
   def __init__(
       self,
