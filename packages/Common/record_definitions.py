@@ -27,6 +27,7 @@ from collections import OrderedDict
 from datetime import datetime
 
 from Common.common_resources import VARIABLE_TYPE_INTERFACES
+from Common.ui_get_string_impl import UI_GetString
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.resources import IRI_make
@@ -252,11 +253,21 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
   self["created"] = dateString()
   self["modified"] = self["created"]
-  self["compiled_lhs"] = {"global_ID": var_ID}
+  self["compiled_lhs"] = {"global_ID": var_ID, "latex": label}
 
-  for language in LANGUAGES["aliasing"]:
-    self["aliases"][language] = label
-  self["aliases"]["global_ID"] = var_ID #CODE["global_ID"]["variable"] % var_ID
+  if aliases == {}:
+    for language in LANGUAGES["aliasing"]:
+      self["aliases"][language] = label
+    self["aliases"]["global_ID"] = var_ID  # CODE["global_ID"]["variable"] % var_ID
+  # #
+  # # a = UI_GetString("Give a LaTex representation of variable %s: "%self["label"])
+  # # a.exec_()
+  # # a.getText()
+  #
+  # if a:
+  #   self["aliases"]["latex"] = a
+  # else:
+  #   self["aliases"]["latex"] = a
 
   return self
 
@@ -272,3 +283,18 @@ def makeCompletEquationRecord(rhs={}, type="generic", network="", doc="", incide
           "modified" : date
           }
   return self
+
+def makeInitialAliases(label, var_ID):
+  aliases = {}
+  for language in LANGUAGES["aliasing"]:
+    aliases[language] = label
+  aliases["global_ID"] = var_ID
+  a = UI_GetString("Give a LaTex representation of variable %s: " % label)
+  a.exec_()
+  text = a.getText()
+
+  if text:
+    aliases["latex"] = text
+  else:
+    aliases["latex"] = label
+  return aliases

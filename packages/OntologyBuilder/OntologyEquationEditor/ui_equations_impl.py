@@ -17,6 +17,8 @@ __version__ = "6.00"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
+import copy
+
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
@@ -26,8 +28,10 @@ from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 # from Common.record_definitions import RecordEquation
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
+# from Common.record_definitions import makeInitialAliases
 from Common.resources_icons import roundButton
 from Common.single_list_selector_impl import SingleListSelector
+from Common.ui_get_string_impl import UI_GetString
 # from OntologyBuilder.OntologyEquationEditor.resources import INSTANTIATE_EQ_NO
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_EQ
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_VAR
@@ -50,6 +54,7 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import IndexStruc
 from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
+from OntologyBuilder.OntologyEquationEditor.variable_framework import EquationDeleteError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidentList
 
 
@@ -111,7 +116,7 @@ class UI_Equations(QtWidgets.QWidget):
     #  physical, then the equation can be edited on physical even though it remains (now) on the macro layer.
 
     self.ui.labelNetwork.setText(network_for_variable)
-    self.__makePickVariableTable()
+    # self.__makePickVariableTable()
 
     self.operator_table = SingleListSelector(thelist=OPERATOR_SNIPS)
     self.operator_table.hide()
@@ -124,6 +129,8 @@ class UI_Equations(QtWidgets.QWidget):
     self.hide()
     self.ui.lineNewVariable.setFocus()
 
+    self.ui.pushPickIndices.hide()
+
   def __makePickVariableTable(self):
 
     self.variable_tables = {}
@@ -134,12 +141,13 @@ class UI_Equations(QtWidgets.QWidget):
               self.network_for_variable: self.variable_types_variable,
               source                   : self.variable_types_expression
               }
-    elif self.what == "intraface":
-      enabled_var_types = {
-              self.network_for_variable  : self.variable_types_variable,
-              self.network_for_expression: self.variable_types_expression
-              }
-      network = self.network_for_variable
+      which = "interface_picking"
+    # elif self.what == "intraface":
+    #   enabled_var_types = {
+    #           self.network_for_variable  : self.variable_types_variable,
+    #           self.network_for_expression: self.variable_types_expression
+    #           }
+    #   network = self.network_for_variable
 
     else:
       # RULE: the variables from the interconnection nodes that potentially connect are also included as sources
@@ -153,6 +161,7 @@ class UI_Equations(QtWidgets.QWidget):
                 self.network_for_expression: self.variable_types_expression
                 }
       network = self.network_for_variable
+      which = "variable_picking"
 
     self.variable_tables[network] = UI_VariableTablePick('Pick variable symbol \nnetwork %s' % network,
                                                          self.variables,
@@ -161,6 +170,7 @@ class UI_Equations(QtWidgets.QWidget):
                                                          enabled_types=enabled_var_types[network],
                                                          hide_vars=[NEW_VAR],
                                                          hide_columns=[0, 6, 7],
+                                                         which=which,
                                                          )
     self.variable_tables[network].hide()
     self.variable_tables[network].picked.connect(self.__insertSnipp)
@@ -203,7 +213,7 @@ class UI_Equations(QtWidgets.QWidget):
     # self.ui.lineExpression.cursorWordForward(False)
 
   def resetEquationInterface(self):
-    self.__makePickVariableTable()
+    # self.__makePickVariableTable()
     self.ui_indices = SingleListSelector(self.index_list)
     self.ui_indices.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
     self.ui_indices.newSelection.connect(self.__insertSnipp)
@@ -338,17 +348,17 @@ class UI_Equations(QtWidgets.QWidget):
         # elif self.checked_var.units == var.units:
         if self.checked_var.units == var.units:
           if self.checked_var.index_structures == var.index_structures:
-            if self.checked_var.tokens == var.tokens:
+            # if self.checked_var.tokens == var.tokens:
               msg = "variable has \n" \
                     "- index structures : %s\n" \
                     "- units            : %s\n" \
                     "- tokens           : %s\n" % (pretty_var_indices, pretty_var_units, var.tokens)
               self.MSG(msg)
-            else:
-              msg = "missmatch of tokens \n" \
-                    " - variable has   : %s\n" \
-                    " - expression has : %s\n" \
-                    % (self.checked_var.tokens, var.tokens)
+            # else:
+            #   msg = "missmatch of tokens \n" \
+            #         " - variable has   : %s\n" \
+            #         " - expression has : %s\n" \
+            #         % (self.checked_var.tokens, var.tokens)
           else:
             msg = "missmatch of index structures \n" \
                   " - variable has   : %s\n" \
@@ -374,15 +384,15 @@ class UI_Equations(QtWidgets.QWidget):
           return False
       # else:
       # print("debugging : ", expression)
-      msg = 'modified expression OK\n index struct: %s\n units: %s\n tokens: %s\n' % (
-              pretty_check_var_indices, pretty_check_var_units, self.checked_var.tokens)
+      msg = 'modified expression OK\n index struct: %s\n units: %s\n \n' % (
+              pretty_check_var_indices, pretty_check_var_units)
       self.MSG(msg)
       #       print("debugging: ", msg)
 
-      self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
-                                        self.network_for_variable, language="latex")
-      expression = Expression(self.compile_space)
-      self.expression_latex = expression(self.expr)
+      # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
+      #                                   self.network_for_variable, language="latex")
+      # expression = Expression(self.compile_space)
+      # self.expression_latex = expression(self.expr)
 
       return True
 
@@ -401,7 +411,10 @@ class UI_Equations(QtWidgets.QWidget):
 
   def on_pushDeleteEquation_pressed(self):
     v = self.selected_variable
-    v.removeEquation(self.current_eq_ID)  # remove from variable def
+    try:
+      v.removeEquation(self.current_eq_ID)  # remove from variable def
+    except EquationDeleteError:
+      return
     # self.variables.index_equation_in_definition_network()
     self.variables.indexVariables()
     self.ontology_container.indexEquations()
@@ -416,6 +429,13 @@ class UI_Equations(QtWidgets.QWidget):
     documentation = str(self.ui.lineDocumentation.text())
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
+
+    # now add the latex version of the expression
+    self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
+                                      self.network_for_variable, language="latex")
+    expression = Expression(self.compile_space)
+    self.expression_latex = expression(self.expr)
+
     rhs_dic = {"global_ID": rhs,
                "latex"    : str(self.expression_latex)}
 
@@ -447,7 +467,10 @@ class UI_Equations(QtWidgets.QWidget):
     if (log == (True, True, True)) or (log == (True, True, False)):
 
       equ_ID = self.variables.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
-      tokens = self.checked_var.tokens  # version_change: and this is the replacement
+      tokens = [] #self.checked_var.tokens  # version_change: and this is the replacement
+
+      # aliases = makeInitialAliases(symbol,var_ID)
+
 
       variable_record = makeCompleteVariableRecord(var_ID,
                                                    label=symbol,
@@ -494,7 +517,10 @@ class UI_Equations(QtWidgets.QWidget):
     self.resetEquationInterface()
 
     self.ui_indices.close()
-    [self.variable_tables[nw].close() for nw in self.variable_tables]
+    try:
+      [self.variable_tables[nw].close() for nw in self.variable_tables]
+    except:
+      pass
     self.operator_table.close()
 
     self.hide()
@@ -589,6 +615,7 @@ class UI_Equations(QtWidgets.QWidget):
     self.def_given_variable.emit()
 
   def on_pushPickVariables_pressed(self):
+    self.__makePickVariableTable()
     [self.variable_tables[nw].show() for nw in self.variable_tables]
 
   def on_pushPickOperations_pressed(self):

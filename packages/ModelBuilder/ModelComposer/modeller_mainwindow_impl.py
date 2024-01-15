@@ -49,7 +49,7 @@ from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.save_file_impl import SaveFileDialog
-from Common.ui_string_dialog_impl import UI_String
+from Common.ui_get_string_impl import UI_GetString
 from Common.ui_combo_integer_dialog_impl import UI_Combo_Integer
 from ModelBuilder.ModelComposer.modeller_commander_experimental import Commander
 from ModelBuilder.ModelComposer.modeller_logger_impl import Logger
@@ -682,7 +682,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
           self.current_named_network)
       box = self.ui.groupNamed_NetworkColour
       self.__showColour(box, colour)
-      self.commander.applyControlAccessRules()
+      # self.commander.applyControlAccessRules()
       self.commander.redrawCurrentScene()
 
   def radioReceiverNode(self, token_class, token, token_string, toggle):
@@ -942,7 +942,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
   def on_pushAddNamedNetwork_pressed(self):
 
     all_named_networks = self.named_network_dictionary.listOfNamedNetworksAll()
-    ui = UI_String("edit named network", "give new name",
+    ui = UI_GetString("edit named network", "give new name",
                    limiting_list=all_named_networks)
     ui.exec_()
 
@@ -960,7 +960,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     all_named_networks = self.named_network_dictionary.listOfNamedNetworksAll()
     old_name = self.old_named_network_name
-    ui = UI_String("edit named network", old_name,
+    ui = UI_GetString("edit named network", old_name,
                    limiting_list=all_named_networks)
     ui.exec_()
 

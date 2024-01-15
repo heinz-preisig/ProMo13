@@ -1,102 +1,83 @@
 function self = times(op1, op2)
   if isscalar(op1) || isscalar(op2)
-    % Case: a .* b_x or b_x .* a -> c_x    (N-dimensional matrix)
-    option = 1; 
-  elseif strcmp(op1.indexLabels, op2.indexLabels)
-    % Case: a_x .* b_x -> c_x              (N-dimensional matrices)
-    option = 1;
-  else
-    [commonLabels, iOp1, iOp2] = intersect(op1.indexLabels, op2.indexLabels);   
-  
-    if length(commonLabels) > 0
-      % Only for a vector and a 2-dimesional matrix
-      if iOp1 == iOp2
-        % Case: a_x .* b_x,y or b_x,y .* a_x -> c_x,y
-        option = 1
-      elseif isvector(op1)
-        % Case: a_y .* b_x,y -> c_x,y
-        option = 2;
-      else
-        % Case: b_x,y .* a_y -> c_x,y
-        option = 3;
-      endif
-    else
-      % Case a_x .* b_y,z -> c_x,y,z        (N-dimensional matrices)
-      option = 4;
+    % Scalars are converted to MultDimVar objects and the operation is
+    % always valid.
+    if ~isa(op1, "MultiDimVar")
+      op1 = MultiDimVar({}, [1], op2.indexOrder, [op1]);
     endif
-  endif
-  
-  switch option
-    case 1
-      self = mdvTimes();
-    case 2
-      self = mdvTimes(); 
-    case 3
-      self = mdvTimes();
-    case 4
-      sizeOp1 = size(op1);
-      sizeOp2 = size(op2);
-      % The dimension of the result is obtained by adding the dimensions
-      % of both operands. 
-      value = zeros([sizeOp1, sizeOp2]);
-
-      % Cell array containing ":" for each of the dimensions of the result.
-      indexes = repmat({':'}, 1, length(size(value)));
-
-      % We use linear indexes to loop through all elements of op1. Then we
-      % convert to subscripts and replace the necesary elements in indexes.
-      % Finally the multiplication of the ith element of op1 by the whole
-      % op2 is assigned to the position indicated by indexes.
-      for i = 1:prod(sizeOp1)
-        [indexes{1:length(sizeOp1)}] = ind2sub(sizeOp1, i);
-        value(indexes{:}) = op1.value(i) .* op2.value;
-      endfor
-  
-      indexLabels = cat(2, op1.indexLabels, op2.indexLabels);
-      indexSets = cat(2, op1.indexSets, op2.indexSets);
-
-      % We use squeeze to account for the vectors having 2 dimensions in 
-      % matlab and thus adding a dimension 1 in the middle if op1 is a
-      % vector instead of a matrix.
-      self = MultiDimVar(indexLabels, indexSets, squeeze(value));
-  endswitch
-  
-  function self = mdvTimes()
-    if isscalar(op1)
-      indexLabels = op2.indexLabels;
-      indexSets = op2.indexSets;
-    elseif isscalar(op2)
-      indexLabels = op1.indexLabels;
-      indexSets = op1.indexSets;
-    elseif isvector(op1)
-      indexLabels = op2.indexLabels;
-      indexSets = op2.indexSets;
-    else
-      indexLabels = op1.indexLabels;
-      indexSets = op1.indexSets;
+    if ~isa(op2, "MultiDimVar")
+      op2 = MultiDimVar({}, [1], op1.indexOrder, [op2]);
     endif
+
+    value = op1.value .* op2.value;
+    if length(op1.indexLabels) > length(op2.indexLabels)
+      indexLabels = op1.indexLabels;
+    else
+      indexLabels = op2.indexLabels;
+    endif
+  elseif isequal(op1.indexLabels, op2.indexLabels)
+    % Classic Hadamard case indexLabels and sizes match.
+    assert(
+      isequal(size(op1), size(op2)),
+      "Error: Nonconformant arguments (op1 is %s, op2 is %s)",
+      formatsize(op1), formatsize(op2)
+    )
     
-    switch option
-      case 1
-        % To account for scalars that are not MultiDimVar
-        if isa(op1, "MultiDimVar")
-          op1Value = op1.value;
-        else
-          op1Value = op1;
-        endif
-        if isa(op2, "MultiDimVar")
-          op2Value = op2.value;
-        else
-          op2Value = op2;
-        endif
-      case 2
-        op1Value = op1.value';
-        op2Value = op2.value;
-      case 3
-        op1Value = op1.value;
-        op2Value = op2.value';
-    endswitch
+    indexLabels = op1.indexLabels;
+    value = op1.value .* op2.value;
+  else
+    % One of the operands might need to be expanded, only valid if all
+    % the index labels of the operand that need to be expanded exist in
+    % the other operand.
 
-    self = MultiDimVar(indexLabels, indexSets, op1Value .* op2Value);
-  endfunction 
+    % Convenience rearrangement so the operand that needs to be expanded
+    % is op1.
+    if length(op1.indexLabels) > length(op2.indexLabels)
+      temp = op1;
+      op1 = op2;
+      op2 = temp;
+    endif
+
+    % Building the array used for the permutation in the case where the
+    % indexLabels dont have the same size
+    dimorder = zeros(size(op2.indexLabels));
+    for i=1:length(op1.indexLabels)
+      pos = find(strcmp(op1.indexLabels{i}, op2.indexLabels));
+      assert(~isempty(pos),"Error: Label (%s) not found in second argument",
+          op1.indexLabels{i})
+      
+      dimorder(pos) = i;
+    endfor
+
+    % The index labels in op2 that are not in op1 receive dimension
+    % numbers that didnt exist in op1, we make use of the fact that
+    % there are infinite dimensions of size 1 for each matrix, in that
+    % way the unexisting indexLabels are represented as dimensions of
+    % size 1.
+    cont = length(op1.indexLabels) + 1;
+    for i=1:length(dimorder)
+      if dimorder(i) == 0
+        dimorder(i) = cont;
+        cont = cont + 1;
+      endif
+    endfor
+
+    value1Perm = permute(op1.value, dimorder);
+
+    % After both operands have the same dimensions we check the sizes of
+    % each. For this product to work the sizes for all dimensions in
+    % both operands need to match or be 1.
+    size1 = size(value1Perm);
+    size2 = size(op2);
+    for i=1:length(size1)
+      assert(size1(i) == size2(i) || size1(i) == 1,
+        "Error: Nonconformant arguments (op1 is %s, op2 is %s)",
+        formatsize(op1), formatsize(op2))
+    endfor
+
+    value = value1Perm .* op2.value;
+    indexLabels = op2.indexLabels;
+  endif
+
+  self = MultiDimVar(indexLabels, size(value), op1.indexOrder, value);
 endfunction

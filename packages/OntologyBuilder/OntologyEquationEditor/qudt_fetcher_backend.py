@@ -20,6 +20,7 @@ QUDT_base = "http://qudt.org/vocab/"
 QUDT_QuantityKind = "http://qudt.org/vocab/quantitykind/"
 QUDT_Unit = "http://qudt.org/vocab/unit/"
 QUDT_Sou = "http://qudt.org/vocab/sou/SI"
+QUDT_Constant = "http://qudt.org/2.1/vocab/constant"
 
 promo_base = "promo", "http://example.org/"
 QUDT_alias = {"description"         : "description",
@@ -30,7 +31,7 @@ QUDT_alias = {"description"         : "description",
 QUDT_SI_UNITS = ["SEC", "M", "MOL", "KiloGM", "K", "A", "CD"]
 ProMo_SI_Units = ["s", "m", "mol", "kg", "K", "A", "cd"]  # order is defined in variable_framework class Units
 
-qudt_ontologies = ["quantitykind", "unit"]
+qudt_ontologies = ["constant","quantitykind", "unit"]
 
 endpoints = dict([(i, "%s%s/" % (QUDT_base, i)) for i in qudt_ontologies])
 
@@ -62,7 +63,7 @@ def getTerms(prefix):
   terms = []
   g = Graph()
   endpoint = endpoints[prefix]
-  g.load(endpoint, format="ttl")
+  g.parse(endpoint, format="ttl")
   g.serialize(local_endpoints[prefix], format="ttl")
 
   selected_subjects = []
@@ -98,7 +99,7 @@ def getUnits(units):
   for u in units:
     fname = "%s%s.ttl" % (QUDT_Unit, u)
     gu[u] = Graph()
-    gu[u].load(fname, format="ttl")
+    gu[u].parse(fname, format="ttl")
 
   gg = Graph()
   for u in units:
@@ -156,6 +157,8 @@ def receiver(package):
   elif package == "updateQuantityKindInformation":
     getTerms("quantitykind")
     return "fetched quantity kinds from qudt and saved ttl locally"
+  elif package == "updateConstants":
+    getTerms("constant")
   elif package == "getUnits":
     getUnits(QUDT_SI_UNITS)
     return "fetched units"

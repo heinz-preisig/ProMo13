@@ -29,45 +29,6 @@ class FunctionsMappings:
   ROOT: str = "F_18"
 
 
-@dataclass
-class TranslationInfo:
-  variable_with_index: str
-  variable_no_index: str
-  index: str
-  addition: str
-  substraction: str
-  negation: str
-  expand_product: str
-  khatri_rao: str
-  reduce_product: str
-  block_reduce_product: str
-  power: str
-  parentheses: str
-  exp: str
-  log: str
-  ln: str
-  sqrt: str
-  sin: str
-  cos: str
-  tan: str
-  asin: str
-  acos: str
-  atan: str
-  abs: str
-  neg: str
-  diffspace: str
-  left: str
-  right: str
-  inv: str
-  sign: str
-  par_diff: str
-  total_diff: str
-  instantiate: str
-  product: str
-  integral: str
-  root: str
-
-
 class Translator:
   def __init__(
       self,
@@ -147,30 +108,29 @@ class Translator:
 
     return self.translation_info.expand_product.format(**values)
 
-  def translate_khatri_rao(self, op1, op2):
-    # TODO: KhatriRao might need indexes
+  def translate_hadamard(self, op1, op2):
     values = {"op1": op1, "op2": op2}
 
-    return self.translation_info.khatri_rao.format(**values)
+    return self.translation_info.hadamard.format(**values)
 
-  def translate_reduce_product(self, op1, idx_id, op2):
+  def translate_reduce_product(self, op1, op2):
     values = {
         "op1": op1,
         "op2": op2,
-        "idx1": self.translated_indices.get(idx_id)
     }
 
     return self.translation_info.reduce_product.format(**values)
 
-  def translate_block_reduce_product(self, op1, idx_id1, idx_id2, op2):
-    values = {
-        "op1": op1,
-        "op2": op2,
-        "idx1": self.translated_indices.get(idx_id1),
-        "idx2": self.translated_indices.get(idx_id2),
-    }
+  # TODO: Delete
+  # def translate_block_reduce_product(self, op1, idx_id1, idx_id2, op2):
+  #   values = {
+  #       "op1": op1,
+  #       "op2": op2,
+  #       "idx1": self.translated_indices.get(idx_id1),
+  #       "idx2": self.translated_indices.get(idx_id2),
+  #   }
 
-    return self.translation_info.block_reduce_product.format(**values)
+  #   return self.translation_info.block_reduce_product.format(**values)
 
   def translate_product(self, op1: str, idx_id: str):
     values = {

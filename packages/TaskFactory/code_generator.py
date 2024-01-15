@@ -19,7 +19,7 @@ if len(sys.argv) != 2:
 ontology_name = sys.argv[0]  # "DEMO"
 model_name = sys.argv[1]  # "DEMO"
 
-io.convert_model_file(ontology_name, model_name)
+# io.convert_model_file(ontology_name, model_name)
 # model_name = "TEST_3Pores"
 
 all_variables, all_indices, all_equations = io.load_var_idx_eq_from_file(
@@ -27,10 +27,12 @@ all_variables, all_indices, all_equations = io.load_var_idx_eq_from_file(
 )
 
 all_entities = io.load_entities_from_file(ontology_name, all_variables)
+
 topology_graph = io.load_topology_from_file(
     ontology_name,
     model_name,
     all_entities,
+    all_variables,
 )
 
 var_eq = vareqdigraph.VarEqDiGraph(

@@ -51,7 +51,7 @@ from Common.resource_initialisation import ONTOLOGY_VERSION
 from Common.resource_initialisation import VARIABLE_EQUATIONS_VERSION
 from Common.resources_icons import getIcon
 from Common.resources_icons import roundButton
-from Common.ui_string_dialog_impl import UI_String
+from Common.ui_get_string_impl import UI_GetString
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
 from OntologyBuilder.OntologyFoundationEditor.editor_foundation_ontology_gui import Ui_MainWindow
 from OntologyBuilder.OntologyFoundationEditor.onto_graph_creator import makeOntologyDotGraph
@@ -106,7 +106,7 @@ class Ontology(OrderedDict):
 
 
 def askForString(prompt, placeholdertext="", limiting_list=[]):  #
-  ui_ask = UI_String(prompt, placeholdertext=placeholdertext, limiting_list=limiting_list)
+  ui_ask = UI_GetString(prompt, placeholdertext=placeholdertext, limiting_list=limiting_list)
   ui_ask.exec_()
   model_name = ui_ask.getText()
   return model_name
@@ -138,7 +138,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     self.new_variable_file = False
 
     if not ontology_name:  # RULE: No ontology chosen -- ask for new ontology
-      ui_ask = UI_String("give new ontology name ", "ontology name", limiting_list=ontologies)
+      ui_ask = UI_GetString("give new ontology name ", "ontology name", limiting_list=ontologies)
       ui_ask.exec_()
       ontology_name = ui_ask.getText()
       if not ontology_name:  # RULE: no new ontology -- exit
@@ -1158,7 +1158,9 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     print("model name: ", model_name)
     self.ontology_tree[self.current_network].addChild(model_name)
     self.ontology_tree[model_name] = Ontology(model_name, 'intra', self.ontology_tree[self.current_network])
-    # self.__makeTreeView()
+
+    if self.current_network not in self.ontology["rules"]["network_enable_adding_indices"]:
+      self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = False
     self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
 
   def on_pushRemoveChild_pressed(self):

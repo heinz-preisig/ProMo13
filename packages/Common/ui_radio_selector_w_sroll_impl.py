@@ -54,10 +54,6 @@ class UI_RadioSelector(QtWidgets.QDialog):
       active_radios = self.checked
       if len(active_radios) < self.allowed:
         active_radios = self.radios
-    # else:                                  # Note: cannot get it to fit at the beginning
-    #   s = QtCore.QSize(0,0)
-    #   self.resize(s)
-    #   print("debugging -- resizing 0,0")
 
     max_width = 0
     height_offset = 40  # offset for bar etc
@@ -66,7 +62,7 @@ class UI_RadioSelector(QtWidgets.QDialog):
     for i in active_radios:
       label = QtWidgets.QLabel(i)
       width = label.fontMetrics().boundingRect(label.text()).width()
-      height = height + 2 * label.fontMetrics().boundingRect(label.text()).height()
+      height = height + self.allowed * label.fontMetrics().boundingRect(label.text()).height()
       if width > max_width:
         max_width = width
 

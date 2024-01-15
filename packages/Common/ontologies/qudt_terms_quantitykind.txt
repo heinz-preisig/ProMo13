@@ -24,7 +24,9 @@ AlphaDisintegrationEnergy
 Altitude
 AmbientPressure
 AmountOfSubstance
+AmountOfSubstanceConcentration
 AmountOfSubstanceConcentrationOfB
+AmountOfSubstanceFraction
 AmountOfSubstanceFractionOfB
 AmountOfSubstancePerUnitMass
 AmountOfSubstancePerUnitMassPressure
@@ -101,6 +103,7 @@ CartesianArea
 CartesianCoordinates
 CartesianVolume
 CatalyticActivity
+CatalyticActivityConcentration
 CelsiusTemperature
 CenterOfGravity_X
 CenterOfGravity_Y
@@ -109,6 +112,7 @@ CharacteristicAcousticImpedance
 CharacteristicVelocity
 ChargeNumber
 ChemicalAffinity
+ChemicalConsumptionPerMass
 ChemicalPotential
 Chromaticity
 Circulation
@@ -127,15 +131,16 @@ Conductance
 ConductionSpeed
 ConductiveHeatTransferRate
 Conductivity
+Constringence
 ConvectiveHeatTransfer
 CorrelatedColorTemperature
+Count
 CouplingFactor
 CrossSection
 CrossSectionalArea
 CubicElectricDipoleMomentPerSquareEnergy
 CubicExpansionCoefficient
 CurieTemperature
-Currency
 CurrencyPerFlight
 CurrentLinkage
 Curvature
@@ -208,6 +213,8 @@ ElectricCurrentPerUnitLength
 ElectricCurrentPerUnitTemperature
 ElectricCurrentPhasor
 ElectricDipoleMoment
+ElectricDipoleMoment_CubicPerEnergy_Squared
+ElectricDipoleMoment_QuarticPerEnergy_Cubic
 ElectricDisplacement
 ElectricDisplacementField
 ElectricField
@@ -249,9 +256,11 @@ EnergyLevel
 EnergyPerArea
 EnergyPerAreaElectricCharge
 EnergyPerElectricCharge
+EnergyPerMagneticFluxDensity_Squared
 EnergyPerMassAmountOfSubstance
 EnergyPerSquareMagneticFluxDensity
 EnergyPerTemperature
+Energy_Squared
 Enthalpy
 Entropy
 EquilibriumConstant
@@ -337,6 +346,7 @@ HelmholtzEnergy
 HenrysLawVolatilityConstant
 HoleDensity
 HorizontalVelocity
+HydraulicPermeability
 HyperfineStructureQuantumNumber
 INERT-MASS
 IgnitionIntervalTime
@@ -359,9 +369,11 @@ InternalEnergy
 IntinsicCarrierDensity
 InverseAmountOfSubstance
 InverseEnergy
+InverseEnergy_Squared
 InverseLength
 InverseLengthTemperature
 InverseMagneticFlux
+InverseMass_Squared
 InversePermittivity
 InversePressure
 InverseSquareEnergy
@@ -370,6 +382,7 @@ InverseSquareTime
 InverseTemperature
 InverseTime
 InverseTimeTemperature
+InverseTime_Squared
 InverseVolume
 IonConcentration
 IonCurrent
@@ -401,6 +414,7 @@ LengthMass
 LengthMolarEnergy
 LengthPerUnitElectricCurrent
 LengthPercentage
+LengthRatio
 LengthTemperature
 LengthTemperatureTime
 Lethargy
@@ -436,11 +450,12 @@ LossFactor
 LowerCriticalMagneticFluxDensity
 Luminance
 LuminousEfficacy
-LuminousEmmitance
+LuminousEmittance
 LuminousEnergy
 LuminousExposure
 LuminousFlux
 LuminousFluxPerArea
+LuminousFluxRatio
 LuminousIntensity
 LuminousIntensityDistribution
 MASS-DELIVERED
@@ -493,6 +508,7 @@ MassOfTheEarth
 MassPerArea
 MassPerAreaTime
 MassPerElectricCharge
+MassPerEnergy
 MassPerLength
 MassPerTime
 MassRatio
@@ -565,6 +581,7 @@ NeutronYieldPerAbsorption
 NeutronYieldPerFission
 Non-LeakageProbability
 NonActivePower
+NonNegativeLength
 NormalStress
 NormalizedDimensionlessRatio
 NozzleThroatCrossSectionalArea
@@ -628,6 +645,8 @@ PolarizationField
 Population
 PositionVector
 PositiveDimensionlessRatio
+PositiveLength
+PositivePlaneAngle
 PotentialEnergy
 Power
 PowerArea
@@ -679,9 +698,9 @@ ReactivePower
 Reactivity
 ReactorTimeConstant
 RecombinationCoefficient
-Refectance
 Reflectance
 ReflectanceFactor
+Reflectivity
 RefractiveIndex
 RelativeAtomicMass
 RelativeHumidity
@@ -699,6 +718,7 @@ Reluctance
 ResidualResistivity
 Resistance
 ResistancePercentage
+ResistanceRatio
 Resistivity
 ResonanceEnergy
 ResonanceEscapeProbability
@@ -755,6 +775,8 @@ SourceVoltageBetweenSubstances
 SpatialSummationFunction
 SpecificAcousticImpedance
 SpecificActivity
+SpecificElectricCharge
+SpecificElectricCurrent
 SpecificEnergy
 SpecificEnergyImparted
 SpecificEnthalpy
@@ -773,6 +795,8 @@ SpecificImpulseByMass
 SpecificImpulseByWeight
 SpecificInternalEnergy
 SpecificOpticalRotatoryPower
+SpecificPower
+SpecificSurfaceArea
 SpecificThrust
 SpecificVolume
 SpectralAngularCrossSection
@@ -800,6 +824,7 @@ StoichiometricNumber
 Strain
 StrainEnergyDensity
 Stress
+StressIntensityFactor
 StressOpticCoefficient
 StructuralEfficiency
 StructureFactor
@@ -817,6 +842,7 @@ TemperatureAmountOfSubstance
 TemperatureGradient
 TemperaturePerMagneticFluxDensity
 TemperaturePerTime
+TemperaturePerTime_Squared
 TemperatureRateOfChange
 TemperatureRatio
 TemporalSummationFunction
@@ -852,8 +878,10 @@ ThrusterPowerToThrustEfficiency
 Time
 TimeAveragedSoundIntensity
 TimePercentage
+TimeRatio
 TimeSquared
 TimeTemperature
+Time_Squared
 Torque
 TorquePerAngle
 TorquePerLength
@@ -873,6 +901,7 @@ TransmittanceDensity
 TrueExhaustVelocity
 Turbidity
 Turns
+Unknown
 UpperCriticalMagneticFluxDensity
 VacuumThrust
 VaporPermeability
@@ -888,6 +917,7 @@ VisionThresholds
 Voltage
 VoltagePercentage
 VoltagePhasor
+VoltageRatio
 Volume
 VolumeFlowRate
 VolumeFraction

@@ -106,16 +106,16 @@ class EntityEditorModel(QtCore.QObject):
 
   def get_unused_variables(self):
     ent_type = self.editing_entity.entity_name.split(".")[1]
-    all_vars = set([
+    all_vars = {
         var_id
         for var_id, var in self.all_variables.items()
         if var.is_eligible("", ent_type, "")
-    ])
-    # print(all_vars)
+    }
     entity_vars = set(self.editing_entity.get_variables())
     # TODO Change when the entity has var instances.
     unused_vars = [self.all_variables[var_id]
                    for var_id in sorted(list(all_vars - entity_vars))]
+
     return unused_vars
 
   def add_new_output_var(self, var_id):

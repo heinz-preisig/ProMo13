@@ -10,6 +10,7 @@ from typing import List, Dict, Optional, Tuple, Union
 from pprint import pprint as pp
 from pathlib import Path
 from datetime import datetime
+from dataclasses import dataclass
 
 from packages.Common.classes import equation
 from packages.Common.classes import entity
@@ -20,13 +21,48 @@ from packages.Common.classes import node
 from packages.Common.classes import arc
 from packages.Common import resource_initialisation
 
-from packages.Common.classes import translator
 from packages.Common.classes import equation_parser
 
+@dataclass
+class TranslationInfo:
+  variable_with_index: str
+  variable_no_index: str
+  index: str
+  addition: str
+  substraction: str
+  negation: str
+  expand_product: str
+  hadamard: str
+  reduce_product: str
+  power: str
+  parentheses: str
+  exp: str
+  log: str
+  ln: str
+  sqrt: str
+  sin: str
+  cos: str
+  tan: str
+  asin: str
+  acos: str
+  atan: str
+  abs: str
+  neg: str
+  diffspace: str
+  left: str
+  right: str
+  inv: str
+  sign: str
+  par_diff: str
+  total_diff: str
+  instantiate: str
+  product: str
+  integral: str
+  root: str
 
 def load_translation_info_from_file(
     language: str
-) -> translator.TranslationInfo:
+) -> TranslationInfo:
   # TODO: Add to FILES in the resource initialization.
   packages_path = resource_initialisation.DIRECTORIES["packages"]
   remaining_path = (
@@ -38,7 +74,7 @@ def load_translation_info_from_file(
   with open(path, "r", encoding="utf-8",) as file:
     data = json.load(file)
 
-  info = translator.TranslationInfo(**data)
+  info = TranslationInfo(**data)
 
   return info
 
@@ -269,8 +305,11 @@ def load_model_from_file(
 def load_topology_from_file(
     ontology_name: str,
     model_name: str,
-    all_entities: Dict[str, entity.Entity]
+    all_entities: Dict[str, entity.Entity],
+    all_variables: Dict[str, variable.Variable],
 ) -> nx.Graph:
+  # TODO: Check if we should remove the offset and let the matlab
+  # template deal with it so this function is more flexible.
   index_sets = {
       "general": {},
       "specific": {},
@@ -284,22 +323,12 @@ def load_topology_from_file(
     data = json.load(file)
 
   topology_graph = nx.Graph()
-  matrices = {
-      "Dd_N_A": {
-          "rows": [],
-          "cols": [],
-          "vals": [],
-      },
-      "Dd_NS_AS": {
-          "rows": [],
-          "cols": [],
-          "vals": [],
-      },
-  }
+
   # Stores index to name lists for nodes, arcs, species, etc
   extra_info = {}
 
   # For the species
+  # TODO: Connect this to the ontology for all typed tokens
   species_set = set()
   for domain_species in data["typed_token_lists"]["mass"].values():
     species_set.update(domain_species)
@@ -308,43 +337,32 @@ def load_topology_from_file(
   species_index = {spec: str(i)
                    for i, spec in enumerate(species_list, start=1)}
 
+  # TODO Probably change this
+  nr_specs = len(species_list)
+  index_sets["general"]["I_3"] = [str(x)
+                                  for x in range(1, nr_specs + 1)]  # Species
+
   extra_info["species"] = [""] + species_list
 
   # For the nodes
   nodes_index = {}
-  node_species_index = {}
-  offset = 1
+
+  # TODO: See how we can relate this to the ontology to make it more general
   index_sets["general"]["I_1"] = []         # Nodes
-  index_sets["general"]["I_5"] = []         # Nodes & Species
   # First element is empty to account for the offset
   extra_info["nodes"] = [""]
   for i, old_node_index in enumerate(data["nodes"], start=1):
-    node = str(i)
+    node_number = str(i)
     node_data = data["nodes"][old_node_index]
     extra_info["nodes"].append(node_data["name"])
 
     # Mapping all the simple nodes to have indexes in [1, N].
-    nodes_index[old_node_index] = node
-    # pp(nodes_index)
-
-    # Mapping the species inside the nodes.
-    if "mass" in node_data["tokens"]:
-      node_species = [species_index[s] for s in node_data["tokens"]["mass"]]
-      node_species_index[node] = {
-          spec: (j + offset) for j, spec in enumerate(node_species)
-      }
-      node_species_index[node]["ini"] = offset
-      offset += len(node_species)
-      node_species_index[node]["fin"] = offset - 1
-    else:
-      node_species = []
+    nodes_index[old_node_index] = node_number
 
     # For the index_sets
-    index_sets["general"]["I_1"].append(node)
-    index_sets["general"]["I_5"].append(node_species)
+    index_sets["general"]["I_1"].append(node_number)
 
-    # TODO The domain is usually found using the ontology container
-    # Find a way of obtaining this info here.
+    # TODO: Remove this once we can directly obtain the entity name
     networks = ["macroscopic"]
     intra_domains = {"macroscopic": ["solid", "liquid", "gas"]}
 
@@ -360,49 +378,63 @@ def load_topology_from_file(
     ent_name = f"{entity_domain}.node.{token}|{entity_type}.{entity_variant}"
 
     # TODO Check if this is always the case
-    is_reservoir = (entity_type == "constant|infinity")
+    is_reservoir = entity_type == "constant|infinity"
+
+    # TODO: Generalize for the case with more typed tokens
+    inst_info = data["instantiation_info"]["nodes"][old_node_index]
+    updated_inst_info = {}
+
+    for var_id, value_dict in inst_info.items():
+      dimension = len(all_variables[var_id].index_structures)
+      if dimension == 0:
+        updated_inst_info[var_id] = {
+            ('1'): value_dict["default"]
+        }
+      elif dimension == 1:
+        updated_inst_info[var_id] = {
+            (node_number): value_dict["default"]
+        }
+      elif dimension == 2:
+        updated_inst_info[var_id] = {}
+        for specie_name, value in value_dict.items():
+          updated_inst_info[var_id][
+              (node_number, species_index[specie_name])
+          ] = value
 
     topology_graph.add_node(
-        "N" + node,
+        "N" + node_number,
         entity=all_entities[ent_name],
-        inst_info=data["instantiation_info"]["nodes"][old_node_index],
+        inst_info=updated_inst_info,
         is_reservoir=is_reservoir,
     )
 
+    # TODO: Change to deal only with index sets related to nodes
     idx_set = all_entities[ent_name].index_set
-    # print(ent_name)
     if idx_set not in index_sets["specific"]:
       index_sets["specific"][idx_set] = []
 
-    index_sets["specific"][idx_set].append(node)
+    index_sets["specific"][idx_set].append(node_number)
+
+  # For the incidence matrix
+  # TODO: Change this when we have a better way of finding what id
+  # corresponds to F
+  incidence_inst_info = {
+      "V_10": {},
+      "V_64": {}
+  }
 
   # For the arcs
-  arc_species_index = {}
-  offset = 1
   index_sets["general"]["I_2"] = []         # Arcs
-  index_sets["general"]["I_6"] = []         # Arcs & Species
   extra_info["arcs"] = [""]  # To account for offset
   for i, old_arc_index in enumerate(data["arcs"], start=1):
-    arc = str(i)
+    arc_number = str(i)
     arc_data = data["arcs"][old_arc_index]
     extra_info["arcs"].append(arc_data["name"])
 
-    # Mapping the species inside the arcs.
-    # TODO Homogenize the keys in nodes and arcs.
-    arc_species = [species_index[s] for s in arc_data["typed_tokens"]]
-    arc_species_index[arc] = {
-        spec: (j + offset) for j, spec in enumerate(arc_species)
-    }
-    arc_species_index[arc]["ini"] = offset
-    offset += len(node_species)
-    arc_species_index[arc]["fin"] = offset - 1
-
     # For the index_sets
-    index_sets["general"]["I_2"].append(arc)
-    index_sets["general"]["I_6"].append(arc_species)
+    index_sets["general"]["I_2"].append(arc_number)
 
-    # TODO The domain is usually found using the ontology container
-    # Find a way of obtaining this info here.
+    # TODO Remove this when I can take the entiy name directly.
     networks = ["macroscopic"]
     intra_domains = {"macroscopic": ["solid", "liquid", "gas"]}
     entity_network = arc_data["network"]
@@ -416,59 +448,50 @@ def load_topology_from_file(
     entity_variant = arc_data["variant"]
     ent_name = f"{entity_domain}.arc.{token}|{entity_type}.{entity_variant}"
 
+    inst_info = data["instantiation_info"]["arcs"][old_arc_index]
+    updated_inst_info = {}
+    for var_id, value_dict in inst_info.items():
+      dimension = len(all_variables[var_id].index_structures)
+      if dimension == 0:
+        updated_inst_info[var_id] = {
+            ('1'): value_dict["default"]
+        }
+      elif dimension == 1:
+        updated_inst_info[var_id] = {
+            (arc_number): value_dict["default"]
+        }
+      elif dimension == 2:
+        updated_inst_info[var_id] = {}
+        for specie_name, value in value_dict.items():
+          updated_inst_info[var_id][
+              (arc_number, species_index[specie_name])
+          ] = value
+
     topology_graph.add_node(
-        "A" + arc,
+        "A" + arc_number,
         entity=all_entities[ent_name],
-        inst_info=data["instantiation_info"]["arcs"][old_arc_index],
+        inst_info=updated_inst_info,
         is_reservoir=False,
     )
 
+    # TODO: Change to deal only with the index sets related to arcs
     idx_set = all_entities[ent_name].index_set
     if idx_set not in index_sets["specific"]:
       index_sets["specific"][idx_set] = []
 
-    index_sets["specific"][idx_set].append(arc)
+    index_sets["specific"][idx_set].append(arc_number)
 
     # Connections and matrix building
     node1 = nodes_index[str(arc_data["source"])]
     node2 = nodes_index[str(arc_data["sink"])]
 
-    topology_graph.add_edge("A" + arc, "N" + node1)
-    topology_graph.add_edge("A" + arc, "N" + node2)
+    topology_graph.add_edge("A" + arc_number, "N" + node1)
+    topology_graph.add_edge("A" + arc_number, "N" + node2)
 
-    # TODO Generalize for all mechanisms and tokens
-    if (
-        arc_data["token"] == "mass" and
-        arc_data["mechanism"] == "diffusion"
-    ):
-      matrices["Dd_N_A"]["rows"].extend([int(node1), int(node2)])
-      matrices["Dd_N_A"]["cols"].extend([int(arc)]*2)
-      matrices["Dd_N_A"]["vals"].extend([-1, 1])
-
-      for spec in arc_species:
-        matrices["Dd_NS_AS"]["rows"].extend([
-            node_species_index[node1][spec],
-            node_species_index[node2][spec],
-        ])
-        matrices["Dd_NS_AS"]["cols"].extend(
-            [arc_species_index[arc][spec]]*2
-        )
-        matrices["Dd_NS_AS"]["vals"].extend([-1, 1])
-
-  # TODO See how to link this with the equation composer
-  matrices["V_70"] = matrices["Dd_NS_AS"]           # Fc_NS_AS
-  matrices["V_91"] = matrices["Dd_NS_AS"]           # Dc_NS_AS
-
-  del matrices["Dd_N_A"]
-  del matrices["Dd_NS_AS"]
-
-  # TODO Generalize for all indexes
-  nr_nodes = len(data["nodes"])
-  nr_arcs = len(data["arcs"])
-  nr_specs = len(species_list)
-  # TODO Probably change this
-  index_sets["general"]["I_3"] = [str(x)
-                                  for x in range(1, nr_specs + 1)]  # Species
+    incidence_inst_info["V_10"][(node1, arc_number)] = -1
+    incidence_inst_info["V_10"][(node2, arc_number)] = 1
+    incidence_inst_info["V_64"][(node1, arc_number)] = -1
+    incidence_inst_info["V_64"][(node2, arc_number)] = 1
 
   topology_graph.graph["index_sets_info"] = index_sets
   topology_graph.graph["extra_info"] = extra_info
@@ -479,23 +502,22 @@ def load_topology_from_file(
       None,
       {},
       [],
-      list(matrices),
+      list(incidence_inst_info),
       [],
-      list(matrices)
+      list(incidence_inst_info)
   )
   topology_graph.add_node(
       "T",
       entity=topology_entity,
-      inst_info=matrices,
+      inst_info=incidence_inst_info,
       is_reservoir=False,
   )
 
-  for node in topology_graph:
-    if node != "T":
-      topology_graph.add_edge("T", node)
+  for node_name in topology_graph:
+    if node_name != "T":
+      topology_graph.add_edge("T", node_name)
 
-  # from pprint import pprint as pp
-  # pp(topology_graph.graph["index_info"])
+  # pp(nx.json_graph.node_link_data(topology_graph))
 
   return topology_graph
 

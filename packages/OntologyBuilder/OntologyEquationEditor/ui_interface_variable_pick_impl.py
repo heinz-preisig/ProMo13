@@ -97,6 +97,7 @@ class UI_VariableTableInterfacePick(VariableTable):
     row = int(item.row())
     item = self.ui.tableVariable.item
     var_ID = str(item(row,9).text()) #str(item(row, 1).text())
+    self.selected_ID = var_ID
     self.picked.emit(var_ID)
     return
 

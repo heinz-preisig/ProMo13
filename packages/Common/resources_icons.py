@@ -50,6 +50,7 @@ ICONS["variable_show"] = "variable_show_button.svg"
 ICONS["V"] = "V_button_hap.svg"
 ICONS["number"] = "instantiate_button_hap.svg"
 ICONS["edit"] = "edit_button_hap.svg"
+ICONS["PDF"] = "variable_pdf_button.svg"
 
 size = 52
 BUTTON_ICON_SIZE = QtCore.QSize(size, size)
@@ -66,7 +67,11 @@ BUTTON_ICON_STYLE_ROUND += 'padding: 6px;'
 def roundButton(button, what, tooltip=None):
   button.setText("")
   button.setFixedSize(BUTTON_ICON_SIZE)
-  button.setIcon(getIcon(what))
+  try:
+    button.setIcon(getIcon(what))
+  except:
+    button.setText(what)
+    return
   button.setStyleSheet(BUTTON_ICON_STYLE_ROUND)
   button.setIconSize(BUTTON_ICON_SIZE)
   button.setToolTip(tooltip)

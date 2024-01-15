@@ -49,7 +49,7 @@ from Common.qt_resources import BUTTON_NAMES
 from Common.record_definitions import Interface
 from Common.resource_initialisation import FILES
 from Common.ui_radio_selector_w_sroll_impl import UI_RadioSelector
-from Common.ui_string_dialog_impl import UI_String
+from Common.ui_get_string_impl import UI_GetString
 from ModelBuilder.ModelComposer.instantiation_dialog_HAP_impl import InstantiationDialog
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Arc_Edge
 from ModelBuilder.ModelComposer.modeller_graphcomponents import Knot
@@ -153,7 +153,7 @@ class Commander(QtCore.QObject):
     self.__makeViewAndScene(rootID)
     self.currently_viewed_node = rootID
 
-    self.string_dialog = UI_String("new node name", "node name")
+    self.string_dialog = UI_GetString("new node name", "node name")
     self.string_dialog.accepted.connect(self.__changeName)
 
   def __loadAutomata(self):
@@ -833,6 +833,7 @@ class Commander(QtCore.QObject):
 
     # cnwi = CR.TEMPLATE_CONNECTION_NETWORK % (sink["network"], source["network"])
     connection_network = CR.TEMPLATE_CONNECTION_NETWORK %(source["network"], sink["network"])
+    connection_network = CR.TEMPLATE_CONNECTION_NETWORK %(source_intra_domain,sink_intra_domain)
 
     selected_token = None
 
@@ -924,7 +925,8 @@ class Commander(QtCore.QObject):
     # nature = dummy_Interface["nature"]
     # variant = "interface"  # RULE: variant is being fixed for the time being
     # application = CR.TEMPLATE_ARC_APPLICATION % (token, mechanism, nature)
-
+    ands = []
+    ors = []
     if insert_intraface or insert_interface or insert_physics_arc:
       pos = self.__getMidPoint(fromNodeID, toNodeID)
 
@@ -937,6 +939,12 @@ class Commander(QtCore.QObject):
       elif insert_physics_arc:
         ands = [source_intra_domain, "arc"]
         ors = [selected_token]
+      elif insert_interface:
+        ands = [connection_network, ]
+        ors = []
+      else:
+        self.__abortArcGeneration("cannot generate arc")
+
     elif insert_arc:
       ands = [source_intra_domain, "arc"]
       ors = [selected_token]
@@ -2858,13 +2866,13 @@ class Commander(QtCore.QObject):
 
     # print("begin redraw scene")
     self.currently_viewed_node = nodeID
+    self.applyControlAccessRules()
     self.__makeViewAndScene(nodeID)
 
     if debug:
       print("start redraw node ", nodeID)
 
     children = self.model_container["ID_tree"].getChildren(nodeID)
-    self.applyControlAccessRules()
 
     # nodes
     for child in children:
@@ -3076,7 +3084,7 @@ class Commander(QtCore.QObject):
           [node_component, app] = l
         elif len(l) == 3 :
           [token,mechanism,nature] = l        # Note: this is an arc node
-          self.state_nodes[node] = "disabled"
+          self.state_nodes[node] = "blocked"
           return
       else:
         node_component = node_type

@@ -6,14 +6,7 @@ function output_vars = main
         {{-"  "}}% {{com}}
       {% endfor %}
     {% endif %} #}
-    {{-"  "}}{{set_name}} = cell(1, {{set_info|length}});
-    {% for element in set_info %}
-      {% if element|is_list %}
-        {{-"  "}}{{set_name}}({{loop.index}})  = [{{element|join(", ")}}];
-      {% else %}
-         {{-"  "}}{{set_name}}({{loop.index}})  = {{element}};
-      {% endif %}
-    {% endfor %}
+    {{-"  "}}{{set_name}} = [{{set_info|join(",")}}]; {{"\n"-}}
     {{-"  "}}{{set_name}}_lbl = "{{set_name}}";
   {% endfor %}
 
@@ -21,38 +14,31 @@ function output_vars = main
     {{-"  "}}{{set_name}} = [{{set_info|join(", ")}}];
   {% endfor %}
 
+  {{-"  "}}indexOrder = cell(1, {{index_order|length}});
+  {% for element in index_order %}
+    {{-"  "}}indexOrder({{loop.index}})  = {{element}}_lbl;
+  {% endfor %}
+
   % Variables
-  {% for inst in instantiations %}
-    {% if inst.comment %}
-      {% for com in inst.comment%}
+  {% for var in variables %}
+    {% if var.comment %}
+      {% for com in var.comment%}
         {{-"  "}}% {{com}}
       {% endfor %}
     {% endif %}
-    {% if inst.dimension == 0 %}
-      {{-"  "}}{{inst.var_id|label}} = {{inst.vals}};
-    {% else %}
-      {{-"  "}}{{inst.var_id|label}} = MultiDimVar(
-        {{-""}}{ {{-inst.index_labels-}} }, 
-        {{-" "}}{ {{-inst.index_sets-}} }
-      {{-""}});{{-"\n"-}}
-      {% if inst.dimension == 1 %}
-        {% for index, init_values in inst.vals|items %}
-          {{-"  "}}{{inst.var_id|label}}({{index}}) = [{{init_values|join(";")}}];
-        {% endfor %}
-        {% if inst.is_sparse %}
-          {{-"  "}}{{inst.var_id|label}} = sparse({{inst.var_id|label}});
-        {% endif %}
-      {% elif inst.dimension == 2 %}
-        {% for i in inst.vals.vals%}
-          {{-"  "}}{{inst.var_id|label}}.value(
-            {{-inst.vals.rows[loop.index - 1]-}},
-            {{-" "}}{{inst.vals.cols[loop.index - 1]-}}
-          {{-""}}) = {{inst.vals.vals[loop.index - 1]}};{{-"\n"-}}
-        {% endfor %}
-        {% if inst.is_sparse %}
-          {{-"  "}}{{inst.var_id|label}} = sparse({{inst.var_id|label}});
-        {% endif %}
-      {% endif %}
+
+    {{-"  "}}{{var.var_id|label}} = MultiDimVar(
+      {{-""}}{ {{-var.index_labels-}} }, 
+      {{-" "}}[ {{-var.size|join(",")-}} ],
+      {{-" "}}indexOrder
+    {{-""}});{{-"\n"-}}
+
+    {% for index_tuple, value in var.instantiation_values|items %}
+      {{-"  "}}{{var.var_id|label}}({{index_tuple|join(",")}}) = {{value}};
+    {% endfor%}
+
+    {% if var.is_sparse %}
+      {{-"  "}}{{var.var_id|label}} = sparse({{var.var_id|label}});
     {% endif %}
     {{-"\n"-}}
   {% endfor%}
@@ -61,16 +47,16 @@ function output_vars = main
   % Initial conditions
   {% for i in integrators %}
     {{-"  "}}phi_0({{i.interval}}) =
-      {{-" "}}({{i.init_value|var_slice(i.index_sets)}}).value;
+      {{-" "}}reshape(({{i.init_value|var_slice(i.index_sets)}}).value, [], 1);
   {% endfor %}
 
   % Integration interval
   integration_interval = [
-    {{-(integrators|first).int_interval_ini|label-}},
-    {{-" "}}{{(integrators|first).int_interval_fin|label-}}
-  ];{{"\n"-}}
+    {{-(integrators|first).int_interval_ini|label-}}.value,
+    {{-" "}}{{(integrators|first).int_interval_fin|label-}}.value
+  {{-""}}];{{"\n"-}}
 
-  {{-"  "}}dt = 1;{{"\n"-}}
+  {{-"  "}}dt = 0.1;{{"\n"-}}
   {{-"  "}}options = odeset('InitialStep', dt, 'MaxStep', dt, 'RelTol', 1e-3, 'AbsTol', 1e-3);{{"\n"-}}
 
   {{-"  "}}% Integrator routine
@@ -99,7 +85,7 @@ function output_vars = main
   function [dphidt, extra_output] = f(t, phi) {{"\n"-}}
     {% for i in integrators %}
       {{-"    "}}{{i.var_id|var_slice(i.index_sets)}} =
-        {{-" "}}phi({{i.interval}});{{"\n"-}}
+        {{-" "}}reshape(phi({{i.interval}}), {{i.size_by_index|join(",")}});{{"\n"-}}
     {% endfor %}
 
     {% for expr in expressions %}
@@ -122,14 +108,14 @@ function output_vars = main
     {{-"    "}}extra_output = [
     {% for var_id, var_data in print_info|items %}
       {% for ref_var_info in var_data %}
-        {{-"      "}}{{var_id|label}}.value({{ref_var_info.position}});
+        {{-"      "}}{{var_id|label}}.value({{ref_var_info.position|join(",")}});
       {% endfor %}
     {% endfor %}
     ];
 
     {% for i in integrators %}
       {{-"    "}}dphidt({{i.interval}}) = 
-        {{-" "}}({{i.integrand|var_slice(i.index_sets)}}).value;
+        {{-" "}}reshape(({{i.integrand|var_slice(i.index_sets)}}).value, [], 1);
     {% endfor %}
   endfunction
 endfunction

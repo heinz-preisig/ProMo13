@@ -64,6 +64,7 @@ FILE_NAMES = {
         "latex_automaton"                     : "automata_tables.tex",
         "dot_graph_shell"                     : "show_dot_graphs.sh",
         "latex_shell_var_equ_doc_command"     : "make_documentation.sh",
+        "latex_shell_show_pdf"                : "show_pdf.sh",
         "latex_shell_automata_doc_command"    : "make_automata_table.sh",
         "latex_shell_var_equ_list_command"    : "latex_compile.sh",
         "variable_assignment_to_entity_object": "variable_assignment_to_entity_object.json",
@@ -243,6 +244,8 @@ FILES["latex_shell_var_equ_doc_command_exec"] = JOIN(DIRECTORIES["latex_resource
                                                      FILE_NAMES["latex_shell_var_equ_doc_command"])
 FILES["latex_shell_ontology_view_exec"] = JOIN(DIRECTORIES["resource_location"] % "%s",
                                                FILE_NAMES["dot_graph_shell"])
+FILES["latex_shell_show_pdf"] = JOIN(DIRECTORIES["latex_resource_location_exec"] % "%s",
+                                                     FILE_NAMES["latex_shell_show_pdf"])
 FILES["latex_shell_automata_doc_command"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                                  DIRECTORIES["latex"],
                                                  FILE_NAMES["latex_shell_automata_doc_command"])

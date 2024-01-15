@@ -42,7 +42,8 @@ class UI_VariableTablePick(VariableTable):
                hide_vars=[],
                hide_columns=[],
                info_file=None,
-               hidden=[]
+               hidden=[],
+               which = "variable_picking",
                ):
     """
     constructs a dialog window based on QDialog for picking variables
@@ -63,7 +64,7 @@ class UI_VariableTablePick(VariableTable):
 
     VariableTable.__init__(self,
                            title,
-                           "variable_picking",
+                           which,
                            variables,
                            indices,
                            network,
@@ -71,7 +72,7 @@ class UI_VariableTablePick(VariableTable):
                            enabled_types,
                            hide_vars,
                            hide_columns,
-                           info_file=info_file
+                           info_file=info_file,
                            )
     buttons = self.buttons
 
