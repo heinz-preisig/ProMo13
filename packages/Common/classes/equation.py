@@ -3,7 +3,6 @@ from typing import TypedDict, List, Optional, Dict, Tuple
 from typing_extensions import Self
 from datetime import datetime
 
-
 class EquationDict(TypedDict):
   """Creates a new type for a dictionary that stores an equation."""
   # TODO Update the way equations are stored.
@@ -133,7 +132,8 @@ class Equation():
     # print(self.eq_id)
     components = self.rhs.get("global_ID").split()
     # print(components)
-    if components[0] != "O_9":
+    # TODO: Find a better way of checking this
+    if components[0] != "O_8":
       return None
 
     return {
@@ -148,16 +148,18 @@ class Equation():
   def is_integrator(self):
     # TODO: Check for a better way to check this
     components = self.rhs.get("global_ID").split()
-    if components[0] == "O_9":
+    if components[0] == "O_8":
       return True
 
     return False
 
-  def get_translation(self, language: str) -> Dict[str, str]:
-    translation = {
-        "lhs": self.lhs.get(language),
-        "rhs": self.rhs.get(language)
-    }
+  # def get_translation(self, language: str) -> Dict[str, str]:
+  #   lhs_global_repr = self.lhs["global_ID"]
+  #   rhs_global_repr = self.rhs["global_ID"]
+  #   translation = {
+  #       "lhs": equation_parser.,
+  #       "rhs": self.rhs.get(language)
+  #   }
 
     return translation
 

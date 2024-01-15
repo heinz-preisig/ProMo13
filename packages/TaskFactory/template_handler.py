@@ -2,7 +2,9 @@ import copy
 import jinja2
 from typing import Dict, List, Tuple, Set, Optional
 from pprint import pprint as pp
+import numpy as np
 
+from packages.Common.classes import equation_parser
 from packages.Common.classes import variable
 from packages.Common.classes import equation
 from packages.Common.classes import index
@@ -58,6 +60,14 @@ class TemplateHandler:
           idx_id).get_translation(self.language)
       general_idx_info[translated_idx] = general_idx_info.pop(idx_id)
 
+    # TODO: Remove this when the indices are handled better
+    data["index_sets_info"]["general"]["K"] = []
+    pp(data["index_sets_info"])
+
+    data["index_order"] = [
+        self.all_indices[idx_id].get_translation(self.language)
+        for idx_id in sorted(self.all_indices.keys())
+    ]
     # pp(data["index_sets_info"])
     # TODO: THIS COMES FROM THE USER
     is_sparse = False
@@ -65,25 +75,37 @@ class TemplateHandler:
     # the task manager is done.
     names_info = self.var_eq.top_graph.graph["extra_info"]
     to_print = {
-        "V_66": [
+        "V_85": [
             {
                 "extra_name": names_info["nodes"][3] + ":" + names_info["species"][1],
-                "position": 3,
+                "position": [3, 1]
             },
             {
                 "extra_name": names_info["nodes"][4] + ":" + names_info["species"][1],
-                "position": 4,
+                "position": [4, 1]
             },
             {
                 "extra_name": names_info["nodes"][5] + ":" + names_info["species"][1],
-                "position": 5,
+                "position": [5, 1]
+            },
+                        {
+                "extra_name": names_info["nodes"][3] + ":" + names_info["species"][2],
+                "position": [3, 2]
+            },
+            {
+                "extra_name": names_info["nodes"][4] + ":" + names_info["species"][2],
+                "position": [4, 2]
+            },
+            {
+                "extra_name": names_info["nodes"][5] + ":" + names_info["species"][2],
+                "position": [5, 2]
             },
         ],
     }
     data["print_info"] = to_print
 
     # Information about the initialization of all variables
-    data["instantiations"] = []
+    data["variables"] = []
     # pp(self.var_eq.inst_variables)
     for var_id, inst_info in self.var_eq.inst_variables.items():
       var_data = self.all_variables[var_id]
@@ -95,23 +117,31 @@ class TemplateHandler:
               for idx in index_structures
           ]
       )
+
       index_labels = ", ".join(
           [
               self.all_indices.get(idx).get_translation(self.language) + "_lbl"
               for idx in index_structures
           ]
       )
+      # pp(self.var_eq.top_graph.graph["index_sets_info"]["general"])
+      var_size = [
+        str(len(self.var_eq.top_graph.graph["index_sets_info"]["general"][idx]))
+        for idx in self.all_variables[var_id].index_structures
+      ]
+      if not var_size:
+        var_size = ["1", "1"]
 
-      data["instantiations"].append({
+      data["variables"].append({
           "var_id": var_id,
           "comment": [var_data.doc],
-          "dimension": inst_info["dimension"],
-          "vals": inst_info["vals"],
+          "instantiation_values": inst_info,
           "index_labels": index_labels,
           "index_sets": index_sets,
           "is_sparse": is_sparse,
+          "size": var_size,
       })
-
+    # pp(data["variables"])
     # Information about the integrators
     data["integrators"] = []
     count = 1
@@ -128,14 +158,14 @@ class TemplateHandler:
       # index_structures = var_data.index_structures
 
       ini = str(count)
-      count += self.size_by_index(var_id, index_sets)
+      count += np.prod(self.size_by_index(var_id, index_sets))
       fin = str(count - 1)
 
       integrator_info["interval"] = ini + ":" + fin
+      integrator_info["size_by_index"] = self.size_by_index(var_id, index_sets)
 
       data["integrators"].append(integrator_info)
       # pp(data["integrators"])
-
     # Information about the expressions
     data["expressions"] = []
     for expr in self.var_eq.expressions:
@@ -144,6 +174,8 @@ class TemplateHandler:
       sys_counter = 1
       if len(expr) == 1:
         var_id, eq_id, top_ids, index_sets = expr[0]
+        # TODO: Extend this to add all the other index sets needed
+        index_sets.add("S")
 
         eq = self.all_equations.get(eq_id)
         if eq.is_integrator():
@@ -180,6 +212,8 @@ class TemplateHandler:
 
         part_counter = 1
         for var_id, eq_id, top_ids, index_sets in expr:
+          # TODO: Extend this to add all the other index sets needed
+          index_sets.add("S")
           eq = self.all_equations[eq_id]
           ini = str(part_counter)
           part_counter += self.size_by_index(var_id, index_sets)
@@ -206,27 +240,31 @@ class TemplateHandler:
     var_data = self.all_variables[var_id]
 
     index_structures = var_data.index_structures
-
-    idx_id = index_structures[0]
-    index_label = self.all_indices[idx_id].get_translation("internal_code")
-
     index_sets_info = self.var_eq.top_graph.graph["index_sets_info"]
 
-    index_union = set()
-    for idx in index_sets:
-      if index_label[0] == idx[0]:
-        index_union.update(index_sets_info["specific"][idx])
+    index_sizes = []
 
-    sum = 0
-    # pp(index_sets_info)
-    for i in index_union:
-      element = index_sets_info["general"][idx_id][int(i) - 1]
-      if isinstance(element, list):
-        sum += len(element)
-      else:
-        sum += 1
+    # TODO: This needs to come from the entity itself
+    index_sets.add("S")
 
-    return sum
+    # TODO: Remove this when we only have one set of indices
+    index_sets_total = copy.deepcopy(index_sets_info["specific"])
+    index_sets_total.update({
+      self.all_indices[key].get_translation(self.language): index_sets_info["general"][key]
+      for key in index_sets_info["general"]
+    })
+
+    pp(index_sets_total)
+
+    for idx_id in index_structures:
+      index_label = self.all_indices[idx_id].get_translation("internal_code")
+      index_union = set()
+      for idx in index_sets:
+        if index_label[0] == idx[0]:
+          index_union.update(index_sets_total[idx])
+      index_sizes.append(len(index_union))
+
+    return index_sizes
 
   def load_language_filters(self) -> None:
     # TODO Probably make it a static member
@@ -333,10 +371,22 @@ class TemplateHandler:
 
   # TODO: merge this with var_label
   def eq_label(self, eq_id: str, side: str) -> str:
-    translated_eq = self.all_equations.get(
-        eq_id).get_translation(self.language)
+    # TODO: The translation process will be done in the equation class
+    # Change this when the translation function is out of io so it can be called
+    # from the equation module without a circular dependency problem.
+    if side == "lhs":
+      global_id_rpr = self.all_equations[eq_id].lhs["global_ID"]
+    else:
+      global_id_rpr = self.all_equations[eq_id].rhs["global_ID"]
+    
+    parser = equation_parser.EquationParser(
+      self.language,
+      self.all_variables,
+      self.all_indices
+    )
+    translated_eq = parser.parse(global_id_rpr)
 
-    return translated_eq.get(side)
+    return translated_eq
 
   def main_index(self, var_id: str) -> str:
     var_data = self.all_variables[var_id]
