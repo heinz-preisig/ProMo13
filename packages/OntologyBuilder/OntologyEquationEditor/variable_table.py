@@ -19,8 +19,6 @@ MAX_WIDTH = 1000
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
-from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
 from OntologyBuilder.OntologyEquationEditor.resources import TOOLTIPS
 from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal

@@ -13,6 +13,7 @@
 
 __author__ = 'Preisig, Heinz A'
 
+from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.pop_up_message_box import makeMessageBox
 from Common.ui_show_variable_equation_impl import UI_ShowVariableEquation
 
@@ -22,30 +23,36 @@ import os
 from PyQt5 import QtWidgets
 
 from Common.resources_icons import roundButton
-from Common.common_resources import DIRECTORIES
-from OntologyBuilder.OntologyEquationEditor.resources import AnalyseBiPartiteGraph
-from OntologyBuilder.OntologyEquationEditor.resources import makeLatexDoc
-from OntologyBuilder.OntologyEquationEditor.resources import showPDF
 from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
+from OntologyBuilder.OntologyEquationEditor.variable_framework import simulateDeletion
 
 
 
-class UI_VariableTableShow(VariableTable):
+class UI_VariableTableDeleteEquation(VariableTable):
   """
   dialog for a variable
   emits a signal on completion
+
+  columns are
+    0 type
+    1 symbol
+    2 description / documentation
+    3 tokens
+    4 units
+    5 indices
+    6 equations
+    7 delete
+    8 network
+    9 variable ID
+    10 IRI
   """
 
   def __init__(self,
                title,
-               ontology_container,  #
                variables,
+               indices,
                network,
-               enabled_types=['ALL'],
-               hide_vars=[],
-               hide_columns=[3],
                info_file=None,
-               hidden=[],
                ):
     """
     constructs a dialog window based on QDialog for picking variables
@@ -63,14 +70,15 @@ class UI_VariableTableShow(VariableTable):
     - completed : button finished has been pressed
     -
     """
-    self.ontology_name = ontology_container.ontology_name
-    self.ontology_container = ontology_container
+    enabled_types = VARIABLE_TYPE_INTERFACES
+    hide_vars = []
+    hide_columns = [3]
 
     VariableTable.__init__(self,
                            title,
                            "variable_picking",
                            variables,
-                           ontology_container.indices,
+                           indices,
                            network,
                            enabled_types,
                            hide_vars,
@@ -81,8 +89,8 @@ class UI_VariableTableShow(VariableTable):
     buttons = self.buttons
 
     showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
-                   "LaTex": roundButton(buttons["LaTex"], "LaTex", tooltip="make LaTeX document"),
-                   "dot": roundButton(buttons["dot"], "dot_graph", tooltip="show graph"),
+                   # "LaTex": roundButton(buttons["LaTex"], "LaTex", tooltip="make LaTeX document"),
+                   # "dot": roundButton(buttons["dot"], "dot_graph", tooltip="show graph"),
                    }
 
     for b in buttons:
@@ -90,13 +98,11 @@ class UI_VariableTableShow(VariableTable):
         # print("debugging -- hide button", b)
         buttons[b].hide()
 
-    buttons["LaTex"].hide()
-    buttons["dot"].hide()
 
     self.hide_columns = hide_columns
 
     self.setToolTips("show")
-    self.ui.tableVariable.setToolTip("click on row to copy variable to expression")
+    self.ui.tableVariable.setToolTip("show interface variables and allow for deletion")
     self.ui.tableVariable.setSortingEnabled(True)
 
   def on_tableVariable_itemClicked(self, item):
@@ -115,7 +121,10 @@ class UI_VariableTableShow(VariableTable):
     print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
 
 
-    if column == 9:
+    if column == 7:
+      self.__showDeleteDialog(self.selected_variable_ID)
+
+    elif column == 9:
       image_location = self.variables.ontology_container.latex_image_location
       list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
       UI_ShowVariableEquation(list_equations, image_location)
@@ -123,57 +132,36 @@ class UI_VariableTableShow(VariableTable):
     list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
     if len(list_equations) == 0:
       makeMessageBox("there are no equation", buttons=["OK"])
-      self.buttons["LaTex"].hide()
-      self.buttons["dot"].hide()
-    else:
-      self.buttons["LaTex"].show()
-      self.buttons["dot"].show()
+
     return
 
-  def on_pushLaTex_pressed(self):
-    # print("debugging -- generate latex table", self.selected_variable_symbol)
+  def __showDeleteDialog(self, selected_ID):
+    port_variable = self.variables[selected_ID].port_variable
+    if port_variable:
+      reply = makeMessageBox("this is a port variable -- do you want to delete it ?",buttons=["NO","YES"])
+      if reply == 'NO':
+        return
 
-    assignments, dot_graph_file, file_name = self.__makeDotGraph()
-    makeLatexDoc(file_name, assignments, self.ontology_container, dot_graph_file)
-    self.buttons["dot"].show()
+    var_symbol = self.variables[selected_ID].label
+    msg = "deleting variable : %s" % var_symbol
+    d_vars, d_equs, d_vars_text, d_equs_text = simulateDeletion(self.variables, selected_ID, self.indices)
+    v = d_vars_text[1:-1].replace("\n", ",  ")
+    e = d_equs_text.replace("\n", "\n   ")
+    msg += "\n\nand consequently \n...variables:%s \n\n...equations %s" % (v, e)
+    reply = makeMessageBox(msg, buttons=["NO", "YES"])
+    if reply == "YES":
+      # print("debugging -- yes")
+      self.__deleteVariable(d_vars, d_equs)
+      self.reset_table()
 
-  def __makeDotGraph(self):
-    var_equ_tree_graph, assignments = AnalyseBiPartiteGraph(self.selected_variable_ID,
-                                                            self.ontology_container,
-                                                            self.ontology_name,
-                                                            [],
-                                                            "%s_graph"%self.selected_variable_symbol)
-    # var_equ_tree_graph.render_expression_to_list()
-    var_equ_tree_graph.render()
-    dot_graph_file = var_equ_tree_graph.outputFile + ".pdf"
-    file_name = self.selected_variable_symbol
-    return assignments, dot_graph_file, file_name
-
-  def on_pushDot_pressed(self):
-    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-    if len(list_equations) == 0:
-      makeMessageBox("there are no equation", buttons=["OK"])
-      return
-    assignments, dot_graph_file, file_name = self.__makeDotGraph()
-    showPDF(dot_graph_file)
-    # print("debugging -- generate graph")
-
-  @staticmethod
-  def __addQtTableItem(tab, s, row, col):
-    item = QtWidgets.QTableWidgetItem(s)
-    tab.setRowCount(row + 1)
-    tab.setItem(row, col, item)
-
-  def on_tableVariable_itemDoubleClicked(self, item):
-    column_count = self.ui.tableVariable.columnCount()
-    row = item.row()
-    item = self.ui.tableVariable.item
-    data = {}
-    for c in range(column_count):
-      data[c] = item(row, c).text()
-      # print("debugging -- chose:", c, str(data[c]))
-    self.selected_variable_ID = data[9]
-    print("debugging -- selected ID:", self.selected_variable_ID)
+  def __deleteVariable(self, d_vars, d_equs):
+    print("going to delete: \n...variables:%s \n...equations %s" % (d_vars, d_equs))
+    for v_id in d_equs:
+      self.variables.removeEquation(v_id)
+    for s in d_vars:
+      self.variables.removeVariable(s)
+    self.variables.indexVariables()  # indexEquationsInNetworks()
+    self.reset_table()
 
   def on_pushFinished_pressed(self):
     self.close()

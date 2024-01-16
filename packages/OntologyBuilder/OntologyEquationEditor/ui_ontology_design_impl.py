@@ -67,6 +67,7 @@ from OntologyBuilder.OntologyEquationEditor.ui_aliastablevariables_impl import U
 from OntologyBuilder.OntologyEquationEditor.ui_equations_impl import UI_Equations
 from OntologyBuilder.OntologyEquationEditor.ui_interface_variable_pick_impl import UI_VariableTableInterfacePick
 from OntologyBuilder.OntologyEquationEditor.ui_ontology_design import Ui_OntologyDesigner
+from OntologyBuilder.OntologyEquationEditor.ui_variabletable_delete_equation_impl import UI_VariableTableDeleteEquation
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_impl import UI_VariableTableDialog
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_instantiate import UI_VariableTableInterfaceInstantiate
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_show_impl import UI_VariableTableShow
@@ -130,12 +131,18 @@ class UiOntologyDesign(QMainWindow):
     roundButton(self.ui.pushShowPDF, "PDF",
                 tooltip="show pdf variable equation documentation")
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
+    roundButton(self.ui.pushMakeInterfaceEquations,"plus",
+                "display table for generating new interface equations")
+    roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
+
 
     self.ui.pushShowVariables.hide()
     self.radio = [
             self.ui.radioVariables,
             self.ui.radioVariablesAliases,
             self.ui.radioIndicesAliases,
+            self.ui.pushMakeInterfaceEquations,
+            self.ui.pushShowInterfaceEquations,
             ]
     [i.hide() for i in self.radio]
 
@@ -241,6 +248,24 @@ class UiOntologyDesign(QMainWindow):
     self.writeMessage("edit alias table")
     self.ui.groupVariables.hide()
     self.__setupIndicesAliasTable()
+
+  def on_pushMakeInterfaceEquations_pressed(self):
+    print("debugging -- radioMakeInterfaceEquations")
+    self.__setupEdit("interface")
+    self.__setupEditInterface()
+    self.__showFilesControl()
+    self.ui.pushShowVariables.show()
+
+  def on_pushShowInterfaceEquations_pressed(self):
+    print("debugging -- radioShowInterfaceEquations")
+    hide = (["LaTex", "dot", "next","port"])
+    self.table_variables = UI_VariableTableDeleteEquation("delete interface equations",
+                                                  self.variables,
+                                                  self.indices,
+                                                  self.current_network,
+                                                  info_file=FILES["info_ontology_variable_table"],
+                                                  )
+    self.table_variables.show()
 
   def on_pushAddIndex_pressed(self):
     print("debugging __ adding index")
@@ -401,10 +426,12 @@ class UiOntologyDesign(QMainWindow):
       self.on_radioVariablesAliases_pressed()
     else:
       pass
-      self.__setupEdit("interface")
-      self.__setupEditInterface()
-      self.__showFilesControl()
-      self.ui.pushShowVariables.show()
+      self.ui.pushMakeInterfaceEquations.show()
+      self.ui.pushShowInterfaceEquations.show()
+      # self.__setupEdit("interface")
+      # self.__setupEditInterface()
+      # self.__showFilesControl()
+      # self.ui.pushShowVariables.show()
 
 
   @QtCore.pyqtSlot(int)
@@ -416,6 +443,9 @@ class UiOntologyDesign(QMainWindow):
     self.ui.treeWidget.clearSelection()
 
     self.ui.groupEdit.hide()
+
+    self.ui.pushMakeInterfaceEquations.hide()
+    self.ui.pushShowInterfaceEquations.hide()
 
   def __setupEditInterface(self):
     left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]

@@ -96,7 +96,7 @@ class UI_VariableTableDialog(VariableTable):
 
     VariableTable.__init__(self,
                            title,
-                           "variables_definition",
+                           "variable_picking",
                            variables,
                            indices,
                            network,
@@ -153,6 +153,7 @@ class UI_VariableTableDialog(VariableTable):
 
   def protect_variable_type(self, variable_types):  # TODO may be useful
     self.protected_variable_types = variable_types
+
 
   def __showDeleteDialog(self, selected_ID):
     port_variable = self.variables[selected_ID].port_variable
