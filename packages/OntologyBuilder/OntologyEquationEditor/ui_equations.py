@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.setWindowModality(QtCore.Qt.ApplicationModal)
+        Form.setWindowModality(QtCore.Qt.WindowModal)
         Form.resize(978, 589)
         font = QtGui.QFont()
         font.setFamily("Consolas")
