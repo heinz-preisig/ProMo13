@@ -119,6 +119,9 @@ class UiOntologyDesign(QMainWindow):
 
     # set up dialog window with new title
     QMainWindow.__init__(self)
+
+    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+
     self.ui = Ui_OntologyDesigner()
     self.ui.setupUi(self)
     self.setWindowTitle("OntologyFoundationEditor Design")
@@ -224,7 +227,7 @@ class UiOntologyDesign(QMainWindow):
     self.__hideTable()
     self.ui.groupVariables.show()
     if self.current_network:
-      self.ui.groupEdit.show()
+      # self.ui.groupEdit.show()
       self.ui.combo_EditVariableTypes.show()
       self.writeMessage("edit variables/equations")
     else:
@@ -414,6 +417,7 @@ class UiOntologyDesign(QMainWindow):
         self.ui.pushAddIndex.show()
       else:
         self.ui.pushAddIndex.hide()
+        self.ui.groupEdit.show()
     self.ui.pushInstantiate.show()
     self.ui.pushShowVariables.show()
 
@@ -1224,3 +1228,11 @@ class UiOntologyDesign(QMainWindow):
     os.chdir(original_work_dir)
 
 
+
+  def mousePressEvent(self, event):
+    self.oldPos = event.globalPos()
+
+  def mouseMoveEvent(self, event):
+    delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()
