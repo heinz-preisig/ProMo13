@@ -14,7 +14,7 @@
 __author__ = "Preisig, Heinz A"
 
 from Common.resource_initialisation import FILES
-from Common.ui_show_variable_equation_impl import UI_ShowVariableEquation
+from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
 
 # from Common.record_definitions import makeInitialAliases
 
@@ -165,14 +165,23 @@ class UI_VariableTableDialog(VariableTable):
     var_symbol = self.variables[selected_ID].label
     msg = "deleting variable : %s" % var_symbol
     d_vars, d_equs, d_vars_text, d_equs_text = simulateDeletion(self.variables, selected_ID, self.indices)
-    v = d_vars_text[1:-1].replace("\n", ",  ")
-    e = d_equs_text.replace("\n", "\n   ")
-    msg += "\n\nand consequently \n...variables:%s \n\n...equations %s" % (v, e)
-    reply = makeMessageBox(msg, buttons=["NO", "YES"])
-    if reply == "YES":
+
+    eqs = list(d_equs)
+    loc = self.variables.ontology_container.latex_image_location
+    dialog = UI_ShowVariableEquation(eqs, loc ,
+                                     mode="show",
+                                     prompt="delete those equations?",
+                                     buttons=["accept","reject"])
+    # v = d_vars_text[1:-1].replace("\n", ",  ")
+    # e = d_equs_text.replace("\n", "\n   ")
+    # msg += "\n\nand consequently \n...variables:%s \n\n...equations %s" % (v, e)
+    # reply = makeMessageBox(msg, buttons=["NO", "YES"])
+    # if reply == "YES":
+    if dialog.answer == "yes":
       # print("debugging -- yes")
       self.__deleteVariable(d_vars, d_equs)
       self.reset_table()
+
 
   def __deleteVariable(self, d_vars, d_equs):
     print("going to delete: \n...variables:%s \n...equations %s" % (d_vars, d_equs))
@@ -188,7 +197,10 @@ class UI_VariableTableDialog(VariableTable):
     v_ID = v.aliases["global_ID"]
     # ontology_name = self.variables.ontology_container.ontology_name
     image_location = self.variables.ontology_container.latex_image_location
-    UI_ShowVariableEquation(list_equations, image_location)
+    UI_ShowVariableEquation(list_equations, image_location,
+                            mode="show",
+                            prompt="These are the equations:",
+                            buttons=["back"])
 
 
   def __iriDialog(self, v):

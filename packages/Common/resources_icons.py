@@ -51,6 +51,7 @@ ICONS["update"] = "update_button_hap.svg"
 ICONS["variable_show"] = "variable_show_button.svg"
 ICONS["V"] = "V_button_hap.svg"
 
+
 size = 52
 BUTTON_ICON_SIZE = QtCore.QSize(size, size)
 round = 'border-radius: %spx; ' % (size / 2)

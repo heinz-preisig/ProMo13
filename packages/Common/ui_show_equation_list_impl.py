@@ -27,13 +27,14 @@ LIMIT = 4
 HEIGHT = 25
 FACTOR = 0.5
 
+
 class ImgWidget(QtWidgets.QWidget):
 
   def __init__(self, parent=None):
     super(ImgWidget, self).__init__(parent)
 
-  def make(self,pixmap):
-    self.pic = pixmap #QtGui.QPixmap(path)
+  def make(self, pixmap):
+    self.pic = pixmap  # QtGui.QPixmap(path)
     size = self.pic.size()
     scaled_size = FACTOR * size
     # print("size", size, "\n scaled", scaled_size)
@@ -44,28 +45,53 @@ class ImgWidget(QtWidgets.QWidget):
     painter = QtGui.QPainter(self)
     painter.drawPixmap(0, 0, self.scaled_pic)
 
-class UI_ShowVariableEquation(QtWidgets.QDialog):
 
-  def __init__(self, eq_list_ID, image_location, buttons=["back"]):
+class UI_ShowVariableEquation(QtWidgets.QDialog):
+  """
+  builds a table with two columns
+  0 :: equation ID
+  1 :: equation
+
+  Four buttons
+  accept | reject | new | back ->  self.answer = "accept" | "reject" | "new" | "back" [DEFAULT]
+
+  Two modes:
+  "show" :: requires button action   DEFAULT
+  "select" -> returns equation ID
+  exception -> returns "reject"
+
+  """
+
+  def __init__(self, eq_list_ID, image_location, mode="show", prompt=None, buttons=["back"]):
     QtWidgets.QDialog.__init__(self)
     self.ui = Ui_ShowEquationList()
     self.ui.setupUi(self)
+    self.eq_list_ID = eq_list_ID
+    if mode not in ["show", "select"]:
+      self.answer = "reject"
+      return
 
-    BUTTONS = {"yes": (self.ui.pushYes, "accept"),
-            "no": (self.ui.pushNo, "reject"),
-            "back": (self.ui.pushBack, "go back"),
-            }
-    for b in BUTTONS.keys():
+    self.mode = mode
+
+    # button handling
+    BUTTONS = {"accept": (self.ui.pushAccept, "accept"),
+               "reject": (self.ui.pushReject, "reject"),
+               "back"  : (self.ui.pushBack, "go back"),
+               "new"   : (self.ui.pushNew, "define new")
+               }
+    for b in BUTTONS:
       (ui, tip) = BUTTONS[b]
-      roundButton(ui, b , tip)
+      roundButton(ui, b, tip)
 
     for b in BUTTONS:
       if b not in buttons:
-        (ui,tip) = BUTTONS[b]
+        (ui, tip) = BUTTONS[b]
         ui.hide()
 
     # this will hide the title bar
     self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+    self.ui.labelAction.setText(prompt)
+
 
     self.eq_list_ID = eq_list_ID
     if len(eq_list_ID) == 0:
@@ -76,7 +102,7 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
     no_eqs = len(eq_list_ID)
 
     count = 0
-    maxsize = QtCore.QSize(0,0)
+    maxsize = QtCore.QSize(0, 0)
     for eqID in eq_list_ID:
       E_file = str(os.path.join(image_location, "%s.png" % eqID))
       Epixmap[eqID] = QtGui.QPixmap()
@@ -88,7 +114,7 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
 
     self.ui.tableWidget.setColumnCount(2)
     self.ui.tableWidget.setRowCount(no_eqs)
-    self.ui.tableWidget.setColumnWidth(0,maxsize.width())
+    self.ui.tableWidget.setColumnWidth(0, maxsize.width())
 
     total_height = 0
     row = 0
@@ -96,44 +122,61 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
       image = ImgWidget(self.ui.tableWidget)
       image.make(Epixmap[eqID])
       size = image.scaled_size
-      # print("setting", size)
-      self.ui.tableWidget.setColumnWidth(1,maxsize.width())
+      self.ui.tableWidget.setColumnWidth(1, maxsize.width())
       self.ui.tableWidget.setColumnWidth(0, 50)
-      new_height = size.height()+6
-      self.ui.tableWidget.setRowHeight(row,new_height)
-      total_height +=new_height
-      self.ui.tableWidget.setCellWidget(row,1,image)
-      self.ui.tableWidget.setCellWidget(row,0,QtWidgets.QLabel(eqID))
+      new_height = size.height() + 6
+      self.ui.tableWidget.setRowHeight(row, new_height)
+      total_height += new_height
+      self.ui.tableWidget.setCellWidget(row, 1, image)
+      self.ui.tableWidget.setCellWidget(row, 0, QtWidgets.QLabel(eqID))
       # self.ui.tableWidget.resizeRowsToContents()
       # self.ui.tableWidget.resizeColumnsToContents()
       row += 1
 
-    width = min(maxsize.width()+75, self.size().width()-12)
-    self.ui.tableWidget.resize(width,total_height+50)
+    # sizing
+    width = min(maxsize.width() + 75,
+                self.size().width() - 12,)
+    self.ui.tableWidget.resize(width, total_height)
+    widget_size_width = max(width + 30,
+                self.ui.labelAction.width()+12)
+    widget_size_hight = total_height + 200
+    self.ui.labelAction.adjustSize()
+    self.resize(widget_size_width, widget_size_hight)
 
-    widget_size_width = width+50
-    widget_size_hight = total_height+200
-
-    self.resize(widget_size_width,widget_size_hight)
     self.exec_()
 
+  def on_tableWidget_cellClicked(self, row, column):
+    eqID = self.eq_list_ID[row]
+    # print("debugging row", row, eqID)
+    self.answer = eqID
+    if self.mode != "show":
+      self.close()
+
   def on_pushBack_pressed(self):
-    self.answer = "bacl"
+    self.answer = "back"
     self.close()
 
-  def on_pushYes_pressed(self):
-    self.answer = "yes"
+  def on_pushAccept_pressed(self):
+    self.answer = "accept"
     self.close()
 
-  def on_pushNo_pressed(self):
-    self.answer = "no"
+  def on_pushReject_pressed(self):
+    self.answer = "reject"
+    self.close()
+
+  def on_pushNew_pressed(self):
+    self.answer = "new"
     self.close()
 
 
 if __name__ == '__main__':
   a = QtWidgets.QApplication(sys.argv)
   image_location = '/home/heinz/Dropbox/workspace/CAM-projects_ProMo/Ontology_Repository/Sandbox20/LaTeX'
-  w = UI_ShowVariableEquation(["E_2", "E_13", "E_52", "E_33", "E_22"], image_location,["yes","back","no"])
+  w = UI_ShowVariableEquation(["E_2", "E_13", "E_52", "E_33", "E_22"],
+                              image_location,
+                              mode="select",
+                              prompt="what to do when things get very long, I mean very long",
+                              buttons=["back", "reject", "new"])
   w.show()
   print(w.answer)
   sys.exit()
