@@ -55,6 +55,7 @@ class VariableTable(QtWidgets.QDialog):
     self.what = what
     self.info_file = info_file
 
+
     self.enabled_variable_types = enabled_variable_types
     self.hide_vars = hide_vars
     self.hide_columns = hide_columns
@@ -66,7 +67,9 @@ class VariableTable(QtWidgets.QDialog):
     self.reset_table()
     self.hide()
 
-    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+    # self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+
+    # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog)
 
     #
     self.buttons = {

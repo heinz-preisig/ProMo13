@@ -84,6 +84,7 @@ class UI_Equations(QtWidgets.QWidget):
     QtWidgets.QWidget.__init__(self)
     self.ui = Ui_Form()
     self.ui.setupUi(self)
+    # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog)
 
     roundButton(self.ui.pushAccept, "accept")  # , tooltip="accept")
     roundButton(self.ui.pushDeleteEquation, "delete", tooltip="delete")
@@ -583,7 +584,7 @@ class UI_Equations(QtWidgets.QWidget):
     elif dialog.answer == "back":
       return
     else:
-      print("debugging insert new ")
+      self.__selectedEquation(dialog.answer)
       return
 
     # print('debugging - got dictionary')
@@ -606,16 +607,21 @@ class UI_Equations(QtWidgets.QWidget):
 
   def __selectedEquation(self, entry):
     print('debugging got it', entry)
-    eq_string = NEW_EQ
-    if UNDEF_EQ_NO not in entry:
-      eq_no, reminder = entry.split(TEMPLATES['definition_delimiter'], 1)
-      _reminder, eq_string = reminder.split(TEMPLATES["Equation_definition_delimiter"])
-      self.current_eq_ID = eq_no
+    # eq_string = NEW_EQ
+    # if UNDEF_EQ_NO not in entry:
+    if entry != "new":
+      # eq_no, reminder = entry.split(TEMPLATES['definition_delimiter'], 1)
+      # _reminder, eq_string = reminder.split(TEMPLATES["Equation_definition_delimiter"])
+      self.current_eq_ID = entry #eq_no
       self.status_edit_expr = True
+      rhs =  self.selected_variable.equations[entry]["rhs"]["global_ID"]
+      equ_rendered = renderExpressionFromGlobalIDToInternal(rhs, self.variables, self.indices)
+      self.current_alternative = equ_rendered
+    else:
+      self.current_alternative = NEW_EQ
 
-    self.current_alternative = eq_string
-    self.status_new_equation = (eq_string == NEW_EQ)
-    if eq_string == PORT:
+    self.status_new_equation = (entry == NEW_EQ)
+    if entry == PORT:
       self.__defGivenVariable()
       return
     self.__setupEditEquation()

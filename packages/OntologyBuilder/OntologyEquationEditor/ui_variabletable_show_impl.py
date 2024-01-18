@@ -124,19 +124,19 @@ class UI_VariableTableShow(VariableTable):
       #                         prompt="These are the equations:",
       #                         buttons=["back"])
 
-    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-    if len(list_equations) == 0:
-      makeMessageBox("there are no equation", buttons=["OK"])
-      self.buttons["LaTex"].hide()
-      self.buttons["dot"].hide()
-    else:
-      self.buttons["LaTex"].show()
-      self.buttons["dot"].show()
+      list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+      if len(list_equations) == 0:
+        makeMessageBox("there are no equation", buttons=["OK"])
+        self.buttons["LaTex"].hide()
+        self.buttons["dot"].hide()
+      else:
+        self.buttons["LaTex"].show()
+        self.buttons["dot"].show()
 
-      UI_ShowVariableEquation(list_equations, image_location,
-                              mode="show",
-                              prompt="These are the equations:",
-                              buttons=["back"])
+        UI_ShowVariableEquation(list_equations, image_location,
+                                mode="show",
+                                prompt="These are the equations:",
+                                buttons=["back"])
     return
 
   def on_pushLaTex_pressed(self):

@@ -19,6 +19,9 @@
   <property name="toolTip">
    <string>see info button</string>
   </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
   <widget class="QTableWidget" name="tableVariable">
    <property name="geometry">
     <rect>

@@ -836,25 +836,25 @@ class UiOntologyDesign(QMainWindow):
     p = QtCore.QProcess()
     p.startDetached("sh", [f_name, location])
 
-  def progress_dialog(self, message):
-    "https://www.programcreek.com/python/example/108099/PyQt5.QtWidgets.QProgressDialog"
-    prgr_dialog = QProgressDialog()
-    prgr_dialog.setFixedSize(300, 50)
-    prgr_dialog.setAutoFillBackground(True)
-    prgr_dialog.setWindowModality(QtCore.Qt.WindowModal)
-    prgr_dialog.setWindowTitle('Please wait')
-    prgr_dialog.setLabelText(message)
-    prgr_dialog.setSizeGripEnabled(False)
-    prgr_dialog.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-    prgr_dialog.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-    prgr_dialog.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
-    prgr_dialog.setModal(True)
-    prgr_dialog.setCancelButton(None)
-    prgr_dialog.setRange(0, 0)
-    prgr_dialog.setMinimumDuration(50)
-    prgr_dialog.setMaximum(1000)
-    prgr_dialog.setAutoClose(False)
-    return prgr_dialog
+  # def progress_dialog(self, message):
+  #   "https://www.programcreek.com/python/example/108099/PyQt5.QtWidgets.QProgressDialog"
+  #   prgr_dialog = QProgressDialog()
+  #   prgr_dialog.setFixedSize(300, 50)
+  #   prgr_dialog.setAutoFillBackground(True)
+  #   prgr_dialog.setWindowModality(QtCore.Qt.WindowModal)
+  #   prgr_dialog.setWindowTitle('Please wait')
+  #   prgr_dialog.setLabelText(message)
+  #   prgr_dialog.setSizeGripEnabled(False)
+  #   prgr_dialog.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+  #   prgr_dialog.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+  #   prgr_dialog.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
+  #   prgr_dialog.setModal(True)
+  #   prgr_dialog.setCancelButton(None)
+  #   prgr_dialog.setRange(0, 0)
+  #   prgr_dialog.setMinimumDuration(50)
+  #   prgr_dialog.setMaximum(1000)
+  #   prgr_dialog.setAutoClose(False)
+  #   return prgr_dialog
 
   def __makeInstantiationEquation(self, var_ID):
 
