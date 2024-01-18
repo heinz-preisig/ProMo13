@@ -84,6 +84,8 @@ class UI_Equations(QtWidgets.QWidget):
     QtWidgets.QWidget.__init__(self)
     self.ui = Ui_Form()
     self.ui.setupUi(self)
+
+    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
     # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog)
 
     roundButton(self.ui.pushAccept, "accept")  # , tooltip="accept")
@@ -652,3 +654,11 @@ class UI_Equations(QtWidgets.QWidget):
   def on_pushCancel_pressed(self):
     self.resetEquationInterface()
     self.close()
+
+  def mousePressEvent(self, event): # Note: makes it movable
+    self.oldPos = event.globalPos()
+
+  def mouseMoveEvent(self, event): # Note: makes it movable
+    delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()
