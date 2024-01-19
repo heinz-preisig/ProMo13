@@ -43,6 +43,7 @@ from Common.common_resources import saveBackupFile
 from Common.common_resources import UI_GetString
 from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.ontology_container import OntologyContainer
+from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
 from Common.record_definitions import RecordIndex
@@ -51,6 +52,7 @@ from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
@@ -133,7 +135,7 @@ class UiOntologyDesign(QMainWindow):
     roundButton(self.ui.pushWrite, "save", tooltip="save")
     roundButton(self.ui.pushShowPDF, "PDF",
                 tooltip="show pdf variable equation documentation")
-    roundButton(self.ui.pushExit, "exit", tooltip="exit")
+    roundButton(self.ui.pushExit, "off", tooltip="exit")
     roundButton(self.ui.pushMakeInterfaceEquations,"plus",
                 "display table for generating new interface equations")
     roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
@@ -168,15 +170,13 @@ class UiOntologyDesign(QMainWindow):
     self.edit_what = None
     self.state = None  # holds this programs state
 
+    self.starttime = dateString()
+
     # get ontology
     self.ontology_location = DIRECTORIES["ontology_location"] % str(
             self.ontology_name)
     self.ontology_container = OntologyContainer(self.ontology_name)
     self.ui.groupOntology.setTitle("ontology : %s" % self.ontology_name)
-    # works only for colour and background not font size and font style
-    # style = "QGroupBox:title {color: rgb(1, 130, 153);}" # not supported: font-size: 48pt;  background-color:
-    # yellow; font-style: italic}"
-    # self.ui.groupOntology.setStyleSheet(style)
 
     self.variable_types_on_networks = self.ontology_container.variable_types_on_networks
     self.converting_tokens = self.ontology_container.converting_tokens
@@ -380,6 +380,14 @@ class UiOntologyDesign(QMainWindow):
     variable_table.exec_()
 
   def on_pushExit_pressed(self):
+    for v in self.variables:
+      if self.starttime < self.variables[v].modified:
+        # print("debugg -- modified")
+        response = makeMessageBox("things have changed\ndo you want to exit?")
+        if response == "OK":
+          self.close()
+        else:
+          return
     self.close()
 
   def on_pushFinished_pressed(self):
@@ -1181,7 +1189,7 @@ class UiOntologyDesign(QMainWindow):
       eq_png_file_path = latex_folder_path / (eq_id + ".png")
       if eq_png_file_path.exists():
         png_mod_date = datetime.fromtimestamp(eq_png_file_path.stat().st_mtime)
-        modified = equations[eq_id]["modified"]  # eq.get_mod_date()
+        modified = equations[eq_id]["modified"]
         date_format = "%Y-%m-%d %H:%M:%S"
         eq_mod_date = datetime.strptime(modified, date_format)
         if png_mod_date > eq_mod_date:

@@ -117,7 +117,7 @@ def makeMessageBox(message, buttons=None, custom_buttons=None, default=None, inf
 if __name__ == '__main__':
   a = QtWidgets.QApplication(sys.argv)
   s = makeMessageBox("hello this is a very long message  even longer than one expcts \n hello",
-                     buttons=[],
+                     buttons=["OK"],
                      custom_buttons=[("connect","accept"),("gugus", "accept")],
                      default="gugus",
                      infotext="info text")
