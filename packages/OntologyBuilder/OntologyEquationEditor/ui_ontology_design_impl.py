@@ -43,6 +43,7 @@ from Common.common_resources import saveBackupFile
 from Common.common_resources import UI_GetString
 from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.ontology_container import OntologyContainer
+from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
 from Common.record_definitions import RecordIndex
@@ -51,6 +52,7 @@ from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
@@ -67,6 +69,7 @@ from OntologyBuilder.OntologyEquationEditor.ui_aliastablevariables_impl import U
 from OntologyBuilder.OntologyEquationEditor.ui_equations_impl import UI_Equations
 from OntologyBuilder.OntologyEquationEditor.ui_interface_variable_pick_impl import UI_VariableTableInterfacePick
 from OntologyBuilder.OntologyEquationEditor.ui_ontology_design import Ui_OntologyDesigner
+from OntologyBuilder.OntologyEquationEditor.ui_variabletable_delete_equation_impl import UI_VariableTableDeleteEquation
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_impl import UI_VariableTableDialog
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_instantiate import UI_VariableTableInterfaceInstantiate
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_show_impl import UI_VariableTableShow
@@ -118,6 +121,9 @@ class UiOntologyDesign(QMainWindow):
 
     # set up dialog window with new title
     QMainWindow.__init__(self)
+
+    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+
     self.ui = Ui_OntologyDesigner()
     self.ui.setupUi(self)
     self.setWindowTitle("OntologyFoundationEditor Design")
@@ -129,19 +135,26 @@ class UiOntologyDesign(QMainWindow):
     roundButton(self.ui.pushWrite, "save", tooltip="save")
     roundButton(self.ui.pushShowPDF, "PDF",
                 tooltip="show pdf variable equation documentation")
-    roundButton(self.ui.pushExit, "exit", tooltip="exit")
+    roundButton(self.ui.pushExit, "off", tooltip="exit")
+    roundButton(self.ui.pushMakeInterfaceEquations,"plus",
+                "display table for generating new interface equations")
+    roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
+
 
     self.ui.pushShowVariables.hide()
     self.radio = [
             self.ui.radioVariables,
             self.ui.radioVariablesAliases,
             self.ui.radioIndicesAliases,
+            self.ui.pushMakeInterfaceEquations,
+            self.ui.pushShowInterfaceEquations,
             ]
     [i.hide() for i in self.radio]
 
     self.ui.pushShowPDF.hide()
     self.ui.groupVariables.hide()
-    self.ui.pushInstantiate.hide()
+    # self.ui.pushInstantiate.hide()  #TODO: eliminate?
+    self.ui.groupEdit.hide()
 
     try:
       assert os.path.exists(DIRECTORIES["ontology_repository"])
@@ -158,15 +171,13 @@ class UiOntologyDesign(QMainWindow):
     self.edit_what = None
     self.state = None  # holds this programs state
 
+    self.starttime = dateString()
+
     # get ontology
     self.ontology_location = DIRECTORIES["ontology_location"] % str(
             self.ontology_name)
     self.ontology_container = OntologyContainer(self.ontology_name)
     self.ui.groupOntology.setTitle("ontology : %s" % self.ontology_name)
-    # works only for colour and background not font size and font style
-    # style = "QGroupBox:title {color: rgb(1, 130, 153);}" # not supported: font-size: 48pt;  background-color:
-    # yellow; font-style: italic}"
-    # self.ui.groupOntology.setStyleSheet(style)
 
     self.variable_types_on_networks = self.ontology_container.variable_types_on_networks
     self.converting_tokens = self.ontology_container.converting_tokens
@@ -217,7 +228,7 @@ class UiOntologyDesign(QMainWindow):
     self.__hideTable()
     self.ui.groupVariables.show()
     if self.current_network:
-      self.ui.groupEdit.show()
+      # self.ui.groupEdit.show()
       self.ui.combo_EditVariableTypes.show()
       self.writeMessage("edit variables/equations")
     else:
@@ -241,6 +252,24 @@ class UiOntologyDesign(QMainWindow):
     self.writeMessage("edit alias table")
     self.ui.groupVariables.hide()
     self.__setupIndicesAliasTable()
+
+  def on_pushMakeInterfaceEquations_pressed(self):
+    print("debugging -- radioMakeInterfaceEquations")
+    self.__setupEdit("interface")
+    self.__setupEditInterface()
+    self.__showFilesControl()
+    self.ui.pushShowVariables.show()
+
+  def on_pushShowInterfaceEquations_pressed(self):
+    print("debugging -- radioShowInterfaceEquations")
+    hide = (["LaTex", "dot", "next","port"])
+    self.table_variables = UI_VariableTableDeleteEquation("delete interface equations",
+                                                  self.variables,
+                                                  self.indices,
+                                                  self.current_network,
+                                                  info_file=FILES["info_ontology_variable_table"],
+                                                  )
+    self.table_variables.show()
 
   def on_pushAddIndex_pressed(self):
     print("debugging __ adding index")
@@ -280,7 +309,7 @@ class UiOntologyDesign(QMainWindow):
 
       print("debugging -- new index defined:", new_index)
 
-  def on_pushInstantiate_pressed(self):
+  def __make_InterfaceEquation(self):  # NOTE: was activated with instantiate -- removed
     variables_not_instantiated = self.variables.indexInstantiated(
             self.current_network)
     enabled_var_types = self.variable_types_on_networks[self.current_network]
@@ -352,6 +381,14 @@ class UiOntologyDesign(QMainWindow):
     variable_table.exec_()
 
   def on_pushExit_pressed(self):
+    for v in self.variables:
+      if self.starttime < self.variables[v].modified:
+        # print("debugg -- modified")
+        response = makeMessageBox("things have changed\ndo you want to exit?")
+        if response == "OK":
+          break
+        else:
+          return
     self.close()
 
   def on_pushFinished_pressed(self):
@@ -389,7 +426,8 @@ class UiOntologyDesign(QMainWindow):
         self.ui.pushAddIndex.show()
       else:
         self.ui.pushAddIndex.hide()
-    self.ui.pushInstantiate.show()
+        self.ui.groupEdit.show()
+    # self.ui.pushInstantiate.show()
     self.ui.pushShowVariables.show()
 
   @QtCore.pyqtSlot(str)
@@ -401,10 +439,12 @@ class UiOntologyDesign(QMainWindow):
       self.on_radioVariablesAliases_pressed()
     else:
       pass
-      self.__setupEdit("interface")
-      self.__setupEditInterface()
-      self.__showFilesControl()
-      self.ui.pushShowVariables.show()
+      self.ui.pushMakeInterfaceEquations.show()
+      self.ui.pushShowInterfaceEquations.show()
+      # self.__setupEdit("interface")
+      # self.__setupEditInterface()
+      # self.__showFilesControl()
+      # self.ui.pushShowVariables.show()
 
 
   @QtCore.pyqtSlot(int)
@@ -416,6 +456,9 @@ class UiOntologyDesign(QMainWindow):
     self.ui.treeWidget.clearSelection()
 
     self.ui.groupEdit.hide()
+
+    self.ui.pushMakeInterfaceEquations.hide()
+    self.ui.pushShowInterfaceEquations.hide()
 
   def __setupEditInterface(self):
     left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
@@ -432,7 +475,7 @@ class UiOntologyDesign(QMainWindow):
     for var_class in enabled_var_classes:
       for var_ID in self.variables.index_accessible_variables_on_networks[left_nw][var_class]:
         set_left_variables.add(var_ID)
-    print("debugging -- variable lists", set_left_variables)
+    # print("debugging -- variable lists", set_left_variables)
 
     source, sink = self.current_network.split(CONNECTION_NETWORK_SEPARATOR)
     self.pick = UI_VariableTableInterfacePick("make interface cut equation",
@@ -586,7 +629,7 @@ class UiOntologyDesign(QMainWindow):
       return
 
     self.current_variable_type = selection
-    self.ui.groupEdit.show()
+    # self.ui.groupEdit.show()
     self.__setupVariableTable()
     self.table_variables.show()
 
@@ -806,25 +849,25 @@ class UiOntologyDesign(QMainWindow):
     p = QtCore.QProcess()
     p.startDetached("sh", [f_name, location])
 
-  def progress_dialog(self, message):
-    "https://www.programcreek.com/python/example/108099/PyQt5.QtWidgets.QProgressDialog"
-    prgr_dialog = QProgressDialog()
-    prgr_dialog.setFixedSize(300, 50)
-    prgr_dialog.setAutoFillBackground(True)
-    prgr_dialog.setWindowModality(QtCore.Qt.WindowModal)
-    prgr_dialog.setWindowTitle('Please wait')
-    prgr_dialog.setLabelText(message)
-    prgr_dialog.setSizeGripEnabled(False)
-    prgr_dialog.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-    prgr_dialog.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-    prgr_dialog.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
-    prgr_dialog.setModal(True)
-    prgr_dialog.setCancelButton(None)
-    prgr_dialog.setRange(0, 0)
-    prgr_dialog.setMinimumDuration(50)
-    prgr_dialog.setMaximum(1000)
-    prgr_dialog.setAutoClose(False)
-    return prgr_dialog
+  # def progress_dialog(self, message):
+  #   "https://www.programcreek.com/python/example/108099/PyQt5.QtWidgets.QProgressDialog"
+  #   prgr_dialog = QProgressDialog()
+  #   prgr_dialog.setFixedSize(300, 50)
+  #   prgr_dialog.setAutoFillBackground(True)
+  #   prgr_dialog.setWindowModality(QtCore.Qt.WindowModal)
+  #   prgr_dialog.setWindowTitle('Please wait')
+  #   prgr_dialog.setLabelText(message)
+  #   prgr_dialog.setSizeGripEnabled(False)
+  #   prgr_dialog.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+  #   prgr_dialog.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+  #   prgr_dialog.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
+  #   prgr_dialog.setModal(True)
+  #   prgr_dialog.setCancelButton(None)
+  #   prgr_dialog.setRange(0, 0)
+  #   prgr_dialog.setMinimumDuration(50)
+  #   prgr_dialog.setMaximum(1000)
+  #   prgr_dialog.setAutoClose(False)
+  #   return prgr_dialog
 
   def __makeInstantiationEquation(self, var_ID):
 
@@ -856,7 +899,7 @@ class UiOntologyDesign(QMainWindow):
 
     self.ontology_container.indexEquations()
     self.pick_instantiate.close()
-    self.on_pushInstantiate_pressed()
+    self.__make_InterfaceEquation()
 
   def __getAllEquationsPerType(self, language):
     eqs = {}
@@ -978,7 +1021,7 @@ class UiOntologyDesign(QMainWindow):
       pass
 
   def __showFilesControl(self):
-    self.ui.groupEdit.show()
+    # self.ui.groupEdit.show()
     # self.ui.groupFiles.show()
     self.ui.pushWrite.show()
 
@@ -1147,7 +1190,7 @@ class UiOntologyDesign(QMainWindow):
       eq_png_file_path = latex_folder_path / (eq_id + ".png")
       if eq_png_file_path.exists():
         png_mod_date = datetime.fromtimestamp(eq_png_file_path.stat().st_mtime)
-        modified = equations[eq_id]["modified"]  # eq.get_mod_date()
+        modified = equations[eq_id]["modified"]
         date_format = "%Y-%m-%d %H:%M:%S"
         eq_mod_date = datetime.strptime(modified, date_format)
         if png_mod_date > eq_mod_date:
@@ -1194,3 +1237,11 @@ class UiOntologyDesign(QMainWindow):
     os.chdir(original_work_dir)
 
 
+
+  def mousePressEvent(self, event):
+    self.oldPos = event.globalPos()
+
+  def mouseMoveEvent(self, event):
+    delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()

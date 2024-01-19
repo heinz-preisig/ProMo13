@@ -14,7 +14,7 @@
 __author__ = 'Preisig, Heinz A'
 
 from Common.pop_up_message_box import makeMessageBox
-from Common.ui_show_variable_equation_impl import UI_ShowVariableEquation
+from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
 
 MAX_HEIGHT = 800
 
@@ -35,12 +35,6 @@ class UI_VariableTableShow(VariableTable):
   dialog for a variable
   emits a signal on completion
   """
-
-  # completed = QtCore.pyqtSignal(str)
-  # picked = QtCore.pyqtSignal(str)
-  # new_variable = QtCore.pyqtSignal(str)
-  # new_equation = QtCore.pyqtSignal(str, str)
-  # deleted_symbol = QtCore.pyqtSignal(str)
 
   def __init__(self,
                title,
@@ -124,16 +118,25 @@ class UI_VariableTableShow(VariableTable):
     if column == 9:
       image_location = self.variables.ontology_container.latex_image_location
       list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-      UI_ShowVariableEquation(list_equations, image_location)
 
-    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-    if len(list_equations) == 0:
-      makeMessageBox("there are no equation", buttons=["OK"])
-      self.buttons["LaTex"].hide()
-      self.buttons["dot"].hide()
-    else:
-      self.buttons["LaTex"].show()
-      self.buttons["dot"].show()
+      # UI_ShowVariableEquation(list_equations, image_location,
+      #                         mode="show",
+      #                         prompt="These are the equations:",
+      #                         buttons=["back"])
+
+      list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+      if len(list_equations) == 0:
+        makeMessageBox("there are no equation", buttons=["OK"])
+        self.buttons["LaTex"].hide()
+        self.buttons["dot"].hide()
+      else:
+        self.buttons["LaTex"].show()
+        self.buttons["dot"].show()
+
+        UI_ShowVariableEquation(list_equations, image_location,
+                                mode="show",
+                                prompt="These are the equations:",
+                                buttons=["back"])
     return
 
   def on_pushLaTex_pressed(self):

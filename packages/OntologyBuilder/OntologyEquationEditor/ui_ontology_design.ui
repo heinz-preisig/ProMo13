@@ -146,19 +146,6 @@
        <string>add index</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushInstantiate">
-      <property name="geometry">
-       <rect>
-        <x>150</x>
-        <y>310</y>
-        <width>89</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>instantiate</string>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_internets">
      <attribute name="title">
@@ -173,6 +160,44 @@
         <height>27</height>
        </rect>
       </property>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>110</y>
+        <width>168</width>
+        <height>80</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="pushMakeInterfaceEquations">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>make</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushShowInterfaceEquations">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>show</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>

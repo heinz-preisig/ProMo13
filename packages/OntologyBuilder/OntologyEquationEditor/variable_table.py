@@ -19,8 +19,6 @@ MAX_WIDTH = 1000
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
-from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
 from OntologyBuilder.OntologyEquationEditor.resources import TOOLTIPS
 from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal
@@ -57,6 +55,7 @@ class VariableTable(QtWidgets.QDialog):
     self.what = what
     self.info_file = info_file
 
+
     self.enabled_variable_types = enabled_variable_types
     self.hide_vars = hide_vars
     self.hide_columns = hide_columns
@@ -69,6 +68,8 @@ class VariableTable(QtWidgets.QDialog):
     self.hide()
 
     self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+
+    # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog)
 
     #
     self.buttons = {
@@ -139,7 +140,7 @@ class VariableTable(QtWidgets.QDialog):
   def makeVariableIDList(self):
     variable_ID_list = set()
     if self.what == 'interface_picking':
-      print("debugging -- gugus gugus", self.network)
+      # print("debugging -- gugus gugus", self.network)
       # source,sink = self.network.split(CONNECTION_NETWORK_SEPARATOR)
       networks = self.variables.ontology_container.heirs_network_dictionary[self.network]
     else:

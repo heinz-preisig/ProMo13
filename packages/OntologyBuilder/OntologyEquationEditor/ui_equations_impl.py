@@ -32,6 +32,7 @@ from Common.record_definitions import makeCompleteVariableRecord
 from Common.resources_icons import roundButton
 from Common.single_list_selector_impl import SingleListSelector
 from Common.ui_get_string_impl import UI_GetString
+from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
 # from OntologyBuilder.OntologyEquationEditor.resources import INSTANTIATE_EQ_NO
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_EQ
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_VAR
@@ -83,6 +84,9 @@ class UI_Equations(QtWidgets.QWidget):
     QtWidgets.QWidget.__init__(self)
     self.ui = Ui_Form()
     self.ui.setupUi(self)
+
+    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+    # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog)
 
     roundButton(self.ui.pushAccept, "accept")  # , tooltip="accept")
     roundButton(self.ui.pushDeleteEquation, "delete", tooltip="delete")
@@ -562,45 +566,64 @@ class UI_Equations(QtWidgets.QWidget):
     self.show()
 
   def setupEquationList(self, variable_ID):
-    ask_string = "%s"  # eq number
-    ask_string += TEMPLATES["definition_delimiter"]
-    ask_string += "%s"  # lhs
-    ask_string += " " + TEMPLATES['Equation_definition_delimiter']
-    ask_string += "%s"  # equ_rendered
+    # ask_string = "%s"  # eq number
+    # ask_string += TEMPLATES["definition_delimiter"]
+    # ask_string += "%s"  # lhs
+    # ask_string += " " + TEMPLATES['Equation_definition_delimiter']
+    # ask_string += "%s"  # equ_rendered
     v = self.variables[variable_ID]
     self.selected_variable = v
     self.selected_variable_ID = variable_ID
-    lhs = self.variables[variable_ID].label
+    # lhs = self.variables[variable_ID].label
     equation_list = sorted(v.equations.keys())
+    loc = self.variables.ontology_container.latex_image_location
+    dialog = UI_ShowVariableEquation(equation_list,loc,
+                                     mode="select",
+                                     prompt="new equation or edit selection ?",
+                                     buttons=["back", "new"])
+    if dialog.answer == "new":
+      self.__selectedEquation("new")
+    elif dialog.answer == "back":
+      return
+    else:
+      self.__selectedEquation(dialog.answer)
+      return
+
     # print('debugging - got dictionary')
     # _list = [UNDEF_EQ_NO + TEMPLATES['Equation_definition_delimiter'] + NEW_EQ]
-    _list = [ask_string % (UNDEF_EQ_NO, lhs, NEW_EQ)]
-    for alterntative in equation_list:
-      rhs = self.variables[variable_ID].equations[alterntative]["rhs"]["global_ID"]
-      equ_rendered = renderExpressionFromGlobalIDToInternal(rhs, self.variables, self.indices)
-      # _list.append(str(alterntative)
-      #              + TEMPLATES["definition_delimiter"]
-      #              + lhs
-      #              + " "
-      #              + TEMPLATES['Equation_definition_delimiter']
-      #              + equ_rendered)
-      _list.append(ask_string % (alterntative, lhs, equ_rendered))
-    self.ui_equationselector = SingleListSelector(_list)
-    self.ui_equationselector.show()
-    self.ui_equationselector.newSelection.connect(self.__selectedEquation)
+    # _list = [ask_string % (UNDEF_EQ_NO, lhs, NEW_EQ)]
+    # for alterntative in equation_list:
+    #   rhs = self.variables[variable_ID].equations[alterntative]["rhs"]["global_ID"]
+    #   equ_rendered = renderExpressionFromGlobalIDToInternal(rhs, self.variables, self.indices)
+    #   # _list.append(str(alterntative)
+    #   #              + TEMPLATES["definition_delimiter"]
+    #   #              + lhs
+    #   #              + " "
+    #   #              + TEMPLATES['Equation_definition_delimiter']
+    #   #              + equ_rendered)
+    #   _list.append(ask_string % (alterntative, lhs, equ_rendered))
+    # self.ui_equationselector = SingleListSelector(_list)
+    # self.ui_equationselector.show()
+
+    # self.ui_equationselector.newSelection.connect(self.__selectedEquation)
 
   def __selectedEquation(self, entry):
-    # print('debugging got it', entry)
-    eq_string = NEW_EQ
-    if UNDEF_EQ_NO not in entry:
-      eq_no, reminder = entry.split(TEMPLATES['definition_delimiter'], 1)
-      _reminder, eq_string = reminder.split(TEMPLATES["Equation_definition_delimiter"])
-      self.current_eq_ID = eq_no
+    print('debugging got it', entry)
+    # eq_string = NEW_EQ
+    # if UNDEF_EQ_NO not in entry:
+    if entry != "new":
+      # eq_no, reminder = entry.split(TEMPLATES['definition_delimiter'], 1)
+      # _reminder, eq_string = reminder.split(TEMPLATES["Equation_definition_delimiter"])
+      self.current_eq_ID = entry #eq_no
       self.status_edit_expr = True
+      rhs =  self.selected_variable.equations[entry]["rhs"]["global_ID"]
+      equ_rendered = renderExpressionFromGlobalIDToInternal(rhs, self.variables, self.indices)
+      self.current_alternative = equ_rendered
+    else:
+      self.current_alternative = NEW_EQ
 
-    self.current_alternative = eq_string
-    self.status_new_equation = (eq_string == NEW_EQ)
-    if eq_string == PORT:
+    self.status_new_equation = (entry == NEW_EQ)
+    if entry == PORT:
       self.__defGivenVariable()
       return
     self.__setupEditEquation()
@@ -631,3 +654,11 @@ class UI_Equations(QtWidgets.QWidget):
   def on_pushCancel_pressed(self):
     self.resetEquationInterface()
     self.close()
+
+  def mousePressEvent(self, event): # Note: makes it movable
+    self.oldPos = event.globalPos()
+
+  def mouseMoveEvent(self, event): # Note: makes it movable
+    delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()
