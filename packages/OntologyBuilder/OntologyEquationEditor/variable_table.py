@@ -140,7 +140,7 @@ class VariableTable(QtWidgets.QDialog):
   def makeVariableIDList(self):
     variable_ID_list = set()
     if self.what == 'interface_picking':
-      print("debugging -- gugus gugus", self.network)
+      # print("debugging -- gugus gugus", self.network)
       # source,sink = self.network.split(CONNECTION_NETWORK_SEPARATOR)
       networks = self.variables.ontology_container.heirs_network_dictionary[self.network]
     else:

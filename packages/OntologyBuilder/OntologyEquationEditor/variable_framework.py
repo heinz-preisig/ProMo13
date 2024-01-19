@@ -1031,7 +1031,7 @@ class Variables(OrderedDict):
                 v_counter += 1
 
 
-      print("debugging -- variable space",variable_space)
+      # print("debugging -- variable space",variable_space)
       # left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
       # left_nw = network
       # if rule == "only local":

@@ -56,7 +56,7 @@ class Selector(QtWidgets.QWidget):
     return a
 
   def clean(self):
-    print("debugging -- clean")
+    # print("debugging -- clean")
     for button in self.radio_buttons:
       button.deleteLater()
 

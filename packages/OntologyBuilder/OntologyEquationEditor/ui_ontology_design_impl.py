@@ -153,7 +153,8 @@ class UiOntologyDesign(QMainWindow):
 
     self.ui.pushShowPDF.hide()
     self.ui.groupVariables.hide()
-    self.ui.pushInstantiate.hide()
+    # self.ui.pushInstantiate.hide()  #TODO: eliminate?
+    self.ui.groupEdit.hide()
 
     try:
       assert os.path.exists(DIRECTORIES["ontology_repository"])
@@ -308,7 +309,7 @@ class UiOntologyDesign(QMainWindow):
 
       print("debugging -- new index defined:", new_index)
 
-  def on_pushInstantiate_pressed(self):
+  def __make_InterfaceEquation(self):  # NOTE: was activated with instantiate -- removed
     variables_not_instantiated = self.variables.indexInstantiated(
             self.current_network)
     enabled_var_types = self.variable_types_on_networks[self.current_network]
@@ -385,7 +386,7 @@ class UiOntologyDesign(QMainWindow):
         # print("debugg -- modified")
         response = makeMessageBox("things have changed\ndo you want to exit?")
         if response == "OK":
-          self.close()
+          break
         else:
           return
     self.close()
@@ -426,7 +427,7 @@ class UiOntologyDesign(QMainWindow):
       else:
         self.ui.pushAddIndex.hide()
         self.ui.groupEdit.show()
-    self.ui.pushInstantiate.show()
+    # self.ui.pushInstantiate.show()
     self.ui.pushShowVariables.show()
 
   @QtCore.pyqtSlot(str)
@@ -474,7 +475,7 @@ class UiOntologyDesign(QMainWindow):
     for var_class in enabled_var_classes:
       for var_ID in self.variables.index_accessible_variables_on_networks[left_nw][var_class]:
         set_left_variables.add(var_ID)
-    print("debugging -- variable lists", set_left_variables)
+    # print("debugging -- variable lists", set_left_variables)
 
     source, sink = self.current_network.split(CONNECTION_NETWORK_SEPARATOR)
     self.pick = UI_VariableTableInterfacePick("make interface cut equation",
@@ -628,7 +629,7 @@ class UiOntologyDesign(QMainWindow):
       return
 
     self.current_variable_type = selection
-    self.ui.groupEdit.show()
+    # self.ui.groupEdit.show()
     self.__setupVariableTable()
     self.table_variables.show()
 
@@ -898,7 +899,7 @@ class UiOntologyDesign(QMainWindow):
 
     self.ontology_container.indexEquations()
     self.pick_instantiate.close()
-    self.on_pushInstantiate_pressed()
+    self.__make_InterfaceEquation()
 
   def __getAllEquationsPerType(self, language):
     eqs = {}
@@ -1020,7 +1021,7 @@ class UiOntologyDesign(QMainWindow):
       pass
 
   def __showFilesControl(self):
-    self.ui.groupEdit.show()
+    # self.ui.groupEdit.show()
     # self.ui.groupFiles.show()
     self.ui.pushWrite.show()
 

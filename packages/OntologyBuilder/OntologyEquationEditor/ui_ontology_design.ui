@@ -146,19 +146,6 @@
        <string>add index</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushInstantiate">
-      <property name="geometry">
-       <rect>
-        <x>150</x>
-        <y>310</y>
-        <width>89</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>instantiate</string>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_internets">
      <attribute name="title">
