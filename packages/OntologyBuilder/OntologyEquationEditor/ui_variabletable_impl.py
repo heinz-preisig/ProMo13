@@ -177,7 +177,7 @@ class UI_VariableTableDialog(VariableTable):
                                        mode="show",
                                        prompt="delete those equations?",
                                        buttons=["accept","reject"])
-      delete = dialog.answer == "yes"
+      delete = dialog.answer == "accept"
 
     if delete:
       # print("debugging -- yes")
