@@ -97,6 +97,7 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
     if len(eq_list_ID) == 0:
       makeMessageBox("variable has no equations", buttons=["OK"])
       self.close()
+      return
 
     Epixmap = {}
     no_eqs = len(eq_list_ID)

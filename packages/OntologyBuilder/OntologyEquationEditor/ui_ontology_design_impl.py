@@ -329,16 +329,19 @@ class UiOntologyDesign(QMainWindow):
     self.pick_instantiate.exec_()
 
   def on_pushCompile_pressed(self):
-    # NOTE: keep
-    for l in LANGUAGES["code_generation"]:
-      translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
-      # put them into the container
-      for eqID in translated_equations:
-        var_ID, _ = self.variables.incidence_dictionary[eqID]
-        self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
-        self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
+    # NOTE: keep -- no it crashes
+    # Note equation_global_id = eq.get_translation("global_ID")
+    # NOTE: AttributeError: 'Equation' object has no attribute 'get_translation'
 
-      self.writeMessage("finished compilation into ", l)
+    # for l in LANGUAGES["code_generation"]:
+    #   translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
+    #   # put them into the container
+    #   for eqID in translated_equations:
+    #     var_ID, _ = self.variables.incidence_dictionary[eqID]
+    #     self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
+    #     self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
+    #
+    #   self.writeMessage("finished compilation into ", l)
 
     # make latex lhs
     self.__makeLHSCompliedLabels("latex")
