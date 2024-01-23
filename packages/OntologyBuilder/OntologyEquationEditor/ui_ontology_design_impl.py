@@ -649,6 +649,7 @@ class UiOntologyDesign(QMainWindow):
     self.compile_only = False
 
     self.on_pushCompile_pressed()
+    self.starttime = dateString()
 
   def updateLatexImages(self):
     (self.ontology_container.incidence_dictionary,
