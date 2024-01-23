@@ -195,6 +195,8 @@ class UiOntologyDesign(QMainWindow):
     # link the indices for compilation
     self.variables.importVariables(self.ontology_container.variables, self.indices)
 
+    self.initial_variable_list = sorted(self.variables.keys())
+    self.initial_equation_list = sorted(self.ontology_container.equation_dictionary.keys())
     self.state = "edit"
 
     # setup for next GUI-phase
@@ -329,16 +331,19 @@ class UiOntologyDesign(QMainWindow):
     self.pick_instantiate.exec_()
 
   def on_pushCompile_pressed(self):
-    # NOTE: keep
-    for l in LANGUAGES["code_generation"]:
-      translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
-      # put them into the container
-      for eqID in translated_equations:
-        var_ID, _ = self.variables.incidence_dictionary[eqID]
-        self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
-        self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
+    # NOTE: keep -- no it crashes
+    # Note equation_global_id = eq.get_translation("global_ID")
+    # NOTE: AttributeError: 'Equation' object has no attribute 'get_translation'
 
-      self.writeMessage("finished compilation into ", l)
+    # for l in LANGUAGES["code_generation"]:
+    #   translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
+    #   # put them into the container
+    #   for eqID in translated_equations:
+    #     var_ID, _ = self.variables.incidence_dictionary[eqID]
+    #     self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
+    #     self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
+    #
+    #   self.writeMessage("finished compilation into ", l)
 
     # make latex lhs
     self.__makeLHSCompliedLabels("latex")
@@ -381,15 +386,30 @@ class UiOntologyDesign(QMainWindow):
     variable_table.exec_()
 
   def on_pushExit_pressed(self):
+    variable_list = sorted(self.variables.keys())
+    equation_list = sorted(self.ontology_container.equation_dictionary.keys())
+
+    modified = False
     for v in self.variables:
-      if self.starttime < self.variables[v].modified:
+      modified = self.starttime < self.variables[v].modified
         # print("debugg -- modified")
-        response = makeMessageBox("things have changed\ndo you want to exit?")
-        if response == "OK":
-          break
-        else:
-          return
-    self.close()
+      break
+
+    if variable_list != self.initial_variable_list:
+      modified = True
+    if equation_list != self.initial_equation_list:
+      modified = True
+
+    if modified:
+      response = makeMessageBox("things have changed\ndo you want to exit?")
+      if response == "OK":
+        self.close()
+        return
+      else:
+        return
+    else:
+      self.close()
+      return
 
   def on_pushFinished_pressed(self):
     print("debugging -- got here")
@@ -646,6 +666,9 @@ class UiOntologyDesign(QMainWindow):
     self.compile_only = False
 
     self.on_pushCompile_pressed()
+    self.starttime = dateString()
+    self.initial_variable_list = sorted(self.variables.keys())
+    self.initial_equation_list = sorted(self.ontology_container.equation_dictionary.keys())
 
   def updateLatexImages(self):
     (self.ontology_container.incidence_dictionary,

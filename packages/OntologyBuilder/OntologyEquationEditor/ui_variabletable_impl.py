@@ -168,16 +168,18 @@ class UI_VariableTableDialog(VariableTable):
 
     eqs = list(d_equs)
     loc = self.variables.ontology_container.latex_image_location
-    dialog = UI_ShowVariableEquation(eqs, loc ,
-                                     mode="show",
-                                     prompt="delete those equations?",
-                                     buttons=["accept","reject"])
-    # v = d_vars_text[1:-1].replace("\n", ",  ")
-    # e = d_equs_text.replace("\n", "\n   ")
-    # msg += "\n\nand consequently \n...variables:%s \n\n...equations %s" % (v, e)
-    # reply = makeMessageBox(msg, buttons=["NO", "YES"])
-    # if reply == "YES":
-    if dialog.answer == "yes":
+    if eqs == []:
+      answer = makeMessageBox("no equations detelet variable?", buttons=["YES","NO"],default="NO",infotext="delete ?" )
+      delete = answer == "YES"
+
+    else:
+      dialog = UI_ShowVariableEquation(eqs, loc ,
+                                       mode="show",
+                                       prompt="delete those equations?",
+                                       buttons=["accept","reject"])
+      delete = dialog.answer == "accept"
+
+    if delete:
       # print("debugging -- yes")
       self.__deleteVariable(d_vars, d_equs)
       self.reset_table()
