@@ -1052,14 +1052,15 @@ class Variables(OrderedDict):
     return variable_space, v_counter
 
   def changeVariableAlias(self, variable_ID, language, new_alias):
-    self[variable_ID].aliases[language] = new_alias
-    self[variable_ID].aliases[language] = new_alias
-    # if language == "latex":
-    #   self[variable_ID].compiled_lhs["latex"] = new_alias
-    date = dateString()
-    self.ontology_container.variables[variable_ID]["modified"] = dateString()  # NOTE: that was the problem
-    self[variable_ID].modified = date
-    print("changed variable", variable_ID, self[variable_ID].modified)
+    old_alias =     self[variable_ID].aliases[language]
+    if new_alias != old_alias:
+      self[variable_ID].aliases[language] = new_alias
+      # if language == "latex":
+      #   self[variable_ID].compiled_lhs["latex"] = new_alias
+      date = dateString()
+      self.ontology_container.variables[variable_ID]["modified"] = dateString()  # NOTE: that was the problem
+      self[variable_ID].modified = date
+      print("changed variable", variable_ID, self[variable_ID].modified)
 
   def removeVariable(self, variable_ID):
     """

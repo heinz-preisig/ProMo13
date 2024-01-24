@@ -93,6 +93,8 @@ class UI_Equations(QtWidgets.QWidget):
     roundButton(self.ui.pushCancel, "reject", tooltip="cancel")
     # roundButton(self.ui.pushResetInterface, "reset", tooltip="reset")
 
+    # self.ui.lineEditLatex.textChanged(self.__newLatex)
+
     self.ontology_container = variables.ontology_container
     self.hide()
     self.what = what
@@ -114,6 +116,8 @@ class UI_Equations(QtWidgets.QWidget):
     self.status_edit_expr = False
     self.status_new_variable = False
     self.status_new_equation = False
+
+    self.to_define_latex_alias = ""
 
     # TODO: equation editing -- control when to allow editing of an equation. Currently it is not controlled over the
     #  network d.h. if one has defined a equation on macro as a second equation whilst the first was defined on
@@ -261,7 +265,10 @@ class UI_Equations(QtWidgets.QWidget):
     self.status_new_variable = False
     self.ui.pushAccept.hide()
 
-    # self.ui.lineExpression.show()
+    self.ui.labelLaTex.show()
+    self.ui.lineEditLatex.show()
+    self.ui.lineEditLatex.setText(v.aliases["latex"])
+
     self.status_new_equation = True
     self.ui.lineDocumentation.show()
     self.MSG("new equation")
@@ -276,6 +283,11 @@ class UI_Equations(QtWidgets.QWidget):
       self.MSG("variable already defined")
       self.ui.lineExpression.hide()
       return
+
+    self.to_define_latex_alias = str(self.ui.lineNewVariable.text())
+    self.ui.labelLaTex.show()
+    self.ui.lineEditLatex.setText(self.to_define_latex_alias)
+
     self.MSG("variable symbol OK")
     self.ui.lineExpression.show()
     self.ui.lineExpression.setFocus()
@@ -513,6 +525,9 @@ class UI_Equations(QtWidgets.QWidget):
     else:
       self.MSG("wrong logics")
 
+    alias = self.ui.lineEditLatex.text()
+    self.variables.changeVariableAlias(var_ID, "latex", alias)
+    print("debugging -- alias", alias)
     self.variables.indexVariables()
     self.ontology_container.indexEquations()
     self.update_space_information.emit()
@@ -529,6 +544,10 @@ class UI_Equations(QtWidgets.QWidget):
 
     self.hide()
     self.close()
+
+  # def __textChanged(self,text):
+  #   self.variables.indexVariables()
+
 
   @staticmethod
   def __printDelete():
