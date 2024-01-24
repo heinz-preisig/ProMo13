@@ -359,6 +359,16 @@ color :rgb(255, 255, 255)</string>
       </property>
      </spacer>
     </item>
+    <item>
+     <widget class="QLabel" name="labelLaTex">
+      <property name="text">
+       <string>LaTex</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="lineEditLatex"/>
+    </item>
    </layout>
   </widget>
   <zorder>layoutWidget</zorder>
