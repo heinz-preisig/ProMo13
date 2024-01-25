@@ -565,6 +565,9 @@ class UiOntologyDesign(QMainWindow):
                                                  )
 
     self.variables.addNewVariable(ID=new_var_ID, **variable_record)
+    var_latex = self.variables[var_ID].aliases["latex"]
+    new_var_latex = "{\_}" + var_latex
+    variable_record["aliases"]["latex"] = new_var_latex
 
     self.ontology_container.indexEquations()
     self.variables.indexVariables()
