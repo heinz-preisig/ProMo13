@@ -8,6 +8,7 @@ from packages.Common import resource_initialisation
 
 # TODO: Colors should come from the palette
 
+
 class ImageItemDelegate(QtWidgets.QStyledItemDelegate):
   def sizeHint(self, option, index):
     if index.data():
@@ -22,6 +23,10 @@ class ImageItemDelegate(QtWidgets.QStyledItemDelegate):
     return super().sizeHint(option, index)
 
   def paint(self, painter, option, index):
+    if not index.data(QtCore.Qt.UserRole):
+      super().paint(painter, option, index)
+      return
+
     if index.data():
       path = index.data(QtCore.Qt.UserRole)
       # print(path)

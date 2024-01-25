@@ -8,10 +8,11 @@ Welcome to ProMo's documentation!
 #################################
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Modules:
 
    Model Builder <modules/model_composer>
+   Instantiation Tool <modules/InstantiationTool/instantiation_tool>
 
 
 Indices and tables

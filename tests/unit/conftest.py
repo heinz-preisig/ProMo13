@@ -1,13 +1,7 @@
-from pathlib import Path
 import pytest
 from unittest.mock import mock_open, patch
 from packages.Common.classes import io
 from packages.Common.classes import equation_parser
-
-
-def get_test_files_path() -> Path:
-  """Return the test_files directory."""
-  return Path(__file__).resolve().parent / 'test_files'
 
 
 @pytest.fixture
@@ -23,7 +17,7 @@ def var_idx_eq(datafiles):
 
 
 @pytest.fixture
-def model_objects(datafiles):
+def topology_objects(datafiles, entities):
   ontology_name = "TEST"
   model_name = "TEST"
 
@@ -31,7 +25,7 @@ def model_objects(datafiles):
     m_file = mock_open(read_data=file.read())
 
   with patch('builtins.open', m_file):
-    data = io.load_model_from_file(ontology_name, model_name)
+    data = io.load_model_from_file(ontology_name, model_name, entities)
 
   return data
 

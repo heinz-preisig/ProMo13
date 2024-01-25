@@ -39,6 +39,7 @@
               <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../modules/model_composer.html">Model Builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules/InstantiationTool/instantiation_tool.html">Instantiation Tool</a></li>
 </ul>
 
         </div>
@@ -54,9 +55,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>packages.ModelBuilder.ModelComposer.instantiation_dialog_impl</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">packages.ModelBuilder.ModelComposer.instantiation_dialog_impl</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -66,20 +67,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for packages.ModelBuilder.ModelComposer.instantiation_dialog_impl</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;This module contains the implementation of the GUI logic for the Instantiation dialog.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Contains the GUI logic for the Instantiation dialog.&quot;&quot;&quot;</span>
+<span class="c1"># TODO Update documentation.</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span> <span class="k">as</span> <span class="n">pp</span> <span class="c1"># For debugging with pprint</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypedDict</span>
 
 <span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtWidgets</span>
 <span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span>
-<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">QModelIndex</span>
 
-<span class="c1"># To run independently, quick fix</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/home/alberto/Documents/Projects/ProMo11/ProMo/packages/&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">packages.ModelBuilder.ModelComposer</span> <span class="kn">import</span> <span class="n">ui_instantiation_dialog</span>
+<span class="kn">from</span> <span class="nn">packages.Common.classes</span> <span class="kn">import</span> <span class="n">entity</span>
+<span class="kn">from</span> <span class="nn">packages.Common.classes</span> <span class="kn">import</span> <span class="n">variable</span>
 
-<span class="kn">from</span> <span class="nn">OntologyBuilder.OntologyEquationEditor</span> <span class="kn">import</span> <span class="n">resources</span>
-<span class="kn">from</span> <span class="nn">ModelBuilder.ModelComposer</span> <span class="kn">import</span> <span class="n">ui_instantiation_dialog</span>
+
+<span class="k">class</span> <span class="nc">VariableInfo</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Creates a new type for a dictionary that stores info about a var&quot;&quot;&quot;</span>
+  <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+  <span class="n">same_in_all_nodes</span><span class="p">:</span> <span class="nb">bool</span>
+  <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="InstantiationDlg"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg">[docs]</a><span class="k">class</span> <span class="nc">InstantiationDlg</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
@@ -87,54 +93,68 @@
 
 <span class="sd">  Attributes:</span>
 <span class="sd">    ui (object): Contains the GUI widgets, obtained from QtDesigner.</span>
-<span class="sd">    entity (dict): Stores the information about the entity linked to the nodes</span>
-<span class="sd">      to be instantiated (only for a full instantiation). **None** if partial </span>
-<span class="sd">      instantiation is going to be done instead.</span>
-<span class="sd">    variables (dict): Stores the information about all variables in the ontology.</span>
-<span class="sd">    var_data (list[list[tuples]]): Contains one list for variables that need to</span>
-<span class="sd">      be initialized and another for the rest. Each of these lists contain tuples</span>
-<span class="sd">      of two items:</span>
+<span class="sd">    common_entity (entity.Entity): Stores the information about the</span>
+<span class="sd">     entity linked to the nodes to be instantiated (only for a full</span>
+<span class="sd">     instantiation). **None** if partial instantiation is going to be</span>
+<span class="sd">     done instead.</span>
+<span class="sd">    variables (dict): Stores the information about all variables in the</span>
+<span class="sd">      ontology.</span>
+<span class="sd">    var_data (list[list[tuples]]): Contains one list for variables that</span>
+<span class="sd">      need to be initialized and another for the rest. Each of these</span>
+<span class="sd">      lists contain tuples of two items:</span>
 
 <span class="sd">        * var_info (dict): Data of a single variable with the</span>
 <span class="sd">          following fields:</span>
 
-<span class="sd">          * id (int): The variable id.</span>
-<span class="sd">          * same_in_all_nodes (bool): **True** if the variable has been instantiated </span>
-<span class="sd">            with the same value in all nodes or has not been instantiated in any.</span>
-<span class="sd">            **False** otherwise.</span>
-<span class="sd">          * value (float or None): The value of the variable if it has been</span>
-<span class="sd">            instantiated with the same value in all nodes. **None** otherwise.</span>
+<span class="sd">          * id (str): The variable id.</span>
+<span class="sd">          * same_in_all_nodes (bool): **True** if the variable has been</span>
+<span class="sd">            instantiated with the same value in all nodes or has not</span>
+<span class="sd">            been instantiated in any. **False** otherwise.</span>
+<span class="sd">          * value (Optional[float]): The value of the variable if it has</span>
+<span class="sd">            been instantiated with the same value in all nodes. **None**</span>
+<span class="sd">            otherwise.</span>
 
-<span class="sd">        * is_enabled (bool): **True** if the user is able to interact with the item.</span>
-<span class="sd">          **False** otherwise.</span>
-<span class="sd">        </span>
-<span class="sd">    lists (list[QListWidget]): Contains the **QListWidgets** in the interface.</span>
+<span class="sd">        * is_enabled (bool): **True** if the user is able to interact</span>
+<span class="sd">          with the item. **False** otherwise.</span>
+
+<span class="sd">    lists (list[QListWidget]): Contains the **QListWidgets** in the</span>
+<span class="sd">      interface.</span>
 <span class="sd">    tab_index_selected (int): Stores the index of the active tab.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="InstantiationDlg.__init__"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">var_data_all</span><span class="o">=</span><span class="p">[],</span> <span class="n">entity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">single_node</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="InstantiationDlg.__init__"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">var_data_all</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">VariableInfo</span><span class="p">],</span>
+      <span class="n">common_entity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">Entity</span><span class="p">],</span>
+      <span class="n">variables</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">Variable</span><span class="p">],</span>
+      <span class="n">single_node</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+      <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the InstantiationDlg with the required information.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      parent (QWidget): Parent widget of the dialog. Defaults to **None**.</span>
-<span class="sd">      var_data_all (list[dict]): Each element contains the data of a single variable</span>
-<span class="sd">        with the following fields:</span>
+<span class="sd">      parent (QWidget): Parent widget of the dialog. Defaults to</span>
+<span class="sd">        **None**.</span>
+<span class="sd">      var_data_all (list[dict]): Each element contains the data of a</span>
+<span class="sd">        single variable with the following fields:</span>
 
 <span class="sd">        * id (int): The variable id.</span>
-<span class="sd">        * same_in_all_nodes (bool): **True** if the variable has been instantiated </span>
-<span class="sd">          with the same value in all nodes or has not been instantiated in any.</span>
-<span class="sd">          **False** otherwise.</span>
-<span class="sd">        * value (float or None): The value of the variable if it has been</span>
-<span class="sd">          instantiated with the same value in all nodes. **None** otherwise.</span>
+<span class="sd">        * same_in_all_nodes (bool): **True** if the variable has been</span>
+<span class="sd">          instantiated with the same value in all nodes or has not been</span>
+<span class="sd">          instantiated in any. **False** otherwise.</span>
+<span class="sd">        * value (float or None): The value of the variable if it has</span>
+<span class="sd">          been instantiated with the same value in all nodes. **None**</span>
+<span class="sd">          otherwise.</span>
 
 <span class="sd">        Defaults to **[]**.</span>
-<span class="sd">      entity (dict): Stores the information about the entity linked to the nodes</span>
-<span class="sd">        to be instantiated (only for a full instantiation). **None** if partial </span>
-<span class="sd">        instantiation is going to be done instead. Defaults to **None**.</span>
-<span class="sd">      variables (dict): Stores the information about all variables in the ontology.</span>
+<span class="sd">      entity (dict): Stores the information about the entity linked to</span>
+<span class="sd">        the nodes to be instantiated (only for a full instantiation).</span>
+<span class="sd">        **None** if partial instantiation is going to be done instead.</span>
 <span class="sd">        Defaults to **None**.</span>
-<span class="sd">      single_node (bool): **True** if the instantiation will be done for a single node.</span>
-<span class="sd">        **False** otherwise. Defaults to **True**.</span>
+<span class="sd">      variables (dict): Stores the information about all variables in</span>
+<span class="sd">        the ontology. Defaults to **None**.</span>
+<span class="sd">      single_node (bool): **True** if the instantiation will be done for</span>
+<span class="sd">        a single node. **False** otherwise. Defaults to **True**.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">ui_instantiation_dialog</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
@@ -144,18 +164,18 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Instantiation (Single node)&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Instantiation (Multiple nodes)&quot;</span><span class="p">)</span>
-      
-    <span class="bp">self</span><span class="o">.</span><span class="n">entity</span> <span class="o">=</span> <span class="n">entity</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">entity</span> <span class="o">=</span> <span class="n">common_entity</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span>
 
-        
     <span class="n">var_data_required</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">var_data_others</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="c1"># Separates variable depending if they are required to be instantiated or not.</span>
-      <span class="c1"># only needed if a full instantiation is happening.</span>
-      <span class="n">var_required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">[</span><span class="s2">&quot;to_be_initialised&quot;</span><span class="p">]</span>
+      <span class="c1"># Separates variable depending if they are required to be</span>
+      <span class="c1"># instantiated or not. Only needed if a full instantiation is</span>
+      <span class="c1"># happening.</span>
+      <span class="n">var_required</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="o">.</span><span class="n">get_init_vars</span><span class="p">()</span>
       <span class="k">for</span> <span class="n">var_info</span> <span class="ow">in</span> <span class="n">var_data_all</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">var_required</span><span class="p">:</span>
           <span class="n">var_data_required</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">var_info</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
@@ -169,7 +189,7 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tab_variables</span><span class="o">.</span><span class="n">setTabEnabled</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">var_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">var_data_required</span><span class="p">,</span> <span class="n">var_data_others</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">lists</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_required</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_others</span><span class="p">]</span> 
+    <span class="bp">self</span><span class="o">.</span><span class="n">lists</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_required</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_others</span><span class="p">]</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -181,38 +201,37 @@
 
     <span class="c1"># Connections</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tab_variables</span><span class="o">.</span><span class="n">currentChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tab_changed</span><span class="p">)</span>
-    <span class="c1"># self.ui.list_required.currentRowChanged.connect(self._variable_selected)</span>
-    <span class="c1"># self.ui.list_others.currentRowChanged.connect(self._variable_selected)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_required</span><span class="o">.</span><span class="n">itemClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-      <span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_required</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">item</span><span class="p">)))</span>
+        <span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_required</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">item</span><span class="p">)))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_others</span><span class="o">.</span><span class="n">itemClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-      <span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_others</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">item</span><span class="p">)))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">pbutton_instantiate</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">)</span> 
-    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">pbutton_accept</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>   
-    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">pbutton_cancel</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span> </div>
+        <span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_selected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">list_others</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="n">item</span><span class="p">)))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">pbutton_instantiate</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_instantiate</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">pbutton_accept</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">pbutton_cancel</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="InstantiationDlg._tab_changed"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._tab_changed">[docs]</a>  <span class="k">def</span> <span class="nf">_tab_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_tab_index</span><span class="p">):</span>
+<div class="viewcode-block" id="InstantiationDlg._tab_changed"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._tab_changed">[docs]</a>  <span class="k">def</span> <span class="nf">_tab_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_tab_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Controls the tab change.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      tab_index (int): Index of the active tab.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span> <span class="o">=</span> <span class="n">current_tab_index</span>
-    <span class="c1"># TODO if there is not extra functionality needed then this function can be a lambda.</span>
+    <span class="c1"># TODO if there is not extra functionality needed then this function</span>
+    <span class="c1"># can be a lambda.</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_update_list</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="InstantiationDlg._update_list"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._update_list">[docs]</a>  <span class="k">def</span> <span class="nf">_update_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="InstantiationDlg._update_list"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._update_list">[docs]</a>  <span class="k">def</span> <span class="nf">_update_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Updates the current **QListWidget** with the current info.&quot;&quot;&quot;</span>
-    <span class="c1"># TODO Make this method always update both lists if is only used from the</span>
-    <span class="c1"># instantiate and the __init__ methods.</span>
+    <span class="c1"># TODO Make this method always update both lists if is only used</span>
+    <span class="c1"># from the instantiate and the __init__ methods.</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">lists</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span><span class="p">]</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        
+
     <span class="c1"># The (*) symbol is used to represent a non instantiated variable.</span>
-    <span class="c1"># The (~) symbol is used to represent variables that have been instantiated with</span>
-    <span class="c1"># different values in different nodes.</span>
+    <span class="c1"># The (~) symbol is used to represent variables that have been</span>
+    <span class="c1"># instantiated with different values in different nodes.</span>
     <span class="c1"># Maybe we will use something else instead.</span>
-    <span class="c1"># TODO Replace individual items instead of the whole list if it is better</span>
-    <span class="c1"># performance wise for long lists. </span>
+    <span class="c1"># TODO Replace individual items instead of the whole list if it is</span>
+    <span class="c1"># better performance wise for long lists.</span>
     <span class="k">for</span> <span class="n">var_info</span><span class="p">,</span> <span class="n">is_enabled</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span><span class="p">]:</span>
       <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -222,39 +241,44 @@
       <span class="k">else</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;(~)&quot;</span>
 
-      <span class="n">var_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+      <span class="n">var_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span>
       <span class="n">list_item_name</span> <span class="o">=</span> <span class="n">var_name</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="n">value</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_add_new_item_to_list</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lists</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span><span class="p">],</span>
-        <span class="n">list_item_name</span><span class="p">,</span>
-        <span class="n">is_enabled</span><span class="p">)</span>        
+          <span class="bp">self</span><span class="o">.</span><span class="n">lists</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span><span class="p">],</span>
+          <span class="n">list_item_name</span><span class="p">,</span>
+          <span class="n">is_enabled</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_update_tab_title</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_set_instantiation_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="InstantiationDlg._update_tab_title"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._update_tab_title">[docs]</a>  <span class="k">def</span> <span class="nf">_update_tab_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="InstantiationDlg._update_tab_title"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._update_tab_title">[docs]</a>  <span class="k">def</span> <span class="nf">_update_tab_title</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Update the first tab title when needed.</span>
 
-<span class="sd">    The title will be in the form: &quot;Required Variables (#)&quot; where # is an integer</span>
-<span class="sd">    representing how many variables are still required to be instantiated.  </span>
+<span class="sd">    The title will be in the form: &quot;Required Variables (#)&quot; where # is</span>
+<span class="sd">    an integer representing how many variables are still required to be</span>
+<span class="sd">    instantiated.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">non_initialized_counter</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">var_info</span><span class="p">,</span> <span class="n">is_enabled</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-      <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_enabled</span><span class="p">:</span>
+      <span class="k">if</span> <span class="p">(</span>
+          <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]</span> <span class="ow">and</span>
+          <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+          <span class="n">is_enabled</span>
+      <span class="p">):</span>
         <span class="n">non_initialized_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-        
-    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Required Variables (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">non_initialized_counter</span><span class="p">)</span>  <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Required Variables (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">non_initialized_counter</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">tab_variables</span><span class="o">.</span><span class="n">setTabText</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="InstantiationDlg._set_instantiation_state"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._set_instantiation_state">[docs]</a>  <span class="k">def</span> <span class="nf">_set_instantiation_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_allowed</span><span class="p">):</span>
+<div class="viewcode-block" id="InstantiationDlg._set_instantiation_state"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._set_instantiation_state">[docs]</a>  <span class="k">def</span> <span class="nf">_set_instantiation_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_allowed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Controls the use of GUI widgets related to the instantiation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      is_allowed (bool): **True** to allow interaction with the text box</span>
-<span class="sd">        and the instantiate button. Also, the name of the selected variable </span>
-<span class="sd">        will be displayed in the variable name label. **False** to disable</span>
-<span class="sd">        with the text box and the instantiate button. In this case the label</span>
-<span class="sd">        will show a &quot;?&quot; sign.</span>
+<span class="sd">        and the instantiate button. Also, the name of the selected</span>
+<span class="sd">        variable will be displayed in the variable name label. **False**</span>
+<span class="sd">        to disable with the text box and the instantiate button. In this</span>
+<span class="sd">        case the label will show a &quot;?&quot; sign.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">label_variable_name</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">is_allowed</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">line_edit_value</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">is_allowed</span><span class="p">)</span>
@@ -262,42 +286,49 @@
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_allowed</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">label_variable_name</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">line_edit_value</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>            </div>
+      <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">line_edit_value</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="InstantiationDlg._variable_selected"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._variable_selected">[docs]</a>  <span class="k">def</span> <span class="nf">_variable_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_pos</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Prepares the necessary widgets for the instantiation when a variable is selected.</span>
+<div class="viewcode-block" id="InstantiationDlg._variable_selected"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._variable_selected">[docs]</a>  <span class="k">def</span> <span class="nf">_variable_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Prepares the necessary widgets when a variable is selected.</span>
 
-<span class="sd">    Also warns the user when a variable with different values in different nodes will</span>
-<span class="sd">    be instantiated.</span>
+<span class="sd">    Also warns the user when a variable with different values in</span>
+<span class="sd">    different nodes will be instantiated.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      item_pos (int): Position in the **QListWidget** of the selected variable. It</span>
-<span class="sd">        corresponds to the index in the proper var_data list.</span>
+<span class="sd">      item_pos (int): Position in the **QListWidget** of the selected</span>
+<span class="sd">        variable. It corresponds to the index in the proper var_data</span>
+<span class="sd">        list.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">var_info</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span><span class="p">][</span><span class="n">item_pos</span><span class="p">]</span>
-    <span class="n">var_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
-    
+    <span class="n">var_info</span><span class="p">,</span> <span class="n">is_enabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span><span class="p">][</span><span class="n">item_pos</span><span class="p">]</span>
+
+    <span class="c1"># Nothing happens while clicking on a disable item</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_enabled</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_set_instantiation_state</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+      <span class="k">return</span>
+
+    <span class="n">var_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">label</span>
+
     <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]:</span>
       <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">line_edit_value</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
       <span class="k">else</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">line_edit_value</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">line_edit_value</span><span class="o">.</span><span class="n">selectAll</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>      
+    <span class="k">else</span><span class="p">:</span>
       <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;This variable does not have the same</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;instantiation value in all nodes.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;Instantiation will overwrite the previous</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;value for all nodes.</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;Do you want to proceed?&quot;</span>
+          <span class="s2">&quot;This variable does not have the same</span><span class="se">\n</span><span class="s2">&quot;</span>
+          <span class="s2">&quot;instantiation value in all nodes.</span><span class="se">\n</span><span class="s2">&quot;</span>
+          <span class="s2">&quot;Instantiation will overwrite the previous</span><span class="se">\n</span><span class="s2">&quot;</span>
+          <span class="s2">&quot;value for all nodes.</span><span class="se">\n</span><span class="s2">&quot;</span>
+          <span class="s2">&quot;Do you want to proceed?&quot;</span>
       <span class="p">)</span>
 
       <span class="n">dlg_warning</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> 
-        <span class="s2">&quot;Instantiation warning&quot;</span><span class="p">,</span>
-        <span class="n">message</span><span class="p">,</span> 
-        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span><span class="p">,</span>
-        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span>
+          <span class="bp">self</span><span class="p">,</span>
+          <span class="s2">&quot;Instantiation warning&quot;</span><span class="p">,</span>
+          <span class="n">message</span><span class="p">,</span>
+          <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span><span class="p">,</span>
+          <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span>
       <span class="p">)</span>
 
       <span class="k">if</span> <span class="n">dlg_warning</span> <span class="o">!=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span><span class="p">:</span>
@@ -312,12 +343,13 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_set_instantiation_state</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">line_edit_value</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="InstantiationDlg._instantiate"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._instantiate">[docs]</a>  <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="InstantiationDlg._instantiate"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._instantiate">[docs]</a>  <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Controls the instantiation process.</span>
 
-<span class="sd">    Saves the new value for the selected variable. If the variable instantiated is</span>
-<span class="sd">    not one of the required ones a new analisis is performed to check what variables</span>
-<span class="sd">    are still needed and can still be instantiated.</span>
+<span class="sd">    Saves the new value for the selected variable. If the variable</span>
+<span class="sd">    instantiated is not one of the required ones a new analisis is</span>
+<span class="sd">    performed to check what variables are still needed and can still be</span>
+<span class="sd">    instantiated.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lists</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span><span class="p">]</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
 
@@ -332,131 +364,61 @@
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tab_index_selected</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_update_enabled_vars</span><span class="p">()</span>
-    
-    <span class="bp">self</span><span class="o">.</span><span class="n">_update_list</span><span class="p">()</span>  </div>
 
-<div class="viewcode-block" id="InstantiationDlg._add_new_item_to_list"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._add_new_item_to_list">[docs]</a>  <span class="k">def</span> <span class="nf">_add_new_item_to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">is_enabled</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_update_list</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="InstantiationDlg._add_new_item_to_list"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._add_new_item_to_list">[docs]</a>  <span class="k">def</span> <span class="nf">_add_new_item_to_list</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">parent_list</span><span class="p">:</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidget</span><span class="p">,</span>
+      <span class="n">item_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+      <span class="n">is_enabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Adds a new item to a **QListWidget**.</span>
 
 <span class="sd">    Uses flags to control some of the item properties.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      list (QListWidget): Widget where the item will be inserted.</span>
-<span class="sd">      item_name (string): Name of the item to be inserted. Already includes</span>
-<span class="sd">        the variable name and its value. </span>
-<span class="sd">      is_enabled (bool):  **True** if the user is able to interact with the item.</span>
-<span class="sd">        **False** otherwise.</span>
+<span class="sd">      item_name (string): Name of the item to be inserted. Already</span>
+<span class="sd">        includes the variable name and its value.</span>
+<span class="sd">      is_enabled (bool):  **True** if the user is able to interact with</span>
+<span class="sd">        the item. **False** otherwise.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO Make the item_name here using var_name and var_value instead.</span>
     <span class="c1"># TODO Add different types of customization depending on the item (different</span>
     <span class="c1"># colors for the variables with values for example).</span>
-    <span class="n">item</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidgetItem</span><span class="p">(</span><span class="n">item_name</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QListWidgetItem</span><span class="p">(</span><span class="n">item_name</span><span class="p">,</span> <span class="n">parent_list</span><span class="p">)</span>
     <span class="n">flags</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">flags</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">is_enabled</span><span class="p">:</span>
       <span class="n">item</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">flags</span> <span class="o">|</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEnabled</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="n">item</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEnabled</span><span class="p">)</span>  </div>
+      <span class="n">item</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">Qt</span><span class="o">.</span><span class="n">ItemIsEnabled</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="InstantiationDlg._update_enabled_vars"><a class="viewcode-back" href="../../../../modules/model_composer.html#packages.ModelBuilder.ModelComposer.instantiation_dialog_impl.InstantiationDlg._update_enabled_vars">[docs]</a>  <span class="k">def</span> <span class="nf">_update_enabled_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Checks what variables are still needed.</span>
 
-<span class="sd">    A new VarEq tree is generated. Variables that do not require instantiation but</span>
-<span class="sd">    still get instantiated will not need equations anymore. These equations are added to</span>
-<span class="sd">    the entity&#39;s original blocked equations and the tree is constructed from there.</span>
+<span class="sd">    A new VarEq tree is generated. Variables that do not require</span>
+<span class="sd">    instantiation but still get instantiated will not need equations</span>
+<span class="sd">    anymore. These equations are added to the entity&#39;s original blocked</span>
+<span class="sd">    equations and the tree is constructed from there.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">blocked_equations</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">[</span><span class="s2">&quot;blocked&quot;</span><span class="p">])</span>
-    <span class="c1"># Adding new blocked equations due to instantiation</span>
-    <span class="k">for</span> <span class="n">var_info</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-      <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]:</span>
-        <span class="n">node_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">][</span><span class="s2">&quot;variable_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])]</span>
-        <span class="n">equations</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">tree_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">[</span><span class="s2">&quot;tree&quot;</span><span class="p">][</span><span class="n">node_id</span><span class="p">][</span><span class="s2">&quot;children&quot;</span><span class="p">]:</span>
-          <span class="n">eq_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">[</span><span class="s2">&quot;nodes&quot;</span><span class="p">][</span><span class="n">tree_node</span><span class="p">][</span><span class="mi">9</span><span class="p">:]</span>
-          <span class="n">blocked_equations</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">eq_id</span><span class="p">))</span> 
+    <span class="k">pass</span></div></div>
+    <span class="c1"># # Adding new dummy equations due to instantiation</span>
+    <span class="c1"># var_eq_info = {}</span>
+    <span class="c1"># for var_info, _ in self.var_data[1]:</span>
+    <span class="c1">#   if var_info[&quot;value&quot;] is not None or not var_info[&quot;same_in_all_nodes&quot;]:</span>
+    <span class="c1">#     var_eq_info[var_info[&quot;id&quot;]] = [&quot;_&quot;]</span>
 
-          
+    <span class="c1"># # Generating new tree and retrieving changes</span>
+    <span class="c1"># unused_ids = self.entity.generate_var_eq_tree(var_eq_info)</span>
 
-    <span class="c1"># Generating new tree</span>
-    <span class="n">new_tree</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">VarEqTree</span><span class="p">(</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> 
-      <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">[</span><span class="s2">&quot;root_variable&quot;</span><span class="p">],</span>
-      <span class="nb">list</span><span class="p">(</span><span class="n">blocked_equations</span><span class="p">),</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">entity</span><span class="p">[</span><span class="s2">&quot;root_equation&quot;</span><span class="p">]</span>
-    <span class="p">)</span>
-    
-    <span class="c1"># pp(self.variables)</span>
-    <span class="c1"># pp(new_tree.tree)</span>
-
-    <span class="c1"># Checking what variables are still needed</span>
-    <span class="n">enabled_vars</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">new_tree</span><span class="o">.</span><span class="n">tree</span><span class="p">[</span><span class="s2">&quot;IDs&quot;</span><span class="p">]:</span>
-      <span class="k">if</span> <span class="s2">&quot;variable&quot;</span> <span class="ow">in</span> <span class="nb">id</span><span class="p">:</span>
-        <span class="n">var_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">[</span><span class="mi">9</span><span class="p">:])</span>
-        <span class="n">enabled_vars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var_id</span><span class="p">)</span>
-
-    <span class="c1"># Updating the data</span>
-    <span class="k">for</span> <span class="n">list_id</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
-      <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">var_info</span><span class="p">,</span> <span class="n">is_enabled</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_data</span><span class="p">[</span><span class="n">list_id</span><span class="p">]):</span>
-        <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">enabled_vars</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_enabled</span><span class="p">:</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">var_data</span><span class="p">[</span><span class="n">list_id</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">var_info</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">enabled_vars</span> <span class="ow">and</span> <span class="n">is_enabled</span><span class="p">:</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">var_data</span><span class="p">[</span><span class="n">list_id</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">var_info</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div></div>
-
-<span class="k">class</span> <span class="nc">TestVariables</span><span class="p">:</span>
-  <span class="sd">&quot;&quot;&quot;Eases the generation of a variables tree for testing purposes.&quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
-
-  <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">eqs</span><span class="o">=</span><span class="p">[]):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">number</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">number</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;var_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">number</span><span class="p">][</span><span class="s2">&quot;equations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">eq_number</span><span class="p">,</span> <span class="n">incidence_list</span> <span class="ow">in</span> <span class="n">eqs</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">number</span><span class="p">][</span><span class="s2">&quot;equations&quot;</span><span class="p">][</span><span class="n">eq_number</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">number</span><span class="p">][</span><span class="s2">&quot;equations&quot;</span><span class="p">][</span><span class="n">eq_number</span><span class="p">][</span><span class="s2">&quot;incidence_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">incidence_list</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-  <span class="c1"># Variables are created (only with necessary fields)</span>
-  <span class="n">variables</span> <span class="o">=</span> <span class="n">TestVariables</span><span class="p">()</span>
-  <span class="n">variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">0</span><span class="p">,[(</span><span class="mi">1</span><span class="p">,[</span><span class="s1">&#39;2&#39;</span><span class="p">,</span><span class="s1">&#39;3&#39;</span><span class="p">,</span><span class="s1">&#39;4&#39;</span><span class="p">])])</span>
-  <span class="n">variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,[(</span><span class="mi">5</span><span class="p">,[</span><span class="s1">&#39;6&#39;</span><span class="p">]),(</span><span class="mi">7</span><span class="p">,[</span><span class="s1">&#39;8&#39;</span><span class="p">,</span><span class="s1">&#39;9&#39;</span><span class="p">])])</span>
-  <span class="n">variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">3</span><span class="p">,[(</span><span class="mi">10</span><span class="p">,[</span><span class="s1">&#39;6&#39;</span><span class="p">,</span><span class="s1">&#39;8&#39;</span><span class="p">,</span><span class="s1">&#39;11&#39;</span><span class="p">])])</span>
-  <span class="n">variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">4</span><span class="p">,[(</span><span class="mi">12</span><span class="p">,[</span><span class="s1">&#39;6&#39;</span><span class="p">,</span><span class="s1">&#39;11&#39;</span><span class="p">,</span><span class="s1">&#39;13&#39;</span><span class="p">])])</span>
-  <span class="n">variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">6</span><span class="p">,[(</span><span class="mi">14</span><span class="p">,[</span><span class="s1">&#39;15&#39;</span><span class="p">,</span><span class="s1">&#39;16&#39;</span><span class="p">])])</span>
-  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">]:</span>
-    <span class="n">variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-
-  <span class="c1"># Entity is created from the VarEqTree (only with necessary fields)</span>
-  <span class="n">entity</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">VarEqTree</span><span class="p">(</span><span class="n">variables</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span><span class="mi">0</span><span class="p">,[],</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tree</span>
-  <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;to_be_initialised&quot;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">]</span>
-  <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;blocked&quot;</span><span class="p">]</span><span class="o">=</span><span class="p">[]</span>
-  <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;root_variable&quot;</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
-  <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;root_equation&quot;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
-
-  <span class="c1"># Initial var_data is generated.</span>
-  <span class="n">var_data_all</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">]:</span>
-    <span class="n">var_info</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
-    <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">var_info</span><span class="p">[</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">var_data_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var_info</span><span class="p">)</span>
-
-  <span class="n">var_data_all</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-  <span class="n">var_data_all</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-  <span class="n">var_data_all</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;same_in_all_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
-
-  <span class="c1"># entity = None</span>
-
-
-  <span class="n">app</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
-  <span class="n">dlg</span> <span class="o">=</span> <span class="n">InstantiationDlg</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">var_data_all</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">variables</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
-  <span class="n">return_value</span> <span class="o">=</span> <span class="n">dlg</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
-  <span class="k">if</span> <span class="n">return_value</span> <span class="o">==</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QDialog</span><span class="o">.</span><span class="n">Accepted</span><span class="p">:</span>
-    <span class="n">pp</span><span class="p">(</span><span class="n">dlg</span><span class="o">.</span><span class="n">var_data</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cancelled&quot;</span><span class="p">)</span>
+    <span class="c1"># # Updating the data</span>
+    <span class="c1"># for list_id in [0, 1]:</span>
+    <span class="c1">#   for i, (var_info, is_enabled) in enumerate(self.var_data[list_id]):</span>
+    <span class="c1">#     if var_info[&quot;id&quot;] not in unused_ids and not is_enabled:</span>
+    <span class="c1">#       self.var_data[list_id][i] = (var_info, True)</span>
+    <span class="c1">#     if var_info[&quot;id&quot;] in unused_ids and is_enabled:</span>
+    <span class="c1">#       self.var_data[list_id][i] = (var_info, False)</span>
 </pre></div>
 
            </div>

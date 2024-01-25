@@ -1,1260 +1,419 @@
 {
-  "ID_tree": {
-    "0": {
-      "ancestors": [],
-      "children": [
-        1,
-        2,
-        3,
-        4
-      ]
-    },
-    "1": {
-      "ancestors": [
-        0
-      ],
-      "children": []
-    },
-    "2": {
-      "ancestors": [
-        0
-      ],
-      "children": [
-        5,
-        6,
-        7
-      ]
-    },
-    "3": {
-      "ancestors": [
-        0
-      ],
-      "children": []
-    },
-    "4": {
-      "ancestors": [
-        0
-      ],
-      "children": [
-        8,
-        9
-      ]
-    },
-    "5": {
-      "ancestors": [
-        2,
-        0
-      ],
-      "children": [
-        10,
-        11,
-        12,
-        13
-      ]
-    },
-    "6": {
-      "ancestors": [
-        2,
-        0
-      ],
-      "children": []
-    },
-    "7": {
-      "ancestors": [
-        2,
-        0
-      ],
-      "children": []
-    },
-    "8": {
-      "ancestors": [
-        4,
-        0
-      ],
-      "children": []
-    },
-    "9": {
-      "ancestors": [
-        4,
-        0
-      ],
-      "children": [
-        14,
-        15
-      ]
-    },
-    "10": {
-      "ancestors": [
-        5,
-        2,
-        0
-      ],
-      "children": []
-    },
-    "11": {
-      "ancestors": [
-        5,
-        2,
-        0
-      ],
-      "children": []
-    },
-    "12": {
-      "ancestors": [
-        5,
-        2,
-        0
-      ],
-      "children": [
-        16,
-        17
-      ]
-    },
-    "13": {
-      "ancestors": [
-        5,
-        2,
-        0
-      ],
-      "children": [
-        18,
-        19
-      ]
-    },
-    "14": {
-      "ancestors": [
-        9,
-        4,
-        0
-      ],
-      "children": []
-    },
-    "15": {
-      "ancestors": [
-        9,
-        4,
-        0
-      ],
-      "children": []
-    },
-    "16": {
-      "ancestors": [
-        12,
-        5,
-        2,
-        0
-      ],
-      "children": []
-    },
-    "17": {
-      "ancestors": [
-        12,
-        5,
-        2,
-        0
-      ],
-      "children": []
-    },
-    "18": {
-      "ancestors": [
-        13,
-        5,
-        2,
-        0
-      ],
-      "children": []
-    },
-    "19": {
-      "ancestors": [
-        13,
-        5,
-        2,
-        0
-      ],
-      "children": []
-    }
+  "N_0": {
+    "name": "Top_Level",
+    "parent": null,
+    "children": ["N_1", "N_2", "N_3", "N_4", "A_0", "A_1", "A_2", "A_7"],
+    "modeller_class": "NodeComposite"
   },
-  "named_networks": {
-    "network__named_network": {
-      "control": [
-        "A-control"
-      ],
-      "gas": [
-        "A-gas"
-      ],
-      "liquid": [
-        "A-liquid"
-      ],
-      "material": [
-        "A-material"
-      ],
-      "reactions": [
-        "A-reactions"
-      ],
-      "solid": [
-        "A-solid"
-      ]
+  "N_1": {
+    "name": "TopSource",
+    "parent": "N_0",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|constant|infinity.Source",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "A-control": {
-      "colour": [
-        255,
-        255,
-        255,
-        100
-      ]
-    },
-    "A-gas": {
-      "colour": [
-        255,
-        255,
-        255,
-        100
-      ]
-    },
-    "A-liquid": {
-      "colour": [
-        255,
-        255,
-        255,
-        100
-      ]
-    },
-    "A-material": {
-      "colour": [
-        255,
-        255,
-        255,
-        100
-      ]
-    },
-    "A-reactions": {
-      "colour": [
-        255,
-        255,
-        255,
-        100
-      ]
-    },
-    "A-solid": {
-      "colour": [
-        255,
-        255,
-        255,
-        100
-      ]
-    }
+    "injected_typed_tokens": {},
+    "conversions": {}
   },
-  "nodes": {
-    "0": {
-      "name": "TopLevel",
-      "network": null,
-      "named_network": null,
-      "class": "node_composite",
-      "type": "node_composite",
-      "variant": null,
-      "instantiated_variables": {}
-    },
-    "1": {
-      "name": "TopSource",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "constant|infinity",
-      "variant": "Source",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "injected_typed_tokens": {}
-    },
-    "7": {
-      "name": "Pore1.1",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "dynamic|lumped",
-      "variant": "Pore",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "conversions": {},
-      "injected_typed_tokens": {}
-    },
-    "6": {
-      "name": "Pore1.2",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "dynamic|lumped",
-      "variant": "Pore",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "conversions": {},
-      "injected_typed_tokens": {}
-    },
-    "15": {
-      "name": "Pore2.1.1",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "dynamic|lumped",
-      "variant": "Pore",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "conversions": {},
-      "injected_typed_tokens": {}
-    },
-    "10": {
-      "name": "Pore1.1.2",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "dynamic|lumped",
-      "variant": "Pore",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "conversions": {},
-      "injected_typed_tokens": {}
-    },
-    "11": {
-      "name": "Pore1.1.1",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "dynamic|lumped",
-      "variant": "Pore",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "conversions": {},
-      "injected_typed_tokens": {}
-    },
-    "5": {
-      "name": "Composite1.1",
-      "network": "composite",
-      "named_network": "node_composite",
-      "class": "node_composite",
-      "type": "node_composite",
-      "variant": "Pore",
-      "instantiated_variables": {}
-    },
-    "2": {
-      "name": "TopComposite1",
-      "network": "composite",
-      "named_network": "node_composite",
-      "class": "node_composite",
-      "type": "node_composite",
-      "variant": "Pore",
-      "instantiated_variables": {}
-    },
-    "8": {
-      "name": "Pore2.1",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "dynamic|lumped",
-      "variant": "Pore",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "conversions": {},
-      "injected_typed_tokens": {}
-    },
-    "3": {
-      "name": "TopPore",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "dynamic|lumped",
-      "variant": "Pore",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "conversions": {},
-      "injected_typed_tokens": {}
-    },
-    "4": {
-      "name": "TopComposite2",
-      "network": "composite",
-      "named_network": "node_composite",
-      "class": "node_composite",
-      "type": "node_composite",
-      "variant": "Pore",
-      "instantiated_variables": {}
-    },
-    "14": {
-      "name": "Pore2.1.2",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "dynamic|lumped",
-      "variant": "Pore",
-      "instantiated_variables": {},
-      "tokens": {},
-      "conversions": {},
-      "injected_typed_tokens": {}
-    },
-    "9": {
-      "name": "Composite2.1",
-      "network": "composite",
-      "named_network": "node_composite",
-      "class": "node_composite",
-      "type": "node_composite",
-      "variant": "Pore",
-      "instantiated_variables": {}
-    },
-    "17": {
-      "name": "Source1.1.1.2",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "constant|infinity",
-      "variant": "Source",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "injected_typed_tokens": {}
-    },
-    "16": {
-      "name": "Source1.1.1.1",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "constant|infinity",
-      "variant": "Source",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "injected_typed_tokens": {}
-    },
-    "12": {
-      "name": "Composite1.1.1",
-      "network": "composite",
-      "named_network": "node_composite",
-      "class": "node_composite",
-      "type": "node_composite",
-      "variant": "Pore",
-      "instantiated_variables": {}
-    },
-    "19": {
-      "name": "Source1.1.2.1",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "constant|infinity",
-      "variant": "Source",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "injected_typed_tokens": {}
-    },
-    "18": {
-      "name": "Source1.1.2.2",
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "class": "node_simple",
-      "type": "constant|infinity",
-      "variant": "Source",
-      "instantiated_variables": {},
-      "tokens": {
-        "mass": []
-      },
-      "injected_typed_tokens": {}
-    },
-    "13": {
-      "name": "Composite1.1.2",
-      "network": "composite",
-      "named_network": "node_composite",
-      "class": "node_composite",
-      "type": "node_composite",
-      "variant": "Pore",
-      "instantiated_variables": {}
-    }
+  "N_2": {
+    "name": "TopComposite1",
+    "parent": "N_0",
+    "children": ["N_5", "N_6", "N_7", "A_3", "A_4"],
+    "modeller_class": "NodeComposite"
   },
-  "domains": {},
-  "arcs": {
-    "0": {
-      "name": "1 | 2",
-      "source": 1,
-      "sink": 7,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
+  "N_3": {
+    "name": "TopPore",
+    "parent": "N_0",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "1": {
-      "name": "1 | 3",
-      "source": 1,
-      "sink": 6,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "2": {
-      "name": "1 | 4",
-      "source": 1,
-      "sink": 15,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "3": {
-      "name": "3 | 6",
-      "source": 6,
-      "sink": 11,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "4": {
-      "name": "3 | 5",
-      "source": 6,
-      "sink": 10,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "5": {
-      "name": "5 | 6",
-      "source": 10,
-      "sink": 11,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "6": {
-      "name": "4 | 9",
-      "source": 15,
-      "sink": 8,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "7": {
-      "name": "4 | 10",
-      "source": 15,
-      "sink": 3,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "8": {
-      "name": "15 | 5",
-      "source": 16,
-      "sink": 10,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "9": {
-      "name": "14 | 5",
-      "source": 17,
-      "sink": 10,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "10": {
-      "name": "17 | 6",
-      "source": 19,
-      "sink": 11,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    },
-    "11": {
-      "name": "18 | 6",
-      "source": 18,
-      "sink": 11,
-      "token": "mass",
-      "typed_tokens": [],
-      "network": "liquid",
-      "named_network": "A-liquid",
-      "mechanism": "diffusion",
-      "nature": "lumped",
-      "variant": "New_Connection",
-      "instantiated_variables": {}
-    }
+    "injected_typed_tokens": {},
+    "conversions": {}
   },
-  "scenes": {
-    "0": {
-      "nodes": {
-        "1": {
-          "position_x": -305.0,
-          "position_y": -63.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "2": {
-          "position_x": -78.0,
-          "position_y": -236.0,
-          "root": {
-            "position_x": -20,
-            "position_y": -20
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          }
-        },
-        "3": {
-          "position_x": -18.0,
-          "position_y": -97.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "4": {
-          "position_x": -151.0,
-          "position_y": 98.0,
-          "root": {
-            "position_x": -20,
-            "position_y": -20
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          }
-        }
-      },
-      "arcs": {
-        "0": [
-          [
-            -234.5,
-            -171.5
-          ]
-        ],
-        "1": [
-          [
-            -206.0,
-            -97.0
-          ]
-        ],
-        "2": [
-          [
-            -222.5,
-            16.0
-          ]
-        ],
-        "7": [
-          [
-            -79.0,
-            -1.0
-          ]
-        ]
-      }
+  "N_4": {
+    "name": "TopComposite2",
+    "parent": "N_0",
+    "children": ["N_8", "N_9", "A_6"],
+    "modeller_class": "NodeComposite"
+  },
+  "N_5": {
+    "name": "Composite1.1",
+    "parent": "N_2",
+    "children": ["N_10", "N_11", "N_12", "N_13", "A_5", "A_8", "A_9", "A_10", "A_11"],
+    "modeller_class": "NodeComposite"
+  },
+  "N_6": {
+    "name": "Pore1.2",
+    "parent": "N_2",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "1": {
-      "nodes": {},
-      "arcs": {
-        "0": [],
-        "1": [],
-        "2": []
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_7": {
+    "name": "Pore1.1",
+    "parent": "N_2",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "7": {
-      "nodes": {},
-      "arcs": {
-        "0": []
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_8": {
+    "name": "Pore2.1",
+    "parent": "N_4",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "6": {
-      "nodes": {},
-      "arcs": {
-        "1": [],
-        "3": [],
-        "4": []
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_9": {
+    "name": "Composite2.1",
+    "parent": "N_4",
+    "children": ["N_14", "N_15"],
+    "modeller_class": "NodeComposite"
+  },
+  "N_10": {
+    "name": "Pore1.1.2",
+    "parent": "N_5",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "15": {
-      "nodes": {},
-      "arcs": {
-        "2": [],
-        "6": [],
-        "7": []
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_11": {
+    "name": "Pore1.1.1",
+    "parent": "N_5",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "10": {
-      "nodes": {},
-      "arcs": {
-        "4": [],
-        "5": [],
-        "8": [],
-        "9": []
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_12": {
+    "name": "Composite1.1.1",
+    "parent": "N_5",
+    "children": ["N_16", "N_17"],
+    "modeller_class": "NodeComposite"
+  },
+  "N_13": {
+    "name": "Composite1.1.2",
+    "parent": "N_5",
+    "children": ["N_18", "N_19"],
+    "modeller_class": "NodeComposite"
+  },
+  "N_14": {
+    "name": "Pore2.1.2",
+    "parent": "N_9",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "11": {
-      "nodes": {},
-      "arcs": {
-        "3": [],
-        "5": [],
-        "10": [],
-        "11": []
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_15": {
+    "name": "Pore2.1.1",
+    "parent": "N_9",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "5": {
-      "nodes": {
-        "10": {
-          "position_x": 66.0,
-          "position_y": 30.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "11": {
-          "position_x": -33.0,
-          "position_y": -266.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "12": {
-          "position_x": -249.0,
-          "position_y": 118.0,
-          "root": {
-            "position_x": -20,
-            "position_y": -20
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          }
-        },
-        "13": {
-          "position_x": -305.0,
-          "position_y": -168.0,
-          "root": {
-            "position_x": -20,
-            "position_y": -20
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          }
-        }
-      },
-      "arcs": {
-        "5": [
-          [
-            -33.5,
-            -74.5
-          ]
-        ],
-        "3": [
-          [
-            137.5,
-            -312.5
-          ]
-        ],
-        "4": [
-          [
-            165.5,
-            -60.5
-          ]
-        ],
-        "8": [
-          [
-            -67.0,
-            43.0
-          ]
-        ],
-        "9": [
-          [
-            -19.0,
-            111.5
-          ]
-        ],
-        "10": [
-          [
-            -173.5,
-            -242.0
-          ]
-        ],
-        "11": [
-          [
-            -132.5,
-            -171.0
-          ]
-        ]
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_16": {
+    "name": "Source1.1.1.1",
+    "parent": "N_12",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|constant|infinity.Source",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "2": {
-      "nodes": {
-        "5": {
-          "position_x": 101.0,
-          "position_y": -88.0,
-          "root": {
-            "position_x": -20,
-            "position_y": -20
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          }
-        },
-        "6": {
-          "position_x": -106.0,
-          "position_y": -127.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "7": {
-          "position_x": -163.0,
-          "position_y": -276.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        }
-      },
-      "arcs": {
-        "3": [
-          [
-            -14.5,
-            -130.5
-          ]
-        ],
-        "4": [
-          [
-            -20.0,
-            -48.5
-          ]
-        ],
-        "0": [
-          [
-            40.5,
-            -302.5
-          ]
-        ],
-        "1": [
-          [
-            169.5,
-            -238.5
-          ]
-        ]
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_17": {
+    "name": "Source1.1.1.2",
+    "parent": "N_12",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|constant|infinity.Source",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "8": {
-      "nodes": {},
-      "arcs": {
-        "6": []
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_18": {
+    "name": "Source1.1.2.2",
+    "parent": "N_13",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|constant|infinity.Source",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "3": {
-      "nodes": {},
-      "arcs": {
-        "7": []
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "N_19": {
+    "name": "Source1.1.2.1",
+    "parent": "N_13",
+    "children": [],
+    "modeller_class": "NodeSimple",
+    "entity_name": "macroscopic.node.mass|constant|infinity.Source",
+    "instantiated_variables": {},
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "tokens": {
+      "mass": []
     },
-    "4": {
-      "nodes": {
-        "8": {
-          "position_x": 71.0,
-          "position_y": 97.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": -5.0,
-            "position_y": 46.0
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "9": {
-          "position_x": -255.0,
-          "position_y": 104.0,
-          "root": {
-            "position_x": -20,
-            "position_y": -20
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          }
-        }
-      },
-      "arcs": {
-        "6": [
-          [
-            -34.5,
-            96.0
-          ]
-        ],
-        "2": [
-          [
-            -222.5,
-            16.0
-          ]
-        ],
-        "7": [
-          [
-            -79.0,
-            -1.0
-          ]
-        ]
-      }
+    "injected_typed_tokens": {},
+    "conversions": {}
+  },
+  "A_0": {
+    "name": "N_1 | N_7",
+    "parent": "N_0",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
     },
-    "14": {
-      "nodes": {},
-      "arcs": {}
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_1",
+    "sink": "N_7"
+  },
+  "A_1": {
+    "name": "N_1 | N_6",
+    "parent": "N_0",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
     },
-    "9": {
-      "nodes": {
-        "14": {
-          "position_x": -288.0,
-          "position_y": 201.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "15": {
-          "position_x": -140.0,
-          "position_y": 95.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        }
-      },
-      "arcs": {
-        "6": [
-          [
-            -34.5,
-            96.0
-          ]
-        ],
-        "2": [
-          [
-            -222.5,
-            16.0
-          ]
-        ],
-        "7": [
-          [
-            -79.0,
-            -1.0
-          ]
-        ]
-      }
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_1",
+    "sink": "N_6"
+  },
+  "A_2": {
+    "name": "N_1 | N_15",
+    "parent": "N_0",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
     },
-    "17": {
-      "nodes": {},
-      "arcs": {
-        "9": []
-      }
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_1",
+    "sink": "N_15"
+  },
+  "A_3": {
+    "name": "N_6 | N_11",
+    "parent": "N_2",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
     },
-    "16": {
-      "nodes": {},
-      "arcs": {
-        "8": []
-      }
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_6",
+    "sink": "N_11"
+  },
+  "A_4": {
+    "name": "N_6 | N_10",
+    "parent": "N_2",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
     },
-    "12": {
-      "nodes": {
-        "16": {
-          "position_x": -200.0,
-          "position_y": 56.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "17": {
-          "position_x": -104.0,
-          "position_y": 193.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        }
-      },
-      "arcs": {
-        "8": [
-          [
-            -67.0,
-            43.0
-          ]
-        ],
-        "9": [
-          [
-            -19.0,
-            111.5
-          ]
-        ]
-      }
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_6",
+    "sink": "N_10"
+  },
+  "A_5": {
+    "name": "N_10 | N_11",
+    "parent": "N_5",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
     },
-    "19": {
-      "nodes": {},
-      "arcs": {
-        "10": []
-      }
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_10",
+    "sink": "N_11"
+  },
+  "A_6": {
+    "name": "N_8 | N_15",
+    "parent": "N_4",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
     },
-    "18": {
-      "nodes": {},
-      "arcs": {
-        "11": []
-      }
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_8",
+    "sink": "N_15"
+  },
+  "A_7": {
+    "name": "N_3 | N_15",
+    "parent": "N_0",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
     },
-    "13": {
-      "nodes": {
-        "18": {
-          "position_x": -232.0,
-          "position_y": -76.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        },
-        "19": {
-          "position_x": -314.0,
-          "position_y": -218.0,
-          "root": {
-            "position_x": 0,
-            "position_y": 0
-          },
-          "name": {
-            "position_x": 0,
-            "position_y": 50
-          },
-          "network": {
-            "position_x": -15,
-            "position_y": 0
-          },
-          "named_network": {
-            "position_x": -20,
-            "position_y": 0
-          }
-        }
-      },
-      "arcs": {
-        "10": [
-          [
-            -173.5,
-            -242.0
-          ]
-        ],
-        "11": [
-          [
-            -132.5,
-            -171.0
-          ]
-        ]
-      }
-    }
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_3",
+    "sink": "N_15"
+  },
+  "A_8": {
+    "name": "N_10 | N_16",
+    "parent": "N_5",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
+    },
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_10",
+    "sink": "N_16"
+  },
+  "A_9": {
+    "name": "N_10 | N_17",
+    "parent": "N_5",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
+    },
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_10",
+    "sink": "N_17"
+  },
+  "A_10": {
+    "name": "N_11 | N_19",
+    "parent": "N_5",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
+    },
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_11",
+    "sink": "N_19"
+  },
+  "A_11": {
+    "name": "N_11 | N_18",
+    "parent": "N_5",
+    "children": [],
+    "modeller_class": "Arc",
+    "entity_name": "macroscopic.arc.mass|diffusion|lumped.ConnectionDiffusion",
+    "instantiated_variables": {},
+    "tokens": {
+      "mass": []
+    },
+    "network": "liquid",
+    "named_network": "A-liquid",
+    "source": "N_11",
+    "sink": "N_18"
   }
 }
