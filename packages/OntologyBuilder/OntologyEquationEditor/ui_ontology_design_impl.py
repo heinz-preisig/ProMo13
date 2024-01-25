@@ -20,7 +20,6 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 import os
-import time
 from datetime import datetime
 from pathlib import Path
 
@@ -32,8 +31,6 @@ from pydotplus.graphviz import Edge
 from pydotplus.graphviz import Node
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QProgressDialog
-from PyQt5.QtWidgets import QSizePolicy
 
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import getOntologyName
@@ -82,7 +79,7 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
 
 # Note: keep
-from Common.classes.io import translate_equations  # must be last
+# from Common.classes.io import translate_equations  # must be last
 
 # RULE: fixed wired for initialisation -- needs to be more generic
 INITIALVARIABLE_TYPES = {
@@ -136,10 +133,9 @@ class UiOntologyDesign(QMainWindow):
     roundButton(self.ui.pushShowPDF, "PDF",
                 tooltip="show pdf variable equation documentation")
     roundButton(self.ui.pushExit, "off", tooltip="exit")
-    roundButton(self.ui.pushMakeInterfaceEquations,"plus",
+    roundButton(self.ui.pushMakeInterfaceEquations, "plus",
                 "display table for generating new interface equations")
     roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
-
 
     self.ui.pushShowVariables.hide()
     self.radio = [
@@ -264,13 +260,13 @@ class UiOntologyDesign(QMainWindow):
 
   def on_pushShowInterfaceEquations_pressed(self):
     print("debugging -- radioShowInterfaceEquations")
-    hide = (["LaTex", "dot", "next","port"])
+    hide = (["LaTex", "dot", "next", "port"])
     self.table_variables = UI_VariableTableDeleteEquation("delete interface equations",
-                                                  self.variables,
-                                                  self.indices,
-                                                  self.current_network,
-                                                  info_file=FILES["info_ontology_variable_table"],
-                                                  )
+                                                          self.variables,
+                                                          self.indices,
+                                                          self.current_network,
+                                                          info_file=FILES["info_ontology_variable_table"],
+                                                          )
     self.table_variables.show()
 
   def on_pushAddIndex_pressed(self):
@@ -392,7 +388,7 @@ class UiOntologyDesign(QMainWindow):
     modified = False
     for v in self.variables:
       modified = self.starttime < self.variables[v].modified
-        # print("debugg -- modified")
+      # print("debugg -- modified")
       break
 
     if variable_list != self.initial_variable_list:
@@ -465,7 +461,6 @@ class UiOntologyDesign(QMainWindow):
       # self.__setupEditInterface()
       # self.__showFilesControl()
       # self.ui.pushShowVariables.show()
-
 
   @QtCore.pyqtSlot(int)
   def on_tabWidget_currentChanged(self, which):
@@ -712,7 +707,6 @@ class UiOntologyDesign(QMainWindow):
       e = self.compiled_equations[language][equ_ID]
       file.write("%s :: %s = %s\n" % (equ_ID, e["lhs"], e["rhs"]))
     file.close()
-
 
   def __compile(self, language):
 
@@ -1051,7 +1045,6 @@ class UiOntologyDesign(QMainWindow):
     # self.ui.groupFiles.show()
     self.ui.pushWrite.show()
 
-
   def closeEvent(self, event):
     self.close_children(event)
     self.close()
@@ -1261,8 +1254,6 @@ class UiOntologyDesign(QMainWindow):
       print("cwd", os.getcwd(), "--", file_name + ".tex")
 
     os.chdir(original_work_dir)
-
-
 
   def mousePressEvent(self, event):
     self.oldPos = event.globalPos()

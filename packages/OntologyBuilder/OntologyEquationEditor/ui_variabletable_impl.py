@@ -13,10 +13,7 @@
 
 __author__ = "Preisig, Heinz A"
 
-from Common.resource_initialisation import FILES
 from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
-
-# from Common.record_definitions import makeInitialAliases
 
 MAX_HEIGHT = 800
 
@@ -42,7 +39,6 @@ from OntologyBuilder.OntologyEquationEditor.ui_symbol_impl import UI_SymbolDialo
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from OntologyBuilder.OntologyEquationEditor.variable_framework import simulateDeletion
 from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
-
 
 
 class UI_VariableTableDialog(VariableTable):
@@ -93,7 +89,6 @@ class UI_VariableTableDialog(VariableTable):
     self.selected_variable_type = choice
     self.tokens_on_networks = tokens_on_networks
 
-
     VariableTable.__init__(self,
                            title,
                            "variable_picking",
@@ -109,10 +104,10 @@ class UI_VariableTableDialog(VariableTable):
 
     buttons = self.buttons
 
-    showButtons = {"back" :     roundButton(buttons["back"], "back", tooltip="go back"),
-                   "info":    roundButton(buttons["info"], "info", tooltip="information"),
-                   "new" :     roundButton(buttons["new"], "dependent_variable", tooltip="new dependent variable"),
-                   "port":     roundButton(buttons["port"], "port", tooltip="new port variable"),
+    showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
+                   "info": roundButton(buttons["info"], "info", tooltip="information"),
+                   "new" : roundButton(buttons["new"], "dependent_variable", tooltip="new dependent variable"),
+                   "port": roundButton(buttons["port"], "port", tooltip="new port variable"),
                    }
 
     for b in buttons:
@@ -139,6 +134,8 @@ class UI_VariableTableDialog(VariableTable):
 
     # self.setToolTips("edit")  # FIXME: this does not work. appears to be a pyqt issue.
 
+    self.ui.tableVariable.setSortingEnabled(True)
+
   def show(self):
     self.reset_table()
     QtWidgets.QDialog.show(self)
@@ -154,11 +151,10 @@ class UI_VariableTableDialog(VariableTable):
   def protect_variable_type(self, variable_types):  # TODO may be useful
     self.protected_variable_types = variable_types
 
-
   def __showDeleteDialog(self, selected_ID):
     port_variable = self.variables[selected_ID].port_variable
     if port_variable:
-      reply = makeMessageBox("this is a port variable -- do you want to delete it ?",buttons=["NO","YES"])
+      reply = makeMessageBox("this is a port variable -- do you want to delete it ?", buttons=["NO", "YES"])
       if reply == 'NO':
         return
 
@@ -169,21 +165,20 @@ class UI_VariableTableDialog(VariableTable):
     eqs = list(d_equs)
     loc = self.variables.ontology_container.latex_image_location
     if eqs == []:
-      answer = makeMessageBox("no equations detelet variable?", buttons=["YES","NO"],default="NO",infotext="delete ?" )
+      answer = makeMessageBox("no equations detelet variable?", buttons=["YES", "NO"], default="NO", infotext="delete ?")
       delete = answer == "YES"
 
     else:
-      dialog = UI_ShowVariableEquation(eqs, loc ,
+      dialog = UI_ShowVariableEquation(eqs, loc,
                                        mode="show",
                                        prompt="delete those equations?",
-                                       buttons=["accept","reject"])
+                                       buttons=["accept", "reject"])
       delete = dialog.answer == "accept"
 
     if delete:
       # print("debugging -- yes")
       self.__deleteVariable(d_vars, d_equs)
       self.reset_table()
-
 
   def __deleteVariable(self, d_vars, d_equs):
     print("going to delete: \n...variables:%s \n...equations %s" % (d_vars, d_equs))
@@ -204,13 +199,12 @@ class UI_VariableTableDialog(VariableTable):
                             prompt="These are the equations:",
                             buttons=["back"])
 
-
   def __iriDialog(self, v):
     label = v.label
     iri = v.IRI
     iri_getter = UI_QUDTFetch_IRI(label, iri)
     iri_getter.exec_()
-    iri,new_iri = iri_getter.getSelection()
+    iri, new_iri = iri_getter.getSelection()
     print("debugging:", new_iri, iri)
     if iri:
       iri_before = copy(v.IRI)
@@ -258,7 +252,7 @@ class UI_VariableTableDialog(VariableTable):
     # 7 delete
     # 8 network
     # 9 variable ID
-    #10 IRI
+    # 10 IRI
 
     c = int(item.column())
     r = int(item.row())
@@ -267,9 +261,11 @@ class UI_VariableTableDialog(VariableTable):
     item = self.ui.tableVariable.item
     self.selected_variable_type = str(item(r, 0).text())  # DOC: here I know if a new dimension must be generated
 
+    selected_ID = str(item(r, 9).text())
+
     # picking only
     try:
-      self.selected_variable_symbol = str(item(r, 1).text())   # in some circumstances this can be empty.
+      self.selected_variable_symbol = str(item(r, 1).text())  # in some circumstances this can be empty.
     except:
       return
 
@@ -279,7 +275,6 @@ class UI_VariableTableDialog(VariableTable):
 
     # do not allow changing of units and index sets once in use or is defined via equation
 
-    selected_ID = self.variables_in_table[r]
     self.selected_ID = selected_ID
     v = self.variables[selected_ID]
 
@@ -287,43 +282,42 @@ class UI_VariableTableDialog(VariableTable):
     not_yet_used = (self.variables.inv_incidence_dictionary[selected_ID] == []) and \
                    (len(self.variables[selected_ID].equations.keys()) == 0)
 
-
     if c == 0:
       self.__change_variable_type_dialogue()
       return
 
     # execute requested command
-    if c == 1: # symbol
+    if c == 1:  # symbol
       # print("clicked 1 - symbol ", self.selected_variable_symbol)
       self.__changeSymbol(v)
-    elif c == 2: # description
+    elif c == 2:  # description
       # print("clicked 2 - description ", v.doc)
       self.__changeDocumentation(v)
-    elif c == 3: # token todo: obsolete ?
+    elif c == 3:  # token todo: obsolete ?
       self.__changeToken(v)
       # print("debugging token dialog")
-    elif c == 4: # units
+    elif c == 4:  # units
       print("clicked 4 - units ", v.units)
       if not_yet_used:
         self.__changeUnits(v)
-    elif c == 5: # indices
+    elif c == 5:  # indices
       # print("clicked 5 - indexing ", v.index_structures)
       if not_yet_used:
         self.__changeIndexing(v)
-    elif c == 6: # number of equations
+    elif c == 6:  # number of equations
       # print("clicked 6 - equations ", selected_number_of_equations)
       if v.port_variable:
         reply = makeMessageBox("this is a port variable", buttons=["close"])
         # return
       self.new_equation.emit(selected_ID)
-    elif c == 7: # delete variable
+    elif c == 7:  # delete variable
       # print("clicked 7 - delete ")
       self.__showDeleteDialog(selected_ID)
     elif c == 8:  # network
       pass
     elif c == 9:  # variable ID
       self.showVariableEquations(v)
-    elif c == 10: # IRI
+    elif c == 10:  # IRI
       # print("clicked 10 -- IRI")
       self.__iriDialog(v)
     return
@@ -352,8 +346,8 @@ class UI_VariableTableDialog(VariableTable):
     enabled_columns = ENABLED_COLUMNS["edit"]["constant"]
     self.enable_column_selection(enabled_columns)
 
-  def __changeSymbol(self, variable): #, forbidden_symbols):
-    accessible_variables_per_class = self.variables.index_accessible_variables_on_networks[self.network]#nameSpacesForVariableLabelGlobal
+  def __changeSymbol(self, variable):  # , forbidden_symbols):
+    accessible_variables_per_class = self.variables.index_accessible_variables_on_networks[self.network]  # nameSpacesForVariableLabelGlobal
     forbidden_symbols = []
     for var_classes in accessible_variables_per_class:
       for var_ID in accessible_variables_per_class[var_classes]:
@@ -374,7 +368,7 @@ class UI_VariableTableDialog(VariableTable):
     self.phys_var = phys_var
     # version_change: the rule for the oonnection interfaces is too constraint
     if CONNECTION_NETWORK_SEPARATOR in phys_var.network:
-      [source,sink] =  phys_var.network.split(CONNECTION_NETWORK_SEPARATOR)
+      [source, sink] = phys_var.network.split(CONNECTION_NETWORK_SEPARATOR)
       left_indices = set()
       right_indices = set()
       for id in self.indices:
@@ -390,7 +384,6 @@ class UI_VariableTableDialog(VariableTable):
     else:
       self.label_ID_dict = self.__getIndexListPerNetwork(self.network)
       index_structures_labels = [self.indices[ind_ID]["label"] for ind_ID in self.label_ID_dict.keys()]
-
 
     try:
       del self.ui_selector
@@ -432,7 +425,7 @@ class UI_VariableTableDialog(VariableTable):
       if len(tokens_not_linked) == 0:
         return
     print("debugging -- token list generation", tokens)
-    self.phys_var = phys_var                          # used to change things
+    self.phys_var = phys_var  # used to change things
     try:
       del self.ui_selector
     except:
@@ -451,7 +444,6 @@ class UI_VariableTableDialog(VariableTable):
       self.phys_var.modified = dateString()
     self.reset_table()
 
-
   def on_pushFinished_pressed(self):
     self.closeEvent(None)
 
@@ -459,7 +451,6 @@ class UI_VariableTableDialog(VariableTable):
     for ID in self.variables:
       if self.variables[ID].label == NEW_VAR:
         self.variables.removeVariable(ID)
-
 
     try:
       self.ui_symbol.close()
@@ -484,7 +475,6 @@ class UI_VariableTableDialog(VariableTable):
       self.ui_documentation.close()
     except:
       pass
-
 
     self.completed.emit("close")
 
