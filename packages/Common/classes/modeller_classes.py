@@ -19,12 +19,25 @@ Classes:
 
 Each class is documented in detail within its own docstring.
 """
+import copy
+from mimetypes import init
 from typing import List, Optional, Dict
+from typing_extensions import Self
+from enum import Enum
+import json
 
 from packages.Common.classes import entity
 
 # Define type aliases
 InstantiationDict = Dict[str, Dict[str, Optional[str]]]
+
+
+class NodeType(Enum):
+  NODE_SIMPLE = 1
+  ARC = 2
+  INTERFACE = 3
+
+# TODO: Implement the from_json methods in all the classes, fix io and test
 
 
 class TopologyObject:
@@ -64,11 +77,25 @@ class TopologyObject:
   # TODO: Make custom class for the return value
   def to_json(self):
     class_dict = {}
+    class_dict["identifier"] = self.identifier
     class_dict["name"] = self.name
     class_dict["parent_id"] = self.parent_id
     class_dict["modeller_class"] = self.__class__.__name__
 
     return class_dict
+
+  @classmethod
+  def from_json(
+      cls,
+      data: Dict,
+      all_entities: Dict[str, entity.Entity],
+  ) -> Self:
+    init_data = copy.deepcopy(data)
+
+    # Only used to decide which class should be used
+    del init_data["modeller_class"]
+
+    return cls(**init_data)
 
 
 class NodeComposite(TopologyObject):
@@ -105,64 +132,69 @@ class NodeComposite(TopologyObject):
 
 
 class EntityContainer(TopologyObject):
-  """
-  Represents a Topology Object linked to an Entity.
+  # """
+  # Represents a Topology Object linked to an Entity.
 
-  Inheritance:
-      Inherits from :class:`TopologyObject`.
+  # Inheritance:
+  #     Inherits from :class:`TopologyObject`.
 
-  Attributes:
-      entity_instance (:class:`Entity`): The entity instance associated
-       with the EntityContainer.
-      network (str): The network that the entity is part of.
-      named_network (str): The named network associated with the entity.
-      tokens (List[str]): The list of tokens associated with the entity.
-      typed_tokens (Dict[str, List[str]]): The typed tokens associated
-       with the entity.
-      instantiated_variables (InstantiationDict, optional): The
-       instantiated variables associated with the entity. Defaults to
-       **None**.
-  """
+  # Attributes:
+  #     entity_instance (:class:`Entity`): The entity instance associated
+  #      with the EntityContainer.
+  #     network (str): The network that the entity is part of.
+  #     named_network (str): The named network associated with the entity.
+  #     tokens (List[str]): The list of tokens associated with the entity.
+  #     typed_tokens (Dict[str, List[str]]): The typed tokens associated
+  #      with the entity.
+  #     instantiated_variables (InstantiationDict, optional): The
+  #      instantiated variables associated with the entity. Defaults to
+  #      **None**.
+  # """
 
   def __init__(
       self,
       identifier: str,
       name: str,
+      subtype: NodeType,
       entity_instance: entity.Entity,
       network: str,
       named_network: str,
       tokens: List[str],
       typed_tokens: Dict[str, List[str]],
       parent_id: Optional[str] = None,
-      # TODO: Change this when the instantiated variableshave all the same type
+      conversions: Optional[str] = None,
       instantiated_variables: Optional[InstantiationDict] = None,
+      outgoing_nodes: Optional[List[str]] = None
   ):
-    """
-    Initializes an EntityContainer instance.
+    # """
+    # Initializes an EntityContainer instance.
 
-    Args:
-        entity_instance (Entity): The entity instance associated with
-         the EntityContainer.
-        network (str): The network that the entity is part of.
-        named_network (str): The named network associated with the
-         entity.
-        tokens (List[str]): The list of tokens associated with the
-         entity.
-        typed_tokens (Dict[str, List[str]]): The typed tokens associated
-         with the entity.
-        instantiated_variables (InstantiationDict, optional): The
-         instantiated variables associated with the entity. Defaults to
-         **None**.
-    """
+    # Args:
+    #     entity_instance (Entity): The entity instance associated with
+    #      the EntityContainer.
+    #     network (str): The network that the entity is part of.
+    #     named_network (str): The named network associated with the
+    #      entity.
+    #     tokens (List[str]): The list of tokens associated with the
+    #      entity.
+    #     typed_tokens (Dict[str, List[str]]): The typed tokens associated
+    #      with the entity.
+    #     instantiated_variables (InstantiationDict, optional): The
+    #      instantiated variables associated with the entity. Defaults to
+    #      **None**.
+    # """
     super().__init__(identifier, name, parent_id)
 
+    self.subtype = subtype
     self.entity_instance = entity_instance
     self.network = network
     self.named_network = named_network
     self.tokens = tokens
     self.typed_tokens = typed_tokens
+    self.conversions = conversions
     self.instantiated_variables: InstantiationDict = \
         instantiated_variables or {}
+    self.outgoing_nodes = outgoing_nodes or []
 
     # Adding the variables marked for initialization in the entity
     for var_id in self.entity_instance.get_init_vars():
@@ -236,6 +268,7 @@ class EntityContainer(TopologyObject):
         AssertionError: If var_id is not in instantiated_variables or if
          typed_token is not in typed_tokens["mass"].
     """
+    # TODO: Replace with proper exception handling
     assert var_id in self.instantiated_variables, \
         f"ERROR: {var_id} not in instantiated variables."
 
@@ -246,100 +279,185 @@ class EntityContainer(TopologyObject):
     else:
       self.instantiated_variables[var_id]["default"] = value
 
+  def add_ougoing_node(self, node_id: str) -> None:
+    self.outgoing_nodes.append(node_id)
+
   def to_json(self):
     class_dict = super().to_json()
+    class_dict["subtype"] = self.subtype.value
     class_dict["entity_name"] = self.entity_instance.get_entity_name()
     class_dict["network"] = self.network
     class_dict["named_network"] = self.named_network
     class_dict["tokens"] = self.tokens
     class_dict["typed_tokens"] = self.typed_tokens
-    class_dict["instantiated_variables"] = self.instantiated_variables
-
-    return class_dict
-
-
-class Arc(EntityContainer):
-  """
-  Represents an Arc, a specific type of EntityContainer.
-
-  Inheritance:
-      Inherits from :class:`EntityContainer`.
-
-  Attributes:
-      source (str): The source node of the arc.
-      sink (str): The sink node of the arc.
-  """
-
-  def __init__(
-      self,
-      identifier: str,
-      name: str,
-      entity_instance: entity.Entity,
-      tokens: List[str],
-      typed_tokens: Dict[str, List[str]],
-      network: str,
-      named_network: str,
-      source: str,
-      sink: str,
-      parent_id: Optional[str] = None,
-      instantiated_variables: Optional[InstantiationDict] = None,
-  ):
-    super().__init__(identifier, name, entity_instance, network, named_network,
-                     tokens, typed_tokens, parent_id, instantiated_variables)
-
-    self.source = source
-    self.sink = sink
-
-  def to_json(self):
-    class_dict = super().to_json()
-    class_dict["source"] = self.source
-    class_dict["sink"] = self.sink
-
-    return class_dict
-
-
-class NodeSimple(EntityContainer):
-  """
-  Represents a NodeSimple, a specific type of EntityContainer.
-
-  Inheritance:
-      Inherits from :class:`EntityContainer`.
-
-  Attributes:
-      conversions (str): The conversions associated with the node.
-      injected_typed_tokens (Dict[str, str], optional): The injected
-       typed tokens associated with the node.
-  """
-
-  def __init__(
-      self,
-      identifier: str,
-      name: str,
-      entity_instance: entity.Entity,
-      tokens: List[str],
-      typed_tokens: Dict[str, List[str]],
-      network: str,
-      named_network: str,
-      conversions: str,
-      parent_id: Optional[str] = None,
-      instantiated_variables: Optional[InstantiationDict] = None,
-      injected_typed_tokens: Optional[Dict[str, str]] = None,
-  ):
-    super().__init__(identifier, name, entity_instance, network, named_network,
-                     tokens, typed_tokens, parent_id, instantiated_variables)
-    self.conversions = conversions
-    self.injected_typed_tokens = injected_typed_tokens
-
-  def to_json(self):
-    class_dict = super().to_json()
     class_dict["conversions"] = self.conversions
-    class_dict["injected_typed_tokens"] = self.injected_typed_tokens
+    class_dict["instantiated_variables"] = self.instantiated_variables
+    class_dict["outgoing_nodes"] = self.outgoing_nodes
 
     return class_dict
+
+  @classmethod
+  def from_json(
+      cls,
+      data: Dict,
+      all_entities: Dict[str, entity.Entity],
+  ) -> Self:
+    init_data = copy.deepcopy(data)
+
+    # Only used to decide which class should be used
+    del init_data["modeller_class"]
+
+    # Switching to the entity object from its name
+    init_data["entity_instance"] = all_entities[
+        init_data.pop("entity_name")
+    ]
+
+    # Switching to the enum object form its value
+    init_data["subtype"] = NodeType(init_data["subtype"])
+
+    return cls(**init_data)
 
 
 modeller_class_mapping = {
     "NodeComposite": NodeComposite,
-    "NodeSimple": NodeSimple,
-    "Arc": Arc,
+    "EntityContainer": EntityContainer
+    # "NodeSimple": NodeSimple,
+    # "Arc": Arc,
 }
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+  """Custom encoder for Topology Objects."""
+
+  def default(self, o):
+    """Represents data from Topology Objects as a dictionary.
+
+    Args:
+        o (TopologyObject): Topology Object that will be encoded.
+
+    Returns:
+        dict: The dictionary representation of the TopologyObject. If
+          the object is not an Topology Object instance then the default
+          representation is returned.
+    """
+    if isinstance(o, TopologyObject):
+      return o.to_json()
+
+    return super().default(o)
+
+
+def custom_decoder_factory(all_entities: Dict[str, entity.Entity]):
+  class CustomJSONDecoder(json.JSONDecoder):
+    """Custom decoder for Topology Objects."""
+
+    def __init__(self):
+      super().__init__(object_hook=self.custom_hook)
+      self.all_entities = all_entities
+
+    def custom_hook(self, dict_data: Dict):
+      """Creates a Topology Object from json data.
+
+      Args:
+          dict_data (dict): The dictionary containing the JSON data.
+
+      Raises:
+          ValueError: If the 'modeller_class' key in the dictionary is not
+           found in the 'modeller_class_mapping'.
+
+      Returns:
+          TopologyObject | Dict: An instance of the class object
+          corresponding to the 'modeller_class' key in the dictionary, or
+          the original dictionary if the 'modeller_class' key is
+          not present.
+      """
+      if "modeller_class" in dict_data:
+        if dict_data["modeller_class"] in modeller_class_mapping:
+          class_object = modeller_class_mapping[dict_data["modeller_class"]]
+          return class_object.from_json(dict_data, self.all_entities)
+        else:
+          raise ValueError(
+              f"Invalid modeller_class: {dict_data['modeller_class']}")
+
+      return dict_data
+
+  return CustomJSONDecoder
+
+
+# class Arc(EntityContainer):
+#   """
+#   Represents an Arc, a specific type of EntityContainer.
+
+#   Inheritance:
+#       Inherits from :class:`EntityContainer`.
+
+#   Attributes:
+#       source (str): The source node of the arc.
+#       sink (str): The sink node of the arc.
+#   """
+
+#   def __init__(
+#       self,
+#       identifier: str,
+#       name: str,
+#       entity_instance: entity.Entity,
+#       tokens: List[str],
+#       typed_tokens: Dict[str, List[str]],
+#       network: str,
+#       named_network: str,
+#       source: str,
+#       sink: str,
+#       parent_id: Optional[str] = None,
+#       instantiated_variables: Optional[InstantiationDict] = None,
+#   ):
+#     super().__init__(identifier, name, entity_instance, network, named_network,
+#                      tokens, typed_tokens, parent_id, instantiated_variables)
+
+#     self.source = source
+#     self.sink = sink
+
+#   def to_json(self):
+#     class_dict = super().to_json()
+#     class_dict["source"] = self.source
+#     class_dict["sink"] = self.sink
+
+#     return class_dict
+
+
+# class NodeSimple(EntityContainer):
+#   """
+#   Represents a NodeSimple, a specific type of EntityContainer.
+
+#   Inheritance:
+#       Inherits from :class:`EntityContainer`.
+
+#   Attributes:
+#       conversions (str): The conversions associated with the node.
+#       injected_typed_tokens (Dict[str, str], optional): The injected
+#        typed tokens associated with the node.
+#   """
+
+#   def __init__(
+#       self,
+#       identifier: str,
+#       name: str,
+#       entity_instance: entity.Entity,
+#       tokens: List[str],
+#       typed_tokens: Dict[str, List[str]],
+#       network: str,
+#       named_network: str,
+#       conversions: str,
+#       parent_id: Optional[str] = None,
+#       instantiated_variables: Optional[InstantiationDict] = None,
+#       injected_typed_tokens: Optional[Dict[str, str]] = None,
+#   ):
+#     super().__init__(identifier, name, entity_instance, network, named_network,
+#                      tokens, typed_tokens, parent_id, instantiated_variables)
+#     self.conversions = conversions
+#     self.injected_typed_tokens = injected_typed_tokens
+
+#   def to_json(self):
+#     class_dict = super().to_json()
+#     class_dict["conversions"] = self.conversions
+#     class_dict["injected_typed_tokens"] = self.injected_typed_tokens
+
+#     return class_dict
