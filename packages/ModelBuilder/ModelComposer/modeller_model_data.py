@@ -821,14 +821,14 @@ class ModelContainer(dict):
 
     # TODO: DONE mapping could be done on reading instead of writing. Solves problem of intermediate writing -->
     #  makeFromFile
-    node_map = self.mapMe()
+    # node_map = self.mapMe()  # NOTE: switched off node mapping 2024-01-29
 
     a = deepcopy(self["ID_tree"])
     self["ID_tree"] = self["ID_tree"].toJson()
     CR.putData(self, f, indent=2)
     self["ID_tree"] = a  # reset it
 
-    return node_map
+    return None #node_map # NOTE: switched off node mapping 2024-01-29
 
   def makeAndWriteFlatTopology(self, f):
 
