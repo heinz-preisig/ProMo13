@@ -14,6 +14,6 @@ from PyQt5.QtCore import Qt
 ID_ROLE = Qt.UserRole                                     # type: ignore
 NAME_ROLE = Qt.UserRole + 1                               # type: ignore
 IMAGE_ROLE = Qt.UserRole + 2                              # type: ignore
-CLASS_ROLE = Qt.UserRole + 3                              # type: ignore
+SUBTYPE_ROLE = Qt.UserRole + 3                            # type: ignore
 EXPANDED_ROLE = Qt.UserRole + 4                           # type: ignore
 LAST_CHECK_STATE_ROLE = Qt.UserRole + 5                   # type: ignore
