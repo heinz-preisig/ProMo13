@@ -259,24 +259,16 @@ def load_model_from_file(
     model_name: str,
     all_entities: Dict[str, entity.Entity],
 ) -> Dict[str, modeller_classes.TopologyObject]:
-  path = resource_initialisation.FILES["model_flat_file"] % (
+  path_old = resource_initialisation.FILES["model_file"] % (
       ontology_name,
       model_name,
   )
-  with open(path, "r", encoding="utf-8",) as file:
-    data = json.load(file)
-
-  topology_objects = {}
-  for object_id, object_data in data.items():
-    if "entity_name" in object_data.keys():
-      ent_name = object_data.pop("entity_name")
-      object_data["entity_instance"] = all_entities.get(ent_name)
-
-    class_name = object_data.pop("modeller_class")
-    class_obj = modeller_classes.modeller_class_mapping.get(class_name)
-    topology_objects[object_id] = class_obj(
-        identifier=object_id,
-        **object_data
+  path_new = path_old[:-5] + "_new.json"
+  custom_decoder = modeller_classes.custom_decoder_factory(all_entities)
+  with open(path_new, "r", encoding="utf-8",) as file:
+    topology_objects = json.load(
+        file,
+        cls=custom_decoder,
     )
 
   return topology_objects
@@ -285,17 +277,23 @@ def load_model_from_file(
 def save_model_to_file(
     ontology_name: str,
     model_name: str,
-    all_topology_objects: Dict[str, modeller_classes.TopologyObject]
+    all_topology_objects: Dict[str, modeller_classes.TopologyObject],
+    file_path: Optional[str] = None,
 ) -> None:
-  path = resource_initialisation.FILES["model_flat_file"] % (
-      ontology_name,
-      model_name,
-  )
-  with open(path, "w", encoding="utf-8",) as file:
+  if file_path is None:
+    path_old = resource_initialisation.FILES["model_file"] % (
+        ontology_name,
+        model_name,
+    )
+    path_new = path_old[:-5] + "_new.json"
+  else:
+    path_new = file_path
+
+  with open(path_new, "w", encoding="utf-8",) as file:
     json.dump(
         all_topology_objects,
         file,
-        cls=TopologyObjectJSONEncoder,
+        cls=modeller_classes.CustomJSONEncoder,
         indent=4
     )
 
@@ -738,23 +736,4 @@ class VariableJSONEncoder(json.JSONEncoder):
     # """
     if isinstance(o, variable.Variable):
       return o.convert_to_dict()
-    return super().default(o)
-
-
-class TopologyObjectJSONEncoder(json.JSONEncoder):
-  """Custom encoder for Topology Objects."""
-
-  def default(self, o):
-    """Represents data from Topology Objects as a dictionary.
-
-    Args:
-        o (TopologyObject): Topology Object that will be encoded.
-
-    Returns:
-        dict: The dictionary representation of the Entity object. If
-          the object is not an Topology Object instance then the default
-          representation is returned.
-    """
-    if isinstance(o, modeller_classes.TopologyObject):
-      return o.to_json()
     return super().default(o)

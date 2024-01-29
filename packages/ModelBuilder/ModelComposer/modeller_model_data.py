@@ -50,28 +50,41 @@ class DataError(Exception):
 
 # NOTE: changed to dictionary -- OrderedDict failed to be copied (extract subtree)
 class NodeInfo(dict):  # (OrderedDict): #
-  def __init__(self, name, network=None, named_network=None, node_class=CR.M_None, node_type=CR.M_None, features=[]):
+  def __init__(
+      self,
+      name,
+      network=None,
+      named_network=None,
+      node_class=CR.M_None,
+      node_type=CR.M_None,
+      features=[],
+      entity_name="",
+  ):
 
-    dict.__init__(self)              #Note: record Node
+    dict.__init__(self)  # Note: record Node
     self["name"] = name
     self["network"] = network
     self["named_network"] = named_network
     self["class"] = node_class
     self["type"] = node_type
     self["variant"] = None
-    self["instantiated_variables"] = {} # hash :: variable_id
+    self["instantiated_variables"] = {}  # hash :: variable_id
+    self["entity_id"] = entity_name
 
 # RULE: feature controls what the node may contain tokens, conversion, left/right tokens, transfer constraints, injection
     if "has_tokens" in features:
       self["tokens"] = {}  # dict hash=tokens value=list of typed tokens
     if "has_conversion" in features:
-      self["conversions"] = {}  # dict hash=tokens value=list of active conversions
+      # dict hash=tokens value=list of active conversions
+      self["conversions"] = {}
     if "intraface" in features:
       self["tokens_right"] = {}  # dict hash=tokens value=list of typed tokens
       self["tokens_left"] = {}  # dict hash=tokens value=list of typed tokens
-      self["transfer_constraints"] = {}  # dict hash=tokens value=list of typed tokens
+      # dict hash=tokens value=list of typed tokens
+      self["transfer_constraints"] = {}
     if "accepts_inject_of_typed_tokens" in features:
-      self["injected_typed_tokens"] = {}  # dict hash=tokens value=list of typed tokens
+      # dict hash=tokens value=list of typed tokens
+      self["injected_typed_tokens"] = {}
 
 
 class ArcInfo(dict):  # OrderedDict):  # NOTE: changed to dictionary -- OrderedDict failed to be copied (extract
@@ -99,7 +112,7 @@ class ArcInfo(dict):  # OrderedDict):  # NOTE: changed to dictionary -- OrderedD
     self["nature"] = nature
     self["variant"] = variant
     # self["type"] = arctype                   # removed
-    self["instantiated_variables"] = instantiated_variables # hash :: variable_id
+    self["instantiated_variables"] = instantiated_variables  # hash :: variable_id
 
   def cleanTypedTokens(self):  # Does not work with the current implementation
     self["typed_tokens"] = []  # TODO: Remove
@@ -120,9 +133,9 @@ class ModelGraphicsData(dict):
                                                                     application, state)
       dec_x = graphics_data[phase][r][d][a][s]
       self[decoration] = {
-              "position_x": dec_x["position_x"],
-              "position_y": dec_x["position_y"]
-              }
+          "position_x": dec_x["position_x"],
+          "position_y": dec_x["position_y"]
+      }
 
 
 class ModelContainer(dict):
@@ -131,7 +144,8 @@ class ModelContainer(dict):
     self.networks = networks
     self.ontology = ontology
 
-    self["ID_tree"] = Tree(ROOTID)  # StrTree(str(ROOTID))    #HAP: ID string to integer
+    # StrTree(str(ROOTID))    #HAP: ID string to integer
+    self["ID_tree"] = Tree(ROOTID)
 
     self["named_networks"] = NamedNetworkDataObjects(networks)
 
@@ -161,12 +175,30 @@ class ModelContainer(dict):
     self["scenes"][nodeID]["nodes"] = {}
     self["scenes"][nodeID]["arcs"] = {}
 
-  def addChild(self, parentNodeID, decoration_positions, network, named_network, node_class, nodetype, features, variant):
+  def addChild(
+      self,
+      parentNodeID,
+      decoration_positions,
+      network,
+      named_network,
+      node_class,
+      nodetype,
+      features,
+      variant,
+      entity_name,
+  ):
 
     childNodeID = self["ID_tree"].addChild(parentNodeID)
 
-    self["nodes"][childNodeID] = NodeInfo(CR.DEFAULT, network=network, named_network=named_network,
-                                          node_class=node_class, node_type=nodetype, features=features)
+    self["nodes"][childNodeID] = NodeInfo(
+        CR.DEFAULT,
+        network=network,
+        named_network=named_network,
+        node_class=node_class,
+        node_type=nodetype,
+        features=features,
+        entity_name=entity_name,
+    )
 
     self.__newScene(childNodeID)
     self["scenes"][parentNodeID]["nodes"][childNodeID] = decoration_positions
@@ -260,8 +292,10 @@ class ModelContainer(dict):
 
     # keep for handling tokens
     token = self["arcs"][arcID]["token"]
-    source = self["arcs"][arcID]["source"]  # str(self["arcs"][arcID]["source"]) #HAP str --> int
-    sink = self["arcs"][arcID]["sink"]  # str(self["arcs"][arcID]["sink"]) #HAP str --> int
+    # str(self["arcs"][arcID]["source"]) #HAP str --> int
+    source = self["arcs"][arcID]["source"]
+    # str(self["arcs"][arcID]["sink"]) #HAP str --> int
+    sink = self["arcs"][arcID]["sink"]
     network = self["arcs"][arcID]["network"]
 
     # remove arc
@@ -292,8 +326,10 @@ class ModelContainer(dict):
     arcs_out = []
     arcs_in = []
     for arc in self["arcs"]:
-      source = self["arcs"][arc]["source"]  # str(self["arcs"][arc]["source"]) # HAP: str --> int
-      sink = self["arcs"][arc]["sink"]  # str(self["arcs"][arc]["sink"])  #HAP: str --> int
+      # str(self["arcs"][arc]["source"]) # HAP: str --> int
+      source = self["arcs"][arc]["source"]
+      # str(self["arcs"][arc]["sink"])  #HAP: str --> int
+      sink = self["arcs"][arc]["sink"]
       if nodeID == source:
         arcs_out.append(arc)
       elif nodeID == sink:
@@ -316,7 +352,8 @@ class ModelContainer(dict):
       for arc_si in sink_arc_in:
         source = self["arcs"][arc_si]["source"]
         if sink == source:
-          if self["nodes"][sink]["class"] == NAMES["intraface"]:  # self["nodes"][str(sink)]["type"] == NAMES[
+          # self["nodes"][str(sink)]["type"] == NAMES[
+          if self["nodes"][sink]["class"] == NAMES["intraface"]:
             # "intraface"]: # HAP:str --> int
             common_intraface.append(sink)
     for arc_so in source_arc_in:  # can go the opposite direction
@@ -325,7 +362,7 @@ class ModelContainer(dict):
         source = self["arcs"][arc_si]["sink"]
         if sink == source:
           if self["nodes"][sink]["class"] == NAMES[
-            "intraface"]:  # self["nodes"][str(sink)]["type"] == NAMES["intraface"]: #HAP: str --> int
+                  "intraface"]:  # self["nodes"][str(sink)]["type"] == NAMES["intraface"]: #HAP: str --> int
             common_intraface.append(sink)
 
     return common_intraface
@@ -352,16 +389,19 @@ class ModelContainer(dict):
     transferred_token = self["arcs"][arcID]["token"]
     transfer_mechanism = self["arcs"][arcID]["mechanism"]
     transfer_nature = self["arcs"][arcID]["nature"]
-    application = CR.TEMPLATE_ARC_APPLICATION % (transferred_token, transfer_mechanism, transfer_nature)
+    application = CR.TEMPLATE_ARC_APPLICATION % (
+        transferred_token, transfer_mechanism, transfer_nature)
     return application
 
   def getArcGraphicalData(self, sceneID, arcID):
     sourceNodeID = self["arcs"][arcID]["source"]
     sinkNodeID = self["arcs"][arcID]["sink"]
-    sourceCoordinates = self["scenes"][sceneID]["nodes"][sourceNodeID]["position_x"], self["scenes"][sceneID]["nodes"][sourceNodeID]["position_y"]
-    sinkCoordinates = self["scenes"][sceneID]["nodes"][sinkNodeID]["position_x"], self["scenes"][sceneID]["nodes"][sinkNodeID]["position_y"]
+    sourceCoordinates = self["scenes"][sceneID]["nodes"][sourceNodeID][
+        "position_x"], self["scenes"][sceneID]["nodes"][sourceNodeID]["position_y"]
+    sinkCoordinates = self["scenes"][sceneID]["nodes"][sinkNodeID][
+        "position_x"], self["scenes"][sceneID]["nodes"][sinkNodeID]["position_y"]
     # print("debugging for position")
-    return sourceCoordinates,sinkCoordinates
+    return sourceCoordinates, sinkCoordinates
 
   def fixTokensInNode(self, nodeID, token):
 
@@ -378,7 +418,7 @@ class ModelContainer(dict):
         del self["nodes"][nodeID]["tokens"][token]
       except:
         print(">>> warning >>> issues with fixing tokens in node %s with tokens %s trying to delete token %s" % (
-                nodeID, tokens, token))
+            nodeID, tokens, token))
 
   def addArc(self, fromNodeID, toNodeID, network, named_network, mechanism, token, nature, variant):
 
@@ -390,7 +430,8 @@ class ModelContainer(dict):
     else:
       self.arcID = max(arcsIDList) + 1
     arcID = self.arcID  # str(self.arcID)   #HAP:  str -- int
-    self["arcs"][arcID] = ArcInfo(fromNodeID, toNodeID, network, named_network, mechanism, token, nature, variant,{})
+    self["arcs"][arcID] = ArcInfo(
+        fromNodeID, toNodeID, network, named_network, mechanism, token, nature, variant, {})
     subarcsIDs = self.getArcOnNodeScene(arcID)
     nodes_with_arcIDs = list(subarcsIDs.keys())
 
@@ -407,7 +448,6 @@ class ModelContainer(dict):
         self.setTokenRightInIntraface(nodeID, token)
       else:
         self.setTokenToNode(nodeID, token)
-
 
     return arcID, nodes_with_arcIDs
 
@@ -470,7 +510,8 @@ class ModelContainer(dict):
     toNodeID = toNodeID  # str(toNodeID)          #HAP: str --> int
     fromPathID = [fromNodeID] + self["ID_tree"].getAncestors(fromNodeID)
     toPathID = [toNodeID] + self["ID_tree"].getAncestors(toNodeID)
-    common_ancestorID = self["ID_tree"].getFirstCommonNode(fromNodeID, toNodeID)
+    common_ancestorID = self["ID_tree"].getFirstCommonNode(
+        fromNodeID, toNodeID)
     # print("fromNode, fromPath", [fromNodeID],'   ', [fromPathID])
     # print("toNode, toPath",[toNodeID], '    ', [toPathID])
     # print("common_ancestor",  [common_ancestorID])
@@ -482,8 +523,8 @@ class ModelContainer(dict):
     # print("from_remainder ", from_remainderIDs)
     # print("to_remainder ",to_remainderIDs)
     _nodes_with_arcIDs = from_remainderIDs + \
-                         to_remainderIDs + \
-                         [common_ancestorID]
+        to_remainderIDs + \
+        [common_ancestorID]
     _nodes_with_arcIDs.remove(fromNodeID)
     _nodes_with_arcIDs.remove(toNodeID)
     nodes_with_arcIDs = list(set(_nodes_with_arcIDs))
@@ -541,10 +582,12 @@ class ModelContainer(dict):
     typed_tokens_to_transfer = deepcopy(self["arcs"][arcID]["typed_tokens"])
 
     if end_to_move == 'source':
-      disconnected_node = self["arcs"][arcID]["source"]  # str(self["arcs"][arcID]["source"]) #HAP str --> int
+      # str(self["arcs"][arcID]["source"]) #HAP str --> int
+      disconnected_node = self["arcs"][arcID]["source"]
       self["arcs"][arcID]["source"] = movedNodeID
     elif end_to_move == 'sink':
-      disconnected_node = self["arcs"][arcID]["sink"]  # str(self["arcs"][arcID]["sink"])  #HAP: str --> int
+      # str(self["arcs"][arcID]["sink"])  #HAP: str --> int
+      disconnected_node = self["arcs"][arcID]["sink"]
       self["arcs"][arcID]["sink"] = int(movedNodeID)
 
     # FIX: typed tokens are not transferred and combined needs fixing
@@ -629,13 +672,16 @@ class ModelContainer(dict):
       odata["nodes"][nodeID] = data["nodes"][node]
 
     for scene in data["scenes"]:
-      scene_node_ID = node_map[scene]  # str(node_map[int(scene)]) #HAP: str --> int
+      # str(node_map[int(scene)]) #HAP: str --> int
+      scene_node_ID = node_map[scene]
       odata["scenes"][scene_node_ID] = OrderedDict()
       odata["scenes"][scene_node_ID]["nodes"] = OrderedDict()
       odata["scenes"][scene_node_ID]["arcs"] = OrderedDict()
 
-      for nodeID in data["scenes"][scene]["nodes"]:  # knots are not saved only position --> see below
-        onode_ID = node_map[nodeID]  # str(node_map[int(nodeID)])  #HAP: str--> int
+      # knots are not saved only position --> see below
+      for nodeID in data["scenes"][scene]["nodes"]:
+        # str(node_map[int(nodeID)])  #HAP: str--> int
+        onode_ID = node_map[nodeID]
         odata["scenes"][scene_node_ID]["nodes"][onode_ID] = data["scenes"][scene]["nodes"][nodeID]
 
       for arc in data["scenes"][scene]["arcs"]:
@@ -701,7 +747,8 @@ class ModelContainer(dict):
     # container["ID_tree"].imposeIDTree(tree)
 
     no_arcIDs = len(internal_arcs)
-    arcID_map = dict([(internal_arcs[i], (i)) for i in range(no_arcIDs)])  # dict([(internal_arcs[i], str(i)) for i
+    arcID_map = dict([(internal_arcs[i], (i)) for i in range(
+        no_arcIDs)])  # dict([(internal_arcs[i], str(i)) for i
     # in range(no_arcIDs)]) #HAP: str --> int
 
     container["ID_tree"] = tree
@@ -718,12 +765,14 @@ class ModelContainer(dict):
         if n in self["scenes"][node]["nodes"]:
           c_n = node_map[n]
           # b = self["scenes"][node]["nodes"][n].copy()
-          container["scenes"][c_node]["nodes"][c_n] = deepcopy(self["scenes"][node]["nodes"][n])
+          container["scenes"][c_node]["nodes"][c_n] = deepcopy(
+              self["scenes"][node]["nodes"][n])
       for arc in internal_arcs:
         if arc in self["scenes"][node]["arcs"]:
           c_arc = arcID_map[arc]
           # c = self["scenes"][node]["arcs"][arc].copy()
-          container["scenes"][c_node]["arcs"][c_arc] = deepcopy(self["scenes"][node]["arcs"][arc])
+          container["scenes"][c_node]["arcs"][c_arc] = deepcopy(
+              self["scenes"][node]["arcs"][arc])
 
     for arc in internal_arcs:
       c_arc = arcID_map[arc]
@@ -827,7 +876,6 @@ class ModelContainer(dict):
         if "instantiated_variables" not in new_data[d][a]:
           new_data[d][a]["instantiated_variables"] = {}
 
-
     # this is not elegant, but there seems to be a python problem if one does it more elegantly
     d = "scenes"
     for i in list(data[d].keys()):
@@ -876,7 +924,8 @@ class ModelContainer(dict):
 
     # make proper ID tree from json format
     tree = Tree(0)
-    tree.fromJson(data["ID_tree"])  # has string(int) as the_hash needs changing to int
+    # has string(int) as the_hash needs changing to int
+    tree.fromJson(data["ID_tree"])
     node_map = tree.mapMe(offset=node_offset)
     # strhashedtree = tree.toJson()
 
@@ -887,18 +936,22 @@ class ModelContainer(dict):
     del odata["ID_tree"]
 
     for node in data["nodes"]:
-      nodeID = node_map[int(node)]  # str(node_map[int(node)])                 #HAP: str --> int
+      # str(node_map[int(node)])                 #HAP: str --> int
+      nodeID = node_map[int(node)]
       odata["nodes"][nodeID] = data["nodes"][node]
 
     for scene in sorted(data["ID_tree"].keys()):
-      scene_node_ID = node_map[int(scene)]  # str(node_map[int(scene)]) # HAP: str --> int
+      # str(node_map[int(scene)]) # HAP: str --> int
+      scene_node_ID = node_map[int(scene)]
       odata["scenes"][scene_node_ID] = {}
       odata["scenes"][scene_node_ID]["nodes"] = {}
       odata["scenes"][scene_node_ID]["class"] = {}
       odata["scenes"][scene_node_ID]["arcs"] = {}
 
-      for nodeID in data["scenes"][scene]["nodes"]:  # knots are not saved only position --> see below
-        onode_ID = node_map[int(nodeID)]  # str(node_map[int(nodeID)])  # HAP: str--> int
+      # knots are not saved only position --> see below
+      for nodeID in data["scenes"][scene]["nodes"]:
+        # str(node_map[int(nodeID)])  # HAP: str--> int
+        onode_ID = node_map[int(nodeID)]
         odata["scenes"][scene_node_ID]["nodes"][onode_ID] = data["scenes"][scene]["nodes"][nodeID]
 
       for arc in data["scenes"][scene]["arcs"]:
@@ -1026,11 +1079,13 @@ class ModelContainer(dict):
         pass
 
     for arc in internal:  # these need transferring they only show on the new view
-      self["scenes"][newNodeID]["arcs"][arc] = deepcopy(self["scenes"][nodeID]["arcs"][arc])
+      self["scenes"][newNodeID]["arcs"][arc] = deepcopy(
+          self["scenes"][nodeID]["arcs"][arc])
       del self["scenes"][nodeID]["arcs"][arc]
 
     for arc in external:  # these need copying as they show on both views
-      self["scenes"][newNodeID]["arcs"][arc] = deepcopy(self["scenes"][nodeID]["arcs"][arc])
+      self["scenes"][newNodeID]["arcs"][arc] = deepcopy(
+          self["scenes"][nodeID]["arcs"][arc])
 
     for scene in nodeGroupIDS:
       # print("fix scene: ", child)
@@ -1115,14 +1170,14 @@ class ModelContainer(dict):
         I[node].append(arc)
     return I
 
-  #========================
+  # ========================
 
   def getArcsWithTypedToken(self, token, typed_token):
 
     arcs_with_typed_token = []
     arcs = self.getArcsWithToken(self["arcs"], token)
     for a in arcs:
-      arc_token_data =  self["arcs"][a]["token"]
+      arc_token_data = self["arcs"][a]["token"]
       if arc_token_data == token:
         if typed_token in self["arcs"][a]["typed_tokens"]:
           arcs_with_typed_token.append(a)
@@ -1139,7 +1194,7 @@ class ModelContainer(dict):
           I[node] = []
         I[node].append(arc)
     return I
-  #========================
+  # ========================
 
   def computeTokenAdjacencyMatrix(self, domain, token):
     arcs_with_token = self.getArcsWithToken(self["arcs"], token)
@@ -1196,7 +1251,8 @@ class ModelContainer(dict):
         for node in nodes:
           if node not in N:
             D[token][count] = []
-            D[token][count], m = self.computeTokenDomain(node, I, D[token][count], V)
+            D[token][count], m = self.computeTokenDomain(
+                node, I, D[token][count], V)
             N.extend(D[token][count])
             count += 1
       else:
@@ -1247,14 +1303,17 @@ class ModelContainer(dict):
         I_typed_tokens[token] = {}
         typed_tokens[token] = {}
         for domainID in D[token]:
-          TD[token][domainID], typed_tokens[token][domainID] = self.computeTypedTokenDistribution(token, D[token][domainID])
+          TD[token][domainID], typed_tokens[token][domainID] = self.computeTypedTokenDistribution(
+              token, D[token][domainID])
           if domainID not in I_tokens:
             I_tokens[domainID] = {}
-          I_tokens[domainID][token]= self.computeTokenIncidenceMatrix(self["arcs"], token)
+          I_tokens[domainID][token] = self.computeTokenIncidenceMatrix(
+              self["arcs"], token)
           I_typed_tokens[token][domainID] = {}
           # print("debugging -- type token domain")
           for tt in typed_tokens[token][domainID]:
-            I_typed_tokens[token][domainID][tt] = self.computeTypedTokenIncidenceMatrix(token, tt)
+            I_typed_tokens[token][domainID][tt] = self.computeTypedTokenIncidenceMatrix(
+                token, tt)
 
     return D, TD, I_tokens, I_typed_tokens, typed_tokens
 
@@ -1280,15 +1339,17 @@ class ModelContainer(dict):
         if self["arcs"][arc]["token"] == token:  # Not resetting token
           arcs_in_domain.add(arc)
 
-    adj_matrix = self.computeTokenAdjacencyMatrix(domain, token) # look here
+    adj_matrix = self.computeTokenAdjacencyMatrix(domain, token)  # look here
     for node in domain:
       node_type = self["nodes"][node]["type"]
-      test = self.__isCoveredByRule(node_type, "nodes_allowing_token_injection")
-      if test: #NAMES["reservoir"] in node_type:
+      test = self.__isCoveredByRule(
+          node_type, "nodes_allowing_token_injection")
+      if test:  # NAMES["reservoir"] in node_type:
         if token in self["nodes"][node]["injected_typed_tokens"]:
           for typed_token in self["nodes"][node]["injected_typed_tokens"][token]:
             named_network = self["nodes"][node]["named_network"]
-            self.colourBranch(named_network, node, token, typed_token, adj_matrix, conversions)
+            self.colourBranch(named_network, node, token,
+                              typed_token, adj_matrix, conversions)
     #
     # for node in domain:
     #   arcs_out, arcs_in = self.getArcsInAndOutOfNode(node)
@@ -1333,7 +1394,6 @@ class ModelContainer(dict):
         #     else:
         #       if t in self["arcs"][arc]["typed_tokens"] :
         #         self["arcs"][arc]["typed_tokens"].remove(t)      # TODO:  check
-
 
       node_data = self["nodes"][node]
       boundary = NAMES["intraface"] == node_data["class"]
@@ -1391,7 +1451,8 @@ class ModelContainer(dict):
               # print("debugging -- halting place")
 
     # typed token domains
-      tt = self.ontology.typed_token_refining_token[token]  # RULE: tokens have only one typed token
+      # RULE: tokens have only one typed token
+      tt = self.ontology.typed_token_refining_token[token]
       item_typed_token_domain[tt] = {}
       for node in domain:
         if self["nodes"][node]["tokens"][token]:
@@ -1401,15 +1462,16 @@ class ModelContainer(dict):
               typed_tokens.add(s)
             item_typed_token_domain[tt][s].append(node)
 
-
     return item_typed_token_domain, sorted(typed_tokens)
 
   def colourBranch(self, named_network, node, token, typed_token, adj_matrix, conversions):
     node_data = self["nodes"][node]
     # boundaries have two sides
-    boundary = node_data["class"] in [ NAMES["intraface"] ]#, NAMES["arc node"]]
+    boundary = node_data["class"] in [
+        NAMES["intraface"]]  # , NAMES["arc node"]]
     if boundary:
-      left_network, right_network = node_data["named_network"].split(CR.CONNECTION_NETWORK_SEPARATOR)
+      left_network, right_network = node_data["named_network"].split(
+          CR.CONNECTION_NETWORK_SEPARATOR)
       left = left_network == named_network
       right = right_network == named_network
       typed_tokens = []
@@ -1422,14 +1484,16 @@ class ModelContainer(dict):
     # continue if typed token is not present or stop iteration
     if typed_token not in typed_tokens:
       if not boundary:
-        typed_tokens.append(typed_token)   #todo: do not add for boundary
+        typed_tokens.append(typed_token)  # todo: do not add for boundary
       else:
         if typed_token not in node_data["transfer_constraints"]:
           typed_tokens.append(typed_token)
       node_type = node_data["type"]
-      test = self.__isCoveredByRule(node_type, "nodes_allowing_token_conversion")
+      test = self.__isCoveredByRule(
+          node_type, "nodes_allowing_token_conversion")
       if test:
-        if token in node_data["conversions"]:  # in the sequence it may not yet be defined, patience
+        # in the sequence it may not yet be defined, patience
+        if token in node_data["conversions"]:
           for conversion in node_data["conversions"][token]:
             E, P = conversion.split(CR.CONVERSION_SEPARATOR)
             Elist = eval(E)
@@ -1439,13 +1503,15 @@ class ModelContainer(dict):
             if Es_set.issubset(typed_token_set):  # reaction takes place
               conversions[node].add(conversion)
               for ss in Plist:
-                self.colourBranch(named_network, node, token, ss, adj_matrix, conversions)
+                self.colourBranch(named_network, node, token,
+                                  ss, adj_matrix, conversions)
       if node in adj_matrix:
         for node_alt in adj_matrix[node]:
           if boundary:
             # TODO: one could add the token here as it may be empty before one comes here or as currently when
             # defining the boundary
-            left_network, right_network = node_data["named_network"].split(CR.CONNECTION_NETWORK_SEPARATOR)
+            left_network, right_network = node_data["named_network"].split(
+                CR.CONNECTION_NETWORK_SEPARATOR)
             left = left_network == named_network
             right = right_network == named_network
             if typed_token not in node_data["transfer_constraints"][token]:
@@ -1454,13 +1520,15 @@ class ModelContainer(dict):
               else:
                 next_network = left_network
 
-              self.colourBranch(next_network, node_alt, token, typed_token, adj_matrix, conversions)
+              self.colourBranch(next_network, node_alt, token,
+                                typed_token, adj_matrix, conversions)
             else:
               pass  # do not continue -- no transfer of this typed token
 
           else:
             next_network = named_network
-            self.colourBranch(next_network, node_alt, token, typed_token, adj_matrix, conversions)
+            self.colourBranch(next_network, node_alt, token,
+                              typed_token, adj_matrix, conversions)
 
   def __isCoveredByRule(self, node_type, rule):
     if NODE_COMPONENT_SEPARATOR in node_type:
