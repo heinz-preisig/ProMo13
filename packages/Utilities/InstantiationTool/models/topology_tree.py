@@ -19,7 +19,7 @@ UNCHECKED = QtCore.Qt.CheckState.Unchecked
 PARTIALLY_CHECKED = QtCore.Qt.CheckState.PartiallyChecked
 
 
-# TODO: Make the items be added allways in the same order
+# TODO: Make the items be added always in the same order
 class TopologyTreeModel(QtGui.QStandardItemModel):
   """Stores the variables in a model
 
@@ -117,7 +117,8 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
     main_item = QtGui.QStandardItem()
     main_item.setData(item_id, roles.ID_ROLE)
     main_item.setData(item_obj.name, roles.NAME_ROLE)
-    main_item.setData(item_obj.__class__.__name__, roles.CLASS_ROLE)
+    main_item.setData(item_obj.subtype, roles.SUBTYPE_ROLE)
+
     main_item.setCheckable(True)
     main_item.setAutoTristate(True)
 
@@ -225,8 +226,11 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
       child = parent.child(row)
       child_id = child.data(roles.ID_ROLE)
 
-      if (child.data(roles.CLASS_ROLE) != "NodeComposite" and
-              child.checkState() == CHECKED):
+      if (
+          child.data(roles.SUBTYPE_ROLE)
+          != modeller_classes.TopologySubtypes.NODE_COMPOSITE
+          and child.checkState() == CHECKED
+      ):
         checked_items.append(child_id)
 
       if child.hasChildren():

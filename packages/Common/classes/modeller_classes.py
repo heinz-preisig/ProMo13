@@ -20,7 +20,6 @@ Classes:
 Each class is documented in detail within its own docstring.
 """
 import copy
-from mimetypes import init
 from typing import List, Optional, Dict
 from typing_extensions import Self
 from enum import Enum
@@ -32,12 +31,12 @@ from packages.Common.classes import entity
 InstantiationDict = Dict[str, Dict[str, Optional[str]]]
 
 
-class NodeType(Enum):
+class TopologySubtypes(Enum):
+  BASE = 0
   NODE_SIMPLE = 1
-  ARC = 2
-  INTERFACE = 3
-
-# TODO: Implement the from_json methods in all the classes, fix io and test
+  NODE_COMPOSITE = 2
+  ARC = 3
+  INTERFACE = 4
 
 
 class TopologyObject:
@@ -59,6 +58,7 @@ class TopologyObject:
       self,
       identifier: str,
       name: str,
+      subtype: TopologySubtypes,
       parent_id: Optional[str] = None,
   ):
     """
@@ -72,6 +72,7 @@ class TopologyObject:
     """
     self.identifier = identifier
     self.name = name
+    self.subtype = subtype
     self.parent_id = parent_id
 
   # TODO: Make custom class for the return value
@@ -79,6 +80,7 @@ class TopologyObject:
     class_dict = {}
     class_dict["identifier"] = self.identifier
     class_dict["name"] = self.name
+    class_dict["subtype"] = self.subtype.value
     class_dict["parent_id"] = self.parent_id
     class_dict["modeller_class"] = self.__class__.__name__
 
@@ -94,6 +96,9 @@ class TopologyObject:
 
     # Only used to decide which class should be used
     del init_data["modeller_class"]
+
+    # Switching to the enum object form its value
+    init_data["subtype"] = TopologySubtypes(init_data["subtype"])
 
     return cls(**init_data)
 
@@ -117,10 +122,11 @@ class NodeComposite(TopologyObject):
       self,
       identifier: str,
       name: str,
+      subtype: TopologySubtypes,
       parent_id: Optional[str] = None,
       children_ids: Optional[List[str]] = None,
   ):
-    super().__init__(identifier, name, parent_id)
+    super().__init__(identifier, name, subtype, parent_id)
 
     self.children_ids = children_ids or []
 
@@ -155,7 +161,7 @@ class EntityContainer(TopologyObject):
       self,
       identifier: str,
       name: str,
-      subtype: NodeType,
+      subtype: TopologySubtypes,
       entity_instance: entity.Entity,
       network: str,
       named_network: str,
@@ -183,9 +189,8 @@ class EntityContainer(TopologyObject):
     #      instantiated variables associated with the entity. Defaults to
     #      **None**.
     # """
-    super().__init__(identifier, name, parent_id)
+    super().__init__(identifier, name, subtype, parent_id)
 
-    self.subtype = subtype
     self.entity_instance = entity_instance
     self.network = network
     self.named_network = named_network
@@ -313,7 +318,7 @@ class EntityContainer(TopologyObject):
     ]
 
     # Switching to the enum object form its value
-    init_data["subtype"] = NodeType(init_data["subtype"])
+    init_data["subtype"] = TopologySubtypes(init_data["subtype"])
 
     return cls(**init_data)
 

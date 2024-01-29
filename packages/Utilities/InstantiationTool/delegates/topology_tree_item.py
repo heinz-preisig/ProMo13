@@ -1,4 +1,5 @@
 import os
+from pprint import pprint as pp
 
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
@@ -7,9 +8,15 @@ from PyQt5 import QtGui
 # TODO: Icons should be stored in resources
 from packages.Common import resource_initialisation
 from packages.shared_components import roles
-
+from packages.Common.classes import modeller_classes
 
 CHECKBOX_SPACE = 20
+
+ICON_NAMES = {
+    modeller_classes.TopologySubtypes.NODE_SIMPLE: "NodeSimple",
+    modeller_classes.TopologySubtypes.NODE_COMPOSITE: "NodeComposite",
+    modeller_classes.TopologySubtypes.ARC: "Arc",
+}
 
 
 class CustomTopologyItemDelegate(QtWidgets.QStyledItemDelegate):
@@ -27,7 +34,12 @@ class CustomTopologyItemDelegate(QtWidgets.QStyledItemDelegate):
       return
 
     item_name = index.data(roles.NAME_ROLE)
-    icon_name = f"{index.data(roles.CLASS_ROLE)}.png"
+    item_subtype = index.data(roles.SUBTYPE_ROLE)
+    pp(ICON_NAMES)
+    print(item_subtype)
+    print(item_name)
+
+    icon_name = f"{ICON_NAMES[item_subtype]}.png"
 
     # Calculate the position to draw the custom icon
     icon_size = QtCore.QSize(24, 24)
