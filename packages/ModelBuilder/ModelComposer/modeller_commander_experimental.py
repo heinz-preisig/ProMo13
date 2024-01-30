@@ -1783,6 +1783,7 @@ class Commander(QtCore.QObject):
         identifier = f"N_{str(number_id)}"
         data["identifier"] = identifier
         data["name"] = str(node_info["name"])
+        data["subtype"] = modeller_classes.TopologySubtypes.NODE_COMPOSITE
         all_topology_objects[identifier] = modeller_classes.NodeComposite(
             **data
         )
@@ -1794,10 +1795,10 @@ class Commander(QtCore.QObject):
       ):
         if node_info["class"] == "node_simple":
           identifier = f"N_{str(number_id)}"
-          subtype = modeller_classes.NodeType.NODE_SIMPLE
+          subtype = modeller_classes.TopologySubtypes.NODE_SIMPLE
         else:
           identifier = f"A_{str(number_id)}"
-          subtype = modeller_classes.NodeType.ARC
+          subtype = modeller_classes.TopologySubtypes.ARC
 
         data["identifier"] = identifier
         data["subtype"] = subtype
