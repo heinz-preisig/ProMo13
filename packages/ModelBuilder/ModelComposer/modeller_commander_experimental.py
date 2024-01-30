@@ -1747,13 +1747,12 @@ class Commander(QtCore.QObject):
     f_flat = os.path.join(dir, "%s_flat%s" % (name, ext))
     new_model_file_path = os.path.join(dir, "%s_new%s" % (name, ext))
 
-    node_map = self.model_container.write(f)
+    node_map = self.model_container.write(f)   # NOTE: switched off node mapping 2024-01-29
     self.model_container.makeAndWriteFlatTopology(f_flat)
     self.__24_save_new_model_file(new_model_file_path)
 
-    mapped_currently_viewed_node = node_map[int(self.currently_viewed_node)]
-    # str(mapped_currently_viewed_node) #HAP: str --> int
-    self.currently_viewed_node = (mapped_currently_viewed_node)
+    # mapped_currently_viewed_node = node_map[int(self.currently_viewed_node)]   # NOTE: switched off node mapping 2024-01-29
+    # self.currently_viewed_node = (mapped_currently_viewed_node)  # NOTE: switched off node mapping 2024-01-29
     self.__redrawScene(self.currently_viewed_node)
 
     # incomplete_nodes, incomplete_arcs = self.checkIfAllVariablesAreInitialsed()
