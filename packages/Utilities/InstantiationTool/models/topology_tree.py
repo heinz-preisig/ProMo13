@@ -6,6 +6,7 @@ topology objects.
 
 Author: Alberto Rodriguez Fernandez
 """
+from operator import mod
 from typing import Dict, Optional, List
 
 from PyQt5 import QtGui
@@ -117,7 +118,7 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
     main_item = QtGui.QStandardItem()
     main_item.setData(item_id, roles.ID_ROLE)
     main_item.setData(item_obj.name, roles.NAME_ROLE)
-    main_item.setData(item_obj.subtype, roles.SUBTYPE_ROLE)
+    main_item.setData(item_obj.__class__.__name__, roles.CLASS_ROLE)
 
     main_item.setCheckable(True)
     main_item.setAutoTristate(True)
@@ -227,8 +228,10 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
       child_id = child.data(roles.ID_ROLE)
 
       if (
-          child.data(roles.SUBTYPE_ROLE)
-          != modeller_classes.TopologySubtypes.NODE_COMPOSITE
+          not isinstance(
+              self._all_topology_objects[child_id],
+              modeller_classes.NodeComposite
+          )
           and child.checkState() == CHECKED
       ):
         checked_items.append(child_id)

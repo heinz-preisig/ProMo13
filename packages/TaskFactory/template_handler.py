@@ -8,7 +8,7 @@ from packages.Common.classes import equation_parser
 from packages.Common.classes import variable
 from packages.Common.classes import equation
 from packages.Common.classes import index
-from packages.Common.classes import vareqdigraph
+from packages.Common.classes import equations_sequencer
 from packages.Common import resource_initialisation as ri
 
 
@@ -19,7 +19,7 @@ class TemplateHandler:
       all_variables: Dict[str, variable.Variable],
       all_indices: Dict[str, index.Index],
       all_equations: Dict[str, equation.Equation],
-      vareq: vareqdigraph.VarEqDiGraph,
+      vareq: equations_sequencer.VarEqDiGraph,
   ):
     self.language = language
     self.all_variables = all_variables
@@ -88,7 +88,7 @@ class TemplateHandler:
                 "extra_name": names_info["nodes"][5] + ":" + names_info["species"][1],
                 "position": [5, 1]
             },
-                        {
+            {
                 "extra_name": names_info["nodes"][3] + ":" + names_info["species"][2],
                 "position": [3, 2]
             },
@@ -126,8 +126,9 @@ class TemplateHandler:
       )
       # pp(self.var_eq.top_graph.graph["index_sets_info"]["general"])
       var_size = [
-        str(len(self.var_eq.top_graph.graph["index_sets_info"]["general"][idx]))
-        for idx in self.all_variables[var_id].index_structures
+          str(
+              len(self.var_eq.top_graph.graph["index_sets_info"]["general"][idx]))
+          for idx in self.all_variables[var_id].index_structures
       ]
       if not var_size:
         var_size = ["1", "1"]
@@ -250,8 +251,8 @@ class TemplateHandler:
     # TODO: Remove this when we only have one set of indices
     index_sets_total = copy.deepcopy(index_sets_info["specific"])
     index_sets_total.update({
-      self.all_indices[key].get_translation(self.language): index_sets_info["general"][key]
-      for key in index_sets_info["general"]
+        self.all_indices[key].get_translation(self.language): index_sets_info["general"][key]
+        for key in index_sets_info["general"]
     })
 
     pp(index_sets_total)
@@ -378,11 +379,11 @@ class TemplateHandler:
       global_id_rpr = self.all_equations[eq_id].lhs["global_ID"]
     else:
       global_id_rpr = self.all_equations[eq_id].rhs["global_ID"]
-    
+
     parser = equation_parser.EquationParser(
-      self.language,
-      self.all_variables,
-      self.all_indices
+        self.language,
+        self.all_variables,
+        self.all_indices
     )
     translated_eq = parser.parse(global_id_rpr)
 

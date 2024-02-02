@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import mock_open, patch
 from pathlib import Path
 from packages.Common.classes import io
-from packages.Common.classes import equation_parser
 
 TEST_FILES_DIR = Path(__file__).parent / "test_files"
 
@@ -47,17 +46,3 @@ def topology_objects(entities):
     data = io.load_topology_objects(ontology_name, model_name, entities)
 
   return data
-
-
-@pytest.fixture(scope="module")
-def parser(var_idx_eq):
-  file_path = TEST_FILES_DIR / "translation_template_matlab.json"
-  with open(file_path, "r", encoding="utf-8") as file:
-    m_file = mock_open(read_data=file.read())
-
-  all_variables, all_indices, _ = var_idx_eq
-  with patch("builtins.open", m_file):
-    parser_obj = equation_parser.EquationParser(
-        "matlab", all_variables, all_indices)
-
-  return parser_obj

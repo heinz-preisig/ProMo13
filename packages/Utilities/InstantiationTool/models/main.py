@@ -79,7 +79,7 @@ class MainModel(QtCore.QObject):
         self._ontology_name,
         self._all_equations
     )
-    self._all_topology_objects = io.load_model_from_file(
+    self._all_topology_objects = io.load_topology_objects(
         self._ontology_name,
         self._model_name,
         self._all_entities,
@@ -273,7 +273,7 @@ class MainModel(QtCore.QObject):
         top_obj = cast(modeller_classes.EntityContainer, top_obj)
 
         top_obj.set_instantiation_value(
-            var_id,
+            self._all_variables[var_id],
             typed_tokens,
             instantiation_value
         )
@@ -284,7 +284,7 @@ class MainModel(QtCore.QObject):
     #     pp(top_obj.instantiated_variables)
 
   def save_topology_objects(self):
-    io.save_model_to_file(
+    io.save_topology_objects(
         self._ontology_name,
         self._model_name,
         self._all_topology_objects,

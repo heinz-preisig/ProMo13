@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>packages.Common.classes.expression_graph &mdash; ProMo 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> ProMo
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../classes/expression_graph.html">TopologyGraph</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules/model_composer.html">Model Builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules/InstantiationTool/instantiation_tool.html">Instantiation Tool</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">ProMo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">packages.Common.classes.expression_graph</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for packages.Common.classes.expression_graph</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">from</span> <span class="nn">email.policy</span> <span class="kn">import</span> <span class="n">default</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span> <span class="nn">disjoint_set</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+<span class="kn">from</span> <span class="nn">packages.Common.classes</span> <span class="kn">import</span> <span class="n">entity</span>
+<span class="kn">from</span> <span class="nn">packages.Common.classes</span> <span class="kn">import</span> <span class="n">equation</span>
+<span class="kn">from</span> <span class="nn">packages.Common.classes</span> <span class="kn">import</span> <span class="n">variable</span>
+<span class="kn">from</span> <span class="nn">packages.Common.classes</span> <span class="kn">import</span> <span class="n">index</span>
+<span class="kn">from</span> <span class="nn">packages.Common.classes</span> <span class="kn">import</span> <span class="n">modeller_classes</span>
+
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span> <span class="k">as</span> <span class="n">pp</span>
+
+
+<div class="viewcode-block" id="TopologyGraph"><a class="viewcode-back" href="../../../../classes/expression_graph.html#packages.Common.classes.expression_graph.TopologyGraph">[docs]</a><span class="k">class</span> <span class="nc">TopologyGraph</span><span class="p">:</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  A class to represent a topology graph.</span>
+
+<span class="sd">  Attributes:</span>
+<span class="sd">      _all_topology_objects (dict): All the topology objects used to</span>
+<span class="sd">       build the topology graph.</span>
+<span class="sd">      topology_graph (nx.Graph): The graph of the TopologyObjects.</span>
+<span class="sd">      names_info (defaultdict(list)): Stores the names for nodes,</span>
+<span class="sd">       arcs, species, etc.</span>
+<span class="sd">      index_sets (defaultdict(list)): Stores what objects belong to</span>
+<span class="sd">       each index set.</span>
+<span class="sd">      map_id_to_counter (dict): Maps identifiers corresponding to the</span>
+<span class="sd">       original indices to values from 1..Ni where Ni is the number of</span>
+<span class="sd">       objects related to the index.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">all_topology_objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">modeller_classes</span><span class="o">.</span><span class="n">TopologyObject</span><span class="p">],</span>
+  <span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_all_topology_objects</span> <span class="o">=</span> <span class="n">all_topology_objects</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">names_info</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">index_sets</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">map_id_to_counter</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_build_graph</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TopologyGraph._build_graph"><a class="viewcode-back" href="../../../../classes/expression_graph.html#packages.Common.classes.expression_graph.TopologyGraph._build_graph">[docs]</a>  <span class="k">def</span> <span class="nf">_build_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Builds a graph from the topology objects.</span>
+
+<span class="sd">    This method iterates over all topology objects and adds them as</span>
+<span class="sd">    nodes to the topology graph. An extra node is added to store</span>
+<span class="sd">    information about the topology through :meth:`_add_topology_node`.</span>
+
+<span class="sd">    Edges are added to the graph after all nodes have been added.</span>
+
+<span class="sd">    During this process, extracts information from the topology objects</span>
+<span class="sd">    and stores it in :attr:`names_info`, :attr:`index_sets` and</span>
+<span class="sd">    :attr:`map_id_to_counter`. See</span>
+<span class="sd">    :meth:`update_dicts_from_topology_object` for more info.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">species_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">counters</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">edges_info</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">top_obj_id</span><span class="p">,</span> <span class="n">top_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_topology_objects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">top_obj</span><span class="p">,</span> <span class="n">modeller_classes</span><span class="o">.</span><span class="n">EntityContainer</span><span class="p">):</span>
+        <span class="k">continue</span>
+
+      <span class="n">ent_type</span> <span class="o">=</span> <span class="n">top_obj</span><span class="o">.</span><span class="n">entity_instance</span><span class="o">.</span><span class="n">entity_type</span>
+
+      <span class="bp">self</span><span class="o">.</span><span class="n">_update_dicts_from_topology_object</span><span class="p">(</span><span class="n">counters</span><span class="p">[</span><span class="n">ent_type</span><span class="p">],</span> <span class="n">top_obj</span><span class="p">)</span>
+      <span class="n">counters</span><span class="p">[</span><span class="n">ent_type</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+      <span class="c1"># TODO: Extend for other typed tokens</span>
+      <span class="n">species_names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">top_obj</span><span class="o">.</span><span class="n">typed_tokens</span><span class="p">[</span><span class="s2">&quot;mass&quot;</span><span class="p">])</span>
+
+      <span class="c1"># We can&#39;t add the edges yet because the nodes might not be in the</span>
+      <span class="c1"># graph yet.</span>
+      <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">top_obj</span><span class="o">.</span><span class="n">outgoing_connections</span><span class="p">:</span>
+        <span class="n">edges_info</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">top_obj_id</span><span class="p">,</span> <span class="n">node_id</span><span class="p">))</span>
+
+      <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">top_obj_id</span><span class="p">,</span> <span class="n">top_obj</span><span class="o">=</span><span class="n">top_obj</span><span class="p">)</span>
+
+    <span class="c1"># Fixing the information about species after they have been collected</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">names_info</span><span class="p">[</span><span class="s2">&quot;species&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">species_names</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names_info</span><span class="p">[</span><span class="s2">&quot;species&quot;</span><span class="p">]):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">map_id_to_counter</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">edges_info</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_add_topology_node</span><span class="p">(</span><span class="n">edges_info</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TopologyGraph._update_dicts_from_topology_object"><a class="viewcode-back" href="../../../../classes/expression_graph.html#packages.Common.classes.expression_graph.TopologyGraph._update_dicts_from_topology_object">[docs]</a>  <span class="k">def</span> <span class="nf">_update_dicts_from_topology_object</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">counter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+      <span class="n">top_obj</span><span class="p">:</span> <span class="n">modeller_classes</span><span class="o">.</span><span class="n">EntityContainer</span><span class="p">,</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Updates the auxiliary dictionaries.</span>
+
+<span class="sd">    The auxiliary dictionaries are :attr:`names_info`,</span>
+<span class="sd">    :attr:`index_sets` and :attr:`map_id_to_counter`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        counter (int): Current counter for the corresponding top_obj.</span>
+<span class="sd">        top_obj (modeller_classes.EntityContainer): Stores the</span>
+<span class="sd">         information used to update the dictionaries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">map_id_to_counter</span><span class="p">[</span><span class="n">top_obj</span><span class="o">.</span><span class="n">identifier</span><span class="p">]</span> <span class="o">=</span> <span class="n">counter</span>
+
+    <span class="n">entity_index_set</span> <span class="o">=</span> <span class="n">top_obj</span><span class="o">.</span><span class="n">entity_instance</span><span class="o">.</span><span class="n">index_set</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">index_sets</span><span class="p">[</span><span class="n">entity_index_set</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+
+    <span class="n">entity_type</span> <span class="o">=</span> <span class="n">top_obj</span><span class="o">.</span><span class="n">entity_instance</span><span class="o">.</span><span class="n">entity_type</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">names_info</span><span class="p">[</span><span class="n">entity_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top_obj</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+  <span class="k">def</span> <span class="nf">_add_topology_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edges_info</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">topology_entity</span><span class="p">,</span> <span class="n">inst_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_topology_entity</span><span class="p">(</span><span class="n">edges_info</span><span class="p">)</span>
+
+    <span class="n">topology_obj</span> <span class="o">=</span> <span class="n">modeller_classes</span><span class="o">.</span><span class="n">EntityContainer</span><span class="p">(</span>
+        <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;Topology&quot;</span><span class="p">,</span> <span class="n">topology_entity</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">{},</span>
+        <span class="n">instantiated_variables</span><span class="o">=</span><span class="n">inst_vars</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">top_obj</span><span class="o">=</span><span class="n">topology_obj</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">node_id</span> <span class="o">!=</span> <span class="s2">&quot;T&quot;</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">node_id</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_create_topology_entity</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">edges_info</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">entity</span><span class="o">.</span><span class="n">Entity</span><span class="p">,</span> <span class="n">modeller_classes</span><span class="o">.</span><span class="n">InstantiationDict</span><span class="p">]:</span>
+    <span class="c1"># TODO: Fix this when a fixed constant list is provided.</span>
+    <span class="n">incidence_info</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;V_10&quot;</span><span class="p">:</span> <span class="p">{},</span>    <span class="c1"># F</span>
+        <span class="s2">&quot;V_64&quot;</span><span class="p">:</span> <span class="p">{},</span>    <span class="c1"># D</span>
+    <span class="p">}</span>
+    <span class="c1"># TODO: Extend for interfaces</span>
+    <span class="k">for</span> <span class="n">node1</span><span class="p">,</span> <span class="n">node2</span> <span class="ow">in</span> <span class="n">edges_info</span><span class="p">:</span>
+      <span class="n">top_obj1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_topology_objects</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">top_obj1</span><span class="p">,</span> <span class="n">modeller_classes</span><span class="o">.</span><span class="n">NodeSimple</span><span class="p">):</span>
+        <span class="n">incidence_info</span><span class="p">[</span><span class="s2">&quot;V_10&quot;</span><span class="p">][(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">incidence_info</span><span class="p">[</span><span class="s2">&quot;V_64&quot;</span><span class="p">][(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+      <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">top_obj1</span><span class="p">,</span> <span class="n">modeller_classes</span><span class="o">.</span><span class="n">Arc</span><span class="p">):</span>
+        <span class="n">incidence_info</span><span class="p">[</span><span class="s2">&quot;V_10&quot;</span><span class="p">][(</span><span class="n">node2</span><span class="p">,</span> <span class="n">node1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">incidence_info</span><span class="p">[</span><span class="s2">&quot;V_64&quot;</span><span class="p">][(</span><span class="n">node2</span><span class="p">,</span> <span class="n">node1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">topology_entity</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">Entity</span><span class="p">(</span>
+        <span class="s2">&quot;Topology&quot;</span><span class="p">,</span> <span class="p">{},</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{},</span> <span class="p">[],</span> <span class="nb">list</span><span class="p">(</span><span class="n">incidence_info</span><span class="p">),</span> <span class="p">[],</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">incidence_info</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">topology_entity</span><span class="p">,</span> <span class="n">incidence_info</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">VarEqDiGraph</span><span class="p">:</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">all_equations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">equation</span><span class="o">.</span><span class="n">Equation</span><span class="p">],</span>
+      <span class="n">all_indices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">index</span><span class="o">.</span><span class="n">Index</span><span class="p">],</span>
+      <span class="n">all_variables</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">Variable</span><span class="p">],</span>
+      <span class="n">all_topology_objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">modeller_classes</span><span class="o">.</span><span class="n">TopologyObject</span><span class="p">],</span>
+  <span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">all_equations</span> <span class="o">=</span> <span class="n">all_equations</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">all_indices</span> <span class="o">=</span> <span class="n">all_indices</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">all_variables</span> <span class="o">=</span> <span class="n">all_variables</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">all_topology_objects</span> <span class="o">=</span> <span class="n">all_topology_objects</span>
+
+    <span class="c1"># Digraph of var-eq</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">inst_variables</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">integrators</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Adding the integrators first.</span>
+    <span class="k">for</span> <span class="n">top_node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_graph</span><span class="p">:</span>
+      <span class="k">if</span> <span class="s2">&quot;N&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">top_node</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">top_node</span><span class="p">][</span><span class="s2">&quot;is_reservoir&quot;</span><span class="p">]:</span>
+        <span class="k">continue</span>
+
+      <span class="n">associated_entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">top_node</span><span class="p">][</span><span class="s2">&quot;entity&quot;</span><span class="p">]</span>
+      <span class="k">for</span> <span class="n">var_id</span><span class="p">,</span> <span class="n">eq_id</span> <span class="ow">in</span> <span class="n">associated_entity</span><span class="o">.</span><span class="n">integrators_info</span><span class="p">():</span>
+        <span class="n">vertex_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">var_id</span><span class="p">,</span> <span class="n">eq_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vertex_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">][</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">top_node</span><span class="p">)</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">][</span><span class="s2">&quot;index_sets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+              <span class="n">associated_entity</span><span class="o">.</span><span class="n">index_set</span>
+          <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+              <span class="n">vertex_id</span><span class="p">,</span>
+              <span class="n">topology_ids</span><span class="o">=</span><span class="p">{</span><span class="n">top_node</span><span class="p">},</span>
+              <span class="n">index_sets</span><span class="o">=</span><span class="p">{</span><span class="n">associated_entity</span><span class="o">.</span><span class="n">index_set</span><span class="p">},</span>
+          <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="p">:</span>
+      <span class="n">top_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span>
+      <span class="n">index_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;index_sets&quot;</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">integrators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span> <span class="o">+</span> <span class="p">(</span><span class="n">top_ids</span><span class="p">,)</span> <span class="o">+</span> <span class="p">(</span><span class="n">index_sets</span><span class="p">,))</span>
+
+    <span class="c1"># pp(self.integrators)</span>
+
+    <span class="c1"># Using BFS to build the rest of the digraph</span>
+    <span class="c1"># Instantiations are handled in this step and stored so they do not</span>
+    <span class="c1"># appear in the final digraph.</span>
+
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">vertex_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+      <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">vertex_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">][</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]))</span>
+
+    <span class="c1"># cont = 1</span>
+    <span class="k">while</span> <span class="n">queue</span><span class="p">:</span>
+      <span class="c1"># self.print_graph(file_name = f&quot;step{cont}.png&quot;)</span>
+      <span class="c1"># cont+=1</span>
+
+      <span class="n">parent_vertex_id</span><span class="p">,</span> <span class="n">topology_ids</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+      <span class="n">children_vertexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_dependencies</span><span class="p">(</span>
+          <span class="n">parent_vertex_id</span><span class="p">,</span>
+          <span class="n">topology_ids</span><span class="p">,</span>
+      <span class="p">)</span>
+
+      <span class="k">for</span> <span class="n">vertex_id</span><span class="p">,</span> <span class="n">vertex_info</span> <span class="ow">in</span> <span class="n">children_vertexes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">vertex_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="p">:</span>
+          <span class="c1"># In the case the combination of var-eq is already in the</span>
+          <span class="c1"># graph we check if the combination is used in a topology</span>
+          <span class="c1"># node that is not already in the digraph. If that is the</span>
+          <span class="c1"># case we update the node and queue the new additions for</span>
+          <span class="c1"># processing</span>
+          <span class="n">new_top_ids</span> <span class="o">=</span> <span class="n">vertex_info</span><span class="p">[</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">][</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span>
+          <span class="p">)</span>
+          <span class="k">if</span> <span class="n">new_top_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">][</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">vertex_info</span><span class="p">[</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">][</span><span class="s2">&quot;index_sets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">vertex_info</span><span class="p">[</span><span class="s2">&quot;index_sets&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">vertex_id</span><span class="p">,</span> <span class="n">new_top_ids</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+              <span class="n">vertex_id</span><span class="p">,</span>
+              <span class="n">topology_ids</span><span class="o">=</span><span class="n">vertex_info</span><span class="p">[</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">],</span>
+              <span class="n">index_sets</span><span class="o">=</span><span class="n">vertex_info</span><span class="p">[</span><span class="s2">&quot;index_sets&quot;</span><span class="p">],</span>
+          <span class="p">)</span>
+          <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">vertex_id</span><span class="p">,</span> <span class="n">vertex_info</span><span class="p">[</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">parent_vertex_id</span><span class="p">,</span> <span class="n">vertex_id</span><span class="p">)</span>
+
+    <span class="c1"># self.print_graph(file_name = f&quot;step{cont}.png&quot;)</span>
+    <span class="c1"># pp(self.inst_variables)</span>
+
+    <span class="c1"># Variables that are not instantiated are added to the instantiation</span>
+    <span class="c1"># dictionary without instantiation values.</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="p">:</span>
+      <span class="n">var_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">node</span>
+      <span class="k">if</span> <span class="n">var_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inst_variables</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_inst_vars</span><span class="p">(</span><span class="n">var_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># for node in self.digraph:</span>
+    <span class="c1">#   print(node[1] + &quot;: &quot; + str(self.digraph.nodes[node][&quot;index_sets&quot;]))</span>
+    <span class="c1"># pp(self.inst_variables)</span>
+
+  <span class="k">def</span> <span class="nf">find_dependencies</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">parent_vertex_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+      <span class="n">topology_ids</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+
+    <span class="n">par_var_id</span><span class="p">,</span> <span class="n">par_eq_id</span> <span class="o">=</span> <span class="n">parent_vertex_id</span>
+    <span class="n">par_eq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_equations</span><span class="p">[</span><span class="n">par_eq_id</span><span class="p">]</span>
+    <span class="n">linked_vars</span> <span class="o">=</span> <span class="n">par_eq</span><span class="o">.</span><span class="n">get_incidence_list</span><span class="p">(</span><span class="n">par_var_id</span><span class="p">)</span>
+
+    <span class="n">dependencies</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">var_id</span> <span class="ow">in</span> <span class="n">linked_vars</span><span class="p">:</span>
+      <span class="c1"># TODO: Find out what to do with time in the integrators</span>
+      <span class="k">if</span> <span class="n">var_id</span> <span class="o">==</span> <span class="s2">&quot;V_4&quot;</span><span class="p">:</span>
+        <span class="k">continue</span>
+      <span class="k">for</span> <span class="n">top_id</span> <span class="ow">in</span> <span class="n">topology_ids</span><span class="p">:</span>
+        <span class="n">var_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_equations</span><span class="p">(</span><span class="n">parent_vertex_id</span><span class="p">,</span> <span class="n">var_id</span><span class="p">,</span> <span class="n">top_id</span><span class="p">)</span>
+        <span class="c1"># pp(var_info)</span>
+
+        <span class="k">if</span> <span class="n">var_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+          <span class="k">continue</span>
+
+        <span class="k">for</span> <span class="n">eq_id</span><span class="p">,</span> <span class="n">new_top_id</span><span class="p">,</span> <span class="n">new_index_set</span> <span class="ow">in</span> <span class="n">var_info</span><span class="p">:</span>
+          <span class="n">vertex_id</span> <span class="o">=</span> <span class="p">(</span><span class="n">var_id</span><span class="p">,</span> <span class="n">eq_id</span><span class="p">)</span>
+          <span class="k">if</span> <span class="n">vertex_id</span> <span class="ow">in</span> <span class="n">dependencies</span><span class="p">:</span>
+            <span class="n">dependencies</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">][</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_top_id</span><span class="p">)</span>
+            <span class="n">dependencies</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">][</span><span class="s2">&quot;index_sets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_index_set</span><span class="p">)</span>
+          <span class="k">else</span><span class="p">:</span>
+            <span class="n">dependencies</span><span class="p">[</span><span class="n">vertex_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;topology_ids&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">new_top_id</span><span class="p">},</span>
+                <span class="s2">&quot;index_sets&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">new_index_set</span><span class="p">},</span>
+            <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">dependencies</span>
+
+  <span class="k">def</span> <span class="nf">get_equations</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">parent_vertex_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+      <span class="n">var_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+      <span class="n">top_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+
+    <span class="c1"># print(&quot;VAR: &quot; + var_id)</span>
+    <span class="c1"># print(&quot;TOP_ID: &quot; + top_id)</span>
+    <span class="n">current_entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">top_id</span><span class="p">][</span><span class="s2">&quot;entity&quot;</span><span class="p">]</span>
+    <span class="n">inst_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">top_id</span><span class="p">][</span><span class="s2">&quot;inst_info&quot;</span><span class="p">]</span>
+    <span class="c1"># pp(current_entity.entity_name)</span>
+    <span class="c1"># pp(inst_info)</span>
+
+    <span class="c1"># No equation if the variable is calculated in the main integrators</span>
+    <span class="c1"># (closing the loop).</span>
+    <span class="k">if</span> <span class="n">var_id</span> <span class="ow">in</span> <span class="n">current_entity</span><span class="o">.</span><span class="n">integrators</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># No equation if the variable is being instantiated.</span>
+    <span class="c1"># We add here the instantiation info.</span>
+    <span class="k">if</span> <span class="n">var_id</span> <span class="ow">in</span> <span class="n">inst_info</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">update_inst_vars</span><span class="p">(</span><span class="n">var_id</span><span class="p">,</span> <span class="n">top_id</span><span class="p">)</span>
+      <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># If the variable is calculated somewere else we need to check there</span>
+    <span class="c1"># to find the info.</span>
+    <span class="k">if</span> <span class="n">current_entity</span><span class="o">.</span><span class="n">is_input</span><span class="p">(</span><span class="n">var_id</span><span class="p">):</span>
+      <span class="n">var_info</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="c1"># Loop through the neighbors. For more info see NetworkX docs.</span>
+      <span class="k">for</span> <span class="n">top_node_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_graph</span><span class="p">[</span><span class="n">top_id</span><span class="p">]:</span>
+        <span class="c1"># print(top_node_id)</span>
+        <span class="c1"># print(&quot;NID: &quot; + top_node_id)</span>
+        <span class="n">neighbor_entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">top_node_id</span><span class="p">][</span><span class="s2">&quot;entity&quot;</span><span class="p">]</span>
+        <span class="c1"># print(&quot;NEIGHBOR:&quot; + str(neighbor_entity.index_set))</span>
+        <span class="k">if</span> <span class="n">neighbor_entity</span><span class="o">.</span><span class="n">is_output</span><span class="p">(</span><span class="n">var_id</span><span class="p">):</span>
+          <span class="c1"># A variable cant be input and output at the same time. When</span>
+          <span class="c1"># calling get_equations() on the neighbor parent_vertex_id can</span>
+          <span class="c1"># be None because we call it only for output variables and</span>
+          <span class="c1"># parent_vertex_id is only used if the variable is input.</span>
+          <span class="n">neighbor_var_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_equations</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">var_id</span><span class="p">,</span> <span class="n">top_node_id</span><span class="p">)</span>
+          <span class="k">if</span> <span class="n">neighbor_var_info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">var_info</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">neighbor_var_info</span><span class="p">)</span>
+
+          <span class="c1"># The index set of the neighbor is only added if the variable</span>
+          <span class="c1"># that we are looking for is an output there.</span>
+          <span class="k">if</span> <span class="n">neighbor_entity</span><span class="o">.</span><span class="n">index_set</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">parent_vertex_id</span><span class="p">][</span><span class="s2">&quot;index_sets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="n">neighbor_entity</span><span class="o">.</span><span class="n">index_set</span>
+            <span class="p">)</span>
+
+      <span class="k">return</span> <span class="n">var_info</span>
+
+    <span class="n">eq_id</span> <span class="o">=</span> <span class="n">current_entity</span><span class="o">.</span><span class="n">get_eq_for_var</span><span class="p">(</span><span class="n">var_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">eq_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="c1"># If we can find the info of the variable in the var_eq_forest.</span>
+      <span class="k">return</span> <span class="p">[(</span><span class="n">eq_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top_id</span><span class="p">,</span> <span class="n">current_entity</span><span class="o">.</span><span class="n">index_set</span><span class="p">)]</span>
+
+    <span class="c1"># If the variable can not be found in the topology object.</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+  <span class="k">def</span> <span class="nf">update_inst_vars</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">var_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+      <span class="n">top_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Initializing variables that are not already in the dict.</span>
+    <span class="k">if</span> <span class="n">var_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inst_variables</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">inst_variables</span><span class="p">[</span><span class="n">var_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Variables that are not instantiated are also added to the dict</span>
+    <span class="c1"># with vals: {} to help with the initialization. top_id = None is</span>
+    <span class="c1"># the flag used to know we are dealing with these variables.</span>
+    <span class="k">if</span> <span class="n">top_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span>
+
+    <span class="c1"># Storing values</span>
+    <span class="n">node_inst_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">top_id</span><span class="p">][</span><span class="s2">&quot;inst_info&quot;</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">inst_variables</span><span class="p">[</span><span class="n">var_id</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">node_inst_info</span><span class="p">[</span><span class="n">var_id</span><span class="p">])</span>
+
+  <span class="k">def</span> <span class="nf">find_solving_order</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">all_cycles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_cycles</span><span class="p">()</span>
+
+    <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">process_dangling_nodes</span><span class="p">()</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">process_dangling_cycles</span><span class="p">(</span><span class="n">all_cycles</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">find_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+    <span class="c1"># Usin DisjoinSet structure to find groups of cycles with no common</span>
+    <span class="c1"># nodes.</span>
+    <span class="n">disj_set</span> <span class="o">=</span> <span class="n">disjoint_set</span><span class="o">.</span><span class="n">DisjointSet</span><span class="p">()</span>
+    <span class="n">nodes_in_cycles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">simple_cycles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">cycle</span><span class="p">:</span>
+        <span class="n">disj_set</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="n">nodes_in_cycles</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">nodes_in_cycles</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">nodes_in_cycles</span><span class="p">:</span>
+        <span class="n">disj_set</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">disj_set</span><span class="o">.</span><span class="n">itersets</span><span class="p">())</span>
+
+  <span class="k">def</span> <span class="nf">current_dangling_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="n">dangling_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">out_degree</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">dangling_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dangling_nodes</span>
+
+  <span class="k">def</span> <span class="nf">process_dangling_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">while</span> <span class="n">d_nodes</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_dangling_nodes</span><span class="p">():</span>
+      <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">d_nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrators</span><span class="p">:</span>
+          <span class="k">continue</span>
+
+        <span class="n">top_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span>
+        <span class="n">index_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;index_sets&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">node</span> <span class="o">+</span> <span class="p">(</span><span class="n">top_ids</span><span class="p">,)</span> <span class="o">+</span> <span class="p">(</span><span class="n">index_sets</span><span class="p">,)])</span>
+
+      <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">(</span><span class="n">d_nodes</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">current_dangling_cycles</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">all_cycles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]],</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+    <span class="n">dangling_cycles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">all_cycles</span><span class="p">:</span>
+      <span class="n">cycle_edges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+      <span class="n">out_edges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">out_edges</span><span class="p">(</span><span class="n">cycle</span><span class="p">))</span>
+
+      <span class="k">if</span> <span class="n">out_edges</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">cycle_edges</span><span class="p">):</span>
+        <span class="n">dangling_cycles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dangling_cycles</span>
+
+  <span class="k">def</span> <span class="nf">process_dangling_cycles</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">all_cycles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]],</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="k">while</span> <span class="n">d_cycles</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_dangling_cycles</span><span class="p">(</span><span class="n">all_cycles</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">d_cycles</span><span class="p">:</span>
+        <span class="n">cycle_info</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">cycle</span><span class="p">:</span>
+          <span class="n">top_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;topology_ids&quot;</span><span class="p">]</span>
+          <span class="n">index_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;index_sets&quot;</span><span class="p">]</span>
+          <span class="n">cycle_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span> <span class="o">+</span> <span class="p">(</span><span class="n">top_ids</span><span class="p">,)</span> <span class="o">+</span> <span class="p">(</span><span class="n">index_sets</span><span class="p">,))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">expressions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle_info</span><span class="p">)</span>
+        <span class="n">all_cycles</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">print_graph</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">graph</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+      <span class="n">file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;output.png&quot;</span><span class="p">,</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">digraph</span>
+
+    <span class="n">out_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">drawing</span><span class="o">.</span><span class="n">nx_pydot</span><span class="o">.</span><span class="n">to_pydot</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+    <span class="n">out_graph</span><span class="o">.</span><span class="n">write_png</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

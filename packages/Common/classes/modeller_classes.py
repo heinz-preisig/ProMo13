@@ -20,23 +20,15 @@ Classes:
 Each class is documented in detail within its own docstring.
 """
 import copy
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 from typing_extensions import Self
-from enum import Enum
 import json
 
 from packages.Common.classes import entity
+from packages.Common.classes import variable
 
 # Define type aliases
-InstantiationDict = Dict[str, Dict[str, Optional[str]]]
-
-
-class TopologySubtypes(Enum):
-  BASE = 0
-  NODE_SIMPLE = 1
-  NODE_COMPOSITE = 2
-  ARC = 3
-  INTERFACE = 4
+InstantiationDict = Dict[str, Dict[Tuple, Optional[str]]]
 
 
 class TopologyObject:
@@ -58,7 +50,6 @@ class TopologyObject:
       self,
       identifier: str,
       name: str,
-      subtype: TopologySubtypes,
       parent_id: Optional[str] = None,
   ):
     """
@@ -72,7 +63,6 @@ class TopologyObject:
     """
     self.identifier = identifier
     self.name = name
-    self.subtype = subtype
     self.parent_id = parent_id
 
   # TODO: Make custom class for the return value
@@ -80,7 +70,6 @@ class TopologyObject:
     class_dict = {}
     class_dict["identifier"] = self.identifier
     class_dict["name"] = self.name
-    class_dict["subtype"] = self.subtype.value
     class_dict["parent_id"] = self.parent_id
     class_dict["modeller_class"] = self.__class__.__name__
 
@@ -96,9 +85,6 @@ class TopologyObject:
 
     # Only used to decide which class should be used
     del init_data["modeller_class"]
-
-    # Switching to the enum object form its value
-    init_data["subtype"] = TopologySubtypes(init_data["subtype"])
 
     return cls(**init_data)
 
@@ -122,11 +108,10 @@ class NodeComposite(TopologyObject):
       self,
       identifier: str,
       name: str,
-      subtype: TopologySubtypes,
       parent_id: Optional[str] = None,
       children_ids: Optional[List[str]] = None,
   ):
-    super().__init__(identifier, name, subtype, parent_id)
+    super().__init__(identifier, name, parent_id)
 
     self.children_ids = children_ids or []
 
@@ -161,16 +146,14 @@ class EntityContainer(TopologyObject):
       self,
       identifier: str,
       name: str,
-      subtype: TopologySubtypes,
       entity_instance: entity.Entity,
       network: str,
       named_network: str,
       tokens: List[str],
       typed_tokens: Dict[str, List[str]],
       parent_id: Optional[str] = None,
-      conversions: Optional[str] = None,
       instantiated_variables: Optional[InstantiationDict] = None,
-      outgoing_nodes: Optional[List[str]] = None
+      outgoing_connections: Optional[List[str]] = None,
   ):
     # """
     # Initializes an EntityContainer instance.
@@ -189,28 +172,21 @@ class EntityContainer(TopologyObject):
     #      instantiated variables associated with the entity. Defaults to
     #      **None**.
     # """
-    super().__init__(identifier, name, subtype, parent_id)
+    super().__init__(identifier, name, parent_id)
 
-    self.entity_instance = entity_instance
-    self.network = network
-    self.named_network = named_network
     self.tokens = tokens
     self.typed_tokens = typed_tokens
-    self.conversions = conversions
+    self.network = network
+    self.named_network = named_network
+    self.entity_instance = entity_instance
     self.instantiated_variables: InstantiationDict = \
         instantiated_variables or {}
-    self.outgoing_nodes = outgoing_nodes or []
+    self.outgoing_connections = outgoing_connections or []
 
     # Adding the variables marked for initialization in the entity
     for var_id in self.entity_instance.get_init_vars():
       if var_id not in self.instantiated_variables:
         self.instantiated_variables[var_id] = {}
-    #     # TODO: Connect this to the ontology instead
-    #     if "I_3" in all_variables[var_id].index_structures:
-    #       for tt in self.typed_tokens["mass"]:
-    #         self.instantiated_variables[var_id][tt] = None
-    #     else:
-    #       self.instantiated_variables[var_id]["default"] = None
 
   def get_entity_name(self) -> str:
     return self.entity_instance.get_entity_name()
@@ -220,7 +196,7 @@ class EntityContainer(TopologyObject):
 
   def get_instantiation_value(
       self,
-      var_id: str,
+      var: variable.Variable,
       typed_token: Optional[str] = None,
   ) -> Optional[str]:
     """
@@ -240,22 +216,34 @@ class EntityContainer(TopologyObject):
          typed_token is not in typed_tokens["mass"].
     """
     # TODO: Replace with proper exception handling code
-    assert var_id in self.instantiated_variables, \
+    assert var.var_id in self.instantiated_variables, \
         f"ERROR: In Topology Object \"{self.name}\": " \
-        f"\"{var_id}\" not in instantiated variables."
+        f"\"{var.var_id}\" not in instantiated variables."
 
-    if typed_token is None:
-      return self.instantiated_variables[var_id].get("default")
-    else:
+    key_list = var.index_structures.copy()
+
+    if isinstance(self, NodeSimple) and "I_1" in key_list:
+      key_list[key_list.index("I_1")] = self.identifier
+
+    if isinstance(self, Arc) and "I_2" in key_list:
+      key_list[key_list.index("I_2")] = self.identifier
+
+    if not key_list:
+      key_list.append("1")
+
+    if typed_token is not None:
       # TODO: Replace with proper exception handling code
       assert typed_token in self.typed_tokens["mass"], \
           f"ERROR: In Topology Object \"{self.name}\": " \
           f"\"{typed_token}\" not in typed_tokens."
-      return self.instantiated_variables[var_id].get(typed_token)
+
+      key_list[key_list.index("I_3")] = typed_token
+
+    return self.instantiated_variables[var.var_id][tuple(key_list)]
 
   def set_instantiation_value(
       self,
-      var_id: str,
+      var: variable.Variable,
       typed_tokens: List[str],
       value: str,
 
@@ -274,30 +262,58 @@ class EntityContainer(TopologyObject):
          typed_token is not in typed_tokens["mass"].
     """
     # TODO: Replace with proper exception handling
-    assert var_id in self.instantiated_variables, \
-        f"ERROR: {var_id} not in instantiated variables."
+    assert var.var_id in self.instantiated_variables, \
+        f"ERROR: {var.var_id} not in instantiated variables."
 
     if typed_tokens:
       for tt in typed_tokens:
-        if tt in self.typed_tokens["mass"]:
-          self.instantiated_variables[var_id][tt] = value
-    else:
-      self.instantiated_variables[var_id]["default"] = value
+        assert tt in self.typed_tokens["mass"], \
+            f"Error: {tt} not a token for variable {var.var_id}"
 
-  def add_ougoing_node(self, node_id: str) -> None:
-    self.outgoing_nodes.append(node_id)
+        self._set_instantiation_variable(var, value, tt)
+    else:
+      self._set_instantiation_variable(var, value)
+
+  def _set_instantiation_variable(
+      self,
+      var: variable.Variable,
+      value: str,
+      tt: Optional[str] = None,
+  ):
+    key_list = var.index_structures.copy()
+
+    if not key_list:
+      key_list.append("1")
+
+    if isinstance(self, NodeSimple) and "I_1" in key_list:
+      key_list[key_list.index("I_1")] = self.identifier
+
+    if isinstance(self, Arc) and "I_2" in key_list:
+      key_list[key_list.index("I_2")] = self.identifier
+
+    if tt is not None:
+      key_list[key_list.index("I_3")] = tt
+
+    self.instantiated_variables[var.var_id][tuple(key_list)] = value
+
+  def add_outgoing_connection(self, connection_id: str) -> None:
+    self.outgoing_connections.append(connection_id)
 
   def to_json(self):
     class_dict = super().to_json()
-    class_dict["subtype"] = self.subtype.value
     class_dict["entity_name"] = self.entity_instance.get_entity_name()
     class_dict["network"] = self.network
     class_dict["named_network"] = self.named_network
     class_dict["tokens"] = self.tokens
     class_dict["typed_tokens"] = self.typed_tokens
-    class_dict["conversions"] = self.conversions
-    class_dict["instantiated_variables"] = self.instantiated_variables
-    class_dict["outgoing_nodes"] = self.outgoing_nodes
+    class_dict["instantiated_variables"] = {}
+
+    for var_id, inst_info in self.instantiated_variables.items():
+      class_dict["instantiated_variables"][var_id] = {
+          str(key): value
+          for key, value in inst_info.items()
+      }
+    class_dict["outgoing_connections"] = self.outgoing_connections
 
     return class_dict
 
@@ -317,17 +333,98 @@ class EntityContainer(TopologyObject):
         init_data.pop("entity_name")
     ]
 
-    # Switching to the enum object form its value
-    init_data["subtype"] = TopologySubtypes(init_data["subtype"])
+    for var_id, inst_info in init_data["instantiated_variables"].items():
+      init_data["instantiated_variables"][var_id] = {
+          eval(key): value
+          for key, value in inst_info.items()
+      }
 
     return cls(**init_data)
 
 
+class Arc(EntityContainer):
+  """
+  Represents an Arc, a specific type of EntityContainer.
+
+  Inheritance:
+      Inherits from :class:`EntityContainer`.
+
+  Attributes:
+      source (str): The source node of the arc.
+      sink (str): The sink node of the arc.
+  """
+
+  def __init__(
+      self,
+      identifier: str,
+      name: str,
+      entity_instance: entity.Entity,
+      network: str,
+      named_network: str,
+      tokens: List[str],
+      typed_tokens: Dict[str, List[str]],
+      parent_id: Optional[str] = None,
+      instantiated_variables: Optional[InstantiationDict] = None,
+      outgoing_connections: Optional[List[str]] = None,
+      arc_type: Optional[str] = None,
+  ):
+    super().__init__(identifier, name, entity_instance, network, named_network,
+                     tokens, typed_tokens, parent_id, instantiated_variables,
+                     outgoing_connections)
+    # TODO: Extend where interfaces are added
+    if arc_type is None:
+      arc_type = "Arc"
+
+
+class NodeSimple(EntityContainer):
+  """
+  Represents a NodeSimple, a specific type of EntityContainer.
+
+  Inheritance:
+      Inherits from :class:`EntityContainer`.
+
+  Attributes:
+      conversions (str): The conversions associated with the node.
+      injected_typed_tokens (Dict[str, str], optional): The injected
+       typed tokens associated with the node.
+  """
+
+  def __init__(
+      self,
+      identifier: str,
+      name: str,
+      entity_instance: entity.Entity,
+      network: str,
+      named_network: str,
+      tokens: List[str],
+      typed_tokens: Dict[str, List[str]],
+      conversions: str,
+      parent_id: Optional[str] = None,
+      instantiated_variables: Optional[InstantiationDict] = None,
+      outgoing_connections: Optional[List[str]] = None,
+      injected_typed_tokens: Optional[Dict[str, str]] = None,
+  ):
+    super().__init__(identifier, name, entity_instance, network, named_network,
+                     tokens, typed_tokens, parent_id, instantiated_variables,
+                     outgoing_connections)
+
+    self.conversions = conversions
+    self.injected_typed_tokens = injected_typed_tokens
+
+  def to_json(self):
+    class_dict = super().to_json()
+    class_dict["outgoing_connections"] = self.outgoing_connections
+    class_dict["conversions"] = self.conversions
+    class_dict["injected_typed_tokens"] = self.injected_typed_tokens
+
+    return class_dict
+
+
 modeller_class_mapping = {
     "NodeComposite": NodeComposite,
-    "EntityContainer": EntityContainer
-    # "NodeSimple": NodeSimple,
-    # "Arc": Arc,
+    "EntityContainer": EntityContainer,
+    "NodeSimple": NodeSimple,
+    "Arc": Arc,
 }
 
 
@@ -386,83 +483,3 @@ def custom_decoder_factory(all_entities: Dict[str, entity.Entity]):
       return dict_data
 
   return CustomJSONDecoder
-
-
-# class Arc(EntityContainer):
-#   """
-#   Represents an Arc, a specific type of EntityContainer.
-
-#   Inheritance:
-#       Inherits from :class:`EntityContainer`.
-
-#   Attributes:
-#       source (str): The source node of the arc.
-#       sink (str): The sink node of the arc.
-#   """
-
-#   def __init__(
-#       self,
-#       identifier: str,
-#       name: str,
-#       entity_instance: entity.Entity,
-#       tokens: List[str],
-#       typed_tokens: Dict[str, List[str]],
-#       network: str,
-#       named_network: str,
-#       source: str,
-#       sink: str,
-#       parent_id: Optional[str] = None,
-#       instantiated_variables: Optional[InstantiationDict] = None,
-#   ):
-#     super().__init__(identifier, name, entity_instance, network, named_network,
-#                      tokens, typed_tokens, parent_id, instantiated_variables)
-
-#     self.source = source
-#     self.sink = sink
-
-#   def to_json(self):
-#     class_dict = super().to_json()
-#     class_dict["source"] = self.source
-#     class_dict["sink"] = self.sink
-
-#     return class_dict
-
-
-# class NodeSimple(EntityContainer):
-#   """
-#   Represents a NodeSimple, a specific type of EntityContainer.
-
-#   Inheritance:
-#       Inherits from :class:`EntityContainer`.
-
-#   Attributes:
-#       conversions (str): The conversions associated with the node.
-#       injected_typed_tokens (Dict[str, str], optional): The injected
-#        typed tokens associated with the node.
-#   """
-
-#   def __init__(
-#       self,
-#       identifier: str,
-#       name: str,
-#       entity_instance: entity.Entity,
-#       tokens: List[str],
-#       typed_tokens: Dict[str, List[str]],
-#       network: str,
-#       named_network: str,
-#       conversions: str,
-#       parent_id: Optional[str] = None,
-#       instantiated_variables: Optional[InstantiationDict] = None,
-#       injected_typed_tokens: Optional[Dict[str, str]] = None,
-#   ):
-#     super().__init__(identifier, name, entity_instance, network, named_network,
-#                      tokens, typed_tokens, parent_id, instantiated_variables)
-#     self.conversions = conversions
-#     self.injected_typed_tokens = injected_typed_tokens
-
-#   def to_json(self):
-#     class_dict = super().to_json()
-#     class_dict["conversions"] = self.conversions
-#     class_dict["injected_typed_tokens"] = self.injected_typed_tokens
-
-#     return class_dict
