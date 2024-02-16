@@ -214,43 +214,43 @@ def stringBinaryOperation(language, operation, left, right,
   else:
     b = "%s" % right.__str__()
   if index:  # If index present >> reduceproduct  index is the ID
-    res_index_structure = []  # Resulting index sets
-    index_compiled = compile_index(index, indices, language)
-    if language in LANGUAGES["matrix_form"]:
-      try:
-        left_transpose = left.index_structures.index(index) == 0
-        right_transpose = right.index_structures.index(index) == 1
-        left_vector = len(left.index_structures) == 1
-        right_vector = len(right.index_structures) == 1
-      except:
-        msg = ">>>>>>>>>>>>>>>>>>>>> reduce product -- something goes wrong"
-        raise MatrixCompilationError(msg)
-        left_transpose = "left_transpose"
-        right_transpose = "right_transpose"
-        left_vector = "left_vector"
-        right_vector = "right_vector"
-      if left_transpose:
-        a = CODE[language]["transpose"] % a
-      if right_transpose:
-        b = CODE[language]["transpose"] % b
-      s = CODE[language][operation] % (a, b)
-      if left_vector:
-        if not right_vector:  # vector * matrix --> row  vector --> transpose
-          s = CODE[language]["transpose"] % s
-      else:
-        if right_vector:  # matrix * vector --> column vector --> do nothing
-          pass
-        else:  # matrix * matrix --> matrix ---> complicated needs analysis
-          if left_transpose:
-            res_index_structure.append(left.index_structures[1])
-          else:
-            res_index_structure.append(left.index_structures[0])
-          if right_transpose:
-            res_index_structure.append(right.index_structures[0])
-          else:
-            res_index_structure.append(right.index_structures[1])
-          if res_index_structure[0] > res_index_structure[1]:  # transpose result if order is not standard
-            s = CODE[language]["transpose"] % s
+    # res_index_structure = []  # Resulting index sets
+    # index_compiled = compile_index(index, indices, language)
+    # if language in LANGUAGES["matrix_form"]:
+    #   try:
+    #     left_transpose = left.index_structures.index(index) == 0
+    #     right_transpose = right.index_structures.index(index) == 1
+    #     left_vector = len(left.index_structures) == 1
+    #     right_vector = len(right.index_structures) == 1
+    #   except:
+    #     msg = ">>>>>>>>>>>>>>>>>>>>> reduce product -- something goes wrong"
+    #     raise MatrixCompilationError(msg)
+    #     left_transpose = "left_transpose"
+    #     right_transpose = "right_transpose"
+    #     left_vector = "left_vector"
+    #     right_vector = "right_vector"
+    #   if left_transpose:
+    #     a = CODE[language]["transpose"] % a
+    #   if right_transpose:
+    #     b = CODE[language]["transpose"] % b
+    #   s = CODE[language][operation] % (a, b)
+    #   if left_vector:
+    #     if not right_vector:  # vector * matrix --> row  vector --> transpose
+    #       s = CODE[language]["transpose"] % s
+    #   else:
+    #     if right_vector:  # matrix * vector --> column vector --> do nothing
+    #       pass
+    #     else:  # matrix * matrix --> matrix ---> complicated needs analysis
+    #       if left_transpose:
+    #         res_index_structure.append(left.index_structures[1])
+    #       else:
+    #         res_index_structure.append(left.index_structures[0])
+    #       if right_transpose:
+    #         res_index_structure.append(right.index_structures[0])
+    #       else:
+    #         res_index_structure.append(right.index_structures[1])
+    #       if res_index_structure[0] > res_index_structure[1]:  # transpose result if order is not standard
+    #         s = CODE[language]["transpose"] % s
 
     else:
       s = CODE[language][operation] % (a, index_compiled, b)
@@ -1413,228 +1413,24 @@ class Operator(PhysicalVariable):
     self.type = TEMP_VARIABLE
     self.equation_type = equation_type
 
-  # def mergeTokens(self, var_list):
-  #   """
-  #   a :: variable
-  #   b :: variable
-  #   """
-  #   s = set()
-  #   for v in var_list:
-  #     s = s | set(v.tokens)
-  #
-  #   return sorted(s)
-  #
-  # def copyTokens(self, a):
-  #   return a.tokens
-  #
-  # def reduceTokens(self, a, b, red_index):
-  #   indices = self.space.variables.ontology_container.indices
-  #   index = indices[red_index]
-  #
-  #   a_set = set(a.tokens)
-  #   b_set = set(b.tokens)
-  #   token = index["tokens"]
-  #   if token:
-  #     c = sorted(a_set | b_set)  # RULE: for tokens to reduce define A,B :: tokens
-  #     if (token in a.tokens) and (token in b.tokens):  # RULE:  A,B red(B) A,B --> A
-  #       c.remove(token)
-  #     else:
-  #       c_set = a_set.symmetric_difference(b_set)  # RULE: A red(A) A,B -- B
-  #       c = sorted(c_set)
-  #   else:
-  #     c_set = a_set.symmetric_difference(b_set)
-  #     c = sorted(c_set)
-  #   tokens = c
-  #   return tokens
-  #   # a_set = set(a.tokens)
-  #   # b_set = set(b.tokens)
-  #   # r_set = a_set.symmetric_difference(b_set)
-  #   # return r_set
 
-  # def Khatri_Rao_indexing(self, a, b):
-  #   # RULE: not considered ordered index sets required: N, A: AS, NS --> AS, NS
-  #   # RULE: x,y,z cannot be block indices
-  #   # RULE: x,y cannot be base indices -- does not allow to distinguish pattern 1 from the others
-  #   # RULE: z can be anything but a block index
-  #
-  #   # 1: N,A,x,y : NS,AS,x,z --> NS,AS,x,y,z
-  #   # 2: N,x,y   : NS,x,z    --> NS,x,y,z
-  #   # 3: N,x,y   : NS,AS,x,z --> NS,AS,x,y,z
-  #   # 4: A,x,y   : NS,AS,x,z --> NS,AS,x,y,z
-  #
-  #   indices = self.space.indices
-  #   base_indices = self.space.base_indices
-  #
-  #   # RULE: the first index in a must be a base index
-  #   if a.index_structures[0] not in base_indices:
-  #     raise IndexStructureError("first index in first argument must be a base index")
-  #
-  #   a_block = []  # keep a list of block indices
-  #   b_block = []
-  #   a_single = []
-  #   b_single = []
-  #
-  #   for index_ID in a.index_structures:
-  #     index = copy.copy(index_ID)
-  #     if indices[index_ID]["type"] == "block_index":
-  #       a_block.append(index)
-  #       raise IndexStructureError("the first argument cannot have any block indices")
-  #     else:
-  #       if (len(a_single) == 0) and (index_ID not in base_indices):
-  #         raise IndexStructureError("the first index in the first argument must be a base index")
-  #       if index_ID in base_indices:
-  #         a_single.append(index)
-  #   if len(a_single) > 2:  # TODO actually can be sharper -- must be the first one or two
-  #     # raise IndexStructureError("first argument cannot have more than 2 base indices")
-  #     pass
-  #
-  #   for index_ID in b.index_structures:
-  #     index = copy.copy(index_ID)
-  #     if indices[index_ID]["type"] == "block_index":
-  #       b_block.append(index)
-  #       if len(b_block) > 2:
-  #         raise IndexStructureError("the second argument cannot have more than 2 block indices")
-  #     else:
-  #       b_single.append(index)  #
-  #
-  #   if len(b_block) == 0:
-  #     raise IndexStructureError("the second argument must have at least one block index")
-  #
-  #   if len(b_block) == 1:
-  #     # 2: N,x,y   : NS,x,z    --> NS,x,y,z
-  #     pattern = 2
-  #     l_a_bound = 1
-  #     l_b_bound = 1;
-  #
-  #   elif len(b_block) == 2:
-  #     if len(a_single) == 1:
-  #       # 3: N,x,y   : NS,AS,x,z --> NS,AS,x,y,z
-  #       # 4: A,x,y   : NS,AS,x,z --> NS,AS,x,y,z
-  #       pattern = 3
-  #       l_a_bound = 1
-  #       l_b_bound = 3
-  #     else:
-  #       # 1: N,A,x,y : NS,AS,x,z --> NS,AS,x,y,z
-  #       pattern = 1
-  #       l_a_bound = 2
-  #       l_b_bound = 3
-  #
-  #   index_structure = copy.copy(b.index_structures)
-  #   index_set = set(index_structure)
-  #
+
+  # def single_reduce_index(self, a, index):
   #   try:
-  #     for index in a.index_structures[l_a_bound:]:
-  #       i = copy.copy(index)
-  #       if index not in index_structure:
-  #         index_set.add(i)
-  #     for index in b.index_structures[l_b_bound:]:
-  #       if index not in index_structure:
-  #         index_set.add(i)
+  #     self.index_ID = self.space.inverse_indices[index]
   #   except:
-  #     print("debugging -- Khatri-Rao problems")
-  #
-  #   # print("valid K-R product", index_structure)
-  #   return sorted(index_set)
-
-  # def diffFraction_indexing(self, x, y):
-  #   # this one is tricky
-  #   # cases:
-  #   #   N . -     --> N
-  #   #   - . N     --> N
-  #   #   N . N     --> N           --> simplest case
-  #   #   N,x . N,y --> N,x,y
-  #   #   ... any two are the same  --> expand product case
-  #   #   N,x . NS,y --> NS,x,y     --> Khatri Rao indexing
-  #   #   NS,x . N,y --> NS,x,y     --> reverse Khatri Rao indexing
-  #
-  #   # Khatri Rao is:
-  #   # 1: N,A,x,y : NS,AS,x,z --> NS,AS,x,y,z
-  #   # 2: N,x,y   : NS,x,z    --> NS,x,y,z
-  #   # 3: N,x,y   : NS,AS,x,z --> NS,AS,x,y,z
-  #   # 4: A,x,y   : NS,AS,x,z --> NS,AS,x,y,z
-  #
-  #   if x.index_structures == []:
-  #     return sorted(y.index_structures)
-  #   if y.index_structures == []:
-  #     return sorted(x.index_structures)
-  #
-  #   if x.index_structures == y.index_structures:
-  #     index_structures = sorted(x.index_structures)
-  #     return sorted(index_structures)
-  #
-  #   for i_x in x.index_structures:
-  #     for i_y in y.index_structures:
-  #       if i_x == i_y:
-  #         index_structures = self.expandProduct_indexing(x, y)
-  #         return sorted(index_structures)
-  #
-  #   # now try Khatri Rao
-  #   try:
-  #     index_structures = sorted(self.Khatri_Rao_indexing(x, y))
-  #   except (IndexStructureError):
-  #     # try the reverse Khatri Rao
-  #     try:
-  #       index_structures = sorted(self.Khatri_Rao_indexing(y, x))
-  #     except:
-  #       print("debugging --------------- returned with IndexStructureError")
-  #       print("debugging - indices are x", x.index_structures)
-  #       print("debugging - indices are y", y.index_structures)
-  #       index_structures = sorted(self.Khatri_Rao_indexing(y, x))
-  #
-  #   return sorted(index_structures)
-
-  # def expandProduct_indexing(self, a, b):
-  #
-  #   _s = set()
-  #   for i in a.index_structures:
-  #     _s.add(i)
-  #   for i in b.index_structures:
-  #     _s.add(i)
-  #
-  #   return sorted(list(_s))
-
-  # def reduce_index(self, a, b):
-  #
+  #     raise IndexStructureError(" no such index %s" % index)
   #   s_index_a = set(a.index_structures)
-  #   s_index_b = set(b.index_structures)
-  #
-  #   common_index_set = s_index_a & s_index_b
-  #   l = len(common_index_set)
-  #   if  l == 1:
-  #     self.index_structures = sorted(s_index_a ^ s_index_b)
+  #   if self.index_ID not in a.index_structures:
+  #     pretty_a_indices = renderIndexListFromGlobalIDToInternal(s_index_a, self.space.indices)
+  #     msg = "reduce index %s is not in index list of the argument" % self.index_ID
+  #     msg += "\n first argument indices : %s" % pretty_a_indices
+  #     print(msg)
+  #     self.index_structures = []
   #
   #   else:
-  #     pretty_a_indices = renderIndexListFromGlobalIDToInternal(s_index_a, self.space.indices)
-  #     pretty_b_indices = renderIndexListFromGlobalIDToInternal(s_index_b, self.space.indices)
-  #
-  #     if > 1:
-  #       msg = "ReduceProduct -- there are more than one common index -- not allowed"
-  #     else:
-  #       msg = "ReduceProduct -- there must be exactly one common index over which one reduces"
-  #
-  #     msg += "\n first argument indices : %s" % pretty_a_indices
-  #     msg += "\n second argument indices: %s" % pretty_b_indices
-  #     print(msg)
-  #     raise IndexStructureError(msg)
-
-
-
-  def single_reduce_index(self, a, index):
-    try:
-      self.index_ID = self.space.inverse_indices[index]
-    except:
-      raise IndexStructureError(" no such index %s" % index)
-    s_index_a = set(a.index_structures)
-    if self.index_ID not in a.index_structures:
-      pretty_a_indices = renderIndexListFromGlobalIDToInternal(s_index_a, self.space.indices)
-      msg = "reduce index %s is not in index list of the argument" % self.index_ID
-      msg += "\n first argument indices : %s" % pretty_a_indices
-      print(msg)
-      self.index_structures = []
-
-    else:
-      self.index_structures = sorted(s_index_a - {self.index_ID})
-      # print("debugging")
+  #     self.index_structures = sorted(s_index_a - {self.index_ID})
+  #     # print("debugging")
 
   # def has_equal_index_structures(self, a, b):
   #   if a.index_structures != b.index_structures:
@@ -1722,7 +1518,7 @@ class Add(BinaryOperator):
 
 
 class ReduceProduct(BinaryOperator):
-  def __init__(self, op, a, b, space):
+  def __init__(self, op, a, b, space, reduceindex=None):
     """
     standard matrix product with the index defining which dimension is to be reduced.
     """
@@ -1731,26 +1527,39 @@ class ReduceProduct(BinaryOperator):
     BinaryOperator.__init__(self, op, a, b, space)
 
     self.units = a.units * b.units
-
-    # RULE: there must be only one and exaclty one common index
-    # RULE: expansion is implied
-
     common_index_set = self.s_index_a & self.s_index_b
     l = len(common_index_set)
-    if l == 1:
-      self.index_structures = sorted(self.s_index_a ^ self.s_index_b)
+
+    if not reduceindex:
+
+      # RULE: there must be only one and exaclty one common index
+      # RULE: expansion is implied
+
+
+      if l == 1:
+        self.index_structures = sorted(self.s_index_a ^ self.s_index_b)
+        index_ID = list(common_index_set)[0]
+
+      else:
+        if l > 1:
+          msg = "ReduceProduct -- there are more than one common index -- not allowed"
+        else:
+          msg = "ReduceProduct -- there must be exactly one common index over which one reduces"
+
+        msg += "\n first argument indices : %s" % self.pretty_a_indices
+        msg += "\n second argument indices: %s" % self.pretty_b_indices
+        print(msg)
+        raise IndexStructureError(msg)
 
     else:
-
+      if l == 1:
+        self.index_structures = sorted(self.s_index_a ^ self.s_index_b)
       if l > 1:
-        msg = "ReduceProduct -- there are more than one common index -- not allowed"
-      else:
-        msg = "ReduceProduct -- there must be exactly one common index over which one reduces"
+        index_ID = self.space.inverse_indices[reduceindex]
+        self.index_structures = sorted((self.s_index_a | self.s_index_b) - {index_ID})
 
-      msg += "\n first argument indices : %s" % self.pretty_a_indices
-      msg += "\n second argument indices: %s" % self.pretty_b_indices
-      print(msg)
-      raise IndexStructureError(msg)
+    self.reducedindex_ID =index_ID
+
 
 def __str__(self):
     s = stringBinaryOperation(self.space.language, self.op,
@@ -2270,6 +2079,7 @@ class Expression(VerboseParser):
      EXPAND/op Factor/f                                                   $t=ExpandProduct(op,t,f,self.space)
    | HADAMARD/op Factor/f                                                  $t=Hadamard(op,t,f,self.space)
    | REDUCE/op Factor/f                                                   $t=ReduceProduct(op,t,f,self.space)
+   | "@"/op Index/i Factor/f                                              $t=ReduceProduct(op,t,f,self.space, reduceindex=i)
    | POWER/op Factor/f                                                    $fu=Power(op, t, f, self.space)
    )*
   ;
