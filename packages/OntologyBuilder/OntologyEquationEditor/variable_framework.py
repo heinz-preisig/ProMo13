@@ -166,7 +166,7 @@ def makeIncidentList(equation_ID_coded_string):
 
 
 def stringBinaryOperation(language, operation, left, right,
-                          index=None, indices=None):
+                          index_ID=None, indices=None):
   """
   :param language: current output language
   :param operation: what binary operation
@@ -213,10 +213,9 @@ def stringBinaryOperation(language, operation, left, right,
     b = CODE[language]["()"] % right.__str__()
   else:
     b = "%s" % right.__str__()
-  if index:
-    
-    else:
-      s = CODE[language][operation] % (a, index_compiled, b)
+  if index_ID:
+    index_compiled = compile_index(index_ID,indices,language)
+    s = CODE[language][operation] % (a, index_compiled, b)
   else:
     s = CODE[language][operation] % (a, b)
   return s
@@ -1422,11 +1421,20 @@ class BinaryOperator(Operator):
   @param b: variable:: right one
   """
 
-  def __init__(self, op, a, b, space):
+  def __init__(self, op, a, b, space, reduceindex=None):
     Operator.__init__(self, space)
     self.op = op
     self.a = a
     self.b = b
+    self.reduceindex = reduceindex
+    self.space = space
+    # self.indices = space.indices
+
+    if reduceindex:
+      self.index_ID = self.space.inverse_indices[self.reduceindex]
+    else:
+      self.index_ID = None
+
 
     try:
       _ = a.index_structures
@@ -1445,7 +1453,8 @@ class BinaryOperator(Operator):
 
 
   def __str__(self):
-    s = stringBinaryOperation(self.space.language, self.op, self.a, self.b)
+
+    s = stringBinaryOperation(self.space.language, self.op, self.a, self.b, index_ID=self.index_ID, indices=self.space.indices)
     return s
 
 
@@ -1487,7 +1496,7 @@ class ReduceProduct(BinaryOperator):
     """
     # print("this is the reduce product")
 
-    BinaryOperator.__init__(self, op, a, b, space)
+    BinaryOperator.__init__(self, op, a, b, space, reduceindex=reduceindex)
 
     self.units = a.units * b.units
     common_index_set = self.s_index_a & self.s_index_b
@@ -1521,13 +1530,14 @@ class ReduceProduct(BinaryOperator):
         index_ID = self.space.inverse_indices[reduceindex]
         self.index_structures = sorted((self.s_index_a | self.s_index_b) - {index_ID})
 
+
     self.reducedindex_ID =index_ID
 
 
 def __str__(self):
     s = stringBinaryOperation(self.space.language, self.op,
                               self.a, self.b,
-                              index=self.index_ID,
+                              index_ID=self.index_ID,
                               indices=self.space.indices
                               )
     return s

@@ -335,7 +335,7 @@ CODE[language]["^"] = "%s" + CODE[language]["operator"]["^"] + \
 CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # expand product
 CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # Hadamard product
 CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s"   # reduce product
-CODE[language]["@"] = "%s " + CODE[language]["operator"]["@"] + "%s"   # reduce product
+CODE[language]["@"] = "%s " + CODE[language]["operator"]["@"] +"%s" + "%s"   # reduce product
 CODE[language]["ParDiff"] = CODE[language]["operator"]["ParDiff"] + \
                             CODE[language]["combi"]["tuple"]
 CODE[language]["TotalDiff"] = CODE[language]["operator"]["TotalDiff"] + \
@@ -446,7 +446,7 @@ CODE[language]["^"] = r"%s^{%s}"  # power
 CODE[language][":"] = r"%s \, {\odot} \, %s"  # .........................expand product
 CODE[language]["."] = r"%s \, . \, %s"  # ...............................Hadamard product
 CODE[language]["*"] = r"%s \star %s"  # .................................reduce product
-CODE[language]["@"] = r"%s \stackrel{\star}{%s} %s"  # ..................reduce product explicit
+CODE[language]["@"] = r"%s \stackrel{%s}{\star} %s"  # ..................reduce product explicit
 # CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
 CODE[language]["ParDiff"] =r"\frac{\partial{%s}}{\partial{%s}}"
 CODE[language]["TotalDiff"] =  r"\frac{d\,{%s}}{d\,{%s}}"
