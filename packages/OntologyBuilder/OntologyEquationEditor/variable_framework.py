@@ -213,45 +213,8 @@ def stringBinaryOperation(language, operation, left, right,
     b = CODE[language]["()"] % right.__str__()
   else:
     b = "%s" % right.__str__()
-  if index:  # If index present >> reduceproduct  index is the ID
-    # res_index_structure = []  # Resulting index sets
-    # index_compiled = compile_index(index, indices, language)
-    # if language in LANGUAGES["matrix_form"]:
-    #   try:
-    #     left_transpose = left.index_structures.index(index) == 0
-    #     right_transpose = right.index_structures.index(index) == 1
-    #     left_vector = len(left.index_structures) == 1
-    #     right_vector = len(right.index_structures) == 1
-    #   except:
-    #     msg = ">>>>>>>>>>>>>>>>>>>>> reduce product -- something goes wrong"
-    #     raise MatrixCompilationError(msg)
-    #     left_transpose = "left_transpose"
-    #     right_transpose = "right_transpose"
-    #     left_vector = "left_vector"
-    #     right_vector = "right_vector"
-    #   if left_transpose:
-    #     a = CODE[language]["transpose"] % a
-    #   if right_transpose:
-    #     b = CODE[language]["transpose"] % b
-    #   s = CODE[language][operation] % (a, b)
-    #   if left_vector:
-    #     if not right_vector:  # vector * matrix --> row  vector --> transpose
-    #       s = CODE[language]["transpose"] % s
-    #   else:
-    #     if right_vector:  # matrix * vector --> column vector --> do nothing
-    #       pass
-    #     else:  # matrix * matrix --> matrix ---> complicated needs analysis
-    #       if left_transpose:
-    #         res_index_structure.append(left.index_structures[1])
-    #       else:
-    #         res_index_structure.append(left.index_structures[0])
-    #       if right_transpose:
-    #         res_index_structure.append(right.index_structures[0])
-    #       else:
-    #         res_index_structure.append(right.index_structures[1])
-    #       if res_index_structure[0] > res_index_structure[1]:  # transpose result if order is not standard
-    #         s = CODE[language]["transpose"] % s
-
+  if index:
+    
     else:
       s = CODE[language][operation] % (a, index_compiled, b)
   else:
