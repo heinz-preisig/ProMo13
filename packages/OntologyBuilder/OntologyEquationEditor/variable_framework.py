@@ -1496,6 +1496,9 @@ class ReduceProduct(BinaryOperator):
     """
     # print("this is the reduce product")
 
+    if reduceindex:
+      op = "*."
+
     BinaryOperator.__init__(self, op, a, b, space, reduceindex=reduceindex)
 
     self.units = a.units * b.units
@@ -2050,9 +2053,9 @@ class Expression(VerboseParser):
   ;
   Term/t -> Factor/t (
      EXPAND/op Factor/f                                                   $t=ExpandProduct(op,t,f,self.space)
-   | HADAMARD/op Factor/f                                                  $t=Hadamard(op,t,f,self.space)
-   | REDUCE/op Factor/f                                                   $t=ReduceProduct(op,t,f,self.space)
-   | "@"/op Index/i Factor/f                                              $t=ReduceProduct(op,t,f,self.space, reduceindex=i)
+   | HADAMARD/op Factor/f                                                 $t=Hadamard(op,t,f,self.space)
+   | REDUCE/op ( Factor/f |                                               $i=None
+                            "." Index/i Factor/f)                         $t=ReduceProduct(op,t,f,self.space, reduceindex=i)
    | POWER/op Factor/f                                                    $fu=Power(op, t, f, self.space)
    )*
   ;
