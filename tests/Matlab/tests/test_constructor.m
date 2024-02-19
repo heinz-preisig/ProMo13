@@ -78,3 +78,17 @@
 %! test_output = isequal(A.value, value') && isequal(A.indexLabels, {"B", "D"});
 % ASSERT
 %! assert(isequal(test_output, expected_output));
+
+%!xtest
+%! ## Testing the creation of a 4D matrix##
+% SETUP
+%! indexLabels = {"A", "B", "C", "D"};
+%! indexSizes = [3, 4, 2, 2];
+%! value = cat(4, cat(3, [1 2 1 2; 9 12 9 12; 25 30 25 30], [1 2 1 2; 9 12 9 12; 25 30 25 30]), cat(3, [2 4 2 4; 12 16 12 16; 30 36 30 36], [2 4 2 4; 12 16 12 16; 30 36 30 36]));
+%! A = MultiDimVar(indexLabels, indexSizes, indexOrder, value);
+%! expected_output = true;
+% ACTION
+%! test_output = isequal(A.value, value) && isequal(A.indexLabels, indexLabels);
+% ASSERT
+%! assert(isequal(test_output, expected_output));
+
