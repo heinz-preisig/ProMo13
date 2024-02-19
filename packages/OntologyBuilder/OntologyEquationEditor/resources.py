@@ -209,7 +209,8 @@ LIST_OPERATORS = ["+",  # ................ ordinary plus      ..0
                   "max",  # .............. maximum            ..11
                   "min",  # .............. minimum            ..12
                   "in",  # ............... membership    TODO: behaves more like a delimiter...
-                  "MakeIndex",  # ......... make a new index  ..13
+                  "MakeIndex",  # ........ make a new index  ..13
+                  "@", # ................. explicit reduce product operator ..14
                   ]
 
 OPERATORS_alias = {
@@ -228,6 +229,7 @@ OPERATORS_alias = {
         "min"        : "min",  # .............. minimum
         "in"         : "in",  # ............... membership    TODO: behaves more like a delimiter...
         "MakeIndex"  : "MakeIndex",  # ......... make a new index
+        "@"          : "reducteProductSpecific" # .... explicit reduce product operator
         }
 
 # OPERATORS_rdf = {
@@ -333,6 +335,7 @@ CODE[language]["^"] = "%s" + CODE[language]["operator"]["^"] + \
 CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # expand product
 CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # Hadamard product
 CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s"   # reduce product
+CODE[language]["@"] = "%s " + CODE[language]["operator"]["@"] +"%s" + "%s"   # reduce product
 CODE[language]["ParDiff"] = CODE[language]["operator"]["ParDiff"] + \
                             CODE[language]["combi"]["tuple"]
 CODE[language]["TotalDiff"] = CODE[language]["operator"]["TotalDiff"] + \
@@ -405,6 +408,7 @@ CODE[language]["^"] = "%s^(%s)"  # power
 CODE[language][":"] = "%s : %s"  # expand product
 CODE[language]["."] = "%s . %s"  # Hadamard product
 CODE[language]["*"] = "%s * %s"  # reduce product
+CODE[language]["@"] = "%s @%s %s"  # reduce product
 CODE[language]["ParDiff"] = "ParDiff(%s,%s)"
 CODE[language]["TotalDiff"] = "TotalDiff(%s,%s)"
 CODE[language]["Integral"] = "Integral({integrand!s} :: {differential!s} in [{lower!s},{upper!s} ])"
@@ -441,7 +445,8 @@ CODE[language]["-"] = r"%s  - %s"
 CODE[language]["^"] = r"%s^{%s}"  # power
 CODE[language][":"] = r"%s \, {\odot} \, %s"  # .........................expand product
 CODE[language]["."] = r"%s \, . \, %s"  # ...............................Hadamard product
-CODE[language]["*"] = r"%s \star %s"  # ..............reduce product
+CODE[language]["*"] = r"%s \star %s"  # .................................reduce product
+CODE[language]["@"] = r"%s \stackrel{%s}{\star} %s"  # ..................reduce product explicit
 # CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
 CODE[language]["ParDiff"] =r"\frac{\partial{%s}}{\partial{%s}}"
 CODE[language]["TotalDiff"] =  r"\frac{d\,{%s}}{d\,{%s}}"
