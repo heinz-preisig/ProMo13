@@ -217,7 +217,18 @@ def stringBinaryOperation(language, operation, left, right,
     index_compiled = compile_index(index_ID,indices,language)
     s = CODE[language][operation] % (a, index_compiled, b)
   else:
-    s = CODE[language][operation] % (a, b)
+    try:
+      s = CODE[language][operation] % (a, b)
+    except:
+      print("debugging -- wrong template")
+      if operation == "*":
+        s_index_a = set(left.index_structures)
+        s_index_b = set(right.index_structures)
+        common_index_set = s_index_a & s_index_b
+        index_ID = list(common_index_set)[0]
+        index_compiled = compile_index(index_ID,indices,language)
+        s = CODE[language][operation] % (a, index_compiled, b)
+
   return s
 
 
@@ -1496,8 +1507,7 @@ class ReduceProduct(BinaryOperator):
     """
     # print("this is the reduce product")
 
-    if reduceindex:
-      op = "*."
+
 
     BinaryOperator.__init__(self, op, a, b, space, reduceindex=reduceindex)
 
@@ -1505,6 +1515,7 @@ class ReduceProduct(BinaryOperator):
     common_index_set = self.s_index_a & self.s_index_b
     l = len(common_index_set)
 
+    index_ID = None
     if not reduceindex:
 
       # RULE: there must be only one and exaclty one common index
@@ -1529,6 +1540,7 @@ class ReduceProduct(BinaryOperator):
     else:
       if l == 1:
         self.index_structures = sorted(self.s_index_a ^ self.s_index_b)
+        index_ID = list(common_index_set)[0]
       if l > 1:
         index_ID = self.space.inverse_indices[reduceindex]
         self.index_structures = sorted((self.s_index_a | self.s_index_b) - {index_ID})
@@ -1540,7 +1552,7 @@ class ReduceProduct(BinaryOperator):
 def __str__(self):
     s = stringBinaryOperation(self.space.language, self.op,
                               self.a, self.b,
-                              index_ID=self.index_ID,
+                              index_ID=self.reducedindex_ID,
                               indices=self.space.indices
                               )
     return s
@@ -2054,8 +2066,8 @@ class Expression(VerboseParser):
   Term/t -> Factor/t (
      EXPAND/op Factor/f                                                   $t=ExpandProduct(op,t,f,self.space)
    | HADAMARD/op Factor/f                                                 $t=Hadamard(op,t,f,self.space)
-   | REDUCE/op ( Factor/f |                                               $i=None
-                            "." Index/i Factor/f)                         $t=ReduceProduct(op,t,f,self.space, reduceindex=i)
+   | REDUCE/op  Index/i Factor/f                                          $t=ReduceProduct(op,t,f,self.space, reduceindex=i)
+   | REDUCE/op  Factor/f                                                  $t=ReduceProduct(op,t,f,self.space)
    | POWER/op Factor/f                                                    $fu=Power(op, t, f, self.space)
    )*
   ;
