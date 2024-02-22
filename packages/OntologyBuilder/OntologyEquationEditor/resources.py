@@ -128,7 +128,7 @@ TEMPLATES["temp_variable"] = "temp_%s"
 # used in physvars
 TEMPLATES["Equation_definition_delimiter"] = ":="
 TEMPLATES["definition_delimiter"] = " :: "
-TEMPLATES["index_diff_state"] = "d%s"
+# TEMPLATES["index_diff_state"] = "d%s"
 # TEMPLATES["block_index"] = "%s" + BLOCK_INDEX_SEPARATOR + "%s"
 TEMPLATES["conversion_label"] = "%s_conversion"
 TEMPLATES["conversion_alias"] = "C%s"
@@ -210,7 +210,7 @@ LIST_OPERATORS = ["+",  # ................ ordinary plus      ..0
                   "min",  # .............. minimum            ..12
                   "in",  # ............... membership    TODO: behaves more like a delimiter...
                   "MakeIndex",  # ........ make a new index  ..13
-                  "*.", # ................. explicit reduce product operator ..14
+                  "reduceSum", # ......... reduce sum over index ..14
                   ]
 
 OPERATORS_alias = {
@@ -229,7 +229,7 @@ OPERATORS_alias = {
         "min"        : "min",  # .............. minimum
         "in"         : "in",  # ............... membership    TODO: behaves more like a delimiter...
         "MakeIndex"  : "MakeIndex",  # ......... make a new index
-        "*."          : "reducteProductSpecific" # .... explicit reduce product operator
+        "reduceSum"          : "reducteSum" # .... explicit reduce product operator
         }
 
 # OPERATORS_rdf = {
@@ -384,7 +384,7 @@ CODE[language]["()"] = "%s"  # used by temporary variables
 CODE[language]["variable"] = ID_delimiter["variable"]  # ID of the variable
 CODE[language]["index"] = ID_delimiter["index"]  # ID of the index
 # CODE[language]["block_index"] = ID_delimiter["index"]  # ID of the blockindex
-CODE[language]["index_diff_state"] = ID_delimiter["diff_node"]  # ID of the variable
+# CODE[language]["index_diff_state"] = ID_delimiter["diff_node"]  # ID of the variable
 
 CODE[language]["comment"] = ""
 
@@ -418,6 +418,7 @@ CODE[language]["Product"] = "Product( {%s} \, {%s} )"
 CODE[language]["Instantiate"] = "Instantiate(%s, %s)"
 CODE[language]["max"] = "max(%s, %s)"
 CODE[language]["min"] = "min(%s, %s)"
+CODE[language]["reduceSum"] = "reduceSum(%s,%s)"
 
 for f in LIST_FUNCTIONS_SINGLE_ARGUMENT:  # UNITARY_NO_UNITS + UNITARY_RETAIN_UNITS:
   CODE[language][f] = f + "(%s)"  # identical syntax
@@ -426,7 +427,7 @@ CODE[language]["Root"] = "Root(%s)"
 
 CODE[language]["()"] = "%s"  # "(%s)"   # TODO: remove bracketing of temp variable (L)
 CODE[language]["index"] = "%s"
-CODE[language]["index_diff_state"] = "d%s"
+# CODE[language]["index_diff_state"] = "d%s"
 
 CODE[language]["comment"] = ""
 CODE[language]["obj"] = "{}"
@@ -457,7 +458,9 @@ CODE[language]["Product"] = r"\prod_{%s}  {%s} "
 CODE[language]["Instantiate"] = r"\textbf{Instantiate}(%s, %s)"
 CODE[language]["max"] = r"\mathbf{max}\left( %s, %s \right)"
 CODE[language]["min"] = r"\mathbf{min}\left( %s, %s \right)"
-CODE[language]["index_diff_state"] = r"\dot{%s}"
+CODE[language]["reduceSum"] = "reduceSum(%s,%s)"
+
+# CODE[language]["index_diff_state"] = r"\dot{%s}"
 
 for f in UNITARY_NO_UNITS:
   CODE[language][f] = r"\textbf{%s}"%f + r"\left(%s\right)"
