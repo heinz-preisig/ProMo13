@@ -1822,27 +1822,35 @@ class ParDifferential(Operator):
     return CODE[self.space.language]["ParDiff"] % (self.x, self.y)
 
 class reduceSum(Operator):
-  def __init__(self, x, index, space):
+  def __init__(self, x, reduceindex, space):
     """
     implements a tensor over one coordiante by summing up
     Parameters
     ----------
-    x     :: tensor
-    index :: index over which one sums up
-    space :: space with necessary information
+    x            :: tensor
+    reduceindex  :: index over which one sums up
+    space        :: space with necessary information
     """
 
     Operator.__init__(self, space)
 
     self.x = x
-    self.reduce_index = index
+    self.reduce_index = reduceindex
     self.units = x.units
 
-    self.index_structures = list(set(x.index_structures) - set(x))
+    s_index_structures = set(x.index_structures)
+    index_ID = self.space.inverse_indices[reduceindex]
+    self.index_structures = sorted(s_index_structures - {index_ID})
+    self.reduce_index_ID = index_ID
 
 
   def __str__(self):
-    return CODE[self.space.language]["reduceSum"] % (self.x, self.reduce_index)
+    language = self.space.language
+    if language == "latex":
+      index = self.reduce_index
+    else:
+      index = self.reduce_index_ID
+    return CODE[language]["reduceSum"] % (self.x, index)
 
 
 
@@ -1901,7 +1909,7 @@ class Expression(VerboseParser):
       | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                $fu=MaxMin(s, a, b, self.space)
       | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'             $fu=TotDifferential(x,y, self.space)
       | 'ParDiff'/f  '\(' Expression/x ',' Expression/y '\)'              $fu=ParDifferential(x,y, self.space)
-      | 'reduceSum'/f '\(' Expression/x ',' Index/i ')'                   $fu=reduceSum(x,i,self.space)
+      | 'reduceSum'/f '\(' Expression/x ',' Index/i '\)'                   $fu=reduceSum(x,i,self.space)
       | UnitaryFunction/uf '\(' Expression/a '\)'                         $fu=UnitaryFunction(uf,a,  self.space)
       | Identifier/a                                                      $fu=a
   ;

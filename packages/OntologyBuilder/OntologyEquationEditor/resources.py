@@ -373,6 +373,10 @@ CODE[language]["Instantiate"] = CODE[language]["operator"]["Instantiate"] + \
 
 CODE[language]["max"] = CODE[language]["operator"]["max"] + CODE[language]["combi"]["tuple"]
 CODE[language]["min"] = CODE[language]["operator"]["min"] + CODE[language]["combi"]["tuple"]
+CODE[language]["reduceSum"] = CODE[language]["operator"]["reduceSum"] + \
+                            CODE[language]["delimiter"]["("] + "%s" + \
+                            CODE[language]["delimiter"][","] + " " + "%s" + \
+                            CODE[language]["delimiter"][")"]
 
 for f in LIST_FUNCTIONS_SINGLE_ARGUMENT:
   CODE[language][f] = CODE[language]["function"][f] + CODE[language]["combi"]["single_argument"]
