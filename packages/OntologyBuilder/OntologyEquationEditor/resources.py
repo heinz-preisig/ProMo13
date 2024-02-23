@@ -128,7 +128,7 @@ TEMPLATES["temp_variable"] = "temp_%s"
 # used in physvars
 TEMPLATES["Equation_definition_delimiter"] = ":="
 TEMPLATES["definition_delimiter"] = " :: "
-TEMPLATES["index_diff_state"] = "d%s"
+# TEMPLATES["index_diff_state"] = "d%s"
 # TEMPLATES["block_index"] = "%s" + BLOCK_INDEX_SEPARATOR + "%s"
 TEMPLATES["conversion_label"] = "%s_conversion"
 TEMPLATES["conversion_alias"] = "C%s"
@@ -210,7 +210,7 @@ LIST_OPERATORS = ["+",  # ................ ordinary plus      ..0
                   "min",  # .............. minimum            ..12
                   "in",  # ............... membership    TODO: behaves more like a delimiter...
                   "MakeIndex",  # ........ make a new index  ..13
-                  "@", # ................. explicit reduce product operator ..14
+                  "reduceSum", # ......... reduce sum over index ..14
                   ]
 
 OPERATORS_alias = {
@@ -229,7 +229,7 @@ OPERATORS_alias = {
         "min"        : "min",  # .............. minimum
         "in"         : "in",  # ............... membership    TODO: behaves more like a delimiter...
         "MakeIndex"  : "MakeIndex",  # ......... make a new index
-        "@"          : "reducteProductSpecific" # .... explicit reduce product operator
+        "reduceSum"          : "reducteSum" # .... explicit reduce product operator
         }
 
 # OPERATORS_rdf = {
@@ -334,8 +334,8 @@ CODE[language]["^"] = "%s" + CODE[language]["operator"]["^"] + \
                       "%s" + CODE[language]["delimiter"][")"]  # power
 CODE[language][":"] = "%s" + CODE[language]["operator"][":"] + "%s"  # expand product
 CODE[language]["."] = "%s" + CODE[language]["operator"]["."] + "%s"  # Hadamard product
-CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s"   # reduce product
-CODE[language]["@"] = "%s " + CODE[language]["operator"]["@"] +"%s" + "%s"   # reduce product
+CODE[language]["*"] = "%s " + CODE[language]["operator"]["*"] + "%s" + "%s"  # reduce product
+# CODE[language]["*."] = "%s " + CODE[language]["operator"]["*."] +"%s" + "%s"   # reduce product
 CODE[language]["ParDiff"] = CODE[language]["operator"]["ParDiff"] + \
                             CODE[language]["combi"]["tuple"]
 CODE[language]["TotalDiff"] = CODE[language]["operator"]["TotalDiff"] + \
@@ -373,6 +373,10 @@ CODE[language]["Instantiate"] = CODE[language]["operator"]["Instantiate"] + \
 
 CODE[language]["max"] = CODE[language]["operator"]["max"] + CODE[language]["combi"]["tuple"]
 CODE[language]["min"] = CODE[language]["operator"]["min"] + CODE[language]["combi"]["tuple"]
+CODE[language]["reduceSum"] = CODE[language]["operator"]["reduceSum"] + \
+                            CODE[language]["delimiter"]["("] + "%s" + \
+                            CODE[language]["delimiter"][","] + " " + "%s" + \
+                            CODE[language]["delimiter"][")"]
 
 for f in LIST_FUNCTIONS_SINGLE_ARGUMENT:
   CODE[language][f] = CODE[language]["function"][f] + CODE[language]["combi"]["single_argument"]
@@ -384,7 +388,7 @@ CODE[language]["()"] = "%s"  # used by temporary variables
 CODE[language]["variable"] = ID_delimiter["variable"]  # ID of the variable
 CODE[language]["index"] = ID_delimiter["index"]  # ID of the index
 # CODE[language]["block_index"] = ID_delimiter["index"]  # ID of the blockindex
-CODE[language]["index_diff_state"] = ID_delimiter["diff_node"]  # ID of the variable
+# CODE[language]["index_diff_state"] = ID_delimiter["diff_node"]  # ID of the variable
 
 CODE[language]["comment"] = ""
 
@@ -407,8 +411,8 @@ CODE[language]["-"] = "%s - %s"
 CODE[language]["^"] = "%s^(%s)"  # power
 CODE[language][":"] = "%s : %s"  # expand product
 CODE[language]["."] = "%s . %s"  # Hadamard product
-CODE[language]["*"] = "%s * %s"  # reduce product
-CODE[language]["@"] = "%s @%s %s"  # reduce product
+CODE[language]["*"] = "%s *%s %s"  # reduce product
+# CODE[language]["*."] = "%s *.%s %s"  # reduce product
 CODE[language]["ParDiff"] = "ParDiff(%s,%s)"
 CODE[language]["TotalDiff"] = "TotalDiff(%s,%s)"
 CODE[language]["Integral"] = "Integral({integrand!s} :: {differential!s} in [{lower!s},{upper!s} ])"
@@ -418,6 +422,7 @@ CODE[language]["Product"] = "Product( {%s} \, {%s} )"
 CODE[language]["Instantiate"] = "Instantiate(%s, %s)"
 CODE[language]["max"] = "max(%s, %s)"
 CODE[language]["min"] = "min(%s, %s)"
+CODE[language]["reduceSum"] = "reduceSum(%s,%s)"
 
 for f in LIST_FUNCTIONS_SINGLE_ARGUMENT:  # UNITARY_NO_UNITS + UNITARY_RETAIN_UNITS:
   CODE[language][f] = f + "(%s)"  # identical syntax
@@ -426,7 +431,7 @@ CODE[language]["Root"] = "Root(%s)"
 
 CODE[language]["()"] = "%s"  # "(%s)"   # TODO: remove bracketing of temp variable (L)
 CODE[language]["index"] = "%s"
-CODE[language]["index_diff_state"] = "d%s"
+# CODE[language]["index_diff_state"] = "d%s"
 
 CODE[language]["comment"] = ""
 CODE[language]["obj"] = "{}"
@@ -445,8 +450,8 @@ CODE[language]["-"] = r"%s  - %s"
 CODE[language]["^"] = r"%s^{%s}"  # power
 CODE[language][":"] = r"%s \, {\odot} \, %s"  # .........................expand product
 CODE[language]["."] = r"%s \, . \, %s"  # ...............................Hadamard product
-CODE[language]["*"] = r"%s \star %s"  # .................................reduce product
-CODE[language]["@"] = r"%s \stackrel{%s}{\star} %s"  # ..................reduce product explicit
+CODE[language]["*"] = r"%s \stackrel{%s}{\star} %s"   # .................................reduce product
+# CODE[language]["*."] = r"%s \stackrel{%s}{\star} %s"  # ..................reduce product explicit
 # CODE[language]["BlockReduce"] = r"{0} \stackrel{{ {1} \, \in \, {2} }}{{\,\star\,}} {3}"
 CODE[language]["ParDiff"] =r"\frac{\partial{%s}}{\partial{%s}}"
 CODE[language]["TotalDiff"] =  r"\frac{d\,{%s}}{d\,{%s}}"
@@ -457,7 +462,9 @@ CODE[language]["Product"] = r"\prod_{%s}  {%s} "
 CODE[language]["Instantiate"] = r"\textbf{Instantiate}(%s, %s)"
 CODE[language]["max"] = r"\mathbf{max}\left( %s, %s \right)"
 CODE[language]["min"] = r"\mathbf{min}\left( %s, %s \right)"
-CODE[language]["index_diff_state"] = r"\dot{%s}"
+CODE[language]["reduceSum"] = "reduceSum(%s,%s)"
+
+# CODE[language]["index_diff_state"] = r"\dot{%s}"
 
 for f in UNITARY_NO_UNITS:
   CODE[language][f] = r"\textbf{%s}"%f + r"\left(%s\right)"

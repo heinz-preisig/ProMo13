@@ -71,36 +71,6 @@ j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
 internal = LANGUAGES["internal_code"]
 
 
-# def makeIncidenceDictionaries(variables):
-#   """
-#   variables may be defined by several equations
-#
-#   :param variables: variable dictionary with integrated equation dictionary
-#   :param expression_network: network on which the expression is defined
-#   :return: incidence_dictionary
-#             - key: equation_ID (integer)
-#             - value: (lhs-variable_ID, rhs-incidence list (integers) )
-#            inverse incidence matrix as dictionary
-#             - key : variable ID (integer)
-#             - value: list of equations (integer)
-#   """
-#   incidence_dictionary = {}
-#   inv_incidence_dictionary = {v: [] for v in variables.keys()}
-#   for v in variables:
-#     if v == 18:
-#       print("debugging")
-#     try:
-#       equations = variables[v].equations  # variables as class Variables
-#     except:
-#       equations = variables[v]["equations"]  # variables from variable dict, the variable file format
-#     for e in equations:
-#       inc_list = makeIncidentList(equations[e]["rhs"])
-#       incidence_dictionary[e] = (v, inc_list)
-#       for i in inc_list:
-#         inv_incidence_dictionary[int(i)].append(e)
-#       equations[e]["incidence_list"] = inc_list
-#
-#   return incidence_dictionary, inv_incidence_dictionary
 
 def makeIncidenceDictionaries(variables):
   """
@@ -157,13 +127,12 @@ def makeIncidentList(equation_ID_coded_string):
   for i in splited:
     if V_id in i:
       incidence_list.append(i)
-    # test_string = ID_spacer + i
-    # # print("debugging", test_string, ID_delimiter["variable"])
-    # if test_string[0:2] == ID_delimiter["variable"][0:2]:
-    #   inc = i.strip(ID_delimiter["variable"])
-    #   incidence_list.append(inc)
   return sorted(set(incidence_list))
 
+def prettyIndex(variable, space):
+  s_index = set(variable.index_structures)
+  pretty_index = renderIndexListFromGlobalIDToInternal(s_index, space.indices)
+  return pretty_index
 
 def stringBinaryOperation(language, operation, left, right,
                           index_ID=None, indices=None):
@@ -217,7 +186,18 @@ def stringBinaryOperation(language, operation, left, right,
     index_compiled = compile_index(index_ID,indices,language)
     s = CODE[language][operation] % (a, index_compiled, b)
   else:
-    s = CODE[language][operation] % (a, b)
+    try:
+      s = CODE[language][operation] % (a, b)
+    except:
+      print("debugging -- wrong template")
+      if operation == "*":
+        s_index_a = set(left.index_structures)
+        s_index_b = set(right.index_structures)
+        common_index_set = s_index_a & s_index_b
+        index_ID = list(common_index_set)[0]
+        index_compiled = compile_index(index_ID,indices,language)
+        s = CODE[language][operation] % (a, index_compiled, b)
+
   return s
 
 
@@ -374,21 +354,6 @@ def makeCompiler(variables, indices, var_ID, equ_ID, language, verbose=0):
   return Expression(compile_space, verbose=verbose)
 
 
-#
-# def reduce_index(a, b, index_ID, space):
-#   s_index_a = set(a.index_structures)
-#   s_index_b = set(b.index_structures)
-#   if (index_ID not in b.index_structures) or (index_ID not in a.index_structures):
-#     pretty_a_indices = renderIndexListFromGlobalIDToInternal(s_index_a, space.indices)
-#     pretty_b_indices = renderIndexListFromGlobalIDToInternal(s_index_b, space.indices)
-#     msg = "reduce index %s is not in index list of the second argument" % index_ID
-#     msg += "\n first argument indices : %s" % pretty_a_indices
-#     msg += "\n second argument indices: %s" % pretty_b_indices
-#     print(msg)
-#     # raise IndexStructureError(msg)
-#   # self.index_structures = sorted(s_index_a.symmetric_difference(s_index_b))
-#   index_structures = sorted((s_index_a | s_index_b) - {index_ID})
-#   return index_structures, s_index_a, s_index_b
 
 # =============================================================================
 # error classes
@@ -599,55 +564,6 @@ class Units():
     return str(self.asList())
 
 
-# class Tracking(dict):
-#   def __init__(self):
-#     super().__init__(self)
-#     for item in ["unchanged", "changed", "deleted"]:
-#       self[item] = []
-#
-#   def importIDList(self, ID_list):
-#     self["unchanged"].extend(ID_list)
-#
-#   def importID(self, ID):
-#     self["unchanged"].append(ID)
-#
-#   def add(self, ID):
-#     self["changed"].append(ID)
-#
-#   def changed(self, ID):
-#     if ID in self["unchanged"]:
-#       self["unchanged"].remove(ID)
-#       self["changed"].add(ID)
-#       return
-#     elif ID in self["changed"]:
-#       return
-#     else:
-#       raise TrackingError("mp sicj OD %s " % ID)
-#
-#   def changedAll(self):
-#     self["changed"].extend(self["unchanged"])
-#     self["unchanged"] = []
-#
-#   def remove(self, ID):
-#     for item in ["unchanged", "changed"]:
-#       if ID in self[item]:
-#         self[item].remove(ID)
-#         self["deleted"].append(ID)
-#         return
-#     # raise TrackingError("no such ID %s recorded"%ID)
-#     print("Tracking Error -- no such ID %s recorded" % ID)
-
-
-# class TrackChanges(dict):
-#   def __init__(self):
-#     super().__init__(self)
-#     for target in ["variables", "equations"]:
-#       self[target] = Tracking()
-#
-#   def replaceEquation(self, old_ID, new_ID):
-#     self["equations"].remove(old_ID)
-#     self["equations"].add(new_ID)
-
 
 class Variables(OrderedDict):
   """
@@ -672,8 +588,6 @@ class Variables(OrderedDict):
     self.ProMoIRI = self.ontology_container.ProMoIRI
     # self.global_name_space = self.ontology_container.rules["name_space"]
 
-    # keep track of changes and additions
-    # self.changes = TrackChanges()
 
   def resetProMoIRI(self):
     """
@@ -904,27 +818,6 @@ class Variables(OrderedDict):
           acc[nw][variable_class] = []
         acc[nw][variable_class].extend(acc[source][variable_class])
 
-    # else:
-    #   for nw in self.interconnection_networks:
-    #     left_nw, right_nw = nw.split(CONNECTION_NETWORK_SEPARATOR)
-    #     for variable_class in self.ontology_container.variable_types_on_networks[right_nw]:
-    #       if variable_class not in acc[left_nw]:
-    #         acc[left_nw][variable_class] = []
-    #       acc[left_nw][variable_class].extend(acc[right_nw][variable_class])
-
-    # for nw in self.intraconnection_networks:
-    #   acc[nw] = {}
-    #   [source, sink] = nw.split(CONNECTION_NETWORK_SEPARATOR)
-    #   acc[nw] = acc[source]
-    #   for variable_class in acc[sink]:
-    #     if variable_class in acc[nw]:
-    #       _set_source = set(acc[source][variable_class])
-    #       _set_sink = set(acc[sink][variable_class])
-    #       _set_self = set(self.index_definition_networks_for_variable[nw])
-    #       acc[nw][variable_class] = sorted(_set_source | _set_sink | _set_self)
-    #     else:
-    #       acc[nw][variable_class] = acc[sink]
-
     for nw in self.ontology_container.interface_networks_accessible_to_networks_dictionary:
       for i_nw in self.ontology_container.interface_networks_accessible_to_networks_dictionary[nw]:
         for ID in self:
@@ -941,19 +834,6 @@ class Variables(OrderedDict):
         acc[nw][variable_class] = list(set(acc[nw][variable_class]))
     self.index_accessible_variables_on_networks = acc
 
-    # self.tokens_linked = {}  # RULE: this assumes that the token names are unique
-    # for token in self.ontology_container.tokens:
-    #   self.tokens_linked[token] = None
-    #   # print("debugging tokens", nw, tokens)
-    #   for ID in self:
-    #     if token in self[ID].tokens:
-    #       # print("debugging token found in equation")
-    #       self.tokens_linked[token] = ID
-
-    # def indexEquationsInNetworks(self):
-    #   self.index_equation_in_definition_network = {}
-    #   for nw in self.networks + self.interconnection_networks:
-    #     self.index_equation_in_definition_network[nw] = []
     return
 
   def indexInstantiated(self, network):
@@ -993,20 +873,6 @@ class Variables(OrderedDict):
                 v_counter += 1
 
 
-      # print("debugging -- variable space",variable_space)
-      # left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
-      # left_nw = network
-      # if rule == "only local":
-      #   variable_space = {}
-      #   variable_space[network] = {}
-      #   for i in enabled_variable_types:
-      #     variable_space[network][i] = []
-      #   for ID in self:
-      #     v = self[ID]
-      #     if v.network == left_nw:
-      #       variable_space[network][v.type].append(ID)
-      # else:
-      #   variable_space = self.index_accessible_variables_on_networks
     else:
       variable_space = self.index_networks_for_variable
 
@@ -1048,8 +914,6 @@ class Variables(OrderedDict):
       if equation_ID in equations:
         del equations[equation_ID]
         print("debugging -- remove equation ", equation_ID, "  in variable ", v, self[v].label)
-        # record changes
-        # self.changes["equations"].remove(equation_ID)
 
     self.indexVariables()  # indexEquationsInNetworks()
 
@@ -1256,8 +1120,6 @@ class CompileSpace:
       v.indices = self.indices
     except:
       pass
-    # self.eq_variable_incidence_list.append(var_ID)  # symbol)
-
     return v
 
   def getIndex(self, symbol):
@@ -1275,17 +1137,6 @@ class CompileSpace:
     symbol = TEMPLATES["temp_variable"] % self.counter
     self.counter += 1
     return symbol
-
-  # def getIncidenceList(self):
-  #   '''
-  #   provides the incidence list collected during the compilation
-  #   @return:
-  #   # '''
-  #   # incidence_set = set(self.eq_variable_incidence_list)
-  #   # incidence_list = list(incidence_set)
-  #   # incidence_list.sort()
-  #   self.variables.incidence_dictionary
-  #   return incidence_list
 
 
 class PhysicalVariable():
@@ -1346,6 +1197,7 @@ class PhysicalVariable():
   def setLanguage(self, language):
     self.language = language
 
+
   def __str__(self):
 
     if self.language in LANGUAGES["documentation"]:
@@ -1374,31 +1226,6 @@ class Operator(PhysicalVariable):
     self.space = space
     self.type = TEMP_VARIABLE
     self.equation_type = equation_type
-
-
-
-  # def single_reduce_index(self, a, index):
-  #   try:
-  #     self.index_ID = self.space.inverse_indices[index]
-  #   except:
-  #     raise IndexStructureError(" no such index %s" % index)
-  #   s_index_a = set(a.index_structures)
-  #   if self.index_ID not in a.index_structures:
-  #     pretty_a_indices = renderIndexListFromGlobalIDToInternal(s_index_a, self.space.indices)
-  #     msg = "reduce index %s is not in index list of the argument" % self.index_ID
-  #     msg += "\n first argument indices : %s" % pretty_a_indices
-  #     print(msg)
-  #     self.index_structures = []
-  #
-  #   else:
-  #     self.index_structures = sorted(s_index_a - {self.index_ID})
-  #     # print("debugging")
-
-  # def has_equal_index_structures(self, a, b):
-  #   if a.index_structures != b.index_structures:
-  #     raise IndexStructureError("not equal %s != %s" % (a.index_structures, b.index_structures))
-  #     return False
-  #   return True
 
 
 class UnitOperator(Operator):
@@ -1493,8 +1320,15 @@ class ReduceProduct(BinaryOperator):
   def __init__(self, op, a, b, space, reduceindex=None):
     """
     standard matrix product with the index defining which dimension is to be reduced.
+
+    A_ij *i B_i = C_j: Normal reduce product of a matrix and a vector
+    A_ij *i B_ik = C_jk: Normal reduce product of two matrices
+    A_ijk *i B_il = C_jkl: Reduce product (not really just Einstein sum) for a 3D and a 2D
+    A_ijk *i B_ik = C_jk: Page operation, so reducing only in one of the common indices not in both.
     """
     # print("this is the reduce product")
+
+
 
     BinaryOperator.__init__(self, op, a, b, space, reduceindex=reduceindex)
 
@@ -1502,6 +1336,7 @@ class ReduceProduct(BinaryOperator):
     common_index_set = self.s_index_a & self.s_index_b
     l = len(common_index_set)
 
+    index_ID = None
     if not reduceindex:
 
       # RULE: there must be only one and exaclty one common index
@@ -1526,6 +1361,7 @@ class ReduceProduct(BinaryOperator):
     else:
       if l == 1:
         self.index_structures = sorted(self.s_index_a ^ self.s_index_b)
+        index_ID = list(common_index_set)[0]
       if l > 1:
         index_ID = self.space.inverse_indices[reduceindex]
         self.index_structures = sorted((self.s_index_a | self.s_index_b) - {index_ID})
@@ -1537,7 +1373,7 @@ class ReduceProduct(BinaryOperator):
 def __str__(self):
     s = stringBinaryOperation(self.space.language, self.op,
                               self.a, self.b,
-                              index_ID=self.index_ID,
+                              index_ID=self.reducedindex_ID,
                               indices=self.space.indices
                               )
     return s
@@ -1545,39 +1381,28 @@ def __str__(self):
 
 
 class Hadamard(BinaryOperator):
-  def __init__(self, op, a, b, space):
-    """
-    dot product including extension of dimensions
-    c_XY := a . b_XY
-    c_WXYZ := a_WXY . b_XY    Condition : if both have indices, there must be a common set of indices
-    """
-    try:
-      _ = a.index_structures
-    except:
-      a.index_structures = []
-      print("warning -- op1 has no index structure")
-    try:
-      _ = b.index_structures
-    except:
-      b.index_structures = []
-      print("warning -- op2 has no index structure")
 
+  """
+  A_ij . B_ij = C_ij: (No index so no reduce, so plain Hadamard)
+  A_ij . B_i  = C_ij: (Same  just that B will be expanded to match A)
+  A_ij . B_k = C_ijk: (Expand product, still no index so no reduce)
+  A_ij * B_jk = C_ijk: (Similar to expand product but there is one
+      common index, this is the operation used in the case when we
+      move a vector like c_NS through the interface)
+  """
+  def __init__(self, op, a, b, space):
+
+    # note: both, a & b, must have indices
+    if a.index_structures == []:
+      IndexStructureError("first operand must have an index structure %s"
+                          % prettyIndex(a, space))
+    if b.index_structures == []:
+      IndexStructureError("second operand must have an index structure %s"
+                          % prettyIndex(b, space))
 
     BinaryOperator.__init__(self, op, a, b, space)
 
     self.units = a.units * b.units
-
-    if a.index_structures != [] and b.index_structures != []:
-
-      common_index_set = self.s_index_a & self.s_index_b
-      l = len(common_index_set)
-      if l == 0:
-        msg = "Hadamard -- the index sets of the first operant must be a subset of the index sets of the second operand"
-        msg += "\n first argument indices : %s" % self.pretty_a_indices
-        msg += "\n second argument indices: %s" % self.pretty_b_indices
-        print(msg)
-        raise IndexStructureError(msg)
-
 
     self.index_structures = sorted(self.s_index_a | self.s_index_b)
 
@@ -1762,10 +1587,6 @@ class Product(Operator):
     self.index_structures = indices
 
   def __str__(self):
-    # if self.space.language == "global_ID":
-    #   language = "internal_code"
-    # else:
-    #   language = self.space.language
     language = self.space.language
 
     if language == "latex":
@@ -1840,11 +1661,6 @@ class UnitaryFunction(Operator):
         self.index_structures = sorted(arg.index_structures)
     else:
       self.index_structures = sorted(arg.index_structures)
-
-    # if fct in UNITARY_LOOSE_UNITS:
-    #   self.tokens = []  # RULE: they also use the tokens
-    # else:
-    #   self.tokens = self.copyTokens(arg)
 
   def __str__(self):
     language = self.space.language
@@ -1935,16 +1751,8 @@ class Integral(Operator):
               'interval -- incompatible index structures %s != %s != %s' %
               (pretty_x_indices, pretty_xl_indices, pretty_xu_indices))
 
-    # if index label is also one of the indices in the variable being integrated, then that one is reduced over
-    # RULE: if the integrant has a index that is the differential space of the integration variable then the integral
-    # is dealt with as an inner product
 
     index_structures = sorted(y.index_structures)
-    # version_change: differential index has been simplified. It is a separate index and eliminated explicitly.
-    # indices = self.space.indices
-    # for i in y.index_structures:
-    #   if indices[i]["label"] == TEMPLATES["differential_space"] % x.label:
-    #     index_structures.remove(i)
     self.index_structures = index_structures
     xunits = Units.asList(x.units)
     yunits = Units.asList(y.units)
@@ -2013,6 +1821,38 @@ class ParDifferential(Operator):
   def __str__(self):
     return CODE[self.space.language]["ParDiff"] % (self.x, self.y)
 
+class reduceSum(Operator):
+  def __init__(self, x, reduceindex, space):
+    """
+    implements a tensor over one coordiante by summing up
+    Parameters
+    ----------
+    x            :: tensor
+    reduceindex  :: index over which one sums up
+    space        :: space with necessary information
+    """
+
+    Operator.__init__(self, space)
+
+    self.x = x
+    self.reduce_index = reduceindex
+    self.units = x.units
+
+    s_index_structures = set(x.index_structures)
+    index_ID = self.space.inverse_indices[reduceindex]
+    self.index_structures = sorted(s_index_structures - {index_ID})
+    self.reduce_index_ID = index_ID
+
+
+  def __str__(self):
+    language = self.space.language
+    if language == "latex":
+      index = self.reduce_index
+    else:
+      index = self.reduce_index_ID
+    return CODE[language]["reduceSum"] % (self.x, index)
+
+
 
 class Brackets(Operator):
   def __init__(self, a, space):
@@ -2050,9 +1890,9 @@ class Expression(VerboseParser):
   ;
   Term/t -> Factor/t (
      EXPAND/op Factor/f                                                   $t=ExpandProduct(op,t,f,self.space)
-   | HADAMARD/op Factor/f                                                  $t=Hadamard(op,t,f,self.space)
-   | REDUCE/op Factor/f                                                   $t=ReduceProduct(op,t,f,self.space)
-   | "@"/op Index/i Factor/f                                              $t=ReduceProduct(op,t,f,self.space, reduceindex=i)
+   | HADAMARD/op Factor/f                                                 $t=Hadamard(op,t,f,self.space)
+   | REDUCE/op  Index/i Factor/f                                          $t=ReduceProduct(op,t,f,self.space, reduceindex=i)
+   | REDUCE/op  Factor/f                                                  $t=ReduceProduct(op,t,f,self.space)
    | POWER/op Factor/f                                                    $fu=Power(op, t, f, self.space)
    )*
   ;
@@ -2069,6 +1909,7 @@ class Expression(VerboseParser):
       | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                $fu=MaxMin(s, a, b, self.space)
       | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'             $fu=TotDifferential(x,y, self.space)
       | 'ParDiff'/f  '\(' Expression/x ',' Expression/y '\)'              $fu=ParDifferential(x,y, self.space)
+      | 'reduceSum'/f '\(' Expression/x ',' Index/i '\)'                   $fu=reduceSum(x,i,self.space)
       | UnitaryFunction/uf '\(' Expression/a '\)'                         $fu=UnitaryFunction(uf,a,  self.space)
       | Identifier/a                                                      $fu=a
   ;

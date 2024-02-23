@@ -511,13 +511,13 @@ class UI_Equations(QtWidgets.QWidget):
       self.ontology_container.indexEquations()
 
     # edit equation false, true, true
-    elif log == (False, True, True):
-      self.variables.addEquation(var_ID, equation_record)
-      self.ontology_container.indexEquations()
+    # elif log == (False, True, True):
+    #   self.variables.addEquation(var_ID, equation_record)
+    #   self.ontology_container.indexEquations()
 
 
     # edit equation false, false, true
-    elif log == (False, False, True):
+    elif (log == (False, False, True)) or (log == (False, True, True)):
       old_equ_ID = self.current_eq_ID
       # RULE: editing replaces the existing equation -- consquence - sequence is not retained.
       self.variables.replaceEquation(var_ID, old_equ_ID, equation_record)
