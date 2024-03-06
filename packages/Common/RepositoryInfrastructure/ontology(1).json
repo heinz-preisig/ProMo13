@@ -10,6 +10,7 @@
         ],
         "graph": [
           "network",
+          "projection",
           "localIndex"
         ],
         "node": [
@@ -59,6 +60,7 @@
         ],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [
@@ -133,6 +135,7 @@
         ],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [
@@ -210,6 +213,7 @@
         ],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [
@@ -285,6 +289,7 @@
         ],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [
@@ -360,6 +365,7 @@
         ],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [
@@ -435,6 +441,7 @@
         ],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [
@@ -500,6 +507,7 @@
         "arc": [],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [
@@ -567,6 +575,7 @@
         "arc": [],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [
@@ -635,7 +644,8 @@
       "behaviour": {
         "arc": [],
         "graph": [
-          "network"
+          "network",
+          "projection"
         ],
         "node": [
           "frame",
@@ -669,6 +679,7 @@
         ],
         "graph": [
           "network",
+          "projection",
           "differenceOperator"
         ],
         "node": [

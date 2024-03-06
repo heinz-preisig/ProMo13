@@ -42,6 +42,7 @@ FILE_NAMES = {
         "variables_file_v6"                   : "variables_v6.json",
         "variables_file_v7"                   : "variables_v7.json",
         "variables_file_v8"                   : "variables_v8.json",
+        "variables_starting_file_v8"          : "fix_variables_v8.json",
         "variables_initial"                   : "variables_initial.json",
         "equations_file"                      : "equations.json",
         "typed_tokens_file"                   : "typed_tokens.json",
@@ -176,6 +177,9 @@ FILES["variables_file_v7"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
 
 FILES["variables_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                FILE_NAMES["variables_file_v8"])  # %ontology_name
+
+FILES["variables_starting_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
+                               FILE_NAMES["variables_starting_file_v8"])  # %ontology_name
 
 FILES["CSV_variable_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                                FILE_NAMES["variables_file_CSV"])  # %ontology_name
