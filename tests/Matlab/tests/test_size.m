@@ -1,5 +1,5 @@
 %!shared indexOrder
-%! indexOrder = {"A", "B"};
+%! indexOrder = {"A", "B", "C"};
 
 %!test
 %! ## Testing size in a vector ##
@@ -14,11 +14,22 @@
 %!test
 %! ## Testing size in a 2D matrix ##
 % SETUP
-%! M = MultiDimVar(["A"], [2,3], indexOrder);
+%! M = MultiDimVar(["A", "B"], [2,3], indexOrder);
 %! expected_output = [2, 3];
 % ACTION
 %! test_output = size(M);
 % ASSERT
 %! assert(isequal(test_output, expected_output))
+
+%!xtest <## Testing size in a 3D matrix with singleton dimension ##>
+% SETUP
+%! M = MultiDimVar({"A", "B", "C"}, [2 3 1], indexOrder);
+%! expected_output = [2 3 1];
+% ACTION
+%! test_output = size(M);
+% ASSERT
+%! assert(isequal(test_output,expected_output))
+
+
 
 

@@ -1,10 +1,15 @@
 function main
+  indexOrder = {"A", "B", "C", "D"};
+  value1 = cat(3, [1 0 0; 2 1 1], [0 1 0; 0 -1 2], [2 -1 0; 0 0 0]);
+  M1 = MultiDimVar({"A", "B", "C"}, [2 3 3], indexOrder, value1);
+  M2 = MultiDimVar({"A", "C"}, [2 3], indexOrder, [1 2 3; 4 5 0]);
+  M3 = reduceproduct(M1, M2, "C")
   % A = MultiDimVar({"A"}, [3], [1;2;3]);
   % B = MultiDimVar({"B", "A"}, [2, 3], [1 2 3; 4 5 6]);
   % A .* B
-  S = 20;
-  S1 = MultiDimVar({}, [1], [10]);
-  S ./ S1;
+  % S = 20;
+  % S1 = MultiDimVar({}, [1], [10]);
+  % S ./ S1;
   % NS = {[1], [1:3], [1 3]};
   % AS = {[1], [2], [1 3]};
   % S = {1, 2, 3};

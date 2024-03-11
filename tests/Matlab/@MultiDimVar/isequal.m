@@ -8,6 +8,13 @@ function bool = isequal(op1, op2)
     return
   endif
 
-  bool = isequal(op1.indexLabels, op2.indexLabels) && ... 
-         isequal(op1.value, op2.value);
+  if isempty(op1.indexLabels) && isempty(op2.indexLabels)
+    equal_labels = true;
+  else
+    equal_labels = isequal(op1.indexLabels, op2.indexLabels);
+  endif
+
+  equal_values = isequal(op1.value, op2.value);
+
+  bool =  equal_labels && equal_values;
 endfunction
