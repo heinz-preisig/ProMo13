@@ -23,6 +23,7 @@ __status__ = "beta"
 # TODO: handle differential indices differently states and frames generate a differential space automatically ! danger !
 
 import os as OS
+import shutil
 from collections import OrderedDict
 from copy import copy
 from copy import deepcopy
@@ -1132,14 +1133,16 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
 
     if self.new_variable_file:
       variables_f_name = FILES["variables_file"] % self.ontology_name
-      # NOTE: do not delete the below
-      # globalVariableID(update=False, reset=True)  # RULE: for a new variable file reset global variable ID
-      # globalEquationID(update=False, reset=True)  # RULE: and global equation ID
-      variables = {}
-      indices = {}
-      ProMoIRI = RecordProMoIRI()
-      data = VariableFile(variables, indices, VARIABLE_EQUATIONS_VERSION, ProMoIRI)
-      putData(data, variables_f_name)
+      variables_starting_file = FILES["variables_starting_file"] % self.ontology_name
+      shutil.copyfile(variables_starting_file,variables_f_name)
+      # # NOTE: do not delete the below
+      # # globalVariableID(update=False, reset=True)  # RULE: for a new variable file reset global variable ID
+      # # globalEquationID(update=False, reset=True)  # RULE: and global equation ID
+      # variables = {}
+      # indices = {}
+      # ProMoIRI = RecordProMoIRI()
+      # data = VariableFile(variables, indices, VARIABLE_EQUATIONS_VERSION, ProMoIRI)
+      # putData(data, variables_f_name)
       self.__writeMessage("ontology file written and new data file generated : %s" % variables_f_name)
     else:
       self.__writeMessage("ontology file written")

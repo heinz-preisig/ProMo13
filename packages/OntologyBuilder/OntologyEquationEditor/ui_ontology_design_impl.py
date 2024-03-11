@@ -790,7 +790,16 @@ class UiOntologyDesign(QMainWindow):
         nw_cleaned = nw.replace(CONNECTION_NETWORK_SEPARATOR, '--')
         nw_that_has_equation_cleaned.add(nw_cleaned)
 
-    # clean up network and sort them according to ontology tree
+    # networks with defined variables:
+    set_nw_that_have_variables = set()
+    for nw in self.ontology_container.heirs_network_dictionary["root"]:
+      for v in self.variables:
+        set_nw_that_have_variables.add(self.variables[v].network)
+
+    list_nw_that_have_variables = sorted(set_nw_that_have_variables)
+
+
+    # clean up network and sort them according to ontology tree  TODO: can be simplified -- some duplication with what follows
     list_nw_that_has_equation_cleaned = []
     for snw in self.ontology_container.heirs_network_dictionary["root"]:
       for nw in nw_that_has_equation_cleaned:
@@ -807,8 +816,19 @@ class UiOntologyDesign(QMainWindow):
     for e in e_types:
       e_types_cleaned.append(self.__cleanStrings(e))
 
+    networks_to_be_documented = list(set_nw_that_have_variables or set(list_nw_that_has_equation_cleaned))
+    sorted_networks_to_be_documented = []
+    for snw in self.ontology_container.heirs_network_dictionary["root"]:
+      for nw in networks_to_be_documented:
+        if snw in nw:
+          sorted_networks_to_be_documented.append(nw)
+    for nw in nw_that_has_equation_cleaned:
+      if "--" in nw:
+        sorted_networks_to_be_documented.append(nw)
+
+
     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
-    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=list_nw_that_has_equation_cleaned,
+    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=sorted_networks_to_be_documented, #networks_to_be_documented, #list_nw_that_have_variables, #list_nw_that_has_equation_cleaned,
                                                                     equationTypes=e_types_cleaned)
     f_name = FILES["latex_main"] % self.ontology_name
     f = open(f_name, 'w')
@@ -817,7 +837,7 @@ class UiOntologyDesign(QMainWindow):
 
     index_dictionary = self.variables.index_definition_network_for_variable_component_class
 
-    for nw in nw_that_has_equation:
+    for nw in list_nw_that_have_variables: #nw_that_has_equation:
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
       body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
                                                                            index=index_dictionary[nw])

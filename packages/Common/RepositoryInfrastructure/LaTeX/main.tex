@@ -84,7 +84,7 @@
 \newcolumntype{P}[1]{>{$}p{#1}<{$}}
 
 
-\newenvironment{eq}{\begin{minipage}{10cm}$}{$\end{minipage} }
+%\newenvironment{eq}{\begin{minipage}{10cm}$}{$\end{minipage} }
 %\newenvironment{lay}{\catcode`\_=12}{\catcode`\_=8}
 
 
@@ -94,49 +94,19 @@
 
 \section{Variables}
 
-\section{ root } \input{ variables_root.tex }
-\section{ control } \input{ variables_control.tex }
-\section{ physical } \input{ variables_physical.tex }
-\section{ fluid } \input{ variables_fluid.tex }
-\section{ gas } \input{ variables_gas.tex }
-\section{ liquid } \input{ variables_liquid.tex }
-\section{ solid } \input{ variables_solid.tex }
+\section{ root } \input{variables_root.tex} \newpage
+\section{ physical } \input{variables_physical.tex} \newpage
 
-\newpage
 \section{Equations}
+
 
 %\subsection{Selections}  			{ \input{equations_select}}
 %\newpage
-\subsection{Model equations} 	{ \input{equations_generic}}
-\newpage
-\subsection{Instantiations}   { \input{equations_instantiate}}
-\newpage
+%\subsection{Model equations} 	{ \input{equations_generic}}
+%\newpage
+%\subsection{Instantiations}   { \input{equations_instantiate}}
+%\newpage
 
-\pagestyle{empty}
-\def\dotgrapha#1{\newpage
-	\includegraphics[scale=0.6,angle=0, trim=0 0cm 0cm 0cm]{#1}}
-
-\def\dotgraphb#1{\newpage
-	\includegraphics[width=\textwidth,
-	                 height=\textheight,
-	                 trim=0 0cm 0cm 0cm]{#1}}
-\def\dotgraphc#1{\newpage
-	             	\includegraphics[%width=\textwidth,
-	             	%height=\textheight,
-	             	trim=0 0cm 0cm 0cm]{#1}}
-% trim l b r t
-
-\newpage
-\section{Graphs}
-
-
-\dotgrapha{../ontology_graphs/graph__root.ps}
-\dotgrapha{../ontology_graphs/graph__control.ps}
-\dotgrapha{../ontology_graphs/graph__physical.ps}
-\dotgrapha{../ontology_graphs/graph__fluid.ps}
-\dotgrapha{../ontology_graphs/graph__gas.ps}
-\dotgrapha{../ontology_graphs/graph__liquid.ps}
-\dotgrapha{../ontology_graphs/graph__solid.ps}
 
 \end{document}
 % ================================== end =========================================

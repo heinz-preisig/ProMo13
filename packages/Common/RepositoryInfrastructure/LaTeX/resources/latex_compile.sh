@@ -17,4 +17,4 @@ if [ $? -eq 0 ]
 fi
 
 
-okular $2.pdf ;
+#okular $2.pdf ;
