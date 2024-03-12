@@ -38,6 +38,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules/common/common.html">Common</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../modules/model_composer.html">Model Builder</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../modules/InstantiationTool/instantiation_tool.html">Instantiation Tool</a></li>
 </ul>
@@ -95,12 +96,16 @@
 
 
 <div class="viewcode-block" id="VariableTreeModel"><a class="viewcode-back" href="../../../../../modules/InstantiationTool/Models/variable_tree.html#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel">[docs]</a><span class="k">class</span> <span class="nc">VariableTreeModel</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QStandardItemModel</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Stores the variables in a model</span>
+  <span class="sd">&quot;&quot;&quot;Stores the variables in a model.</span>
 
-<span class="sd">  To be used as a model for one or more views in the GUI.</span>
+<span class="sd">  To be used by one or more views in the GUI.</span>
+
+<span class="sd">  Public Methods:</span>
+<span class="sd">      - :meth:`load_data`</span>
+<span class="sd">      - :meth:`</span>
 
 <span class="sd">  Signals:</span>
-<span class="sd">      top_item_checked(QModelIndex): Emitted when a new top level item</span>
+<span class="sd">      - top_item_checked(QModelIndex): emitted when a new top level item</span>
 <span class="sd">       is checked.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
@@ -171,25 +176,28 @@
     <span class="n">item</span><span class="o">.</span><span class="n">setData</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">roles</span><span class="o">.</span><span class="n">LAST_CHECK_STATE_ROLE</span><span class="p">)</span>
     <span class="n">item</span><span class="o">.</span><span class="n">setCheckState</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VariableTreeModel.check_item"><a class="viewcode-back" href="../../../../../modules/InstantiationTool/Models/variable_tree.html#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel.check_item">[docs]</a>  <span class="k">def</span> <span class="nf">check_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">):</span>
+<div class="viewcode-block" id="VariableTreeModel.handle_check_state_change"><a class="viewcode-back" href="../../../../../modules/InstantiationTool/Models/variable_tree.html#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel.handle_check_state_change">[docs]</a>  <span class="k">def</span> <span class="nf">handle_check_state_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Handles the check state changes.</span>
 
 <span class="sd">    The state changes are handled differently depending on the type of</span>
 <span class="sd">    item, for more information check:</span>
 
-<span class="sd">    * Top level: :func:`_check_top_level_item`</span>
-<span class="sd">    * Sub items: :func:`_check_sub_item`</span>
+<span class="sd">    * Top level: :meth:`_handle_top_level_item_check_state_change`</span>
+<span class="sd">    * Sub items: :meth:`_handle_sub_item_check_state_change`</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        index (QtCore.QModelIndex): corresponds to the item whose state</span>
 <span class="sd">         changes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">():</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_check_top_level_item</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_handle_top_level_item_check_state_change</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">_check_sub_item</span><span class="p">(</span><span class="n">index</span><span class="p">)</span></div>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_handle_sub_item_check_state_change</span><span class="p">(</span><span class="n">index</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="VariableTreeModel._check_top_level_item"><a class="viewcode-back" href="../../../../../modules/InstantiationTool/Models/variable_tree.html#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_top_level_item">[docs]</a>  <span class="k">def</span> <span class="nf">_check_top_level_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">):</span>
+<div class="viewcode-block" id="VariableTreeModel._handle_top_level_item_check_state_change"><a class="viewcode-back" href="../../../../../modules/InstantiationTool/Models/variable_tree.html#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_top_level_item_check_state_change">[docs]</a>  <span class="k">def</span> <span class="nf">_handle_top_level_item_check_state_change</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">index</span><span class="p">:</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">,</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Handles the check state changes for top level items.</span>
 
 <span class="sd">    One and only one top level item must be checked at any time. If that</span>
@@ -207,6 +215,7 @@
 
     <span class="c1"># There is not unchecking for top level items</span>
     <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">LAST_CHECK_STATE_ROLE</span><span class="p">)</span> <span class="o">==</span> <span class="n">CHECKED</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_set_check_state</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">CHECKED</span><span class="p">)</span>
       <span class="k">return</span>
 
     <span class="c1"># Only one top level can be checked</span>
@@ -226,7 +235,7 @@
     <span class="c1"># Signal that a new top item has been checked</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">top_item_checked</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexFromItem</span><span class="p">(</span><span class="n">item</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="VariableTreeModel._check_sub_item"><a class="viewcode-back" href="../../../../../modules/InstantiationTool/Models/variable_tree.html#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_sub_item">[docs]</a>  <span class="k">def</span> <span class="nf">_check_sub_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">):</span>
+<div class="viewcode-block" id="VariableTreeModel._handle_sub_item_check_state_change"><a class="viewcode-back" href="../../../../../modules/InstantiationTool/Models/variable_tree.html#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_sub_item_check_state_change">[docs]</a>  <span class="k">def</span> <span class="nf">_handle_sub_item_check_state_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QModelIndex</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Handles the check state changes for sub items.</span>
 
 <span class="sd">    There must be always at least one sub item checked. This means that</span>
@@ -273,7 +282,7 @@
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
       <span class="n">top_level_item</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">child</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">top_level_item</span><span class="o">.</span><span class="n">checkState</span><span class="p">()</span> <span class="o">==</span> <span class="n">CHECKED</span><span class="p">:</span>
-        <span class="n">checked_items</span><span class="p">[</span><span class="n">top_level_item</span><span class="o">.</span><span class="n">data</span><span class="p">()]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_checked_sub_items</span><span class="p">(</span>
+        <span class="n">checked_items</span><span class="p">[</span><span class="n">top_level_item</span><span class="o">.</span><span class="n">text</span><span class="p">()]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_checked_sub_items</span><span class="p">(</span>
             <span class="n">top_level_item</span>
         <span class="p">)</span>
 
@@ -290,13 +299,13 @@
 <span class="sd">         items are going to be queried.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        List[str]: data of all the subitems that are checked.</span>
+<span class="sd">        List[str]: data of all the sub items that are checked.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">checked_sub_items</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">top_level_item</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
       <span class="n">sub_item</span> <span class="o">=</span> <span class="n">top_level_item</span><span class="o">.</span><span class="n">child</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">sub_item</span><span class="o">.</span><span class="n">checkState</span><span class="p">()</span> <span class="o">==</span> <span class="n">CHECKED</span><span class="p">:</span>
-        <span class="n">checked_sub_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_item</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+        <span class="n">checked_sub_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_item</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="n">checked_sub_items</span></div></div>
 </pre></div>

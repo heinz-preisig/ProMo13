@@ -1,0 +1,175 @@
+"""
+Handle data I/O
+
+The IOHandler class stores the parameters necessary to generate the
+necessary paths to access the data files. Data is retrieved by using
+the IOHandler properties.
+
+.. _usage_example:
+Example:
+
+    .. code-block:: python
+
+      import io
+
+      path_parameters = {'repository_path': '.', 'ontology_name': 'Test'}
+      io_handler = io.IOHandler()
+      io_handler.add_path_parameters(path_parameters)
+
+      all_variables = io_handler.all_variables
+
+Classes:
+    IOHandler: Handle I/O operations
+
+Constants:
+    PathTemplates(dataclass): Templates for the paths to data files.
+    AllowedPathParameters(TypedDict): Parameters used to build paths.
+"""
+import json
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, Optional, TypedDict, ClassVar
+
+from pprint import pprint as pp
+
+from src.common import corelib
+
+
+@dataclass(frozen=True)
+class PathTemplates:
+  """Templates for the paths to data files"""
+  # For the ontologies
+  # Folders
+  ONTOLOGY_REPOSITORY_DIR: ClassVar[str] = "{repository_path}/"
+  ONTOLOGY_DIR: ClassVar[str] = ONTOLOGY_REPOSITORY_DIR + "{ontology_name}/"
+  LATEX_DIR: ClassVar[str] = ONTOLOGY_DIR + "LaTeX/"
+  MODEL_LIBRARY_DIR: ClassVar[str] = ONTOLOGY_DIR + "models/"
+  MODEL_DIR: ClassVar[str] = MODEL_LIBRARY_DIR + "{model_name}/"
+
+  # Files
+  ONTOLOGY_FILE: ClassVar[str] = ONTOLOGY_DIR + "ontology.json"
+  VARIABLES_FILE: ClassVar[str] = ONTOLOGY_DIR + "variables_v8.json"
+  ENTITIES_FILE: ClassVar[str] = ONTOLOGY_DIR + "entities.json"
+  ARC_OPTIONS_FILE: ClassVar[str] = ONTOLOGY_DIR + "arc_options.json"
+  MODEL_FILE: ClassVar[str] = MODEL_DIR + "model.json"
+  MODEL_FILE_FLAT: ClassVar[str] = MODEL_DIR + "model_flat.json"
+  LATEX_IMG_FILE: ClassVar[str] = LATEX_DIR + "{component_id}"
+
+  # For the code folder
+  # TODO: Move the file to a better location
+  TRANSLATION_TEMPLATE_FILE: ClassVar[str] = (
+      "packages/Utilities/TranslationManager"
+      "/resources/language_configurations/{language}/translation_template.json"
+  )
+
+
+class AllowedPathParameters(TypedDict, total=False):
+  """Parameters used to build paths"""
+  repository_path: str
+  ontology_name: str
+  model_name: str
+  output_language: str
+  component_id: str
+
+
+class IOHandler:
+  """
+  Handle I/O operations
+
+  Controls the reading and writing of data files. Paths to the files are
+  built using data provided by the user. This allows for a flexible
+  approach to handling files in different locations.
+
+  Check :ref:`here <usage_example>` for a usage example.
+  """
+
+  def __init__(self):
+    self._path_parameters: AllowedPathParameters = {}
+
+    self._all_entities: Optional[corelib.EntityMap] = None
+    self._all_equations: Optional[corelib.EquationMap] = None
+    self._all_indices: Optional[corelib.IndexMap] = None
+    self._all_variables: Optional[corelib.VariableMap] = None
+
+  @property
+  def all_entities(self) -> Optional[corelib.EntityMap]:
+    """All the entities in the ontology"""
+    if self._all_entities is None:
+      self._load_var_idx_eq_from_file()
+
+    return self._all_entities
+
+  @property
+  def all_equations(self) -> Optional[corelib.EquationMap]:
+    """All the equations in the ontology"""
+    if self._all_equations is None:
+      self._load_var_idx_eq_from_file()
+
+    return self._all_equations
+
+  @property
+  def all_indices(self) -> Optional[corelib.IndexMap]:
+    """All the indices in the ontology"""
+    if self._all_indices is None:
+      self._load_var_idx_eq_from_file()
+
+    return self._all_indices
+
+  @property
+  def all_variables(self) -> Optional[corelib.VariableMap]:
+    """All the variables in the ontology"""
+    if self._all_variables is None:
+      self._load_var_idx_eq_from_file()
+
+    return self._all_variables
+
+  def add_path_parameters(self, parameters: AllowedPathParameters):
+    # TODO-Python3.11: change to use typing.Unpack for easier use
+    self._path_parameters = parameters
+
+  def _build_path(self, path_template: str) -> Path:
+    return Path(path_template.format(self._path_parameters))
+
+  def _load_var_idx_eq_from_file(self):
+    path = self._build_path(PathTemplates.VARIABLES_FILE)
+
+    with open(path, "r", encoding="utf-8",) as file:
+      data = json.load(file)
+
+    # Loading the indices
+    indices = {}
+    for idx_id, idx_info in data["indices"].items():
+      # TODO: Go over the tokens in the indices
+      del idx_info["tokens"]
+      indices[idx_id] = corelib.Index(idx_id, **idx_info)
+
+    # Loading the variables
+    all_var_data = data["variables"]
+
+    variables = {}
+    equations = {}
+    for var_id, var_info in all_var_data.items():
+      eq_list = []
+      for eq_id, eq_info in var_info["equations"].items():
+        # TODO: Remove when this is no longer used.
+        del eq_info["incidence_list"]
+
+        eq_list.append(eq_id)
+
+        self.add_path_parameters({'component_id': eq_id})
+        equations[eq_id] = corelib.Equation(
+            eq_id,
+            self._build_path(PathTemplates.LATEX_IMG_FILE),
+            **eq_info,
+        )
+      var_info["equations"] = eq_list
+
+      self.add_path_parameters({'component_id': var_id})
+      variables[var_id] = corelib.Variable(
+          var_id,
+          self._build_path(PathTemplates.LATEX_IMG_FILE),
+          **var_info,
+      )
+
+    return (variables, indices, equations)
