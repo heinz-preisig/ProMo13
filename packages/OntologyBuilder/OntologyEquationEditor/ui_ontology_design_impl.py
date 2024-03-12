@@ -78,6 +78,10 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
 
+
+from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
+import constants
+
 # Note: keep
 # from Common.classes.io import translate_equations  # must be last
 
@@ -90,6 +94,10 @@ INITIALVARIABLE_TYPES = {
 CHOOSE_NETWORK = "choose network"
 CHOOSE_INTER_CONNECTION = "choose INTER connection"
 CHOOSE_INTRA_CONNECTION = "choose INTRA connection"
+
+
+
+CENTRE_NETWORK = "macroscopic"
 
 
 class EditorError(Exception):
@@ -517,6 +525,69 @@ class UiOntologyDesign(QMainWindow):
     return already_defined_variables, not_yet_defined_variables
 
   def __makeLinkEquation(self, var_ID):
+
+    def __makeLinkEquation(self, var_ID):
+      """
+      generates interface related equations
+      rules:
+      - if left domain is macro and right is control,
+      -- if left source is node, map from node
+      -- if left source is arc, map from arc
+      - if left domain is control and right is ard,
+      -- map from node to interface & interface to arc
+      - if left domain is macro and right is not control
+      -- if left source is not, map from node & map back to node
+      -- if left source is arc, map from arc & map pack to arc
+      Parameters
+      ----------
+      var_ID
+
+      Returns
+      -------
+
+      """
+
+      left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
+      right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
+
+      variable = self.variables[var_ID]
+      label = variable.label
+      type = variable.type
+      noce_index_ID = "I_1"
+      arc_index_ID = "I_2"
+
+      from_centre = left_nw == CENTRE_NETWORK
+      to_centre = right_nw == CENTRE_NETWORK
+
+      # constants
+      F_NI_source_ID = constants.FixedVariables.INCIDENCE_MATRIX_NI_SOURCE
+      F_AI_sink_ID = constants.FixedVariables.INCIDENCE_MATRIX_AI_SINK
+      S_Ip_ID = constants.FixedVariables.SELECTION_MATRIX_I_INPUT
+      S_Iq_ID = constants.FixedVariables.SELECTION_MATRIX_I_OUTPUT
+      F_NI_source = self.variables[F_NI_source_ID].label
+      F_AI_sink = self.variables[F_AI_sink_ID].label
+      S_Ip = self.variables[S_Ip_ID].label
+      S_Iq = self.variables[S_Iq_ID].label
+
+      if from_centre:
+        interface_variable = TEMPLATES["interface_variable"] % label
+        left_to_interface = "%s * %s" % (F_NI_source, label)
+        interface_to_right = "(%s . %s ) * %s" % (F_NI_source,
+                                                  interface_variable,
+                                                  S_Ip)
+      elif to_centre:
+        interface_variable = TEMPLATES["interface_variable"] % label
+        left_to_interface = "reduceSum((( %s * %s ) . %s), q )" % (F_NI_source,
+                                                                   label,
+                                                                   S_Iq)
+        interface_to_right = "%s * %s" % (F_AI_sink,
+                                          interface_variable)
+      else:
+        print("Error -- cannot build interface")
+
+      self.equations = self.ontology_container.equations
+      # print("debugging -- left and right network:", left_nw, right_nw)
+      set_left_variables = set()
 
     variables = self.ontology_container.variables
     self.variables[var_ID].language = "global_ID"
