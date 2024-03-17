@@ -258,16 +258,9 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   if aliases == {}:
     for language in LANGUAGES["aliasing"]:
       self["aliases"][language] = label
-    self["aliases"]["global_ID"] = var_ID  # CODE["global_ID"]["variable"] % var_ID
-  # #
-  # # a = UI_GetString("Give a LaTex representation of variable %s: "%self["label"])
-  # # a.exec_()
-  # # a.getText()
-  #
-  # if a:
-  #   self["aliases"]["latex"] = a
-  # else:
-  #   self["aliases"]["latex"] = a
+    self["aliases"]["global_ID"] = var_ID
+
+
 
   return self
 

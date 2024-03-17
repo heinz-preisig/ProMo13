@@ -19,6 +19,7 @@ __version__ = "6.00"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
+import copy
 import os
 from datetime import datetime
 from pathlib import Path
@@ -32,6 +33,7 @@ from pydotplus.graphviz import Node
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow
 
+import constants
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import getOntologyName
 from Common.common_resources import makeTreeView
@@ -47,16 +49,18 @@ from Common.record_definitions import RecordIndex
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
+from Common.ui_radio_buttons_impl import RadioSelectorDialog
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.resources import makeInterfaceVariableName
+# from OntologyBuilder.OntologyEquationEditor.resources import makeInterfaceVariableName
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.resources import revertInterfaceVariableName
 from OntologyBuilder.OntologyEquationEditor.resources import sortingVariableAndEquationKeys
+from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
 from OntologyBuilder.OntologyEquationEditor.tpg import LexicalError
 from OntologyBuilder.OntologyEquationEditor.tpg import SemanticError
 from OntologyBuilder.OntologyEquationEditor.tpg import SyntacticError
@@ -70,6 +74,8 @@ from OntologyBuilder.OntologyEquationEditor.ui_variabletable_delete_equation_imp
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_impl import UI_VariableTableDialog
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_instantiate import UI_VariableTableInterfaceInstantiate
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_show_impl import UI_VariableTableShow
+from OntologyBuilder.OntologyEquationEditor.variable_framework import CompileSpace
+from OntologyBuilder.OntologyEquationEditor.variable_framework import Expression
 from OntologyBuilder.OntologyEquationEditor.variable_framework import IndexStructureError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import makeCompiler
 from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidenceDictionaries
@@ -77,10 +83,6 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncide
 from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
-
-
-from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
-import constants
 
 # Note: keep
 # from Common.classes.io import translate_equations  # must be last
@@ -94,8 +96,6 @@ INITIALVARIABLE_TYPES = {
 CHOOSE_NETWORK = "choose network"
 CHOOSE_INTER_CONNECTION = "choose INTER connection"
 CHOOSE_INTRA_CONNECTION = "choose INTRA connection"
-
-
 
 CENTRE_NETWORK = "macroscopic"
 
@@ -126,6 +126,9 @@ class UiOntologyDesign(QMainWindow):
 
     # set up dialog window with new title
     QMainWindow.__init__(self)
+
+
+    # needs mousePressEvent and mouseMoveEvent
 
     self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
 
@@ -525,122 +528,227 @@ class UiOntologyDesign(QMainWindow):
     return already_defined_variables, not_yet_defined_variables
 
   def __makeLinkEquation(self, var_ID):
+    """
+    generates interface related equations
+    rules:
+    - if left domain is macro and right is control,
+    -- if left source is node, map from node
+    -- if left source is arc, map from arc
+    - if left domain is control and right is ard,
+    -- map from node to interface & interface to arc
+    - if left domain is macro and right is not control
+    -- if left source is node, map from node & map back to node
+    -- if left source is arc, map from arc & map pack to arc
+    Parameters
+    ----------
+    var_ID
 
-    def __makeLinkEquation(self, var_ID):
-      """
-      generates interface related equations
-      rules:
-      - if left domain is macro and right is control,
-      -- if left source is node, map from node
-      -- if left source is arc, map from arc
-      - if left domain is control and right is ard,
-      -- map from node to interface & interface to arc
-      - if left domain is macro and right is not control
-      -- if left source is not, map from node & map back to node
-      -- if left source is arc, map from arc & map pack to arc
-      Parameters
-      ----------
-      var_ID
+    Returns
+    -------
 
-      Returns
-      -------
+    """
 
-      """
+    left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
+    right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
 
-      left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
-      right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
+    variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["arc"]
 
-      variable = self.variables[var_ID]
-      label = variable.label
-      type = variable.type
-      noce_index_ID = "I_1"
-      arc_index_ID = "I_2"
+    variable = self.variables[var_ID]
+    label = variable.label
+    type = variable.type
+    node_index_ID = "I_1"
+    arc_index_ID = "I_2"
 
-      from_centre = left_nw == CENTRE_NETWORK
-      to_centre = right_nw == CENTRE_NETWORK
+    from_centre = left_nw == CENTRE_NETWORK
+    to_centre = right_nw == CENTRE_NETWORK
+    from_node = node_index_ID in variable.index_structures
+    from_arc = arc_index_ID in variable.index_structures
 
-      # constants
-      F_NI_source_ID = constants.FixedVariables.INCIDENCE_MATRIX_NI_SOURCE
-      F_AI_sink_ID = constants.FixedVariables.INCIDENCE_MATRIX_AI_SINK
-      S_Ip_ID = constants.FixedVariables.SELECTION_MATRIX_I_INPUT
-      S_Iq_ID = constants.FixedVariables.SELECTION_MATRIX_I_OUTPUT
-      F_NI_source = self.variables[F_NI_source_ID].label
-      F_AI_sink = self.variables[F_AI_sink_ID].label
-      S_Ip = self.variables[S_Ip_ID].label
-      S_Iq = self.variables[S_Iq_ID].label
+    # constants
+    F_NI_source_ID = constants.FixedVariables.INCIDENCE_MATRIX_NI_SOURCE
+    F_NI_sink_ID = constants.FixedVariables.INCIDENCE_MATRIX_NI_SINK
+    F_AI_source_ID = constants.FixedVariables.INCIDENCE_MATRIX_AI_SOURCE
+    F_AI_sink_ID = constants.FixedVariables.INCIDENCE_MATRIX_AI_SINK
+    S_Ip_ID = constants.FixedVariables.SELECTION_MATRIX_I_INPUT
+    S_Iq_ID = constants.FixedVariables.SELECTION_MATRIX_I_OUTPUT
+    F_NI_source = self.variables[F_NI_source_ID].label
+    F_NI_sink = self.variables[F_NI_sink_ID].label
+    F_AI_source = self.variables[F_AI_source_ID].label
+    F_AI_sink = self.variables[F_AI_sink_ID].label
+    S_Ip = self.variables[S_Ip_ID].label
+    S_Iq = self.variables[S_Iq_ID].label
 
-      if from_centre:
-        interface_variable = TEMPLATES["interface_variable"] % label
-        left_to_interface = "%s * %s" % (F_NI_source, label)
-        interface_to_right = "(%s . %s ) * %s" % (F_NI_source,
-                                                  interface_variable,
-                                                  S_Ip)
-      elif to_centre:
-        interface_variable = TEMPLATES["interface_variable"] % label
-        left_to_interface = "reduceSum((( %s * %s ) . %s), q )" % (F_NI_source,
-                                                                   label,
-                                                                   S_Iq)
-        interface_to_right = "%s * %s" % (F_AI_sink,
-                                          interface_variable)
+    interface_variable = TEMPLATES["interface_variable"] % label
+    while self.variables.existSymbol(self.current_network,interface_variable):
+      interface_variable = TEMPLATES["interface_variable"] % interface_variable
+
+    if from_centre:
+      if from_node:
+        F = F_NI_source
+      elif from_arc:
+        F = F_AI_source
       else:
-        print("Error -- cannot build interface")
+        raise EditorError("neither node or arc source")
 
-      self.equations = self.ontology_container.equations
-      # print("debugging -- left and right network:", left_nw, right_nw)
-      set_left_variables = set()
+      left_to_interface = "%s * %s" % (F, label)
+      interface_to_right = "(%s . %s ) * %s" % (F_NI_source, interface_variable, S_Ip)
+    elif to_centre:
+      answer = makeMessageBox("what is the target, node or arc",buttons="no button", custom_buttons=["node","arc"], default="node")
+      if answer == "node":
+        F = F_NI_sink
+      else:
+        F = F_AI_sink
+      left_to_interface = "reduceSum((( %s * %s ) . %s), q )" % (F_NI_source, label, S_Iq)
+      interface_to_right = "%s * %s" % (F, interface_variable)
+    else:
+      print("Error -- cannot build interface")
+      return
 
-    variables = self.ontology_container.variables
-    self.variables[var_ID].language = "global_ID"
-    rhs_internal = str(self.variables[var_ID])
-    self.variables[var_ID].language = "latex"
-    rhs_latex = str(self.variables[var_ID])
 
-    rhs_dic = {"global_ID": rhs_internal,
-               "latex"    : rhs_latex}
+    variable_definition_network = self.current_network
+    expression_definition_network = self.current_network
 
-    symbol = self.variables[var_ID].label
-    index_structures = self.variables[var_ID].index_structures
-    units = self.variables[var_ID].units
-    tokens = []
+  #step1 generate compilers
+    compile_space_global_ID = CompileSpace(self.variables, self.indices, variable_definition_network, expression_definition_network,
+                                 language="global_ID")
+    compiler_global_ID = Expression(compile_space_global_ID, verbose=0)
 
-    # TODO: this variable class/type should be centralised. Is currently hard wired in more than one place.
-    variable_type = VARIABLE_TYPE_INTERFACES
 
-    incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
-                                              network=self.current_network,
-                                              doc="interface equation", incidence_list=incident_list)
+    compile_space_latex = CompileSpace(self.variables, self.indices, variable_definition_network, expression_definition_network,
+                                 language="latex")
+    compiler_latex = Expression(compile_space_latex, verbose=0)
+
+#step2: make left-to-interface
+    left_to_interface_compiled_global_ID = str(compiler_global_ID(left_to_interface))
+    left_to_interface_compiled_latex = str(compiler_latex(left_to_interface))
+    rhs_dic = {"global_ID": left_to_interface_compiled_global_ID,
+               "latex"    : left_to_interface_compiled_latex}
+    incidence_list = makeIncidentList(left_to_interface_compiled_global_ID)
+
     new_var_ID = self.variables.newProMoVariableIRI()
     new_equ_ID = self.variables.newProMoEquationIRI()
 
-    variable_record = makeCompleteVariableRecord(new_var_ID,
-                                                 label=makeInterfaceVariableName(
-                                                         symbol),
-                                                 type=variable_type,
+    left_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
+                                              network=self.current_network,
+                                              doc="interface equation", incidence_list=incidence_list)
+
+    left_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
+                                                 label=interface_variable,
+                                                 type=VARIABLE_TYPE_INTERFACES,
                                                  network=self.current_network,
                                                  doc="link variable %s to interface %s" % (
-                                                         symbol, self.current_network),
-                                                 index_structures=index_structures,
-                                                 units=units,
+                                                         interface_variable, self.current_network),
+                                                 index_structures=variable.index_structures,
+                                                 units=variable.units,
                                                  equations={
-                                                         new_equ_ID: link_equation
+                                                         new_equ_ID: left_to_interface_equation_record
                                                          },
                                                  aliases={},
                                                  port_variable=False,
-                                                 tokens=tokens,
+                                                 tokens=[],
                                                  )
+    self.variables.addNewVariable(ID=new_var_ID, **left_interface_variable_record)
 
-    self.variables.addNewVariable(ID=new_var_ID, **variable_record)
-    var_latex = self.variables[var_ID].aliases["latex"]
-    new_var_latex = "{\_}" + var_latex
-    variable_record["aliases"]["latex"] = new_var_latex
+    self.variables.indexVariables()
+    # fix latex for variable
+    left_interface_variable_record["aliases"]["latex"] = interface_variable.replace("_","\_")
+
+  #step3: make interface-to-right
+    dialog = RadioSelectorDialog(variable_types_right_nw, parent=self)
+    # dialog.exec_()
+    variable_type = dialog.selection
+
+
+    interface_to_right_compiled_global_ID = str(compiler_global_ID(interface_to_right))
+    interface_to_right_compiled_latex = str(compiler_latex(interface_to_right))
+    rhs_dic = {"global_ID": interface_to_right_compiled_global_ID,
+               "latex"    : interface_to_right_compiled_latex}
+    incidence_list = makeIncidentList(interface_to_right_compiled_global_ID)
+
+    new_var_ID = self.variables.newProMoVariableIRI()
+    new_equ_ID = self.variables.newProMoEquationIRI()
+
+    left_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type=variable_type,#"interface_link_equation",
+                                              network=right_nw,
+                                              doc="interface equation", incidence_list=incidence_list)
+
+    right_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
+                                                 label=label,
+                                                 type=variable_type , #VARIABLE_TYPE_INTERFACES,
+                                                 network=right_nw,
+                                                 doc="link variable %s to interface %s" % (
+                                                         interface_variable, right_nw),
+                                                 index_structures=variable.index_structures,
+                                                 units=variable.units,
+                                                 equations={
+                                                         new_equ_ID: left_to_interface_equation_record
+                                                         },
+                                                 aliases={},
+                                                 port_variable=False,
+                                                 tokens=[],
+                                                 )
+    self.variables.addNewVariable(ID=new_var_ID, **right_interface_variable_record)
+
+    # interface_to_right_compiled = str(compiler(interface_to_right))
+
+    # self.ontology_container.variables[lhs_var_ID]["equations"][equ_ID]["rhs"][language] = res
+
+    # self.equations = self.ontology_container.equations
+    # # print("debugging -- left and right network:", left_nw, right_nw)
+    # set_left_variables = set()
+    #
+    # variables = self.ontology_container.variables
+    # self.variables[var_ID].language = "global_ID"
+    # rhs_internal = str(self.variables[var_ID])
+    # self.variables[var_ID].language = "latex"
+    # rhs_latex = str(self.variables[var_ID])
+    #
+    # rhs_dic = {"global_ID": rhs_internal,
+    #            "latex"    : rhs_latex}
+    #
+    # symbol = self.variables[var_ID].label
+    # index_structures = self.variables[var_ID].index_structures
+    # units = self.variables[var_ID].units
+    # tokens = []
+    #
+    # # TODO: this variable class/type should be centralised. Is currently hard wired in more than one place.
+    # variable_type = VARIABLE_TYPE_INTERFACES
+    #
+    # incident_list = [str(var_ID)]
+    # link_equation = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
+    #                                           network=self.current_network,
+    #                                           doc="interface equation", incidence_list=incident_list)
+    # new_var_ID = self.variables.newProMoVariableIRI()
+    # new_equ_ID = self.variables.newProMoEquationIRI()
+    #
+    # variable_record = makeCompleteVariableRecord(new_var_ID,
+    #                                              label=makeInterfaceVariableName(
+    #                                                      symbol),
+    #                                              type=variable_type,
+    #                                              network=self.current_network,
+    #                                              doc="link variable %s to interface %s" % (
+    #                                                      symbol, self.current_network),
+    #                                              index_structures=index_structures,
+    #                                              units=units,
+    #                                              equations={
+    #                                                      new_equ_ID: link_equation
+    #                                                      },
+    #                                              aliases={},
+    #                                              port_variable=False,
+    #                                              tokens=tokens,
+    #                                              )
+    #
+    # self.variables.addNewVariable(ID=new_var_ID, **variable_record)
+    # var_latex = self.variables[var_ID].aliases["latex"]
+    # new_var_latex = "{\_}" + var_latex
+    # variable_record["aliases"]["latex"] = new_var_latex
 
     self.ontology_container.indexEquations()
     self.variables.indexVariables()
     self.pick.close()
     self.__setupEditInterface()
 
-    print("debugging -- link_equation", link_equation)
+    # print("debugging -- link_equation", link_equation)
 
   def deleteLinkEquation(self, equ_ID, var_ID):
     print("debugging -- deleting equation ", var_ID, equ_ID)
@@ -863,12 +971,17 @@ class UiOntologyDesign(QMainWindow):
 
     # networks with defined variables:
     set_nw_that_have_variables = set()
+    set_nw_that_have_variables_cleaned = set()
     for nw in self.ontology_container.heirs_network_dictionary["root"]:
       for v in self.variables:
-        set_nw_that_have_variables.add(self.variables[v].network)
+        nw = self.variables[v].network
+        snw = nw
+        if CONNECTION_NETWORK_SEPARATOR in nw:
+          snw = nw.replace(CONNECTION_NETWORK_SEPARATOR,"--")
+        set_nw_that_have_variables_cleaned.add(snw)
+        set_nw_that_have_variables.add(nw)
 
     list_nw_that_have_variables = sorted(set_nw_that_have_variables)
-
 
     # clean up network and sort them according to ontology tree  TODO: can be simplified -- some duplication with what follows
     list_nw_that_has_equation_cleaned = []
@@ -887,19 +1000,19 @@ class UiOntologyDesign(QMainWindow):
     for e in e_types:
       e_types_cleaned.append(self.__cleanStrings(e))
 
-    networks_to_be_documented = list(set_nw_that_have_variables or set(list_nw_that_has_equation_cleaned))
-    sorted_networks_to_be_documented = []
+    networks_to_be_documented = list(set_nw_that_have_variables_cleaned or set(list_nw_that_has_equation_cleaned))
+    sorted_networks_to_be_documented = set([])
     for snw in self.ontology_container.heirs_network_dictionary["root"]:
       for nw in networks_to_be_documented:
         if snw in nw:
-          sorted_networks_to_be_documented.append(nw)
+          sorted_networks_to_be_documented.add(nw)
     for nw in nw_that_has_equation_cleaned:
       if "--" in nw:
-        sorted_networks_to_be_documented.append(nw)
-
+        sorted_networks_to_be_documented.add(nw)
 
     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
-    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=sorted_networks_to_be_documented, #networks_to_be_documented, #list_nw_that_have_variables, #list_nw_that_has_equation_cleaned,
+    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=sorted_networks_to_be_documented,
+                                                                    # networks_to_be_documented, #list_nw_that_have_variables, #list_nw_that_has_equation_cleaned,
                                                                     equationTypes=e_types_cleaned)
     f_name = FILES["latex_main"] % self.ontology_name
     f = open(f_name, 'w')
@@ -908,7 +1021,7 @@ class UiOntologyDesign(QMainWindow):
 
     index_dictionary = self.variables.index_definition_network_for_variable_component_class
 
-    for nw in list_nw_that_have_variables: #nw_that_has_equation:
+    for nw in list_nw_that_have_variables:  # nw_that_has_equation:
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
       body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
                                                                            index=index_dictionary[nw])

@@ -593,8 +593,8 @@ for c in Special_TEMPLATE:
 # OPERATOR_SNIPS.append(CODE[internal]["Root"] % ('expression to be explicit in var'))
 
 
-def makeInterfaceVariableName(symbol):
-  return TEMPLATES["interface_variable"] % symbol
+# def makeInterfaceVariableName(symbol):
+#   return TEMPLATES["interface_variable"] % symbol
 
 
 def revertInterfaceVariableName(symbol):
