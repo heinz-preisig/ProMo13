@@ -68,12 +68,9 @@ def makeMessageBox(message, buttons=None, custom_buttons=None, default=None, inf
   """
   Buttons[0] is set as default
   """
-  if buttons is None:
-    buttons = ["cancel", "OK"]
-  elif buttons == "not button":
-    buttons = []
   if custom_buttons is None:
-    custom_buttons = []
+    if buttons is None:
+      buttons = ["cancel", "OK"]
 
   msg_box = QtWidgets.QMessageBox()
   msg_box.setText(message)
@@ -96,13 +93,16 @@ def makeMessageBox(message, buttons=None, custom_buttons=None, default=None, inf
       msg_box.setStandardButtons(mybuttons)  # discard | save | cancel);
       # msg_box.setDefaultButton(BUTTONS[buttons[0]])
 
-  for buts, action in custom_buttons:
-    MYBUTTONS[buts] = msg_box.addButton(buts, ACTIONROLES["action"])
+  if custom_buttons:
+    for buts, action in custom_buttons:
+      MYBUTTONS[buts] = msg_box.addButton(buts, ACTIONROLES["action"])
 
-  if default in buttons:
-    msg_box.setDefaultButton(BUTTONS[default])
-  if default in MYBUTTONS:
-    msg_box.setDefaultButton(MYBUTTONS[default])
+  if buttons:
+    if default in buttons:
+      msg_box.setDefaultButton(BUTTONS[default])
+  if MYBUTTONS:
+    if default in MYBUTTONS:
+      msg_box.setDefaultButton(MYBUTTONS[default])
 
   msg_box.show()
   r = msg_box.exec_()
@@ -119,9 +119,12 @@ def makeMessageBox(message, buttons=None, custom_buttons=None, default=None, inf
 if __name__ == '__main__':
   a = QtWidgets.QApplication(sys.argv)
   s = makeMessageBox("hello this is a very long message  even longer than one expcts \n hello",
-                     buttons="not button", #["OK"],
+                     buttons=["OK"],
                      custom_buttons=[("node","accept"),("arc", "accept")],
                      default="arc",
                      infotext="info text")
-  print(s)
+  print("first", s)
+
+  s = makeMessageBox("what is the target, node or arc",buttons=None, custom_buttons=[("node","accept"),("arc", "accept")], default="node")
+  print("second:",s)
   sys.exit()

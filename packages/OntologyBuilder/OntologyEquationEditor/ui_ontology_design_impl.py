@@ -408,7 +408,7 @@ class UiOntologyDesign(QMainWindow):
       modified = True
 
     if modified:
-      response = makeMessageBox("things have changed\ndo you want to exit?")
+      response = makeMessageBox("things have changed\ndo you want to exit?", default="cancel")
       if response == "OK":
         self.close()
         return
@@ -551,7 +551,7 @@ class UiOntologyDesign(QMainWindow):
     left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
     right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
 
-    variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["arc"]
+    variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["node"]
 
     variable = self.variables[var_ID]
     label = variable.label
@@ -593,11 +593,15 @@ class UiOntologyDesign(QMainWindow):
       left_to_interface = "%s * %s" % (F, label)
       interface_to_right = "(%s . %s ) * %s" % (F_NI_source, interface_variable, S_Ip)
     elif to_centre:
-      answer = makeMessageBox("what is the target, node or arc",buttons="no button", custom_buttons=["node","arc"], default="node")
+      answer = makeMessageBox("what is the target, node or arc",buttons=None, custom_buttons=[("node","accept"),("arc", "accept")], default="node")
       if answer == "node":
         F = F_NI_sink
+        variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["node"]
+
       else:
         F = F_AI_sink
+        variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["arc"]
+
       left_to_interface = "reduceSum((( %s * %s ) . %s), q )" % (F_NI_source, label, S_Iq)
       interface_to_right = "%s * %s" % (F, interface_variable)
     else:
@@ -619,7 +623,10 @@ class UiOntologyDesign(QMainWindow):
     compiler_latex = Expression(compile_space_latex, verbose=0)
 
 #step2: make left-to-interface
-    left_to_interface_compiled_global_ID = str(compiler_global_ID(left_to_interface))
+    x = compiler_global_ID(left_to_interface)
+    left_to_interface_compiled_global_ID_units = x.units
+    left_to_interface_compiled_global_ID_index_structures = x.index_structures
+    left_to_interface_compiled_global_ID = str(x)
     left_to_interface_compiled_latex = str(compiler_latex(left_to_interface))
     rhs_dic = {"global_ID": left_to_interface_compiled_global_ID,
                "latex"    : left_to_interface_compiled_latex}
@@ -638,8 +645,8 @@ class UiOntologyDesign(QMainWindow):
                                                  network=self.current_network,
                                                  doc="link variable %s to interface %s" % (
                                                          interface_variable, self.current_network),
-                                                 index_structures=variable.index_structures,
-                                                 units=variable.units,
+                                                 index_structures=left_to_interface_compiled_global_ID_index_structures,
+                                                 units=left_to_interface_compiled_global_ID_units,
                                                  equations={
                                                          new_equ_ID: left_to_interface_equation_record
                                                          },
@@ -658,8 +665,10 @@ class UiOntologyDesign(QMainWindow):
     # dialog.exec_()
     variable_type = dialog.selection
 
-
-    interface_to_right_compiled_global_ID = str(compiler_global_ID(interface_to_right))
+    y = compiler_global_ID(interface_to_right)
+    interface_to_right_compiled_global_ID = str(y)
+    interface_to_right_compiled_global_ID_units = y.units
+    interface_to_right_compiled_global_ID_index_structures = y.index_structures
     interface_to_right_compiled_latex = str(compiler_latex(interface_to_right))
     rhs_dic = {"global_ID": interface_to_right_compiled_global_ID,
                "latex"    : interface_to_right_compiled_latex}
@@ -668,7 +677,7 @@ class UiOntologyDesign(QMainWindow):
     new_var_ID = self.variables.newProMoVariableIRI()
     new_equ_ID = self.variables.newProMoEquationIRI()
 
-    left_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type=variable_type,#"interface_link_equation",
+    left_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
                                               network=right_nw,
                                               doc="interface equation", incidence_list=incidence_list)
 
@@ -678,8 +687,8 @@ class UiOntologyDesign(QMainWindow):
                                                  network=right_nw,
                                                  doc="link variable %s to interface %s" % (
                                                          interface_variable, right_nw),
-                                                 index_structures=variable.index_structures,
-                                                 units=variable.units,
+                                                 index_structures=interface_to_right_compiled_global_ID_index_structures,
+                                                 units=interface_to_right_compiled_global_ID_units,
                                                  equations={
                                                          new_equ_ID: left_to_interface_equation_record
                                                          },
@@ -688,60 +697,6 @@ class UiOntologyDesign(QMainWindow):
                                                  tokens=[],
                                                  )
     self.variables.addNewVariable(ID=new_var_ID, **right_interface_variable_record)
-
-    # interface_to_right_compiled = str(compiler(interface_to_right))
-
-    # self.ontology_container.variables[lhs_var_ID]["equations"][equ_ID]["rhs"][language] = res
-
-    # self.equations = self.ontology_container.equations
-    # # print("debugging -- left and right network:", left_nw, right_nw)
-    # set_left_variables = set()
-    #
-    # variables = self.ontology_container.variables
-    # self.variables[var_ID].language = "global_ID"
-    # rhs_internal = str(self.variables[var_ID])
-    # self.variables[var_ID].language = "latex"
-    # rhs_latex = str(self.variables[var_ID])
-    #
-    # rhs_dic = {"global_ID": rhs_internal,
-    #            "latex"    : rhs_latex}
-    #
-    # symbol = self.variables[var_ID].label
-    # index_structures = self.variables[var_ID].index_structures
-    # units = self.variables[var_ID].units
-    # tokens = []
-    #
-    # # TODO: this variable class/type should be centralised. Is currently hard wired in more than one place.
-    # variable_type = VARIABLE_TYPE_INTERFACES
-    #
-    # incident_list = [str(var_ID)]
-    # link_equation = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
-    #                                           network=self.current_network,
-    #                                           doc="interface equation", incidence_list=incident_list)
-    # new_var_ID = self.variables.newProMoVariableIRI()
-    # new_equ_ID = self.variables.newProMoEquationIRI()
-    #
-    # variable_record = makeCompleteVariableRecord(new_var_ID,
-    #                                              label=makeInterfaceVariableName(
-    #                                                      symbol),
-    #                                              type=variable_type,
-    #                                              network=self.current_network,
-    #                                              doc="link variable %s to interface %s" % (
-    #                                                      symbol, self.current_network),
-    #                                              index_structures=index_structures,
-    #                                              units=units,
-    #                                              equations={
-    #                                                      new_equ_ID: link_equation
-    #                                                      },
-    #                                              aliases={},
-    #                                              port_variable=False,
-    #                                              tokens=tokens,
-    #                                              )
-    #
-    # self.variables.addNewVariable(ID=new_var_ID, **variable_record)
-    # var_latex = self.variables[var_ID].aliases["latex"]
-    # new_var_latex = "{\_}" + var_latex
-    # variable_record["aliases"]["latex"] = new_var_latex
 
     self.ontology_container.indexEquations()
     self.variables.indexVariables()
