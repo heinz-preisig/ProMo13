@@ -3,40 +3,41 @@ import sys
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-from Common.radio_selector_scroll import Ui_Form
+from Common.qt_resources import ModellerRadioButton
+from Common.radio_selector import Ui_Form
+from Common.resources_icons import roundButton
 
 
-class Selector(QtWidgets.QWidget):
-  def __init__(self, parent):
+class SimpleRadioSelector(QtWidgets.QWidget):
+  def __init__(self, radios, parent=None):
 
-    super(Selector, self).__init__(parent)
+
+
+    QtWidgets.QWidget.__init__(self, parent=parent)
+    self.ui = Ui_Form()
+    self.ui.setupUi(self)
 
     # main button
-    self.addButton = QtWidgets.QPushButton('button to add other widgets')
-    self.addButton.clicked.connect(self.clean)  # (self.addWidget)
+    # roundButton(self.ui.pushButtonExit, "exit", "exit" )
 
-    # scroll area widget contents - layout
-    self.scrollLayout = QtWidgets.QFormLayout()
+    # groupbox = QtWidgets.QGroupBox()
 
-    # scroll area widget contents
-    self.scrollWidget = QtWidgets.QWidget()
-    self.scrollWidget.setLayout(self.scrollLayout)
+    layout = QtWidgets.QGr()
+    radio = QtWidgets.QRadioButton("hello")
+    layout.addWidget(radio)
+    self.setLayout(layout)
 
-    # scroll area
-    self.scrollArea = QtWidgets.QScrollArea()
-    self.scrollArea.setWidgetResizable(True)
-    self.scrollArea.setWidget(self.scrollWidget)
 
     # main layout
-    self.mainLayout = QtWidgets.QVBoxLayout()
+    # self.mainLayout = QtWidgets.QVBoxLayout()
 
     # add all main to the main vLayout
-    self.mainLayout.addWidget(self.addButton)
-    self.mainLayout.addWidget(self.scrollArea)
-
-    # central widget
-    self.centralWidget = QtWidgets.QWidget()
-    self.centralWidget.setLayout(self.mainLayout)
+    # self.mainLayout.addWidget(self.addButton)
+    # self.mainLayout.addWidget(self.scrollArea)
+    #
+    # # central widget
+    # self.centralWidget = QtWidgets.QWidget()
+    # self.centralWidget.setLayout(self.mainLayout)
 
     self.radio_buttons = []
     self.ID = 0
@@ -67,7 +68,7 @@ class Main(QtWidgets.QMainWindow):
     self.ui = Ui_Form()
     self.ui.setupUi(self)
 
-    self.s = Selector(self.ui.scrollAreaWidgetContents)
+    self.s = SimpleRadioSelector(self.ui.scrollAreaWidgetContents)
     self.s.show()
     # self.radioButton = {}
     # for i in range(0,50):
