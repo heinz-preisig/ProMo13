@@ -403,6 +403,28 @@ class UI_Equations(QtWidgets.QWidget):
       msg = 'modified expression OK\n index struct: %s\n units: %s\n \n' % (
               pretty_check_var_indices, pretty_check_var_units)
       self.MSG(msg)
+
+      # check memory for all variables
+      incide_list = makeIncidentList(str(self.checked_var))
+      memory_value_set = set()
+      self.memory = None
+
+      for v in incide_list:
+        memory = self.variables[v].memory
+        memory_value_set.add(memory)
+        pass
+      if len(memory_value_set) > 1:
+
+        msg = "memory variable mismatch\n"
+        for v in incide_list:
+          msg += "- variable %s has memory variable %s\n"%(self.variables[v].label, self.variables[v].memory)
+        self.MSG(msg)
+
+        raise VarError(msg)
+
+      elif len(incide_list) == 1:
+        self.memory = list(memory_value_set)[0]
+
       #       print("debugging: ", msg)
 
       # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
@@ -501,6 +523,7 @@ class UI_Equations(QtWidgets.QWidget):
                                                    aliases={},
                                                    port_variable=False,
                                                    tokens=tokens,
+                                                   memory=self.memory,
                                                    )
 
       self.variables.addNewVariable(ID=var_ID, **variable_record)

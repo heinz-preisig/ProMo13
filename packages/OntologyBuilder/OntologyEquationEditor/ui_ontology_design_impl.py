@@ -97,7 +97,10 @@ CHOOSE_NETWORK = "choose network"
 CHOOSE_INTER_CONNECTION = "choose INTER connection"
 CHOOSE_INTRA_CONNECTION = "choose INTRA connection"
 
-CENTRE_NETWORK = "macroscopic"
+# RULE: we constrain interface networks to only exist to the CENTER_NETWORK
+# TODO: needs to become part of the foundation ontology
+
+CENTRE_NETWORKS = ["macroscopic"]
 
 
 class EditorError(Exception):
@@ -195,7 +198,13 @@ class UiOntologyDesign(QMainWindow):
     self.interconnection_nws = self.ontology_container.interconnection_network_dictionary
     self.intraconnection_nws = self.ontology_container.intraconnection_network_dictionary
     self.intraconnection_nws_list = list(self.intraconnection_nws.keys())
-    self.interconnection_nws_list = self.ontology_container.list_inter_branches_pairs
+    
+    # RULE: constrain interconnections to in and out of centre domain
+    self.interconnection_nws_list = []
+    for nw in self.ontology_container.list_inter_branches_pairs:
+      for c in CENTRE_NETWORKS:
+        if c in nw:
+          self.interconnection_nws_list.append(nw)
 
     self.indices = self.ontology_container.indices
     self.variables = Variables(self.ontology_container)
@@ -471,7 +480,7 @@ class UiOntologyDesign(QMainWindow):
       # self.__setupEdit("interface")
       # self.__setupEditInterface()
       # self.__showFilesControl()
-      # self.ui.pushShowVariables.show()
+      self.ui.pushShowVariables.show()
 
   @QtCore.pyqtSlot(int)
   def on_tabWidget_currentChanged(self, which):
@@ -496,7 +505,7 @@ class UiOntologyDesign(QMainWindow):
             self.variables.index_accessible_variables_on_networks[left_nw].keys())
 
     # RULE: what to hide -- all that have already be put into the interface
-    already_defined_variables, not_yet_defined_variables = self.__alreadyDefinedVariables()
+    already_defined_variables, not_yet_defined_variables, all_variables_imported = self.__alreadyDefinedVariables()
 
     for var_class in enabled_var_classes:
       for var_ID in self.variables.index_accessible_variables_on_networks[left_nw][var_class]:
@@ -507,7 +516,7 @@ class UiOntologyDesign(QMainWindow):
     self.pick = UI_VariableTableInterfacePick("make interface cut equation",
                                               self.variables, self.indices,
                                               source,  # self.current_network,
-                                              hide_vars=already_defined_variables,
+                                              hide_vars=already_defined_variables | all_variables_imported,
                                               enabled_types=enabled_var_classes)
     self.pick.picked.connect(self.__makeLinkEquation)
     self.pick.exec_()
@@ -515,17 +524,20 @@ class UiOntologyDesign(QMainWindow):
   def __alreadyDefinedVariables(self):
     already_defined_variables = set()
     all_variables_in_interface = set()
+    all_variables_imported = set()
     for var_ID in self.variables:
       symbol = self.variables[var_ID].label
       all_variables_in_interface.add(symbol)
+      if self.variables[var_ID].imported:
+        all_variables_imported.add(symbol)
       if self.variables[var_ID].network == self.current_network:
         already_defined_variables.add(symbol)
         symbol = revertInterfaceVariableName(symbol)
         already_defined_variables.add(symbol)
     not_yet_defined_variables = all_variables_in_interface - already_defined_variables
-    already_defined_variables = list(already_defined_variables)
-    not_yet_defined_variables = list(not_yet_defined_variables)
-    return already_defined_variables, not_yet_defined_variables
+    # already_defined_variables = list(already_defined_variables)
+    # not_yet_defined_variables = list(not_yet_defined_variables)
+    return already_defined_variables, not_yet_defined_variables, all_variables_imported
 
   def __makeLinkEquation(self, var_ID):
     """
@@ -559,8 +571,8 @@ class UiOntologyDesign(QMainWindow):
     node_index_ID = "I_1"
     arc_index_ID = "I_2"
 
-    from_centre = left_nw == CENTRE_NETWORK
-    to_centre = right_nw == CENTRE_NETWORK
+    from_centre = left_nw in CENTRE_NETWORKS
+    to_centre = right_nw in CENTRE_NETWORKS
     from_node = node_index_ID in variable.index_structures
     from_arc = arc_index_ID in variable.index_structures
 
@@ -582,7 +594,11 @@ class UiOntologyDesign(QMainWindow):
     while self.variables.existSymbol(self.current_network,interface_variable):
       interface_variable = TEMPLATES["interface_variable"] % interface_variable
 
-    if from_centre:
+    if to_centre:
+      if variable.memory:
+        from_node = variable.memory == "node"
+        from_arc = variable.memory == "arc"
+
       if from_node:
         F = F_NI_source
       elif from_arc:
@@ -590,17 +606,20 @@ class UiOntologyDesign(QMainWindow):
       else:
         raise EditorError("neither node or arc source")
 
+
+
       left_to_interface = "%s * %s" % (F, label)
       interface_to_right = "(%s . %s ) * %s" % (F_NI_source, interface_variable, S_Ip)
     elif to_centre:
-      answer = makeMessageBox("what is the target, node or arc",buttons=None, custom_buttons=[("node","accept"),("arc", "accept")], default="node")
-      if answer == "node":
-        F = F_NI_sink
-        variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["node"]
+      if not variable.memory:
+        answer = makeMessageBox("what is the target, node or arc",buttons=None, custom_buttons=[("node","accept"),("arc", "accept")], default="node")
+        if answer == "node":
+          F = F_NI_sink
+          variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["node"]
 
-      else:
-        F = F_AI_sink
-        variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["arc"]
+        else:
+          F = F_AI_sink
+          variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["arc"]
 
       left_to_interface = "reduceSum((( %s * %s ) . %s), q )" % (F_NI_source, label, S_Iq)
       interface_to_right = "%s * %s" % (F, interface_variable)
@@ -639,10 +658,14 @@ class UiOntologyDesign(QMainWindow):
                                               network=self.current_network,
                                               doc="interface equation", incidence_list=incidence_list)
 
-    # keep information on if it came from node or arc
-    source = "node"
-    if from_arc:
-      source = "arc"
+    # RULE: keep information on if it came from node or arc and from the centre
+    if from_centre:
+      source = "node"
+      if from_arc:
+        source = "arc"
+    else:
+      source = None
+
     left_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
                                                  label=interface_variable,
                                                  type=VARIABLE_TYPE_INTERFACES,
@@ -657,6 +680,8 @@ class UiOntologyDesign(QMainWindow):
                                                  aliases={},
                                                  port_variable=False,
                                                  tokens=[],
+                                                 memory=source,
+                                                 imported=True,
                                                  )
     self.variables.addNewVariable(ID=new_var_ID, **left_interface_variable_record)
 
@@ -699,6 +724,8 @@ class UiOntologyDesign(QMainWindow):
                                                  aliases={},
                                                  port_variable=False,
                                                  tokens=[],
+                                                 memory=source,
+                                                 imported=True,
                                                  )
     self.variables.addNewVariable(ID=new_var_ID, **right_interface_variable_record)
 

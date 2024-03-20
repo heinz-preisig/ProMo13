@@ -132,9 +132,9 @@ class UI_VariableTableDeleteEquation(VariableTable):
                               prompt="all defined equations",
                               buttons=["reject","accept"])
 
-    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-    if len(list_equations) == 0:
-      makeMessageBox("there are no equation", buttons=["OK"])
+    # list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+    # if len(list_equations) == 0:
+    #   makeMessageBox("there are no equation", buttons=["OK"])
 
     return
 
@@ -159,7 +159,7 @@ class UI_VariableTableDeleteEquation(VariableTable):
     # msg += "\n\nand consequently \n...variables:%s \n\n...equations %s" % (v, e)
     # reply = makeMessageBox(msg, buttons=["NO", "YES"])
     # if reply == "YES":
-    if dialog.answer == "yes":
+    if dialog.answer == "accept":
       # print("debugging -- yes")
       self.__deleteVariable(d_vars, d_equs)
       self.reset_table()
