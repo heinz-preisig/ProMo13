@@ -1133,9 +1133,8 @@ class OntologyContainer():
     # print ("----------------------")
 
     variables_f_name = FILES["variables_file"] % self.ontology_name
-    # variables_f_name_v7 = FILES["variables_file_v7"] % self.ontology_name
-    variable_record_filter = set(
-            list(makeCompleteVariableRecord(0).keys()))  # minimal configuration
+
+    variable_record_dummy = makeCompleteVariableRecord(-1)
 
     if OS.path.exists(variables_f_name):
       data = getData(variables_f_name)
@@ -1145,10 +1144,15 @@ class OntologyContainer():
         u = data["variables"][v_ID]["units"]
         data["variables"][v_ID]["units"] = Units(ALL=u)
 
-      # variables, indices = self.converting_indices(data["variables"],i_data)
-      # return variables, indices, data["version"], data["Ontology_global_IDs"]
-      # return data["variables"], i_data, data["version"], data["Ontology_global_IDs"]
-      # variables = self.fix_lhs(data["variables"])
+      # selfhealing once the variable_record is modified
+      # adds missing attribute
+        # Note: it will not remove obsolete attributes
+        key_list = list(data["variables"][v_ID].keys())
+        for attrib in list(variable_record_dummy.keys()):
+          if attrib not in key_list:
+            data["variables"][v_ID][attrib] = variable_record_dummy[attrib]
+
+
       return data["variables"], data["indices"], data["version"], data["Ontology_global_IDs"]
 
     else:

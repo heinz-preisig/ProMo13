@@ -16,8 +16,10 @@
       "created": "2024-03-06 15:09:35",
       "doc": "time",
       "equations": {},
+      "imported": false,
       "index_structures": [],
       "label": "t",
+      "memory": null,
       "modified": "2024-03-06 15:10:08",
       "network": "root",
       "port_variable": true,
@@ -49,10 +51,12 @@
       "created": "2024-03-06 15:16:45",
       "doc": "y-coordinate",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1"
       ],
       "label": "r_y",
+      "memory": null,
       "modified": "2024-03-06 15:17:19",
       "network": "physical",
       "port_variable": true,
@@ -84,10 +88,12 @@
       "created": "2024-03-06 15:18:11",
       "doc": "z-coordinate",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1"
       ],
       "label": "r_z",
+      "memory": null,
       "modified": "2024-03-06 15:19:01",
       "network": "physical",
       "port_variable": true,
@@ -119,11 +125,13 @@
       "created": "2024-03-06 15:10:23",
       "doc": "incidence matrix",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1",
         "I_2"
       ],
       "label": "F",
+      "memory": null,
       "modified": "2024-03-06 15:10:52",
       "network": "root",
       "port_variable": true,
@@ -155,11 +163,13 @@
       "created": "2024-03-06 15:10:59",
       "doc": "incidence matrix NI source",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1",
         "I_3"
       ],
       "label": "F_NI_source",
+      "memory": null,
       "modified": "2024-03-06 15:25:21",
       "network": "root",
       "port_variable": true,
@@ -191,11 +201,13 @@
       "created": "2024-03-06 15:11:44",
       "doc": "incidence matrix NI sink",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1",
         "I_3"
       ],
       "label": "F_NI_sink",
+      "memory": null,
       "modified": "2024-03-06 15:25:39",
       "network": "root",
       "port_variable": true,
@@ -227,11 +239,13 @@
       "created": "2024-03-06 15:12:14",
       "doc": "incidence matrix AI source",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_2",
         "I_3"
       ],
       "label": "F_AI_source",
+      "memory": null,
       "modified": "2024-03-06 15:25:53",
       "network": "root",
       "port_variable": true,
@@ -263,11 +277,13 @@
       "created": "2024-03-06 15:12:39",
       "doc": "incidence matrix AI sink",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_2",
         "I_3"
       ],
       "label": "F_AI_sink",
+      "memory": null,
       "modified": "2024-03-06 15:26:02",
       "network": "root",
       "port_variable": true,
@@ -299,11 +315,13 @@
       "created": "2024-03-06 15:13:11",
       "doc": "selection matrix input",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_3",
         "I_7"
       ],
       "label": "S_Ip",
+      "memory": null,
       "modified": "2024-03-06 15:26:14",
       "network": "root",
       "port_variable": true,
@@ -335,11 +353,13 @@
       "created": "2024-03-06 15:13:59",
       "doc": "selection matrix ouput",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_3",
         "I_8"
       ],
       "label": "S_Iq",
+      "memory": null,
       "modified": "2024-03-06 15:26:41",
       "network": "root",
       "port_variable": true,
@@ -371,10 +391,12 @@
       "created": "2024-03-06 15:14:53",
       "doc": "x-coordinate",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1"
       ],
       "label": "r_x",
+      "memory": null,
       "modified": "2024-03-06 15:16:34",
       "network": "physical",
       "port_variable": true,

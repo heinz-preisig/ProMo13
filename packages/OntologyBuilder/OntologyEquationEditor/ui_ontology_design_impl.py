@@ -639,12 +639,16 @@ class UiOntologyDesign(QMainWindow):
                                               network=self.current_network,
                                               doc="interface equation", incidence_list=incidence_list)
 
+    # keep information on if it came from node or arc
+    source = "node"
+    if from_arc:
+      source = "arc"
     left_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
                                                  label=interface_variable,
                                                  type=VARIABLE_TYPE_INTERFACES,
                                                  network=self.current_network,
-                                                 doc="link variable %s to interface %s" % (
-                                                         interface_variable, self.current_network),
+                                                 doc="link variable %s to interface %s with source:%s" % (
+                                                         interface_variable, self.current_network, source),
                                                  index_structures=left_to_interface_compiled_global_ID_index_structures,
                                                  units=left_to_interface_compiled_global_ID_units,
                                                  equations={
