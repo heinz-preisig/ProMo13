@@ -555,16 +555,16 @@ TwoPlace_TEMPLATE = ["+",
                      "-",
                      ".",
                      ":",
-                     "*",
+                     # "*",
                      "^",
                      "ParDiff",
                      "TotalDiff",
                      "max",
                      "min",
                      "Instantiate",
-                     "Product",
+                     # "Product",
                      ]
-ThreePlace_TEMPLATE = ["blockProd"]
+ThreePlace_TEMPLATE = ["*"]
 internal = LANGUAGES["internal_code"]
 Special_TEMPLATE = {
         "Integral"   : CODE[internal]['Integral'].format(integrand='var',
@@ -584,8 +584,8 @@ for i in TwoPlace_TEMPLATE:
   except:
     print("failed with :", i)
 
-# for i in ThreePlace_TEMPLATE:
-#   OPERATOR_SNIPS.append(CODE[internal]['|'] % ('a', 'b', 'c'))
+for i in ThreePlace_TEMPLATE:
+  OPERATOR_SNIPS.append(CODE[internal][i] % ('a', 'b', 'c'))
 
 for c in Special_TEMPLATE:
   OPERATOR_SNIPS.append(str(Special_TEMPLATE[c]))
