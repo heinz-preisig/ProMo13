@@ -16,8 +16,10 @@
       "created": "2024-03-06 15:09:35",
       "doc": "time",
       "equations": {},
+      "imported": false,
       "index_structures": [],
       "label": "t",
+      "memory": null,
       "modified": "2024-03-06 15:10:08",
       "network": "root",
       "port_variable": true,
@@ -38,22 +40,24 @@
       "IRI": "promo:r_y",
       "aliases": {
         "matlab": "r_y",
-        "latex": "r_y",
+        "latex": "{r_y}",
         "internal_code": "r_y",
         "global_ID": "V_10"
       },
       "compiled_lhs": {
         "global_ID": "V_10",
-        "latex": "{r_y}{_{N}}"
+        "latex": "{{r_y}}{_{N}}"
       },
       "created": "2024-03-06 15:16:45",
       "doc": "y-coordinate",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1"
       ],
       "label": "r_y",
-      "modified": "2024-03-06 15:17:19",
+      "memory": null,
+      "modified": "2024-03-21 11:31:20",
       "network": "physical",
       "port_variable": true,
       "tokens": [],
@@ -73,22 +77,24 @@
       "IRI": "promo:r_z",
       "aliases": {
         "matlab": "r_z",
-        "latex": "r_z",
+        "latex": "{r_z}",
         "internal_code": "r_z",
         "global_ID": "V_11"
       },
       "compiled_lhs": {
         "global_ID": "V_11",
-        "latex": "{r_z}{_{N}}"
+        "latex": "{{r_z}}{_{N}}"
       },
       "created": "2024-03-06 15:18:11",
       "doc": "z-coordinate",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1"
       ],
       "label": "r_z",
-      "modified": "2024-03-06 15:19:01",
+      "memory": null,
+      "modified": "2024-03-21 11:31:26",
       "network": "physical",
       "port_variable": true,
       "tokens": [],
@@ -119,11 +125,13 @@
       "created": "2024-03-06 15:10:23",
       "doc": "incidence matrix",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1",
         "I_2"
       ],
       "label": "F",
+      "memory": null,
       "modified": "2024-03-06 15:10:52",
       "network": "root",
       "port_variable": true,
@@ -155,11 +163,13 @@
       "created": "2024-03-06 15:10:59",
       "doc": "incidence matrix NI source",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1",
         "I_3"
       ],
       "label": "F_NI_source",
+      "memory": null,
       "modified": "2024-03-06 15:25:21",
       "network": "root",
       "port_variable": true,
@@ -191,11 +201,13 @@
       "created": "2024-03-06 15:11:44",
       "doc": "incidence matrix NI sink",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1",
         "I_3"
       ],
       "label": "F_NI_sink",
+      "memory": null,
       "modified": "2024-03-06 15:25:39",
       "network": "root",
       "port_variable": true,
@@ -227,11 +239,13 @@
       "created": "2024-03-06 15:12:14",
       "doc": "incidence matrix AI source",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_2",
         "I_3"
       ],
       "label": "F_AI_source",
+      "memory": null,
       "modified": "2024-03-06 15:25:53",
       "network": "root",
       "port_variable": true,
@@ -263,11 +277,13 @@
       "created": "2024-03-06 15:12:39",
       "doc": "incidence matrix AI sink",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_2",
         "I_3"
       ],
       "label": "F_AI_sink",
+      "memory": null,
       "modified": "2024-03-06 15:26:02",
       "network": "root",
       "port_variable": true,
@@ -299,11 +315,13 @@
       "created": "2024-03-06 15:13:11",
       "doc": "selection matrix input",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_3",
         "I_7"
       ],
       "label": "S_Ip",
+      "memory": null,
       "modified": "2024-03-06 15:26:14",
       "network": "root",
       "port_variable": true,
@@ -324,23 +342,25 @@
       "IRI": "promo:S_Iq",
       "aliases": {
         "matlab": "S_Iq",
-        "latex": "S_Iq",
+        "latex": "{S}",
         "internal_code": "S_Iq",
         "global_ID": "V_8"
       },
       "compiled_lhs": {
         "global_ID": "V_8",
-        "latex": "{S_Iq}{_{I, q}}"
+        "latex": "{{S}}{_{I, q}}"
       },
       "created": "2024-03-06 15:13:59",
       "doc": "selection matrix ouput",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_3",
         "I_8"
       ],
       "label": "S_Iq",
-      "modified": "2024-03-06 15:26:41",
+      "memory": null,
+      "modified": "2024-03-21 11:30:55",
       "network": "root",
       "port_variable": true,
       "tokens": [],
@@ -360,22 +380,24 @@
       "IRI": "promo:r_x",
       "aliases": {
         "matlab": "r_x",
-        "latex": "r_x",
+        "latex": "{r_x}",
         "internal_code": "r_x",
         "global_ID": "V_9"
       },
       "compiled_lhs": {
         "global_ID": "V_9",
-        "latex": "{r_x}{_{N}}"
+        "latex": "{{r_x}}{_{N}}"
       },
       "created": "2024-03-06 15:14:53",
       "doc": "x-coordinate",
       "equations": {},
+      "imported": false,
       "index_structures": [
         "I_1"
       ],
       "label": "r_x",
-      "modified": "2024-03-06 15:16:34",
+      "memory": null,
+      "modified": "2024-03-21 11:31:35",
       "network": "physical",
       "port_variable": true,
       "tokens": [],

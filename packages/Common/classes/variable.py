@@ -22,6 +22,8 @@ class Variable():
       network: str,
       port_variable: bool,
       tokens: List[str],
+      memory: str,
+      imported: bool,
       type: str,
       units: List[int],
       created: str,
@@ -39,6 +41,8 @@ class Variable():
     self.network = network
     self.port_variable = port_variable
     self.tokens = tokens
+    self.memory = memory  # .......................................... remembers if it was node or arc being the source
+    self.imported = imported # .................... label to indicated if information was imported through an interface
     self.type = type
     self.units = units
 

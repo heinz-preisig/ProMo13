@@ -62,27 +62,27 @@ class VariableFile(dict):
 
 
 
-class RecordVariable(dict):
-  def __init__(self):
-    """
-    this is the basic record definition
-    internally it is dynamically we use an additional dictionary for the compiled versions
-    TODO: we need to decide if we store the ID version or the ProMo version (currently called internal)
-    """
-    super()  # .............................................. " the global var_ID is the hash tag -- enumeration type"
-    self["label"] = ""
-    self["type"] = ""  # ............................................................................... variable class
-    self["network"] = ""  # ..................................................  specifies application/definition domain
-    self["doc"] = ''
-    self["index_structures"] = []  # ...........................................................    index_IDs: integers
-    self["units"] = None,  # 8 integers exponents of time, length, amount, mass, temperature, current, light, nil
-    self["equations"] = {}  # ............................................................ hash is equation_ID: integer
-    self["aliases"] = {}  # ..................................  one for each language, with language being the hash key
-    self["port_variable"] = False  # ................. port variables are at the bottom of the definition -- foundation
-    self["tokens"] = []  # ...................................................................................... token
-    self["IRI"] = "None"  # ......................................................... qudt or promo IRI for the variable
-    self["created"] = None  # .....................................................................  creation data & time
-    self["modified"] = None  # ...............................................................  modification data & time
+# class RecordVariable(dict):
+#   def __init__(self):
+#     """
+#     this is the basic record definition
+#     internally it is dynamically we use an additional dictionary for the compiled versions
+#     TODO: we need to decide if we store the ID version or the ProMo version (currently called internal)
+#     """
+#     super()  # .............................................. " the global var_ID is the hash tag -- enumeration type"
+#     self["label"] = ""
+#     self["type"] = ""  # ............................................................................... variable class
+#     self["network"] = ""  # ..................................................  specifies application/definition domain
+#     self["doc"] = ''
+#     self["index_structures"] = []  # ...........................................................    index_IDs: integers
+#     self["units"] = None,  # 8 integers exponents of time, length, amount, mass, temperature, current, light, nil
+#     self["equations"] = {}  # ............................................................ hash is equation_ID: integer
+#     self["aliases"] = {}  # ..................................  one for each language, with language being the hash key
+#     self["port_variable"] = False  # ................. port variables are at the bottom of the definition -- foundation
+#     self["tokens"] = []  # ...................................................................................... token
+#     self["IRI"] = "None"  # ......................................................... qudt or promo IRI for the variable
+#     self["created"] = None  # .....................................................................  creation data & time
+#     self["modified"] = None  # ...............................................................  modification data & time
 
 
 # class RecordEquation(dict):
@@ -220,6 +220,8 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
                                equations={},
                                aliases={},
                                port_variable=False,
+                               memory = None,
+                               imported = False,
                                tokens=[],
                                ):
   """
@@ -249,6 +251,8 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
   self["aliases"] = aliases  # .....could be in code - not handy and not quite logical: there is also a compiled version
   self["port_variable"] = port_variable  # ............ port variables are at the bottom of the definition -- foundation
   self["tokens"] = tokens  # ..................................................................................... token
+  self["memory"] = memory  # .......................................... remembers if it was node or arc being the source
+  self["imported"] = imported # .................... label to indicated if information was imported through an interface
   # self["IRI"] = IRI_make("promo", network, label)  # NOTE: label is to be adjusted when changed
   self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
   self["created"] = dateString()
