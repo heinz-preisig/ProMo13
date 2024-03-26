@@ -594,38 +594,52 @@ class UiOntologyDesign(QMainWindow):
     while self.variables.existSymbol(self.current_network,interface_variable):
       interface_variable = TEMPLATES["interface_variable"] % interface_variable
 
-    if to_centre:
-      if variable.memory:
-        from_node = variable.memory == "node"
-        from_arc = variable.memory == "arc"
 
+
+    # RULE: keep information on if it came from node or arc and from the centre
+    if from_centre:
+      source = "node"
       if from_node:
         F = F_NI_source
       elif from_arc:
         F = F_AI_source
+        source = "arc"
       else:
-        raise EditorError("neither node or arc source")
+        source = None
+        dialog = makeMessageBox(message="no source neither arc or node -- cannot build interface",
+                                buttons=["OK"], default="OK", )
+        return
 
+      left_to_interface = "%s * %s" % (F, label)  # ....................................eq 27
+      interface_to_right = "(%s . %s ) * %s" % (F_NI_sink, interface_variable, S_Ip)  # eq 29
 
-
-      left_to_interface = "%s * %s" % (F, label)
-      interface_to_right = "(%s . %s ) * %s" % (F_NI_source, interface_variable, S_Ip)
     elif to_centre:
-      if not variable.memory:
+      if variable.memory:
+        to_node = variable.memory == "node"
+        to_arc = variable.memory == "arc"
+      else:
         answer = makeMessageBox("what is the target, node or arc",buttons=None, custom_buttons=[("node","accept"),("arc", "accept")], default="node")
         if answer == "node":
-          F = F_NI_sink
-          variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["node"]
-
+          to_node = True
+          to_arc = False
         else:
-          F = F_AI_sink
-          variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["arc"]
+          to_arc = True
+          to_node = False
+
+      if to_node:
+        F = F_NI_source
+        source = "node"
+        variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["node"]
+      elif to_arc:
+        F = F_AI_source
+        source = "arc"
+        variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["arc"]
+      else:
+        dialog = makeMessageBox("neither going to node or arc ???",buttons=["OK"], default="OK")
+        return
 
       left_to_interface = "reduceSum((( %s * %s ) . %s), q )" % (F_NI_source, label, S_Iq)
       interface_to_right = "%s * %s" % (F, interface_variable)
-    else:
-      print("Error -- cannot build interface")
-      return
 
 
     variable_definition_network = self.current_network
@@ -658,13 +672,13 @@ class UiOntologyDesign(QMainWindow):
                                               network=self.current_network,
                                               doc="interface equation", incidence_list=incidence_list)
 
-    # RULE: keep information on if it came from node or arc and from the centre
-    if from_centre:
-      source = "node"
-      if from_arc:
-        source = "arc"
-    else:
-      source = None
+    # # RULE: keep information on if it came from node or arc and from the centre
+    # if from_centre:
+    #   source = "node"
+    #   if from_arc:
+    #     source = "arc"
+    # else:
+    #   source = None
 
     left_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
                                                  label=interface_variable,
