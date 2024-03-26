@@ -960,36 +960,36 @@ class UiOntologyDesign(QMainWindow):
     eqs = self.__getAllEquationsPerType("latex")
 
     # clean up network notation in equations
-    nw_that_has_equation = set()
+    # nw_that_has_equation = set()
     nw_that_has_equation_cleaned = set()
     for e_type in eqs:
       for e in eqs[e_type]:
         nw = eqs[e_type][e]["network"]
-        nw_that_has_equation.add(nw)
+        # nw_that_has_equation.add(nw)
         nw_cleaned = nw.replace(CONNECTION_NETWORK_SEPARATOR, '--')
         nw_that_has_equation_cleaned.add(nw_cleaned)
 
     # networks with defined variables:
-    set_nw_that_have_variables = set()
+    # set_nw_that_have_variables = set()
     set_nw_that_have_variables_cleaned = set()
-    for nw in self.ontology_container.heirs_network_dictionary["root"]:
-      for v in self.variables:
-        nw = self.variables[v].network
-        snw = nw
-        if CONNECTION_NETWORK_SEPARATOR in nw:
-          snw = nw.replace(CONNECTION_NETWORK_SEPARATOR,"--")
-        set_nw_that_have_variables_cleaned.add(snw)
-        set_nw_that_have_variables.add(nw)
+    for v in self.variables:
+      vnw = self.variables[v].network
+      snw = vnw
+      if CONNECTION_NETWORK_SEPARATOR in vnw:
+        snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR,"--")
+      set_nw_that_have_variables_cleaned.add(snw)
+      # set_nw_that_have_variables.add(snw)
 
-    list_nw_that_have_variables = sorted(set_nw_that_have_variables)
+    list_nw_that_have_variables = []
+    for nw in self.ontology_container.heirs_network_dictionary["root"]:
+      if nw in set_nw_that_have_variables_cleaned:
+        list_nw_that_have_variables.append(nw)
 
     # clean up network and sort them according to ontology tree  TODO: can be simplified -- some duplication with what follows
     list_nw_that_has_equation_cleaned = []
-    for snw in self.ontology_container.heirs_network_dictionary["root"]:
-      for nw in nw_that_has_equation_cleaned:
-        if "--" not in nw:
-          if snw in nw:
-            list_nw_that_has_equation_cleaned.append(nw)
+    for nw in nw_that_has_equation_cleaned:
+      if "--" not in nw:
+        list_nw_that_has_equation_cleaned.append(nw)
     for nw in nw_that_has_equation_cleaned:
       if "--" in nw:
         list_nw_that_has_equation_cleaned.append(nw)
@@ -1000,7 +1000,8 @@ class UiOntologyDesign(QMainWindow):
     for e in e_types:
       e_types_cleaned.append(self.__cleanStrings(e))
 
-    networks_to_be_documented = list(set_nw_that_have_variables_cleaned or set(list_nw_that_has_equation_cleaned))
+    # networks_to_be_documented = list(set_nw_that_have_variables_cleaned or set(list_nw_that_has_equation_cleaned))
+    networks_to_be_documented = list_nw_that_have_variables + list_nw_that_has_equation_cleaned
     sorted_networks_to_be_documented = set([])
     for snw in self.ontology_container.heirs_network_dictionary["root"]:
       for nw in networks_to_be_documented:
