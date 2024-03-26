@@ -411,8 +411,9 @@ class UI_Equations(QtWidgets.QWidget):
 
       for v in incide_list:
         memory = self.variables[v].memory
-        memory_value_set.add(memory)
-        pass
+        if memory:
+          memory_value_set.add(memory)
+          pass
       if len(memory_value_set) > 1:
 
         msg = "memory variable mismatch\n"
@@ -422,10 +423,10 @@ class UI_Equations(QtWidgets.QWidget):
 
         raise VarError(msg)
 
-      elif len(incide_list) == 1:
+      elif len(memory_value_set) == 1:
         self.memory = list(memory_value_set)[0]
 
-      #       print("debugging: ", msg)
+      print("debugging: ", msg)
 
       # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
       #                                   self.network_for_variable, language="latex")
