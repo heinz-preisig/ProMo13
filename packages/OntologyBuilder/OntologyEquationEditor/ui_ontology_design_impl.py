@@ -347,19 +347,6 @@ class UiOntologyDesign(QMainWindow):
     self.pick_instantiate.exec_()
 
   def on_pushCompile_pressed(self):
-    # NOTE: keep -- no it crashes
-    # Note equation_global_id = eq.get_translation("global_ID")
-    # NOTE: AttributeError: 'Equation' object has no attribute 'get_translation'
-
-    # for l in LANGUAGES["code_generation"]:
-    #   translated_equations = translate_equations(ontology_name=self.ontology_name, language=l)
-    #   # put them into the container
-    #   for eqID in translated_equations:
-    #     var_ID, _ = self.variables.incidence_dictionary[eqID]
-    #     self.ontology_container.variables[var_ID]["equations"][eqID]["rhs"][l] = translated_equations[eqID]["rhs"]
-    #     self.ontology_container.variables[var_ID]["compiled_lhs"][l] = translated_equations[eqID]["lhs"]
-    #
-    #   self.writeMessage("finished compilation into ", l)
 
     # make latex lhs
     self.__makeLHSCompliedLabels("latex")
@@ -535,8 +522,6 @@ class UiOntologyDesign(QMainWindow):
         symbol = revertInterfaceVariableName(symbol)
         already_defined_variables.add(symbol)
     not_yet_defined_variables = all_variables_in_interface - already_defined_variables
-    # already_defined_variables = list(already_defined_variables)
-    # not_yet_defined_variables = list(not_yet_defined_variables)
     return already_defined_variables, not_yet_defined_variables, all_variables_imported
 
   def __makeLinkEquation(self, var_ID):
@@ -960,7 +945,6 @@ class UiOntologyDesign(QMainWindow):
     eqs = self.__getAllEquationsPerType("latex")
 
     # clean up network notation in equations
-    # nw_that_has_equation = set()
     nw_that_has_equation_cleaned = set()
     for e_type in eqs:
       for e in eqs[e_type]:
@@ -970,13 +954,12 @@ class UiOntologyDesign(QMainWindow):
         nw_that_has_equation_cleaned.add(nw_cleaned)
 
     # networks with defined variables:
-    # set_nw_that_have_variables = set()
     set_nw_that_have_variables_cleaned = set()
     for v in self.variables:
       vnw = self.variables[v].network
       snw = vnw
       if CONNECTION_NETWORK_SEPARATOR in vnw:
-        snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR,"--")
+        snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR, "--")
       set_nw_that_have_variables_cleaned.add(snw)
       # set_nw_that_have_variables.add(snw)
 
@@ -985,7 +968,7 @@ class UiOntologyDesign(QMainWindow):
       if nw in set_nw_that_have_variables_cleaned:
         list_nw_that_have_variables.append(nw)
 
-    # clean up network and sort them according to ontology tree  TODO: can be simplified -- some duplication with what follows
+    # first main nw then inter networks
     list_nw_that_has_equation_cleaned = []
     for nw in nw_that_has_equation_cleaned:
       if "--" not in nw:
@@ -1001,18 +984,18 @@ class UiOntologyDesign(QMainWindow):
       e_types_cleaned.append(self.__cleanStrings(e))
 
     # networks_to_be_documented = list(set_nw_that_have_variables_cleaned or set(list_nw_that_has_equation_cleaned))
-    networks_to_be_documented = list_nw_that_have_variables + list_nw_that_has_equation_cleaned
-    sorted_networks_to_be_documented = set([])
-    for snw in self.ontology_container.heirs_network_dictionary["root"]:
-      for nw in networks_to_be_documented:
-        if snw in nw:
-          sorted_networks_to_be_documented.add(nw)
-    for nw in nw_that_has_equation_cleaned:
+    nws = set(list_nw_that_have_variables + list_nw_that_has_equation_cleaned)
+    sorted_list_networks_to_be_documented = []
+    for nw in self.ontology_container.heirs_network_dictionary["root"]:
+      if nw in nws:
+        if nw not in sorted_list_networks_to_be_documented:
+          sorted_list_networks_to_be_documented.append(nw)
+    for nw in nws:
       if "--" in nw:
-        sorted_networks_to_be_documented.add(nw)
+        sorted_list_networks_to_be_documented.append(nw)
 
     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
-    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=sorted_networks_to_be_documented,
+    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=sorted_list_networks_to_be_documented,
                                                                     # networks_to_be_documented, #list_nw_that_have_variables, #list_nw_that_has_equation_cleaned,
                                                                     equationTypes=e_types_cleaned)
     f_name = FILES["latex_main"] % self.ontology_name
@@ -1034,7 +1017,6 @@ class UiOntologyDesign(QMainWindow):
 
     print("debugging tex rep")
     for e_type in self.variables.equation_type_list:
-      # _s = sorted(eqs[e_type].keys())
       _s = sortingVariableAndEquationKeys(eqs[e_type].keys())
       print("debugging -- equation type", e_type)
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
@@ -1054,16 +1036,6 @@ class UiOntologyDesign(QMainWindow):
     self.writeMessage("busy making var/eq images")
     p = QtCore.QProcess()
     p.startDetached("sh", [f_name, location])
-    # args = ['sh', f_name, location]
-    # print('ARGS: ', args)
-    # make_it = subprocess.Popen(
-    #         args,
-    #         start_new_session=True,
-    #         stdout=subprocess.PIPE,  # NOTE: comment out if output is to be seen
-    #         stderr=subprocess.PIPE
-    #         )
-    # out, error = make_it.communicate()
-    # print("debugging -- ", out, error)
 
     self.__makeDotGraphs()
 
@@ -1074,25 +1046,6 @@ class UiOntologyDesign(QMainWindow):
     p = QtCore.QProcess()
     p.startDetached("sh", [f_name, location])
 
-  # def progress_dialog(self, message):
-  #   "https://www.programcreek.com/python/example/108099/PyQt5.QtWidgets.QProgressDialog"
-  #   prgr_dialog = QProgressDialog()
-  #   prgr_dialog.setFixedSize(300, 50)
-  #   prgr_dialog.setAutoFillBackground(True)
-  #   prgr_dialog.setWindowModality(QtCore.Qt.WindowModal)
-  #   prgr_dialog.setWindowTitle('Please wait')
-  #   prgr_dialog.setLabelText(message)
-  #   prgr_dialog.setSizeGripEnabled(False)
-  #   prgr_dialog.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-  #   prgr_dialog.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-  #   prgr_dialog.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
-  #   prgr_dialog.setModal(True)
-  #   prgr_dialog.setCancelButton(None)
-  #   prgr_dialog.setRange(0, 0)
-  #   prgr_dialog.setMinimumDuration(50)
-  #   prgr_dialog.setMaximum(1000)
-  #   prgr_dialog.setAutoClose(False)
-  #   return prgr_dialog
 
   def __makeInstantiationEquation(self, var_ID):
 
@@ -1327,7 +1280,6 @@ class UiOntologyDesign(QMainWindow):
 
   def __setupVariablesAliasTable(self):
 
-    # variables = self.variables.getVariableList(self.current_network)
     variables_ID_list = self.variables.index_definition_networks_for_variable[
       self.current_network]
     if variables_ID_list:
