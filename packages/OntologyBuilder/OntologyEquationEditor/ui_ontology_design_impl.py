@@ -976,7 +976,7 @@ class UiOntologyDesign(QMainWindow):
       vnw = self.variables[v].network
       snw = vnw
       if CONNECTION_NETWORK_SEPARATOR in vnw:
-        snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR,"--")
+        snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR, "--")
       set_nw_that_have_variables_cleaned.add(snw)
       # set_nw_that_have_variables.add(snw)
 
@@ -985,7 +985,7 @@ class UiOntologyDesign(QMainWindow):
       if nw in set_nw_that_have_variables_cleaned:
         list_nw_that_have_variables.append(nw)
 
-    # clean up network and sort them according to ontology tree  TODO: can be simplified -- some duplication with what follows
+    # first main nw then inter networks
     list_nw_that_has_equation_cleaned = []
     for nw in nw_that_has_equation_cleaned:
       if "--" not in nw:
@@ -1001,18 +1001,25 @@ class UiOntologyDesign(QMainWindow):
       e_types_cleaned.append(self.__cleanStrings(e))
 
     # networks_to_be_documented = list(set_nw_that_have_variables_cleaned or set(list_nw_that_has_equation_cleaned))
-    networks_to_be_documented = list_nw_that_have_variables + list_nw_that_has_equation_cleaned
-    sorted_networks_to_be_documented = set([])
-    for snw in self.ontology_container.heirs_network_dictionary["root"]:
-      for nw in networks_to_be_documented:
-        if snw in nw:
-          sorted_networks_to_be_documented.add(nw)
-    for nw in nw_that_has_equation_cleaned:
+    nws = set(list_nw_that_have_variables + list_nw_that_has_equation_cleaned)
+    sorted_list_networks_to_be_documented = []
+    for nw in self.ontology_container.heirs_network_dictionary["root"]:
+      if nw in nws:
+        if nw not in sorted_list_networks_to_be_documented:
+          sorted_list_networks_to_be_documented.append(nw)
+    for nw in nws:
       if "--" in nw:
-        sorted_networks_to_be_documented.add(nw)
+        sorted_list_networks_to_be_documented.append(nw)
+
+    # for nw in set_networks_to_be_documented:
+    #   if "--" not in nw:
+    #     sorted_list_networks_to_be_documented.append(nw)
+    # for nw in nw_that_has_equation_cleaned:
+    #   if "--" in nw:
+    #     sorted_list_networks_to_be_documented.append(nw)
 
     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
-    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=sorted_networks_to_be_documented,
+    body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=sorted_list_networks_to_be_documented,
                                                                     # networks_to_be_documented, #list_nw_that_have_variables, #list_nw_that_has_equation_cleaned,
                                                                     equationTypes=e_types_cleaned)
     f_name = FILES["latex_main"] % self.ontology_name
@@ -1066,6 +1073,123 @@ class UiOntologyDesign(QMainWindow):
     # print("debugging -- ", out, error)
 
     self.__makeDotGraphs()
+  # def __makeLatexDocument(self):
+  #
+  #   # latex
+  #   #
+  #   print('=============================================== make latex ================================================')
+  #   # language = "latex"
+  #   this_dir = os.path.dirname(os.path.abspath(__file__))
+  #
+  #   eqs = self.__getAllEquationsPerType("latex")
+  #
+  #   # clean up network notation in equations
+  #   # nw_that_has_equation = set()
+  #   nw_that_has_equation_cleaned = set()
+  #   for e_type in eqs:
+  #     for e in eqs[e_type]:
+  #       nw = eqs[e_type][e]["network"]
+  #       # nw_that_has_equation.add(nw)
+  #       nw_cleaned = nw.replace(CONNECTION_NETWORK_SEPARATOR, '--')
+  #       nw_that_has_equation_cleaned.add(nw_cleaned)
+  #
+  #   # networks with defined variables:
+  #   # set_nw_that_have_variables = set()
+  #   set_nw_that_have_variables_cleaned = set()
+  #   for v in self.variables:
+  #     vnw = self.variables[v].network
+  #     snw = vnw
+  #     if CONNECTION_NETWORK_SEPARATOR in vnw:
+  #       snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR, "--")
+  #     set_nw_that_have_variables_cleaned.add(snw)
+  #     # set_nw_that_have_variables.add(snw)
+  #
+  #   list_nw_that_have_variables = []
+  #   for nw in self.ontology_container.heirs_network_dictionary["root"]:
+  #     if nw in set_nw_that_have_variables_cleaned:
+  #       list_nw_that_have_variables.append(nw)
+  #
+  #   # clean up network and sort them according to ontology tree  TODO: can be simplified -- some duplication with what follows
+  #   list_nw_that_has_equation_cleaned = []
+  #   for nw in nw_that_has_equation_cleaned:
+  #     if "--" not in nw:
+  #       list_nw_that_has_equation_cleaned.append(nw)
+  #   for nw in nw_that_has_equation_cleaned:
+  #     if "--" in nw:
+  #       list_nw_that_has_equation_cleaned.append(nw)
+  #
+  #   # clean up equation
+  #   e_types = sorted(self.variables.equation_type_list)
+  #   e_types_cleaned = []
+  #   for e in e_types:
+  #     e_types_cleaned.append(self.__cleanStrings(e))
+  #
+  #   # networks_to_be_documented = list(set_nw_that_have_variables_cleaned or set(list_nw_that_has_equation_cleaned))
+  #   networks_to_be_documented = list_nw_that_have_variables + list_nw_that_has_equation_cleaned
+  #   sorted_networks_to_be_documented = set([])
+  #   for snw in self.ontology_container.heirs_network_dictionary["root"]:
+  #     for nw in networks_to_be_documented:
+  #       if snw in nw:
+  #         sorted_networks_to_be_documented.add(nw)
+  #   for nw in nw_that_has_equation_cleaned:
+  #     if "--" in nw:
+  #       sorted_networks_to_be_documented.add(nw)
+  #
+  #   j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
+  #   body = j2_env.get_template(FILES["latex_template_main"]).render(ontology=sorted_networks_to_be_documented,
+  #                                                                   # networks_to_be_documented, #list_nw_that_have_variables, #list_nw_that_has_equation_cleaned,
+  #                                                                   equationTypes=e_types_cleaned)
+  #   f_name = FILES["latex_main"] % self.ontology_name
+  #   f = open(f_name, 'w')
+  #   f.write(body)
+  #   f.close()
+  #
+  #   index_dictionary = self.variables.index_definition_network_for_variable_component_class
+  #
+  #   for nw in list_nw_that_have_variables:  # nw_that_has_equation:
+  #     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
+  #     body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
+  #                                                                          index=index_dictionary[nw])
+  #     name = str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--')
+  #     f_name = FILES["latex_variables"] % (self.ontology_location, name)
+  #     f = open(f_name, 'w')
+  #     f.write(body)
+  #     f.close()
+  #
+  #   print("debugging tex rep")
+  #   for e_type in self.variables.equation_type_list:
+  #     # _s = sorted(eqs[e_type].keys())
+  #     _s = sortingVariableAndEquationKeys(eqs[e_type].keys())
+  #     print("debugging -- equation type", e_type)
+  #     j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
+  #     completed_template = j2_env.get_template(FILES["latex_template_equations"]). \
+  #       render(equations=eqs[e_type], sequence=_s)
+  #     o = self.__cleanStrings(str(e_type))
+  #     f_name = FILES["latex_equations"] % (self.ontology_location, str(o))
+  #     f = open(f_name, 'w')
+  #     f.write(completed_template)
+  #     f.close()
+  #
+  #   location = DIRECTORIES["latex_main_location"] % self.ontology_location
+  #   f_name = FILES["latex_shell_var_equ_doc_command_exec"] % self.ontology_location
+  #   documentation_file = FILES["latex_documentation"] % self.ontology_name
+  #   if not self.compile_only:
+  #     saveBackupFile(documentation_file)
+  #   self.writeMessage("busy making var/eq images")
+  #   p = QtCore.QProcess()
+  #   p.startDetached("sh", [f_name, location])
+  #   # args = ['sh', f_name, location]
+  #   # print('ARGS: ', args)
+  #   # make_it = subprocess.Popen(
+  #   #         args,
+  #   #         start_new_session=True,
+  #   #         stdout=subprocess.PIPE,  # NOTE: comment out if output is to be seen
+  #   #         stderr=subprocess.PIPE
+  #   #         )
+  #   # out, error = make_it.communicate()
+  #   # print("debugging -- ", out, error)
+  #
+  #   self.__makeDotGraphs()
 
   def on_pushShowPDF_pressed(self):
 
