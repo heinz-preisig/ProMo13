@@ -275,6 +275,34 @@
       },
       "type": "intra"
     },
+    "info_processing": {
+      "behaviour": {
+        "arc": [],
+        "graph": [
+          "network"
+        ],
+        "node": [
+          "frame",
+          "state",
+          "constant"
+        ]
+      },
+      "children": [],
+      "name": "info_processing",
+      "parents": [
+        "root"
+      ],
+      "structure": {
+        "arc": {},
+        "node": {
+          "constant": [],
+          "dynamic": [],
+          "event": []
+        },
+        "token": {}
+      },
+      "type": "inter"
+    },
     "liquid": {
       "behaviour": {
         "arc": [
@@ -427,11 +455,9 @@
       },
       "type": "inter"
     },
-    "material": {
+    "microscopic": {
       "behaviour": {
-        "arc": [
-          "property"
-        ],
+        "arc": [],
         "graph": [
           "network",
           "differenceOperator"
@@ -443,12 +469,11 @@
           "effort",
           "secondaryState",
           "diffState",
-          "property",
           "conversion"
         ]
       },
       "children": [],
-      "name": "material",
+      "name": "microscopic",
       "parents": [
         "physical",
         "root"
@@ -512,9 +537,9 @@
         ]
       },
       "children": [
-        "reactions",
-        "material",
-        "macroscopic"
+        "macroscopic",
+        "microscopic",
+        "reactions"
       ],
       "name": "physical",
       "parents": [
@@ -575,7 +600,6 @@
           "effort",
           "secondaryState",
           "diffState",
-          "properties",
           "conversion"
         ]
       },
@@ -613,12 +637,8 @@
           "constant": [
             "infinity"
           ],
-          "dynamic": [
-            "lumped"
-          ],
-          "event": [
-            "lumped"
-          ]
+          "dynamic": [],
+          "event": []
         },
         "token": {
           "charge": [],
@@ -644,7 +664,8 @@
       },
       "children": [
         "physical",
-        "control"
+        "control",
+        "info_processing"
       ],
       "name": "root",
       "parents": [],
@@ -744,14 +765,17 @@
       "energy": false,
       "fluid": false,
       "gas": false,
+      "info_processing": false,
       "liquid": false,
       "macroscopic": false,
       "magnetic": false,
       "material": false,
       "mechanical": false,
+      "microscopic": false,
       "optical": false,
       "physical": false,
       "radiological": false,
+      "reaction": false,
       "reactions": false,
       "root": false,
       "solid": false,
