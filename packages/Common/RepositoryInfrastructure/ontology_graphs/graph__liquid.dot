@@ -19,13 +19,27 @@ rankdir=LR;
 subgraph cluster_liquid___network {
 label=network;
 rankdir=LR;
-V_2 [fillcolor=lightcyan1, fontsize=12, label=F, penwidth=3, style=filled];
-V_3 [fillcolor=lightcyan1, fontsize=12, label=F_NI_source, penwidth=3, style=filled];
-V_4 [fillcolor=lightcyan1, fontsize=12, label=F_NI_sink, penwidth=3, style=filled];
-V_5 [fillcolor=lightcyan1, fontsize=12, label=F_AI_source, penwidth=3, style=filled];
-V_6 [fillcolor=lightcyan1, fontsize=12, label=F_AI_sink, penwidth=3, style=filled];
-V_7 [fillcolor=lightcyan1, fontsize=12, label=S_Ip, penwidth=3, style=filled];
-V_8 [fillcolor=lightcyan1, fontsize=12, label=S_Iq, penwidth=3, style=filled];
+V_10 [fillcolor=seagreen, fontsize=12, label=S_Iq, penwidth=3, style=filled];
+V_11 [fillcolor=seagreen, fontsize=12, label=I_tu, penwidth=3, style=filled];
+V_12 [fillcolor=seagreen, fontsize=12, label=S_Ap, penwidth=3, style=filled];
+V_2 [fillcolor=seagreen, fontsize=12, label=F, penwidth=3, style=filled];
+V_3 [fillcolor=seagreen, fontsize=12, label=F_NI_source, penwidth=3, style=filled];
+V_4 [fillcolor=seagreen, fontsize=12, label=F_NI_sink, penwidth=3, style=filled];
+V_5 [fillcolor=seagreen, fontsize=12, label=F_AI_source, penwidth=3, style=filled];
+V_6 [fillcolor=seagreen, fontsize=12, label=F_AI_sink, penwidth=3, style=filled];
+V_7 [fillcolor=seagreen, fontsize=12, label=F_NA_source, penwidth=3, style=filled];
+V_8 [fillcolor=seagreen, fontsize=12, label=F_NA_sink, penwidth=3, style=filled];
+V_9 [fillcolor=seagreen, fontsize=12, label=S_Ip, penwidth=3, style=filled];
+V_13 [fillcolor=seagreen, fontsize=12, label=S_Aq, penwidth=3, style=filled];
+V_14 [fillcolor=seagreen, fontsize=12, label=S_Npu, penwidth=3, style=filled];
+V_15 [fillcolor=seagreen, fontsize=12, label=S_Nqt, penwidth=3, style=filled];
+V_16 [fillcolor=seagreen, fontsize=12, label=mv_I, penwidth=3, style=filled];
+V_17 [fillcolor=seagreen, fontsize=12, label=cz_N, penwidth=3, style=filled];
+V_18 [fillcolor=seagreen, fontsize=12, label=cz_I, penwidth=3, style=filled];
+V_19 [fillcolor=seagreen, fontsize=12, label=A_Npq, penwidth=3, style=filled];
+V_20 [fillcolor=seagreen, fontsize=12, label=A_Ntu, penwidth=3, style=filled];
+V_21 [fillcolor=seagreen, fontsize=12, label=u_Ntu, penwidth=3, style=filled];
+V_22 [fillcolor=seagreen, fontsize=12, label=y_Ntu, penwidth=3, style=filled];
 }
 
 subgraph cluster_liquid___differenceOperator {
@@ -36,10 +50,10 @@ rankdir=LR;
 subgraph cluster_liquid___frame {
 label=frame;
 rankdir=LR;
-V_1 [fillcolor=seagreen3, fontsize=12, label=t, penwidth=3, style=filled];
-V_10 [fillcolor=seagreen3, fontsize=12, label=r_y, penwidth=3, style=filled];
-V_11 [fillcolor=seagreen3, fontsize=12, label=r_z, penwidth=3, style=filled];
-V_9 [fillcolor=seagreen3, fontsize=12, label=r_x, penwidth=3, style=filled];
+V_1 [fillcolor=green, fontsize=12, label=t, penwidth=3, style=filled];
+V_23 [fillcolor=green, fontsize=12, label=r_x, penwidth=3, style=filled];
+V_24 [fillcolor=green, fontsize=12, label=r_y, penwidth=3, style=filled];
+V_25 [fillcolor=green, fontsize=12, label=r_z, penwidth=3, style=filled];
 }
 
 subgraph cluster_liquid___state {
