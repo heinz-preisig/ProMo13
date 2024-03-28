@@ -462,7 +462,7 @@ CODE[language]["Product"] = r"\prod_{%s}  {%s} "
 CODE[language]["Instantiate"] = r"\textbf{Instantiate}(%s, %s)"
 CODE[language]["max"] = r"\mathbf{max}\left( %s, %s \right)"
 CODE[language]["min"] = r"\mathbf{min}\left( %s, %s \right)"
-CODE[language]["reduceSum"] = "reduceSum(%s,%s)"
+CODE[language]["reduceSum"] = r"\textbf{reduceSum}\left(%s,%s\right)"
 
 # CODE[language]["index_diff_state"] = r"\dot{%s}"
 
@@ -562,7 +562,7 @@ TwoPlace_TEMPLATE = ["+",
                      "max",
                      "min",
                      "Instantiate",
-                     # "Product",
+                     "reduceSum",
                      ]
 ThreePlace_TEMPLATE = ["*"]
 internal = LANGUAGES["internal_code"]

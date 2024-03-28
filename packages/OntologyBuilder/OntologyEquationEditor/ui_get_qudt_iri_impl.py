@@ -41,8 +41,17 @@ class UI_QUDTFetch_IRI(QtWidgets.QDialog):
     Constructor
     '''
 
-    QtWidgets.QDialog.__init__(self)
+    QtWidgets.QWidget.__init__(self)
     self.ui = Ui_Dialog()
+
+    # self.setWindowFlag(QtCore.Qt.FramelessWindowHint)       # TODO: does not work
+    # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog)
+    self.setWindowFlags(
+            self.windowFlags() |
+            QtCore.Qt.FramelessWindowHint |
+            QtCore.Qt.WindowStaysOnTopHint
+            )
+
     self.ui.setupUi(self)
     self.original_terms = self.setup()
     self.makeTable(self.original_terms)
@@ -63,6 +72,7 @@ class UI_QUDTFetch_IRI(QtWidgets.QDialog):
             self.ui.push_2: ["info", "show explanation", True],
             self.ui.push_3: ["plus", "show in web browser", True],
             self.ui.push_4: ["IRI", "define a new ProMo IRI", False],
+            self.ui.push_5: ["back", "cancel", False]
             }
 
     for w in buttons:
@@ -78,6 +88,8 @@ class UI_QUDTFetch_IRI(QtWidgets.QDialog):
     self.back = False
     self.edit_mode = "define_iri"
     self.selection = None
+
+
 
   def setup(self):
     terms_quantitykind = loadListOfTerms("quantitykind")
@@ -124,6 +136,7 @@ class UI_QUDTFetch_IRI(QtWidgets.QDialog):
     y = tab.y() + tab.height() + 12 + 20
     s = QtCore.QSize(x, y)
     self.resize(s)
+
 
   def __tabSizeHint(self):
     tab = self.ui.tableWidget
@@ -236,6 +249,11 @@ class UI_QUDTFetch_IRI(QtWidgets.QDialog):
     self.selection = self.iri
     pass
 
+
+  def on_push_5_pressed(self):  # accept
+    print("cancel:")
+    self.close()
+
   def apply_filter(self, filter):
     """
     case insensitive search
@@ -245,6 +263,15 @@ class UI_QUDTFetch_IRI(QtWidgets.QDialog):
       if filter.lower() in t.lower():
         reduced_terms.append(t)
     return reduced_terms
+
+
+  def mousePressEvent(self, event): # Note: makes it movable
+    self.oldPos = event.globalPos()
+
+  def mouseMoveEvent(self, event): # Note: makes it movable
+    delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()
 
 
 if __name__ == '__main__':  # run from test or task
@@ -264,7 +291,7 @@ if __name__ == '__main__':  # run from test or task
 
   # TODO: implement stdout and stderr output as command-line arguments
 
-  w = UI_QUDTFetch_IRI()
+  w = UI_QUDTFetch_IRI("gugus")
 
   w.move(QtCore.QPoint(100, 100))
 

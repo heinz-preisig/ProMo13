@@ -52,6 +52,13 @@ class SingleListSelector(QtWidgets.QDialog):
     self.ui = Ui_Dialog()
     self.ui.setupUi(self)
 
+    self.setWindowFlags(
+            self.windowFlags() |
+            QtCore.Qt.WindowStaysOnTopHint |
+            QtCore.Qt.FramelessWindowHint |
+            QtCore.Qt.Dialog
+            )
+
 
     roundButton(self.ui.pushLeft, left_icon, left_tooltip )
     roundButton(self.ui.pushRight, right_icon, right_tooltip )
@@ -149,3 +156,12 @@ class SingleListSelector(QtWidgets.QDialog):
     print('reject', self.selection)
     self.hide()
     return
+
+
+  def mousePressEvent(self, event): # Note: makes it movable
+    self.oldPos = event.globalPos()
+
+  def mouseMoveEvent(self, event): # Note: makes it movable
+    delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()

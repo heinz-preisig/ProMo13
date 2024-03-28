@@ -67,7 +67,11 @@ class VariableTable(QtWidgets.QDialog):
     self.reset_table()
     self.hide()
 
-    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+    # self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+    self.setWindowFlags(
+            self.windowFlags() |
+            QtCore.Qt.FramelessWindowHint
+            )
 
     # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog)
 
