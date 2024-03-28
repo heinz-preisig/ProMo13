@@ -136,6 +136,7 @@ class UI_VariableTableDialog(VariableTable):
 
     self.ui.tableVariable.setSortingEnabled(True)
 
+
   def show(self):
     self.reset_table()
     QtWidgets.QDialog.show(self)

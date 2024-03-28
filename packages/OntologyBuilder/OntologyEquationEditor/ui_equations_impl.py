@@ -82,18 +82,21 @@ class UI_Equations(QtWidgets.QWidget):
     Constructor
     """
     QtWidgets.QWidget.__init__(self)
+
+    self.setWindowFlags(
+            self.windowFlags() |
+            QtCore.Qt.WindowStaysOnTopHint|
+            QtCore.Qt.FramelessWindowHint |
+            QtCore.Qt.Dialog
+            )
+
     self.ui = Ui_Form()
     self.ui.setupUi(self)
 
-    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
-    # self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Dialog)
-
-    roundButton(self.ui.pushAccept, "accept")  # , tooltip="accept")
+    roundButton(self.ui.pushAccept, "accept", tooltip="accept")
     roundButton(self.ui.pushDeleteEquation, "delete", tooltip="delete")
     roundButton(self.ui.pushCancel, "reject", tooltip="cancel")
-    # roundButton(self.ui.pushResetInterface, "reset", tooltip="reset")
 
-    # self.ui.lineEditLatex.textChanged(self.__newLatex)
 
     self.ontology_container = variables.ontology_container
     self.hide()
@@ -105,11 +108,9 @@ class UI_Equations(QtWidgets.QWidget):
     self.index_list = [indices[i]["aliases"]["internal_code"] for i in _l]
     self.network_for_variable = network_for_variable
     self.network_for_expression = network_for_expression
-    # self.actual_network_for_expression = network_for_expression  # may change if equation is edited
     self.variable_types_variable = variable_types_variable
     self.variable_types_expression = variable_types_expression
     self.enabled_variable_types = enabled_variable_types
-    # self.global_name_space = global_name_space
 
     self.equation_documentation = ""
 
@@ -124,9 +125,13 @@ class UI_Equations(QtWidgets.QWidget):
     #  physical, then the equation can be edited on physical even though it remains (now) on the macro layer.
 
     self.ui.labelNetwork.setText(network_for_variable)
-    # self.__makePickVariableTable()
 
     self.operator_table = SingleListSelector(thelist=OPERATOR_SNIPS)
+    # self.operator_table.setWindowFlags(
+    #         QtCore.Qt.WindowStaysOnTopHint |
+    #         QtCore.Qt.FramelessWindowHint |
+    #         QtCore.Qt.Dialog
+    #         )
     self.operator_table.hide()
     self.operator_table.newSelection.connect(self.__insertSnipp)
 
@@ -217,8 +222,6 @@ class UI_Equations(QtWidgets.QWidget):
     self.ui.lineExpression.setText(s)
     self.ui.lineExpression.setFocus(True)
     self.show()
-    # self.ui.lineExpression.cursorWordBackward(False)
-    # self.ui.lineExpression.cursorWordForward(False)
 
   def resetEquationInterface(self):
     # self.__makePickVariableTable()
@@ -274,10 +277,7 @@ class UI_Equations(QtWidgets.QWidget):
     self.MSG("new equation")
 
   def on_lineNewVariable_returnPressed(self):  # TODO: check on validator
-    symbol = str(self.ui.lineNewVariable.text())  # RULE: changed from local name space to global name space
-    # if self.global_name_space:
-    #   test = self.variables.existSymbolGlobal(symbol)
-    # else:
+    symbol = str(self.ui.lineNewVariable.text())
     test = self.variables.existSymbol(self.network_for_variable, symbol)
     if test:
       self.MSG("variable already defined")
@@ -318,11 +318,6 @@ class UI_Equations(QtWidgets.QWidget):
     # print("debugging -- text change", text)
     if not self.status_new_variable:
       return
-    # rule: changed from local name space to global name space
-    # rule enable both
-    # if self.global_name_space:
-    #   test = self.variables.existSymbolGlobal(text)
-    # else:
     test = self.variables.existSymbol(self.network_for_variable, text)
     if test:  # if :
       self.MSG("variable already defined")
@@ -350,8 +345,6 @@ class UI_Equations(QtWidgets.QWidget):
           self.MSG('cannot be a copy of a variable')
           return False
 
-      # self.checked_var.incidence_list = expression.space.getIncidenceList()
-      # print('variable from expression', self.checked_var, 'are :', self.checked_var.incidence_list)
       pretty_check_var_indices = renderIndexListFromGlobalIDToInternal(self.checked_var.index_structures, self.indices)
       pretty_check_var_units = str(self.checked_var.units.prettyPrint(mode="string"))
       if not self.status_new_variable:
@@ -370,11 +363,6 @@ class UI_Equations(QtWidgets.QWidget):
                     "- units            : %s\n" \
                     "- tokens           : %s\n" % (pretty_var_indices, pretty_var_units, var.tokens)
               self.MSG(msg)
-            # else:
-            #   msg = "missmatch of tokens \n" \
-            #         " - variable has   : %s\n" \
-            #         " - expression has : %s\n" \
-            #         % (self.checked_var.tokens, var.tokens)
           else:
             msg = "missmatch of index structures \n" \
                   " - variable has   : %s\n" \
@@ -398,8 +386,6 @@ class UI_Equations(QtWidgets.QWidget):
                 % (pretty_var_units, pretty_check_var_units, pretty_diff)
           self.MSG(msg)
           return False
-      # else:
-      # print("debugging : ", expression)
       msg = 'modified expression OK\n index struct: %s\n units: %s\n \n' % (
               pretty_check_var_indices, pretty_check_var_units)
       self.MSG(msg)
@@ -428,11 +414,6 @@ class UI_Equations(QtWidgets.QWidget):
 
       print("debugging: ", msg)
 
-      # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
-      #                                   self.network_for_variable, language="latex")
-      # expression = Expression(self.compile_space)
-      # self.expression_latex = expression(self.expr)
-
       return True
 
     except (VarError,
@@ -454,7 +435,6 @@ class UI_Equations(QtWidgets.QWidget):
       v.removeEquation(self.current_eq_ID)  # remove from variable def
     except EquationDeleteError:
       return
-    # self.variables.index_equation_in_definition_network()
     self.variables.indexVariables()
     self.ontology_container.indexEquations()
     self.update_space_information.emit()
@@ -592,9 +572,6 @@ class UI_Equations(QtWidgets.QWidget):
       self.ui.lineExpression.setText(rendered_expression)
       self.ui.lineDocumentation.setText(eq_dict["doc"])
     else:
-      # e = RecordEquation()
-      # e["name"] = self.selected_variable.doc
-      # e["rhs"] = NEW_EQ
       self.ui.lineExpression.setText(NEW_EQ)
       self.current_equation_name = self.selected_variable.doc
       eq_IDs = sorted(self.variables[self.selected_variable_ID].equations.keys())
@@ -609,11 +586,6 @@ class UI_Equations(QtWidgets.QWidget):
     self.show()
 
   def setupEquationList(self, variable_ID):
-    # ask_string = "%s"  # eq number
-    # ask_string += TEMPLATES["definition_delimiter"]
-    # ask_string += "%s"  # lhs
-    # ask_string += " " + TEMPLATES['Equation_definition_delimiter']
-    # ask_string += "%s"  # equ_rendered
     v = self.variables[variable_ID]
     self.selected_variable = v
     self.selected_variable_ID = variable_ID
@@ -632,31 +604,10 @@ class UI_Equations(QtWidgets.QWidget):
       self.__selectedEquation(dialog.answer)
       return
 
-    # print('debugging - got dictionary')
-    # _list = [UNDEF_EQ_NO + TEMPLATES['Equation_definition_delimiter'] + NEW_EQ]
-    # _list = [ask_string % (UNDEF_EQ_NO, lhs, NEW_EQ)]
-    # for alterntative in equation_list:
-    #   rhs = self.variables[variable_ID].equations[alterntative]["rhs"]["global_ID"]
-    #   equ_rendered = renderExpressionFromGlobalIDToInternal(rhs, self.variables, self.indices)
-    #   # _list.append(str(alterntative)
-    #   #              + TEMPLATES["definition_delimiter"]
-    #   #              + lhs
-    #   #              + " "
-    #   #              + TEMPLATES['Equation_definition_delimiter']
-    #   #              + equ_rendered)
-    #   _list.append(ask_string % (alterntative, lhs, equ_rendered))
-    # self.ui_equationselector = SingleListSelector(_list)
-    # self.ui_equationselector.show()
-
-    # self.ui_equationselector.newSelection.connect(self.__selectedEquation)
 
   def __selectedEquation(self, entry):
     print('debugging got it', entry)
-    # eq_string = NEW_EQ
-    # if UNDEF_EQ_NO not in entry:
     if entry != "new":
-      # eq_no, reminder = entry.split(TEMPLATES['definition_delimiter'], 1)
-      # _reminder, eq_string = reminder.split(TEMPLATES["Equation_definition_delimiter"])
       self.current_eq_ID = entry #eq_no
       self.status_edit_expr = True
       rhs =  self.selected_variable.equations[entry]["rhs"]["global_ID"]
@@ -689,10 +640,6 @@ class UI_Equations(QtWidgets.QWidget):
 
   def on_pushPickIndices_pressed(self):
     self.ui_indices.show()
-
-  #
-  # def on_pushResetInterface_pressed(self):
-  #   self.resetEquationInterface()
 
   def on_pushCancel_pressed(self):
     self.resetEquationInterface()

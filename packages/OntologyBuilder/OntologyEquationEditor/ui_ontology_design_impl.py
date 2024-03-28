@@ -100,7 +100,7 @@ CHOOSE_INTRA_CONNECTION = "choose INTRA connection"
 # RULE: we constrain interface networks to only exist to the CENTER_NETWORK
 # TODO: needs to become part of the foundation ontology
 
-CENTRE_NETWORKS = ["macroscopic"]
+CENTRE_NETWORKS = ["macroscopic", "info_processing"]
 
 
 class EditorError(Exception):
@@ -204,7 +204,8 @@ class UiOntologyDesign(QMainWindow):
     for nw in self.ontology_container.list_inter_branches_pairs:
       for c in CENTRE_NETWORKS:
         if c in nw:
-          self.interconnection_nws_list.append(nw)
+          if nw not in self.interconnection_nws_list:
+            self.interconnection_nws_list.append(nw)
 
     self.indices = self.ontology_container.indices
     self.variables = Variables(self.ontology_container)
@@ -471,7 +472,7 @@ class UiOntologyDesign(QMainWindow):
 
   @QtCore.pyqtSlot(int)
   def on_tabWidget_currentChanged(self, which):
-    print("debugging -- changed tab")
+    print("debugging -- changed tab", which)
     self.ui.pushShowVariables.hide()
     self.current_network = None
     self.ui.combo_EditVariableTypes.hide()

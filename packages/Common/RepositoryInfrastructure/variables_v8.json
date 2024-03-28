@@ -567,13 +567,13 @@
       "IRI": "promo:r_x",
       "aliases": {
         "matlab": "r_x",
-        "latex": "r_x",
+        "latex": "{r_x}",
         "internal_code": "r_x",
         "global_ID": "V_23"
       },
       "compiled_lhs": {
         "global_ID": "V_23",
-        "latex": "{r_x}{_{N}}"
+        "latex": "{{r_x}}{_{N}}"
       },
       "created": "2024-03-27 09:08:55",
       "doc": "x-coordinate",
@@ -584,7 +584,7 @@
       ],
       "label": "r_x",
       "memory": null,
-      "modified": "2024-03-27 09:10:28",
+      "modified": "2024-03-27 18:53:11",
       "network": "physical",
       "port_variable": true,
       "tokens": [],
@@ -604,13 +604,13 @@
       "IRI": "promo:r_y",
       "aliases": {
         "matlab": "r_y",
-        "latex": "r_y",
+        "latex": "{r_y}",
         "internal_code": "r_y",
         "global_ID": "V_24"
       },
       "compiled_lhs": {
         "global_ID": "V_24",
-        "latex": "{r_y}{_{N}}"
+        "latex": "{{r_y}}{_{N}}"
       },
       "created": "2024-03-27 09:10:52",
       "doc": "y-coordinate",
@@ -621,7 +621,7 @@
       ],
       "label": "r_y",
       "memory": null,
-      "modified": "2024-03-27 09:11:26",
+      "modified": "2024-03-27 18:53:20",
       "network": "physical",
       "port_variable": true,
       "tokens": [],
@@ -641,13 +641,13 @@
       "IRI": "promo:r_z",
       "aliases": {
         "matlab": "r_z",
-        "latex": "r_z",
+        "latex": "{r_z}",
         "internal_code": "r_z",
         "global_ID": "V_25"
       },
       "compiled_lhs": {
         "global_ID": "V_25",
-        "latex": "{r_z}{_{N}}"
+        "latex": "{{r_z}}{_{N}}"
       },
       "created": "2024-03-27 09:11:31",
       "doc": "z-coordinate",
@@ -658,7 +658,7 @@
       ],
       "label": "r_z",
       "memory": null,
-      "modified": "2024-03-27 09:11:51",
+      "modified": "2024-03-27 18:53:27",
       "network": "physical",
       "port_variable": true,
       "tokens": [],
@@ -1279,7 +1279,7 @@
     }
   },
   "Ontology_global_IDs": {
-    "variable": 100,
+    "variable": 26,
     "equation": 0
   }
 }

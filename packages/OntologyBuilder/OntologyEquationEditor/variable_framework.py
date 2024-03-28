@@ -1821,7 +1821,7 @@ class ParDifferential(Operator):
   def __str__(self):
     return CODE[self.space.language]["ParDiff"] % (self.x, self.y)
 
-class reduceSum(Operator):
+class ReduceSum(Operator):
   def __init__(self, x, reduceindex, space):
     """
     implements a tensor over one coordiante by summing up
@@ -1909,7 +1909,7 @@ class Expression(VerboseParser):
       | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                $fu=MaxMin(s, a, b, self.space)
       | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'             $fu=TotDifferential(x,y, self.space)
       | 'ParDiff'/f  '\(' Expression/x ',' Expression/y '\)'              $fu=ParDifferential(x,y, self.space)
-      | 'reduceSum'/f '\(' Expression/x ',' Index/i '\)'                   $fu=reduceSum(x,i,self.space)
+      | 'reduceSum'/f '\(' Expression/x ',' Index/i '\)'                  $fu=ReduceSum(x,i,self.space)
       | UnitaryFunction/uf '\(' Expression/a '\)'                         $fu=UnitaryFunction(uf,a,  self.space)
       | Identifier/a                                                      $fu=a
   ;
