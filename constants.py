@@ -42,5 +42,8 @@ class FixedVariables:
   #S_NUS: ClassVar[str] = "V_x"    # Selection matrix for species related measures  
   #MW_IS: ClassVar[str] = "V_y"
   
-# reactionss
+# reactions
   STOCHIOMETRY_MATRIX: ClassVar[str] = "V_26"  # index NK
+  
+# global
+  I_NA: ClassVar[str] = "V_27"     # Identity matrix to switch from N to A in the transport arcs   
