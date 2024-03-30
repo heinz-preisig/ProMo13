@@ -344,7 +344,7 @@ class OntologyContainer():
       self.ProMoIRI = self.readVariables()
 
     self.node_arc_SubClasses = self.readNodeArcAssignments()
-    self.indices = makeIndices(self)  # todo: remove again
+    # self.indices = makeIndices(self)  # todo: remove again
 
     if self.indices == {}:  # DOC: make indices if they do not yet exist
       self.indices = makeIndices(self)

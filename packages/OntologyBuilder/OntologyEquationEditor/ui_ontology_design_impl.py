@@ -274,7 +274,6 @@ class UiOntologyDesign(QMainWindow):
 
   def on_pushMakeInterfaceEquations_pressed(self):
     print("debugging -- radioMakeInterfaceEquations")
-    self.__setupEdit("interface")
     self.__setupEditInterface()
     self.__showFilesControl()
     self.ui.pushShowVariables.show()
@@ -1006,11 +1005,14 @@ class UiOntologyDesign(QMainWindow):
 
     index_dictionary = self.variables.index_definition_network_for_variable_component_class
 
-    for nw in list_nw_that_have_variables:  # nw_that_has_equation:
+    for nw in nws : #list_nw_that_have_variables:  # nw_that_has_equation:
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
+      snw = nw
+      if "--" in nw:
+        snw = nw.replace("--", CONNECTION_NETWORK_SEPARATOR)
       body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
-                                                                           index=index_dictionary[nw])
-      name = str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--')
+                                                                           index=index_dictionary[snw])
+      name = nw #str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--')
       f_name = FILES["latex_variables"] % (self.ontology_location, name)
       f = open(f_name, 'w')
       f.write(body)
@@ -1232,15 +1234,15 @@ class UiOntologyDesign(QMainWindow):
 
   def __setupVariableTable(self):
     choice = self.current_variable_type
-    if self.current_network in self.interconnection_nws:
-      network_variable = self.interconnection_nws[self.current_network]["right"]
-      network_expression = self.interconnection_nws[self.current_network]["left"]
-    elif self.current_network in self.intraconnection_nws:
-      network_variable = self.intraconnection_nws[self.current_network]["right"]
-      network_expression = self.intraconnection_nws[self.current_network]["left"]
-    else:
-      network_variable = self.current_network
-      network_expression = self.current_network
+    # if self.current_network in self.interconnection_nws:
+    #   network_variable = self.interconnection_nws[self.current_network]["right"]
+    #   network_expression = self.interconnection_nws[self.current_network]["left"]
+    # elif self.current_network in self.intraconnection_nws:
+    #   network_variable = self.intraconnection_nws[self.current_network]["right"]
+    #   network_expression = self.intraconnection_nws[self.current_network]["left"]
+    # else:
+    network_variable = self.current_network
+    network_expression = self.current_network
 
     if choice[0] == "*":
       hide = ["port"]

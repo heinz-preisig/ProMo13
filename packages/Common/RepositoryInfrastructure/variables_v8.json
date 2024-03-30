@@ -712,6 +712,44 @@
         0
       ]
     },
+    "V_27": {
+      "IRI": "promo:I_NA",
+      "aliases": {
+        "matlab": "I_NA",
+        "latex": "{I}",
+        "internal_code": "I_NA",
+        "global_ID": "V_27"
+      },
+      "compiled_lhs": {
+        "global_ID": "V_27",
+        "latex": "{I_NA}{_{N, A}}"
+      },
+      "created": "2024-03-30 14:44:46",
+      "doc": "identity mapping from <N> to <A>",
+      "equations": {},
+      "imported": false,
+      "index_structures": [
+        "I_1",
+        "I_2"
+      ],
+      "label": "I_NA",
+      "memory": null,
+      "modified": "2024-03-30 14:49:25",
+      "network": "root",
+      "port_variable": true,
+      "tokens": [],
+      "type": "network",
+      "units": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     "V_3": {
       "IRI": "promo:F_NI_source",
       "aliases": {
@@ -1279,7 +1317,7 @@
     }
   },
   "Ontology_global_IDs": {
-    "variable": 26,
+    "variable": 27,
     "equation": 0
   }
 }

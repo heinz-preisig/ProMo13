@@ -63,7 +63,7 @@ class UI_VariableTableInterfacePick(VariableTable):
 
     VariableTable.__init__(self,
                            title,
-                           "interface_picking",
+                           "variable_picking", #"interface_picking",
                            variables,
                            indices,
                            network,
