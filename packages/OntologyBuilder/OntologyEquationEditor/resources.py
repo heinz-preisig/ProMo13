@@ -418,7 +418,7 @@ CODE[language]["TotalDiff"] = "TotalDiff(%s,%s)"
 CODE[language]["Integral"] = "Integral({integrand!s} :: {differential!s} in [{lower!s},{upper!s} ])"
 # CODE[language]["Interval"] = "interval(%s in [%s , %s])"
 # CODE[language]["Product"] = "Product( {argument!s} \, {index!s} )"
-CODE[language]["Product"] = "Product( {%s} \, {%s} )"
+CODE[language]["Product"] = "Product( %s , %s )"
 CODE[language]["Instantiate"] = "Instantiate(%s, %s)"
 CODE[language]["max"] = "max(%s, %s)"
 CODE[language]["min"] = "min(%s, %s)"
@@ -563,6 +563,7 @@ TwoPlace_TEMPLATE = ["+",
                      "min",
                      "Instantiate",
                      "reduceSum",
+                     "Product",
                      ]
 ThreePlace_TEMPLATE = ["*"]
 internal = LANGUAGES["internal_code"]

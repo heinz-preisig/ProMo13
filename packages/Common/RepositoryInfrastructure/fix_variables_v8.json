@@ -691,12 +691,12 @@
       "equations": {},
       "imported": false,
       "index_structures": [
-        "I_1",
+        "I_4",
         "I_5"
       ],
       "label": "N",
       "memory": null,
-      "modified": "2024-03-27 09:15:46",
+      "modified": "2024-03-31 14:08:05",
       "network": "reactions",
       "port_variable": true,
       "tokens": [],
