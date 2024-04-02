@@ -46,6 +46,7 @@ from Common.common_resources import TEMPLATE_NODE_OBJECT
 from Common.common_resources import TEMPLATE_NODE_OBJECT_WITH_TOKEN
 from Common.common_resources import walkBreathFirstFnc
 from Common.common_resources import walkDepthFirstFnc
+from Common.common_resources import PROMO_IRI_PREFIX
 from Common.graphics_objects import NAMES
 from Common.qt_resources import OK
 from Common.record_definitions import Interface
@@ -177,6 +178,9 @@ def makeIndices(ontology_container):
     makeIndexAliases(indices[indexID],
                      indexID, index["label"])
 
+  for i in indices:
+    indices[i]["IRI"] = PROMO_IRI_PREFIX+indices[i]["label"]
+    # print("debugging")
 
   return indices
 

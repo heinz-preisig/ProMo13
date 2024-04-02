@@ -290,12 +290,12 @@ class RDFProMo():
     f_promo_language = os.path.join(ttl_location, "promo_language.ttl")
     id = URIRef(BASELG)
     promo_language = Graph(store=store, identifier=id)
-    promo_language.load(f_promo_language, format="trig")
+    promo_language.parse(f_promo_language, format="trig")
 
     f_promo_variables = os.path.join(ttl_location, "promo_variables_eq_list.ttl")
     id = URIRef(BASEVARS)
     promo_variables = Graph(store=store, identifier=id)
-    promo_variables.load(f_promo_variables, format="trig")
+    promo_variables.parse(f_promo_variables, format="trig")
 
     # get all namespaces
     namespaces = {}
