@@ -59,15 +59,15 @@ class RDFProMo():
     promo_language = Graph()
 
     f_promo_language = os.path.join(ttl_location, "promo_language.ttl")
-    promo_language.load(f_promo_language, format="ttl")
+    promo_language.parse(f_promo_language, format="ttl")
 
     f_promo_variables = os.path.join(ttl_location, "promo_variables_equations.ttl")
     promo_variables = Graph()
-    promo_variables.load(f_promo_variables, format="ttl")
+    promo_variables.parse(f_promo_variables, format="ttl")
 
     f_promo_equations = os.path.join(ttl_location, "promo_equations.ttl")
     promo_equations = Graph()
-    promo_equations.load(f_promo_equations, format="ttl")
+    promo_equations.parse(f_promo_equations, format="ttl")
 
     g = self.graph + promo_language + promo_variables + promo_equations
     self.graph = g
@@ -104,7 +104,8 @@ class RDFProMo():
           g.add(triple)
           print("index:", triple)
 
-      predicate = eval("RDF._%s"%i)
+      _,no = i.split("_")
+      predicate = eval("RDF._%s"%no)
       triple = iri, predicate, promo["global_index_list"]
       g.add((triple))
 
@@ -191,7 +192,7 @@ class RDFProMo():
     """
 
     promo = self.promo
-    items = expression.split(" ")[1:]
+    items = expression["global_ID"].split(" ")[1:]
     rdf_items = []
     for i in range(len(items)):
       obj = promo["expression_list_%s" % equation_index]
@@ -216,14 +217,14 @@ class RDFProMo():
           triple = obj, predicate, promo[key]
           # print(triple)
         elif w[0] == "V":
-          vID = int(w.split("V_")[1])
-          v = self.variables[vID]
+          # vID = int(w.split("V_")[1])
+          v = self.variables[w]
           triple = obj, predicate, self.getVarIndexIRI(v)
           # print(triple)
         elif w[0] == "I":
           iID = int(w.split("I_")[1])
-          key = indices[iID]["IRI"].split(":")[1]
-          triple = obj, predicate, promo[key]
+          # key = indices[iID]["IRI"].split(":")[1]
+          triple = obj, predicate, promo[w] #key]
           print(triple)
         else:
           a = ">>>>> error with %s........" % w
@@ -234,18 +235,19 @@ class RDFProMo():
     return rdf_items
 
   def load(self, ontology_name):
-    self.graph.load(self.variables_expressions_ontology_file, "ttl")
+    self.graph.parse(self.variables_expressions_ontology_file, "ttl")
 
   def plotMe(self):
     dot = plot(self.graph)
     f_promo_ttl = os.path.join(ttl_location, "var_equ_rdf")
-    dot.render_expression_to_list(f_promo_ttl, view=True, cleanup=False)
+    # dot.render_expression_to_list(f_promo_ttl, view=True, cleanup=False)
+    dot.render(f_promo_ttl, view=True, cleanup=False)
 
 
 if __name__ == '__main__':
   from Common.ontology_container import OntologyContainer
 
-  ontology_container = OntologyContainer("ProMo_Sandbox9")
+  ontology_container = OntologyContainer("processes_000")
   tokens = ontology_container.tokens
   variables = ontology_container.variables
   indices = ontology_container.indices
@@ -258,4 +260,4 @@ if __name__ == '__main__':
   EQ_ontology.create(variables, tokens, equation_dictionary, indices)
   EQ_ontology.graph.serialize(f_promo_ttl+".ttl", format="ttl")
   EQ_ontology.graph.serialize(f_promo_ttl+".n3", format="n3")
-  # EQ_ontology.plotMe()
+  EQ_ontology.plotMe()

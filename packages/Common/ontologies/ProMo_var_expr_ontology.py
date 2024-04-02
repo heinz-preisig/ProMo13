@@ -37,7 +37,7 @@ def getPrefixAndIdentifier(uiref):
 class ProMoOntology:
   def __init__(self, ontology):
     self.graph = Graph()
-    self.graph.load(ontology, format="ttl")
+    self.graph.parse(ontology, format="ttl")
 
 
 

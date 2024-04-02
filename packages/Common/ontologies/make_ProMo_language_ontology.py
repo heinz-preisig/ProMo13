@@ -65,4 +65,4 @@ for f in LIST_FUNCTIONS:
 g.serialize("promo_language.ttl", format="ttl")
 
 dot = plot(g_promo_language)
-# dot.render_expression_to_list("promo_language", view=True, cleanup=True)
+dot.render("promo_language", view=True, cleanup=True)

@@ -1,7 +1,7 @@
 @prefix promolg: <http://example.org/language#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-promolg:BlockReduce rdfs:label "BlockReduce" ;
+promolg:Hadamard rdfs:label "." ;
     rdfs:subClassOf promolg:operator .
 
 promolg:Instantiate rdfs:label "Instantiate" ;
@@ -10,14 +10,8 @@ promolg:Instantiate rdfs:label "Instantiate" ;
 promolg:Integral rdfs:label "Integral" ;
     rdfs:subClassOf promolg:operator .
 
-promolg:KR rdfs:label ":" ;
-    rdfs:subClassOf promolg:operator .
-
 promolg:MakeIndex rdfs:label "MakeIndex" ;
     rdfs:subClassOf promolg:operator .
-
-promolg:MixedStack rdfs:label "MixedStack" ;
-    rdfs:subClassOf promolg:function .
 
 promolg:ParDiff rdfs:label "ParDiff" ;
     rdfs:subClassOf promolg:operator .
@@ -26,9 +20,6 @@ promolg:Product rdfs:label "Product" ;
     rdfs:subClassOf promolg:operator .
 
 promolg:Root rdfs:label "Root" ;
-    rdfs:subClassOf promolg:function .
-
-promolg:Stack rdfs:label "Stack" ;
     rdfs:subClassOf promolg:function .
 
 promolg:TotalDiff rdfs:label "TotalDiff" ;
@@ -49,9 +40,6 @@ promolg:asin rdfs:label "asin" ;
 promolg:atan rdfs:label "atan" ;
     rdfs:subClassOf promolg:function .
 
-promolg:blockProd rdfs:label "blockProd" ;
-    rdfs:subClassOf promolg:function .
-
 promolg:comma rdfs:label "," ;
     rdfs:subClassOf promolg:delimiter .
 
@@ -67,7 +55,7 @@ promolg:double_column rdfs:label "::" ;
 promolg:exp rdfs:label "exp" ;
     rdfs:subClassOf promolg:function .
 
-promolg:expandProduct rdfs:label "." ;
+promolg:expandProduct rdfs:label ":" ;
     rdfs:subClassOf promolg:operator .
 
 promolg:in rdfs:label "in" ;
@@ -115,7 +103,10 @@ promolg:plus rdfs:label "+" ;
 promolg:power rdfs:label "^" ;
     rdfs:subClassOf promolg:operator .
 
-promolg:reduceProduct rdfs:label "|" ;
+promolg:reduceProduct rdfs:label "*" ;
+    rdfs:subClassOf promolg:operator .
+
+promolg:reducteSum rdfs:label "reduceSum" ;
     rdfs:subClassOf promolg:operator .
 
 promolg:right rdfs:label "right" ;
