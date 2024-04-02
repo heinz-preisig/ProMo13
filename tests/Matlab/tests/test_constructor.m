@@ -28,6 +28,34 @@
 %! assert(isequal(test_output, expected_output));
 
 %!xtest
+%! ## Testing the creation of a vector from row vector ##
+% SETUP
+%! indexLabels = {"A"};
+%! indexSizes = [5];
+%! value = [1 2 3 4 5];
+%! expected_value = [1; 2; 3; 4; 5];
+%! A = MultiDimVar(indexLabels, indexSizes, indexOrder, value);
+%! expected_output = true;
+% ACTION
+%! test_output = isequal(A.value, expected_value) && ...
+%!   isequal(A.indexLabels, indexLabels);
+% ASSERT
+%! assert(isequal(test_output, expected_output));
+
+%!xtest
+%! ## Testing the creation of a matrix from a row vector ##
+% SETUP
+%! indexLabels = {"A", "B"};
+%! indexSizes = [1, 5];
+%! value = [1 2 3 4 5];
+%! A = MultiDimVar(indexLabels, indexSizes, indexOrder, value);
+%! expected_output = true;
+% ACTION
+%! test_output = isequal(A.value, value) && isequal(A.indexLabels, indexLabels);
+% ASSERT
+%! assert(isequal(test_output, expected_output));
+
+%!xtest
 %! ## Testing the creation of an empty 2D matrix ##
 % SETUP
 %! indexLabels = {"A", "B"};

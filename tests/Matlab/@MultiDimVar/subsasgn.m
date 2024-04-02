@@ -3,22 +3,29 @@ function self = subsasgn(self, s, varargin)
     case '()'
       rhs = varargin{1};
 
-      % If the rhs is a MultiDimVar then we assign its Value.
+      assert(isa(rhs, "MultiDimVar") || isnumeric(rhs),
+          "Error: Invalid assignment, the value assigned must be of type MultiDimVar or numeric.",
+          inputname(3)
+      )
+
       if isa(rhs, "MultiDimVar")
-        rhs = rhs.value;
-      else
-        assert(
-          ismatrix(rhs) | isscalar(rhs),
-          "Wrong type. Only scalars, matrices and other MultiDimVar\n",...
-          "objects can be assigned to MultiDimVar objects."
+        assert(isequal(self.indexLabels, rhs.indexLabels),
+          "Error: Mismatching index labels. Expected %s; Obtained %s",
+          inputname(3), strjoin(self.indexLabels, ""), strjoin(rhs.indexLabels, "")
         )
+        rhsValue = rhs.value;
+      else
+        rhsValue = rhs;
       endif
-      % Try to access the values to catch out of bounds errors.
-      % In matlab the default action is to resize the matrix but we dont allow
-      % for it.
-      test = subsref(self, s);
-      
-      self.value = builtin("subsasgn", self.value, s(1), rhs);
+
+      subsrefSelf = self.subsref(s);
+      selfSize = size(subsrefSelf.value);
+      assert(isequal(selfSize, size(rhsValue)),
+          "Error: Nonconformant sizes. Expected %s; obtained %s",
+          inputname(3), mat2str(selfSize), mat2str(size(rhsValue))
+      )
+
+      self.value = builtin("subsasgn", self.value, s(1), rhsValue);
     case '.'
       self = builtin('subsasgn', self, s, varargin{:});
     case '{}'
