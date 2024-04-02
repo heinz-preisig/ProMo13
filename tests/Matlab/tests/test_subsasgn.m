@@ -9,6 +9,15 @@
 % ACTION
 %! V(8) = 348;
 
+%!error <Mismatching index labels>
+%! ## Testing subsasgn with vector on vector but mismatching labels##
+% SETUP
+%! test_output = V;
+%! assgnVar = MultiDimVar({"B"}, [], indexOrder, [348; 445]);
+%! expected_output = MultiDimVar({"A"}, [5], indexOrder, [1; 348; 445; 4; 5]);
+% ACTION
+%! test_output([2 3]) = assgnVar;
+
 %!test
 %! ## Testing subsasgn with scalar on vector ##
 % SETUP

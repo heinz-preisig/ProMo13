@@ -71,6 +71,18 @@
 %! assert(isequal(test_output,expected_output),
 %! "Expected: %s\nOutput: %s", mat2str(expected_output), mat2str(test_output))
 
+%!xtest <## Testing einsum with two MultiDimVar scalars ##>
+% SETUP
+%! S1 = MultiDimVar({}, [1], indexOrder, [3]);
+%! S2 = MultiDimVar({}, [1], indexOrder, [4]);
+%! expected_output = MultiDimVar({}, [1], indexOrder, [12]);
+% ACTION
+%! test_output = einsum(S1, S2);
+% ASSERT
+%! assert(isequal(test_output.indexLabels, expected_output.indexLabels))
+%! assert(isequal(test_output,expected_output),
+%! "Expected: %s\nOutput: %s", mat2str(expected_output), mat2str(test_output))
+
 %!xtest <## Testing einsum with one scalar and one vector ##>
 % SETUP
 %! S = 3;

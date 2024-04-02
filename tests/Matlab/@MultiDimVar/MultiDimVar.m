@@ -32,6 +32,11 @@ classdef MultiDimVar
         self.value = permute(self.value, newIndexOrder);
         self.indexLabels = self.indexLabels(newIndexOrder);
       endif
+
+      % Transforming row vectors to column vectors
+      if numel(self.indexLabels) == 1
+        self.value = reshape(self.value, numel(self.value), 1);
+      endif
     endfunction
     
     % Subscripted assignment and reference
