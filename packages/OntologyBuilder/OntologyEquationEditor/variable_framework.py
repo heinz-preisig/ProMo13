@@ -1365,6 +1365,10 @@ class ReduceProduct(BinaryOperator):
       if l > 1:
         index_ID = self.space.inverse_indices[reduceindex]
         self.index_structures = sorted((self.s_index_a | self.s_index_b) - {index_ID})
+      if l == 0:
+        msg = " ReduceProduct -- there was no common index -- not allowed"
+        print(msg)
+        raise IndexStructureError(msg)
 
 
     self.reducedindex_ID =index_ID

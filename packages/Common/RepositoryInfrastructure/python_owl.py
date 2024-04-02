@@ -494,6 +494,28 @@ V_V_26.temperature = [ units[4] ]
 V_V_26.current = [ units[5] ]
 V_V_26.light = [ units[6] ]
 
+# V_27
+label = variables[V_27]["label"]
+network = variables[V_27]["network"]
+variable_type = variables[V_27]["type"]
+label = variables[V_27]["label"]
+doc = variables[V_27]["doc"]
+onto_ID = "V_V_27"
+V_V_27 = onto.ProMoVar( onto_ID )
+V_V_27.label = label
+V_V_27.network = network
+V_V_27.variable_type = variable_type
+V_V_27.comment = doc
+
+units = variables[V_27]["units"].asList()
+V_V_27.time = [ units[0] ]
+V_V_27.length = [ units[1] ]
+V_V_27.amount = [ units[2] ]
+V_V_27.mass = [ units[3] ]
+V_V_27.temperature = [ units[4] ]
+V_V_27.current = [ units[5] ]
+V_V_27.light = [ units[6] ]
+
 # V_3
 label = variables[V_3]["label"]
 network = variables[V_3]["network"]
@@ -648,28 +670,6 @@ V_V_9.temperature = [ units[4] ]
 V_V_9.current = [ units[5] ]
 V_V_9.light = [ units[6] ]
 
-# V_27
-label = variables[V_27]["label"]
-network = variables[V_27]["network"]
-variable_type = variables[V_27]["type"]
-label = variables[V_27]["label"]
-doc = variables[V_27]["doc"]
-onto_ID = "V_V_27"
-V_V_27 = onto.ProMoVar( onto_ID )
-V_V_27.label = label
-V_V_27.network = network
-V_V_27.variable_type = variable_type
-V_V_27.comment = doc
-
-units = variables[V_27]["units"].asList()
-V_V_27.time = [ units[0] ]
-V_V_27.length = [ units[1] ]
-V_V_27.amount = [ units[2] ]
-V_V_27.mass = [ units[3] ]
-V_V_27.temperature = [ units[4] ]
-V_V_27.current = [ units[5] ]
-V_V_27.light = [ units[6] ]
-
 # functions assignments
 
 #V_1
@@ -729,6 +729,9 @@ V_V_25.has_function = []
 #V_26
 
 V_V_26.has_function = []
+#V_27
+
+V_V_27.has_function = []
 #V_3
 
 V_V_3.has_function = []
@@ -750,8 +753,5 @@ V_V_8.has_function = []
 #V_9
 
 V_V_9.has_function = []
-#V_27
-
-V_V_27.has_function = []
 
 onto.save("variables.owl")
