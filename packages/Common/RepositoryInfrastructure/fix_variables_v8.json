@@ -387,16 +387,20 @@
       },
       "compiled_lhs": {
         "global_ID": "V_19",
-        "latex": "{{A}}{_{}}"
+        "latex": "{{A}}{_{N, p, q}}"
       },
       "created": "2024-03-27 09:04:40",
       "doc": "mapping from inputs to outputs",
       "equations": {},
       "imported": false,
-      "index_structures": [],
+      "index_structures": [
+        "I_1",
+        "I_7",
+        "I_8"
+      ],
       "label": "A_Npq",
       "memory": null,
-      "modified": "2024-03-27 09:18:29",
+      "modified": "2024-03-31 15:22:35",
       "network": "root",
       "port_variable": true,
       "tokens": [],
@@ -460,16 +464,20 @@
       },
       "compiled_lhs": {
         "global_ID": "V_20",
-        "latex": "{{A}}{_{}}"
+        "latex": "{{A}}{_{N, t, u}}"
       },
       "created": "2024-03-27 09:05:28",
       "doc": "mapping from input elements to outputs",
       "equations": {},
       "imported": false,
-      "index_structures": [],
+      "index_structures": [
+        "I_1",
+        "I_10",
+        "I_11"
+      ],
       "label": "A_Ntu",
       "memory": null,
-      "modified": "2024-03-27 09:18:31",
+      "modified": "2024-03-31 15:22:47",
       "network": "root",
       "port_variable": true,
       "tokens": [],
@@ -684,7 +692,7 @@
       },
       "compiled_lhs": {
         "global_ID": "V_26",
-        "latex": "{N}{_{N, K}}"
+        "latex": "{N}{_{S, K}}"
       },
       "created": "2024-03-27 09:14:44",
       "doc": "stoichiometric matrix",
@@ -722,7 +730,7 @@
       },
       "compiled_lhs": {
         "global_ID": "V_27",
-        "latex": "{I_NA}{_{N, A}}"
+        "latex": "{{I}}{_{N, A}}"
       },
       "created": "2024-03-30 14:44:46",
       "doc": "identity mapping from <N> to <A>",
@@ -1137,7 +1145,7 @@
         "matlab": "K",
         "latex": "K",
         "internal_code": "K",
-        "global_ID": " I_I_5"
+        "global_ID": " I_5"
       },
       "tokens": {
         "instances": [
