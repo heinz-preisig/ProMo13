@@ -1050,7 +1050,7 @@
         "global_ID": "I_1"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:node"
     },
     "I_2": {
       "type": "index",
@@ -1076,7 +1076,7 @@
         "global_ID": "I_2"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:arc"
     },
     "I_3": {
       "type": "index",
@@ -1102,7 +1102,7 @@
         "global_ID": "I_3"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:interface"
     },
     "I_4": {
       "type": "index",
@@ -1125,7 +1125,7 @@
         "global_ID": "I_4"
       },
       "tokens": "mass",
-      "IRI": "None"
+      "IRI": "promo:species"
     },
     "I_5": {
       "type": "index",
@@ -1142,10 +1142,10 @@
         "reactions"
       ],
       "aliases": {
-        "matlab": "K",
-        "latex": "K",
-        "internal_code": "K",
-        "global_ID": " I_5"
+        "matlab": "CS",
+        "latex": "CS",
+        "internal_code": "CS",
+        "global_ID": 5
       },
       "tokens": {
         "instances": [
@@ -1176,7 +1176,7 @@
           }
         ]
       },
-      "IRI": "None"
+      "IRI": "promo:species_conversion"
     },
     "I_6": {
       "type": "index",
@@ -1191,7 +1191,7 @@
         "global_ID": "I_6"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:D"
     },
     "I_7": {
       "type": "index",
@@ -1217,7 +1217,7 @@
         "global_ID": "I_7"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:p"
     },
     "I_8": {
       "type": "index",
@@ -1243,7 +1243,7 @@
         "global_ID": "I_8"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:q"
     },
     "I_9": {
       "type": "index",
@@ -1269,7 +1269,7 @@
         "global_ID": "I_9"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:r"
     },
     "I_10": {
       "type": "index",
@@ -1295,7 +1295,7 @@
         "global_ID": "I_10"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:t"
     },
     "I_11": {
       "type": "index",
@@ -1321,7 +1321,7 @@
         "global_ID": "I_11"
       },
       "tokens": null,
-      "IRI": "None"
+      "IRI": "promo:u"
     }
   },
   "Ontology_global_IDs": {
