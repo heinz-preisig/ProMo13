@@ -40,7 +40,7 @@ class MainModel(QtCore.QObject):
     self.ontology_name = ontology_name
 
     # TODO: Remove when this is done in the equation composer
-    io.generate_latex_images(ontology_name)
+    # io.generate_latex_images(ontology_name)
 
     # Loading data from files
     self.ontology = io.load_ontology_from_file(self.ontology_name)
@@ -58,14 +58,14 @@ class MainModel(QtCore.QObject):
 
   def _update_interfaces(self):
     interface_entities = [
-      ent
-      for ent_name, ent in self.all_entities.items()
-      if ent.is_interface_ent()
+        ent
+        for ent_name, ent in self.all_entities.items()
+        if ent.is_interface_ent()
     ]
     interface_equations = {
-      eq_id
-      for eq_id, eq in self.all_equations.items()
-      if eq.is_interface_eq()
+        eq_id
+        for eq_id, eq in self.all_equations.items()
+        if eq.is_interface_eq()
     }
 
     for ent in interface_entities:
@@ -102,19 +102,21 @@ class MainModel(QtCore.QObject):
     input_var_id = eq.get_incidence_list(output_var_id)[0]
 
     if base_entity is None:
-      output_var_alias = self.all_variables[output_var_id].get_alias("internal_code")
-      input_var_alias = self.all_variables[input_var_id].get_alias("internal_code")
+      output_var_alias = self.all_variables[output_var_id].get_alias(
+          "internal_code")
+      input_var_alias = self.all_variables[input_var_id].get_alias(
+          "internal_code")
 
       new_ent = entity.Entity(
-        f"{eq.network} ({input_var_alias} -> {output_var_alias})",
-        self.all_equations,
+          f"{eq.network} ({input_var_alias} -> {output_var_alias})",
+          self.all_equations,
       )
     else:
       new_ent = entity.Entity(
           base_entity.entity_name,
           self.all_equations,
           base_entity.index_set,
-        )
+      )
 
     new_ent.set_input_var(input_var_id, True)
     new_ent.set_output_var(output_var_id, True)
@@ -122,9 +124,6 @@ class MainModel(QtCore.QObject):
     new_ent.update_var_eq_tree()
 
     return new_ent
-
-
-
 
   def load_entity(self, index: QtCore.QModelIndex):
     if not index.isValid():
@@ -237,8 +236,8 @@ class MainModel(QtCore.QObject):
     arc_options = {}
     for arc_ent_name in arc_entities:
       arc_options[arc_ent_name] = {
-        "sources": [],
-        "sinks": [],
+          "sources": [],
+          "sinks": [],
       }
       arc_network = self.all_entities[arc_ent_name].get_network()[0]
       # Only one token per arc
@@ -256,8 +255,8 @@ class MainModel(QtCore.QObject):
 
     for interface_ent_name in interface_entities:
       arc_options[interface_ent_name] = {
-        "sources": [],
-        "sinks": [],
+          "sources": [],
+          "sinks": [],
       }
       interface_ent = self.all_entities[interface_ent_name]
       interface_networks = interface_ent.get_network()
@@ -267,12 +266,11 @@ class MainModel(QtCore.QObject):
       for ent_name in node_entities + arc_entities:
         current_ent = self.all_entities[ent_name]
         if (current_ent.get_network()[0] == interface_networks[0] and
-            interface_input_var in current_ent.get_output_vars()):
+                interface_input_var in current_ent.get_output_vars()):
           arc_options[interface_ent_name]["sources"].append(ent_name)
 
         if (current_ent.get_network()[0] == interface_networks[1] and
-            interface_output_var in current_ent.get_input_vars()):
+                interface_output_var in current_ent.get_input_vars()):
           arc_options[interface_ent_name]["sinks"].append(ent_name)
 
     io.save_arc_options_to_file(self.ontology_name, arc_options)
-
