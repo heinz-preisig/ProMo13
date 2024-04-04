@@ -34,6 +34,7 @@ from rdflib.plugins.stores.memory import Memory
 from Common.common_resources import getOntologyName
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
+from Common.ontologies.plot_rdf import plot
 
 from OntologyBuilder.OntologyEquationEditor.resources import DELIMITERS_alias
 from OntologyBuilder.OntologyEquationEditor.resources import LIST_DELIMITERS
@@ -121,8 +122,9 @@ class RDFProMo():
 
           g.add(triple)
           # print("index:", triple)
+          _,no = i.split("_")
 
-        predicate = eval("RDF._%s" % i)
+        predicate = eval("RDF._%s" % no)
 
         obj = URIRef(promo["global_index_list"])
 
@@ -186,7 +188,8 @@ class RDFProMo():
 
 
       for j in v["index_structures"]:
-        predicate = eval("RDF._%s" % j)
+        _,no = j.split("_")
+        predicate = eval("RDF._%s" % no)
         objs = g.objects(promo["global_index_list"], predicate)
         for o in objs:
 
@@ -339,7 +342,7 @@ class RDFProMo():
     promolg = self.namespaces["promolg"]
 
 
-    items_ = expression.split(" ")[1:]
+    items_ = expression["global_ID"].split(" ")[1:]
     items = []
     for i in items_:
       if i != "":
@@ -375,14 +378,14 @@ class RDFProMo():
           # print(triple)
         elif w[0] == "V":
           vID = int(w.split("V_")[1])
-          v = self.variables[vID]
+          v = self.variables[w] #vID]
           obj = self.getVarIndexIRI(v)
           triple = sub, predicate, obj
 
         elif w[0] == "I":
           iID = int(w.split("I_")[1])
           # key = indices[iID]["IRI"].split(":")[1].replace(" ", "").replace("&", "x")
-          key = self.getVarIndexIRI(indices[iID])
+          key = self.getVarIndexIRI(indices[w]) #iID])
           if "<" in key:
             print("bug")
 
@@ -457,9 +460,19 @@ if __name__ == '__main__':
       # EQ_ontology.graph.serialize(f_promo_ttl + ".n3", format="n3")
       # EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="json-ld")
 
+      EQ_ontology.plotMe()
+
 
       self.finished.emit()
 
+
+  def plotMe(self):
+
+    ttl_location = os.path.join(DIRECTORIES["common"], "ontologies")
+    dot = plot(self.graph)
+    f_promo_ttl = os.path.join(ttl_location, "var_equ_rdf")
+    # dot.render_expression_to_list(f_promo_ttl, view=True, cleanup=False)
+    dot.render(f_promo_ttl, view=True, cleanup=False)
 
   class MainWindow(QWidget):
     def __init__(self):

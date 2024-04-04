@@ -1277,6 +1277,7 @@ class UiOntologyDesign(QMainWindow):
     self.table_variables.new_equation.connect(self.ui_eq.setupNewEquation)
 
   def __updateVariableTable(self):
+    self.updateLatexImages()
     self.table_variables.close()
     self.__setupVariableTable()
     self.table_variables.show()
