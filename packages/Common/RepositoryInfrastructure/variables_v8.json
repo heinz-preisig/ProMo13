@@ -1142,9 +1142,9 @@
         "reactions"
       ],
       "aliases": {
-        "matlab": "CS",
-        "latex": "CS",
-        "internal_code": "CS",
+        "matlab": "K",
+        "latex": "K",
+        "internal_code": "K",
         "global_ID": 5
       },
       "tokens": {

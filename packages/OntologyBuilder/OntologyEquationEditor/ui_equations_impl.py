@@ -607,14 +607,14 @@ class UI_Equations(QtWidgets.QWidget):
 
   def __selectedEquation(self, entry):
     print('debugging got it', entry)
-    if entry != "new":
-      self.current_eq_ID = entry #eq_no
+    if entry == "new" or entry == []:
+      self.current_alternative = NEW_EQ
+    else:
+      self.current_eq_ID = entry  # eq_no
       self.status_edit_expr = True
-      rhs =  self.selected_variable.equations[entry]["rhs"]["global_ID"]
+      rhs = self.selected_variable.equations[entry]["rhs"]["global_ID"]
       equ_rendered = renderExpressionFromGlobalIDToInternal(rhs, self.variables, self.indices)
       self.current_alternative = equ_rendered
-    else:
-      self.current_alternative = NEW_EQ
 
     self.status_new_equation = (entry == NEW_EQ)
     if entry == PORT:
