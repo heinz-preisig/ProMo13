@@ -27,6 +27,7 @@ from pprint import pp
 from typing import List
 from typing import Optional
 from typing import Tuple
+from pathlib import Path
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
@@ -1650,7 +1651,8 @@ class Commander(QtCore.QObject):
 
   def _load_instantiation_values(self, model_file):
     ontology_name = self.model_container.ontology.ontology_name
-    model_name = model_file.split("/")[-2]
+    # TODO: Get the model name from somewhere else.
+    model_name = Path(model_file).parent.name
     print(model_name)
 
     all_topology_objects = io.load_model_from_file(
@@ -1747,7 +1749,8 @@ class Commander(QtCore.QObject):
     f_flat = os.path.join(dir, "%s_flat%s" % (name, ext))
     new_model_file_path = os.path.join(dir, "%s_new%s" % (name, ext))
 
-    node_map = self.model_container.write(f)   # NOTE: switched off node mapping 2024-01-29
+    # NOTE: switched off node mapping 2024-01-29
+    node_map = self.model_container.write(f)
     self.model_container.makeAndWriteFlatTopology(f_flat)
     self.__24_save_new_model_file(new_model_file_path)
 
