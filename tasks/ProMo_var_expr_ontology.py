@@ -1,4 +1,5 @@
-from rdflib import Graph
+# from rdflib import Graph
+from rdflib import Dataset
 from rdflib import Namespace
 from rdflib import RDF
 from rdflib import URIRef
@@ -36,8 +37,8 @@ def getPrefixAndIdentifier(uiref):
 
 class ProMoOntology:
   def __init__(self, ontology):
-    self.graph = Graph()
-    self.graph.load(ontology, format="ttl")
+    self.graph = Dataset()
+    self.graph.parse(ontology)
 
   def getVarIndexIRI(self, item):
     """
@@ -54,7 +55,7 @@ class ProMoOntology:
     """
     g = self.graph
     counter = 0
-    for s, p, o in g.triples((None, RDF.type, promo["variable"])):
+    for s, p, o, l in g.quads((None, RDF.type, promo["variable"], None)):
       print("variable ", o)
       counter += 1
 
@@ -87,19 +88,19 @@ class ProMoOntology:
       # print("length of r", len(r))
       equation_list = []
       iri, \
-      label, \
-      type, \
-      network, \
-      doc, \
-      unit_time, \
-      unit_length, \
-      unit_amount, \
-      unit_mass, \
-      unit_temperature, \
-      unit_current, \
-      unit_light, \
-      unit_nil, \
-      port_variable = r
+        label, \
+        type, \
+        network, \
+        doc, \
+        unit_time, \
+        unit_length, \
+        unit_amount, \
+        unit_mass, \
+        unit_temperature, \
+        unit_current, \
+        unit_light, \
+        unit_nil, \
+        port_variable = r
 
       units = []
       for quantity, qudt_term in UNITS:
@@ -111,14 +112,14 @@ class ProMoOntology:
       indices = []
       v_iri = URIRef(iri)
 
-      for s, p, o in g.triples((v_iri, URIRef(promo["has_index"]), None)):
+      for s, p, o, l in g.quads((v_iri, URIRef(promo["has_index"]), None, None)):
         # indices.append(o)
-        for si, pi, oi in g.triples((URIRef(promo["global_index_list"]), None, o)):
+        for si, pi, oi in g.quads((URIRef(promo["global_index_list"]), None, o, None)):
           _, no = pi.split("#_")
           # print("found index p:", pi, no)
           indices.append(int(no))
 
-      for s, p, o in g.triples(((v_iri, URIRef(promo["is_defined_by_expression_list"]), None))):
+      for s, p, o, l  in g.quads(((v_iri, URIRef(promo["is_defined_by_expression_list"]), None, None))):
         if o == RDF.nil:
           print("nil for iri %s: " % s, o)
           eq = None
@@ -176,7 +177,7 @@ class ProMoOntology:
       # pred = URIRef(promo["label"]) #.replace("#", "/"))  # NOTE: predicate must have a / and not a # !!!! and sometimes it is the opposite buuuu!!!
       # print("pred is:", pred)
       found = False
-      for s, p, o in g.triples((sub, None, None)):
+      for s, p, o, l in g.quads((sub, None, None, None)):
         if "label" in p:
           # print("object", o)
           expr = expr + " " + str(o)
@@ -216,7 +217,7 @@ if __name__ == '__main__':
 
       ontology_name = getOntologyName(task="task_RDF_render_expressions")
 
-      f_promo_ttl = FILES["variablesExpression_ttl_file"] % ontology_name + ".ttl"
+      f_promo_ttl = FILES["variablesExpression_ttl_file"] % ontology_name + ".trig"
 
       ProMoOnto = ProMoOntology(f_promo_ttl)  # "var_equ_rdf.ttl")
       variables = ProMoOnto.getAllVariablesAndExpressions()
