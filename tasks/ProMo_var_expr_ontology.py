@@ -56,7 +56,7 @@ class ProMoOntology:
     g = self.graph
     counter = 0
     for s, p, o, l in g.quads((None, RDF.type, promo["variable"], None)):
-      print("variable ", o)
+      print("variable ", o, " context:", l)
       counter += 1
 
     print("no of variables", counter)  # results 143
@@ -79,6 +79,7 @@ class ProMoOntology:
                     ?v promo:unit_nil ?u8 .
                     ?v promo:port_variable ?p .
                     }
+            FROM {l}
               """
     res_var = g.query(query_var)
 
