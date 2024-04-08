@@ -5,6 +5,15 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+promo:A_Npq a promo:variable ;
+    promo:doc "mapping from inputs to outputs" ;
+    promo:expression_list promo:expression_list_V_19 ;
+    promo:index_structures promo:index_structures_V_19 ;
+    promo:label "A_Npq" ;
+    promo:network "root" ;
+    promo:port_variable true ;
+    promo:type "network" .
+
 promo:A_Ntu a promo:variable ;
     promo:doc "mapping from input elements to outputs" ;
     promo:expression_list promo:expression_list_V_20 ;
@@ -55,15 +64,6 @@ promo:F_NA_source a promo:variable ;
     promo:port_variable true ;
     promo:type "network" .
 
-promo:I_NA a promo:variable ;
-    promo:doc "identity mapping from <N> to <A>" ;
-    promo:expression_list promo:expression_list_V_27 ;
-    promo:index_structures promo:index_structures_V_27 ;
-    promo:label "I_NA" ;
-    promo:network "root" ;
-    promo:port_variable true ;
-    promo:type "network" .
-
 promo:I_tu a promo:variable ;
     promo:doc "identity mapping from <t> to <u>" ;
     promo:expression_list promo:expression_list_V_11 ;
@@ -91,6 +91,15 @@ promo:S_Aq a promo:variable ;
     promo:port_variable true ;
     promo:type "network" .
 
+promo:S_Iq a promo:variable ;
+    promo:doc "selection matrix interface to control output" ;
+    promo:expression_list promo:expression_list_V_10 ;
+    promo:index_structures promo:index_structures_V_10 ;
+    promo:label "S_Iq" ;
+    promo:network "root" ;
+    promo:port_variable true ;
+    promo:type "network" .
+
 promo:S_Npu a promo:variable ;
     promo:doc "selection matrix for stacker" ;
     promo:expression_list promo:expression_list_V_14 ;
@@ -108,6 +117,24 @@ promo:S_Nqt a promo:variable ;
     promo:network "root" ;
     promo:port_variable true ;
     promo:type "network" .
+
+promo:T a promo:variable ;
+    promo:doc "link variable _T to interface reactions" ;
+    promo:expression_list promo:expression_list_V_167 ;
+    promo:index_structures promo:index_structures_V_167 ;
+    promo:label "T" ;
+    promo:network "reactions" ;
+    promo:port_variable false ;
+    promo:type "effort" .
+
+promo:V a promo:variable ;
+    promo:doc "link variable _V to interface reactions" ;
+    promo:expression_list promo:expression_list_V_171 ;
+    promo:index_structures promo:index_structures_V_171 ;
+    promo:label "V" ;
+    promo:network "reactions" ;
+    promo:port_variable false ;
+    promo:type "secondaryState" .
 
 promo:arc promo:label "arc" ;
     promo:network "['root', 'physical', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas', 'energy', 'microscopic', 'reactions', 'control', 'info_processing']" ;
@@ -162,24 +189,6 @@ promo:expressions a rdf:Property ;
     rdfs:domain promo:expression ;
     rdfs:range rdfs:List .
 
-promo:fnc_x a promo:variable ;
-    promo:doc "molar convective flow in x-direction" ;
-    promo:expression_list promo:expression_list_V_160 ;
-    promo:index_structures promo:index_structures_V_160 ;
-    promo:label "fnc_x" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "transport" .
-
-promo:fnd_x a promo:variable ;
-    promo:doc "diffusion flow in x-direction" ;
-    promo:expression_list promo:expression_list_V_154 ;
-    promo:index_structures promo:index_structures_V_154 ;
-    promo:label "fnd_x" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "transport" .
-
 promo:fnd_y a promo:variable ;
     promo:doc "diffusion flow in y-direction" ;
     promo:expression_list promo:expression_list_V_155 ;
@@ -228,14 +237,14 @@ promo:fq_z a promo:variable ;
     promo:port_variable false ;
     promo:type "transport" .
 
-promo:h a promo:variable ;
-    promo:doc "partial molar enthalpies" ;
-    promo:expression_list promo:expression_list_V_136 ;
-    promo:index_structures promo:index_structures_V_136 ;
-    promo:label "h" ;
+promo:hA a promo:variable ;
+    promo:doc "partial molar enthalpiies in arc" ;
+    promo:expression_list promo:expression_list_V_193 ;
+    promo:index_structures promo:index_structures_V_193 ;
+    promo:label "hA" ;
     promo:network "macroscopic" ;
     promo:port_variable false ;
-    promo:type "secondaryState" .
+    promo:type "properties" .
 
 promo:has_alias a rdf:property ;
     rdfs:domain promo:variable .
@@ -260,68 +269,23 @@ promo:is_defined_by_expression a rdf:property ;
 promo:is_defined_by_expression_list a rdf:property ;
     rdfs:domain promo:variable .
 
-promo:kc_y a promo:variable ;
-    promo:doc "convective mass conductivity in y-direction" ;
-    promo:expression_list promo:expression_list_V_134 ;
-    promo:index_structures promo:index_structures_V_134 ;
-    promo:label "kc_y" ;
+promo:kcA_y a promo:variable ;
+    promo:doc "convective mass conductivity in arc and y-direction" ;
+    promo:expression_list promo:expression_list_V_184 ;
+    promo:index_structures promo:index_structures_V_184 ;
+    promo:label "kcA_y" ;
     promo:network "macroscopic" ;
     promo:port_variable false ;
-    promo:type "secondaryState" .
+    promo:type "properties" .
 
-promo:kc_z a promo:variable ;
-    promo:doc "convective mass conductivity in z-direction" ;
-    promo:expression_list promo:expression_list_V_135 ;
-    promo:index_structures promo:index_structures_V_135 ;
-    promo:label "kc_z" ;
+promo:kcA_z a promo:variable ;
+    promo:doc "convecive mass conductivity in arc and y-direction" ;
+    promo:expression_list promo:expression_list_V_185 ;
+    promo:index_structures promo:index_structures_V_185 ;
+    promo:label "kcA_z" ;
     promo:network "macroscopic" ;
     promo:port_variable false ;
-    promo:type "secondaryState" .
-
-promo:kd_x a promo:variable ;
-    promo:doc "diffusional mass conductivity in x-direction" ;
-    promo:expression_list promo:expression_list_V_129 ;
-    promo:index_structures promo:index_structures_V_129 ;
-    promo:label "kd_x" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
-
-promo:kd_y a promo:variable ;
-    promo:doc "diffusional mass conductivity in y-direction" ;
-    promo:expression_list promo:expression_list_V_130 ;
-    promo:index_structures promo:index_structures_V_130 ;
-    promo:label "kd_y" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
-
-promo:kd_z a promo:variable ;
-    promo:doc "diffusional mass conductivity in z-direction" ;
-    promo:expression_list promo:expression_list_V_131 ;
-    promo:index_structures promo:index_structures_V_131 ;
-    promo:label "kd_z" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
-
-promo:kq_y a promo:variable ;
-    promo:doc "thermal conductivity in y-direction" ;
-    promo:expression_list promo:expression_list_V_127 ;
-    promo:index_structures promo:index_structures_V_127 ;
-    promo:label "kq_y" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
-
-promo:kq_z a promo:variable ;
-    promo:doc "thermal conductivity in z-direction" ;
-    promo:expression_list promo:expression_list_V_128 ;
-    promo:index_structures promo:index_structures_V_128 ;
-    promo:label "kq_z" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
+    promo:type "properties" .
 
 promo:label a rdf:Property ;
     rdfs:domain rdfs:blockIndex,
@@ -502,6 +466,15 @@ promo:p promo:label "p" ;
     promo:type "index" ;
     rdf:_7 promo:global_index_list .
 
+promo:probability a promo:variable ;
+    promo:doc "probability of reaction to take place" ;
+    promo:expression_list promo:expression_list_V_169 ;
+    promo:index_structures promo:index_structures_V_169 ;
+    promo:label "probability" ;
+    promo:network "reactions" ;
+    promo:port_variable false ;
+    promo:type "conversion" .
+
 promo:q promo:label "q" ;
     promo:network "['root', 'physical', 'macroscopic', 'solid', 'fluid', 'liquid', 'gas', 'energy', 'microscopic', 'reactions', 'control', 'info_processing']" ;
     promo:type "index" ;
@@ -538,24 +511,6 @@ promo:t_interval a promo:variable ;
     promo:expression_list promo:expression_list_V_107 ;
     promo:index_structures promo:index_structures_V_107 ;
     promo:label "t_interval" ;
-    promo:network "root" ;
-    promo:port_variable false ;
-    promo:type "frame" .
-
-promo:te a promo:variable ;
-    promo:doc "end time" ;
-    promo:expression_list promo:expression_list_V_106 ;
-    promo:index_structures promo:index_structures_V_106 ;
-    promo:label "te" ;
-    promo:network "root" ;
-    promo:port_variable false ;
-    promo:type "frame" .
-
-promo:to a promo:variable ;
-    promo:doc "starting time" ;
-    promo:expression_list promo:expression_list_V_105 ;
-    promo:index_structures promo:index_structures_V_105 ;
-    promo:label "to" ;
     promo:network "root" ;
     promo:port_variable false ;
     promo:type "frame" .
@@ -619,15 +574,6 @@ qudt:HelmholtzEnergy a promo:variable ;
     promo:port_variable false ;
     promo:type "state" .
 
-promo:A_Npq a promo:variable ;
-    promo:doc "mapping from inputs to outputs" ;
-    promo:expression_list promo:expression_list_V_19 ;
-    promo:index_structures promo:index_structures_V_19 ;
-    promo:label "A_Npq" ;
-    promo:network "root" ;
-    promo:port_variable true ;
-    promo:type "network" .
-
 promo:CV a promo:variable ;
     promo:doc "total heat capacity at constant volume" ;
     promo:expression_list promo:expression_list_V_125 ;
@@ -637,59 +583,23 @@ promo:CV a promo:variable ;
     promo:port_variable false ;
     promo:type "secondaryState" .
 
-promo:Ea a promo:variable ;
-    promo:doc "activation energy" ;
-    promo:expression_list promo:expression_list_V_174 ;
-    promo:index_structures promo:index_structures_V_174 ;
-    promo:label "Ea" ;
+promo:N a promo:variable ;
+    promo:doc "stoichiometric matrix" ;
+    promo:expression_list promo:expression_list_V_26 ;
+    promo:index_structures promo:index_structures_V_26 ;
+    promo:label "N" ;
     promo:network "reactions" ;
-    promo:port_variable false ;
-    promo:type "constant" .
-
-promo:K a promo:variable ;
-    promo:doc "Arrhenius reaction \"constant\"" ;
-    promo:expression_list promo:expression_list_V_176 ;
-    promo:index_structures promo:index_structures_V_176 ;
-    promo:label "K" ;
-    promo:network "reactions" ;
-    promo:port_variable false ;
-    promo:type "conversion" .
-
-promo:Ko a promo:variable ;
-    promo:doc "Arrhenius frequency factor" ;
-    promo:expression_list promo:expression_list_V_175 ;
-    promo:index_structures promo:index_structures_V_175 ;
-    promo:label "Ko" ;
-    promo:network "reactions" ;
-    promo:port_variable false ;
-    promo:type "constant" .
-
-promo:S_Iq a promo:variable ;
-    promo:doc "selection matrix interface to control output" ;
-    promo:expression_list promo:expression_list_V_10 ;
-    promo:index_structures promo:index_structures_V_10 ;
-    promo:label "S_Iq" ;
-    promo:network "root" ;
     promo:port_variable true ;
-    promo:type "network" .
+    promo:type "constant" .
 
-promo:T a promo:variable ;
-    promo:doc "link variable _T to interface reactions" ;
-    promo:expression_list promo:expression_list_V_167 ;
-    promo:index_structures promo:index_structures_V_167 ;
-    promo:label "T" ;
-    promo:network "reactions" ;
+promo:R a promo:variable ;
+    promo:doc "gas constant" ;
+    promo:expression_list promo:expression_list_V_123 ;
+    promo:index_structures promo:index_structures_V_123 ;
+    promo:label "R" ;
+    promo:network "physical" ;
     promo:port_variable false ;
-    promo:type "effort" .
-
-promo:V a promo:variable ;
-    promo:doc "link variable _V to interface reactions" ;
-    promo:expression_list promo:expression_list_V_171 ;
-    promo:index_structures promo:index_structures_V_171 ;
-    promo:label "V" ;
-    promo:network "reactions" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
+    promo:type "constant" .
 
 promo:_T a promo:variable ;
     promo:doc "link variable _T to interface macroscopic >>> reactions with source:node" ;
@@ -718,24 +628,6 @@ promo:_c a promo:variable ;
     promo:port_variable false ;
     promo:type "get" .
 
-promo:_nt a promo:variable ;
-    promo:doc "link variable _nt to interface macroscopic >>> reactions with source:node" ;
-    promo:expression_list promo:expression_list_V_172 ;
-    promo:index_structures promo:index_structures_V_172 ;
-    promo:label "_nt" ;
-    promo:network "macroscopic >>> reactions" ;
-    promo:port_variable false ;
-    promo:type "get" .
-
-promo:_pn a promo:variable ;
-    promo:doc "link variable _pn to interface reactions >>> macroscopic with source:node" ;
-    promo:expression_list promo:expression_list_V_178 ;
-    promo:index_structures promo:index_structures_V_178 ;
-    promo:label "_pn" ;
-    promo:network "reactions >>> macroscopic" ;
-    promo:port_variable false ;
-    promo:type "get" .
-
 promo:_x a promo:variable ;
     promo:doc "link variable _x to interface macroscopic >>> reactions with source:node" ;
     promo:expression_list promo:expression_list_V_164 ;
@@ -744,6 +636,33 @@ promo:_x a promo:variable ;
     promo:network "macroscopic >>> reactions" ;
     promo:port_variable false ;
     promo:type "get" .
+
+promo:an a promo:variable ;
+    promo:doc "differential mass balance without reaction" ;
+    promo:expression_list promo:expression_list_V_196 ;
+    promo:index_structures promo:index_structures_V_196 ;
+    promo:label "an" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "diffState" .
+
+promo:anc a promo:variable ;
+    promo:doc "accumulation of molar mass due to convection" ;
+    promo:expression_list promo:expression_list_V_194 ;
+    promo:index_structures promo:index_structures_V_194 ;
+    promo:label "anc" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "transport" .
+
+promo:and_x a promo:variable ;
+    promo:doc "accumulation due to diffusion in x-direction" ;
+    promo:expression_list promo:expression_list_V_195 ;
+    promo:index_structures promo:index_structures_V_195 ;
+    promo:label "and_x" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "transport" .
 
 promo:blockIndex a rdfs:class .
 
@@ -858,174 +777,6 @@ promo:expression_list_E_2 rdf:_0 promo:Instantiate ;
     rdf:_4 promo:value ;
     rdf:_5 promo:right_round .
 
-promo:expression_list_E_20 rdf:_0 promo:inv ;
-    rdf:_1 promo:left_round ;
-    rdf:_2 qudt:Volume ;
-    rdf:_3 promo:right_round ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:Cp ;
-    rdf:_6 promo:Hadamard ;
-    rdf:_7 promo:v_x .
-
-promo:expression_list_E_21 rdf:_0 promo:inv ;
-    rdf:_1 promo:left_round ;
-    rdf:_2 qudt:Volume ;
-    rdf:_3 promo:right_round ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:Cp ;
-    rdf:_6 promo:Hadamard ;
-    rdf:_7 promo:v_y .
-
-promo:expression_list_E_22 rdf:_0 promo:inv ;
-    rdf:_1 promo:left_round ;
-    rdf:_2 qudt:Volume ;
-    rdf:_3 promo:right_round ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:Cp ;
-    rdf:_6 promo:Hadamard ;
-    rdf:_7 promo:v_z .
-
-promo:expression_list_E_23 rdf:_0 promo:inv ;
-    rdf:_1 promo:left_round ;
-    rdf:_10 promo:left_round ;
-    rdf:_11 qudt:Volume ;
-    rdf:_12 promo:right_round ;
-    rdf:_13 promo:Hadamard ;
-    rdf:_14 promo:ParDiff ;
-    rdf:_15 promo:left_round ;
-    rdf:_16 qudt:EnergyInternal ;
-    rdf:_17 promo:comma ;
-    rdf:_18 qudt:ChemicalPotential ;
-    rdf:_19 promo:right_round ;
-    rdf:_2 qudt:ChemicalPotential ;
-    rdf:_20 promo:right_round ;
-    rdf:_21 promo:right_round ;
-    rdf:_3 promo:right_round ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:left_round ;
-    rdf:_6 promo:v_x ;
-    rdf:_7 promo:Hadamard ;
-    rdf:_8 promo:left_round ;
-    rdf:_9 promo:inv .
-
-promo:expression_list_E_24 rdf:_0 promo:inv ;
-    rdf:_1 promo:left_round ;
-    rdf:_10 promo:left_round ;
-    rdf:_11 qudt:Volume ;
-    rdf:_12 promo:right_round ;
-    rdf:_13 promo:Hadamard ;
-    rdf:_14 promo:ParDiff ;
-    rdf:_15 promo:left_round ;
-    rdf:_16 qudt:EnergyInternal ;
-    rdf:_17 promo:comma ;
-    rdf:_18 qudt:ChemicalPotential ;
-    rdf:_19 promo:right_round ;
-    rdf:_2 qudt:ChemicalPotential ;
-    rdf:_20 promo:right_round ;
-    rdf:_21 promo:right_round ;
-    rdf:_3 promo:right_round ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:left_round ;
-    rdf:_6 promo:v_y ;
-    rdf:_7 promo:Hadamard ;
-    rdf:_8 promo:left_round ;
-    rdf:_9 promo:inv .
-
-promo:expression_list_E_25 rdf:_0 promo:inv ;
-    rdf:_1 promo:left_round ;
-    rdf:_10 promo:left_round ;
-    rdf:_11 qudt:Volume ;
-    rdf:_12 promo:right_round ;
-    rdf:_13 promo:Hadamard ;
-    rdf:_14 promo:ParDiff ;
-    rdf:_15 promo:left_round ;
-    rdf:_16 qudt:EnergyInternal ;
-    rdf:_17 promo:comma ;
-    rdf:_18 qudt:ChemicalPotential ;
-    rdf:_19 promo:right_round ;
-    rdf:_2 qudt:ChemicalPotential ;
-    rdf:_20 promo:right_round ;
-    rdf:_21 promo:right_round ;
-    rdf:_3 promo:right_round ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:left_round ;
-    rdf:_6 promo:v_z ;
-    rdf:_7 promo:Hadamard ;
-    rdf:_8 promo:left_round ;
-    rdf:_9 promo:inv .
-
-promo:expression_list_E_26 rdf:_0 promo:left_round ;
-    rdf:_1 promo:Mm ;
-    rdf:_10 promo:Hadamard ;
-    rdf:_11 promo:inv ;
-    rdf:_12 promo:left_round ;
-    rdf:_13 qudt:Volume ;
-    rdf:_14 promo:right_round ;
-    rdf:_15 promo:Hadamard ;
-    rdf:_16 promo:ParDiff ;
-    rdf:_17 promo:left_round ;
-    rdf:_18 qudt:EnergyInternal ;
-    rdf:_19 promo:comma ;
-    rdf:_20 qudt:Pressure ;
-    rdf:_21 promo:right_round ;
-    rdf:_22 promo:Hadamard ;
-    rdf:_23 promo:v_x ;
-    rdf:_3 promo:reduceProduct ;
-    rdf:_4 promo:I_4 ;
-    rdf:_5 promo:inv ;
-    rdf:_6 promo:left_round ;
-    rdf:_7 qudt:ChemicalPotential ;
-    rdf:_8 promo:right_round ;
-    rdf:_9 promo:right_round .
-
-promo:expression_list_E_27 rdf:_0 promo:left_round ;
-    rdf:_1 promo:Mm ;
-    rdf:_10 promo:Hadamard ;
-    rdf:_11 promo:inv ;
-    rdf:_12 promo:left_round ;
-    rdf:_13 qudt:Volume ;
-    rdf:_14 promo:right_round ;
-    rdf:_15 promo:Hadamard ;
-    rdf:_16 promo:ParDiff ;
-    rdf:_17 promo:left_round ;
-    rdf:_18 qudt:EnergyInternal ;
-    rdf:_19 promo:comma ;
-    rdf:_20 qudt:Pressure ;
-    rdf:_21 promo:right_round ;
-    rdf:_22 promo:Hadamard ;
-    rdf:_23 promo:v_y ;
-    rdf:_3 promo:reduceProduct ;
-    rdf:_4 promo:I_4 ;
-    rdf:_5 promo:inv ;
-    rdf:_6 promo:left_round ;
-    rdf:_7 qudt:ChemicalPotential ;
-    rdf:_8 promo:right_round ;
-    rdf:_9 promo:right_round .
-
-promo:expression_list_E_28 rdf:_0 promo:left_round ;
-    rdf:_1 promo:Mm ;
-    rdf:_10 promo:Hadamard ;
-    rdf:_11 promo:inv ;
-    rdf:_12 promo:left_round ;
-    rdf:_13 qudt:Volume ;
-    rdf:_14 promo:right_round ;
-    rdf:_15 promo:Hadamard ;
-    rdf:_16 promo:ParDiff ;
-    rdf:_17 promo:left_round ;
-    rdf:_18 qudt:EnergyInternal ;
-    rdf:_19 promo:comma ;
-    rdf:_20 qudt:Pressure ;
-    rdf:_21 promo:right_round ;
-    rdf:_22 promo:Hadamard ;
-    rdf:_23 promo:v_z ;
-    rdf:_3 promo:reduceProduct ;
-    rdf:_4 promo:I_4 ;
-    rdf:_5 promo:inv ;
-    rdf:_6 promo:left_round ;
-    rdf:_7 qudt:ChemicalPotential ;
-    rdf:_8 promo:right_round ;
-    rdf:_9 promo:right_round .
-
 promo:expression_list_E_29 rdf:_0 qudt:Enthalpy ;
     rdf:_1 promo:Hadamard ;
     rdf:_2 promo:inv ;
@@ -1087,48 +838,6 @@ promo:expression_list_E_36 rdf:_0 promo:inv ;
     rdf:_4 promo:Hadamard ;
     rdf:_5 qudt:Mass .
 
-promo:expression_list_E_37 rdf:_0 promo:v_x ;
-    rdf:_1 promo:Hadamard ;
-    rdf:_10 promo:left_round ;
-    rdf:_11 qudt:MolarMass ;
-    rdf:_12 promo:right_round ;
-    rdf:_2 promo:ParDiff ;
-    rdf:_3 promo:left_round ;
-    rdf:_4 qudt:EnergyInternal ;
-    rdf:_5 promo:comma ;
-    rdf:_6 qudt:ChemicalPotential ;
-    rdf:_7 promo:right_round ;
-    rdf:_8 promo:Hadamard ;
-    rdf:_9 promo:inv .
-
-promo:expression_list_E_38 rdf:_0 promo:v_y ;
-    rdf:_1 promo:Hadamard ;
-    rdf:_10 promo:left_round ;
-    rdf:_11 qudt:MolarMass ;
-    rdf:_12 promo:right_round ;
-    rdf:_2 promo:ParDiff ;
-    rdf:_3 promo:left_round ;
-    rdf:_4 qudt:EnergyInternal ;
-    rdf:_5 promo:comma ;
-    rdf:_6 qudt:ChemicalPotential ;
-    rdf:_7 promo:right_round ;
-    rdf:_8 promo:Hadamard ;
-    rdf:_9 promo:inv .
-
-promo:expression_list_E_39 rdf:_0 promo:v_z ;
-    rdf:_1 promo:Hadamard ;
-    rdf:_10 promo:left_round ;
-    rdf:_11 qudt:MolarMass ;
-    rdf:_12 promo:right_round ;
-    rdf:_2 promo:ParDiff ;
-    rdf:_3 promo:left_round ;
-    rdf:_4 qudt:EnergyInternal ;
-    rdf:_5 promo:comma ;
-    rdf:_6 qudt:ChemicalPotential ;
-    rdf:_7 promo:right_round ;
-    rdf:_8 promo:Hadamard ;
-    rdf:_9 promo:inv .
-
 promo:expression_list_E_4 rdf:_0 promo:Instantiate ;
     rdf:_1 promo:left_round ;
     rdf:_2 qudt:Time ;
@@ -1148,65 +857,55 @@ promo:expression_list_E_42 rdf:_0 promo:r_y ;
     rdf:_1 promo:Hadamard ;
     rdf:_2 promo:r_z .
 
-promo:expression_list_E_43 rdf:_0 promo:left_round ;
-    rdf:_1 promo:kq_x ;
-    rdf:_10 qudt:Temperature ;
-    rdf:_2 promo:Hadamard ;
-    rdf:_3 promo:Ayz ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:F ;
-    rdf:_6 promo:right_round ;
-    rdf:_8 promo:reduceProduct ;
-    rdf:_9 promo:I_1 .
+promo:expression_list_E_43 rdf:_0 promo:kqA_x ;
+    rdf:_1 promo:Hadamard ;
+    rdf:_2 promo:Ayz ;
+    rdf:_3 promo:Hadamard ;
+    rdf:_4 promo:F ;
+    rdf:_6 promo:reduceProduct ;
+    rdf:_7 promo:I_1 ;
+    rdf:_8 qudt:Temperature .
 
-promo:expression_list_E_44 rdf:_0 promo:left_round ;
-    rdf:_1 promo:kq_x ;
-    rdf:_10 qudt:Temperature ;
-    rdf:_2 promo:Hadamard ;
-    rdf:_3 promo:Axz ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:F ;
-    rdf:_6 promo:right_round ;
-    rdf:_8 promo:reduceProduct ;
-    rdf:_9 promo:I_1 .
+promo:expression_list_E_44 rdf:_0 promo:kqA_y ;
+    rdf:_1 promo:Hadamard ;
+    rdf:_2 promo:Axz ;
+    rdf:_3 promo:Hadamard ;
+    rdf:_4 promo:F ;
+    rdf:_6 promo:reduceProduct ;
+    rdf:_7 promo:I_1 ;
+    rdf:_8 qudt:Temperature .
 
-promo:expression_list_E_45 rdf:_0 promo:left_round ;
-    rdf:_1 promo:kq_x ;
-    rdf:_10 qudt:Temperature ;
-    rdf:_2 promo:Hadamard ;
-    rdf:_3 promo:Axy ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:F ;
-    rdf:_6 promo:right_round ;
-    rdf:_8 promo:reduceProduct ;
-    rdf:_9 promo:I_1 .
+promo:expression_list_E_45 rdf:_0 promo:kqA_z ;
+    rdf:_1 promo:Hadamard ;
+    rdf:_2 promo:Axy ;
+    rdf:_3 promo:Hadamard ;
+    rdf:_4 promo:F ;
+    rdf:_6 promo:reduceProduct ;
+    rdf:_7 promo:I_1 ;
+    rdf:_8 qudt:Temperature .
 
-promo:expression_list_E_46 rdf:_0 promo:left_round ;
-    rdf:_1 promo:kdFick_x ;
+promo:expression_list_E_46 rdf:_0 promo:kdAFick_x ;
+    rdf:_1 promo:Hadamard ;
+    rdf:_2 promo:Ayz ;
+    rdf:_3 promo:Hadamard ;
+    rdf:_4 promo:F ;
+    rdf:_6 promo:reduceProduct ;
+    rdf:_7 promo:I_1 ;
+    rdf:_8 promo:c .
+
+promo:expression_list_E_47 rdf:_0 promo:kdAFick_y ;
+    rdf:_1 promo:Hadamard ;
+    rdf:_2 promo:Axz ;
+    rdf:_3 promo:Hadamard ;
+    rdf:_4 promo:F ;
+    rdf:_6 promo:reduceProduct ;
+    rdf:_7 promo:I_1 ;
+    rdf:_8 promo:c .
+
+promo:expression_list_E_48 rdf:_0 promo:kdAFick_z ;
+    rdf:_1 promo:Hadamard ;
     rdf:_10 promo:c ;
-    rdf:_2 promo:Hadamard ;
-    rdf:_3 promo:Ayz ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:F ;
-    rdf:_6 promo:right_round ;
-    rdf:_8 promo:reduceProduct ;
-    rdf:_9 promo:I_1 .
-
-promo:expression_list_E_47 rdf:_0 promo:left_round ;
-    rdf:_1 promo:kdFick_y ;
-    rdf:_10 promo:c ;
-    rdf:_2 promo:Hadamard ;
-    rdf:_3 promo:Axz ;
-    rdf:_4 promo:Hadamard ;
-    rdf:_5 promo:F ;
-    rdf:_6 promo:right_round ;
-    rdf:_8 promo:reduceProduct ;
-    rdf:_9 promo:I_1 .
-
-promo:expression_list_E_48 rdf:_0 promo:left_round ;
-    rdf:_1 promo:kdFick_z ;
-    rdf:_10 promo:c ;
-    rdf:_2 promo:Hadamard ;
+    rdf:_2 promo:left_round ;
     rdf:_3 promo:Axy ;
     rdf:_4 promo:Hadamard ;
     rdf:_5 promo:F ;
@@ -1247,21 +946,19 @@ promo:expression_list_E_50 rdf:_0 promo:left_round ;
     rdf:_8 promo:abs ;
     rdf:_9 promo:left_round .
 
-promo:expression_list_E_51 rdf:_0 promo:left_round ;
-    rdf:_1 promo:inv ;
-    rdf:_10 promo:F ;
-    rdf:_11 promo:right_round ;
-    rdf:_13 promo:reduceProduct ;
-    rdf:_14 promo:I_1 ;
-    rdf:_15 qudt:Pressure ;
-    rdf:_2 promo:left_round ;
-    rdf:_3 promo:rho ;
-    rdf:_4 promo:right_round ;
-    rdf:_5 promo:Hadamard ;
-    rdf:_6 promo:kc_x ;
-    rdf:_7 promo:Hadamard ;
-    rdf:_8 promo:Ayz ;
-    rdf:_9 promo:Hadamard .
+promo:expression_list_E_51 rdf:_0 promo:inv ;
+    rdf:_1 promo:left_round ;
+    rdf:_11 promo:reduceProduct ;
+    rdf:_12 promo:I_1 ;
+    rdf:_13 qudt:Pressure ;
+    rdf:_2 promo:rhoA ;
+    rdf:_3 promo:right_round ;
+    rdf:_4 promo:Hadamard ;
+    rdf:_5 promo:kcA_x ;
+    rdf:_6 promo:Hadamard ;
+    rdf:_7 promo:Ayz ;
+    rdf:_8 promo:Hadamard ;
+    rdf:_9 promo:F .
 
 promo:expression_list_E_52 rdf:_0 promo:fV ;
     rdf:_1 promo:Hadamard ;
@@ -1366,102 +1063,196 @@ promo:expression_list_E_64 rdf:_0 promo:left_round ;
     rdf:_7 promo:I_3 ;
     rdf:_8 promo:S_Ip .
 
-promo:expression_list_E_65 rdf:_0 promo:F_NI_source ;
-    rdf:_2 promo:reduceProduct ;
-    rdf:_3 promo:I_1 ;
-    rdf:_4 promo:nt .
-
-promo:expression_list_E_66 rdf:_0 promo:left_round ;
-    rdf:_1 promo:F_NI_sink ;
-    rdf:_2 promo:Hadamard ;
-    rdf:_3 promo:_nt ;
-    rdf:_4 promo:right_round ;
-    rdf:_6 promo:reduceProduct ;
-    rdf:_7 promo:I_3 ;
-    rdf:_8 promo:S_Ip .
-
-promo:expression_list_E_67 rdf:_0 promo:Instantiate ;
-    rdf:_1 promo:left_round ;
-    rdf:_10 promo:right_round ;
-    rdf:_2 qudt:EnergyInternal ;
-    rdf:_3 promo:Hadamard ;
-    rdf:_4 promo:inv ;
-    rdf:_5 promo:left_round ;
-    rdf:_6 promo:nt ;
-    rdf:_7 promo:right_round ;
-    rdf:_8 promo:comma ;
-    rdf:_9 promo:value .
-
-promo:expression_list_E_68 rdf:_0 promo:Instantiate ;
-    rdf:_1 promo:left_round ;
-    rdf:_10 promo:comma ;
-    rdf:_11 promo:value ;
-    rdf:_12 promo:right_round ;
-    rdf:_2 promo:rho ;
-    rdf:_3 promo:Hadamard ;
-    rdf:_4 promo:inv ;
-    rdf:_5 promo:left_round ;
-    rdf:_6 promo:Mm ;
-    rdf:_7 promo:Hadamard ;
-    rdf:_8 qudt:Time ;
-    rdf:_9 promo:right_round .
-
-promo:expression_list_E_69 rdf:_0 promo:Ko ;
-    rdf:_1 promo:Hadamard ;
-    rdf:_10 promo:T ;
-    rdf:_11 promo:right_round ;
-    rdf:_12 promo:right_round ;
-    rdf:_2 promo:exp ;
-    rdf:_3 promo:left_round ;
-    rdf:_4 promo:Ea ;
-    rdf:_5 promo:Hadamard ;
-    rdf:_6 promo:inv ;
-    rdf:_7 promo:left_round ;
-    rdf:_8 promo:R ;
-    rdf:_9 promo:Hadamard .
-
 promo:expression_list_E_7 rdf:_0 promo:r_x ;
     rdf:_1 promo:Hadamard ;
     rdf:_2 promo:r_y ;
     rdf:_3 promo:Hadamard ;
     rdf:_4 promo:r_z .
 
-promo:expression_list_E_70 rdf:_0 promo:A_Npq ;
-    rdf:_11 promo:I_5 ;
-    rdf:_12 promo:left_round ;
-    rdf:_13 promo:K ;
-    rdf:_14 promo:Hadamard ;
-    rdf:_15 promo:probability ;
-    rdf:_16 promo:right_round ;
+promo:expression_list_E_73 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:left_round ;
+    rdf:_11 promo:v_x ;
+    rdf:_12 promo:Hadamard ;
+    rdf:_13 promo:left_round ;
+    rdf:_14 promo:inv ;
+    rdf:_15 promo:left_round ;
+    rdf:_16 qudt:Volume ;
     rdf:_17 promo:right_round ;
+    rdf:_18 promo:Hadamard ;
+    rdf:_19 promo:ParDiff ;
     rdf:_2 promo:reduceProduct ;
-    rdf:_3 promo:I_8 ;
+    rdf:_20 promo:left_round ;
+    rdf:_21 qudt:EnergyInternal ;
+    rdf:_22 promo:comma ;
+    rdf:_23 qudt:ChemicalPotential ;
+    rdf:_24 promo:right_round ;
+    rdf:_25 promo:right_round ;
+    rdf:_26 promo:right_round ;
+    rdf:_27 promo:right_round ;
+    rdf:_3 promo:I_1 ;
     rdf:_4 promo:left_round ;
-    rdf:_5 promo:V ;
-    rdf:_6 promo:Hadamard ;
-    rdf:_7 promo:N ;
-    rdf:_9 promo:reduceProduct .
+    rdf:_5 promo:inv ;
+    rdf:_6 promo:left_round ;
+    rdf:_7 qudt:ChemicalPotential ;
+    rdf:_8 promo:right_round ;
+    rdf:_9 promo:Hadamard .
 
-promo:expression_list_E_71 rdf:_0 promo:reducteSum ;
-    rdf:_1 promo:left_round ;
-    rdf:_10 promo:Hadamard ;
-    rdf:_11 promo:S_Iq ;
-    rdf:_12 promo:right_round ;
-    rdf:_13 promo:comma ;
-    rdf:_14 promo:I_8 ;
-    rdf:_15 promo:right_round ;
-    rdf:_2 promo:left_round ;
-    rdf:_3 promo:left_round ;
-    rdf:_4 promo:F_NI_source ;
-    rdf:_6 promo:reduceProduct ;
-    rdf:_7 promo:I_1 ;
-    rdf:_8 promo:pn ;
-    rdf:_9 promo:right_round .
-
-promo:expression_list_E_72 rdf:_0 promo:F_NI_source ;
+promo:expression_list_E_74 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:left_round ;
+    rdf:_11 promo:v_y ;
+    rdf:_12 promo:Hadamard ;
+    rdf:_13 promo:left_round ;
+    rdf:_14 promo:inv ;
+    rdf:_15 promo:left_round ;
+    rdf:_16 qudt:Volume ;
+    rdf:_17 promo:right_round ;
+    rdf:_18 promo:Hadamard ;
+    rdf:_19 promo:ParDiff ;
     rdf:_2 promo:reduceProduct ;
-    rdf:_3 promo:I_3 ;
-    rdf:_4 promo:_pn .
+    rdf:_20 promo:left_round ;
+    rdf:_21 qudt:EnergyInternal ;
+    rdf:_22 promo:comma ;
+    rdf:_23 qudt:ChemicalPotential ;
+    rdf:_24 promo:right_round ;
+    rdf:_25 promo:right_round ;
+    rdf:_26 promo:right_round ;
+    rdf:_27 promo:right_round ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:inv ;
+    rdf:_6 promo:left_round ;
+    rdf:_7 qudt:ChemicalPotential ;
+    rdf:_8 promo:right_round ;
+    rdf:_9 promo:Hadamard .
+
+promo:expression_list_E_75 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:left_round ;
+    rdf:_11 promo:v_z ;
+    rdf:_12 promo:Hadamard ;
+    rdf:_13 promo:left_round ;
+    rdf:_14 promo:inv ;
+    rdf:_15 promo:left_round ;
+    rdf:_16 qudt:Volume ;
+    rdf:_17 promo:right_round ;
+    rdf:_18 promo:Hadamard ;
+    rdf:_19 promo:ParDiff ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_20 promo:left_round ;
+    rdf:_21 qudt:EnergyInternal ;
+    rdf:_22 promo:comma ;
+    rdf:_23 qudt:ChemicalPotential ;
+    rdf:_24 promo:right_round ;
+    rdf:_25 promo:right_round ;
+    rdf:_26 promo:right_round ;
+    rdf:_27 promo:right_round ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:inv ;
+    rdf:_6 promo:left_round ;
+    rdf:_7 qudt:ChemicalPotential ;
+    rdf:_8 promo:right_round ;
+    rdf:_9 promo:Hadamard .
+
+promo:expression_list_E_76 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:inv ;
+    rdf:_11 promo:left_round ;
+    rdf:_12 qudt:ChemicalPotential ;
+    rdf:_13 promo:right_round ;
+    rdf:_14 promo:right_round ;
+    rdf:_15 promo:Hadamard ;
+    rdf:_16 promo:inv ;
+    rdf:_17 promo:left_round ;
+    rdf:_18 qudt:Volume ;
+    rdf:_19 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_20 promo:Hadamard ;
+    rdf:_21 promo:ParDiff ;
+    rdf:_22 promo:left_round ;
+    rdf:_23 qudt:EnergyInternal ;
+    rdf:_24 promo:comma ;
+    rdf:_25 qudt:Pressure ;
+    rdf:_26 promo:right_round ;
+    rdf:_27 promo:Hadamard ;
+    rdf:_28 promo:v_x ;
+    rdf:_29 promo:right_round ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:left_round ;
+    rdf:_6 promo:Mm ;
+    rdf:_8 promo:reduceProduct ;
+    rdf:_9 promo:I_4 .
+
+promo:expression_list_E_77 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:inv ;
+    rdf:_11 promo:left_round ;
+    rdf:_12 qudt:ChemicalPotential ;
+    rdf:_13 promo:right_round ;
+    rdf:_14 promo:right_round ;
+    rdf:_15 promo:Hadamard ;
+    rdf:_16 promo:inv ;
+    rdf:_17 promo:left_round ;
+    rdf:_18 qudt:Volume ;
+    rdf:_19 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_20 promo:Hadamard ;
+    rdf:_21 promo:ParDiff ;
+    rdf:_22 promo:left_round ;
+    rdf:_23 qudt:EnergyInternal ;
+    rdf:_24 promo:comma ;
+    rdf:_25 qudt:Pressure ;
+    rdf:_26 promo:right_round ;
+    rdf:_27 promo:Hadamard ;
+    rdf:_28 promo:v_y ;
+    rdf:_29 promo:right_round ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:left_round ;
+    rdf:_6 promo:Mm ;
+    rdf:_8 promo:reduceProduct ;
+    rdf:_9 promo:I_4 .
+
+promo:expression_list_E_78 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:inv ;
+    rdf:_11 promo:left_round ;
+    rdf:_12 qudt:ChemicalPotential ;
+    rdf:_13 promo:right_round ;
+    rdf:_14 promo:right_round ;
+    rdf:_15 promo:Hadamard ;
+    rdf:_16 promo:inv ;
+    rdf:_17 promo:left_round ;
+    rdf:_18 qudt:Volume ;
+    rdf:_19 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_20 promo:Hadamard ;
+    rdf:_21 promo:ParDiff ;
+    rdf:_22 promo:left_round ;
+    rdf:_23 qudt:EnergyInternal ;
+    rdf:_24 promo:comma ;
+    rdf:_25 qudt:Pressure ;
+    rdf:_26 promo:right_round ;
+    rdf:_27 promo:Hadamard ;
+    rdf:_28 promo:v_z ;
+    rdf:_29 promo:right_round ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:left_round ;
+    rdf:_6 promo:Mm ;
+    rdf:_8 promo:reduceProduct ;
+    rdf:_9 promo:I_4 .
+
+promo:expression_list_E_79 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:Cp ;
+    rdf:_11 promo:Hadamard ;
+    rdf:_12 promo:v_x ;
+    rdf:_13 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:inv ;
+    rdf:_6 promo:left_round ;
+    rdf:_7 qudt:Volume ;
+    rdf:_8 promo:right_round ;
+    rdf:_9 promo:Hadamard .
 
 promo:expression_list_E_8 rdf:_0 promo:ParDiff ;
     rdf:_1 promo:left_round ;
@@ -1470,12 +1261,167 @@ promo:expression_list_E_8 rdf:_0 promo:ParDiff ;
     rdf:_4 qudt:Volume ;
     rdf:_5 promo:right_round .
 
+promo:expression_list_E_80 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:Cp ;
+    rdf:_11 promo:Hadamard ;
+    rdf:_12 promo:v_y ;
+    rdf:_13 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:inv ;
+    rdf:_6 promo:left_round ;
+    rdf:_7 qudt:Volume ;
+    rdf:_8 promo:right_round ;
+    rdf:_9 promo:Hadamard .
+
+promo:expression_list_E_81 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:Cp ;
+    rdf:_11 promo:Hadamard ;
+    rdf:_12 promo:v_z ;
+    rdf:_13 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:inv ;
+    rdf:_6 promo:left_round ;
+    rdf:_7 qudt:Volume ;
+    rdf:_8 promo:right_round ;
+    rdf:_9 promo:Hadamard .
+
+promo:expression_list_E_82 rdf:_0 promo:I_NA ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:rho .
+
+promo:expression_list_E_83 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:comma ;
+    rdf:_11 qudt:ChemicalPotential ;
+    rdf:_12 promo:right_round ;
+    rdf:_13 promo:Hadamard ;
+    rdf:_14 promo:inv ;
+    rdf:_15 promo:left_round ;
+    rdf:_16 qudt:MolarMass ;
+    rdf:_17 promo:right_round ;
+    rdf:_18 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:v_x ;
+    rdf:_6 promo:Hadamard ;
+    rdf:_7 promo:ParDiff ;
+    rdf:_8 promo:left_round ;
+    rdf:_9 qudt:EnergyInternal .
+
+promo:expression_list_E_84 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:comma ;
+    rdf:_11 qudt:ChemicalPotential ;
+    rdf:_12 promo:right_round ;
+    rdf:_13 promo:Hadamard ;
+    rdf:_14 promo:inv ;
+    rdf:_15 promo:left_round ;
+    rdf:_16 qudt:MolarMass ;
+    rdf:_17 promo:right_round ;
+    rdf:_18 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:v_y ;
+    rdf:_6 promo:Hadamard ;
+    rdf:_7 promo:ParDiff ;
+    rdf:_8 promo:left_round ;
+    rdf:_9 qudt:EnergyInternal .
+
+promo:expression_list_E_85 rdf:_0 promo:I_NA ;
+    rdf:_10 promo:comma ;
+    rdf:_11 qudt:ChemicalPotential ;
+    rdf:_12 promo:right_round ;
+    rdf:_13 promo:Hadamard ;
+    rdf:_14 promo:inv ;
+    rdf:_15 promo:left_round ;
+    rdf:_16 qudt:MolarMass ;
+    rdf:_17 promo:right_round ;
+    rdf:_18 promo:right_round ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:left_round ;
+    rdf:_5 promo:v_z ;
+    rdf:_6 promo:Hadamard ;
+    rdf:_7 promo:ParDiff ;
+    rdf:_8 promo:left_round ;
+    rdf:_9 qudt:EnergyInternal .
+
+promo:expression_list_E_86 rdf:_0 promo:I_NA ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_1 ;
+    rdf:_4 promo:h .
+
+promo:expression_list_E_87 rdf:_0 promo:F ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_2 ;
+    rdf:_4 promo:fnc_x .
+
+promo:expression_list_E_88 rdf:_0 promo:F ;
+    rdf:_2 promo:reduceProduct ;
+    rdf:_3 promo:I_2 ;
+    rdf:_4 promo:fnd_x .
+
+promo:expression_list_E_89 rdf:_0 promo:kdA_x ;
+    rdf:_1 promo:Hadamard ;
+    rdf:_10 qudt:ChemicalPotential ;
+    rdf:_2 promo:left_round ;
+    rdf:_3 promo:Ayz ;
+    rdf:_4 promo:Hadamard ;
+    rdf:_5 promo:F ;
+    rdf:_6 promo:right_round ;
+    rdf:_8 promo:reduceProduct ;
+    rdf:_9 promo:I_1 .
+
 promo:expression_list_E_9 rdf:_0 promo:ParDiff ;
     rdf:_1 promo:left_round ;
     rdf:_2 qudt:EnergyInternal ;
     rdf:_3 promo:comma ;
     rdf:_4 qudt:Entropy ;
     rdf:_5 promo:right_round .
+
+promo:expression_list_E_90 rdf:_0 promo:kdA_y ;
+    rdf:_1 promo:Hadamard ;
+    rdf:_10 qudt:ChemicalPotential ;
+    rdf:_2 promo:left_round ;
+    rdf:_3 promo:Ayz ;
+    rdf:_4 promo:Hadamard ;
+    rdf:_5 promo:F ;
+    rdf:_6 promo:right_round ;
+    rdf:_8 promo:reduceProduct ;
+    rdf:_9 promo:I_1 .
+
+promo:expression_list_E_91 rdf:_0 promo:kdA_z ;
+    rdf:_1 promo:Hadamard ;
+    rdf:_10 qudt:ChemicalPotential ;
+    rdf:_2 promo:left_round ;
+    rdf:_3 promo:Axy ;
+    rdf:_4 promo:Hadamard ;
+    rdf:_5 promo:F ;
+    rdf:_6 promo:right_round ;
+    rdf:_8 promo:reduceProduct ;
+    rdf:_9 promo:I_1 .
+
+promo:expression_list_E_92 rdf:_0 promo:anc ;
+    rdf:_1 promo:plus ;
+    rdf:_2 promo:and_x .
+
+promo:expression_list_E_93 rdf:_0 promo:Integral ;
+    rdf:_1 promo:left_round ;
+    rdf:_10 promo:right_square ;
+    rdf:_11 promo:right_round ;
+    rdf:_2 promo:an ;
+    rdf:_3 promo:double_column ;
+    rdf:_4 qudt:Time ;
+    rdf:_5 promo:in ;
+    rdf:_6 promo:left_square ;
+    rdf:_7 promo:to ;
+    rdf:_8 promo:comma ;
+    rdf:_9 promo:te .
 
 promo:expression_list_V_102 rdf:_0 promo:expression_list_E_1 .
 
@@ -1490,6 +1436,8 @@ promo:expression_list_V_106 rdf:_0 promo:expression_list_E_5 .
 promo:expression_list_V_107 rdf:_0 promo:expression_list_E_6 .
 
 promo:expression_list_V_110 rdf:_0 promo:expression_list_E_7 .
+
+promo:expression_list_V_111 rdf:_0 promo:expression_list_E_93 .
 
 promo:expression_list_V_112 rdf:_0 promo:expression_list_E_8 .
 
@@ -1516,24 +1464,6 @@ promo:expression_list_V_124 rdf:_0 promo:expression_list_E_18 .
 
 promo:expression_list_V_125 rdf:_0 promo:expression_list_E_19 .
 
-promo:expression_list_V_126 rdf:_0 promo:expression_list_E_20 .
-
-promo:expression_list_V_127 rdf:_0 promo:expression_list_E_21 .
-
-promo:expression_list_V_128 rdf:_0 promo:expression_list_E_22 .
-
-promo:expression_list_V_129 rdf:_0 promo:expression_list_E_23 .
-
-promo:expression_list_V_130 rdf:_0 promo:expression_list_E_24 .
-
-promo:expression_list_V_131 rdf:_0 promo:expression_list_E_25 .
-
-promo:expression_list_V_133 rdf:_0 promo:expression_list_E_26 .
-
-promo:expression_list_V_134 rdf:_0 promo:expression_list_E_27 .
-
-promo:expression_list_V_135 rdf:_0 promo:expression_list_E_28 .
-
 promo:expression_list_V_136 rdf:_0 promo:expression_list_E_29 .
 
 promo:expression_list_V_137 rdf:_0 promo:expression_list_E_30 .
@@ -1550,12 +1480,6 @@ promo:expression_list_V_142 rdf:_0 promo:expression_list_E_35 .
 
 promo:expression_list_V_143 rdf:_0 promo:expression_list_E_36 .
 
-promo:expression_list_V_145 rdf:_0 promo:expression_list_E_37 .
-
-promo:expression_list_V_146 rdf:_0 promo:expression_list_E_38 .
-
-promo:expression_list_V_147 rdf:_0 promo:expression_list_E_39 .
-
 promo:expression_list_V_148 rdf:_0 promo:expression_list_E_40 .
 
 promo:expression_list_V_149 rdf:_0 promo:expression_list_E_41 .
@@ -1568,11 +1492,14 @@ promo:expression_list_V_152 rdf:_0 promo:expression_list_E_44 .
 
 promo:expression_list_V_153 rdf:_0 promo:expression_list_E_45 .
 
-promo:expression_list_V_154 rdf:_0 promo:expression_list_E_46 .
+promo:expression_list_V_154 rdf:_0 promo:expression_list_E_46 ;
+    rdf:_1 promo:expression_list_E_89 .
 
-promo:expression_list_V_155 rdf:_0 promo:expression_list_E_47 .
+promo:expression_list_V_155 rdf:_0 promo:expression_list_E_47 ;
+    rdf:_1 promo:expression_list_E_90 .
 
-promo:expression_list_V_156 rdf:_0 promo:expression_list_E_48 .
+promo:expression_list_V_156 rdf:_0 promo:expression_list_E_48 ;
+    rdf:_1 promo:expression_list_E_91 .
 
 promo:expression_list_V_157 rdf:_0 promo:expression_list_E_49 .
 
@@ -1604,21 +1531,39 @@ promo:expression_list_V_170 rdf:_0 promo:expression_list_E_63 .
 
 promo:expression_list_V_171 rdf:_0 promo:expression_list_E_64 .
 
-promo:expression_list_V_172 rdf:_0 promo:expression_list_E_65 .
+promo:expression_list_V_180 rdf:_0 promo:expression_list_E_73 .
 
-promo:expression_list_V_173 rdf:_0 promo:expression_list_E_66 .
+promo:expression_list_V_181 rdf:_0 promo:expression_list_E_74 .
 
-promo:expression_list_V_174 rdf:_0 promo:expression_list_E_67 .
+promo:expression_list_V_182 rdf:_0 promo:expression_list_E_75 .
 
-promo:expression_list_V_175 rdf:_0 promo:expression_list_E_68 .
+promo:expression_list_V_183 rdf:_0 promo:expression_list_E_76 .
 
-promo:expression_list_V_176 rdf:_0 promo:expression_list_E_69 .
+promo:expression_list_V_184 rdf:_0 promo:expression_list_E_77 .
 
-promo:expression_list_V_177 rdf:_0 promo:expression_list_E_70 .
+promo:expression_list_V_185 rdf:_0 promo:expression_list_E_78 .
 
-promo:expression_list_V_178 rdf:_0 promo:expression_list_E_71 .
+promo:expression_list_V_186 rdf:_0 promo:expression_list_E_79 .
 
-promo:expression_list_V_179 rdf:_0 promo:expression_list_E_72 .
+promo:expression_list_V_187 rdf:_0 promo:expression_list_E_80 .
+
+promo:expression_list_V_188 rdf:_0 promo:expression_list_E_81 .
+
+promo:expression_list_V_189 rdf:_0 promo:expression_list_E_82 .
+
+promo:expression_list_V_190 rdf:_0 promo:expression_list_E_83 .
+
+promo:expression_list_V_191 rdf:_0 promo:expression_list_E_84 .
+
+promo:expression_list_V_192 rdf:_0 promo:expression_list_E_85 .
+
+promo:expression_list_V_193 rdf:_0 promo:expression_list_E_86 .
+
+promo:expression_list_V_194 rdf:_0 promo:expression_list_E_87 .
+
+promo:expression_list_V_195 rdf:_0 promo:expression_list_E_88 .
+
+promo:expression_list_V_196 rdf:_0 promo:expression_list_E_92 .
 
 promo:fV a promo:variable ;
     promo:doc "volumetric flow in x-direction" ;
@@ -1637,6 +1582,33 @@ promo:factor a promo:variable ;
     promo:network "reactions" ;
     promo:port_variable false ;
     promo:type "conversion" .
+
+promo:fnc_x a promo:variable ;
+    promo:doc "molar convective flow in x-direction" ;
+    promo:expression_list promo:expression_list_V_160 ;
+    promo:index_structures promo:index_structures_V_160 ;
+    promo:label "fnc_x" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "transport" .
+
+promo:fnd_x a promo:variable ;
+    promo:doc "diffusion flow in x-direction" ;
+    promo:expression_list promo:expression_list_V_154 ;
+    promo:index_structures promo:index_structures_V_154 ;
+    promo:label "fnd_x" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "transport" .
+
+promo:h a promo:variable ;
+    promo:doc "partial molar enthalpies" ;
+    promo:expression_list promo:expression_list_V_136 ;
+    promo:index_structures promo:index_structures_V_136 ;
+    promo:label "h" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "secondaryState" .
 
 promo:index a rdfs:class .
 
@@ -1681,31 +1653,10 @@ promo:index_structures_V_124 rdf:_0 promo: .
 
 promo:index_structures_V_125 rdf:_0 promo: .
 
-promo:index_structures_V_126 rdf:_0 promo: .
-
-promo:index_structures_V_127 rdf:_0 promo: .
-
-promo:index_structures_V_128 rdf:_0 promo: .
-
-promo:index_structures_V_129 rdf:_0 promo: ;
-    rdf:_1 promo: .
-
 promo:index_structures_V_13 rdf:_0 promo: ;
     rdf:_1 promo: .
 
-promo:index_structures_V_130 rdf:_0 promo: ;
-    rdf:_1 promo: .
-
-promo:index_structures_V_131 rdf:_0 promo: ;
-    rdf:_1 promo: .
-
 promo:index_structures_V_132 rdf:_0 promo: .
-
-promo:index_structures_V_133 rdf:_0 promo: .
-
-promo:index_structures_V_134 rdf:_0 promo: .
-
-promo:index_structures_V_135 rdf:_0 promo: .
 
 promo:index_structures_V_136 rdf:_0 promo: ;
     rdf:_1 promo: .
@@ -1731,15 +1682,6 @@ promo:index_structures_V_142 rdf:_0 promo: .
 promo:index_structures_V_143 rdf:_0 promo: .
 
 promo:index_structures_V_144 rdf:_0 promo: .
-
-promo:index_structures_V_145 rdf:_0 promo: ;
-    rdf:_1 promo: .
-
-promo:index_structures_V_146 rdf:_0 promo: ;
-    rdf:_1 promo: .
-
-promo:index_structures_V_147 rdf:_0 promo: ;
-    rdf:_1 promo: .
 
 promo:index_structures_V_148 rdf:_0 promo: .
 
@@ -1816,38 +1758,55 @@ promo:index_structures_V_170 rdf:_0 promo: .
 promo:index_structures_V_171 rdf:_0 promo: ;
     rdf:_1 promo: .
 
-promo:index_structures_V_172 rdf:_0 promo: .
-
-promo:index_structures_V_173 rdf:_0 promo: ;
-    rdf:_1 promo: .
-
-promo:index_structures_V_174 rdf:_0 promo: ;
-    rdf:_1 promo: .
-
-promo:index_structures_V_175 rdf:_0 promo: ;
-    rdf:_1 promo: .
-
-promo:index_structures_V_176 rdf:_0 promo: ;
-    rdf:_1 promo: ;
-    rdf:_2 promo: .
-
-promo:index_structures_V_177 rdf:_0 promo: ;
-    rdf:_1 promo: ;
-    rdf:_2 promo: .
-
-promo:index_structures_V_178 rdf:_0 promo: ;
-    rdf:_1 promo: ;
-    rdf:_2 promo: .
-
-promo:index_structures_V_179 rdf:_0 promo: ;
-    rdf:_1 promo: ;
-    rdf:_2 promo: .
-
 promo:index_structures_V_18 rdf:_0 promo: .
+
+promo:index_structures_V_180 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_181 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_182 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_183 rdf:_0 promo: .
+
+promo:index_structures_V_184 rdf:_0 promo: .
+
+promo:index_structures_V_185 rdf:_0 promo: .
+
+promo:index_structures_V_186 rdf:_0 promo: .
+
+promo:index_structures_V_187 rdf:_0 promo: .
+
+promo:index_structures_V_188 rdf:_0 promo: .
+
+promo:index_structures_V_189 rdf:_0 promo: .
 
 promo:index_structures_V_19 rdf:_0 promo: ;
     rdf:_1 promo: ;
     rdf:_2 promo: .
+
+promo:index_structures_V_190 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_191 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_192 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_193 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_194 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_195 rdf:_0 promo: ;
+    rdf:_1 promo: .
+
+promo:index_structures_V_196 rdf:_0 promo: ;
+    rdf:_1 promo: .
 
 promo:index_structures_V_2 rdf:_0 promo: ;
     rdf:_1 promo: .
@@ -1897,38 +1856,101 @@ promo:index_structures_V_8 rdf:_0 promo: ;
 promo:index_structures_V_9 rdf:_0 promo: ;
     rdf:_1 promo: .
 
-promo:kc_x a promo:variable ;
-    promo:doc "convective mass conductivity in x-direction" ;
-    promo:expression_list promo:expression_list_V_133 ;
-    promo:index_structures promo:index_structures_V_133 ;
-    promo:label "kc_x" ;
+promo:kcA_x a promo:variable ;
+    promo:doc "convective mass conductivity in arc and x diretion" ;
+    promo:expression_list promo:expression_list_V_183 ;
+    promo:index_structures promo:index_structures_V_183 ;
+    promo:label "kcA_x" ;
     promo:network "macroscopic" ;
     promo:port_variable false ;
-    promo:type "secondaryState" .
+    promo:type "properties" .
 
-promo:kdFick_x a promo:variable ;
-    promo:doc "Fick's diffusivity in x-direction" ;
-    promo:expression_list promo:expression_list_V_145 ;
-    promo:index_structures promo:index_structures_V_145 ;
-    promo:label "kdFick_x" ;
+promo:kdAFick_x a promo:variable ;
+    promo:doc "Fick's diffusivity in arc and x-direction" ;
+    promo:expression_list promo:expression_list_V_190 ;
+    promo:index_structures promo:index_structures_V_190 ;
+    promo:label "kdAFick_x" ;
     promo:network "macroscopic" ;
     promo:port_variable false ;
-    promo:type "secondaryState" .
+    promo:type "properties" .
 
-promo:kdFick_y a promo:variable ;
-    promo:doc "Fick's diffusivity in y-direction" ;
-    promo:expression_list promo:expression_list_V_146 ;
-    promo:index_structures promo:index_structures_V_146 ;
-    promo:label "kdFick_y" ;
+promo:kdAFick_y a promo:variable ;
+    promo:doc "Fick diffusivity in arc and y-direction" ;
+    promo:expression_list promo:expression_list_V_191 ;
+    promo:index_structures promo:index_structures_V_191 ;
+    promo:label "kdAFick_y" ;
     promo:network "macroscopic" ;
     promo:port_variable false ;
-    promo:type "secondaryState" .
+    promo:type "properties" .
 
-promo:kdFick_z a promo:variable ;
-    promo:doc "Fick's diffusivity in z-direction" ;
-    promo:expression_list promo:expression_list_V_147 ;
-    promo:index_structures promo:index_structures_V_147 ;
-    promo:label "kdFick_z" ;
+promo:kdAFick_z a promo:variable ;
+    promo:doc "Fick diffusivity in arc and z-direction" ;
+    promo:expression_list promo:expression_list_V_192 ;
+    promo:index_structures promo:index_structures_V_192 ;
+    promo:label "kdAFick_z" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "properties" .
+
+promo:kdA_x a promo:variable ;
+    promo:doc "diffusivity in arc and x-direction" ;
+    promo:expression_list promo:expression_list_V_180 ;
+    promo:index_structures promo:index_structures_V_180 ;
+    promo:label "kdA_x" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "properties" .
+
+promo:kdA_y a promo:variable ;
+    promo:doc "diffusivity in arc and y-direction" ;
+    promo:expression_list promo:expression_list_V_181 ;
+    promo:index_structures promo:index_structures_V_181 ;
+    promo:label "kdA_y" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "properties" .
+
+promo:kdA_z a promo:variable ;
+    promo:doc "diffusivity in arc and z-direction" ;
+    promo:expression_list promo:expression_list_V_182 ;
+    promo:index_structures promo:index_structures_V_182 ;
+    promo:label "kdA_z" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "properties" .
+
+promo:kqA_x a promo:variable ;
+    promo:doc "thermal conductivity in arc and x-direction" ;
+    promo:expression_list promo:expression_list_V_186 ;
+    promo:index_structures promo:index_structures_V_186 ;
+    promo:label "kqA_x" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "properties" .
+
+promo:kqA_y a promo:variable ;
+    promo:doc "thermal conductivity in arc and y-direction" ;
+    promo:expression_list promo:expression_list_V_187 ;
+    promo:index_structures promo:index_structures_V_187 ;
+    promo:label "kqA_y" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "properties" .
+
+promo:kqA_z a promo:variable ;
+    promo:doc "thermal conductivity in arc and z-direction" ;
+    promo:expression_list promo:expression_list_V_188 ;
+    promo:index_structures promo:index_structures_V_188 ;
+    promo:label "kqA_z" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "properties" .
+
+promo:nt a promo:variable ;
+    promo:doc "total number of moles" ;
+    promo:expression_list promo:expression_list_V_139 ;
+    promo:index_structures promo:index_structures_V_139 ;
+    promo:label "nt" ;
     promo:network "macroscopic" ;
     promo:port_variable false ;
     promo:type "secondaryState" .
@@ -1942,27 +1964,41 @@ promo:oneHalf a promo:variable ;
     promo:port_variable false ;
     promo:type "constant" .
 
-promo:pn a promo:variable ;
-    promo:doc "link variable _pn to interface macroscopic",
-        "production term" ;
-    promo:expression_list promo:expression_list_V_177,
-        promo:expression_list_V_179 ;
-    promo:index_structures promo:index_structures_V_177,
-        promo:index_structures_V_179 ;
-    promo:label "pn" ;
-    promo:network "macroscopic",
-        "reactions" ;
+promo:rho a promo:variable ;
+    promo:doc "density" ;
+    promo:expression_list promo:expression_list_V_143 ;
+    promo:index_structures promo:index_structures_V_143 ;
+    promo:label "rho" ;
+    promo:network "physical" ;
     promo:port_variable false ;
-    promo:type "conversion" .
+    promo:type "secondaryState" .
 
-promo:probability a promo:variable ;
-    promo:doc "probability of reaction to take place" ;
-    promo:expression_list promo:expression_list_V_169 ;
-    promo:index_structures promo:index_structures_V_169 ;
-    promo:label "probability" ;
-    promo:network "reactions" ;
+promo:rhoA a promo:variable ;
+    promo:doc "density in arc" ;
+    promo:expression_list promo:expression_list_V_189 ;
+    promo:index_structures promo:index_structures_V_189 ;
+    promo:label "rhoA" ;
+    promo:network "macroscopic" ;
     promo:port_variable false ;
-    promo:type "conversion" .
+    promo:type "properties" .
+
+promo:te a promo:variable ;
+    promo:doc "end time" ;
+    promo:expression_list promo:expression_list_V_106 ;
+    promo:index_structures promo:index_structures_V_106 ;
+    promo:label "te" ;
+    promo:network "root" ;
+    promo:port_variable false ;
+    promo:type "frame" .
+
+promo:to a promo:variable ;
+    promo:doc "starting time" ;
+    promo:expression_list promo:expression_list_V_105 ;
+    promo:index_structures promo:index_structures_V_105 ;
+    promo:label "to" ;
+    promo:network "root" ;
+    promo:port_variable false ;
+    promo:type "frame" .
 
 qudt:AvogadroConstant a promo:variable ;
     promo:doc "Avogadro constant" ;
@@ -1982,47 +2018,11 @@ qudt:BoltzmannConstant a promo:variable ;
     promo:port_variable true ;
     promo:type "constant" .
 
-promo:Axy a promo:variable ;
-    promo:doc "cross sectional area xy" ;
-    promo:expression_list promo:expression_list_V_148 ;
-    promo:index_structures promo:index_structures_V_148 ;
-    promo:label "Axy" ;
-    promo:network "physical" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
-
 promo:Axz a promo:variable ;
     promo:doc "cross sectional are xz" ;
     promo:expression_list promo:expression_list_V_149 ;
     promo:index_structures promo:index_structures_V_149 ;
     promo:label "Axz" ;
-    promo:network "physical" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
-
-promo:N a promo:variable ;
-    promo:doc "stoichiometric matrix" ;
-    promo:expression_list promo:expression_list_V_26 ;
-    promo:index_structures promo:index_structures_V_26 ;
-    promo:label "N" ;
-    promo:network "reactions" ;
-    promo:port_variable true ;
-    promo:type "constant" .
-
-promo:R a promo:variable ;
-    promo:doc "gas constant" ;
-    promo:expression_list promo:expression_list_V_123 ;
-    promo:index_structures promo:index_structures_V_123 ;
-    promo:label "R" ;
-    promo:network "physical" ;
-    promo:port_variable false ;
-    promo:type "constant" .
-
-promo:rho a promo:variable ;
-    promo:doc "density" ;
-    promo:expression_list promo:expression_list_V_143 ;
-    promo:index_structures promo:index_structures_V_143 ;
-    promo:label "rho" ;
     promo:network "physical" ;
     promo:port_variable false ;
     promo:type "secondaryState" .
@@ -2036,39 +2036,16 @@ qudt:Enthalpy a promo:variable ;
     promo:port_variable false ;
     promo:type "state" .
 
-promo:Ayz a promo:variable ;
-    promo:doc "cross sectional area yz" ;
-    promo:expression_list promo:expression_list_V_150 ;
-    promo:index_structures promo:index_structures_V_150 ;
-    promo:label "Ayz" ;
+promo:Axy a promo:variable ;
+    promo:doc "cross sectional area xy" ;
+    promo:expression_list promo:expression_list_V_148 ;
+    promo:index_structures promo:index_structures_V_148 ;
+    promo:label "Axy" ;
     promo:network "physical" ;
     promo:port_variable false ;
     promo:type "secondaryState" .
 
 promo:equation a rdfs:class .
-
-promo:kq_x a promo:variable ;
-    promo:doc "thermal conductivity in x-direction" ;
-    promo:expression_list promo:expression_list_V_126 ;
-    promo:index_structures promo:index_structures_V_126 ;
-    promo:label "kq_x" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "secondaryState" .
-
-promo:nt a promo:variable ;
-    promo:doc "link variable _nt to interface reactions",
-        "total number of moles" ;
-    promo:expression_list promo:expression_list_V_139,
-        promo:expression_list_V_173 ;
-    promo:index_structures promo:index_structures_V_139,
-        promo:index_structures_V_173 ;
-    promo:label "nt" ;
-    promo:network "macroscopic",
-        "reactions" ;
-    promo:port_variable false ;
-    promo:type "secondaryState",
-        "state" .
 
 promo:x a promo:variable ;
     promo:doc "link variable _x to interface reactions",
@@ -2109,6 +2086,42 @@ promo:Cp a promo:variable ;
     promo:network "macroscopic" ;
     promo:port_variable false ;
     promo:type "secondaryState" .
+
+promo:F_NI_sink a promo:variable ;
+    promo:doc "incidence matrix NI sink" ;
+    promo:expression_list promo:expression_list_V_4 ;
+    promo:index_structures promo:index_structures_V_4 ;
+    promo:label "F_NI_sink" ;
+    promo:network "root" ;
+    promo:port_variable true ;
+    promo:type "network" .
+
+promo:F_NI_source a promo:variable ;
+    promo:doc "incidence matrix NI source" ;
+    promo:expression_list promo:expression_list_V_3 ;
+    promo:index_structures promo:index_structures_V_3 ;
+    promo:label "F_NI_source" ;
+    promo:network "root" ;
+    promo:port_variable true ;
+    promo:type "network" .
+
+promo:Mm a promo:variable ;
+    promo:doc "molecular masses" ;
+    promo:expression_list promo:expression_list_V_132 ;
+    promo:index_structures promo:index_structures_V_132 ;
+    promo:label "Mm" ;
+    promo:network "physical" ;
+    promo:port_variable true ;
+    promo:type "constant" .
+
+promo:S_Ip a promo:variable ;
+    promo:doc "selection matrix interface to control input" ;
+    promo:expression_list promo:expression_list_V_9 ;
+    promo:index_structures promo:index_structures_V_9 ;
+    promo:label "S_Ip" ;
+    promo:network "root" ;
+    promo:port_variable true ;
+    promo:type "network" .
 
 promo:r_x a promo:variable ;
     promo:doc "x-coordinate" ;
@@ -2166,32 +2179,14 @@ promo:v_z a promo:variable ;
     promo:port_variable false ;
     promo:type "secondaryState" .
 
-promo:F_NI_sink a promo:variable ;
-    promo:doc "incidence matrix NI sink" ;
-    promo:expression_list promo:expression_list_V_4 ;
-    promo:index_structures promo:index_structures_V_4 ;
-    promo:label "F_NI_sink" ;
-    promo:network "root" ;
-    promo:port_variable true ;
-    promo:type "network" .
-
-promo:Mm a promo:variable ;
-    promo:doc "molecular masses" ;
-    promo:expression_list promo:expression_list_V_132 ;
-    promo:index_structures promo:index_structures_V_132 ;
-    promo:label "Mm" ;
+promo:Ayz a promo:variable ;
+    promo:doc "cross sectional area yz" ;
+    promo:expression_list promo:expression_list_V_150 ;
+    promo:index_structures promo:index_structures_V_150 ;
+    promo:label "Ayz" ;
     promo:network "physical" ;
-    promo:port_variable true ;
-    promo:type "constant" .
-
-promo:S_Ip a promo:variable ;
-    promo:doc "selection matrix interface to control input" ;
-    promo:expression_list promo:expression_list_V_9 ;
-    promo:index_structures promo:index_structures_V_9 ;
-    promo:label "S_Ip" ;
-    promo:network "root" ;
-    promo:port_variable true ;
-    promo:type "network" .
+    promo:port_variable false ;
+    promo:type "secondaryState" .
 
 promo:c a promo:variable ;
     promo:doc "link variable _c to interface reactions",
@@ -2205,15 +2200,6 @@ promo:c a promo:variable ;
         "reactions" ;
     promo:port_variable false ;
     promo:type "secondaryState" .
-
-promo:F_NI_source a promo:variable ;
-    promo:doc "incidence matrix NI source" ;
-    promo:expression_list promo:expression_list_V_3 ;
-    promo:index_structures promo:index_structures_V_3 ;
-    promo:label "F_NI_source" ;
-    promo:network "root" ;
-    promo:port_variable true ;
-    promo:type "network" .
 
 qudt:Pressure a promo:variable ;
     promo:doc "thermodynamic pressure" ;
@@ -2251,15 +2237,6 @@ qudt:Temperature a promo:variable ;
     promo:port_variable false ;
     promo:type "effort" .
 
-promo:F a promo:variable ;
-    promo:doc "incidence matrix" ;
-    promo:expression_list promo:expression_list_V_2 ;
-    promo:index_structures promo:index_structures_V_2 ;
-    promo:label "F" ;
-    promo:network "root" ;
-    promo:port_variable true ;
-    promo:type "network" .
-
 promo:value a promo:variable ;
     promo:doc "numerical value" ;
     promo:expression_list promo:expression_list_V_101 ;
@@ -2269,14 +2246,23 @@ promo:value a promo:variable ;
     promo:port_variable true ;
     promo:type "constant" .
 
-qudt:ChemicalPotential a promo:variable ;
-    promo:doc "chemical potential" ;
-    promo:expression_list promo:expression_list_V_114 ;
-    promo:index_structures promo:index_structures_V_114 ;
-    promo:label "chemPot" ;
-    promo:network "macroscopic" ;
-    promo:port_variable false ;
-    promo:type "effort" .
+promo:I_NA a promo:variable ;
+    promo:doc "identity mapping from <N> to <A>" ;
+    promo:expression_list promo:expression_list_V_27 ;
+    promo:index_structures promo:index_structures_V_27 ;
+    promo:label "I_NA" ;
+    promo:network "root" ;
+    promo:port_variable true ;
+    promo:type "network" .
+
+promo:F a promo:variable ;
+    promo:doc "incidence matrix" ;
+    promo:expression_list promo:expression_list_V_2 ;
+    promo:index_structures promo:index_structures_V_2 ;
+    promo:label "F" ;
+    promo:network "root" ;
+    promo:port_variable true ;
+    promo:type "network" .
 
 qudt:Volume a promo:variable ;
     promo:doc "volume" ;
@@ -2286,6 +2272,15 @@ qudt:Volume a promo:variable ;
     promo:network "physical" ;
     promo:port_variable false ;
     promo:type "state" .
+
+qudt:ChemicalPotential a promo:variable ;
+    promo:doc "chemical potential" ;
+    promo:expression_list promo:expression_list_V_114 ;
+    promo:index_structures promo:index_structures_V_114 ;
+    promo:label "chemPot" ;
+    promo:network "macroscopic" ;
+    promo:port_variable false ;
+    promo:type "effort" .
 
 qudt:EnergyInternal a promo:variable ;
     promo:doc "fundamental state -- internal energy" ;

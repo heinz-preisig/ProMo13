@@ -398,14 +398,14 @@ class RDFProMo():
     return rdf_items
 
   def load(self, ontology_name):
-    self.graph.load(self.variables_expressions_ontology_file, "ttl")
+    self.graph.parse(self.variables_expressions_ontology_file, "ttl")
 
 
-  # def plotMe(self):
-  #   ttl_location = os.path.join(DIRECTORIES["common"], "Common/ontologies")
-  #   dot = plot(self.graph)
-  #   f_promo_ttl = os.path.join(ttl_location, "var_equ_rdf")
-  #   dot.render_expression_to_list(f_promo_ttl, view=True, cleanup=False)
+  def plotMe(self):
+    ttl_location = os.path.join(DIRECTORIES["common"], "Common/ontologies")
+    dot = plot(self.graph)
+    f_promo_ttl = os.path.join(ttl_location, "var_equ_rdf")
+    dot.render(f_promo_ttl, view=True, cleanup=False)
 
 
 
@@ -457,8 +457,8 @@ if __name__ == '__main__':
 
       EQ_ontology.createMultiGraph3(variables, tokens, equation_dictionary, indices, networks, interconnections,file=f_promo_ttl)
       EQ_ontology.graph.serialize(f_promo_ttl + ".trig", format="trig")
-      # EQ_ontology.graph.serialize(f_promo_ttl + ".n3", format="n3")
-      # EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="json-ld")
+      EQ_ontology.graph.serialize(f_promo_ttl + ".n3", format="n3")
+      EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="json-ld")
 
       EQ_ontology.plotMe()
 
