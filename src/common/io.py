@@ -29,7 +29,7 @@ import json
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional, TypedDict, ClassVar
+from typing import Optional, TypedDict, List, ClassVar
 
 from pprint import pprint as pp
 
@@ -87,6 +87,10 @@ class IOHandler:
   def __init__(self):
     self._path_parameters: AllowedPathParameters = {}
 
+    # TODO: Remove this when a selection for the repository is allowed
+    repo_path = str(Path("../../Ontology_Repository").resolve())
+    self._path_parameters["repository_path"] = repo_path
+
     self._all_entities: Optional[corelib.EntityMap] = None
     self._all_equations: Optional[corelib.EquationMap] = None
     self._all_indices: Optional[corelib.IndexMap] = None
@@ -126,10 +130,21 @@ class IOHandler:
 
   def add_path_parameters(self, parameters: AllowedPathParameters):
     # TODO-Python3.11: change to use typing.Unpack for easier use
-    self._path_parameters = parameters
+    # TODO This needs to change to something where we can see the parameters
+    # when calling
+    self._path_parameters.update(parameters)
+    pp(self._path_parameters)
+
+  def get_imgs_paths(self, ids: List[str]) -> List[Path]:
+    paths = []
+    for component_id in ids:
+      self.add_path_parameters({"component_id": component_id})
+      paths.append(self._build_path(PathTemplates.LATEX_IMG_FILE))
+
+    return paths
 
   def _build_path(self, path_template: str) -> Path:
-    return Path(path_template.format(self._path_parameters))
+    return Path(path_template.format(**self._path_parameters))
 
   def _load_var_idx_eq_from_file(self):
     path = self._build_path(PathTemplates.VARIABLES_FILE)

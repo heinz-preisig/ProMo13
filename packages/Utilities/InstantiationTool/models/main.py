@@ -1,3 +1,4 @@
+from email.mime import image
 import os
 import copy
 import logging
@@ -12,8 +13,15 @@ from packages.Common.classes import modeller_classes
 from packages.Utilities.InstantiationTool.models import variable_tree
 from packages.Utilities.InstantiationTool.models import topology_tree
 
+from src.common import roles
+from src.common.components import image_list
+from src.common.io import IOHandler
+
 from pprint import pprint as pp
 
+
+# TODO: The information about the selection needs to be stored in the main_model,
+# there is no way to retrieve it afterwards without talking to the view
 
 class InvalidEntityError(Exception):
   """The entity doesn't exist"""
@@ -30,6 +38,8 @@ class MainModel(QtCore.QObject):
   def __init__(self):
     super().__init__()
 
+    self._io_handler = IOHandler()
+
     self._ontology_name = ""
     self._model_name = ""
     self._all_entities = {}
@@ -44,7 +54,8 @@ class MainModel(QtCore.QObject):
     # Possible typed tokens for each variable in the model.
     self._typed_tokens_per_variable = {}
 
-    self.variable_tree_model = variable_tree.VariableTreeModel()
+    # self.variable_tree_model = variable_tree.VariableTreeModel()
+    self.variable_list = image_list.ImageListModel()
     self.topology_tree_model = topology_tree.TopologyTreeModel()
 
     # The selection state is store in these variables.
@@ -57,6 +68,9 @@ class MainModel(QtCore.QObject):
   def load_ontology_info(self, ontology_name: str, model_name: str) -> None:
     self._ontology_name = ontology_name
     self._model_name = model_name
+
+    params = {"ontology_name": ontology_name, "model_name": model_name}
+    self._io_handler.add_path_parameters(params)
 
     var_idx_eq = io.load_var_idx_eq_from_file(self._ontology_name)
     self._all_variables, self._all_indices, self._all_equations = var_idx_eq
@@ -125,16 +139,19 @@ class MainModel(QtCore.QObject):
     model. At the end a signal is emited to notify that the data in the
     model changed.
     """
-    filtered_variables = {
-        var_id: self._all_variables[var_id]
-        for var_id in self._filter_variables()
-    }
+    # filtered_variables = {
+    #     var_id: self._all_variables[var_id]
+    #     for var_id in self._filter_variables()
+    # }
 
-    self.variable_tree_model.load_data(
-        filtered_variables,
-        self._typed_tokens_per_variable
-    )
-    self.variable_tree_changed.emit()
+    # self.variable_tree_model.load_data(
+    #     filtered_variables,
+    #     self._typed_tokens_per_variable
+    # )
+    # self.variable_tree_changed.emit()
+    ids = [self._all_variables[var].var_id for var in self._required_variables]
+    paths = self._io_handler.get_imgs_paths(ids)
+    self.variable_list.load_data(ids, paths)
 
   def _filter_variables(self) -> List[str]:
     # TODO: Implement this
@@ -153,10 +170,13 @@ class MainModel(QtCore.QObject):
     Args:
         index (QtCore.QModelIndex): Index that triggers the update.
     """
-    self.variable_tree_model.handle_check_state_change(index)
+    # self.variable_tree_model.handle_check_state_change(index)
 
-    selected_variables = self.variable_tree_model.get_checked_items()
-    self._update_topology_tree_model(selected_variables)
+    # selected_variables = self.variable_tree_model.get_checked_items()
+    # self._update_topology_tree_model(selected_variables)
+
+    selected_variable = index.data(roles.ID_ROLE)
+    self._update_topology_tree_model({selected_variable: []})
 
     self._check_selection_status()
 
@@ -167,7 +187,8 @@ class MainModel(QtCore.QObject):
     self._check_selection_status()
 
   def _check_selection_status(self):
-    is_variable_selected = bool(self.variable_tree_model.get_checked_items())
+    # bool(self.variable_tree_model.get_checked_items())
+    is_variable_selected = True
     is_topology_object_selected = bool(
         self.topology_tree_model.get_checked_items()
     )
@@ -244,7 +265,7 @@ class MainModel(QtCore.QObject):
 
   def instantiate(self, instantiation_value: str) -> None:
     instantiated_top_obj = self.topology_tree_model.get_checked_items()
-    instantiated_variables = self.variable_tree_model.get_checked_items()
+    instantiated_variables = {}  # self.variable_tree_model.get_checked_items()
 
     for top_obj_id in instantiated_top_obj:
       for var_id, typed_tokens in instantiated_variables.items():
