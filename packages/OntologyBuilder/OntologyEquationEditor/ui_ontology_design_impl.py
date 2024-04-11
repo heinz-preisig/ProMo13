@@ -1051,8 +1051,17 @@ class UiOntologyDesign(QMainWindow):
     if not self.compile_only:
       saveBackupFile(documentation_file)
     self.writeMessage("busy making var/eq images")
+
+    f_name = FILES["latex_main"] % self.ontology_name
+    latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
+    # original_work_dir = os.getcwd()
+    # os.chdir(latex_folder_path)
+
     p = QtCore.QProcess()
-    p.startDetached("sh", [f_name, location])
+    # p.startDetached("sh", [f_name, location])
+    p.startDetached("pdflatex", [ "-interaction=nonstopmode", f_name], str(latex_folder_path) )
+
+    # os.chdir(original_work_dir)
 
     self.__makeDotGraphs()
 
