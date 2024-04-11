@@ -21,6 +21,7 @@ __status__ = "beta"
 
 import copy
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 import subprocess
@@ -1045,8 +1046,7 @@ class UiOntologyDesign(QMainWindow):
       f.write(completed_template)
       f.close()
 
-    # location = DIRECTORIES["latex_main_location"] % self.ontology_location
-    # f_name = FILES["latex_shell_var_equ_doc_command_exec"] % self.ontology_location
+
     documentation_file = FILES["latex_documentation"] % self.ontology_name
     if not self.compile_only:
       saveBackupFile(documentation_file)
@@ -1054,11 +1054,8 @@ class UiOntologyDesign(QMainWindow):
 
     f_name = FILES["latex_main"] % self.ontology_name
     latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
-    # original_work_dir = os.getcwd()
-    # os.chdir(latex_folder_path)
 
     p = QtCore.QProcess()
-    # p.startDetached("sh", [f_name, location])
     p.startDetached("pdflatex", [ "-interaction=nonstopmode", f_name], str(latex_folder_path) )
 
     self.__cleanDirectories()
@@ -1371,14 +1368,15 @@ class UiOntologyDesign(QMainWindow):
   def __cleanDirectories(self):
 
     original_work_dir = os.getcwd()
+    time.sleep(2.0)   # Note: delay execution to give the opering system time to register files
 
     latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
     os.chdir(latex_folder_path)
-    # os.remove(file_name + ".tex")
-    os.remove("*.aux")
-    os.remove("*.log")
-    os.remove("*.dvi")
-    os.remove("*.out")
+    types_to_b_removed = [".aux", ".log", ".dvi", ".out"]
+    for f in os.listdir():
+      for t in types_to_b_removed:
+        if t in f:
+          os.remove(f)
 
     os.chdir(original_work_dir)
 
