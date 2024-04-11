@@ -1061,7 +1061,7 @@ class UiOntologyDesign(QMainWindow):
     # p.startDetached("sh", [f_name, location])
     p.startDetached("pdflatex", [ "-interaction=nonstopmode", f_name], str(latex_folder_path) )
 
-    # os.chdir(original_work_dir)
+    self.__cleanDirectories()
 
     self.__makeDotGraphs()
 
@@ -1367,6 +1367,20 @@ class UiOntologyDesign(QMainWindow):
                       variable_network, v_ID, network_v)
                 # TODO: introduce code for generating a cut equation and delete the direct link equation.
                 found = True
+
+  def __cleanDirectories(self):
+
+    original_work_dir = os.getcwd()
+
+    latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
+    os.chdir(latex_folder_path)
+    # os.remove(file_name + ".tex")
+    os.remove("*.aux")
+    os.remove("*.log")
+    os.remove("*.dvi")
+    os.remove("*.out")
+
+    os.chdir(original_work_dir)
 
   def generateLatexImages(self, ontology_name, ontology_container):
 
