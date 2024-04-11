@@ -1045,8 +1045,8 @@ class UiOntologyDesign(QMainWindow):
       f.write(completed_template)
       f.close()
 
-    location = DIRECTORIES["latex_main_location"] % self.ontology_location
-    f_name = FILES["latex_shell_var_equ_doc_command_exec"] % self.ontology_location
+    # location = DIRECTORIES["latex_main_location"] % self.ontology_location
+    # f_name = FILES["latex_shell_var_equ_doc_command_exec"] % self.ontology_location
     documentation_file = FILES["latex_documentation"] % self.ontology_name
     if not self.compile_only:
       saveBackupFile(documentation_file)
@@ -1431,7 +1431,7 @@ class UiOntologyDesign(QMainWindow):
     #
     for file_name, latex_alias in latex_info.items():
       f = open(file_name + ".tex", "w")  # as f:
-      f.write("\\documentclass[border=1pt]{standalone}\n")
+      f.write("\\documentclass[border=2pt]{standalone}\n")
       f.write("\\usepackage{amsmath}\n")
       f.write("\\begin{document}\n")
       f.write(latex_alias)
@@ -1441,9 +1441,21 @@ class UiOntologyDesign(QMainWindow):
       print("......................................................................................................................")
 
       p = QtCore.QProcess()
-      p.startDetached("sh", ["resources/make_images.sh", file_name])
-      print("cwd", os.getcwd(), "--", file_name + ".tex")
-
+      # p.startDetached("sh", ["resources/make_images.sh", file_name])
+      tex_file = file_name + ".tex"
+      png_file = file_name + ".png"
+      dvi_file = file_name + ".dvi"
+      path = str(latex_folder_path)
+      status = p.execute("latex", ["-interaction=nonstopmode",tex_file])
+      if status == 0:
+        pp = QtCore.QProcess()
+        pars = [ "-D",  "300", "-T", "tight", "-norawps", "-z", "9", "-bg", "Transparent", "-o", png_file, dvi_file ]
+        (pstatus,pID) = pp.startDetached("dvipng", pars, path )
+        print("cwd", os.getcwd(), "--", tex_file, png_file)
+        if not pstatus:
+          print("failed to generate png", png_file)
+        else:
+          print("generated png", png_file)
     os.chdir(original_work_dir)
 
   def mousePressEvent(self, event):
