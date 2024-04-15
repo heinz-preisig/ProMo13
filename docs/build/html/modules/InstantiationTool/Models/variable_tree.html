@@ -40,6 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../common/common.html">Common</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model_composer.html">Model Builder</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../instantiation_tool.html">Instantiation Tool</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../instantiation_tool.html#models">Models</a><ul class="current">
@@ -94,13 +95,20 @@ dictionary of typed tokens per variable. It also emits a signal,
 <dl class="py class">
 <dt class="sig sig-object py" id="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VariableTreeModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/packages/Utilities/InstantiationTool/models/variable_tree.html#VariableTreeModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel" title="Permalink to this definition"></a></dt>
-<dd><p>Stores the variables in a model</p>
-<p>To be used as a model for one or more views in the GUI.</p>
-<dl class="simple">
-<dt>Signals:</dt><dd><dl class="simple">
-<dt>top_item_checked(QModelIndex): Emitted when a new top level item</dt><dd><p>is checked.</p>
+<dd><p>Stores the variables in a model.</p>
+<p>To be used by one or more views in the GUI.</p>
+<dl>
+<dt>Public Methods:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel.load_data" title="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel.load_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_data()</span></code></a></p></li>
+<li><p>:meth:<a href="#id1"><span class="problematic" id="id2">`</span></a></p></li>
+</ul>
 </dd>
-</dl>
+<dt>Signals:</dt><dd><ul class="simple">
+<li><p>top_item_checked(QModelIndex): emitted when a new top level item</p></li>
+</ul>
+<blockquote>
+<div><p>is checked.</p>
+</div></blockquote>
 </dd>
 </dl>
 <dl class="py method">
@@ -139,14 +147,14 @@ information about the previous state is no longer available.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel.check_item">
-<span class="sig-name descname"><span class="pre">check_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QModelIndex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/packages/Utilities/InstantiationTool/models/variable_tree.html#VariableTreeModel.check_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel.check_item" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel.handle_check_state_change">
+<span class="sig-name descname"><span class="pre">handle_check_state_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QModelIndex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/packages/Utilities/InstantiationTool/models/variable_tree.html#VariableTreeModel.handle_check_state_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel.handle_check_state_change" title="Permalink to this definition"></a></dt>
 <dd><p>Handles the check state changes.</p>
 <p>The state changes are handled differently depending on the type of
 item, for more information check:</p>
 <ul class="simple">
-<li><p>Top level: <a class="reference internal" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_top_level_item" title="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_top_level_item"><code class="xref py py-func docutils literal notranslate"><span class="pre">_check_top_level_item()</span></code></a></p></li>
-<li><p>Sub items: <a class="reference internal" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_sub_item" title="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_sub_item"><code class="xref py py-func docutils literal notranslate"><span class="pre">_check_sub_item()</span></code></a></p></li>
+<li><p>Top level: <a class="reference internal" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_top_level_item_check_state_change" title="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_top_level_item_check_state_change"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_handle_top_level_item_check_state_change()</span></code></a></p></li>
+<li><p>Sub items: <a class="reference internal" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_sub_item_check_state_change" title="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_sub_item_check_state_change"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_handle_sub_item_check_state_change()</span></code></a></p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -157,8 +165,8 @@ changes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_top_level_item">
-<span class="sig-name descname"><span class="pre">_check_top_level_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QModelIndex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/packages/Utilities/InstantiationTool/models/variable_tree.html#VariableTreeModel._check_top_level_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_top_level_item" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_top_level_item_check_state_change">
+<span class="sig-name descname"><span class="pre">_handle_top_level_item_check_state_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QModelIndex</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/packages/Utilities/InstantiationTool/models/variable_tree.html#VariableTreeModel._handle_top_level_item_check_state_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_top_level_item_check_state_change" title="Permalink to this definition"></a></dt>
 <dd><p>Handles the check state changes for top level items.</p>
 <p>One and only one top level item must be checked at any time. If that
 item has children then the first children is automatically checked. This
@@ -176,8 +184,8 @@ changes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_sub_item">
-<span class="sig-name descname"><span class="pre">_check_sub_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QModelIndex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/packages/Utilities/InstantiationTool/models/variable_tree.html#VariableTreeModel._check_sub_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._check_sub_item" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_sub_item_check_state_change">
+<span class="sig-name descname"><span class="pre">_handle_sub_item_check_state_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">QModelIndex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/packages/Utilities/InstantiationTool/models/variable_tree.html#VariableTreeModel._handle_sub_item_check_state_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#packages.Utilities.InstantiationTool.models.variable_tree.VariableTreeModel._handle_sub_item_check_state_change" title="Permalink to this definition"></a></dt>
 <dd><p>Handles the check state changes for sub items.</p>
 <p>There must be always at least one sub item checked. This means that
 checking an item is always allowed. For the unchecking operation a
@@ -219,7 +227,7 @@ changes.</p>
 items are going to be queried.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>data of all the subitems that are checked.</p>
+<dd class="field-even"><p>data of all the sub items that are checked.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[str]</p>

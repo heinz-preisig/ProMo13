@@ -11,6 +11,7 @@ Welcome to ProMo's documentation!
    :maxdepth: 1
    :caption: Modules:
 
+   Common <modules/common/common>
    Model Builder <modules/model_composer>
    Instantiation Tool <modules/InstantiationTool/instantiation_tool>
 

@@ -11,6 +11,8 @@ from packages.Utilities.InstantiationTool.delegates.topology_tree_item import Cu
 from packages.Utilities.InstantiationTool.views.main import MainView
 from packages.Utilities.InstantiationTool.models.main import MainModel
 
+from src.common.components import image_list
+
 # from packages.OntologyBuilder.BehaviourLinker.Delegates.image_list import ImageItemDelegate
 
 from packages.dialogs.views import list_selector
@@ -23,11 +25,13 @@ class MainController(QObject):
     self._model = main_model
     self._view = main_view
 
-    self._view.ui.tree_required_variables.setModel(
-        self._model.variable_tree_model)
-    # delegate = ImageItemDelegate(self._view.ui.tree_required_variables)
-    # self._view.ui.tree_required_variables.setItemDelegate(delegate)
+    # self._view.ui.tree_required_variables.setModel(
+    #     self._model.variable_tree_model)
 
+    var_list_controller = image_list.ImageListController(
+        self._view.ui.tree_required_variables,
+        self._model.variable_list
+    )
     self._view.ui.tree_topology_objects.setModel(
         self._model.topology_tree_model)
     delegate = CustomTopologyItemDelegate(self._view.ui.tree_topology_objects)
@@ -75,9 +79,9 @@ class MainController(QObject):
     # self._view.ui.actionDelete.triggered.connect(self.delete_entity)
     # self._view.ui.actionSave.triggered.connect(self._model.save)
     # # Connections from the Model
-    self._model.variable_tree_changed.connect(
-        self._view.on_variable_tree_changed
-    )
+    # self._model.variable_tree_changed.connect(
+    #     self._view.on_variable_tree_changed
+    # )
     self._model.topology_tree_changed.connect(
         self._view.on_topology_tree_changed
     )
@@ -87,9 +91,9 @@ class MainController(QObject):
     self._model.topology_tree_model.check_box_state_changed.connect(
         self._model.on_topology_tree_model_check_box_changed
     )
-    self._model.variable_tree_model.top_item_checked.connect(
-        self._view.check_item_required_variable_tree
-    )
+    # self._model.variable_tree_model.top_item_checked.connect(
+    #     self._view.check_item_required_variable_tree
+    # )
     # self._model.variable_tree_model.user_item_check.connect(
     #     self._model.check_element_tree_required_variables
     # )
