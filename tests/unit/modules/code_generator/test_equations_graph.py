@@ -7,7 +7,7 @@ Author: Alberto Rodriguez Fernandez
 import pytest
 from typing import List, Tuple
 
-from code_generator.equations_sequencer import EquationsGraph
+from src.code_generator import EquationsGraph
 
 PARAMS = [
     (0, [], [], "Nothing"),

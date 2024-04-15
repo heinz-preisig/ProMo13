@@ -8,7 +8,7 @@ from packages.Common.classes import equation_parser
 from packages.Common.classes import variable
 from packages.Common.classes import equation
 from packages.Common.classes import index
-from code_generator import equations_sequencer
+from code_generator import equation_sequencer
 from packages.Common import resource_initialisation as ri
 
 
@@ -19,7 +19,7 @@ class TemplateHandler:
       all_variables: Dict[str, variable.Variable],
       all_indices: Dict[str, index.Index],
       all_equations: Dict[str, equation.Equation],
-      vareq: equations_sequencer.VarEqDiGraph,
+      vareq: equation_sequencer.VarEqDiGraph,
   ):
     self.language = language
     self.all_variables = all_variables

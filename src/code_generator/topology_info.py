@@ -1,9 +1,7 @@
 """
-Contains the TopologyGraph class.
+Contains the TopologyInfo class.
 
-See :class:`TopologyClass`
-
-Author: Alberto Rodriguez Fernandez
+See :class:`TopologyInfo`
 """
 
 from collections import defaultdict
@@ -69,6 +67,7 @@ class TopologyInfo:
       if not isinstance(top_obj, modeller_classes.EntityContainer):
         continue
 
+      # Used to map N_x, A_x and I_x to integer indices.
       ent_type = top_obj.entity_instance.entity_type
 
       self._update_dicts_from_topology_object(counters[ent_type], top_obj)
@@ -85,7 +84,7 @@ class TopologyInfo:
       self.graph.add_node(top_obj_id, top_obj=top_obj)
 
     # Fixing the information about species after they have been collected
-    self.names_info["species"].extend(sorted(list(species_names)))
+    self.names_info["species"] = sorted(list(species_names))
     for i, name in enumerate(self.names_info["species"]):
       self.map_id_to_counter[name] = i
 

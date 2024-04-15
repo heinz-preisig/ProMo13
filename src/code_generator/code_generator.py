@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # fmt: off
 from code_generator import template_handler
-from code_generator import equations_sequencer
+from code_generator import equation_sequencer
 from packages.Common.classes import io
 from packages.Common import resource_initialisation
 
@@ -32,7 +32,7 @@ all_topology_objects = io.load_topology_objects(
     all_entities
 )
 
-var_eq = equations_sequencer.VarEqDiGraph(
+var_eq = equation_sequencer.VarEqDiGraph(
     all_equations,
     all_indices,
     all_variables,
