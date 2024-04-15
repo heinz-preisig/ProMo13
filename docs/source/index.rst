@@ -7,20 +7,17 @@
 Welcome to ProMo's documentation!
 #################################
 
-Classes
-=======
-.. toctree::
-   :maxdepth: 1
-
-   TopologyGraph <classes/expression_graph>
-
 Modules
 =======
 .. toctree::
    :maxdepth: 1
    
-   Model Builder <modules/model_composer>
-   Instantiation Tool <modules/InstantiationTool/instantiation_tool>
+   Code Generator <modules/code_generator/code_generator>
+   Common <modules/common/common>
+   
+.. Instantiation Tool <modules/InstantiationTool/instantiation_tool>
+
+   
 
 
 Indices and tables

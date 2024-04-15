@@ -12,4 +12,6 @@ __pycache__
 packages/Common/classes/parser.out
 packages/Common/classes/parsetab.py
 .VSCodeCounter/.VSCodeCounterCountRealtime
+docs/build/
+docs/_build/
 
