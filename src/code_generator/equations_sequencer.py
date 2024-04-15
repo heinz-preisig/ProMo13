@@ -9,7 +9,7 @@ from packages.Common.classes import equation
 from packages.Common.classes import variable
 from packages.Common.classes import index
 from packages.Common.classes import modeller_classes
-from packages.Common.classes import topology_graph
+from code_generator import topology_graph
 
 from pprint import pprint as pp
 

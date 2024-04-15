@@ -5,8 +5,8 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))
 
 # fmt: off
-from packages.TaskFactory import template_handler
-from packages.Common.classes import equations_sequencer
+from code_generator import template_handler
+from code_generator import equations_sequencer
 from packages.Common.classes import io
 from packages.Common import resource_initialisation
 

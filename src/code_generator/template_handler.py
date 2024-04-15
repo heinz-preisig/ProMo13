@@ -8,7 +8,7 @@ from packages.Common.classes import equation_parser
 from packages.Common.classes import variable
 from packages.Common.classes import equation
 from packages.Common.classes import index
-from packages.Common.classes import equations_sequencer
+from code_generator import equations_sequencer
 from packages.Common import resource_initialisation as ri
 
 

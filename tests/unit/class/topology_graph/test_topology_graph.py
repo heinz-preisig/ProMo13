@@ -1,7 +1,7 @@
 import pytest
 from typing import Dict, Set
 
-from packages.Common.classes.topology_graph import TopologyInfo
+from code_generator.topology_graph import TopologyInfo
 
 
 @pytest.fixture(scope="module")
