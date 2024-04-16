@@ -1,278 +1,253 @@
+"""Find sequence of equations
+
+Functions:
+    :func:`sequence_equations`: Finds a sequence of equations.
+"""
 import collections
-from typing import Dict, List, Tuple, Set, Optional
-from collections import defaultdict
+from typing import Dict, List, Set, Tuple
 
 import networkx as nx
 
-from packages.Common.classes import entity
-from packages.Common.classes import equation
-from packages.Common.classes import variable
-from packages.Common.classes import index
-from packages.Common.classes import modeller_classes
-from src import code_generator as codegen
+from src.common import corelib
+from src.common import topology
 
-from pprint import pprint as pp
+_EquationSequence = List[Set[str]]
+_MapEquationTopology = Dict[str, Set[topology.EntityContainer]]
+_VariableList = Set[str]
 
 
-def print_graph(
-    graph: nx.Graph,
-    file_name: Optional[str] = "graph.png",
-) -> None:
-  out_graph = nx.drawing.nx_pydot.to_pydot(graph)
-  out_graph.write_png(file_name)
+def sequence_equations(
+    all_topology_objects: Dict[str, topology.TopologyObject],
+) -> Tuple[_EquationSequence, _MapEquationTopology, _VariableList]:
+  """Find a sequence of equations
+
+  The sequence is one of the possible ordering that allow a computation
+  of all variables in the model. 
+
+  Args:
+      all_topology_objects (Dict[str, topology.TopologyObject]): All
+       the topology objects in the model
+
+  Returns:
+      Tuple[_EquationSequence, _MapEquationTopology, _VariableList]:
+       the equation sequence and the byproducts of its generation:
+
+       * All the equations used and what Topology objects contain them.
+       * All the variables used in the model.
+  """
+  topology_graph = topology.build_topology_graph(
+      list(all_topology_objects.values()))
+
+  equation_graph, equation_topology_map, variable_list = _build_equation_graph(
+      topology_graph)
+  equation_sequence = _find_solving_order(equation_graph)
+
+  return (equation_sequence, equation_topology_map, variable_list)
 
 
-class EquationSequencer:
-  def __init__(
-      self,
-      all_equations: Dict[str, equation.Equation],
-      all_indices: Dict[str, index.Index],
-      all_variables: Dict[str, variable.Variable],
-      all_topology_objects: Dict[str, modeller_classes.TopologyObject],
-  ):
-    self._all_equations = all_equations
-    self._all_indices = all_indices
-    self._all_variables = all_variables
-    self._all_topology_objects = all_topology_objects
+def _build_equation_graph(
+    topology_graph: nx.Graph,
+) -> Tuple[nx.DiGraph, _MapEquationTopology, _VariableList]:
+  """Build an equation digraph
 
-    self._topology_info = codegen.TopologyInfo(all_topology_objects)
-    self._equations_graph = codegen.EquationsGraph()
+  Each Node represents one equation in the model. Edges represent a
+  dependency relationship, the source equation requires the value
+  that the sink equation computes to perform its own computation.
 
-    self.inst_variables = {}
-    self.expressions = []
-    self.integrators = []
+  Args:
+      topology_graph (nx.Graph): Graph of Topology objects representing
+       the model.
 
-    self._build_equations_graph()
+  Returns:
+      Tuple[nx.DiGraph, _MapEquationTopology, _VariableList]: The
+       equation digraph and the byproducts of its generation:
 
-  def _build_equations_graph(self):
-    equation_topology_map: Dict[str, Set[str]] = {}
+       * All the equations used and what Topology objects contain them.
+       * All the variables used in the model.
+  """
 
-    processing_queue = collections.deque()
+  equations_graph = nx.DiGraph()
+  processing_queue = collections.deque()
+  variable_list = set()
 
-    # TODO: Transform into the integrators output format
-    integrators_info = self._topology_info.get_integrators_info()
-    equation_topology_map.update(integrators_info)
-    for equation_id, topology_ids in integrators_info.items():
-      self._equations_graph.add_node(equation_id)
-      processing_queue.append((equation_id, topology_ids))
+  equation_topology_map = _get_integrators_info(topology_graph)
+  for equation_id, topology_objects in equation_topology_map.items():
+    equations_graph.add_node(equation_id)
+    processing_queue.append((equation_id, topology_objects))
 
-    while processing_queue:
-      source_equation_id, topology_ids = processing_queue.popleft()
+  while processing_queue:
+    source_equation_id, topology_objects = processing_queue.popleft()
 
-      for top_obj_id in topology_ids:
-        equations_info = self._topology_info.find_dependencies(
-            source_equation_id,
-            top_obj_id,
-        )
-        for equation_id, topology_ids in equations_info.items():
-          self._equations_graph.add_node(equation_id)
-          self._equations_graph.add_arc(source_equation_id, equation_id)
-          new_topology_ids = topology_ids.difference(
-              equation_topology_map[equation_id]
-          )
-          if new_topology_ids:
-            processing_queue.append((equation_id, new_topology_ids))
-            equation_topology_map[equation_id].update(new_topology_ids)
+    for topology_obj in topology_objects:
+      equations_info = _find_dependencies(
+          source_equation_id,
+          topology_obj,
+          topology_graph
+      )
+      for equation_id, topology_objects in equations_info.items():
+        if equation_id not in equations_graph:
+          # TODO: Add variables to a set here coming from the
+          # new eq in the graph.
+          equations_graph.add_node(equation_id)
 
-  #   # Adding the integrators first.
-  #   for top_node in self.top_graph:
-  #     if "N" not in top_node or self.top_graph.nodes[top_node]["is_reservoir"]:
-  #       continue
+        equations_graph.add_edge(source_equation_id, equation_id)
 
-  #     associated_entity = self.top_graph.nodes[top_node]["entity"]
-  #     for var_id, eq_id in associated_entity.integrators_info():
-  #       vertex_id = (var_id, eq_id)
-  #       if vertex_id in self.digraph:
-  #         self.digraph.nodes[vertex_id]["topology_ids"].add(top_node)
-  #         self.digraph.nodes[vertex_id]["index_sets"].add(
-  #             associated_entity.index_set
-  #         )
-  #       else:
-  #         self.digraph.add_node(
-  #             vertex_id,
-  #             topology_ids={top_node},
-  #             index_sets={associated_entity.index_set},
-  #         )
+        new_topology_objects = topology_objects - \
+            equation_topology_map[equation_id]
+        if new_topology_objects:
+          processing_queue.append((equation_id, new_topology_objects))
+          equation_topology_map[equation_id].update(new_topology_objects)
 
-  #   for node in self.digraph:
-  #     top_ids = self.digraph.nodes[node]["topology_ids"]
-  #     index_sets = self.digraph.nodes[node]["index_sets"]
-  #     self.integrators.append(node + (top_ids,) + (index_sets,))
+  return (equations_graph, equation_topology_map, variable_list)
 
-  #   # pp(self.integrators)
 
-  #   # Using BFS to build the rest of the digraph
-  #   # Instantiations are handled in this step and stored so they do not
-  #   # appear in the final digraph.
+def _get_integrators_info(topology_graph) -> _MapEquationTopology:
+  """Return integrator equations and their location
 
-  #   queue = collections.deque()
+  Args:
+      topology_graph (nx.Graph): Graph of Topology objects representing
+        the model.
 
-  #   for vertex_id in self.digraph.nodes():
-  #     queue.append((vertex_id, self.digraph.nodes[vertex_id]["topology_ids"]))
+  Returns:
+      Dict[str, Set[str]]: maps the integrator equations to the
+       topology objects where they are defined.
+  """
+  equation_topology_map = collections.defaultdict(set)
+  for topology_obj in topology_graph:
+    entity_instance: corelib.Entity = topology_obj.entity_instance
+    for _, equation_id in entity_instance.integrators_info():
+      equation_topology_map[equation_id].add(topology_obj)
 
-  #   # cont = 1
-  #   while queue:
-  #     # self.print_graph(file_name = f"step{cont}.png")
-  #     # cont+=1
+  return equation_topology_map
 
-  #     parent_vertex_id, topology_ids = queue.popleft()
-  #     children_vertexes = self.find_dependencies(
-  #         parent_vertex_id,
-  #         topology_ids,
-  #     )
 
-  #     for vertex_id, vertex_info in children_vertexes.items():
-  #       if vertex_id in self.digraph:
-  #         # In the case the combination of var-eq is already in the
-  #         # graph we check if the combination is used in a topology
-  #         # node that is not already in the digraph. If that is the
-  #         # case we update the node and queue the new additions for
-  #         # processing
-  #         new_top_ids = vertex_info["topology_ids"].difference(
-  #             self.digraph.nodes[vertex_id]["topology_ids"]
-  #         )
-  #         if new_top_ids:
-  #           self.digraph.nodes[vertex_id]["topology_ids"].update(
-  #               vertex_info["topology_ids"]
-  #           )
-  #           self.digraph.nodes[vertex_id]["index_sets"].update(
-  #               vertex_info["index_sets"]
-  #           )
-  #           queue.append((vertex_id, new_top_ids))
-  #       else:
-  #         self.digraph.add_node(
-  #             vertex_id,
-  #             topology_ids=vertex_info["topology_ids"],
-  #             index_sets=vertex_info["index_sets"],
-  #         )
-  #         queue.append((vertex_id, vertex_info["topology_ids"]))
-  #       self.digraph.add_edge(parent_vertex_id, vertex_id)
+def _find_dependencies(
+    equation_id: str,
+    topology_obj: topology.EntityContainer,
+    topology_graph: nx.Graph,
+) -> _MapEquationTopology:
+  """Find equation dependencies
 
-  #   # self.print_graph(file_name = f"step{cont}.png")
-  #   # pp(self.inst_variables)
+  One equation is dependent on another if it provides a way to calculate
+  one of its variables. 
 
-  #   # Variables that are not instantiated are added to the instantiation
-  #   # dictionary without instantiation values.
-  #   for node in self.digraph:
-  #     var_id, _ = node
-  #     if var_id not in self.inst_variables:
-  #       self.update_inst_vars(var_id, None)
+  a = b + c (I)
+  b = d - e (II)
 
-  #   # for node in self.digraph:
-  #   #   print(node[1] + ": " + str(self.digraph.nodes[node]["index_sets"]))
-  #   # pp(self.inst_variables)
+  Equation `I` depends on equation `II` to get the value for `b`.
 
-  # def find_dependencies(
-  #     self,
-  #     parent_vertex_id: Tuple[str, str],
-  #     topology_ids: Set[str],
-  # ) -> Dict[Tuple[str, str], Set[str]]:
+  Args:
+      equation_id (str): Equation to find dependencies for.
+      topology_obj (topology.EntityContainer): Contains the Entity where
+       the equation is.
+      topology_graph (nx.Graph): Graph of Topology objects representing
+       the model.
 
-  #   par_var_id, par_eq_id = parent_vertex_id
-  #   par_eq = self.all_equations[par_eq_id]
-  #   linked_vars = par_eq.get_incidence_list(par_var_id)
+  Returns:
+      _MapEquationTopology: Dependencies and their locations.
+  """
+  entity_instance = topology_obj.entity_instance
 
-  #   dependencies = {}
-  #   for var_id in linked_vars:
-  #     # TODO: Find out what to do with time in the integrators
-  #     if var_id == "V_4":
-  #       continue
-  #     for top_id in topology_ids:
-  #       var_info = self.get_equations(parent_vertex_id, var_id, top_id)
-  #       # pp(var_info)
+  equation_topology_map = collections.defaultdict(set)
 
-  #       if var_info is None:
-  #         continue
+  for variable_id in entity_instance.get_variables_from_equation(equation_id):
+    dependency_info = _find_equations_for_variable(
+        variable_id, topology_obj, topology_graph)
 
-  #       for eq_id, new_top_id, new_index_set in var_info:
-  #         vertex_id = (var_id, eq_id)
-  #         if vertex_id in dependencies:
-  #           dependencies[vertex_id]["topology_ids"].add(new_top_id)
-  #           dependencies[vertex_id]["index_sets"].add(new_index_set)
-  #         else:
-  #           dependencies[vertex_id] = {
-  #               "topology_ids": {new_top_id},
-  #               "index_sets": {new_index_set},
-  #           }
+    for dep_equation_id, dep_topology_objects in dependency_info:
+      equation_topology_map[dep_equation_id].update(dep_topology_objects)
 
-  #   return dependencies
+  return equation_topology_map
 
-  # def get_equations(
-  #     self,
-  #     parent_vertex_id: Optional[Tuple[str, str]],
-  #     var_id: str,
-  #     top_id: str,
-  # ) -> Optional[List[Tuple[str, str]]]:
 
-  #   # print("VAR: " + var_id)
-  #   # print("TOP_ID: " + top_id)
-  #   current_entity = self.top_graph.nodes[top_id]["entity"]
-  #   inst_info = self.top_graph.nodes[top_id]["inst_info"]
-  #   # pp(current_entity.entity_name)
-  #   # pp(inst_info)
+def _find_equations_for_variable(
+    variable_id: str,
+    topology_obj: topology.EntityContainer,
+    topology_graph: nx.Graph,
+) -> _MapEquationTopology:
+  """Find equations to calculate a variable.
 
-  #   # No equation if the variable is calculated in the main integrators
-  #   # (closing the loop).
-  #   if var_id in current_entity.integrators:
-  #     return None
+  The Topology object where the Entity containing the equation live is
+  also returned.
 
-  #   # No equation if the variable is being instantiated.
-  #   # We add here the instantiation info.
-  #   if var_id in inst_info:
-  #     self.update_inst_vars(var_id, top_id)
-  #     return None
+  Several cases can arise:
 
-  #   # If the variable is calculated somewere else we need to check there
-  #   # to find the info.
-  #   if current_entity.is_input(var_id):
-  #     var_info = []
-  #     # Loop through the neighbors. For more info see NetworkX docs.
-  #     for top_node_id in self.top_graph[top_id]:
-  #       # print(top_node_id)
-  #       # print("NID: " + top_node_id)
-  #       neighbor_entity = self.top_graph.nodes[top_node_id]["entity"]
-  #       # print("NEIGHBOR:" + str(neighbor_entity.index_set))
-  #       if neighbor_entity.is_output(var_id):
-  #         # A variable cant be input and output at the same time. When
-  #         # calling get_equations() on the neighbor parent_vertex_id can
-  #         # be None because we call it only for output variables and
-  #         # parent_vertex_id is only used if the variable is input.
-  #         neighbor_var_info = self.get_equations(None, var_id, top_node_id)
-  #         if neighbor_var_info is not None:
-  #           var_info.extend(neighbor_var_info)
+  * The variable is instantiated: No equation is returned.
+  * The variable is input: The neighbor topology objects are queried and
+     all the appropiate equations and their locations are returned.
+  * The variable have an equation: The equation and the location of the
+     current Topology object is returned.
 
-  #         # The index set of the neighbor is only added if the variable
-  #         # that we are looking for is an output there.
-  #         if neighbor_entity.index_set is not None:
-  #           self.digraph.nodes[parent_vertex_id]["index_sets"].add(
-  #               neighbor_entity.index_set
-  #           )
+  Args:
+      variable_id (str): The identifier of the variable.
+      topology_obj (topology.EntityContainer): Main Topology object to
+       look for the equation.
+      topology_graph (nx.Graph): Graph of Topology objects to check for
+       neighbors if necessary.
+  Returns:
+      _MapEquationTopology: Equations to calculate the variable and
+       their locations.
+  """
 
-  #     return var_info
+  entity_instance = topology_obj.entity_instance
 
-  #   eq_id = current_entity.get_eq_for_var(var_id)
-  #   if eq_id is not None:
-  #     # If we can find the info of the variable in the var_eq_forest.
-  #     return [(eq_id[0], top_id, current_entity.index_set)]
+  if not entity_instance.contains_var(variable_id):
+      # TODO: Maybe raise an exception here.
+    return {}
 
-  #   # If the variable can not be found in the topology object.
-  #   return None
+  if entity_instance.is_init(variable_id):
+    return {}
 
-  # def update_inst_vars(
-  #     self,
-  #     var_id: str,
-  #     top_id: Optional[str],
-  # ) -> None:
-  #   # Initializing variables that are not already in the dict.
-  #   if var_id not in self.inst_variables:
-  #     self.inst_variables[var_id] = {}
+  if entity_instance.is_input(variable_id):
+    equation_topology_map = collections.defaultdict(set)
+    for neighbor in topology_graph[topology_obj]:
+      neighbor_entity: corelib.Entity = neighbor.entity_instance
+      # Rules prevent further nesting, if a variable is input
+      # the neighbors either dont have the variable, have an equation
+      # for it or instantiate it.
+      equations = neighbor_entity.get_eq_for_var(variable_id)
 
-  #   # Variables that are not instantiated are also added to the dict
-  #   # with vals: {} to help with the initialization. top_id = None is
-  #   # the flag used to know we are dealing with these variables.
-  #   if top_id is None:
-  #     return
+      if equations:
+        equation_id = equations[0]
+        equation_topology_map[equation_id].add(neighbor)
 
-  #   # Storing values
-  #   node_inst_info = self.top_graph.nodes[top_id]["inst_info"]
-  #   self.inst_variables[var_id].update(node_inst_info[var_id])
+    return equation_topology_map
+
+  equations = entity_instance.get_eq_for_var(variable_id)
+  if equations:
+    equation_id = equations[0]
+    return {equation_id: {topology_obj}}
+
+  return {}
+
+
+def _find_solving_order(equations_graph: nx.DiGraph) -> List[Set[str]]:
+  """Finds a solving order for the equations in the graph.
+
+  The graph is constructed in a way that resembles a dependency
+  resolution problem. An equation can only be computed if all
+  necessary incident variables are already known. In the case of
+  Strongly Connected Components (SCC), all equations in the SCC need
+  to be computed together.
+
+  The correct solving order is the reverse of the topological order
+  calculated after the graph have been condensed to deal with the
+  cycles.
+
+  Args:
+      equations_graph (nx.DiGraph): Graph to be processed.
+
+  Returns:
+      List[Set[str]]: One of the possible solving orders for the
+       equations in the graph. Equations in the same set need to be
+       computed together.
+  """
+  condensed_graph = nx.condensation(equations_graph)
+  topological_order = list(nx.topological_sort(condensed_graph))
+
+  correct_order = [
+      condensed_graph.nodes[node]["members"]
+      for node in reversed(topological_order)
+  ]
+
+  return correct_order
