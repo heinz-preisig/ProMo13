@@ -8,11 +8,14 @@ structures and interfaces used throughout the application.
 from typing import Dict
 
 from .entity import Entity
-from .equation import Equation
+
+from .math_components import Equation
+from .math_components import EquationMap
+from .math_components import Variable
+from .math_components import VariableMap
+from .math_components import VarEqJSONDecoder
+
 from .index import Index
-from .variable import Variable
 
 EntityMap = Dict[str, Entity]
-EquationMap = Dict[str, Equation]
 IndexMap = Dict[str, Index]
-VariableMap = Dict[str, Variable]

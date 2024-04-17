@@ -29,7 +29,7 @@ import json
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, TypedDict, List, ClassVar
+from typing import Optional, Tuple, TypedDict, List, ClassVar
 
 from pprint import pprint as pp
 
@@ -146,45 +146,22 @@ class IOHandler:
   def _build_path(self, path_template: str) -> Path:
     return Path(path_template.format(**self._path_parameters))
 
-  def _load_var_idx_eq_from_file(self):
+  def _load_var_idx_eq_from_file(
+      self,
+  ) -> Tuple[corelib.VariableMap, corelib.IndexMap, corelib.EquationMap]:
     path = self._build_path(PathTemplates.VARIABLES_FILE)
 
     with open(path, "r", encoding="utf-8",) as file:
-      data = json.load(file)
+      data = json.load(file, cls=corelib.VarEqJSONDecoder)
 
-    # Loading the indices
+    variables = data["variables"]
+    equations = data["equations"]
+
+    # # Loading the indices
     indices = {}
-    for idx_id, idx_info in data["indices"].items():
-      # TODO: Go over the tokens in the indices
-      del idx_info["tokens"]
-      indices[idx_id] = corelib.Index(idx_id, **idx_info)
-
-    # Loading the variables
-    all_var_data = data["variables"]
-
-    variables = {}
-    equations = {}
-    for var_id, var_info in all_var_data.items():
-      eq_list = []
-      for eq_id, eq_info in var_info["equations"].items():
-        # TODO: Remove when this is no longer used.
-        del eq_info["incidence_list"]
-
-        eq_list.append(eq_id)
-
-        self.add_path_parameters({'component_id': eq_id})
-        equations[eq_id] = corelib.Equation(
-            eq_id,
-            self._build_path(PathTemplates.LATEX_IMG_FILE),
-            **eq_info,
-        )
-      var_info["equations"] = eq_list
-
-      self.add_path_parameters({'component_id': var_id})
-      variables[var_id] = corelib.Variable(
-          var_id,
-          self._build_path(PathTemplates.LATEX_IMG_FILE),
-          **var_info,
-      )
+    # for idx_id, idx_info in data["indices"].items():
+    #   # TODO: Go over the tokens in the indices
+    #   del idx_info["tokens"]
+    #   indices[idx_id] = corelib.Index(idx_id, **idx_info)
 
     return (variables, indices, equations)
