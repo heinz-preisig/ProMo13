@@ -10,8 +10,10 @@ from typing import Dict
 from .entity import Entity
 
 from .math_components import Equation
+from .math_components import EquationTag
 from .math_components import EquationMap
 from .math_components import Variable
+from .math_components import VariableTag
 from .math_components import VariableMap
 from .math_components import VarEqJSONDecoder
 
