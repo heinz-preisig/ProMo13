@@ -69,6 +69,14 @@ class Equation:
   created: datetime.date = _EPOCH
   modified: datetime.date = _EPOCH
 
+  @property
+  def dependent_variable(self):
+    return self.variables[0]
+
+  @property
+  def independent_variables(self):
+    return self.variables[1:]
+
   @classmethod
   def from_json(cls, identifier: str, data: Dict) -> "Equation":
     init_data = {}
