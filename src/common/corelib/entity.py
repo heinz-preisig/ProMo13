@@ -8,10 +8,10 @@ Classes:
     :class:`VariableState`: Enum for the variable states in an Entity.
 """
 from collections import deque
-from dataclasses import field, dataclass
 from enum import IntFlag
 from typing import Dict, List, Optional, Union
 
+from attrs import define, Factory
 import networkx as nx
 
 from src.common.corelib import Variable, Equation
@@ -84,6 +84,15 @@ class EntityMathGraph:
         node
         for node in self._graph.nodes()
         if isinstance(node, Equation)
+    ]
+
+  @property
+  def variables(self) -> List[Variable]:
+    """All the variables in the graph"""
+    return [
+        node
+        for node in self._graph.nodes()
+        if isinstance(node, Variable)
     ]
 
   @property
@@ -189,7 +198,7 @@ class EntityMathGraph:
         List[Variable]: Variables removed as a result of the removal of
          the equation.
     """
-    incoming_edges = self._graph.in_edges(eq)
+    incoming_edges = list(self._graph.in_edges(eq))
     self._graph.remove_edges_from(incoming_edges)
 
     return self._remove_node(eq)
@@ -254,13 +263,10 @@ class EntityMathGraph:
         Equation: Equation that can be used to compute the variable or
          **None** if there is not one.
     """
-    if self._graph.out_degree == 0:
-      return None
-
-    return self._graph.successors(var)[0]
+    return next(self._graph.successors(var), None)
 
 
-@dataclass
+@define(eq=False)
 class Entity():
   """Basic block to build models
 
@@ -277,9 +283,8 @@ class Entity():
   _token: str = ""
   _mechanism: str = ""
   _nature: str = ""
-  _variable_states: Dict[Variable, VariableState] = field(default_factory=dict)
-  _math_graph: EntityMathGraph = field(
-      default_factory=EntityMathGraph)
+  _variable_states: Dict[Variable, VariableState] = Factory(dict)
+  _math_graph: EntityMathGraph = Factory(EntityMathGraph)
 
   @property
   def identifier(self) -> str:

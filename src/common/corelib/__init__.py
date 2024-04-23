@@ -7,7 +7,7 @@ structures and interfaces used throughout the application.
 """
 from typing import Dict
 
-from .entity import Entity
+from .index import Index
 
 from .math_components import Equation
 from .math_components import EquationTag
@@ -17,7 +17,5 @@ from .math_components import VariableTag
 from .math_components import VariableMap
 from .math_components import VarEqJSONDecoder
 
-from .index import Index
-
-EntityMap = Dict[str, Entity]
-IndexMap = Dict[str, Index]
+from .entity import Entity
+from .entity import EntityMathGraph

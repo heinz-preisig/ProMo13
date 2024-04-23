@@ -1,10 +1,11 @@
-from dataclasses import dataclass, field
 import datetime
 from enum import Enum
 import json
 from typing import Any, Dict, List, Tuple, Union
 
-from src.common import corelib
+from attrs import define, Factory
+
+from src.common.corelib import Index
 
 _EPOCH = datetime.date(1970, 1, 1)
 _DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -18,21 +19,20 @@ class VariableTag(Enum):
   CONSTANT = "constant"
 
 
-@dataclass
+@define(eq=False)
 class Variable:
   identifier: str
   iri: str = ""
   tag: VariableTag = VariableTag.NOTAG
   label: str = ""
-  aliases: Dict[str, str] = field(default_factory=dict)
-  compiled_lhs: Dict[str, str] = field(default_factory=dict)
+  aliases: Dict[str, str] = Factory(dict)
+  compiled_lhs: Dict[str, str] = Factory(dict)
   doc: str = ""
-  index_structures: List[corelib.Index] = field(default_factory=list)
-  equations: List["Equation"] = field(default_factory=list)
+  index_structures: List[Index] = Factory(list)
   network: str = "str"
   port_variable: bool = False
-  tokens: List[str] = field(default_factory=list)
-  units: List[int] = field(default_factory=list)
+  tokens: List[str] = Factory(list)
+  units: List[int] = Factory(list)
   created: datetime.date = _EPOCH
   modified: datetime.date = _EPOCH
 
@@ -56,12 +56,12 @@ class EquationTag(Enum):
   INTEGRATOR = "integrator"
 
 
-@dataclass
+@define(eq=False)
 class Equation:
   identifier: str
   iri: str = ""
   tag: EquationTag = EquationTag.NOTAG
-  variables: List[Variable] = field(default_factory=list)
+  variables: List[Variable] = Factory(list)
   lhs: str = ""
   rhs: str = ""
   network: str = ""
@@ -70,11 +70,11 @@ class Equation:
   modified: datetime.date = _EPOCH
 
   @property
-  def dependent_variable(self):
+  def dependent_variable(self) -> Variable:
     return self.variables[0]
 
   @property
-  def independent_variables(self):
+  def independent_variables(self) -> List[Variable]:
     return self.variables[1:]
 
   @classmethod
@@ -116,12 +116,6 @@ class VarEqJSONDecoder(json.JSONDecoder):
       # meantime, to return a big dictas soon as we hit the top layer
       # of dicts in the json file.
       if key == "version":
-        for var_id, var in self._data["variables"].items():
-          var.equations = [
-              self._data["equations"][eq_id]
-              for eq_id in self._map_var_eq[var_id]
-          ]
-
         for eq_id, eq in self._data["equations"].items():
           eq.variables = [
               self._data["variables"][var_id]
