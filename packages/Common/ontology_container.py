@@ -64,6 +64,12 @@ from packages.Common.classes.io import load_entities_from_file
 from packages.Common.classes.io import load_var_idx_eq_from_file
 
 
+# RULE: we constrain interface networks to only exist to the CENTER_NETWORK
+# TODO: needs to become part of the foundation ontology
+
+CENTRE_NETWORKS = ["macroscopic", "info_processing"]
+
+
 def findID(indices, name):
   ID = None
   for id in indices:
@@ -244,6 +250,15 @@ class OntologyContainer():
       self.list_inter_branches_pairs, \
       self.intra_domains = self.__makeListInterBranches(
             )  # ..............inter domains --> where tokens can be exchanged
+
+    # RULE: constrain interconnections to in and out of centre domain
+    # TODO: consider moving to base ontology
+    self.interconnection_nws_list = []
+    for nw in self.list_inter_branches_pairs:
+      for c in CENTRE_NETWORKS:
+        if c in nw:
+          if nw not in self.interconnection_nws_list:
+            self.interconnection_nws_list.append(nw)
 
     self.interconnection_network_dictionary, \
       self.intraconnection_network_dictionary = self.__makeConnectionNetworks(

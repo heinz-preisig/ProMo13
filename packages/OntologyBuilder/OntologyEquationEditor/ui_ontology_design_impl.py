@@ -44,6 +44,7 @@ from Common.common_resources import putData
 from Common.common_resources import saveBackupFile
 from Common.common_resources import UI_GetString
 from Common.common_resources import VARIABLE_TYPE_INTERFACES
+from Common.ontology_container import CENTRE_NETWORKS
 from Common.ontology_container import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import makeCompletEquationRecord
@@ -99,11 +100,11 @@ INITIALVARIABLE_TYPES = {
 CHOOSE_NETWORK = "choose network"
 CHOOSE_INTER_CONNECTION = "choose INTER connection"
 CHOOSE_INTRA_CONNECTION = "choose INTRA connection"
-
-# RULE: we constrain interface networks to only exist to the CENTER_NETWORK
-# TODO: needs to become part of the foundation ontology
-
-CENTRE_NETWORKS = ["macroscopic", "info_processing"]
+#
+# # RULE: we constrain interface networks to only exist to the CENTER_NETWORK
+# # TODO: needs to become part of the foundation ontology
+#
+# CENTRE_NETWORKS = ["macroscopic", "info_processing"]   # moved to ontology_container
 
 
 class EditorError(Exception):
@@ -202,13 +203,14 @@ class UiOntologyDesign(QMainWindow):
     self.intraconnection_nws = self.ontology_container.intraconnection_network_dictionary
     self.intraconnection_nws_list = list(self.intraconnection_nws.keys())
 
-    # RULE: constrain interconnections to in and out of centre domain
-    self.interconnection_nws_list = []
-    for nw in self.ontology_container.list_inter_branches_pairs:
-      for c in CENTRE_NETWORKS:
-        if c in nw:
-          if nw not in self.interconnection_nws_list:
-            self.interconnection_nws_list.append(nw)
+    # # RULE: constrain interconnections to in and out of centre domain
+    # self.interconnection_nws_list = []
+    # for nw in self.ontology_container.list_inter_branches_pairs:
+    #   for c in CENTRE_NETWORKS:
+    #     if c in nw:
+    #       if nw not in self.interconnection_nws_list:
+    #         self.interconnection_nws_list.append(nw)
+    self.interconnection_nws_list = self.ontology_container.interconnection_nws_list
 
     self.indices = self.ontology_container.indices
     self.variables = Variables(self.ontology_container)

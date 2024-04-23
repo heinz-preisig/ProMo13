@@ -4,14 +4,16 @@ from rdflib import Namespace
 from rdflib import RDF
 from rdflib import URIRef
 
-from ProMo_RDF_Graph import PROMO_UNIT_PREFIX
-from ProMo_RDF_Graph import UNITS
+from ProMo_Write_RDF_Graph_Var_Expr import PROMO
+from ProMo_Write_RDF_Graph_Var_Expr import PROMO_UNIT_PREFIX
+from ProMo_Write_RDF_Graph_Var_Expr import QUDT
+from ProMo_Write_RDF_Graph_Var_Expr import UNITS
 
-PROMO = "http://example.org#"
-PROMOLG = "http://example.org/language#"
-QUDT = "http://qudt.org/2.1/vocab/quantitykind#"
+# PROMO = "http://example.org#"
+# PROMOLG = "http://example.org/language#"
+# QUDT = "http://qudt.org/2.1/vocab/quantitykind#"
 
-ENDPOINTS = [PROMO, PROMOLG, QUDT]
+# ENDPOINTS = [PROMO, PROMOLG, QUDT]
 
 promo = Namespace(PROMO)
 rdf = Namespace(RDF)
@@ -20,9 +22,7 @@ qudt = Namespace(QUDT)
 
 def getPrefixAndIdentifier(uiref):
   rp = uiref.toPython()
-  # print(rp)
 
-  pre, ID = None, None
   if "#" in uiref:
     pre, ID = rp.split("#")
     pre = pre + "#"
@@ -56,14 +56,25 @@ class ProMoOntology:
     g = self.graph
     counter = 0
     for s, p, o, l in g.quads((None, RDF.type, promo["variable"], None)):
-      print("variable ", o, " context:", l)
+      # print("variable ", o, " context:", l)
       counter += 1
 
     print("no of variables", counter)  # results 143
 
+    query_graph = """ SELECT DISTINCT ?g 
+                      WHERE {
+                      GRAPH ?g { ?s ?p ?o }
+                      }
+                  """
+
+    res_graph = g.query(query_graph)
+
+    for r in res_graph:
+      print(r)
+
     query_var = """
         SELECT ?v ?l ?t ?n ?d ?u1 ?u2 ?u3 ?u4 ?u5 ?u6 ?u7 ?u8 ?p
-            WHERE {
+            WHERE { GRAPH ?g {
                     ?v rdf:type promo:variable .
                     ?v promo:label ?l .
                     ?v promo:type ?t .
@@ -78,8 +89,7 @@ class ProMoOntology:
                     ?v promo:unit_light ?u7 .
                     ?v promo:unit_nil ?u8 .
                     ?v promo:port_variable ?p .
-                    }
-            FROM {l}
+                    }}
               """
     res_var = g.query(query_var)
 
@@ -115,18 +125,18 @@ class ProMoOntology:
 
       for s, p, o, l in g.quads((v_iri, URIRef(promo["has_index"]), None, None)):
         # indices.append(o)
-        for si, pi, oi in g.quads((URIRef(promo["global_index_list"]), None, o, None)):
-          _, no = pi.split("#_")
+        for si, pi, oi, li in g.quads((URIRef(promo["global_index_list"]), None, o, None)):
+          _, no = str(pi).split("#_")
           # print("found index p:", pi, no)
           indices.append(int(no))
 
-      for s, p, o, l  in g.quads(((v_iri, URIRef(promo["is_defined_by_expression_list"]), None, None))):
+      for s, p, o, l in g.quads(((v_iri, URIRef(promo["is_defined_by_expression_list"]), None, None))):
         if o == RDF.nil:
           print("nil for iri %s: " % s, o)
           eq = None
         else:
           print("for iri %s: " % s, o)
-          _r, eq_list = o.split("#")
+          _r, eq_list = str(o).split("#")
           eq, e_type, e_network, e_doc = self.extractProMoExpression(eq_list)
           print("equation:", eq)
           equation_attribute_dic = {"rhs"    : eq,
@@ -154,7 +164,7 @@ class ProMoOntology:
     end = False
     i = 0
     while not end:
-
+      # Note: Items are numbered 00,01,02,..... so we assume less than 100
       if i < 10:
         query = """
           SELECT ?item
@@ -172,6 +182,10 @@ class ProMoOntology:
 
       for r in res:  # res comes as interator
         prefix, o = getPrefixAndIdentifier(r[0])
+      # if len(res) != 1:
+      #   print("res",len(res))
+      #   pass
+
 
       sub = URIRef(prefix[o])
       # print("sub is:", sub)
@@ -183,6 +197,8 @@ class ProMoOntology:
           # print("object", o)
           expr = expr + " " + str(o)
           found = True
+          if len(res) != 1:
+            print("res :",len(res), expr)
       i += 1
       end = not (found)
 

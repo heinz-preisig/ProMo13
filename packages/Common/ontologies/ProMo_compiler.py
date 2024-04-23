@@ -66,7 +66,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFro
 from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.tpg import *
 
-from ProMo_var_expr_ontology import ProMoOntology
+from ProMo_Read_RDF_Graph_Var_Expr import ProMoOntology
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)

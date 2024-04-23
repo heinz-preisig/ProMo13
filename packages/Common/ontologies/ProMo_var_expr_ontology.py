@@ -2,7 +2,7 @@ from rdflib import Graph
 from rdflib import Namespace
 from rdflib import RDF
 from rdflib import URIRef
-from ProMo_RDF_Graph import PROMO_UNIT_PREFIX, UNITS
+from ProMo_Write_RDF_Graph_Var_Expr import PROMO_UNIT_PREFIX, UNITS
 
 
 PROMO = "http://example.org#"
