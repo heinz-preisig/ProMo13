@@ -31,6 +31,13 @@ from rdflib.plugins.stores.memory import Memory
 
 from Common.common_resources import getOntologyName
 from Common.ontologies.plot_rdf import plot
+from Common.ontologies.RDF_configuration import PROMO
+from Common.ontologies.RDF_configuration import PROMO_UNIT_PREFIX
+from Common.ontologies.RDF_configuration import PROMOINDICES
+from Common.ontologies.RDF_configuration import PROMOLG
+from Common.ontologies.RDF_configuration import PROMOVARS
+from Common.ontologies.RDF_configuration import UNITS, QUDT, QUDT_units, PROMONWS
+
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from OntologyBuilder.OntologyEquationEditor.resources import DELIMITERS_alias
@@ -39,25 +46,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import LIST_FUNCTIONS
 from OntologyBuilder.OntologyEquationEditor.resources import LIST_OPERATORS
 from OntologyBuilder.OntologyEquationEditor.resources import OPERATORS_alias
 
-PROMO = "http://example.org#"
-PROMOLG = "http://example.org/language#"
-
-PROMOVARS = "http://example.org/variables#"
-QUDT = "http://qudt.org/vocab/quantitykind/"
-QUDT_units = "http://qudt.org/vocab/unit/"
-
-PROMO_UNIT_PREFIX = "unit"
-UNITS = [("time", "SEC"),
-         ("length", "M"),
-         ("amount", "MOL"),
-         ("mass", "KiloGM"),
-         ("temperature", "K"),
-         ("current", "A"),
-         ("light", "CD"),
-         ("nil", "UNITLESS"),
-         ]
-
-render_expression_to_list = True
+render_expression_to_list = False
 
 
 def contextPrint(g, l):
@@ -104,17 +93,15 @@ class RDFProMo():
 
     for i in indices:
       index = indices[i]
-      iri = self.getVarIndexIRI(index)
+      iri = self.getIndexIRI(index)
+      _, no = i.split("_")
 
       if indices[i]["type"] == "index":
-
         g.add((iri, RDF.type, URIRef(promo["index"])))
-        for t in ["label", "network"]:
-          triple = (iri, URIRef(promo + t), Literal(index[t]))
-
-          g.add(triple)
-          # print("index:", triple)
-          _, no = i.split("_")
+        triple = (iri, URIRef(promo + "label"), Literal(index["aliases"]["internal_code"]))
+        g.add(triple)
+        triple = (iri, URIRef(promo + "network"), Literal(index["network"]))
+        g.add(triple)
 
         predicate = eval("RDF._%s" % no)
 
@@ -127,9 +114,13 @@ class RDFProMo():
 
     # variables ===================================================================
     # one needs the tokens, the indices before defining the variables
+    set_iri = set()
+    list_iri = []
     for vID in variables:
       v = self.variables[vID]
       iri = self.getVarIndexIRI(v)
+      set_iri.add(iri)
+      list_iri.append(iri)
 
       nw = self.stripConnectNetworkName(v["network"])
       gnw = graphs[nw]
@@ -198,8 +189,11 @@ class RDFProMo():
             gnw.add(triple)
 
           else:
-            obj = Literal("%s:" % eqID + equation_dictionary[eqID]["rhs"])
+            obj = Literal("%s:" % eqID + equation_dictionary[eqID]["rhs"]["global_ID"])
             triple = (iri, URIRef(promo["is_defined_by_expression"]), obj)
+            gnw.add(triple)
+            obj = Literal("%s:" % eqID + equation_dictionary[eqID]["rhs"]["latex"])
+            triple = (iri, URIRef(promo["has_latex_representation"]), obj)
             gnw.add(triple)
       else:
         triple = (iri, URIRef(promo["is_defined_by_expression_list"]), RDF.nil)
@@ -208,6 +202,7 @@ class RDFProMo():
 
     print("number of variables :", counter)
     print("no equations:", no_equation, len(no_equation))
+    print("no of iri", len(set_iri), len(list_iri))
 
     contextPrint(g, "finished")
 
@@ -216,8 +211,6 @@ class RDFProMo():
   def prepare_graph(self, interconnections, networks):
     store = Memory()
     g = ConjunctiveGraph(store=store)
-    # uids = {"promo": BASE,
-    #         }
 
     uris = {"promo": URIRef(PROMO),
             }
@@ -250,22 +243,25 @@ class RDFProMo():
     promo_language = Graph(store=store, identifier=id)
     promo_language.parse(f_promo_language, format="trig")
 
-    f_promo_variables = os.path.join(ttl_location, "promo_variables_eq_list.ttl")
-    id = URIRef(PROMOVARS)
-    promo_variables = Graph(store=store, identifier=id)
-    promo_variables.parse(f_promo_variables, format="trig")
+    # f_promo_variables = os.path.join(ttl_location, "promo_variables_eq_list.ttl")
+    # id = URIRef(PROMOVARS)
+    # promo_variables = Graph(store=store, identifier=id)
+    # promo_variables.parse(f_promo_variables, format="trig")
 
     # get all namespaces
     namespaces = {}
+    namespaces["promovars"] = Namespace(PROMOVARS)
+    namespaces["indices"] = Namespace(PROMOINDICES)
+
     for prefix, ns in g.namespaces():
       namespaces[prefix] = Namespace(ns)
 
     # add promo language
-
     namespaces["promolg"] = Namespace(PROMOLG)
 
     # @ qudt_units
-    namespaces["qudt_units"] = Namespace("http://qudt.org/2.1/vocab/unit")
+    namespaces["qudt"] = Namespace(QUDT)
+    namespaces["qudt_units"] = Namespace(QUDT_units) #"http://qudt.org/2.1/vocab/unit")
 
     return g, graphs, namespaces, store
 
@@ -274,9 +270,21 @@ class RDFProMo():
     item is either variable or index
     """
     prefix, term = item["IRI"].split(":")
+    nw = item["network"]
 
     t = term.replace(" ", "").replace("&", "x")
     iri = URIRef(self.namespaces[prefix] + t)
+    return iri
+
+  def getIndexIRI(self, item):
+    """
+    item is either variable or index
+    """
+    prefix, term = item["IRI"].split(":")
+    t = item["aliases"]["internal_code"]
+
+    # t = term.replace(" ", "").replace("&", "x")
+    iri = URIRef(self.namespaces["indices"] + t)
     return iri
 
   def renderToRDF(self, equation_index, expression, indices):
@@ -292,6 +300,7 @@ class RDFProMo():
 
     promo = self.namespaces["promo"]
     promolg = self.namespaces["promolg"]
+    # promoindices = self.namespaces["indices"]
 
     items_ = expression["global_ID"].split(" ")[1:]
     items = []
@@ -335,7 +344,7 @@ class RDFProMo():
         elif w[0] == "I":
           iID = int(w.split("I_")[1])
           # key = indices[iID]["IRI"].split(":")[1].replace(" ", "").replace("&", "x")
-          key = self.getVarIndexIRI(indices[w])  # iID])
+          key = self.getIndexIRI(indices[w])  # iID])
           if "<" in key:
             print("bug")
 
@@ -367,26 +376,26 @@ if __name__ == '__main__':
     from PyQt5 import QtCore
     finished = QtCore.pyqtBoundSignal()
 
-    def makeGraph(self):
-      from Common.ontology_container import OntologyContainer
-
-      self.ontology_name = getOntologyName(task="task_RDF_variable_expression")
-
-      ontology_container = OntologyContainer(self.ontology_name)
-      tokens = ontology_container.tokens
-      variables = ontology_container.variables
-      indices = ontology_container.indices
-      equation_dictionary = ontology_container.equation_dictionary
-
-      f_promo_ttl = FILES["variablesExpression_ttl_file"] % self.ontology_name
-      EQ_ontology = RDFProMo(self.ontology_name)
-      EQ_ontology.create(variables, tokens, equation_dictionary, indices)
-      # EQ_ontology.graph.serialize(f_promo_ttl + ".ttl", format="ttl")
-      # EQ_ontology.graph.serialize(f_promo_ttl + ".n3", format="n3")
-      # EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="json-ld")
-      EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="trig")
-
-      self.finished.emit()
+    # def makeGraph(self):
+    #   from Common.ontology_container import OntologyContainer
+    #
+    #   self.ontology_name = getOntologyName(task="task_RDF_variable_expression")
+    #
+    #   ontology_container = OntologyContainer(self.ontology_name)
+    #   tokens = ontology_container.tokens
+    #   variables = ontology_container.variables
+    #   indices = ontology_container.indices
+    #   equation_dictionary = ontology_container.equation_dictionary
+    #
+    #   f_promo_ttl = FILES["variablesExpression_ttl_file"] % self.ontology_name
+    #   EQ_ontology = RDFProMo(self.ontology_name)
+    #   EQ_ontology.create(variables, tokens, equation_dictionary, indices)
+    #   # EQ_ontology.graph.serialize(f_promo_ttl + ".ttl", format="ttl")
+    #   # EQ_ontology.graph.serialize(f_promo_ttl + ".n3", format="n3")
+    #   # EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="json-ld")
+    #   EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="trig")
+    #
+    #   self.finished.emit()
 
     def makeMultiGraph(self):
       from Common.ontology_container import OntologyContainer
@@ -396,6 +405,7 @@ if __name__ == '__main__':
       ontology_container = OntologyContainer(self.ontology_name)
       tokens = ontology_container.tokens
       variables = ontology_container.variables
+      print("number of variables:", len(variables))
       indices = ontology_container.indices
       equation_dictionary = ontology_container.equation_dictionary
       networks = ontology_container.networks

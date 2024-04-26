@@ -25,16 +25,18 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 from rdflib import Graph
-from rdflib import RDF, RDFS
-from rdflib import URIRef
 from rdflib import Literal
+from rdflib import RDF
+from rdflib import RDFS
+from rdflib import URIRef
 
+from Common.ontologies.RDF_configuration import PROMOLG
 from OntologyBuilder.OntologyEquationEditor.resources import DELIMITERS_alias
 from OntologyBuilder.OntologyEquationEditor.resources import LIST_FUNCTIONS
 from OntologyBuilder.OntologyEquationEditor.resources import OPERATORS_alias
 from plot_rdf import plot
 
-base = "http://example.org/language#"
+base = PROMOLG # "http://example.org/language#"
 
 g_promo_language = Graph()
 g_promo_language.bind("promolg", "http://example.org/language#")

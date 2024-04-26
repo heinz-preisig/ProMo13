@@ -4,14 +4,10 @@ from rdflib import Namespace
 from rdflib import RDF
 from rdflib import URIRef
 
-from ProMo_Write_RDF_Graph_Var_Expr import PROMO
-from ProMo_Write_RDF_Graph_Var_Expr import PROMO_UNIT_PREFIX
-from ProMo_Write_RDF_Graph_Var_Expr import QUDT
-from ProMo_Write_RDF_Graph_Var_Expr import UNITS
-
-# PROMO = "http://example.org#"
-# PROMOLG = "http://example.org/language#"
-# QUDT = "http://qudt.org/2.1/vocab/quantitykind#"
+from Common.ontologies.RDF_configuration import PROMO
+from Common.ontologies.RDF_configuration import PROMO_UNIT_PREFIX
+from Common.ontologies.RDF_configuration import QUDT
+from Common.ontologies.RDF_configuration import UNITS
 
 # ENDPOINTS = [PROMO, PROMOLG, QUDT]
 
@@ -113,6 +109,9 @@ class ProMoOntology:
         unit_nil, \
         port_variable = r
 
+      if "c" in label:
+        print(">>>>>found")
+
       units = []
       for quantity, qudt_term in UNITS:
         u = eval(PROMO_UNIT_PREFIX + "_%s" % quantity)[0]
@@ -157,9 +156,23 @@ class ProMoOntology:
 
     return variable_attribute_dict
 
+
   def extractProMoExpression(self, e):
 
     g = self.graph
+    iri = promo[e]
+    e_type = str(self.extractFromGenerator(g.objects(iri, promo["equation_class"])))
+    e_network = str(self.extractFromGenerator(g.objects(iri, promo["network"])))
+    e_doc = str(self.extractFromGenerator(g.objects(iri, promo["doc"])))
+
+    if " >>> " in e_network:
+      source_nw, sink_nw  = e_network.split(" >>> ")
+      domain_nw = source_nw
+    else:
+      domain_nw = e_network
+
+    print(e_type, e_network, e_doc)
+
     expr = ""
     end = False
     i = 0
@@ -186,19 +199,30 @@ class ProMoOntology:
       #   print("res",len(res))
       #   pass
 
-
       sub = URIRef(prefix[o])
+      try:
+        namespace,_ = str(prefix).split("#")
+      except:
+        print(" issue with prefix")
+        namespace = prefix
+      # print("namespace", namespace)
       # print("sub is:", sub)
       # pred = URIRef(promo["label"]) #.replace("#", "/"))  # NOTE: predicate must have a / and not a # !!!! and sometimes it is the opposite buuuu!!!
       # print("pred is:", pred)
+      pred = "http://example.org#label"
       found = False
       for s, p, o, l in g.quads((sub, None, None, None)):
-        if "label" in p:
-          # print("object", o)
+
+        if ("label" in p) :
+          if "57" in e:
+            print(">>> s: %s,  p:%s, o:%s, l:%s -- namespace:%s, -- source network:%s"%(s, p, o, l,namespace, domain_nw))
+          if "49" in e:
+            print("object", o, "graph", l)
           expr = expr + " " + str(o)
           found = True
-          if len(res) != 1:
-            print("res :",len(res), expr)
+
+          # print("object", o, "graph", l)
+
       i += 1
       end = not (found)
 
@@ -238,7 +262,8 @@ if __name__ == '__main__':
 
       ProMoOnto = ProMoOntology(f_promo_ttl)  # "var_equ_rdf.ttl")
       variables = ProMoOnto.getAllVariablesAndExpressions()
-      print("The End")
+
+      print("The End -- no of variables:", len(variables))
 
       self.finished.emit()
 
