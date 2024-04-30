@@ -3,11 +3,9 @@
 
 """
 ===============================================================================
- writes ontology container as an RDF graph
- The equations are also available in internal and latex format
+ ontology container as an RDF graph
 ===============================================================================
 
-2024-04-30  Heinz A Preisig
 """
 
 __project__ = "ProcessModeller  Suite"
@@ -33,7 +31,7 @@ from rdflib.plugins.stores.memory import Memory
 
 from Common.common_resources import getOntologyName
 from Common.ontologies.plot_rdf import plot
-from Common.ontologies.RDF_configuration import PROMO, BASE
+from Common.ontologies.RDF_configuration import PROMO
 from Common.ontologies.RDF_configuration import PROMO_UNIT_PREFIX
 from Common.ontologies.RDF_configuration import PROMOINDICES
 from Common.ontologies.RDF_configuration import PROMOLG
@@ -193,12 +191,6 @@ class RDFProMo():
             obj = URIRef(promo["expression_list_%s" % eqID])
             triple = (iri, URIRef(promo["is_defined_by_expression_list"]), obj)
             gnw.add(triple)
-            obj = Literal("%s:" % eqID + equation_dictionary[eqID]["rhs"]["global_ID"])
-            triple = (iri, URIRef(promo["is_defined_by_expression"]), obj)
-            gnw.add(triple)
-            obj = Literal("%s:" % eqID + equation_dictionary[eqID]["rhs"]["latex"])
-            triple = (iri, URIRef(promo["has_latex_representation"]), obj)
-            gnw.add(triple)
 
           else:
             obj = Literal("%s:" % eqID + equation_dictionary[eqID]["rhs"]["global_ID"])
@@ -231,13 +223,13 @@ class RDFProMo():
                         }
 
     for nw in networks:
-      uid = '%s/%s' % (BASE, nw)
+      uid = '%s%s' % (PROMO, nw)
       uris[nw] = URIRef(uid)
       promo_namespaces[nw] = Namespace(uid)
 
     for nw_ in interconnections:
       nw = self.stripConnectNetworkName(nw_)
-      uid = '%s/%s' % (BASE, nw)
+      uid = '%s%s' % (PROMO, nw)
       uris[nw] = URIRef(uid)
       promo_namespaces[nw] = Namespace(uid)
 
@@ -287,7 +279,7 @@ class RDFProMo():
     nw = self.stripConnectNetworkName(nw_)
 
     t = term.replace(" ", "").replace("&", "x")
-    iri = URIRef(self.namespaces[nw] + "#"+t)
+    iri = URIRef(self.namespaces[prefix] + t)
     return iri
 
   def getIndexIRI(self, item):

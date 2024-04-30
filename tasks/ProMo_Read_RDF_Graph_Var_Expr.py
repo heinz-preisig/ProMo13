@@ -1,4 +1,17 @@
-# from rdflib import Graph
+#!/usr/local/bin/python3
+# encoding: utf-8
+
+"""
+===============================================================================
+ reads ontology container as an RDF graph
+ and reconstructs the original input for all equations.
+ The equations are also available in internal and latex format
+===============================================================================
+
+2024-04-30  Heinz A Preisig
+
+"""
+
 from rdflib import Dataset
 from rdflib import Namespace
 from rdflib import RDF
@@ -9,7 +22,6 @@ from Common.ontologies.RDF_configuration import PROMO_UNIT_PREFIX
 from Common.ontologies.RDF_configuration import QUDT
 from Common.ontologies.RDF_configuration import UNITS
 
-# ENDPOINTS = [PROMO, PROMOLG, QUDT]
 
 promo = Namespace(PROMO)
 rdf = Namespace(RDF)
@@ -20,15 +32,25 @@ def getPrefixAndIdentifier(uiref):
   rp = uiref.toPython()
 
   if "#" in uiref:
-    pre, ID = rp.split("#")
-    pre = pre + "#"
+    s = rp.split("#")
+    if len(s) == 2:
+      namespace = s[0]
+      pre = s[0] + "#"
+      ID = s[1]
+    elif len(s) == 3:
+      namespace = s[0]
+      pre = s[0] + "#" + s[1]
+      ID = s[2]
+    else:
+      print("error")
 
   else:
     ID = rp.split("/")[-1]
     pre = rp.split(ID)[0]
+    namespace = pre
 
   prefix = Namespace(pre)
-  return prefix, ID
+  return prefix, ID, namespace
 
 
 class ProMoOntology:
@@ -49,24 +71,31 @@ class ProMoOntology:
     """
     extract all variables from the ontology
     """
+
+    get_graphs = False
+    count_variables = True
+
     g = self.graph
-    counter = 0
-    for s, p, o, l in g.quads((None, RDF.type, promo["variable"], None)):
-      # print("variable ", o, " context:", l)
-      counter += 1
 
-    print("no of variables", counter)  # results 143
+    if count_variables:
+      counter = 0
+      for s, p, o, l in g.quads((None, RDF.type, promo["variable"], None)):
+        # print("variable ", o, " context:", l)
+        counter += 1
 
-    query_graph = """ SELECT DISTINCT ?g 
-                      WHERE {
-                      GRAPH ?g { ?s ?p ?o }
-                      }
-                  """
+      print("no of variables", counter)  # results 143
 
-    res_graph = g.query(query_graph)
+    if get_graphs:
+      query_graph = """ SELECT DISTINCT ?g 
+                        WHERE {
+                        GRAPH ?g { ?s ?p ?o }
+                        }
+                    """
 
-    for r in res_graph:
-      print(r)
+      res_graph = g.query(query_graph)
+
+      for r in res_graph:
+        print(r)
 
     query_var = """
         SELECT ?v ?l ?t ?n ?d ?u1 ?u2 ?u3 ?u4 ?u5 ?u6 ?u7 ?u8 ?p
@@ -109,8 +138,9 @@ class ProMoOntology:
         unit_nil, \
         port_variable = r
 
-      if "c" in label:
-        print(">>>>>found")
+      _s = str(iri).split("/")
+      v_nw, v_name = _s[-1].split("#")
+      # print(v_nw,v_name)
 
       units = []
       for quantity, qudt_term in UNITS:
@@ -131,13 +161,15 @@ class ProMoOntology:
 
       for s, p, o, l in g.quads(((v_iri, URIRef(promo["is_defined_by_expression_list"]), None, None))):
         if o == RDF.nil:
-          print("nil for iri %s: " % s, o)
+          q = str(s).split("#")
+          # print("nil for iri %s: " % s, p, o, l)
+          print("no equation for %s" % q[1])
           eq = None
         else:
-          print("for iri %s: " % s, o)
+          # print("for iri %s: " % s, o)
           _r, eq_list = str(o).split("#")
           eq, e_type, e_network, e_doc = self.extractProMoExpression(eq_list)
-          print("equation:", eq)
+          print("equation domain %s: %s := %s" % (v_nw, v_name, eq))
           equation_attribute_dic = {"rhs"    : eq,
                                     "type"   : e_type,
                                     "network": e_network,
@@ -156,7 +188,6 @@ class ProMoOntology:
 
     return variable_attribute_dict
 
-
   def extractProMoExpression(self, e):
 
     g = self.graph
@@ -165,13 +196,6 @@ class ProMoOntology:
     e_network = str(self.extractFromGenerator(g.objects(iri, promo["network"])))
     e_doc = str(self.extractFromGenerator(g.objects(iri, promo["doc"])))
 
-    if " >>> " in e_network:
-      source_nw, sink_nw  = e_network.split(" >>> ")
-      domain_nw = source_nw
-    else:
-      domain_nw = e_network
-
-    print(e_type, e_network, e_doc)
 
     expr = ""
     end = False
@@ -194,30 +218,16 @@ class ProMoOntology:
       res = g.query(query)
 
       for r in res:  # res comes as interator
-        prefix, o = getPrefixAndIdentifier(r[0])
-      # if len(res) != 1:
-      #   print("res",len(res))
-      #   pass
+
+        prefix, o, namespace = getPrefixAndIdentifier(r[0])
 
       sub = URIRef(prefix[o])
-      try:
-        namespace,_ = str(prefix).split("#")
-      except:
-        print(" issue with prefix")
-        namespace = prefix
-      # print("namespace", namespace)
-      # print("sub is:", sub)
-      # pred = URIRef(promo["label"]) #.replace("#", "/"))  # NOTE: predicate must have a / and not a # !!!! and sometimes it is the opposite buuuu!!!
-      # print("pred is:", pred)
-      pred = "http://example.org#label"
       found = False
       for s, p, o, l in g.quads((sub, None, None, None)):
 
-        if ("label" in p) :
-          if "57" in e:
-            print(">>> s: %s,  p:%s, o:%s, l:%s -- namespace:%s, -- source network:%s"%(s, p, o, l,namespace, domain_nw))
-          if "49" in e:
-            print("object", o, "graph", l)
+        # print(">>> s: %s,  p:%s, o:%s, l:%s -- namespace:%s, -- source network:%s" % (s, p, o, l, namespace, domain_nw))
+
+        if ("label" in p):
           expr = expr + " " + str(o)
           found = True
 
@@ -230,7 +240,7 @@ class ProMoOntology:
     e_type = str(self.extractFromGenerator(g.objects(iri, promo["equation_class"])))
     e_network = str(self.extractFromGenerator(g.objects(iri, promo["network"])))
     e_doc = str(self.extractFromGenerator(g.objects(iri, promo["doc"])))
-    print(e_type, e_network, e_doc)
+    # print(e_type, e_network, e_doc)
     return expr, e_type, e_network, e_doc
 
   def extractFromGenerator(self, generator):
