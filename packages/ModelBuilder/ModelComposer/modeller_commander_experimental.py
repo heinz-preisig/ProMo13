@@ -896,9 +896,10 @@ class Commander(QtCore.QObject):
       return self.__abortArcGeneration("there was no entity")
 
     if insert_intraface:
-      boundary = NAMES["intraface"]
+      boundary = NAMES["arc node"] #["intraface"]
       nw, node_or_arc, application, variant = splitEntity(entity)
       token, mechanism, nature = splitApplication(application)
+      connection_network = self.main.current_network
     elif insert_interface:
       boundary = NAMES["interface"]
       dummy_Interface = Interface(

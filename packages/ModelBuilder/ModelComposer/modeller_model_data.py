@@ -191,7 +191,7 @@ class ModelContainer(dict):
     childNodeID = self["ID_tree"].addChild(parentNodeID)
 
     self["nodes"][childNodeID] = NodeInfo(
-        CR.DEFAULT,
+        variant, #CR.DEFAULT,
         network=network,
         named_network=named_network,
         node_class=node_class,

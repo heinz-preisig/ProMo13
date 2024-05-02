@@ -465,7 +465,7 @@ class G_Item(QtWidgets.QGraphicsItem):
 
   def __formGroups(self):
     added_new = False  # used to delete group
-    nodes = [NAMES["node"], NAMES["interface"], NAMES["intraface"], NAMES["branch"]]
+    nodes = [NAMES["node"], NAMES["interface"], NAMES["intraface"], NAMES["arc node"], NAMES["branch"]]  # note: objects that can be grouped
     offset = self.view.offset
     x_o = offset.x()
     y_o = offset.y()
