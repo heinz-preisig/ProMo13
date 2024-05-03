@@ -72,6 +72,7 @@ M_any = "*"
 
 NODE_COMPONENT_SEPARATOR = "|"
 ARC_COMPONENT_SEPARATOR = "|"
+APPLICATION_COMPONENT_SEPARATOR = "|"
 ENTITY_OBJECT_SEPARATOR = "."
 EQUATION_COMPONENT_SEPARATOR = "|"
 # RULE: separator is the same for inter and intra networks
