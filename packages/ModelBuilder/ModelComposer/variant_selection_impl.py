@@ -21,6 +21,8 @@ __status__ = "beta"
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QDialog
 
+from Common.common_resources import APPLICATION_COMPONENT_SEPARATOR
+from Common.common_resources import ENTITY_OBJECT_SEPARATOR
 from Common.resources_icons import roundButton
 from packages.ModelBuilder.ModelComposer.variant_selection import Ui_Dialog
 
@@ -52,11 +54,11 @@ def extract(variants, filter_and, filter_or, filter_not):
   return selection_2
 
 def splitEntity(entity):
-  nw, node_or_arc, application, variant = entity.split(".")
+  nw, node_or_arc, application, variant = entity.split(ENTITY_OBJECT_SEPARATOR)
   return nw,node_or_arc, application, variant
 
 def splitApplication(application):
-  token, mechanism, nature = application.split("|")
+  token, mechanism, nature = application.split(APPLICATION_COMPONENT_SEPARATOR)
   return token, mechanism, nature
 
 

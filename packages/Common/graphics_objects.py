@@ -39,7 +39,7 @@ NAMES = {
         "branch"               : "node_composite",
         "panel"                : "node_viewed",
         "connector"            : "connector",
-        "intraface"            : "node_intraface",
+        "intraface"            : "node_arc",#"node_intraface",
         "interface"            : "node_interface",
         "arc node"             : "node_arc",
         "reservoir"            : "constant",

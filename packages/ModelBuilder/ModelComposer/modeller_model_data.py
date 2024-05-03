@@ -77,7 +77,7 @@ class NodeInfo(dict):  # (OrderedDict): #
     if "has_conversion" in features:
       # dict hash=tokens value=list of active conversions
       self["conversions"] = {}
-    if "intraface" in features:
+    if NAMES["intraface"] in features:
       self["tokens_right"] = {}  # dict hash=tokens value=list of typed tokens
       self["tokens_left"] = {}  # dict hash=tokens value=list of typed tokens
       # dict hash=tokens value=list of typed tokens
@@ -1514,6 +1514,9 @@ class ModelContainer(dict):
                 CR.CONNECTION_NETWORK_SEPARATOR)
             left = left_network == named_network
             right = right_network == named_network
+
+            if token not in node_data["transfer_constraints"]:
+              node_data["transfer_constraints"][token] = []
             if typed_token not in node_data["transfer_constraints"][token]:
               if left:
                 next_network = right_network
