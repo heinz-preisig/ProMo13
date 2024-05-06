@@ -817,10 +817,10 @@ class Commander(QtCore.QObject):
     both_in_physics_domain = sink_domain_physical and source_domain_physical
 
     # or any other domain
-    insert_non_physics_arc = False
-    if not both_in_physics_domain:
-      print("debugging -- insert normal arc in the corresponding intra domain")
-      insert_non_physics_arc = True
+    insert_physics_arc = False
+    if both_in_physics_domain:
+      # print("debugging -- insert normal arc in the corresponding intra domain")
+      insert_physics_arc = True
 
     # named connection network
     named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source["named_network"], sink["named_network"])
@@ -829,38 +829,20 @@ class Commander(QtCore.QObject):
     connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source_intra_domain, sink_intra_domain)
 
     # nature of the connection
-    selected_token = None
-    insert_intraface = False
-
-    if same_intra_domain:
-      selected_token, application, entities = self.__getAllowedTokens(sink, source)
-
-      if source["named_network"] == sink["named_network"]:
-        print("debugging -- same named network -- insert arc_node")
-        insert_physics_arc = True
-      else:
-        print("debugging -- insert intraface node")
-        insert_intraface = True
+    selected_token, application, entities = self.__getAllowedTokens(sink, source)
 
     ands = []
     ors = []
 
     pos = self.__getMidPoint(fromNodeID, toNodeID)
-    if insert_intraface or insert_interface or insert_physics_arc:
 
-      if insert_intraface:
-        ands = [source_intra_domain, "arc"]
-        ors = [selected_token]
-      elif insert_physics_arc:
-        ands = [source_intra_domain, "arc"]
-        ors = [selected_token]
-      elif insert_interface:
-        ands = [connection_network, ]
-        ors = []
-      else:
-        self.__abortArcGeneration("cannot generate arc")
-
-    elif insert_non_physics_arc:
+    if insert_physics_arc: # RULE: physics arcs have intrafaces
+      ands = [source_intra_domain, "arc"]
+      ors = [selected_token]
+    elif insert_interface:
+      ands = [connection_network, ]
+      ors = []
+    else:  # RULE: non-physics arcs have no intraface
       ands = [source_intra_domain, "arc"]
       ors = [selected_token]
 
@@ -879,8 +861,8 @@ class Commander(QtCore.QObject):
     if not entity:
       return self.__abortArcGeneration("there was no entity")
 
-    if insert_intraface:
-      boundary = NAMES["arc node"]  # ["intraface"]
+    if insert_physics_arc:
+      boundary = NAMES["arc node"]
       nw, node_or_arc, application, variant = splitEntity(entity)
       token, mechanism, nature = splitApplication(application)
       connection_network = self.main.current_network
@@ -892,11 +874,6 @@ class Commander(QtCore.QObject):
       nature = dummy_Interface["nature"]
       variant = "interface"  # RULE: variant is being fixed for the time being
       application = CR.TEMPLATE_ARC_APPLICATION % (token, mechanism, nature)
-    elif insert_physics_arc:
-      boundary = NAMES["arc node"]
-      nw, node_or_arc, application, variant = splitEntity(entity)
-      token, mechanism, nature = splitApplication(application)
-      connection_network = self.main.current_network
     else:
       boundary = None
       application = None
@@ -942,12 +919,6 @@ class Commander(QtCore.QObject):
     self.model_container.updateTokensInAllDomains()
     self.model_container.updateTypedTokensInAllDomains()
     self.__redrawScene(self.current_ID_node_or_arc)
-
-    # add info knot
-    # self.model_container.getArcGraphicalData(
-    #     self.current_ID_node_or_arc, arcID)
-    # print("debugging find arc on scene")
-    # self.__C12_insertArcInfoKnot(arcID)
 
     return {
             "added arc": arcID,
