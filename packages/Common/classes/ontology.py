@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class Ontology:
   def __init__(self, ontology_tree):
     self.tree = ontology_tree
@@ -7,15 +10,7 @@ class Ontology:
     ent_type, network, tokens, mechanism, *rest = data
     # print(data)
     if selector == 1:
-      # top_networks = []
-      # for network in self.tree:
-      #     if len(self.tree[network]["parents"]) == 1 and self.tree[network]["parents"][0] == "root":
-      #         top_networks.append(network)
-
-      # TODO Fix this with a method to obtain the top networks
-
-      # return top_networks
-      return ["control", "macroscopic", "material", "reactions"]
+      return list(self.tree)
     elif selector == 2:
       if ent_type == "arc":
         return list(self.tree[network]["structure"][ent_type].keys())
