@@ -145,7 +145,7 @@ class IOHandler:
 
     return paths
 
-  def get_instantiation_data(self) -> Dict[str, Dict[Tuple[str], str]]:
+  def get_instantiation_data(self) -> Dict[str, Dict[Tuple[str, ...], str]]:
     path = self._build_path(PathTemplates.INSTANTIATION_FILE)
 
     if not path.is_file():
@@ -163,7 +163,7 @@ class IOHandler:
 
     return tuples_dict
 
-  def set_instantiation_data(self, data: Dict[str, Dict[Tuple[str], str]]) -> None:
+  def set_instantiation_data(self, data: Dict[str, Dict[Tuple[str, ...], str]]) -> None:
     no_tuple_dict = {}
     for key, dict_value in data.items():
       no_tuple_dict[key] = {

@@ -2,7 +2,7 @@ from email.mime import image
 import os
 import copy
 import logging
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 from PyQt5 import QtCore
 
@@ -10,10 +10,10 @@ from packages.Common.classes import io
 from packages.Common.classes import entity
 from packages.Common.classes import modeller_classes
 
-from packages.Utilities.InstantiationTool.models import variable_tree
 from packages.Utilities.InstantiationTool.models import topology_tree
 
 from src.common import roles
+from src.common.constants import FixedVariables
 from src.common.components import image_list
 from src.common.io import IOHandler
 
@@ -87,11 +87,69 @@ class MainModel(QtCore.QObject):
     )
 
     self._instantiation = self._io_handler.get_instantiation_data()
+    self._generate_topology_instantiation()
+
     self._discover_required_variables()
     self._update_variable_tree_model()
 
     # if self._required_variables:
     #   self._update_topology_tree_model(self._required_variables[0])
+
+  def _generate_topology_instantiation(self) -> None:
+    connections: List[Tuple[str, str]] = []
+    for top_obj in self._all_topology_objects.values():
+      if isinstance(top_obj, modeller_classes.NodeComposite):
+        continue
+
+      top_obj = cast(modeller_classes.EntityContainer, top_obj)
+
+      for connect_obj_id in top_obj.outgoing_connections:
+        connections.append((top_obj.identifier, connect_obj_id))
+
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SOURCE] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SINK] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SOURCE] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SINK] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SOURCE] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SINK] = {}
+
+    for source, sink in connections:
+      if source.startswith("N"):
+        if sink.startswith("A"):
+          tuple_key = (source, sink)
+
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX]
+          update_dict[tuple_key] = "-1"
+
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SOURCE]
+          update_dict[tuple_key] = "1"
+        elif sink.startswith("I"):
+          tuple_key = (source, sink)
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SOURCE]
+          update_dict[tuple_key] = "1"
+      elif source.startswith("A"):
+        if sink.startswith("N"):
+          tuple_key = (sink, source)
+
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX]
+          update_dict[tuple_key] = "1"
+
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SINK]
+          update_dict[tuple_key] = "1"
+        else:
+          tuple_key = (source, sink)
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SOURCE]
+          update_dict[tuple_key] = "1"
+      else:
+        if sink.startswith("N"):
+          tuple_key = (sink, source)
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SINK]
+          update_dict[tuple_key] = "1"
+        else:
+          tuple_key = (sink, source)
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SINK]
+          update_dict[tuple_key] = "1"
 
   def _discover_required_variables(self):
     used_entities: Dict[str, entity.Entity] = {}
