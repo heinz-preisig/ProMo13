@@ -47,6 +47,7 @@ class MainModel(QtCore.QObject):
     self._all_equations = {}  # TODO: Check if I really need to store this
     self._all_indices = {}
     self._all_topology_objects = {}
+    self._instantiation = {}
 
     self._required_variables = []
     self._optional_variables = []
@@ -84,6 +85,8 @@ class MainModel(QtCore.QObject):
         self._model_name,
         self._all_entities,
     )
+
+    self._instantiation = self._io_handler.get_instantiation_data()
     self._discover_required_variables()
     self._update_variable_tree_model()
 
@@ -284,6 +287,7 @@ class MainModel(QtCore.QObject):
     #     pp(top_obj.instantiated_variables)
 
   def save_topology_objects(self):
+    print("Here")
     io.save_topology_objects(
         self._ontology_name,
         self._model_name,

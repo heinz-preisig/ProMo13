@@ -25,11 +25,12 @@ Constants:
     PathTemplates(dataclass): Templates for the paths to data files.
     AllowedPathParameters(TypedDict): Parameters used to build paths.
 """
+from genericpath import isfile
 import json
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Tuple, TypedDict, List, ClassVar
+from typing import Dict, Optional, Tuple, TypedDict, List, ClassVar
 
 from pprint import pprint as pp
 
@@ -54,6 +55,7 @@ class PathTemplates:
   ARC_OPTIONS_FILE: ClassVar[str] = ONTOLOGY_DIR + "arc_options.json"
   MODEL_FILE: ClassVar[str] = MODEL_DIR + "model.json"
   MODEL_FILE_FLAT: ClassVar[str] = MODEL_DIR + "model_flat.json"
+  INSTANTIATION_FILE: ClassVar[str] = MODEL_DIR + "instantiation.json"
   LATEX_IMG_FILE: ClassVar[str] = LATEX_DIR + "{component_id}"
 
   # For the code folder
@@ -133,7 +135,7 @@ class IOHandler:
     # TODO This needs to change to something where we can see the parameters
     # when calling
     self._path_parameters.update(parameters)
-    pp(self._path_parameters)
+    # pp(self._path_parameters)
 
   def get_imgs_paths(self, ids: List[str]) -> List[Path]:
     paths = []
@@ -142,6 +144,22 @@ class IOHandler:
       paths.append(self._build_path(PathTemplates.LATEX_IMG_FILE))
 
     return paths
+
+  def get_instantiation_data(self) -> Dict[Tuple[str], str]:
+    path = self._build_path(PathTemplates.INSTANTIATION_FILE)
+
+    if not path.is_file():
+      return {}
+
+    with open(path, "r", encoding="utf-8",) as file:
+      data = json.load(file)
+
+    return data
+
+  def set_instantiation_data(self, data: Dict[Tuple[str], str]) -> None:
+    path = self._build_path(PathTemplates.INSTANTIATION_FILE)
+    with open(path, "w", encoding="utf-8",) as file:
+      json.dump(data, file, indent=4)
 
   def _build_path(self, path_template: str) -> Path:
     return Path(path_template.format(**self._path_parameters))
