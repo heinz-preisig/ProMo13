@@ -11,6 +11,8 @@ from pathlib import Path
 from datetime import datetime
 from dataclasses import dataclass
 
+from src.common import topology
+
 from packages.Common.classes import equation
 from packages.Common.classes import entity
 from packages.Common.classes import variable
@@ -257,13 +259,13 @@ def load_topology_objects(
     ontology_name: str,
     model_name: str,
     all_entities: Dict[str, entity.Entity],
-) -> Dict[str, modeller_classes.TopologyObject]:
+) -> Dict[str, topology.TopologyObject]:
   path_old = resource_initialisation.FILES["model_file"] % (
       ontology_name,
       model_name,
   )
   path_new = path_old[:-5] + "_new.json"
-  custom_decoder = modeller_classes.custom_decoder_factory(all_entities)
+  custom_decoder = topology.custom_decoder_factory(all_entities)
   with open(path_new, "r", encoding="utf-8",) as file:
     topology_objects = json.load(
         file,
