@@ -423,7 +423,7 @@ class NodeSimple(EntityContainer):
 
 
 def build_topology_graph(
-    topology_objects: List[TopologyObject],
+    topology_objects: Dict[str, TopologyObject],
 ) -> nx.Graph:
   """Build a graph from a list topology objects.
 
@@ -436,14 +436,12 @@ def build_topology_graph(
     """
   graph = nx.Graph()
   edges_info = []
-  for topology_obj in topology_objects:
+  for topology_obj in topology_objects.values():
     if not isinstance(topology_obj, EntityContainer):
       continue
 
     for node_id in topology_obj.outgoing_connections:
-      edges_info.append((topology_obj.identifier, node_id))
-
-    graph.add_node(topology_obj)
+      edges_info.append((topology_obj, topology_objects[node_id]))
 
   graph.add_edges_from(edges_info)
 
