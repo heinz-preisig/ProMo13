@@ -8,6 +8,7 @@ structures and interfaces used throughout the application.
 from typing import Dict
 
 from .index import Index
+from .index import IndexMap
 
 from .math_components import Equation
 from .math_components import EquationTag
