@@ -35,6 +35,7 @@ from typing import Dict, Optional, Tuple, TypedDict, List, ClassVar
 from pprint import pprint as pp
 
 from src.common import corelib
+from src.common.corelib.entity import EntityMap
 
 
 @dataclass(frozen=True)
@@ -102,7 +103,7 @@ class IOHandler:
   def all_entities(self) -> Optional[corelib.EntityMap]:
     """All the entities in the ontology"""
     if self._all_entities is None:
-      self._load_var_idx_eq_from_file()
+      self._load_entity_from_file()
 
     return self._all_entities
 
@@ -197,3 +198,8 @@ class IOHandler:
     #   indices[idx_id] = corelib.Index(idx_id, **idx_info)
 
     return (variables, indices, equations)
+
+  def _load_entity_from_file(
+      self
+  ) -> EntityMap:
+    return {}
