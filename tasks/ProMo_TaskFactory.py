@@ -1,6 +1,6 @@
 import sys
 
-file_path = "../packages/TaskFactory/code_generator.py"
+file_path = "../src/code_generator/code_generator.py"
 args = sys.argv[1:]  # Exclude the script name from the arguments
 
 with open(file_path, "r") as file:

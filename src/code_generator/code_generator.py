@@ -1,3 +1,4 @@
+from pprint import pprint as pp
 import os
 import shutil
 import sys
@@ -5,10 +6,10 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))
 
 # fmt: off
-from code_generator import template_handler
-from code_generator import equation_sequencer
+# from code_generator import template_handler
+from src.code_generator import equation_sequencer
 from packages.Common.classes import io
-from packages.Common import resource_initialisation
+# from packages.Common import resource_initialisation
 
 # fmt: on
 
@@ -24,7 +25,7 @@ all_variables, all_indices, all_equations = io.load_var_idx_eq_from_file(
     ontology_name
 )
 
-all_entities = io.load_entities_from_file(ontology_name, all_variables)
+all_entities = io.load_entities_from_file(ontology_name, all_equations)
 
 all_topology_objects = io.load_topology_objects(
     ontology_name,
@@ -32,12 +33,15 @@ all_topology_objects = io.load_topology_objects(
     all_entities
 )
 
-var_eq = equation_sequencer.VarEqDiGraph(
-    all_equations,
-    all_indices,
-    all_variables,
+
+equation_seq, map_eq_top, model_vars = equation_sequencer.sequence_equations(
     all_topology_objects,
 )
+
+pp(equation_seq)
+
+
+exit()
 var_eq.find_solving_order()
 # pp(var_eq.expressions)
 # pp(var_eq.expressions)
