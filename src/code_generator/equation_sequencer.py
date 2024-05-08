@@ -11,6 +11,8 @@ import networkx as nx
 from src.common import corelib
 from src.common import topology
 
+from pprint import pprint as pp
+
 _EquationSequence = List[Set[str]]
 _MapEquationTopology = Dict[str, Set[topology.EntityContainer]]
 _VariableList = Set[str]
@@ -36,7 +38,7 @@ def sequence_equations(
        * All the variables used in the model.
   """
   topology_graph = topology.build_topology_graph(
-      list(all_topology_objects.values()))
+      all_topology_objects)
 
   equation_graph, equation_topology_map, variable_list = _build_equation_graph(
       topology_graph)
@@ -114,9 +116,11 @@ def _get_integrators_info(topology_graph) -> _MapEquationTopology:
   """
   equation_topology_map = collections.defaultdict(set)
   for topology_obj in topology_graph:
-    entity_instance: corelib.Entity = topology_obj.entity_instance
-    for _, equation_id in entity_instance.integrators_info():
-      equation_topology_map[equation_id].add(topology_obj)
+    entity_instance = topology_obj.entity_instance
+    for var_id in entity_instance.output_vars:
+      equation_id = entity_instance.get_eq_for_var(var_id)
+      if equation_id and equation_id is not None:
+        equation_topology_map[equation_id[0]].add(topology_obj)
 
   return equation_topology_map
 
@@ -154,7 +158,7 @@ def _find_dependencies(
     dependency_info = _find_equations_for_variable(
         variable_id, topology_obj, topology_graph)
 
-    for dep_equation_id, dep_topology_objects in dependency_info:
+    for dep_equation_id, dep_topology_objects in dependency_info.items():
       equation_topology_map[dep_equation_id].update(dep_topology_objects)
 
   return equation_topology_map
