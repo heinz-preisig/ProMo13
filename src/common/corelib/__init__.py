@@ -20,3 +20,4 @@ from .math_components import VarEqJSONDecoder
 
 from .entity import Entity
 from .entity import EntityMathGraph
+from .entity import EntityMap

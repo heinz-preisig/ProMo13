@@ -16,6 +16,8 @@ import networkx as nx
 
 from src.common.corelib import Variable, Equation
 
+EntityMap = Dict[str, "Entity"]
+
 
 class VariableState(IntFlag):
   """Variable states in an Entity"""
