@@ -69,7 +69,7 @@ class MainController(QObject):
     )
 
     self._view.ui.action_save.triggered.connect(
-        self._model.save_topology_objects
+        self._model.save_instantiation
     )
 
     # self._view.ui.actionNew.triggered.connect(self.on_action_new_triggered)
@@ -145,8 +145,10 @@ class MainController(QObject):
     except ValueError:
       instantiation_value = None
 
+    var_index = self._view.ui.tree_required_variables.currentIndex()
+
     if instantiation_value is not None:
-      self._model.instantiate(instantiation_value)
+      self._model.instantiate(instantiation_value, var_index)
 
     self._view.ui.ledit_instantiate.setText("")
 

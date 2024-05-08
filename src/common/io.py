@@ -25,7 +25,7 @@ Constants:
     PathTemplates(dataclass): Templates for the paths to data files.
     AllowedPathParameters(TypedDict): Parameters used to build paths.
 """
-from genericpath import isfile
+import ast
 import json
 
 from dataclasses import dataclass
@@ -145,7 +145,7 @@ class IOHandler:
 
     return paths
 
-  def get_instantiation_data(self) -> Dict[Tuple[str], str]:
+  def get_instantiation_data(self) -> Dict[str, Dict[Tuple[str], str]]:
     path = self._build_path(PathTemplates.INSTANTIATION_FILE)
 
     if not path.is_file():
@@ -154,12 +154,26 @@ class IOHandler:
     with open(path, "r", encoding="utf-8",) as file:
       data = json.load(file)
 
-    return data
+    tuples_dict = {}
+    for key, dict_value in data.items():
+      tuples_dict[key] = {
+          ast.literal_eval(str_key): value
+          for str_key, value in dict_value.items()
+      }
 
-  def set_instantiation_data(self, data: Dict[Tuple[str], str]) -> None:
+    return tuples_dict
+
+  def set_instantiation_data(self, data: Dict[str, Dict[Tuple[str], str]]) -> None:
+    no_tuple_dict = {}
+    for key, dict_value in data.items():
+      no_tuple_dict[key] = {
+          str(tuple_key): value
+          for tuple_key, value in dict_value.items()
+      }
+
     path = self._build_path(PathTemplates.INSTANTIATION_FILE)
     with open(path, "w", encoding="utf-8",) as file:
-      json.dump(data, file, indent=4)
+      json.dump(no_tuple_dict, file, indent=4)
 
   def _build_path(self, path_template: str) -> Path:
     return Path(path_template.format(**self._path_parameters))

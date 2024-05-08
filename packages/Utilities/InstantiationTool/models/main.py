@@ -266,30 +266,43 @@ class MainModel(QtCore.QObject):
 
     return sorted(filtered_topology_objects)
 
-  def instantiate(self, instantiation_value: str) -> None:
+  def instantiate(self, instantiation_value: str, var_index: QtCore.QModelIndex) -> None:
     instantiated_top_obj = self.topology_tree_model.get_checked_items()
-    instantiated_variables = {}  # self.variable_tree_model.get_checked_items()
+    var_item = self.variable_list.itemFromIndex(var_index)
+    var_id = var_item.data(roles.ID_ROLE)
+
+    if var_id not in self._instantiation:
+      self._instantiation[var_id] = {}
 
     for top_obj_id in instantiated_top_obj:
-      for var_id, typed_tokens in instantiated_variables.items():
-        top_obj = self._all_topology_objects[top_obj_id]
-        top_obj = cast(modeller_classes.EntityContainer, top_obj)
+      typed_tokens = []
+      if "I_4" in self._all_variables[var_id].index_structures:
+        typed_tokens = self._all_topology_objects[top_obj_id].typed_tokens["mass"]
 
-        top_obj.set_instantiation_value(
-            self._all_variables[var_id],
-            typed_tokens,
-            instantiation_value
-        )
+      if typed_tokens:
+        for tt in typed_tokens:
+          id_key = (top_obj_id, tt)
+          self._instantiation[var_id][id_key] = instantiation_value
+      else:
+        id_key = (top_obj_id,)
+        self._instantiation[var_id][id_key] = instantiation_value
+
+    pp(self._instantiation)
+    # for top_obj_id in instantiated_top_obj:
+    #   for var_id, typed_tokens in instantiated_variables.items():
+    #     top_obj = self._all_topology_objects[top_obj_id]
+    #     top_obj = cast(modeller_classes.EntityContainer, top_obj)
+
+    #     top_obj.set_instantiation_value(
+    #         self._all_variables[var_id],
+    #         typed_tokens,
+    #         instantiation_value
+    #     )
 
     # for top_obj_id, top_obj in self._all_topology_objects.items():
     #   if isinstance(top_obj, modeller_classes.EntityContainer):
     #     pp(top_obj_id)
     #     pp(top_obj.instantiated_variables)
 
-  def save_topology_objects(self):
-    print("Here")
-    io.save_topology_objects(
-        self._ontology_name,
-        self._model_name,
-        self._all_topology_objects,
-    )
+  def save_instantiation(self):
+    self._io_handler.set_instantiation_data(self._instantiation)
