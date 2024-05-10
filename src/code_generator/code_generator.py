@@ -69,7 +69,15 @@ with open(file_path, mode="w", encoding="utf-8") as message:
 # To copy the @MultiDimVar
 lib_path = os.path.join(
     resource_initialisation.DIRECTORIES["ProMo_root"], "ProMo/tests/Matlab/@MultiDimVar")
-shutil.copytree(lib_path, dir_path + "/@MultiDimVar")
+dest_path = dir_path + "/@MultiDimVar"
+
+# Check if the destination directory exists
+if os.path.exists(dest_path):
+  # If it exists, remove it
+  shutil.rmtree(dest_path)
+
+# Now you can copy the directory
+shutil.copytree(lib_path, dest_path)
 
 # ######### To ask for initial conditions in an equation system ##########
 # sub: nx.DiGraph = dir_graph.subgraph(all_cycles[0]).copy()
