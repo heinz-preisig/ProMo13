@@ -330,7 +330,7 @@ class MainModel(QtCore.QObject):
 
     if var_id not in self._instantiation:
       self._instantiation[var_id] = {}
-    print(instantiated_top_obj)
+
     for top_obj_id in instantiated_top_obj:
       typed_tokens = []
       key_list = []
@@ -349,7 +349,10 @@ class MainModel(QtCore.QObject):
 
       if typed_tokens:
         for tt in typed_tokens:
-          id_key = (top_obj_id, tt)
+          id_list = []
+          id_list.extend(key_list)
+          id_list.append(tt)
+          id_key = tuple(id_list)
           self._instantiation[var_id][id_key] = instantiation_value
       else:
         id_key = (top_obj_id,)
