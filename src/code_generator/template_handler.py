@@ -112,6 +112,41 @@ class TemplateHandler:
 
     return model_variables
 
+  def find_integrators(self):
+    integrators = []
+    for cycle in self.equation_seq:
+      for eq_id in cycle:
+        if self.all_equations[eq_id].is_integrator():
+          integrators.append(eq_id)
+
+    return integrators
+
+  def get_index_sets(self, eq_id: str):
+    species_key = f"S_{eq_id}"
+    index_sets = {}
+
+    for top_obj in self.map_eq_top[eq_id]:
+      key = f"{top_obj.identifier[0]}_{eq_id}"
+      if key not in index_sets:
+        index_sets[key] = set()
+
+      index_sets[key].add(self.map_id_to_counter[top_obj.identifier])
+
+      if "mass" in top_obj.typed_tokens:
+        if species_key not in index_sets:
+          index_sets[species_key] = set()
+
+        species_number_ids = [
+            self.map_id_to_counter[s]
+            for s in top_obj.typed_tokens["mass"]
+        ]
+        index_sets[species_key].update(species_number_ids)
+
+    return {
+        key: sorted(list(index_values))
+        for key, index_values in index_sets.items()
+    }
+
   def generate_language_data(self):
     data = {}
 
@@ -162,31 +197,44 @@ class TemplateHandler:
           "is_sparse": is_sparse,
           "size": var_size,
       })
-    pp(data["variables"])
+    # pp(data["variables"])
     # Information about the integrators
+    integrators = self.find_integrators()
+
     data["integrators"] = []
-    # count = 1
-    # for var_id, eq_id, top_ids, index_sets in self.var_eq.integrators:
-    #   integrator_info = self.all_equations[eq_id].parse_integrator()
-    #   if integrator_info is None:
-    #     print(f"Eq: {eq_id} is not an integrator.")
-    #     continue
+    count = 1
+    for eq_id in integrators:
+      integrator_info = self.all_equations[eq_id].parse_integrator()
+      if integrator_info is None:
+        print(f"Eq: {eq_id} is not an integrator.")
+        continue
 
-    #   integrator_info["index_sets"] = index_sets
-    #   integrator_info["top_ids"] = top_ids
+      integrator_info["index_sets"] = self.get_index_sets(eq_id)
 
-    #   # var_data = self.all_variables[var_id]
-    #   # index_structures = var_data.index_structures
+      # integrator_info["top_ids"] = top_ids
 
-    #   ini = str(count)
-    #   count += np.prod(self.size_by_index(var_id, index_sets))
-    #   fin = str(count - 1)
+      # var_data = self.all_variables[var_id]
+      # index_structures = var_data.index_structures
 
-    #   integrator_info["interval"] = ini + ":" + fin
-    #   integrator_info["size_by_index"] = self.size_by_index(var_id, index_sets)
+      index_names = list(integrator_info["index_sets"])
+      organized_index_names = sorted(
+          index_names, key=lambda x: data["index_order"].index(x[0])
+      )
 
-    #   data["integrators"].append(integrator_info)
-    # pp(data["integrators"])
+      size_by_index = [
+          len(integrator_info["index_sets"][index_name])
+          for index_name in organized_index_names
+      ]
+      ini = str(count)
+      count += np.prod(size_by_index)
+      fin = str(count - 1)
+
+      integrator_info["interval"] = ini + ":" + fin
+      integrator_info["size_by_index"] = size_by_index
+
+      data["integrators"].append(integrator_info)
+    pp(data["integrators"])
+
     # Information about the expressions
     data["expressions"] = []
     # for expr in self.var_eq.expressions:

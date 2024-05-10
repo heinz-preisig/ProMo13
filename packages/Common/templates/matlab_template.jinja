@@ -35,17 +35,23 @@ function output_vars = main
   {% endfor%}
 
   % Integrators
+  % Index sets
+  {% for i in integrators %}
+    {% for index_set_name, indices_list in i.index_sets|items %}
+      {{-"  "}}{{index_set_name}} = [{{indices_list|join(",")}}]
+    {% endfor %}
+  {% endfor %}
   % Initial conditions
   {% for i in integrators %}
     {{-"  "}}phi_0({{i.interval}}) =
       {{-" "}}reshape(({{i.init_value|var_slice(i.index_sets)}}).value, [], 1);
   {% endfor %}
 
-  {# % Integration interval
+  % Integration interval
   integration_interval = [
     {{-(integrators|first).int_interval_ini|label-}}.value,
     {{-" "}}{{(integrators|first).int_interval_fin|label-}}.value
-  {{-""}}];{{"\n"-}} #}
+  {{-""}}];{{"\n"-}}
 
   {{-"  "}}dt = 0.1;{{"\n"-}}
   {{-"  "}}options = odeset('InitialStep', dt, 'MaxStep', dt, 'RelTol', 1e-3, 'AbsTol', 1e-3);{{"\n"-}}
@@ -72,7 +78,7 @@ function output_vars = main
     fprintf("\n");
   endfor
 
-  % Integrand
+  % Integrands
   function [dphidt, extra_output] = f(t, phi) {{"\n"-}}
     {% for i in integrators %}
       {{-"    "}}{{i.var_id|var_slice(i.index_sets)}} =
