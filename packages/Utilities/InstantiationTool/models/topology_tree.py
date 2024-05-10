@@ -12,8 +12,8 @@ from typing import Dict, Optional, List
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
-from packages.Common.classes import modeller_classes
 from packages.shared_components import roles
+from src.common import topology
 
 CHECKED = QtCore.Qt.CheckState.Checked
 UNCHECKED = QtCore.Qt.CheckState.Unchecked
@@ -30,7 +30,7 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
 
   def __init__(self, parent=None):
     super().__init__(parent)
-    self._all_topology_objects: Dict[str, modeller_classes.TopologyObject] = {}
+    self._all_topology_objects: Dict[str, topology.TopologyObject] = {}
     self._index_from_id: Dict[str, QtCore.QModelIndex] = {}
     self._id_from_index: Dict[QtCore.QModelIndex, str] = {}
 
@@ -62,7 +62,7 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
 
   def load_data(
       self,
-      all_topology_objects: Dict[str, modeller_classes.TopologyObject],
+      all_topology_objects: Dict[str, topology.TopologyObject],
       filtered_list: List[str],
   ) -> None:
     """Loads the data into the model
@@ -230,7 +230,7 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
       if (
           not isinstance(
               self._all_topology_objects[child_id],
-              modeller_classes.NodeComposite
+              topology.NodeComposite
           )
           and child.checkState() == CHECKED
       ):

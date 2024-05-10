@@ -8,11 +8,10 @@ from PyQt5 import QtCore
 
 from packages.Common.classes import io
 from packages.Common.classes import entity
-from packages.Common.classes import modeller_classes
 
 from packages.Utilities.InstantiationTool.models import topology_tree
 
-from src.common import roles
+from src.common import roles, topology
 from src.common.constants import FixedVariables
 from src.common.components import image_list
 from src.common.io import IOHandler
@@ -98,10 +97,10 @@ class MainModel(QtCore.QObject):
   def _generate_topology_instantiation(self) -> None:
     connections: List[Tuple[str, str]] = []
     for top_obj in self._all_topology_objects.values():
-      if isinstance(top_obj, modeller_classes.NodeComposite):
+      if isinstance(top_obj, topology.NodeComposite):
         continue
 
-      top_obj = cast(modeller_classes.EntityContainer, top_obj)
+      top_obj = cast(topology.EntityContainer, top_obj)
 
       for connect_obj_id in top_obj.outgoing_connections:
         connections.append((top_obj.identifier, connect_obj_id))
@@ -155,10 +154,10 @@ class MainModel(QtCore.QObject):
     used_entities: Dict[str, entity.Entity] = {}
     for top_obj in self._all_topology_objects.values():
       # Composite nodes dont have an associated entity
-      if isinstance(top_obj, modeller_classes.NodeComposite):
+      if isinstance(top_obj, topology.NodeComposite):
         continue
 
-      top_obj = cast(modeller_classes.EntityContainer, top_obj)
+      top_obj = cast(topology.EntityContainer, top_obj)
 
       ent_name = top_obj.get_entity_name()
       # TODO: Move this and the test case to io.load_model
@@ -180,7 +179,7 @@ class MainModel(QtCore.QObject):
 
   def _find_typed_tokens_per_variable(
       self,
-      top_obj: modeller_classes.EntityContainer,
+      top_obj: topology.EntityContainer,
       ent: entity.Entity
   ) -> None:
     for var_id in ent.get_variables():
@@ -304,10 +303,10 @@ class MainModel(QtCore.QObject):
     filtered_topology_objects = set()
     for var_id, typed_tokens in variables_selected.items():
       for top_obj_id, top_obj in self._all_topology_objects.items():
-        if isinstance(top_obj, modeller_classes.NodeComposite):
+        if isinstance(top_obj, topology.NodeComposite):
           continue
 
-        top_obj = cast(modeller_classes.EntityContainer, top_obj)
+        top_obj = cast(topology.EntityContainer, top_obj)
 
         # If there are types tokens the topology object needs to contain
         # at least one of them
@@ -331,11 +330,22 @@ class MainModel(QtCore.QObject):
 
     if var_id not in self._instantiation:
       self._instantiation[var_id] = {}
-
+    print(instantiated_top_obj)
     for top_obj_id in instantiated_top_obj:
       typed_tokens = []
-      if "I_4" in self._all_variables[var_id].index_structures:
+      key_list = []
+      index_structures = self._all_variables[var_id].index_structures
+      if "I_1" in index_structures or "I_2" in index_structures:
+        key_list.append(top_obj_id)
+
+      typed_tokens = []
+      if "I_4" in index_structures:
         typed_tokens = self._all_topology_objects[top_obj_id].typed_tokens["mass"]
+
+      if not typed_tokens and not key_list:
+        id_key = ("1", )
+        self._instantiation[var_id][id_key] = instantiation_value
+        continue
 
       if typed_tokens:
         for tt in typed_tokens:
@@ -349,7 +359,7 @@ class MainModel(QtCore.QObject):
     # for top_obj_id in instantiated_top_obj:
     #   for var_id, typed_tokens in instantiated_variables.items():
     #     top_obj = self._all_topology_objects[top_obj_id]
-    #     top_obj = cast(modeller_classes.EntityContainer, top_obj)
+    #     top_obj = cast(topology.EntityContainer, top_obj)
 
     #     top_obj.set_instantiation_value(
     #         self._all_variables[var_id],
@@ -358,7 +368,7 @@ class MainModel(QtCore.QObject):
     #     )
 
     # for top_obj_id, top_obj in self._all_topology_objects.items():
-    #   if isinstance(top_obj, modeller_classes.EntityContainer):
+    #   if isinstance(top_obj, topology.EntityContainer):
     #     pp(top_obj_id)
     #     pp(top_obj.instantiated_variables)
 
