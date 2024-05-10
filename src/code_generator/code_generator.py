@@ -6,11 +6,11 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))
 
 # fmt: off
-# from code_generator import template_handler
+from src.code_generator import template_handler
+from packages.Common import resource_initialisation
 from src.code_generator import equation_sequencer
+from src.common.io import IOHandler
 from packages.Common.classes import io
-# from packages.Common import resource_initialisation
-
 # fmt: on
 
 if len(sys.argv) != 2:
@@ -38,14 +38,11 @@ equation_seq, map_eq_top, model_vars = equation_sequencer.sequence_equations(
     all_topology_objects,
 )
 
-pp(equation_seq)
+io_handler = IOHandler()
+params = {"ontology_name": ontology_name, "model_name": model_name}
+io_handler.add_path_parameters(params)
 
-
-exit()
-var_eq.find_solving_order()
-# pp(var_eq.expressions)
-# pp(var_eq.expressions)
-
+instantiation_data = io_handler.get_instantiation_data()
 
 # TODO Check what else is needed ex: solvers, initial guesses for solvers, etc
 temp = template_handler.TemplateHandler(
@@ -53,7 +50,11 @@ temp = template_handler.TemplateHandler(
     all_variables,
     all_indices,
     all_equations,
-    var_eq,
+    all_topology_objects,
+    equation_seq,
+    map_eq_top,
+    model_vars,
+    instantiation_data
 )
 
 content = temp.generate_content()

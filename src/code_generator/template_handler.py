@@ -1,3 +1,4 @@
+from collections import Counter
 import copy
 import jinja2
 from typing import Dict, List, Tuple, Set, Optional
@@ -8,8 +9,8 @@ from packages.Common.classes import equation_parser
 from packages.Common.classes import variable
 from packages.Common.classes import equation
 from packages.Common.classes import index
-from code_generator import equation_sequencer
 from packages.Common import resource_initialisation as ri
+from src.common import topology
 
 
 class TemplateHandler:
@@ -19,13 +20,21 @@ class TemplateHandler:
       all_variables: Dict[str, variable.Variable],
       all_indices: Dict[str, index.Index],
       all_equations: Dict[str, equation.Equation],
-      vareq: equation_sequencer.VarEqDiGraph,
+      all_topology_objects: Dict[str, topology.TopologyObject],
+      equation_seq: List[Set[str]],
+      map_eq_top: Dict[str, Set[topology.EntityContainer]],
+      model_vars: Set[str],
+      instantiation_data: Dict[str, Dict[Tuple[str, ...], str]],
   ):
     self.language = language
     self.all_variables = all_variables
     self.all_indices = all_indices
     self.all_equations = all_equations
-    self.var_eq = vareq
+    self.all_topology_objects = all_topology_objects
+    self.equation_seq = equation_seq
+    self.map_eq_top = map_eq_top
+    self.model_vars = model_vars
+    self.instantiation_data = instantiation_data
 
     self.enviroment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(ri.DIRECTORIES["templates"]),
@@ -40,17 +49,53 @@ class TemplateHandler:
   def generate_content(self):
     return self.template.render(self.data)
 
-  def load_language_template(self) -> None:
+  def load_language_template(self):
     template_file = self.language + "_template"
     return self.enviroment.get_template(ri.FILE_NAMES[template_file])
+
+  def generate_index_info(self):
+    index_sets = {
+        "N": [],
+        "A": [],
+        "I": [],
+        "S": [],
+    }
+    map_id_to_counter = {}
+    species = set()
+
+    index_set_counter = Counter(index_sets.keys())
+
+    for top_id, top_obj in self.all_topology_objects.items():
+      if not isinstance(top_obj, topology.EntityContainer):
+        continue
+
+      if isinstance(top_obj, topology.NodeSimple):
+        map_id_to_counter[top_id] = index_set_counter["N"]
+        index_set_counter["N"] += 1
+
+      if isinstance(top_obj, topology.Arc):
+        map_id_to_counter[top_id] = index_set_counter["A"]
+        index_set_counter["A"] += 1
+
+      species.update(top_obj.typed_tokens["mass"])
+
+    index_set_counter["S"] += len(species)
+    for key in index_sets:
+      index_sets[key] = list(range(1, index_set_counter[key]))
+
+    for i, species_name in enumerate(species, start=1):
+      map_id_to_counter[species_name] = i
+
+    pp(index_sets)
+    pp(map_id_to_counter)
+    exit()
 
   def generate_language_data(self):
     data = {}
 
     # Information about the index sets
-    data["index_sets_info"] = copy.deepcopy(
-        self.var_eq.top_graph.graph["index_sets_info"]
-    )
+    self.generate_index_info()
+    data["index_sets_info"] = {}
     # pp(data["index_sets_info"])
     # Changing the alias of the index to the language specific ones
     general_idx_info = data["index_sets_info"]["general"]
