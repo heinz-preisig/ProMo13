@@ -60,7 +60,7 @@ class TemplateHandler:
         "I": [],
         "S": [],
     }
-    map_id_to_counter = {}
+    self.map_id_to_counter = {}
     species = set()
 
     index_set_counter = Counter(index_sets.keys())
@@ -70,11 +70,11 @@ class TemplateHandler:
         continue
 
       if isinstance(top_obj, topology.NodeSimple):
-        map_id_to_counter[top_id] = index_set_counter["N"]
+        self.map_id_to_counter[top_id] = index_set_counter["N"]
         index_set_counter["N"] += 1
 
       if isinstance(top_obj, topology.Arc):
-        map_id_to_counter[top_id] = index_set_counter["A"]
+        self.map_id_to_counter[top_id] = index_set_counter["A"]
         index_set_counter["A"] += 1
 
       species.update(top_obj.typed_tokens["mass"])
@@ -84,200 +84,155 @@ class TemplateHandler:
       index_sets[key] = list(range(1, index_set_counter[key]))
 
     for i, species_name in enumerate(species, start=1):
-      map_id_to_counter[species_name] = i
+      self.map_id_to_counter[species_name] = i
 
-    pp(index_sets)
-    pp(map_id_to_counter)
-    exit()
+    # pp(index_sets)
+    # pp(map_id_to_counter)
+
+    return index_sets
 
   def generate_language_data(self):
     data = {}
 
     # Information about the index sets
-    self.generate_index_info()
-    data["index_sets_info"] = {}
-    # pp(data["index_sets_info"])
-    # Changing the alias of the index to the language specific ones
-    general_idx_info = data["index_sets_info"]["general"]
-    idx_list = list(general_idx_info.keys())
-    for idx_id in idx_list:
-      translated_idx = self.all_indices.get(
-          idx_id).get_translation(self.language)
-      general_idx_info[translated_idx] = general_idx_info.pop(idx_id)
+    data["index_sets_info"] = self.generate_index_info()
 
-    # TODO: Remove this when the indices are handled better
-    data["index_sets_info"]["general"]["K"] = []
-    pp(data["index_sets_info"])
-
-    data["index_order"] = [
-        self.all_indices[idx_id].get_translation(self.language)
-        for idx_id in sorted(self.all_indices.keys())
-    ]
-    # pp(data["index_sets_info"])
+    data["index_order"] = ["N", "A", "I", "S"]
     # TODO: THIS COMES FROM THE USER
     is_sparse = False
     # This info will be refined in the load_model function after the gui for
     # the task manager is done.
-    names_info = self.var_eq.top_graph.graph["extra_info"]
-    to_print = {
-        "V_85": [
-            {
-                "extra_name": names_info["nodes"][3] + ":" + names_info["species"][1],
-                "position": [3, 1]
-            },
-            {
-                "extra_name": names_info["nodes"][4] + ":" + names_info["species"][1],
-                "position": [4, 1]
-            },
-            {
-                "extra_name": names_info["nodes"][5] + ":" + names_info["species"][1],
-                "position": [5, 1]
-            },
-            {
-                "extra_name": names_info["nodes"][3] + ":" + names_info["species"][2],
-                "position": [3, 2]
-            },
-            {
-                "extra_name": names_info["nodes"][4] + ":" + names_info["species"][2],
-                "position": [4, 2]
-            },
-            {
-                "extra_name": names_info["nodes"][5] + ":" + names_info["species"][2],
-                "position": [5, 2]
-            },
-        ],
-    }
-    data["print_info"] = to_print
+    data["print_info"] = {}
 
     # Information about the initialization of all variables
     data["variables"] = []
     # pp(self.var_eq.inst_variables)
-    for var_id, inst_info in self.var_eq.inst_variables.items():
-      var_data = self.all_variables[var_id]
-      index_structures = var_data.index_structures
+    # for var_id, inst_info in self.var_eq.inst_variables.items():
+    #   var_data = self.all_variables[var_id]
+    #   index_structures = var_data.index_structures
 
-      index_sets = ", ".join(
-          [
-              self.all_indices.get(idx).get_translation(self.language)
-              for idx in index_structures
-          ]
-      )
+    #   index_sets = ", ".join(
+    #       [
+    #           self.all_indices.get(idx).get_translation(self.language)
+    #           for idx in index_structures
+    #       ]
+    #   )
 
-      index_labels = ", ".join(
-          [
-              self.all_indices.get(idx).get_translation(self.language) + "_lbl"
-              for idx in index_structures
-          ]
-      )
-      # pp(self.var_eq.top_graph.graph["index_sets_info"]["general"])
-      var_size = [
-          str(
-              len(self.var_eq.top_graph.graph["index_sets_info"]["general"][idx]))
-          for idx in self.all_variables[var_id].index_structures
-      ]
-      if not var_size:
-        var_size = ["1", "1"]
+    #   index_labels = ", ".join(
+    #       [
+    #           self.all_indices.get(idx).get_translation(self.language) + "_lbl"
+    #           for idx in index_structures
+    #       ]
+    #   )
+    #   # pp(self.var_eq.top_graph.graph["index_sets_info"]["general"])
+    #   var_size = [
+    #       str(
+    #           len(self.var_eq.top_graph.graph["index_sets_info"]["general"][idx]))
+    #       for idx in self.all_variables[var_id].index_structures
+    #   ]
+    #   if not var_size:
+    #     var_size = ["1", "1"]
 
-      data["variables"].append({
-          "var_id": var_id,
-          "comment": [var_data.doc],
-          "instantiation_values": inst_info,
-          "index_labels": index_labels,
-          "index_sets": index_sets,
-          "is_sparse": is_sparse,
-          "size": var_size,
-      })
+    #   data["variables"].append({
+    #       "var_id": var_id,
+    #       "comment": [var_data.doc],
+    #       "instantiation_values": inst_info,
+    #       "index_labels": index_labels,
+    #       "index_sets": index_sets,
+    #       "is_sparse": is_sparse,
+    #       "size": var_size,
+    #   })
     # pp(data["variables"])
     # Information about the integrators
     data["integrators"] = []
-    count = 1
-    for var_id, eq_id, top_ids, index_sets in self.var_eq.integrators:
-      integrator_info = self.all_equations[eq_id].parse_integrator()
-      if integrator_info is None:
-        print(f"Eq: {eq_id} is not an integrator.")
-        continue
+    # count = 1
+    # for var_id, eq_id, top_ids, index_sets in self.var_eq.integrators:
+    #   integrator_info = self.all_equations[eq_id].parse_integrator()
+    #   if integrator_info is None:
+    #     print(f"Eq: {eq_id} is not an integrator.")
+    #     continue
 
-      integrator_info["index_sets"] = index_sets
-      integrator_info["top_ids"] = top_ids
+    #   integrator_info["index_sets"] = index_sets
+    #   integrator_info["top_ids"] = top_ids
 
-      # var_data = self.all_variables[var_id]
-      # index_structures = var_data.index_structures
+    #   # var_data = self.all_variables[var_id]
+    #   # index_structures = var_data.index_structures
 
-      ini = str(count)
-      count += np.prod(self.size_by_index(var_id, index_sets))
-      fin = str(count - 1)
+    #   ini = str(count)
+    #   count += np.prod(self.size_by_index(var_id, index_sets))
+    #   fin = str(count - 1)
 
-      integrator_info["interval"] = ini + ":" + fin
-      integrator_info["size_by_index"] = self.size_by_index(var_id, index_sets)
+    #   integrator_info["interval"] = ini + ":" + fin
+    #   integrator_info["size_by_index"] = self.size_by_index(var_id, index_sets)
 
-      data["integrators"].append(integrator_info)
-      # pp(data["integrators"])
+    #   data["integrators"].append(integrator_info)
+    # pp(data["integrators"])
     # Information about the expressions
     data["expressions"] = []
-    for expr in self.var_eq.expressions:
-      expr_info = {}
+    # for expr in self.var_eq.expressions:
+    #   expr_info = {}
 
-      sys_counter = 1
-      if len(expr) == 1:
-        var_id, eq_id, top_ids, index_sets = expr[0]
-        # TODO: Extend this to add all the other index sets needed
-        index_sets.add("S")
+    #   sys_counter = 1
+    #   if len(expr) == 1:
+    #     var_id, eq_id, top_ids, index_sets = expr[0]
+    #     # TODO: Extend this to add all the other index sets needed
+    #     index_sets.add("S")
 
-        eq = self.all_equations.get(eq_id)
-        if eq.is_integrator():
-          continue
+    #     eq = self.all_equations.get(eq_id)
+    #     if eq.is_integrator():
+    #       continue
 
-        if eq.is_explicit_for_var(var_id):
-          expr_info["type"] = "simple"
-          expr_info["id"] = eq_id
-          expr_info["equations"] = [{
-              "eq_id": eq_id,
-              "var_id": var_id,
-              "top_ids": top_ids,
-              "index_sets": index_sets,
-              "dependencies": eq.get_incidence_list(var_id),
-          }]
-        else:
-          expr_info["type"] = "root"
-          expr_info["init_guess"] = ["Initial_Guess"]
-          expr_info["id"] = "root" + eq_id
-          expr_info["equations"] = [{
-              "eq_id": eq_id,
-              "var_id": var_id,
-              "top_ids": top_ids,
-              "index_sets": index_sets,
-              "dependencies": eq.get_incidence_list(var_id) + [var_id],
-          }]
+    #     if eq.is_explicit_for_var(var_id):
+    #       expr_info["type"] = "simple"
+    #       expr_info["id"] = eq_id
+    #       expr_info["equations"] = [{
+    #           "eq_id": eq_id,
+    #           "var_id": var_id,
+    #           "top_ids": top_ids,
+    #           "index_sets": index_sets,
+    #           "dependencies": eq.get_incidence_list(var_id),
+    #       }]
+    #     else:
+    #       expr_info["type"] = "root"
+    #       expr_info["init_guess"] = ["Initial_Guess"]
+    #       expr_info["id"] = "root" + eq_id
+    #       expr_info["equations"] = [{
+    #           "eq_id": eq_id,
+    #           "var_id": var_id,
+    #           "top_ids": top_ids,
+    #           "index_sets": index_sets,
+    #           "dependencies": eq.get_incidence_list(var_id) + [var_id],
+    #       }]
 
-      else:
-        expr_info["type"] = "system"
-        expr_info["id"] = f"system{sys_counter}"
-        sys_counter += 1
-        expr_info["equations"] = []
-        expr_info["init_guess"] = ["initial_guess"]
+    #   else:
+    #     expr_info["type"] = "system"
+    #     expr_info["id"] = f"system{sys_counter}"
+    #     sys_counter += 1
+    #     expr_info["equations"] = []
+    #     expr_info["init_guess"] = ["initial_guess"]
 
-        part_counter = 1
-        for var_id, eq_id, top_ids, index_sets in expr:
-          # TODO: Extend this to add all the other index sets needed
-          index_sets.add("S")
-          eq = self.all_equations[eq_id]
-          ini = str(part_counter)
-          part_counter += self.size_by_index(var_id, index_sets)
-          fin = str(part_counter - 1)
-          expr_info["equations"].append({
-              "eq_id": eq_id,
-              "var_id": var_id,
-              "top_ids": top_ids,
-              "interval": ini + ":" + fin,
-              "index_sets": index_sets,
-              "dependencies": eq.get_incidence_list(),
-          })
+    #     part_counter = 1
+    #     for var_id, eq_id, top_ids, index_sets in expr:
+    #       # TODO: Extend this to add all the other index sets needed
+    #       index_sets.add("S")
+    #       eq = self.all_equations[eq_id]
+    #       ini = str(part_counter)
+    #       part_counter += self.size_by_index(var_id, index_sets)
+    #       fin = str(part_counter - 1)
+    #       expr_info["equations"].append({
+    #           "eq_id": eq_id,
+    #           "var_id": var_id,
+    #           "top_ids": top_ids,
+    #           "interval": ini + ":" + fin,
+    #           "index_sets": index_sets,
+    #           "dependencies": eq.get_incidence_list(),
+    #       })
 
-      data["expressions"].append(expr_info)
-      data["solvers"] = {
-          "root": "fzero",
-          "sys_of_equations": "fsolve",
-      }
+    #   data["expressions"].append(expr_info)
+    data["solvers"] = {
+        "root": "fzero",
+        "sys_of_equations": "fsolve",
+    }
 
     return data
 

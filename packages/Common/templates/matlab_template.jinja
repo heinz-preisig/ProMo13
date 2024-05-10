@@ -1,17 +1,8 @@
 function output_vars = main
   % Index sets
-  {% for set_name, set_info in index_sets_info.general|items %}
-    {# {% if set.comment %}
-      {% for com in set.comment%}
-        {{-"  "}}% {{com}}
-      {% endfor %}
-    {% endif %} #}
+  {% for set_name, set_info in index_sets_info|items %}
     {{-"  "}}{{set_name}} = [{{set_info|join(",")}}]; {{"\n"-}}
     {{-"  "}}{{set_name}}_lbl = "{{set_name}}";
-  {% endfor %}
-
-  {% for set_name, set_info in index_sets_info.specific|items %}
-    {{-"  "}}{{set_name}} = [{{set_info|join(", ")}}];
   {% endfor %}
 
   {{-"  "}}indexOrder = cell(1, {{index_order|length}});
@@ -50,11 +41,11 @@ function output_vars = main
       {{-" "}}reshape(({{i.init_value|var_slice(i.index_sets)}}).value, [], 1);
   {% endfor %}
 
-  % Integration interval
+  {# % Integration interval
   integration_interval = [
     {{-(integrators|first).int_interval_ini|label-}}.value,
     {{-" "}}{{(integrators|first).int_interval_fin|label-}}.value
-  {{-""}}];{{"\n"-}}
+  {{-""}}];{{"\n"-}} #}
 
   {{-"  "}}dt = 0.1;{{"\n"-}}
   {{-"  "}}options = odeset('InitialStep', dt, 'MaxStep', dt, 'RelTol', 1e-3, 'AbsTol', 1e-3);{{"\n"-}}
