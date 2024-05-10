@@ -87,6 +87,9 @@ function output_vars = main
 
     {% for expr in expressions %}
       {% if expr.type == "simple" %}
+        {% for index_set_name, indices_list in expr.equations[0].index_sets|items %}
+        {{-"    "}}{{index_set_name}} = [{{indices_list|join(",")}}]
+        {% endfor %}
         {{-"    "}}{{expr.equations[0].var_id|var_slice(expr.equations[0].index_sets)}} = 
           {{-" "}}{{expr.id}}({{expr|dependencies}});
       {% elif expr.type == "root" %}

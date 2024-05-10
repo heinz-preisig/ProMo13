@@ -233,10 +233,29 @@ class TemplateHandler:
       integrator_info["size_by_index"] = size_by_index
 
       data["integrators"].append(integrator_info)
-    pp(data["integrators"])
+    # pp(data["integrators"])
 
     # Information about the expressions
     data["expressions"] = []
+    for equation_set in self.equation_seq:
+      eq_id = list(equation_set)[0]
+      eq = self.all_equations[eq_id]
+      var_id = eq.get_main_var_id()
+      index_sets = self.get_index_sets(eq_id)
+      if eq.is_integrator():
+        continue
+
+      data["expressions"].append({
+          "type": "simple",
+          "id": eq_id,
+          "equations": [{
+              "eq_id": eq_id,
+              "var_id": var_id,
+              "index_sets": index_sets,
+              "dependencies": eq.get_incidence_list(var_id),
+          }]
+      })
+    # pp(data["expressions"])
     # for expr in self.var_eq.expressions:
     #   expr_info = {}
 
@@ -303,37 +322,6 @@ class TemplateHandler:
     }
 
     return data
-
-  def size_by_index(self, var_id, index_sets):
-    # TODO: Rewrite this, make a separation between index and index sets
-    var_data = self.all_variables[var_id]
-
-    index_structures = var_data.index_structures
-    index_sets_info = self.var_eq.top_graph.graph["index_sets_info"]
-
-    index_sizes = []
-
-    # TODO: This needs to come from the entity itself
-    index_sets.add("S")
-
-    # TODO: Remove this when we only have one set of indices
-    index_sets_total = copy.deepcopy(index_sets_info["specific"])
-    index_sets_total.update({
-        self.all_indices[key].get_translation(self.language): index_sets_info["general"][key]
-        for key in index_sets_info["general"]
-    })
-
-    pp(index_sets_total)
-
-    for idx_id in index_structures:
-      index_label = self.all_indices[idx_id].get_translation("internal_code")
-      index_union = set()
-      for idx in index_sets:
-        if index_label[0] == idx[0]:
-          index_union.update(index_sets_total[idx])
-      index_sizes.append(len(index_union))
-
-    return index_sizes
 
   def load_language_filters(self) -> None:
     # TODO Probably make it a static member
