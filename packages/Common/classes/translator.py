@@ -103,23 +103,33 @@ class Translator:
 
     return self.translation_info.negation.format(**values)
 
-  def translate_expand_product(self, op1, op2):
+  def translate_einstein_sum_contraction(self, op1, idx, op2):
+    values = {"op1": op1, "op2": op2, "idx": self.translated_indices[idx]}
+
+    return self.translation_info.einstein_sum_contraction.format(**values)
+
+  def translate_einstein_sum(self, op1, op2):
     values = {"op1": op1, "op2": op2}
 
-    return self.translation_info.expand_product.format(**values)
+    return self.translation_info.einstein_sum.format(**values)
 
-  def translate_hadamard(self, op1, op2):
-    values = {"op1": op1, "op2": op2}
+  # def translate_expand_product(self, op1, op2):
+  #   values = {"op1": op1, "op2": op2}
 
-    return self.translation_info.hadamard.format(**values)
+  #   return self.translation_info.expand_product.format(**values)
 
-  def translate_reduce_product(self, op1, op2):
-    values = {
-        "op1": op1,
-        "op2": op2,
-    }
+  # def translate_hadamard(self, op1, op2):
+  #   values = {"op1": op1, "op2": op2}
 
-    return self.translation_info.reduce_product.format(**values)
+  #   return self.translation_info.hadamard.format(**values)
+
+  # def translate_reduce_product(self, op1, op2):
+  #   values = {
+  #       "op1": op1,
+  #       "op2": op2,
+  #   }
+
+  #  return self.translation_info.reduce_product.format(**values)
 
   # TODO: Delete
   # def translate_block_reduce_product(self, op1, idx_id1, idx_id2, op2):

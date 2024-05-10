@@ -32,6 +32,8 @@ class TranslationInfo:
   addition: str
   substraction: str
   negation: str
+  einstein_sum: str
+  einstein_sum_contraction: str
   expand_product: str
   hadamard: str
   reduce_product: str
