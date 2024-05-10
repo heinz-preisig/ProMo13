@@ -23,7 +23,6 @@ class TemplateHandler:
       all_topology_objects: Dict[str, topology.TopologyObject],
       equation_seq: List[Set[str]],
       map_eq_top: Dict[str, Set[topology.EntityContainer]],
-      model_vars: Set[str],
       instantiation_data: Dict[str, Dict[Tuple[str, ...], str]],
   ):
     self.language = language
@@ -33,7 +32,6 @@ class TemplateHandler:
     self.all_topology_objects = all_topology_objects
     self.equation_seq = equation_seq
     self.map_eq_top = map_eq_top
-    self.model_vars = model_vars
     self.instantiation_data = instantiation_data
 
     self.enviroment = jinja2.Environment(
@@ -89,7 +87,30 @@ class TemplateHandler:
     # pp(index_sets)
     # pp(map_id_to_counter)
 
+    self.update_instantiation_info()
     return index_sets
+
+  def update_instantiation_info(self):
+    updated_info = {}
+    self.map_id_to_counter["1"] = 1
+    for var_id, inst_data in self.instantiation_data.items():
+      updated_info[var_id] = {}
+      for tuple_key, value in inst_data.items():
+        new_tuple = tuple([
+            self.map_id_to_counter[identifier]
+            for identifier in tuple_key
+        ])
+        updated_info[var_id][new_tuple] = value
+
+    self.instantiation_data = updated_info
+
+  def find_all_variables(self):
+    model_variables = set()
+    for top_obj in self.all_topology_objects.values():
+      if isinstance(top_obj, topology.EntityContainer):
+        model_variables.update(top_obj.entity_instance.get_variables())
+
+    return model_variables
 
   def generate_language_data(self):
     data = {}
@@ -106,43 +127,42 @@ class TemplateHandler:
 
     # Information about the initialization of all variables
     data["variables"] = []
-    # pp(self.var_eq.inst_variables)
-    # for var_id, inst_info in self.var_eq.inst_variables.items():
-    #   var_data = self.all_variables[var_id]
-    #   index_structures = var_data.index_structures
 
-    #   index_sets = ", ".join(
-    #       [
-    #           self.all_indices.get(idx).get_translation(self.language)
-    #           for idx in index_structures
-    #       ]
-    #   )
+    model_vars = self.find_all_variables()
+    for var_id in model_vars:
+      var_data = self.all_variables[var_id]
+      index_structures = var_data.index_structures
 
-    #   index_labels = ", ".join(
-    #       [
-    #           self.all_indices.get(idx).get_translation(self.language) + "_lbl"
-    #           for idx in index_structures
-    #       ]
-    #   )
-    #   # pp(self.var_eq.top_graph.graph["index_sets_info"]["general"])
-    #   var_size = [
-    #       str(
-    #           len(self.var_eq.top_graph.graph["index_sets_info"]["general"][idx]))
-    #       for idx in self.all_variables[var_id].index_structures
-    #   ]
-    #   if not var_size:
-    #     var_size = ["1", "1"]
+      translated_index_structures = [
+          self.all_indices[idx].get_translation(self.language)
+          for idx in index_structures
+      ]
 
-    #   data["variables"].append({
-    #       "var_id": var_id,
-    #       "comment": [var_data.doc],
-    #       "instantiation_values": inst_info,
-    #       "index_labels": index_labels,
-    #       "index_sets": index_sets,
-    #       "is_sparse": is_sparse,
-    #       "size": var_size,
-    #   })
-    # pp(data["variables"])
+      index_sets = ", ".join(translated_index_structures)
+
+      index_labels = ", ".join(
+          [
+              idx + "_lbl"
+              for idx in translated_index_structures
+          ]
+      )
+      var_size = [
+          len(data["index_sets_info"][index_set_name])
+          for index_set_name in translated_index_structures
+      ]
+      if not var_size:
+        var_size = ["1"]
+
+      data["variables"].append({
+          "var_id": var_id,
+          "comment": [var_data.doc],
+          "instantiation_values": self.instantiation_data.get(var_id, {}),
+          "index_labels": index_labels,
+          "index_sets": index_sets,
+          "is_sparse": is_sparse,
+          "size": var_size,
+      })
+    pp(data["variables"])
     # Information about the integrators
     data["integrators"] = []
     # count = 1

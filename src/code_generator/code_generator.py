@@ -34,7 +34,7 @@ all_topology_objects = io.load_topology_objects(
 )
 
 
-equation_seq, map_eq_top, model_vars = equation_sequencer.sequence_equations(
+equation_seq, map_eq_top = equation_sequencer.sequence_equations(
     all_topology_objects,
 )
 
@@ -53,7 +53,6 @@ temp = template_handler.TemplateHandler(
     all_topology_objects,
     equation_seq,
     map_eq_top,
-    model_vars,
     instantiation_data
 )
 

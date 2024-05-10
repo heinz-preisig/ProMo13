@@ -15,12 +15,11 @@ from pprint import pprint as pp
 
 _EquationSequence = List[Set[str]]
 _MapEquationTopology = Dict[str, Set[topology.EntityContainer]]
-_VariableList = Set[str]
 
 
 def sequence_equations(
     all_topology_objects: Dict[str, topology.TopologyObject],
-) -> Tuple[_EquationSequence, _MapEquationTopology, _VariableList]:
+) -> Tuple[_EquationSequence, _MapEquationTopology]:
   """Find a sequence of equations
 
   The sequence is one of the possible ordering that allow a computation
@@ -40,16 +39,16 @@ def sequence_equations(
   topology_graph = topology.build_topology_graph(
       all_topology_objects)
 
-  equation_graph, equation_topology_map, variable_list = _build_equation_graph(
+  equation_graph, equation_topology_map = _build_equation_graph(
       topology_graph)
   equation_sequence = _find_solving_order(equation_graph)
 
-  return (equation_sequence, equation_topology_map, variable_list)
+  return (equation_sequence, equation_topology_map)
 
 
 def _build_equation_graph(
     topology_graph: nx.Graph,
-) -> Tuple[nx.DiGraph, _MapEquationTopology, _VariableList]:
+) -> Tuple[nx.DiGraph, _MapEquationTopology]:
   """Build an equation digraph
 
   Each Node represents one equation in the model. Edges represent a
@@ -61,16 +60,14 @@ def _build_equation_graph(
        the model.
 
   Returns:
-      Tuple[nx.DiGraph, _MapEquationTopology, _VariableList]: The
+      Tuple[nx.DiGraph, _MapEquationTopology]: The
        equation digraph and the byproducts of its generation:
 
        * All the equations used and what Topology objects contain them.
-       * All the variables used in the model.
   """
 
   equations_graph = nx.DiGraph()
   processing_queue = collections.deque()
-  variable_list = set()
 
   equation_topology_map = _get_integrators_info(topology_graph)
   for equation_id, topology_objects in equation_topology_map.items():
@@ -88,8 +85,6 @@ def _build_equation_graph(
       )
       for equation_id, topology_objects in equations_info.items():
         if equation_id not in equations_graph:
-          # TODO: Add variables to a set here coming from the
-          # new eq in the graph.
           equations_graph.add_node(equation_id)
 
         equations_graph.add_edge(source_equation_id, equation_id)
@@ -100,7 +95,7 @@ def _build_equation_graph(
           processing_queue.append((equation_id, new_topology_objects))
           equation_topology_map[equation_id].update(new_topology_objects)
 
-  return (equations_graph, equation_topology_map, variable_list)
+  return (equations_graph, equation_topology_map)
 
 
 def _get_integrators_info(topology_graph) -> _MapEquationTopology:
