@@ -26,11 +26,5 @@ class Index:
 
     return False
 
-  def get_translation(self, language: str) -> Optional[str]:
-    if language not in self.aliases:
-      return None
-
-    return self.aliases.get(language)
-
-  def get_sub_indices(self) -> List[str]:
-    return self.indices
+  def get_translation(self, language: str) -> str:
+    return self.aliases[language]
