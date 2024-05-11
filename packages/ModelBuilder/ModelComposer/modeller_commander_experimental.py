@@ -1231,15 +1231,19 @@ class Commander(QtCore.QObject):
 
     container = self.model_container.extractSubtree(nodeID)
 
-    schnipsel_file = FILES["model_file"] % (
-            self.main.ontology_name, schnipsel_name_to_be_saved)
+    schnipsel_file = FILES["model_file"] % (self.main.ontology_name, schnipsel_name_to_be_saved)
     model_directory = os.path.dirname(schnipsel_file)
     if not os.path.exists(model_directory):
       os.makedirs(model_directory)
-    # schnipsel_file = os.path.join(self.main.model_library_location, schnipsel_name_to_be_saved)
-    f = schnipsel_file
-    container.write(f)
-    self.main.writeStatus("saved schnipsel to %s" % schnipsel_name_to_be_saved)
+    container.write(schnipsel_file)
+
+    ff = os.path.basename(schnipsel_file)
+    name, ext = os.path.splitext(ff)
+    dir = os.path.dirname(schnipsel_file)
+    new_model_file_path = os.path.join(dir, "%s_new%s" % (name, ext))
+    self.__c24_save_new_model_file(container, new_model_file_path)
+
+    self.main.writeStatus("saved schnipsel to %s" % new_model_file_path)
     self.schnipsel_file = schnipsel_file
     self.main.setSchnipsel(schnipsel_name_to_be_saved)
 
@@ -1392,7 +1396,7 @@ class Commander(QtCore.QObject):
     # NOTE: switched off node mapping 2024-01-29
     node_map = self.model_container.write(f)
     self.model_container.makeAndWriteFlatTopology(f_flat)
-    self.__24_save_new_model_file(new_model_file_path)
+    self.__c24_save_new_model_file(self.model_container, new_model_file_path)
 
     # mapped_currently_viewed_node = node_map[int(self.currently_viewed_node)]   # NOTE: switched off node mapping 2024-01-29
     # self.currently_viewed_node = (mapped_currently_viewed_node)  # NOTE: switched off node mapping 2024-01-29
@@ -1411,16 +1415,16 @@ class Commander(QtCore.QObject):
             "failed"    : False
             }
 
-  def __24_save_new_model_file(self, new_model_file_path: str):
-    pp(self.model_container["ID_tree"])
-    pp(self.model_container["nodes"])
-    pp(self.model_container["arcs"])
+  def __c24_save_new_model_file(self, model_container, new_model_file_path: str):
+    pp(model_container["ID_tree"])
+    pp(model_container["nodes"])
+    pp(model_container["arcs"])
 
     all_topology_objects = {}
     map_number_id_to_str_id = {}
 
     # Adding main info to the topology objects
-    for number_id, node_info in self.model_container["nodes"].items():
+    for number_id, node_info in model_container["nodes"].items():
       data = {}
       if node_info["class"] == "node_composite":
         identifier = f"N_{str(number_id)}"
@@ -1475,8 +1479,8 @@ class Commander(QtCore.QObject):
         map_number_id_to_str_id[number_id] = data["identifier"]
 
     # After all ids have been converted we add parent and children id
-    id_tree = self.model_container["ID_tree"]
-    for number_id, node_info in self.model_container["nodes"].items():
+    id_tree = model_container["ID_tree"]
+    for number_id, node_info in model_container["nodes"].items():
       current_id = map_number_id_to_str_id[number_id]
       ancestors_number_id = id_tree[number_id]["ancestors"]
       if ancestors_number_id:
@@ -1495,7 +1499,7 @@ class Commander(QtCore.QObject):
         all_topology_objects[current_id].children_ids = children_ids
 
     # Adding the connection info from the arcs
-    for connection_info in self.model_container["arcs"].values():
+    for connection_info in model_container["arcs"].values():
       source_number_id = connection_info["source"]
       sink_number_id = connection_info["sink"]
 
@@ -1504,7 +1508,7 @@ class Commander(QtCore.QObject):
 
       all_topology_objects[source_id].add_ougoing_node(sink_id)
 
-    ontology_name = self.model_container.ontology.ontology_name
+    ontology_name = model_container.ontology.ontology_name
     model_name = self.library_model_name
 
     io.save_model_to_file(
