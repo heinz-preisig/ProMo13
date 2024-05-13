@@ -38,7 +38,7 @@ function output_vars = main
   % Index sets
   {% for i in integrators %}
     {% for index_set_name, indices_list in i.index_sets|items %}
-      {{-"  "}}{{index_set_name}} = [{{indices_list|join(",")}}]
+      {{-"  "}}{{index_set_name}} = [{{indices_list|join(",")}}];
     {% endfor %}
   {% endfor %}
   % Initial conditions
@@ -88,7 +88,7 @@ function output_vars = main
     {% for expr in expressions %}
       {% if expr.type == "simple" %}
         {% for index_set_name, indices_list in expr.equations[0].index_sets|items %}
-        {{-"    "}}{{index_set_name}} = [{{indices_list|join(",")}}]
+        {{-"    "}}{{index_set_name}} = [{{indices_list|join(",")}}];
         {% endfor %}
         {{-"    "}}{{expr.equations[0].var_id|var_slice(expr.equations[0].index_sets)}} = 
           {{-" "}}{{expr.id}}({{expr|dependencies}});
