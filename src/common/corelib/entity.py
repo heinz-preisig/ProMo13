@@ -1,792 +1,510 @@
-"""Contains the entity class."""
-# TODO Extend with an explanation of what an entity is.
-# TODO Update the docstrings.
-import collections
-import copy
-from typing import List, TypedDict, Optional, Dict, Tuple, Callable
-from typing_extensions import Self
-from pprint import pprint as pp
+"""
+Defines the `Entity` class and its associated classes
 
-from packages.Common.classes import equation
+Classes:
+    :class:`Entity`: Basic block to build models.
+    :class:`EntityMathGrah`: Manages algebraic relationships in an
+     entity.
+    :class:`VariableState`: Enum for the variable states in an Entity.
+"""
+from collections import deque
+from enum import IntFlag
+from typing import Dict, List, Optional, Union
+
+from attrs import define, Factory
+import networkx as nx
+
+from src.common.corelib import Variable, Equation
+
+EntityMap = Dict[str, "Entity"]
 
 
-class EntityDict(TypedDict):
-  """Creates a new type for a dictionary that stores an entity."""
-  index_set: str
-  integrators: Dict[str, str]
-  var_eq_forest: List[Dict[str, List[str]]]
-  init_vars: List[str]
-  input_vars: List[str]
-  output_vars: List[str]
+class VariableState(IntFlag):
+  """Variable states in an Entity"""
 
+  #: Default state
+  DEFAULT = 1
 
-class Entity():
-  """Models an entity."""
-  # TODO Add an explanation of what is an entity.
-  # TODO: PRobably add fields for network, type, etc
+  #: The variable will be obtained from another entity
+  INPUT = 2
 
-  def __init__(
-      self,
-      entity_name: str,
-      all_equations: Dict[str, equation.Equation],
-      index_set: Optional[str] = None,
-      integrators: Optional[Dict[str, str]] = None,
-      var_eq_forest: Optional[List[Dict[str, List[str]]]] = None,
-      init_vars: Optional[List[str]] = None,
-      input_vars: Optional[List[str]] = None,
-      output_vars: Optional[List[str]] = None,
-  ) -> None:
-    # """Initializes the entity.
+  #: The variable can be used by another entity
+  OUTPUT = 4
 
-    # Args:
-    #     entity_name (str): Name of the entity.
-    #     var_eq_tree (Optional[EntityDict], optional): List of trees that
-    #       link variables and equations used in the Entity.
-    #       Defaults to None.
-    #     init_vars (Optional[List[str]], optional): Ids of the variables
-    #       that require initialization. Defaults to None.
-    # """
-    # TODO: Add modification date field.
-    self.entity_name = entity_name
-    self.index_set = index_set
-    self.integrators = integrators if integrators is not None else {}
-    self.var_eq_forest = var_eq_forest if var_eq_forest is not None else []
-    self.init_vars = init_vars if init_vars is not None else []
-    self.input_vars = input_vars if input_vars is not None else []
-    self.output_vars = output_vars if output_vars is not None else []
-    self.all_equations = all_equations 
+  #: The variable will be instantiated
+  INSTANTIATION = 8
 
-    if entity_name != "Topology" and ">>>" not in entity_name:
-      network, ent_type, str1, name = entity_name.split(".")
-      token, mechanism, nature = str1.split("|")
+  #: An equation is used to compute the variable
+  DEPENDENT = 16
 
-      self.index_set = ent_type[0].capitalize() + "_" + mechanism[:4]
+  #: The variable state is not NONE
+  ANY = DEFAULT | INPUT | OUTPUT | INSTANTIATION | DEPENDENT
 
-    self.temp_var_eq_forest = None
-    self.merge_conflicts = {}
-    self.merged_vars = {}
-    self.undo_merging = {}
+  #: The variable does not have way of being computed
+  PENDING = ~(INPUT | INSTANTIATION | DEPENDENT)
 
-    # pp(self.all_equations)
+  def has_state(self, state: "VariableState") -> bool:
+    """Checks if a state is among the states
 
-  def integrators_info(self):
-    return list(self.integrators.items())
-
-  def get_integrators_eq(self):
-    return sorted(list(self.integrators.values()))
-
-  def get_equations(self):
-    # TODO: Check if something breaks after returning all equations
-    # including the integrators.
-    equations = []
-    for tree in self.var_eq_forest:
-      equations.extend([
-          key
-          for key in tree
-          if "E_" in key
-      ])
-
-    return sorted(equations)
-
-  def get_variables(self):
-    variables = list(self.integrators.keys())
-
-    for tree in self.var_eq_forest:
-      variables.extend([
-          key
-          for key in tree
-          if "V_" in key
-      ])
-
-    return sorted(variables)
-
-  def get_input_vars(self):
-    return sorted(self.input_vars)
-
-  def set_input_var(self, var_id, is_input):
-    if is_input:
-      if var_id not in self.input_vars:
-        self.input_vars.append(var_id)
-    else:
-      if var_id in self.input_vars:
-        self.input_vars.remove(var_id)
-
-  def get_output_vars(self):
-    return sorted(self.output_vars)
-
-  def set_output_var(self, var_id, is_output):
-    if is_output:
-      if var_id not in self.output_vars:
-        self.output_vars.append(var_id)
-    else:
-      if var_id in self.output_vars:
-        self.output_vars.remove(var_id)
-
-  def get_init_vars(self):
-    return sorted(self.init_vars)
-
-  def set_init_var(self, var_id, is_init):
-    if is_init:
-      if var_id not in self.init_vars:
-        self.init_vars.append(var_id)
-    else:
-      if var_id in self.init_vars:
-        self.init_vars.remove(var_id)
-
-  def get_pending_vars(self):
-    no_eq_vars = set()
-    for tree in self.var_eq_forest:
-      for key, value in tree.items():
-        if "V_" in key and not value:
-          no_eq_vars.add(key)
-
-    pending_vars = no_eq_vars - \
-        (set(self.input_vars) | set(self.init_vars))
-
-    return sorted(list(pending_vars))
-
-  def get_var_status(self, var_id):
-    return [
-        self.get_eq_for_var(var_id),
-        self.is_input(var_id),
-        self.is_output(var_id),
-        self.is_init(var_id)
-    ]
-
-  def is_init(self, var_id):
-    return var_id in self.init_vars
-
-  def is_var_top_level(self, var_id):
-    if var_id not in self.output_vars:
-      return False
-
-    self.output_vars.remove(var_id)
-    deleted_vars = self.generate_var_eq_forest({})[2]
-    self.output_vars.append(var_id)
-
-    if var_id in deleted_vars:
-      return True
-    else:
-      return False
-
-  # @classmethod
-  # def from_root(
-  #   cls,
-  #   entity_name: str,
-  #   root_var_id: str,
-  #   root_eq_id: str,
-  #   all_equations: Dict[str, equation.Equation],
-  # ) -> Self:
-  #   """Provides an alternative constructor.
-
-  #   Used when a new entity is going to be created and only information
-  #     about the root is defined.
-
-  #   Args:
-  #       entity_name (str): Name of the entity.
-  #       root_var_id (str): Id of the root variable.
-  #       root_eq_id (str): Id of the root equation.
-  #       all_equations (List[equation.Equation]): All the equations in
-  #         the Ontology.
-
-  #   Returns:
-  #       Self: An instance of the clase initialized with the information
-  #         of the root.
-  #   """
-  #   # `entity_equations` are found by doing a BFS on a graph where
-  #   # variables and equations are nodes and an arc exist between them
-  #   # if the equation contains the variable.
-  #   entity_equations = {}
-  #   entity_equations[root_eq_id] = all_equations[root_eq_id]
-
-  #   entity_variables = set()
-  #   entity_variables.add(root_var_id)
-
-  #   queue = collections.deque()
-  #   queue.append(root_eq_id)
-
-  #   while queue:
-  #     item_id = queue.popleft()
-  #     if "E_" in item_id:
-  #       for var_id in all_equations[item_id].get_incidence_list():
-  #         # TODO Find a way to not add constants.
-  #         if var_id not in entity_variables:
-  #           entity_variables.add(var_id)
-  #           queue.append(var_id)
-
-  #     if "V_" in item_id:
-  #       for eq_id, eq in all_equations.items():
-  #         if eq_id not in entity_equations and eq.contains_var(item_id):
-  #           entity_equations[eq_id] = eq
-  #           queue.append(eq_id)
-
-  #   # All equations are unused except for the root equation.
-  #   unused_eq_ids = list(entity_equations.keys()).remove(root_eq_id)
-
-  #   # Creating a new instance of the class with the minimum information.
-  #   instance =  cls(
-  #     entity_name,
-  #     root_var_id,
-  #     root_eq_id,
-  #     unused_eq_ids,
-  #     entity_equations,
-  #   )
-
-  #   # `var_eq_info` only contains information about the root.
-  #   var_eq_info = {}
-  #   var_eq_info[root_var_id] = [root_eq_id]
-
-  #    # Generating and updating `var_eq_tree`.
-  #   instance.generate_var_eq_tree(var_eq_info)
-  #   instance.update_var_eq_tree()
-
-  #   return instance
-
-  def update_var_eq_tree(self) -> None:
-    """Updates the variable-equation tree.
-
-    The variable-equation tree is updated with the last tree generated
-      by the method `generate_var_eq_tree`.
-    """
-    self.var_eq_forest = self.temp_var_eq_forest
-
-    # Removing all variables that are not in the entity from the lists
-    # input, output and init
-    all_vars = set(self.get_variables())
-    self.input_vars = list(
-        set(self.input_vars).intersection(all_vars)
-    )
-    # TODO: Verify if this is needed. In principle all output vars should
-    # remain.
-    self.output_vars = list(
-        set(self.output_vars).intersection(all_vars)
-    )
-    self.init_vars = list(
-        set(self.init_vars).intersection(all_vars)
-    )
-    self.integrators = {}
-    for tree in self.var_eq_forest:
-      new_integrators = {}
-      for key, values in tree.items():
-        if "V_" in key and values and self.all_equations[values[0]].is_integrator():
-          new_integrators[key] = values[0]
-      for key in new_integrators:
-        del tree[key]
-
-      self.integrators.update(new_integrators)
-
-  def generate_var_eq_forest(
-      self,
-      add_var_eq_info: Dict[str, List[str]]
-  ) -> Tuple[List[str], List[str], List[str], List[str]]:
-    """Generates a new variable-equation tree.
-
-    Also compiles the difference between the original tree and the newly
-      generated tree.
     Args:
-        add_var_eq_info (Dict[str, List[str]]): Additional information
-          about the equations assigned to variables. The keys are ids
-          of variables and the values are the ids of the equations
-          assigned to those variables.
+        state (VariableState): The state to be checked
 
     Returns:
-        List[str]: Ids of all variables and equations that wouldn't be
-          needed in the newly generated tree compared with the original
-          tree.
+        bool: **True** if the state is set, **False** otherwise.
     """
-    # TODO: Check if there is a simpler way to add only one equation.
-    # Creates a new forest
-    self.temp_var_eq_forest = []
+    return bool(self & state)
 
-    # The original `var_eq_info` is the nodes of the tree representing
-    # variables. If the `var_eq_forest` has not been constructed then
-    # `var_eq_info` is an empty dict.
-    # TODO Copy only the variable nodes if there are problems with big
-    # trees.
-    var_eq_info = {}
-    for var_id, eq_id in self.integrators.items():
-      var_eq_info[var_id] = [eq_id]
 
-    for tree in self.var_eq_forest:
-      var_eq_info.update(tree)
+class EntityMathGraph:
+  """Manages algebraic relationships in an entity
 
-    # Updating `var_eq_info` with the data in `add_var_eq_info`.
-    # TODO: Change to var_eq_info.update(add_var_eq_info)
-    for var_id, equation_ids in add_var_eq_info.items():
-      var_eq_info[var_id] = equation_ids
+  Contains variables and equations and their relationship inside an
+  entity.
 
-    # Adding the roots for all trees. The roots are always the
-    # output variables.
-    for var_id in self.output_vars:
-      self.temp_var_eq_forest.append({
-          var_id: []
-      })
+  The whole structure revolves around the output variables and all the
+  other elements exist to make possible their computation.
+  """
 
-    # Initially only the root variables that have assigned equations
-    # are added to the queue.
-    queue = collections.deque()
-    for var_id in self.output_vars:
-      # TODO: Change this is multiple equations are not allowed
-      # for a single variable.
-      if var_id not in var_eq_info:
-        continue
+  def __init__(self):
+    # The structure is represented as a directed graph:
+    # - Each node is either a Variable or an Equation.
+    # - An arc from a Variable to an equation implies that the Equation
+    #   is used to compute the variable.
+    # - An arc from an Equation to a Variable implies that the Equation
+    #   uses the variable to perform the computation.
+    self._graph = nx.DiGraph()
 
-      for eq_id in var_eq_info[var_id]:
-        queue.append((var_id, eq_id))
+    # Output variables in the Entity. All variables and equations must
+    # be connected to at least one of them or else they are not needed
+    # and can be deleted.
+    self._output_variables = set()
+
+  @property
+  def equations(self) -> List[Equation]:
+    """All the equations in the graph"""
+    return [
+        node
+        for node in self._graph.nodes()
+        if isinstance(node, Equation)
+    ]
+
+  @property
+  def variables(self) -> List[Variable]:
+    """All the variables in the graph"""
+    return [
+        node
+        for node in self._graph.nodes()
+        if isinstance(node, Variable)
+    ]
+
+  @property
+  def removable_variables(self) -> List[Variable]:
+    """Variables that can be removed safely
+
+    Safety in this case implies that no equation depends on them. The
+    only variables that are not added or deleted with equations are the
+    output variables. Even among them there is a chance that a
+    dependency relationship exists so that needs to be checked.
+    """
+    return [
+        var
+        for var in self._output_variables
+        if self._graph.in_degree(var) == 0
+    ]
+
+  def add_variable(self, var: Variable) -> None:
+    """Add a variable to the graph
+
+    Args:
+        var (Variable): Variable to be added.
+    """
+    self._output_variables.add(var)
+    self._graph.add_node(var)
+
+  def add_equation(
+      self,
+      dependent_var: Variable,
+      eq: Equation
+  ) -> List[Variable]:
+    """Add an equation to the graph
+
+    Equations can only be added if there is a variable in the structure
+    that can be computed from the equation. That is the reason why the
+    dependent variable is also passed as argument.
+
+    When an equation is added, its independent variables are also added
+    to the structure.
+
+    Args:
+        dependent_var (Variable): Variable to be computed with the
+         equation.
+        eq (Equation): Equation to be added.
+
+    Returns:
+        List[Variable]: Variables added automatically when the equation
+         is added. Includes variables that already existed in the
+         structure but would be addedd otherwise.
+    """
+    self._graph.add_edge(dependent_var, eq)
+
+    independent_variables = eq.independent_variables
+    for independent_var in independent_variables:
+      self._graph.add_edge(eq, independent_var)
+
+    return independent_variables
+
+  def update_output_variables(self, var: Variable, is_output: bool) -> None:
+    """Update the output variables
+
+    Changes if a variable is considered output.
+    DOES NOT add or remove a variable from the structure.
+
+    Args:
+        var (Variable): Variable to look up.
+        is_output (bool): Indicates if the variable belongs to the
+         output of the Entity or not.
+    """
+    if is_output:
+      self._output_variables.add(var)
+    elif var in self._output_variables:
+      self._output_variables.remove(var)
+
+  def remove_variable(self, var: Variable) -> List[Variable]:
+    """Remove a variable from the graph
+
+    Can result in the removal of other variables and/or equations that
+    are no longer needed.
+
+    Args:
+        var (Variable): Variable to be removed.
+
+    Returns:
+        List[Variable]: Variables removed as a result of the removal of
+        the variable.
+    """
+    if var in self._output_variables:
+      self._output_variables.remove(var)
+
+    return self._remove_node(var)
+
+  def remove_equation(self, eq: Equation) -> List[Variable]:
+    """Remove an equation from the graph
+
+    Can result in the removal of other variables and/or equations that
+    are no longer needed.
+
+    Args:
+        eq (Equation): Equation to be removed.
+
+    Returns:
+        List[Variable]: Variables removed as a result of the removal of
+         the equation.
+    """
+    incoming_edges = list(self._graph.in_edges(eq))
+    self._graph.remove_edges_from(incoming_edges)
+
+    return self._remove_node(eq)
+
+  def _remove_node(
+      self,
+      node_to_remove: Union[Variable, Equation]
+  ) -> List[Variable]:
+    """Remove a node
+
+    It also removes all other nodes that are no longer needed.
+
+    Args:
+        node_to_remove (Union[Variable, Equation]): The node to remove.
+
+    Returns:
+        List[Variable]: Removed variables.
+    """
+
+    removed_nodes = set()
+    queue = deque([node_to_remove])
 
     while queue:
-      # pp(queue)
-      var_id, eq_id = queue.popleft()
+      node = queue.popleft()
 
-      # Finding the correct tree
-      curr_tree = None
-      for tree in self.temp_var_eq_forest:
-        if var_id in tree:
-          curr_tree = tree
-          break
+      if self._is_node_disconnected(node):
+        queue.extend(self._graph.successors(node))
+        self._graph.remove_node(node)
+        removed_nodes.add(node)
 
-      # Adding the equation to the tree
-      curr_tree[eq_id] = []
-
-      # Adding the equation to the list of children of the variable.
-      curr_tree[var_id].append(eq_id)
-
-      # pp(self.all_equations)
-      # Adding only the appropiate variables as children.
-      incidence_list = self.all_equations[eq_id].get_incidence_list(var_id)
-      for child_var_id in incidence_list:
-        # Only for variables that are not already in the forest.
-        not_in_forest = True
-        for tree in self.temp_var_eq_forest:
-          if child_var_id in tree:
-            not_in_forest = False
-            break
-
-        if not_in_forest:
-          # Adding the variable to the tree
-          curr_tree[child_var_id] = []
-
-          # Adding the variable as children of the equation.
-          curr_tree[eq_id].append(child_var_id)
-
-          # If there are equations assigned to this variable then a new
-          # entry is added to the queue.
-          if child_var_id in var_eq_info:
-            for child_eq_id in var_eq_info[child_var_id]:
-              queue.append((child_var_id, child_eq_id))
-
-    # Finding what vars and eqs have been added and which ones have
-    # been deleted.
-    ids_used_in_original = set()
-
-    ids_used_in_original.update(list(self.integrators.keys()))
-    for tree in self.var_eq_forest:
-      ids_used_in_original.update(list(tree.keys()))
-
-    ids_used_in_new = set()
-    for tree in self.temp_var_eq_forest:
-      ids_used_in_new.update(list(tree.keys()))
-
-    added_ids = ids_used_in_new.difference(ids_used_in_original)
-    deleted_ids = ids_used_in_original.difference(ids_used_in_new)
-
-    added_vars = [
-        element_id
-        for element_id in added_ids
-        if "V_" in element_id
+    return [
+        node
+        for node in removed_nodes
+        if isinstance(node, Variable)
     ]
 
-    added_eqs = [
-        element_id
-        for element_id in added_ids
-        if "E_" in element_id
-    ]
+  def _is_node_disconnected(self, node: Union[Variable, Equation]) -> bool:
+    """Check if a node is disconnected
 
-    deleted_vars = [
-        element_id
-        for element_id in deleted_ids
-        if "V_" in element_id
-    ]
-
-    deleted_eqs = [
-        element_id
-        for element_id in deleted_ids
-        if "E_" in element_id
-    ]
-
-    return [added_vars, added_eqs, deleted_vars, deleted_eqs]
-
-  # def _gen_init_vars(self) -> None:
-  #   """Generates the list of variables that need to be initialized.
-
-  #   A variable need to be initialized if it falls into one of the
-  #     following statements:
-
-  #     - No equations are assigned to the variable.
-  #     - The equation assigned to the variable is used to instantiate
-  #       with an undetermined value.
-  #   """
-  #   init_vars = []
-
-  #   for node_id, children in self.var_eq_tree.items():
-  #     if "V" not in node_id:
-  #       continue
-
-  #     # No equations are assigned to the variable.
-  #     if not children:
-  #       init_vars.append(node_id)
-  #       continue
-
-  #     # The equation instantiates with an undetermined value.
-  #     eq_id = children[0]
-  #     if self.entity_equations[eq_id].is_instantiation_eq():
-  #       init_vars.append(node_id)
-
-  #   self.init_vars = init_vars
-
-  def convert_to_dict(self) -> EntityDict:
-    """Creates a dictionary with the information in the Entity.
-
-    Returns:
-        EntityDict: Dictionary containing the information of the
-         Entity.
-    """
-    # self._gen_init_vars()
-
-    entity_dict = {}
-    entity_dict["index_set"] = self.index_set
-    entity_dict["integrators"] = self.integrators
-    entity_dict["var_eq_forest"] = self.var_eq_forest
-    entity_dict["init_vars"] = self.init_vars
-    entity_dict["input_vars"] = self.input_vars
-    entity_dict["output_vars"] = self.output_vars
-
-    return entity_dict
-
-  # def convert_to_old_dict(self) -> OldEntityDict:
-  #   """Creates a dictionary with the information in the Entity.
-
-  #   **Only for backwards compatibility.**
-  #   Returns:
-  #       OldEntityDict: Dictionary containing the information of the
-  #        Entity.
-  #   """
-  #   self._gen_init_vars()
-
-  #   tree = {}
-  #   ids = {}
-  #   nodes = {}
-
-  #   # Creates a tree where each node_id corresponds to the order that
-  #   # the original node was inserted (dicts are ordered by default)
-  #   for counter, item in enumerate(self.var_eq_tree.keys()):
-  #     str_repr = item.replace("V", "variable")
-  #     str_repr = str_repr.replace("E", "equation")
-  #     nodes[str(counter)] = str_repr
-  #     ids[str_repr] = str(counter)
-  #     tree[str(counter)] = {
-  #       "ancestors": [],
-  #       "children": [],
-  #     }
-  #   # Filling up the `children` field for each node.
-  #   for parent_id, children in self.var_eq_tree.items():
-  #     parent_str = parent_id.replace("V", "variable")
-  #     parent_str = parent_str.replace("E", "equation")
-  #     children_str = []
-  #     for children_id in children:
-  #       str_repr = children_id.replace("V", "variable")
-  #       str_repr = str_repr.replace("E", "equation")
-  #       children_str.append(ids[str_repr])
-
-  #     tree[ids[parent_str]]["children"] = children_str
-
-  #   # Filling up the `ancestor` field for each node.
-  #   for parent_id in nodes:
-  #     for child_id in tree[parent_id]["children"]:
-  #       tree[child_id]["ancestors"] = [parent_id]
-  #       tree[child_id]["ancestors"].extend(tree[parent_id]["ancestors"])
-
-  #   entity_dict = {}
-  #   entity_dict["tree"] = tree
-  #   entity_dict["nodes"] = nodes
-  #   entity_dict["IDs"] = ids
-  #   entity_dict["root_variable"] = self.root_variable_id.replace("V_", "")
-  #   entity_dict["root_equation"] = self.root_equation_id.replace("E_", "")
-
-  #   blocked = [item.replace("E_", "") for item in self.unused_equations_ids]
-  #   entity_dict["blocked"] = blocked
-
-  #   init_vars = [item.replace("V_", "") for item in self.init_vars]
-  #   entity_dict["init_varsialized"] = init_vars
-  #   entity_dict["buddies"] = []
-
-  #   return entity_dict
-
-  # def get_used_variables(self) -> List[Tuple[str, bool]]:
-  #   """Compiles a list of all variables that are used in the entity.
-
-  #   Returns:
-  #       List[Tuple[str, bool]]: Contains information about all variables
-  #         used in the entity. The tuple contains:
-
-  #         - str: Id of the variable.
-  #         - bool: **True** if any equation has been assigned to the
-  #           variable. **False** otherwise.
-  #   """
-  #   used_variables = []
-  #   for node_id, children in self.var_eq_tree.items():
-  #     if "V" not in node_id:
-  #       continue
-  #     if node_id == self.root_variable_id:
-  #       continue
-
-  #     used_variables.append((node_id, bool(children)))
-
-  #   return used_variables
-
-  # def get_available_equations(
-  #   self,
-  #   var_id: str,
-  # ) -> Dict[str, List[Tuple[str, bool]]]:
-  #   """Compiles a list of equations that can be assigned to a variable.
-
-  #   This list also includes the equations that are already assigned to
-  #   the variable.
-
-  #   Args:
-  #       var_id (str): Id of the variable.
-
-  #   Returns:
-  #       Dict[str, List[Tuple[str, bool]]]: The two keys in the dict are
-  #         used to separate equations that have been written in explicit
-  #         form for the variable and those whoe haven't. In both cases
-  #         the information about the equations is stored in List where
-  #         each element contains information about one equation in the
-  #         form:
-
-  #         - str: Id of the equation.
-  #         - bool: **True** if the equation is already assigned to the
-  #           variable. **False** otherwise.
-  #   """
-  #   available_equations = {
-  #     "explicit": [],
-  #     "implicit": [],
-  #   }
-  #   if var_id in self.var_eq_tree:
-  #     for eq_id in self.var_eq_tree[var_id]:
-  #       if self.entity_equations[eq_id].is_explicit_for_var(var_id):
-  #         available_equations["explicit"].append((eq_id, True))
-  #       else:
-  #         available_equations["implicit"].append((eq_id, True))
-
-  #   for eq_id in self.unused_equations_ids:
-  #     if not self.entity_equations[eq_id].contains_var(var_id):
-  #       continue
-
-  #     if self.entity_equations[eq_id].is_explicit_for_var(var_id):
-  #       available_equations["explicit"].append((eq_id, False))
-  #     else:
-  #       available_equations["implicit"].append((eq_id, False))
-
-  #   return available_equations
-
-  # def get_variables_to_instantiate(self) -> Tuple[List[str], List[str]]:
-  #   """Return all variables in use in the entity.
-
-  #   Returns:
-  #       Tuple[List[str], List[str]]: The first list contains the ids of
-  #         the variables that need to be initialized. The ids of the rest
-  #         of the variables are in the second list.
-  #   """
-  #   # TODO Find a way to merge with `get_used_variables`.
-  #   self._gen_init_vars()
-  #   all_variables = set()
-  #   for node_id in self.var_eq_tree:
-  #     if "V_" in node_id:
-  #       all_variables.add(node_id)
-
-  #   all_variables.remove(self.root_variable_id)
-
-  #   return (self.init_vars, list(all_variables - set(self.init_vars)))
-
-  def is_input(self, var_id: str) -> bool:
-    if var_id in self.input_vars:
-      return True
-
-    return False
-
-  def is_output(self, var_id: str) -> bool:
-    if var_id in self.output_vars:
-      return True
-
-    return False
-
-  def get_eq_for_var(self, var_id: str) -> Optional[List[str]]:
-    # TODO: Check that the change from returning a str -> List[str] is
-    # not affecting anything else.
-    if var_id in self.integrators:
-      return [self.integrators[var_id]]
-
-    for tree in self.var_eq_forest:
-      if var_id in tree:
-        return tree[var_id]
-
-    return None
-
-  def start_merging_process(self, parents: List[Self]):
-    """Starts the merging process.
+    Disconnection implies that there is no path from any of the
+    nodes containing output variables to the node.
 
     Args:
-      parents (List[Self]): Entities to me merged.
+        node (Union[Variable, Equation]): Node to be checked.
 
     Returns:
-      bool: **True** if the merge is complete. **False** otherwise.
+        bool: **True** if the node is disconnected, **False** otherwise.
     """
-    self.output_vars = self._merging_variables(parents, "get_output_vars")
-    self.input_vars = self._merging_variables(parents, "get_input_vars")
-    self.init_vars = self._merging_variables(parents, "get_init_vars")
+    for var in self._output_variables:
+      if nx.has_path(self._graph, var, node):
+        return False
 
-    all_vars = self._merging_variables(parents, "get_variables")
-    self.merged_vars = {}
-    self.merge_conflicts = {}
-    self.undo_merging = {}
-    for var_id in all_vars:
-      assigned_eqs = self._find_all_equations(var_id, parents)
-      number_of_equations = len(assigned_eqs)
-      if number_of_equations <= 1:
-        self.merged_vars[var_id] = assigned_eqs
-      else:
-        self.merge_conflicts[var_id] = assigned_eqs
+    return True
 
-    self.generate_var_eq_forest(self.merged_vars)
-    temp_input = self.input_vars
-    temp_init = self.init_vars
-    self.update_var_eq_tree()
-    self.init_vars = temp_init
-    self.input_vars = temp_input
+  def get_equation_for_variable(self, var: Variable) -> Optional[Equation]:
+    """Return the equation for a variable
 
-    if not self.merge_conflicts:
-      self._finish_merge()
-      return True
+    Args:
+        var (Variable): Variable used for the query.
 
-    return False
+    Returns:
+        Equation: Equation that can be used to compute the variable or
+         **None** if there is not one.
+    """
+    return next(self._graph.successors(var), None)
 
-  def get_conflict(self):
-    for var_id, assigned_equations in self.merge_conflicts.items():
-      if self.get_eq_for_var(var_id) is not None:
-        return (var_id, assigned_equations)
 
-    self._finish_merge()
-    return None
+@define(eq=False)
+class Entity():
+  """Basic block to build models
 
-  def solve_conflict(self, var_id, eq_id):
-    self.undo_merging[var_id] = self.merge_conflicts.pop(var_id)
-    self.merged_vars.update({var_id: [eq_id]})
+  Contains the mathematical representation for a part of the model and
+  hierarchical properties from the ontology to facilitate its use.
 
-    self.generate_var_eq_forest(self.merged_vars)
-    temp_input = self.input_vars
-    temp_init = self.init_vars
-    self.update_var_eq_tree()
-    self.init_vars = temp_init
-    self.input_vars = temp_input
+  Attributes:
+      name (str): The name of the entity.
+  """
+  _identifier: str
+  name: str = ""
+  _topology_type: str = ""
+  _network: str = ""
+  _token: str = ""
+  _mechanism: str = ""
+  _nature: str = ""
+  _variable_states: Dict[Variable, VariableState] = Factory(dict)
+  _math_graph: EntityMathGraph = Factory(EntityMathGraph)
 
-  def undo_merging_step(self):
-    if not self.undo_merging:
-      return None
+  @property
+  def identifier(self) -> str:
+    """Identifier of the entity"""
+    return self._identifier
 
-    last_var_id = self.undo_merging.keys()[-1]
-    self.merge_conflicts[last_var_id] = self.undo_merging.pop(last_var_id)
-    del self.merged_vars[last_var_id]
+  @property
+  def topology_type(self) -> str:
+    """Topology type of the entity"""
+    # TODO: This should be an enum in the topology module.
+    return self._topology_type
 
-    self.generate_var_eq_forest(self.merged_vars)
-    temp_input = self.input_vars
-    temp_init = self.init_vars
-    self.update_var_eq_tree()
-    self.init_vars = temp_init
-    self.input_vars = temp_input
+  @property
+  def removable_variables(self) -> List[Variable]:
+    """Variables that can be removed safely"""
+    return self._math_graph.removable_variables
 
-    return (last_var_id, self.merge_conflicts[last_var_id])
+  def get_variables(
+      self, query_state: VariableState = VariableState.ANY
+  ) -> List[Variable]:
+    """Return variables with a certain state
 
-  def is_undo_merge_possible(self):
-    return bool(self.undo_merging)
+    Returns all variables if no state is provided.
 
-  def _finish_merge(self):
-    self.merged_vars = {}
-    self.merge_conflicts = {}
-    self.undo_merging = {}
+    Args:
+        query_state (VariableState, optional): State that all returned
+         variables must have. Defaults to VariableState.ANY.
 
-    self.input_vars = [
-        var_id
-        for var_id in self.input_vars
-        if self.get_eq_for_var(var_id) is not None
+    Returns:
+        List[Variable]: Variables that match the query state.
+    """
+    return [
+        var
+        for var, var_state in self._variable_states.items()
+        if var_state.has_state(query_state)
     ]
 
-    self.init_vars = [
-        var_id
-        for var_id in self.init_vars
-        if self.get_eq_for_var(var_id) is not None
-    ]
-
-  def _merging_variables(
+  def add_new_variable(
       self,
-      parents: List[List[str]],
-      method: Callable[[], List[str]]
-  ) -> List[str]:
+      var: Variable,
+  ) -> None:
+    """Add a new variable
 
-    merge_set = {
-        var_id
-        for ent in parents
-        for var_id in getattr(ent, method)()
-    }
-    return list(merge_set)
+    Variables added in this way always have the OUTPUT state which makes
+    them imposible to delete as a consequence of other deletions.
 
-  # TODO: Check for possible duplication
-  def _find_all_equations(self, var_id: str, parents: List[Self]) -> List[str]:
-    equation_lists = [ent.get_eq_for_var(var_id) for ent in parents]
-    all_equations = set()
-    for eq_list in equation_lists:
-      if eq_list is not None:
-        all_equations.update(eq_list)
+    Args:
+        var (Variable): Variable to be added.
+    """
+    self._variable_states[var] = VariableState.OUTPUT
+    self._math_graph.add_variable(var)
 
-    return list(all_equations)
+  def update_variable(
+      self,
+      var: Variable,
+      new_state: VariableState,
+      new_equation: Optional[Equation] = None,
+  ) -> None:
+    """Update a variable
 
-  def get_entity_name(self):
-    return self.entity_name
+    Both the variable state and its equation might have changed so they
+    both need to be checkd and updated if necesary. See:
 
-  def contains_var(self, var_id: str) -> bool:
-    return var_id in self.get_variables()
+    * :meth:`update_variable_state`: To handle the state change.
+    * :meth:`update_variable_equation`: To handle the equation update.
 
-  def is_interface_ent(self) -> bool:
-    # TODO: Check if we should add a new field (entity type) instead.
-    return ">>>" in self.entity_name
+    Args:
+        var (Variable): Variable to be updated.
+        new_state (VariableState): New state for the variable.
+        new_equation (Optional[Equation]): Equation to compute the
+        variable. Defaults to None.
+    """
+    self._check_variable(var)
 
-  def get_type(self) -> Optional[str]:
-    if self.entity_name == "Topology":
-      return None
+    old_state = self._variable_states[var]
+    if new_state != old_state:
+      self._update_variable_state(var, new_state, old_state)
 
-    if self.is_interface_ent():
-      return "interface"
+    old_equation = self._math_graph.get_equation_for_variable(var)
+    if new_equation != old_equation:
+      self._update_variable_equation(var, new_equation, old_equation)
 
-    _, ent_type, _, _ = self.entity_name.split(".")
-    return ent_type
+  def _update_variable_state(
+      self,
+      var: Variable,
+      new_state: VariableState,
+      old_state: VariableState,
+  ) -> None:
+    """Updates the state of a variable
 
-  def get_network(self) -> Optional[List[str]]:
-    if self.entity_name == "Topology":
-      return None
+    In case there is a change in the OUTPUT state then the math graph
+    needs to be updated as well.
 
-    if ">>>" in self.entity_name:
-      return [self.entity_name.split(" ")[0], self.entity_name.split(" ")[2]]
+    Args:
+        var (Variable): Variable whose state is being updated.
+        new_state (VariableState): New state of the variable.
+        old_state (VariableState): Old state of the variable.
+    """
+    was_var_output = old_state.has_state(VariableState.OUTPUT)
+    is_var_output = new_state.has_state(VariableState.OUTPUT)
 
-    return [self.entity_name.split(".")[0]]
+    if was_var_output != is_var_output:
+      self._math_graph.update_output_variables(var, is_var_output)
 
-  def get_tokens(self) -> Optional[List[str]]:
-    if self.entity_name == "Topology":
-      return None
+    self._variable_states[var] = new_state
 
-    if ">>>" in self.entity_name:
-      return None
+  def _update_variable_equation(
+      self,
+      var: Variable,
+      new_equation: Optional[Equation],
+      old_equation: Optional[Equation],
+  ) -> None:
+    """Update the equation for a variable
 
-    str1 = self.entity_name.split(".")[2]
-    token_str = str1.split("|")[0]
-    tokens = token_str.split("_")
-    return tokens
+    When the equation assigned to a variable changes, the math graph
+    needs to be updated.
+
+    The new equation is added before deleting the old one to avoid
+    the removal of variables/equations that the new equation might use.
+
+    Args:
+        var (Variable): Variable whose equation is being updated
+        new_equation (Equation): New equation for the variable
+    """
+    variables_to_add: List[Variable] = []
+    variables_to_delete: List[Variable] = []
+
+    if new_equation is not None:
+      variables_from_equation = self._math_graph.add_equation(
+          var, new_equation
+      )
+      variables_to_add = [
+          var
+          for var in variables_from_equation
+          if var not in self._variable_states
+      ]
+
+    if old_equation is not None:
+      variables_to_delete = self._math_graph.remove_equation(
+          old_equation
+      )
+
+    self._update_state_dict(variables_to_add, variables_to_delete)
+
+  def _update_state_dict(
+      self,
+      variables_to_add: List[Variable],
+      variables_to_delete: List[Variable],
+  ) -> None:
+    """Update the state dictionary
+
+    Add and remove variables from the variable_states dictionary. Added
+    variables are always added with the DEFAULT state.
+
+    Args:
+        variables_to_add (List[Variable]): Variables to be added.
+        variables_to_delete (List[Variable]): Varibales to be deleted.
+    """
+    for var in variables_to_add:
+      self._variable_states[var] = VariableState.DEFAULT
+
+    for var in variables_to_delete:
+      del self._variable_states[var]
+
+  def get_equation_for_variable(self, var: Variable) -> Optional[Equation]:
+    """Return the equation for a variable
+
+    Args:
+        var (Variable): Variable whose equation is returned.
+
+    Returns:
+        Optional[Equation]: The equation that is used to compute the
+         variable or **None** if there is not one.
+    """
+    self._check_variable(var)
+
+    return self._math_graph.get_equation_for_variable(var)
+
+  def get_variable_state(self, var: Variable) -> VariableState:
+    """Return the state of a variable
+
+    Args:
+        var (Variable): variable whose state is returned.
+
+    Returns:
+        VariableState: The state of the variable.
+    """
+    self._check_variable(var)
+    return self._variable_states[var]
+
+  def _check_variable(self, var: Variable) -> None:
+    """Checks if the variable is in the entity
+
+    Args:
+        var (Variable): Variable to be checked.
+
+    Raises:
+        ValueError: If the variable is not in the entity.
+    """
+    if var not in self._variable_states:
+      msg = f"{var.label} not in entity {self.name}"
+      raise ValueError(msg)
+
+  def remove_variable(self, var: Variable) -> None:
+    """Removes a variable from the entity
+
+    Args:
+        var (Variable): Variable to be removed
+
+    Raises:
+        ValueError: If the variable can not be removed.
+    """
+    if var not in self._math_graph.removable_variables:
+      msg = (
+          f"{var.label} can not be deleted from entity {self.name}."
+          f"Remove other uses before trying to remove it."
+      )
+      raise ValueError(msg)
+
+    removed_variables = self._math_graph.remove_variable(var)
+    self._update_state_dict([], removed_variables)

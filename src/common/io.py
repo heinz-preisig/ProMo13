@@ -25,15 +25,17 @@ Constants:
     PathTemplates(dataclass): Templates for the paths to data files.
     AllowedPathParameters(TypedDict): Parameters used to build paths.
 """
+import ast
 import json
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, TypedDict, List, ClassVar
+from typing import Dict, Optional, Tuple, TypedDict, List, ClassVar
 
 from pprint import pprint as pp
 
 from src.common import corelib
+from src.common.corelib.entity import EntityMap
 
 
 @dataclass(frozen=True)
@@ -54,6 +56,7 @@ class PathTemplates:
   ARC_OPTIONS_FILE: ClassVar[str] = ONTOLOGY_DIR + "arc_options.json"
   MODEL_FILE: ClassVar[str] = MODEL_DIR + "model.json"
   MODEL_FILE_FLAT: ClassVar[str] = MODEL_DIR + "model_flat.json"
+  INSTANTIATION_FILE: ClassVar[str] = MODEL_DIR + "instantiation.json"
   LATEX_IMG_FILE: ClassVar[str] = LATEX_DIR + "{component_id}"
 
   # For the code folder
@@ -100,7 +103,7 @@ class IOHandler:
   def all_entities(self) -> Optional[corelib.EntityMap]:
     """All the entities in the ontology"""
     if self._all_entities is None:
-      self._load_var_idx_eq_from_file()
+      self._load_entity_from_file()
 
     return self._all_entities
 
@@ -133,7 +136,7 @@ class IOHandler:
     # TODO This needs to change to something where we can see the parameters
     # when calling
     self._path_parameters.update(parameters)
-    pp(self._path_parameters)
+    # pp(self._path_parameters)
 
   def get_imgs_paths(self, ids: List[str]) -> List[Path]:
     paths = []
@@ -143,48 +146,60 @@ class IOHandler:
 
     return paths
 
-  def _build_path(self, path_template: str) -> Path:
-    return Path(path_template.format(**self._path_parameters))
+  def get_instantiation_data(self) -> Dict[str, Dict[Tuple[str, ...], str]]:
+    path = self._build_path(PathTemplates.INSTANTIATION_FILE)
 
-  def _load_var_idx_eq_from_file(self):
-    path = self._build_path(PathTemplates.VARIABLES_FILE)
+    if not path.is_file():
+      return {}
 
     with open(path, "r", encoding="utf-8",) as file:
       data = json.load(file)
 
-    # Loading the indices
+    tuples_dict = {}
+    for key, dict_value in data.items():
+      tuples_dict[key] = {
+          ast.literal_eval(str_key): value
+          for str_key, value in dict_value.items()
+      }
+
+    return tuples_dict
+
+  def set_instantiation_data(self, data: Dict[str, Dict[Tuple[str, ...], str]]) -> None:
+    no_tuple_dict = {}
+    for key, dict_value in data.items():
+      no_tuple_dict[key] = {
+          str(tuple_key): value
+          for tuple_key, value in dict_value.items()
+      }
+
+    path = self._build_path(PathTemplates.INSTANTIATION_FILE)
+    with open(path, "w", encoding="utf-8",) as file:
+      json.dump(no_tuple_dict, file, indent=4)
+
+  def _build_path(self, path_template: str) -> Path:
+    return Path(path_template.format(**self._path_parameters))
+
+  def _load_var_idx_eq_from_file(
+      self,
+  ) -> Tuple[corelib.VariableMap, corelib.IndexMap, corelib.EquationMap]:
+    path = self._build_path(PathTemplates.VARIABLES_FILE)
+
+    with open(path, "r", encoding="utf-8",) as file:
+      data = json.load(file, cls=corelib.VarEqJSONDecoder)
+
+    variables = data["variables"]
+    equations = data["equations"]
+
+    # # Loading the indices
     indices = {}
-    for idx_id, idx_info in data["indices"].items():
-      # TODO: Go over the tokens in the indices
-      del idx_info["tokens"]
-      indices[idx_id] = corelib.Index(idx_id, **idx_info)
-
-    # Loading the variables
-    all_var_data = data["variables"]
-
-    variables = {}
-    equations = {}
-    for var_id, var_info in all_var_data.items():
-      eq_list = []
-      for eq_id, eq_info in var_info["equations"].items():
-        # TODO: Remove when this is no longer used.
-        del eq_info["incidence_list"]
-
-        eq_list.append(eq_id)
-
-        self.add_path_parameters({'component_id': eq_id})
-        equations[eq_id] = corelib.Equation(
-            eq_id,
-            self._build_path(PathTemplates.LATEX_IMG_FILE),
-            **eq_info,
-        )
-      var_info["equations"] = eq_list
-
-      self.add_path_parameters({'component_id': var_id})
-      variables[var_id] = corelib.Variable(
-          var_id,
-          self._build_path(PathTemplates.LATEX_IMG_FILE),
-          **var_info,
-      )
+    # for idx_id, idx_info in data["indices"].items():
+    #   # TODO: Go over the tokens in the indices
+    #   del idx_info["tokens"]
+    #   indices[idx_id] = corelib.Index(idx_id, **idx_info)
 
     return (variables, indices, equations)
+
+  def _load_entity_from_file(
+      self
+  ) -> EntityMap:
+    return {}

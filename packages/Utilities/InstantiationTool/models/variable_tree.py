@@ -31,11 +31,10 @@ class VariableTreeModel(QtGui.QStandardItemModel):
   To be used by one or more views in the GUI.
 
   Public Methods:
-      - :meth:`load_data`
-      - :meth:`
+      :meth:`load_data`
 
   Signals:
-      - top_item_checked(QModelIndex): emitted when a new top level item
+      top_item_checked(QModelIndex): emitted when a new top level item
        is checked.
   """
 

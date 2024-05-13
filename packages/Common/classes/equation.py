@@ -3,6 +3,7 @@ from typing import TypedDict, List, Optional, Dict, Tuple
 from typing_extensions import Self
 from datetime import datetime
 
+
 class EquationDict(TypedDict):
   """Creates a new type for a dictionary that stores an equation."""
   # TODO Update the way equations are stored.
@@ -84,6 +85,10 @@ class Equation():
       return True
 
     return False
+
+  def get_dependencies_list(self):
+    var_id = self.get_main_var_id()
+    return self.get_incidence_list(var_id)
 
   def get_incidence_list(self, var_id: Optional[str] = None) -> List[str]:
     """Returns the incidence list for the equation.

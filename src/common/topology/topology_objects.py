@@ -2,27 +2,29 @@
 This module defines the TopologyObject class and its subclasses.
 
 The TopologyObject class is the base class for all topology objects used
-in the modeller. These objects represent the fundamental building blocks
+in ProMo. These objects represent the fundamental building blocks
 of the model's structure.
 
-Subclasses of TopologyObject represent specific types of topology
-objects, each with their own unique properties and methods. These
-subclasses inherit from the TopologyObject base class and extend it with
-functionality specific to each type of topology object.
-
 Classes:
-    TopologyObject: The base class for all Topology Objects.
-    NodeComposite: Represents a Composite Node.
-    EntityContainer: Represents a Topology Object linked to an Entity.
-    NodeSimple: Represents a Simple Node.
-    Arc: Represents an Arc.
+    :class:`TopologyObject`: The base class for all Topology Objects.
+    :class:`NodeComposite`: Represents a Composite Node.
+    :class:`EntityContainer`: Represents a Topology Object linked to an
+     Entity.
+    :class:`NodeSimple`: Represents a Simple Node.
+    :class:`Arc`: Represents an Arc.
 
-Each class is documented in detail within its own docstring.
+Functions:
+    :func:`build_topology_graph`: Create a NetworkX Graph from a list of
+     :class:`TopologyObjects`.
+
+
 """
 import copy
 from typing import List, Optional, Dict, Tuple
 from typing_extensions import Self
 import json
+
+import networkx as nx
 
 from packages.Common.classes import entity
 from packages.Common.classes import variable
@@ -418,6 +420,32 @@ class NodeSimple(EntityContainer):
     class_dict["injected_typed_tokens"] = self.injected_typed_tokens
 
     return class_dict
+
+
+def build_topology_graph(
+    topology_objects: Dict[str, TopologyObject],
+) -> nx.Graph:
+  """Build a graph from a list topology objects.
+
+    This method iterates over all topology objects and adds them as
+    nodes to the topology graph.
+
+    Attr:
+        topology_objects (List[TopologyObjects]): Topology objects to
+         be added to the graph.
+    """
+  graph = nx.Graph()
+  edges_info = []
+  for topology_obj in topology_objects.values():
+    if not isinstance(topology_obj, EntityContainer):
+      continue
+
+    for node_id in topology_obj.outgoing_connections:
+      edges_info.append((topology_obj, topology_objects[node_id]))
+
+  graph.add_edges_from(edges_info)
+
+  return graph
 
 
 modeller_class_mapping = {

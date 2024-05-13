@@ -5,6 +5,8 @@
   "addition": "{op1} + {op2}",
   "substraction": "{op1} - {op2}",
   "negation": "-{op1}",
+  "einstein_sum": "einsum({op1}, {op2})",
+  "einstein_sum_contraction": "einsum({op1}, {op2}, {{\"{idx}\"}})",
   "expand_product": "expandproduct({op1}, {op2})",
   "hadamard": "{op1} .* {op2}",
   "reduce_product": "{op1} * {op2}",

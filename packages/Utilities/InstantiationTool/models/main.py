@@ -2,18 +2,17 @@ from email.mime import image
 import os
 import copy
 import logging
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 from PyQt5 import QtCore
 
 from packages.Common.classes import io
 from packages.Common.classes import entity
-from packages.Common.classes import modeller_classes
 
-from packages.Utilities.InstantiationTool.models import variable_tree
 from packages.Utilities.InstantiationTool.models import topology_tree
 
-from src.common import roles
+from src.common import roles, topology
+from src.common.constants import FixedVariables
 from src.common.components import image_list
 from src.common.io import IOHandler
 
@@ -47,6 +46,7 @@ class MainModel(QtCore.QObject):
     self._all_equations = {}  # TODO: Check if I really need to store this
     self._all_indices = {}
     self._all_topology_objects = {}
+    self._instantiation = {}
 
     self._required_variables = []
     self._optional_variables = []
@@ -79,25 +79,85 @@ class MainModel(QtCore.QObject):
         self._ontology_name,
         self._all_equations
     )
-    self._all_topology_objects = io.load_model_from_file(
+    self._all_topology_objects = io.load_topology_objects(
         self._ontology_name,
         self._model_name,
         self._all_entities,
     )
+
+    self._instantiation = self._io_handler.get_instantiation_data()
+    self._generate_topology_instantiation()
+
     self._discover_required_variables()
     self._update_variable_tree_model()
 
     # if self._required_variables:
     #   self._update_topology_tree_model(self._required_variables[0])
 
+  def _generate_topology_instantiation(self) -> None:
+    connections: List[Tuple[str, str]] = []
+    for top_obj in self._all_topology_objects.values():
+      if isinstance(top_obj, topology.NodeComposite):
+        continue
+
+      top_obj = cast(topology.EntityContainer, top_obj)
+
+      for connect_obj_id in top_obj.outgoing_connections:
+        connections.append((top_obj.identifier, connect_obj_id))
+
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SOURCE] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SINK] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SOURCE] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SINK] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SOURCE] = {}
+    self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SINK] = {}
+
+    for source, sink in connections:
+      if source.startswith("N"):
+        if sink.startswith("A"):
+          tuple_key = (source, sink)
+
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX]
+          update_dict[tuple_key] = "-1"
+
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SOURCE]
+          update_dict[tuple_key] = "1"
+        elif sink.startswith("I"):
+          tuple_key = (source, sink)
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SOURCE]
+          update_dict[tuple_key] = "1"
+      elif source.startswith("A"):
+        if sink.startswith("N"):
+          tuple_key = (sink, source)
+
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX]
+          update_dict[tuple_key] = "1"
+
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SINK]
+          update_dict[tuple_key] = "1"
+        else:
+          tuple_key = (source, sink)
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SOURCE]
+          update_dict[tuple_key] = "1"
+      else:
+        if sink.startswith("N"):
+          tuple_key = (sink, source)
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SINK]
+          update_dict[tuple_key] = "1"
+        else:
+          tuple_key = (sink, source)
+          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SINK]
+          update_dict[tuple_key] = "1"
+
   def _discover_required_variables(self):
     used_entities: Dict[str, entity.Entity] = {}
     for top_obj in self._all_topology_objects.values():
       # Composite nodes dont have an associated entity
-      if isinstance(top_obj, modeller_classes.NodeComposite):
+      if isinstance(top_obj, topology.NodeComposite):
         continue
 
-      top_obj = cast(modeller_classes.EntityContainer, top_obj)
+      top_obj = cast(topology.EntityContainer, top_obj)
 
       ent_name = top_obj.get_entity_name()
       # TODO: Move this and the test case to io.load_model
@@ -119,7 +179,7 @@ class MainModel(QtCore.QObject):
 
   def _find_typed_tokens_per_variable(
       self,
-      top_obj: modeller_classes.EntityContainer,
+      top_obj: topology.EntityContainer,
       ent: entity.Entity
   ) -> None:
     for var_id in ent.get_variables():
@@ -243,10 +303,10 @@ class MainModel(QtCore.QObject):
     filtered_topology_objects = set()
     for var_id, typed_tokens in variables_selected.items():
       for top_obj_id, top_obj in self._all_topology_objects.items():
-        if isinstance(top_obj, modeller_classes.NodeComposite):
+        if isinstance(top_obj, topology.NodeComposite):
           continue
 
-        top_obj = cast(modeller_classes.EntityContainer, top_obj)
+        top_obj = cast(topology.EntityContainer, top_obj)
 
         # If there are types tokens the topology object needs to contain
         # at least one of them
@@ -263,29 +323,57 @@ class MainModel(QtCore.QObject):
 
     return sorted(filtered_topology_objects)
 
-  def instantiate(self, instantiation_value: str) -> None:
+  def instantiate(self, instantiation_value: str, var_index: QtCore.QModelIndex) -> None:
     instantiated_top_obj = self.topology_tree_model.get_checked_items()
-    instantiated_variables = {}  # self.variable_tree_model.get_checked_items()
+    var_item = self.variable_list.itemFromIndex(var_index)
+    var_id = var_item.data(roles.ID_ROLE)
+
+    if var_id not in self._instantiation:
+      self._instantiation[var_id] = {}
 
     for top_obj_id in instantiated_top_obj:
-      for var_id, typed_tokens in instantiated_variables.items():
-        top_obj = self._all_topology_objects[top_obj_id]
-        top_obj = cast(modeller_classes.EntityContainer, top_obj)
+      typed_tokens = []
+      key_list = []
+      index_structures = self._all_variables[var_id].index_structures
+      if "I_1" in index_structures or "I_2" in index_structures:
+        key_list.append(top_obj_id)
 
-        top_obj.set_instantiation_value(
-            var_id,
-            typed_tokens,
-            instantiation_value
-        )
+      typed_tokens = []
+      if "I_4" in index_structures:
+        typed_tokens = self._all_topology_objects[top_obj_id].typed_tokens["mass"]
+
+      if not typed_tokens and not key_list:
+        id_key = ("1", )
+        self._instantiation[var_id][id_key] = instantiation_value
+        continue
+
+      if typed_tokens:
+        for tt in typed_tokens:
+          id_list = []
+          id_list.extend(key_list)
+          id_list.append(tt)
+          id_key = tuple(id_list)
+          self._instantiation[var_id][id_key] = instantiation_value
+      else:
+        id_key = (top_obj_id,)
+        self._instantiation[var_id][id_key] = instantiation_value
+
+    pp(self._instantiation)
+    # for top_obj_id in instantiated_top_obj:
+    #   for var_id, typed_tokens in instantiated_variables.items():
+    #     top_obj = self._all_topology_objects[top_obj_id]
+    #     top_obj = cast(topology.EntityContainer, top_obj)
+
+    #     top_obj.set_instantiation_value(
+    #         self._all_variables[var_id],
+    #         typed_tokens,
+    #         instantiation_value
+    #     )
 
     # for top_obj_id, top_obj in self._all_topology_objects.items():
-    #   if isinstance(top_obj, modeller_classes.EntityContainer):
+    #   if isinstance(top_obj, topology.EntityContainer):
     #     pp(top_obj_id)
     #     pp(top_obj.instantiated_variables)
 
-  def save_topology_objects(self):
-    io.save_model_to_file(
-        self._ontology_name,
-        self._model_name,
-        self._all_topology_objects,
-    )
+  def save_instantiation(self):
+    self._io_handler.set_instantiation_data(self._instantiation)

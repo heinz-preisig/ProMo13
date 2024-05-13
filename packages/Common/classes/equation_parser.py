@@ -139,17 +139,25 @@ class EquationParser:
     '''expression : O_MINUS expression %prec UMINUS'''
     p[0] = self.translator.translate_negation(p[2])
 
-  def p_expr_expand_product(self, p: yacc.YaccProduction) -> None:
-    '''expression : expression O_COLON expression'''
-    p[0] = self.translator.translate_expand_product(p[1], p[3])
+  def p_expr_einstein_sum_reduce(self, p: yacc.YaccProduction) -> None:
+    '''expression : expression O_STAR INDEX expression'''
+    p[0] = self.translator.translate_einstein_sum_contraction(p[1], p[3], p[4])
 
-  def p_expr_hadamard(self, p: yacc.YaccProduction) -> None:
+  def p_expr_einstein_sum(self, p: yacc.YaccProduction) -> None:
     '''expression : expression O_DOT expression'''
-    p[0] = self.translator.translate_hadamard(p[1], p[3])
+    p[0] = self.translator.translate_einstein_sum(p[1], p[3])
 
-  def p_expr_reduce_product(self, p: yacc.YaccProduction) -> None:
-    '''expression : expression O_STAR expression'''
-    p[0] = self.translator.translate_reduce_product(p[1], p[3])
+  # def p_expr_expand_product(self, p: yacc.YaccProduction) -> None:
+  #   '''expression : expression O_COLON expression'''
+  #   p[0] = self.translator.translate_expand_product(p[1], p[3])
+
+  # def p_expr_hadamard(self, p: yacc.YaccProduction) -> None:
+  #   '''expression : expression O_DOT expression'''
+  #   p[0] = self.translator.translate_hadamard(p[1], p[3])
+
+  # def p_expr_reduce_product(self, p: yacc.YaccProduction) -> None:
+  #   '''expression : expression O_STAR expression'''
+  #   p[0] = self.translator.translate_reduce_product(p[1], p[3])
 
   # def p_expr_block_reduce_product(self, p: yacc.YaccProduction) -> None:
   #   '''expression : expression O_PIPE INDEX O_IN INDEX O_PIPE expression'''
@@ -203,6 +211,7 @@ class EquationParser:
     t.lexer.skip(1)
 
   def parse(self, input_string):
+    print(f"Input string: {input_string}")
     # Create the lexer and parser
     lexer = lex.lex(module=self, debug=False)
     # lexer.input(input_string)

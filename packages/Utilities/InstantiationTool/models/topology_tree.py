@@ -6,13 +6,14 @@ topology objects.
 
 Author: Alberto Rodriguez Fernandez
 """
+from operator import mod
 from typing import Dict, Optional, List
 
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
-from packages.Common.classes import modeller_classes
 from packages.shared_components import roles
+from src.common import topology
 
 CHECKED = QtCore.Qt.CheckState.Checked
 UNCHECKED = QtCore.Qt.CheckState.Unchecked
@@ -29,7 +30,7 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
 
   def __init__(self, parent=None):
     super().__init__(parent)
-    self._all_topology_objects: Dict[str, modeller_classes.TopologyObject] = {}
+    self._all_topology_objects: Dict[str, topology.TopologyObject] = {}
     self._index_from_id: Dict[str, QtCore.QModelIndex] = {}
     self._id_from_index: Dict[QtCore.QModelIndex, str] = {}
 
@@ -61,7 +62,7 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
 
   def load_data(
       self,
-      all_topology_objects: Dict[str, modeller_classes.TopologyObject],
+      all_topology_objects: Dict[str, topology.TopologyObject],
       filtered_list: List[str],
   ) -> None:
     """Loads the data into the model
@@ -117,7 +118,7 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
     main_item = QtGui.QStandardItem()
     main_item.setData(item_id, roles.ID_ROLE)
     main_item.setData(item_obj.name, roles.NAME_ROLE)
-    main_item.setData(item_obj.subtype, roles.SUBTYPE_ROLE)
+    main_item.setData(item_obj.__class__.__name__, roles.CLASS_ROLE)
 
     main_item.setCheckable(True)
     main_item.setAutoTristate(True)
@@ -227,8 +228,10 @@ class TopologyTreeModel(QtGui.QStandardItemModel):
       child_id = child.data(roles.ID_ROLE)
 
       if (
-          child.data(roles.SUBTYPE_ROLE)
-          != modeller_classes.TopologySubtypes.NODE_COMPOSITE
+          not isinstance(
+              self._all_topology_objects[child_id],
+              topology.NodeComposite
+          )
           and child.checkState() == CHECKED
       ):
         checked_items.append(child_id)

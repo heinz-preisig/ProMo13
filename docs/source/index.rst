@@ -7,13 +7,17 @@
 Welcome to ProMo's documentation!
 #################################
 
+Modules
+=======
 .. toctree::
    :maxdepth: 1
-   :caption: Modules:
-
+   
+   Code Generator <modules/code_generator/code_generator>
    Common <modules/common/common>
-   Model Builder <modules/model_composer>
-   Instantiation Tool <modules/InstantiationTool/instantiation_tool>
+   
+.. Instantiation Tool <modules/InstantiationTool/instantiation_tool>
+
+   
 
 
 Indices and tables

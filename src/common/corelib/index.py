@@ -1,5 +1,7 @@
 from typing import List, Optional, Dict
 
+IndexMap = Dict[str, "Index"]
+
 
 class Index:
   def __init__(

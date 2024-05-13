@@ -7,12 +7,17 @@ structures and interfaces used throughout the application.
 """
 from typing import Dict
 
-from .entity import Entity
-from .equation import Equation
 from .index import Index
-from .variable import Variable
+from .index import IndexMap
 
-EntityMap = Dict[str, Entity]
-EquationMap = Dict[str, Equation]
-IndexMap = Dict[str, Index]
-VariableMap = Dict[str, Variable]
+from .math_components import Equation
+from .math_components import EquationTag
+from .math_components import EquationMap
+from .math_components import Variable
+from .math_components import VariableTag
+from .math_components import VariableMap
+from .math_components import VarEqJSONDecoder
+
+from .entity import Entity
+from .entity import EntityMathGraph
+from .entity import EntityMap

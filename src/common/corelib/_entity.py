@@ -1,7 +1,6 @@
 """Contains the entity class."""
 # TODO Extend with an explanation of what an entity is.
 # TODO Update the docstrings.
-# TODO: Refactor this class!!
 import collections
 import copy
 from typing import List, TypedDict, Optional, Dict, Tuple, Callable
@@ -55,19 +54,13 @@ class Entity():
     self.init_vars = init_vars if init_vars is not None else []
     self.input_vars = input_vars if input_vars is not None else []
     self.output_vars = output_vars if output_vars is not None else []
-    self.all_equations = all_equations
-
-    self.is_reservoir = False
+    self.all_equations = all_equations 
 
     if entity_name != "Topology" and ">>>" not in entity_name:
       network, ent_type, str1, name = entity_name.split(".")
       token, mechanism, nature = str1.split("|")
-      self.entity_type = ent_type
 
       self.index_set = ent_type[0].capitalize() + "_" + mechanism[:4]
-      self.is_reservoir = f"{mechanism}|{nature}" == "constant|infinity"
-    else:
-      self.entity_type = "interface"
 
     self.temp_var_eq_forest = None
     self.merge_conflicts = {}
@@ -75,9 +68,6 @@ class Entity():
     self.undo_merging = {}
 
     # pp(self.all_equations)
-
-  def has_integrators(self) -> bool:
-    return bool(self.integrators)
 
   def integrators_info(self):
     return list(self.integrators.items())
@@ -355,20 +345,15 @@ class Entity():
           curr_tree = tree
           break
 
+      # Adding the equation to the tree
+      curr_tree[eq_id] = []
+
       # Adding the equation to the list of children of the variable.
       curr_tree[var_id].append(eq_id)
 
       # pp(self.all_equations)
-
+      # Adding only the appropiate variables as children.
       incidence_list = self.all_equations[eq_id].get_incidence_list(var_id)
-
-      # Adding the equation to the tree
-      curr_tree[eq_id] = [
-          child_var_id
-          for child_var_id in incidence_list
-          if child_var_id not in self.integrators
-      ]
-      # Adding only new variables to the forest
       for child_var_id in incidence_list:
         # Only for variables that are not already in the forest.
         not_in_forest = True
@@ -380,6 +365,9 @@ class Entity():
         if not_in_forest:
           # Adding the variable to the tree
           curr_tree[child_var_id] = []
+
+          # Adding the variable as children of the equation.
+          curr_tree[eq_id].append(child_var_id)
 
           # If there are equations assigned to this variable then a new
           # entry is added to the queue.
@@ -642,14 +630,6 @@ class Entity():
     for tree in self.var_eq_forest:
       if var_id in tree:
         return tree[var_id]
-
-    return None
-
-  def get_variables_from_equation(self, equation_id: str) -> List[str]:
-    # TODO: Merge with get_eq_for_var
-    for tree in self.var_eq_forest:
-      if equation_id in tree:
-        return tree[equation_id]
 
     return None
 
