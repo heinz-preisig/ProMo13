@@ -35,7 +35,6 @@ from PyQt5 import QtWidgets
 from typing_extensions import TypedDict
 
 from networkx import all_topological_sorts
-from tomlkit import value
 
 import Common.common_resources as CR
 import ModelBuilder.ModelComposer.resources as R
