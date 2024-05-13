@@ -74,8 +74,12 @@ def _build_equation_graph(
     equations_graph.add_node(equation_id)
     processing_queue.append((equation_id, topology_objects))
 
+  pp(equation_topology_map)
+  print("====================")
+
   while processing_queue:
     source_equation_id, topology_objects = processing_queue.popleft()
+    print(source_equation_id, topology_objects)
 
     for topology_obj in topology_objects:
       equations_info = _find_dependencies(
@@ -95,6 +99,9 @@ def _build_equation_graph(
           processing_queue.append((equation_id, new_topology_objects))
           equation_topology_map[equation_id].update(new_topology_objects)
 
+    pp(equation_topology_map)
+    print("====================")
+
   return (equations_graph, equation_topology_map)
 
 
@@ -109,6 +116,7 @@ def _get_integrators_info(topology_graph) -> _MapEquationTopology:
       Dict[str, Set[str]]: maps the integrator equations to the
        topology objects where they are defined.
   """
+  # TODO: Change the name it gets the info of output variable equations
   equation_topology_map = collections.defaultdict(set)
   for topology_obj in topology_graph:
     entity_instance = topology_obj.entity_instance
@@ -148,6 +156,8 @@ def _find_dependencies(
   entity_instance = topology_obj.entity_instance
 
   equation_topology_map = collections.defaultdict(set)
+  if equation_id not in entity_instance.get_equations():
+    return equation_topology_map
 
   for variable_id in entity_instance.get_variables_from_equation(equation_id):
     dependency_info = _find_equations_for_variable(
@@ -204,18 +214,26 @@ def _find_equations_for_variable(
       # Rules prevent further nesting, if a variable is input
       # the neighbors either dont have the variable, have an equation
       # for it or instantiate it.
-      equations = neighbor_entity.get_eq_for_var(variable_id)
-
-      if equations:
-        equation_id = equations[0]
-        equation_topology_map[equation_id].add(neighbor)
+      update_map = _find_equations_for_variable(
+          variable_id, neighbor, topology_graph)
+      for key, set_value in update_map.items():
+        equation_topology_map[key].update(set_value)
 
     return equation_topology_map
 
   equations = entity_instance.get_eq_for_var(variable_id)
   if equations:
+    topology_objects = set()
+    topology_objects.add(topology_obj)
+    for dep_var_id in entity_instance.get_variables_from_equation(equations[0]):
+      if dep_var_id in entity_instance.input_vars:
+        for neighbor in topology_graph[topology_obj]:
+          neighbor_entity: corelib.Entity = neighbor.entity_instance
+          if dep_var_id in neighbor_entity.output_vars:
+            topology_objects.add(neighbor)
+
     equation_id = equations[0]
-    return {equation_id: {topology_obj}}
+    return {equation_id: topology_objects}
 
   return {}
 
