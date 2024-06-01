@@ -1111,6 +1111,45 @@ class ModelContainer(dict):
         open_arcs.add(arc)
     return open_arcs
 
+  def checkforMissingBoundaryArcs(self):
+    """ look through all boundary nodes and check if each has two connected arcs"""
+
+    leave_nodes_IDs = self["ID_tree"].getAllLeaveNodes()
+    # RULE: must have two and only two arcs connected one as source and one as sink
+    sinks = {}
+    sources = {}
+    missing_input_arc = []
+    missing_output_arc = []
+    for node in leave_nodes_IDs:
+      if self["nodes"][node]["class"] == NAMES["intraface"]:
+        sinks[node] = []
+        sources[node] = []
+
+        for arc in self["arcs"]:
+          if self["arcs"][arc]["source"] == node:
+            sources[node].append(arc)
+          elif self["arcs"][arc]["sink"] == node:
+            sinks[node].append(arc)
+          else:
+            pass
+
+        if len(sinks[node]) > 1:
+          raise DataError("intraface %s cannot have more than one sink node"%node)
+        elif len(sources[node]) > 1 :
+          raise DataError("intraface %s cannot have more than one source node"%node)
+        elif len(sinks[node]) == 0 :
+          missing_input_arc.append(node)
+        elif len(sources[node]) == 0:
+          try:
+            missing_output_arc[node].append(node)
+          except:
+            print("no such node %s" % node)
+
+
+
+    return missing_input_arc, missing_output_arc
+
+
   def injectListInToNodes(self, node_group, token, list, where):
     print('list: ', list, "to where ", where)
     for node in node_group:
