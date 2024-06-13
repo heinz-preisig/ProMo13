@@ -1121,7 +1121,7 @@ class ModelContainer(dict):
     missing_input_arc = []
     missing_output_arc = []
     for node in leave_nodes_IDs:
-      if self["nodes"][node]["class"] == NAMES["intraface"]:
+      if self["nodes"][node]["class"] in [NAMES["intraface"], NAMES["interface"]]:
         sinks[node] = []
         sources[node] = []
 
