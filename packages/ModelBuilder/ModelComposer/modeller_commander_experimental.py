@@ -757,9 +757,45 @@ class Commander(QtCore.QObject):
     """
     #  start an arc
     self.state_nodes[nodeID] = "selected"
-    nw = self.main.current_network
+    # nw = self.main.current_network
     self.arcSourceID = nodeID  # used in addThe Arc
-    self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(            nodeID)
+    self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(nodeID)
+
+    source = self.model_container["nodes"][nodeID]
+    L_fromBoundary = source["class"] in [NAMES["intraface"], NAMES["interface"]]
+    if L_fromBoundary:
+      missing_input_arc, missing_output_arc = self.model_container.checkforMissingBoundaryArcs()
+      L_inputMissing =  nodeID in missing_input_arc
+      L_outputMissing = nodeID in missing_output_arc
+
+      if L_inputMissing and L_outputMissing:
+        return self.__abortArcGeneration("node arc is isolated -- delete !")
+
+      arcs_out, arcs_in = self.model_container.getArcsInAndOutOfNode(nodeID)
+      children = self.model_container["ID_tree"].getLeaves(0)
+      if L_inputMissing:
+        # get output properties
+        existing_arc = arcs_out[0]
+      else:
+        # get input properties
+        existing_arc = arcs_in[0]
+
+      this_arc = self.model_container["arcs"][existing_arc]
+      token = this_arc["token"]
+      mechanism = this_arc["mechanism"]
+      nature = this_arc["nature"]
+      variant = this_arc["variant"]
+      network = this_arc["network"]
+      named_network = this_arc["named_network"]
+
+      for child in children:
+        if source["type"] in [NAMES["intraface"], NAMES["interface"]]:
+          if child is not nodeID:
+            self.state_nodes[child] = "block"
+
+        if token not in self.model_container["nodes"][nodeID]["entity_id"]:
+          self.state_nodes[child] = "blocked"
+
     self.__redrawScene(self.current_ID_node_or_arc)
 
     return {
@@ -822,6 +858,8 @@ class Commander(QtCore.QObject):
       else:
         arcs_out = arcs_in = []
       missing_input_arc, missing_output_arc = self.model_container.checkforMissingBoundaryArcs()
+      L_inputMissing = False
+      L_outputMissing = False
       if fromNodeID in missing_input_arc:
         # fromNode points to boundary thus fromNode will be sink for the arc
         L_inputMissing = True
@@ -834,12 +872,12 @@ class Commander(QtCore.QObject):
         insertArcSink = toNodeID
       elif fromNodeID in missing_output_arc:
         # fromNode is boundary
-        L_inputMissing = False
+        L_outputMissing = False
         insertArcSource = fromNodeID
         insertArcSink = toNodeID
       elif toNodeID in missing_output_arc:
         # toNode is boundary
-        L_inputMissing = False
+        L_outputMissing = False
         insertArcSource = toNodeID
         insertArcSink = fromNodeID
       else:
@@ -847,6 +885,9 @@ class Commander(QtCore.QObject):
         return self.__abortArcGeneration("no input no output ????")
 
       print("debugging -- insert missing arc")
+
+      if L_inputMissing and L_outputMissing:
+        return self.__abortArcGeneration("node arc is isolated -- delete !")
 
       if L_inputMissing:
         # get output properties
@@ -3422,8 +3463,8 @@ class Commander(QtCore.QObject):
   def applyControlAccessRules(self):
     phase = self.editor_phase
     state = self.editor_state
-    network = self.main.current_network
-    named_network = self.main.current_named_network
+    # network = self.main.current_network
+    # named_network = self.main.current_named_network
 
     # print("debugging -- access rules editor phase & state :", phase, state)
     # print("debugging -- access rules editor network & named network :", network, named_network)
