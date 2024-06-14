@@ -1702,6 +1702,11 @@ class Commander(QtCore.QObject):
                                                                                  right_icon="accept",
                                                                                  right_tooltip="accept",
                                                                                  alternative=True)
+    if not schnipsel_name_to_be_saved:
+      res_dic = {}
+      res_dic["new root"] = None
+      res_dic["failed"] = True
+      return res_dic
 
     container = self.model_container.extractSubtree(nodeID)
 
