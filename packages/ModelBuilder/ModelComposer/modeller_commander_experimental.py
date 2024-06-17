@@ -2033,12 +2033,13 @@ class Commander(QtCore.QObject):
       self.main.writeStatus("no such file %s" % f)
       return {"failed": True}
 
-    tree, node_map, arc_map, node_offset, parent_ID = \
+    tree, node_map, arc_map, node_offset, parent_ID, BRUSHES = \
       self.model_container.addFromFile(f, self.current_ID_node_or_arc,
                                        position,
                                        self.graphics_data,
                                        self.editor_phase)
 
+    self.main.BRUSHES.update(BRUSHES)
     self.__redrawScene(self.current_ID_node_or_arc)
 
     return {

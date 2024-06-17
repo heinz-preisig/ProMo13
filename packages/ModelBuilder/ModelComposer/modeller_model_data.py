@@ -383,6 +383,7 @@ class ModelContainer(dict):
       application = self["nodes"][nodeID]["type"]
     except:
       print("problem")
+      application = None
     return application
 
   def getArcApplication(self, arcID):
@@ -975,17 +976,27 @@ class ModelContainer(dict):
                                                 named_network,
                                                 mechanism, token, nature, variant, instantiated_variables)
 
-    for the_hash in self:
+    for the_hash in list(self.keys()):
       if the_hash == "ID_tree":
         self["ID_tree"].addMappedTree(tree, parentID)
-      # elif the_hash == "named_networks":
-      #   for nw in self["named_networks"]:
-      #     s = set(self["named_networks"][nw])
-      #     ds = set(data["named_networks"][nw])
-      #     us = s.union(ds)
-      #     ls = list(us)
-      #     print("named networks ", nw, "--", s, ds, ls)
-      #     self["named_networks"][nw] = ls
+      elif the_hash == "named_networks":
+        for nw in self["named_networks"]["network__named_network"]:
+            _s = set(self["named_networks"]["network__named_network"][nw])   # list of existing named networks
+            __s = set(data["named_networks"]["network__named_network"][nw]) # list of to-integrate named networks
+            us = _s.union(__s)
+            self["named_networks"]["network__named_network"][nw] = (list(us))
+        for next_hash in data["named_networks"]:
+          if next_hash != "network_named_network":
+            self["named_networks"][next_hash] = data["named_networks"][next_hash]
+        for next_hash in self["named_networks"]:
+          if next_hash != "network__named_network":
+            self["named_networks"][next_hash] = self["named_networks"][next_hash]
+          # s = set(self["named_networks"][nw])
+          # ds = set(data["named_networks"][nw])
+          # us = s.union(ds)
+          # ls = list(us)
+          # print("named networks ", nw, "--", s, ds, ls)
+          # self["named_networks"][nw] = ls
       else:
         self[the_hash].update(odata[the_hash])
 
@@ -1011,7 +1022,10 @@ class ModelContainer(dict):
     #   def __init__(self, graphics_object, x, y, graphics_data, phase, application, state):
     # [pos, R.STRUCTURES[R.S_NODE_COMPOSITE]]
 
-    return tree, node_map, arcID_map, node_offset, parentID
+    # self.main.named_network_dictionary.makeBrushes()
+    BRUSHES = self["named_networks"].makeBrushes()
+
+    return tree, node_map, arcID_map, node_offset, parentID, BRUSHES
 
   def explodeNode(self, nodeID):
 
