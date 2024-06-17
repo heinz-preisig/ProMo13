@@ -585,12 +585,12 @@ class Commander(QtCore.QObject):
     # RULE: node type for boundary is constraint to event dynamic
 
     nw, node_or_arc, application, variant = splitEntity(entity_name)
-    token, mechanism, nature = splitApplication(application)
+    token_list, mechanism, nature = splitApplication(application)
 
     features = None
     if boundary in [NAMES["intraface"], NAMES["arc node"]]:  # note: now the same as arc_node
       features = self.applyNodeDefinitionRules(NAMES["intraface"])
-      features.append(token)
+      features.append(token_list)
       features.append(NAMES["intraface"])
     elif boundary == NAMES["interface"]:
       application = self.main.ontology.list_inter_node_objects[0]
@@ -929,7 +929,7 @@ class Commander(QtCore.QObject):
         ors = []
       else:
         ands = [source_intra_domain, "arc"]
-        ors = [selected_tokens]
+        ors = selected_tokens
 
       # get possible entities --------------------------------------------------------------------------
       selections = extract(entities, filter_and=ands, filter_or=ors, filter_not=[])
@@ -960,7 +960,11 @@ class Commander(QtCore.QObject):
         # get intraface properties
         boundary = NAMES["arc node"]
         nw, node_or_arc, application, variant = splitEntity(selected_entity)
-        token, mechanism, nature = splitApplication(application)
+        token_list, mechanism, nature = splitApplication(application)
+        if len(token_list) > 1:
+          return self.__abortArcGeneration("arc cannot have more than one token")
+        else:
+          token = token_list[0]
         connection_network = self.main.current_network
 
       pos = self.__getMidPoint(fromNodeID, toNodeID)
@@ -1433,11 +1437,11 @@ class Commander(QtCore.QObject):
     sink_entity = extract(entities, filter_and=[
             variant_sink, type_sink], filter_or=[], filter_not=[])  # ditto
     _, _, application, _ = splitEntity(source_entity[0])
-    s_token, _, _, = splitApplication(application)
+    source_tokens, _, _, = splitApplication(application)
     _, _, application, _ = splitEntity(sink_entity[0])
-    t_token, _, _, = splitApplication(application)
-    source_tokens = s_token.split(CR.TOKEN_DELIMITER)
-    sink_tokens = t_token.split(CR.TOKEN_DELIMITER)
+    sink_tokens, _, _, = splitApplication(application)
+    # source_tokens = s_token.split(CR.TOKEN_DELIMITER)
+    # sink_tokens = t_token.split(CR.TOKEN_DELIMITER)
     allowed_tokens = list(set(source_tokens) | set(sink_tokens))
 
     if len(allowed_tokens) == 1:
