@@ -1477,11 +1477,14 @@ class Commander(QtCore.QObject):
 
     # get schnipsel name -- rule: new or used
     schnipsel_name_to_be_saved, new_model = askForModelFileGivenOntologyLocation(self.main.ontology_name,
-                                                                                 left_icon="reject",
-                                                                                 left_tooltip="reject",
-                                                                                 right_icon="accept",
-                                                                                 right_tooltip="accept",
-                                                                                 alternative=True)
+                                                                                 alternative=True,
+                                                                                 left=("reject", "reject","show"),
+                                                                                 right = ("accept", "accept", "show"))
+                                                                                 # left_icon="reject",
+                                                                                 # left_tooltip="reject",
+                                                                                 # right_icon="accept",
+                                                                                 # right_tooltip="accept",
+                                                                                 # alternative=True)
 
     container = self.model_container.extractSubtree(nodeID)
 

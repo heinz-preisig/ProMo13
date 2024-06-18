@@ -119,7 +119,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     # first get ontology
     ontology_name = getOntologyName(
-        task="task_model_composer", left_icon=None)  # "new.png")
+        task="task_model_composer")#, left_icon=None)  # "new.png")
     self.ontology_name = copy.copy(ontology_name)
     self.ui.labelOntology.setText(ontology_name)
     self.ui.labelOntology.show()
@@ -137,8 +137,14 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     # now ask for model
     self.model_name = ""
     # while self.model_name in [""]:
-    self.model_name, status = askForModelFileGivenOntologyLocation(
-        self.model_library_location, alternative=True)
+    self.model_name, status = askForModelFileGivenOntologyLocation(self.model_library_location,
+                                                                   alternative=True,
+                                                                   left = ("reject", "reject", "show"),
+                                                                   centre = ("new", "new model","show"),
+                                                                   right = ("accept", "accept", "hide")
+                                                                   )
+                                                                   # left_icon = "reject",
+                                                                   # right_icon = "accept")
 
     # print("debugging -- model name and new_model", self.model_name, status)
     if status == "existent":
