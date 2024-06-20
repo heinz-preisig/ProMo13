@@ -293,6 +293,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.__setupInterface()
     # this sets the initial item to the panel
     self.commander.setPanelAsCurrentItem()
+    self.on_pushEditNamedNetworks_pressed()
 
     self.initialising = False
 
