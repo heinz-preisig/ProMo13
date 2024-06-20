@@ -127,11 +127,6 @@ class UI_Equations(QtWidgets.QWidget):
     self.ui.labelNetwork.setText(network_for_variable)
 
     self.operator_table = SingleListSelector(thelist=OPERATOR_SNIPS)
-    # self.operator_table.setWindowFlags(
-    #         QtCore.Qt.WindowStaysOnTopHint |
-    #         QtCore.Qt.FramelessWindowHint |
-    #         QtCore.Qt.Dialog
-    #         )
     self.operator_table.hide()
     self.operator_table.newSelection.connect(self.__insertSnipp)
 
@@ -142,7 +137,7 @@ class UI_Equations(QtWidgets.QWidget):
     self.hide()
     self.ui.lineNewVariable.setFocus()
 
-    self.ui.pushPickIndices.hide()
+    self.ui.pushPickIndices.hide()  # NOTE: disabled -- little used
 
   def __makePickVariableTable(self):
 
@@ -224,8 +219,11 @@ class UI_Equations(QtWidgets.QWidget):
     self.show()
 
   def resetEquationInterface(self):
-    # self.__makePickVariableTable()
-    self.ui_indices = SingleListSelector(self.index_list)
+    # NOTE: may not be used any more -- disabled in init
+    self.ui_indices = SingleListSelector(self.index_list, alternative=True,
+                                         left=("reject", "reject","show"),
+                                         right = ("accept", "accept", "show"))
+
     self.ui_indices.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
     self.ui_indices.newSelection.connect(self.__insertSnipp)
     # self.hide()
