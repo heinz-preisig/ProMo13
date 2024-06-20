@@ -482,9 +482,9 @@ class UiOntologyDesign(QMainWindow):
     else:
       pass
 
-      _, no_of_variables = self.variables.variableSpaces("variable_picking",
+      _, no_of_variables = self.variables.variableSpaces("interface_picking",
                                                                            self.current_network,
-                                                                           VARIABLE_TYPE_INTERFACES)
+                                                                           [VARIABLE_TYPE_INTERFACES])
       self.ui.pushMakeInterfaceEquations.show()
       if no_of_variables == 0:
         self.ui.pushShowInterfaceEquations.hide()
