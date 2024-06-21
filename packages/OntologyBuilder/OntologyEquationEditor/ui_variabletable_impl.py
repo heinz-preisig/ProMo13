@@ -222,10 +222,12 @@ class UI_VariableTableDialog(VariableTable):
 
   def __change_variable_type_dialogue(self):
     variable_types = list(set(self.variable_types_on_networks[self.network]))
-    self.selector = SingleListSelector(variable_types)
+    self.selector = SingleListSelector(variable_types,alternative=True,
+                                       left=("reject", "reject","show"),
+                                       right = ("accept", "accept", "show"))
     self.selector.exec_()
     selection, button = self.selector.getSelection()
-    if button == "left":
+    if button == "reject":
       return
     elif self.selected_variable_type == selection:
       return

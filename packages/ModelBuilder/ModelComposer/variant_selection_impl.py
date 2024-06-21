@@ -58,8 +58,9 @@ def splitEntity(entity):
   return nw,node_or_arc, application, variant
 
 def splitApplication(application):
-  token, mechanism, nature = application.split(APPLICATION_COMPONENT_SEPARATOR)
-  return token, mechanism, nature
+  token_set, mechanism, nature = application.split(APPLICATION_COMPONENT_SEPARATOR)
+  token_list = token_set.split("_")
+  return token_list, mechanism, nature
 
 
 

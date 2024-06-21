@@ -36,8 +36,10 @@ class SingleListSelector(QtWidgets.QDialog):
 
   newSelection = QtCore.pyqtSignal(str)
 
-  def __init__(self, thelist, selected=None, myparent=None, left_icon="reject", left_tooltip="reject",
-               right_icon="accept", right_tooltip="accept"):
+  def __init__(self, thelist, selected=None, myparent=None, **kwargs):
+               # left_icon="reject", left_tooltip="reject",
+               # centre_icon="cancel", centre_tooltip="cancel",
+               # right_icon="accept", right_tooltip="accept"):
     '''
     Constructor
     Behaviour
@@ -45,23 +47,47 @@ class SingleListSelector(QtWidgets.QDialog):
      -- single click requires acceptance -- default right button
      -- left button is default reject
      -- returns selection and state (left | right | selected)
+
+    Parameters
+    ----------
+    centre_icon
+    centre_tooltip
     '''
     self.thelist = thelist
     self.selection = None
     QtWidgets.QDialog.__init__(self, parent=myparent)
     self.ui = Ui_Dialog()
     self.ui.setupUi(self)
+    self.kwargs = kwargs
 
     self.setWindowFlags(
             self.windowFlags() |
             QtCore.Qt.WindowStaysOnTopHint |
             QtCore.Qt.FramelessWindowHint |
-            QtCore.Qt.Dialog
+            QtCore.Qt.Dialog|
+            QtCore.Qt.FramelessWindowHint |
+            QtCore.Qt.WindowStaysOnTopHint
             )
 
 
-    roundButton(self.ui.pushLeft, left_icon, left_tooltip )
-    roundButton(self.ui.pushRight, right_icon, right_tooltip )
+
+    icons = {}
+    tooltips ={}
+    buttons = {"left": self.ui.pushLeft,
+               "centre": self.ui.pushCentre,
+               "right": self.ui.pushRight,
+              }
+    for pos in ["left", "centre", "right"]:
+      if pos in kwargs:
+        icon, tooltip, mode = kwargs[pos]
+        roundButton(buttons[pos], icon, tooltip)
+        if mode == "hide":
+          buttons[pos].hide()
+        else:
+          buttons[pos].show()
+      else:
+        buttons[pos].hide()
+
 
     self.ui.listWidget.addItems(thelist)
 
@@ -78,31 +104,6 @@ class SingleListSelector(QtWidgets.QDialog):
         max_width = width
     self.__resizeMe(height, max_width + 20)
 
-    # self.__move2row(selected)
-    # if not left_icon:
-    #   self.ui.pushLeft.hide()
-    # else:
-    #   self.ui.pushLeft.show()
-    # self.ui.pushRight.hide()
-    #
-    # if not thelist:
-    #   self.ui.listWidget.hide()
-    #
-    # self.hide()
-
-  def __move2row(self, selected):
-    if (selected != None) and (selected in self.thelist):
-      row = self.thelist.index(selected)
-      self.ui.listWidget.setCurrentRow(row)
-      self.selection = copy(selected)
-    else:
-      row = -1
-      self.ui.pushLeft.hide()
-    self.ui.listWidget.setCurrentRow(row)
-
-  def Show(self, entry):
-    self.__move2row(entry)
-    QtWidgets.QDialog.show(self)
 
   def hide(self):
     QtWidgets.QWidget.hide(self)
@@ -114,7 +115,7 @@ class SingleListSelector(QtWidgets.QDialog):
     tab_size = QtCore.QSize(width, height)
     self.ui.listWidget.resize(tab_size)
     size_b = self.ui.pushLeft.size()
-    b_width = size_b.width()* 2 #there are two buttons plus margin
+    b_width = size_b.width()* 3 #there are two buttons plus margin
     b_height = size_b.height()
     if b_width < width:
       size_b.setWidth(width)
@@ -122,7 +123,7 @@ class SingleListSelector(QtWidgets.QDialog):
       width = b_width
       tab_size = QtCore.QSize(width, height)
       self.ui.listWidget.resize(tab_size)
-    s = QtCore.QSize(width + 20, b_height + height + 60)
+    s = QtCore.QSize(width + 30, b_height + height + 60)
     self.resize(s)
 
   def on_listWidget_itemClicked(self, v):
@@ -139,12 +140,17 @@ class SingleListSelector(QtWidgets.QDialog):
 
   def on_pushRight_pressed(self):
     # self.newSelection.emit(str(self.selection))
-    self.state = "right"
-    self.newSelection.emit(self.selection)
+    self.state = self.kwargs["right"][0]  #RULE: right must be accept
+    # self.newSelection.emit(self.selection)
+    self.hide()
+
+  def on_pushCentre_pressed(self):
+    self.state = self.kwargs["centre"][0]
+    self.selection = None
     self.hide()
 
   def on_pushLeft_pressed(self):
-    self.state = "left"
+    self.state = self.kwargs["left"][0]
     self.selection = None
     self.hide()
 

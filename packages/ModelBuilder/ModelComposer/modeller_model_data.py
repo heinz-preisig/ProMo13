@@ -383,6 +383,7 @@ class ModelContainer(dict):
       application = self["nodes"][nodeID]["type"]
     except:
       print("problem")
+      application = None
     return application
 
   def getArcApplication(self, arcID):
@@ -975,17 +976,27 @@ class ModelContainer(dict):
                                                 named_network,
                                                 mechanism, token, nature, variant, instantiated_variables)
 
-    for the_hash in self:
+    for the_hash in list(self.keys()):
       if the_hash == "ID_tree":
         self["ID_tree"].addMappedTree(tree, parentID)
-      # elif the_hash == "named_networks":
-      #   for nw in self["named_networks"]:
-      #     s = set(self["named_networks"][nw])
-      #     ds = set(data["named_networks"][nw])
-      #     us = s.union(ds)
-      #     ls = list(us)
-      #     print("named networks ", nw, "--", s, ds, ls)
-      #     self["named_networks"][nw] = ls
+      elif the_hash == "named_networks":
+        for nw in self["named_networks"]["network__named_network"]:
+            _s = set(self["named_networks"]["network__named_network"][nw])   # list of existing named networks
+            __s = set(data["named_networks"]["network__named_network"][nw]) # list of to-integrate named networks
+            us = _s.union(__s)
+            self["named_networks"]["network__named_network"][nw] = (list(us))
+        for next_hash in data["named_networks"]:
+          if next_hash != "network_named_network":
+            self["named_networks"][next_hash] = data["named_networks"][next_hash]
+        for next_hash in self["named_networks"]:
+          if next_hash != "network__named_network":
+            self["named_networks"][next_hash] = self["named_networks"][next_hash]
+          # s = set(self["named_networks"][nw])
+          # ds = set(data["named_networks"][nw])
+          # us = s.union(ds)
+          # ls = list(us)
+          # print("named networks ", nw, "--", s, ds, ls)
+          # self["named_networks"][nw] = ls
       else:
         self[the_hash].update(odata[the_hash])
 
@@ -1011,7 +1022,10 @@ class ModelContainer(dict):
     #   def __init__(self, graphics_object, x, y, graphics_data, phase, application, state):
     # [pos, R.STRUCTURES[R.S_NODE_COMPOSITE]]
 
-    return tree, node_map, arcID_map, node_offset, parentID
+    # self.main.named_network_dictionary.makeBrushes()
+    BRUSHES = self["named_networks"].makeBrushes()
+
+    return tree, node_map, arcID_map, node_offset, parentID, BRUSHES
 
   def explodeNode(self, nodeID):
 
@@ -1110,6 +1124,45 @@ class ModelContainer(dict):
               (self["arcs"][arc]["sink"] not in leave_nodes_IDs):
         open_arcs.add(arc)
     return open_arcs
+
+  def checkforMissingBoundaryArcs(self):
+    """ look through all boundary nodes and check if each has two connected arcs"""
+
+    leave_nodes_IDs = self["ID_tree"].getAllLeaveNodes()
+    # RULE: must have two and only two arcs connected one as source and one as sink
+    sinks = {}
+    sources = {}
+    missing_input_arc = []
+    missing_output_arc = []
+    for node in leave_nodes_IDs:
+      if self["nodes"][node]["class"] in [NAMES["intraface"], NAMES["interface"]]:
+        sinks[node] = []
+        sources[node] = []
+
+        for arc in self["arcs"]:
+          if self["arcs"][arc]["source"] == node:
+            sources[node].append(arc)
+          elif self["arcs"][arc]["sink"] == node:
+            sinks[node].append(arc)
+          else:
+            pass
+
+        if len(sinks[node]) > 1:
+          raise DataError("intraface %s cannot have more than one sink node"%node)
+        elif len(sources[node]) > 1 :
+          raise DataError("intraface %s cannot have more than one source node"%node)
+        elif len(sinks[node]) == 0 :
+          missing_input_arc.append(node)
+        elif len(sources[node]) == 0:
+          try:
+            missing_output_arc[node].append(node)
+          except:
+            print("no such node %s" % node)
+
+
+
+    return missing_input_arc, missing_output_arc
+
 
   def injectListInToNodes(self, node_group, token, list, where):
     print('list: ', list, "to where ", where)

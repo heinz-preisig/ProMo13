@@ -860,7 +860,7 @@ class Variables(OrderedDict):
       variable_space = self.index_accessible_variables_on_networks
     elif what == "interface_picking":
       rule = "only local"
-      networks = self.ontology_container.heirs_network_dictionary[network]
+      networks = [network] # self.ontology_container.heirs_network_dictionary[network]
       variable_space = {}
       for nw in networks: #self.index_definition_network_for_variable_component_class:
         variable_space[nw] = {}

@@ -288,6 +288,16 @@ class UiOntologyDesign(QMainWindow):
   def on_pushShowInterfaceEquations_pressed(self):
     print("debugging -- radioShowInterfaceEquations")
     hide = (["LaTex", "dot", "next", "port"])
+
+    # no controlled by hiding button
+    # self.variable_space, no_of_variables = self.variables.variableSpaces("variable_picking",
+    #                                                                      self.current_network,
+    #                                                                      VARIABLE_TYPE_INTERFACES)
+    # if no_of_variables == 0:
+    #   dialog = makeMessageBox(message="no variables to delete",
+    #                           buttons=["OK"], default="OK", )
+    #   return
+
     self.table_variables = UI_VariableTableDeleteEquation("delete interface equations",
                                                           self.variables,
                                                           self.indices,
@@ -471,11 +481,15 @@ class UiOntologyDesign(QMainWindow):
       self.on_radioVariablesAliases_pressed()
     else:
       pass
+
+      _, no_of_variables = self.variables.variableSpaces("interface_picking",
+                                                                           self.current_network,
+                                                                           [VARIABLE_TYPE_INTERFACES])
       self.ui.pushMakeInterfaceEquations.show()
-      self.ui.pushShowInterfaceEquations.show()
-      # self.__setupEdit("interface")
-      # self.__setupEditInterface()
-      # self.__showFilesControl()
+      if no_of_variables == 0:
+        self.ui.pushShowInterfaceEquations.hide()
+      else:
+        self.ui.pushShowInterfaceEquations.show()
       self.ui.pushShowVariables.show()
 
   @QtCore.pyqtSlot(int)

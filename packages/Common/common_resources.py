@@ -218,12 +218,14 @@ def __getSortedDirList(location):
 #   return model_name, "new"
 
 
-def askForModelFileGivenOntologyLocation(model_library_location,
-                                         left_icon="new",
-                                         left_tooltip="new",
-                                         right_icon="accept",
-                                         right_tooltip="accept",
-                                         alternative=True):
+def askForModelFileGivenOntologyLocation(model_library_location, alternative, **kwargs):
+                                         # left_icon="new",
+                                         # left_tooltip="new",
+                                         # center_icon="reject",
+                                         # centre_tooltip = "reject",
+                                         # right_icon="accept",
+                                         # right_tooltip="accept",
+                                         # alternative=True):
 
   model_names = __getSortedDirList(model_library_location)
 
@@ -233,10 +235,13 @@ def askForModelFileGivenOntologyLocation(model_library_location,
 
     model_name, status = selectFromList("choose model",
                                         model_names,
-                                        left_icon=left_icon,
-                                        left_tooltip=left_tooltip,
-                                        right_icon=right_icon,
-                                        right_tooltip=right_tooltip)
+                                        **kwargs)
+                                        # left_icon=left_icon,
+                                        # left_tooltip=left_tooltip,
+                                        #  center_icon=center_icon,
+                                        #  centre_tooltip = centre_tooltip,
+                                        # right_icon=right_icon,
+                                        # right_tooltip=right_tooltip)
 
     # print("debugging -- ask for model name", model_name, status)
 
@@ -246,8 +251,10 @@ def askForModelFileGivenOntologyLocation(model_library_location,
   if not alternative:
     return None, "exit"
 
-  # while (model_name in acceptance_list):
-  while not (model_name or (status == "exit")):
+  if status == "reject":
+    return None, "exit"
+
+  if status == "new":
     ui_ask = UI_GetString("give new model name or type exit ",
                        "model name or exit", limiting_list=model_names)
     ui_ask.exec_()
@@ -258,43 +265,9 @@ def askForModelFileGivenOntologyLocation(model_library_location,
   return model_name, "new"
 
 
-def askForCasefileGivenLocation(case_rep_loc,
-                                left_icon="new",
-                                left_tooltip="new",
-                                right_icon="accept",
-                                right_tooltip="accept"):
-
-  case_names = __getSortedDirList(case_rep_loc)
-
-  if case_names:
-    case_name, status = selectFromList("choose case",
-                                       case_names,
-                                       left_icon=left_icon,
-                                       left_tooltip=left_tooltip,
-                                       right_icon=right_icon,
-                                       right_tooltip=right_tooltip)
-
-    if (not case_name) and (not status):
-      sys.exit()
-
-    if case_name:
-      return case_name, "existent"
-
-  case_name = ""
-  status = ""
-
-  while not (case_name or (status == "exit")):
-    ui_ask = UI_GetString("give new case name or type exit ",
-                       "case name or exit", limiting_list=case_names)
-    ui_ask.exec_()
-    case_name = ui_ask.getText()
-    # print("debugging -- new model name defined", case_name)
-    if not case_name:  # == "exit":
-      return case_name, "exit"
-  return case_name, "new"
 
 
-def getOntologyName(new=False, task="ProMo_logo", behaviour="on_click", left_icon=None, right_icon=None):
+def getOntologyName(new=False, task="ProMo_logo", behaviour="on_click"): #, left_icon="reject", right_icon="accept"):
   from Common.logo_impl import Logo
   """
   asks for a ontology name from a list of ontologies in the repository
@@ -327,8 +300,14 @@ def getOntologyName(new=False, task="ProMo_logo", behaviour="on_click", left_ico
   if behaviour != "on_click":
     logo.close()
 
-  ontology, state = selectFromList("choose ontology", ontologies, left_icon=left_icon, right_icon=right_icon,
-                                   left_tooltip=left_icon, right_tooltip=right_icon)
+  ontology, state = selectFromList("choose ontology", ontologies,
+                                   left = ("reject", "reject", "show"),
+                                   right = ("accept", "accept", "hide")
+                                   )
+                                   # left_icon="reject", left_tooltip="reject",
+                                   # right_icon="accept", right_tooltip="accept")
+                                   # # center_icon=None, center_tooltip = None,
+                                   # # left_tooltip=left_icon, right_tooltip=right_icon)
   if new:
     return ontology, ontologies
   elif ontology:
@@ -385,18 +364,24 @@ def __addItemToTreeWidget(treeWidget, parent, nodeID):
   return item
 
 
-def selectFromList(title, items, left_icon, right_icon, left_tooltip, right_tooltip):
+def selectFromList(title, items,**kwargs):
+                   # left_icon=None, left_tooltip=None,
+                   # center_icon=None, center_tooltip=None,
+                   # right_icon=None, right_tooltip=None):
   items.sort()
-  if right_icon:
-    if left_icon:
-      selector = SingleListSelector(items, left_icon=left_icon, right_icon=right_icon,
-                                    left_tooltip=left_tooltip, right_tooltip=right_tooltip)
-    else:
-      selector = SingleListSelector(items, left_icon=left_icon)
-  elif left_icon:
-    selector = SingleListSelector(items, left_icon=left_icon)
-  else:
-    selector = SingleListSelector(items)
+  selector = SingleListSelector(items, **kwargs)
+                                # left_icon=left_icon, left_tooltip=left_tooltip,
+                                # center_icon=center_icon, center_tooltip=center_tooltip,
+                                # right_icon=right_icon, right_tooltip=right_tooltip)
+  # if right_icon:
+  #   if left_icon:
+  #     selector = SingleListSelector(items, left_icon=left_icon, left_tooltip=left_tooltip, right_icon=right_icon, right_tooltip=right_tooltip)
+  #   else:
+  #     selector = SingleListSelector(items, left_icon=left_icon)
+  # elif left_icon:
+  #   selector = SingleListSelector(items, left_icon=left_icon)
+  # else:
+  #   selector = SingleListSelector(items)
   selector.setWindowTitle(title)
   selector.exec_()
   selector.show()
