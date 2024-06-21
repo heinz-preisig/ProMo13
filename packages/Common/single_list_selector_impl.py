@@ -65,7 +65,8 @@ class SingleListSelector(QtWidgets.QDialog):
             QtCore.Qt.WindowStaysOnTopHint |
             QtCore.Qt.FramelessWindowHint |
             QtCore.Qt.Dialog|
-            QtCore.Qt.FramelessWindowHint
+            QtCore.Qt.FramelessWindowHint |
+            QtCore.Qt.WindowStaysOnTopHint
             )
 
 
