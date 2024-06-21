@@ -490,9 +490,6 @@ class UiOntologyDesign(QMainWindow):
         self.ui.pushShowInterfaceEquations.hide()
       else:
         self.ui.pushShowInterfaceEquations.show()
-      # self.__setupEdit("interface")
-      # self.__setupEditInterface()
-      # self.__showFilesControl()
       self.ui.pushShowVariables.show()
 
   @QtCore.pyqtSlot(int)
