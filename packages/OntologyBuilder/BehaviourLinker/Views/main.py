@@ -32,6 +32,6 @@ class MainView(QtWidgets.QMainWindow):
     self.ui.tree_entities.setCurrentIndex(QtCore.QModelIndex())
 
   def menu_items_state(self, index: QtCore.QModelIndex):
-    print("hello")
+    # print("hello")
     self.ui.actionEdit.setEnabled(index.isValid())
     self.ui.actionDelete.setEnabled(index.isValid())
