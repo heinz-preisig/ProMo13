@@ -78,7 +78,7 @@ class VariableEditorController(QtCore.QObject):
         "is_init": self._view.ui.cbox_instantiation.isChecked(),
         "selected_eq": self._view.ui.list_equations.currentIndex()
     }
-    print(final_config["selected_eq"].isValid())
+    # print(final_config["selected_eq"].isValid())
     changes = self._model.compute_changes(final_config)
 
     if any(changes):

@@ -38,9 +38,9 @@ class VariableEditorView(QtWidgets.QDialog):
 
   def on_init_checked(self):
     self.ui.cbox_input.setChecked(False)
-    self.ui.list_equations.setCurrentIndex(QtCore.QModelIndex())
+    # self.ui.list_equations.setCurrentIndex(QtCore.QModelIndex())
     # self.ui.list_equations.clearSelection()
-    print(self.ui.list_equations.currentIndex().isValid())
+    # print(self.ui.list_equations.currentIndex().isValid())
 
   def on_equation_selected(self):
     self.ui.cbox_input.setChecked(False)
