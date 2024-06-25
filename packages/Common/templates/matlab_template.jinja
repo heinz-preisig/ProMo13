@@ -125,46 +125,33 @@ endfunction
   {% if expr.type == "simple" %}
     {{-""}}function sol = {{expr.id}}({{expr.equations|first|arguments}})
       {% set eq = expr.equations|first%}
-      {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}};
-  {% elif expr.type == "root" %}
-    {{-""}}function sol = {{expr.id}}({{expr.equations|first|arguments}})
-      {% set eq = expr.equations|first%}
-      {{-"  "}}function F = root(x)
+      {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}};{{"\n"}}
+  {% else %}
+    {{-""}}function sol = {{expr.id}}({{expr|dependencies}})
+      {{-"  "}}initial_guess = [{{expr.init_guess|join("; ")}}]{{"\n"}}
+      {{-"  "}}sol = {{solvers.sys_of_equations}}(@sys, initial_guess){{"\n"}}
+
+      {{-"  "}}function sys = sys(x)
+        {% for eq in expr.equations %}
+          {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = x({{eq.interval}})
+        {% endfor %}
+        {% for eq in expr.equations %}
+            {{-"    "}}F({{eq.interval}}) = res_{{eq.eq_id}}({{ {"type":"simple", "equations":[eq]}|dependencies}})
+        {% endfor %}
+      {{-"  "}}endfunction
+    {{-""}}endfunction
+
+    {{-""}}% Residue equations
+    {% for eq in expr.equations %}
+      {{-""}}function sol = res_{{eq.eq_id}}({{eq|arguments}})
+      {{-"\n"-}}
+        {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}} - {{eq.eq_id|eq_label("lhs")}};
         {{-"\n"-}}
-        {{-"    "}}{{eq.var_id|label}}({{eq.var_id|main_index}}) = x
+        {{-"  "}}sol = sol.value;
         {{-"\n"-}}
-        {{-"    "}}F = {{eq.eq_id|eq_label("rhs")}} - {{eq.eq_id|eq_label("lhs")}};
-        {{-"\n"-}}
-        {{-"    "}}F = F.value;
-        {{-"\n"-}}
-      {{-"  "}}endfunction{{"\n\n"}}
-      {{-"  "}}init_guess = [{{expr.init_guess|join("; ")}}]{{"\n"}}
-      {{-"  "}}sol = {{solvers.sys_of_equations}}(@root, init_guess){{"\n"}}
-    {% elif expr.type == "system" %}
-      {{-""}}function sol = {{expr.id}}({{expr|dependencies}}){{"\n"}}
-        {{-"  "}}function F = sys(x)
-          {% for eq in expr.equations %}
-            {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = x({{eq.interval}})
-          {% endfor %}
-          {{-"\n"-}}
-          {% for eq in expr.equations %}
-            {{-"    "}}function sol = {{eq.eq_id}}({{eq|arguments}})
-            {{-"\n"-}}
-              {{-"      "}}sol = {{eq.eq_id|eq_label("rhs")}} - {{eq.eq_id|eq_label("lhs")}};
-              {{-"\n"-}}
-              {{-"      "}}sol = sol.value;
-            {{-"\n"-}}
-            {{-"    "}}endfunction
-          {% endfor %}
-          {{-"\n"-}}
-          {% for eq in expr.equations %}
-            {{-"    "}}F({{eq.interval}}) = {{eq.eq_id}}({{ {"type":"simple", "equations":[eq]}|dependencies}})
-          {% endfor %}          
-        {{-"  "}}endfunction{{"\n\n"}}
-      {{-"  "}}init_guess = [{{expr.init_guess|join("; ")}}]{{"\n"}}
-      {{-"  "}}sol = {{solvers.sys_of_equations}}(@sys, init_guess){{"\n"}}
-    {% endif %}
-  {{-""}}endfunction{{"\n"}}
+      {{-""}}endfunction
+    {% endfor %}
+  {% endif %}
 {% endfor %}
 
 % Auxiliar functions
