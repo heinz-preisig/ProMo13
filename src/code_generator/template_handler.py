@@ -261,7 +261,9 @@ class TemplateHandler:
         expr_info = {}
         expr_info["type"] = "system"
         expr_info["id"] = f"sys{sys_counter}"
+
         sys_counter += 1
+        part_counter = 1
 
         equations = {}
         root_vars = {}
@@ -270,6 +272,15 @@ class TemplateHandler:
           var_id = eq.get_main_var_id()
           index_sets = self.get_index_sets(eq_id)
 
+          size_by_index = [
+              len(indices_list)
+              for indices_list in index_sets.values()
+          ]
+
+          ini = str(part_counter)
+          part_counter += np.prod(size_by_index)
+          fin = str(part_counter - 1)
+
           if eq.is_root():
             root_vars[var_id] = eq.get_incidence_list(var_id)[0]
           else:
@@ -277,13 +288,15 @@ class TemplateHandler:
                 "eq_id": eq_id,
                 "var_id": var_id,
                 "index_sets": index_sets,
-                "dependencies": eq.get_incidence_list(var_id),
+                "interval": ini + ":" + fin,
+                "dependencies": eq.get_incidence_list(),
             }
-
-        # TODO: go through the root vars and update the equations
+        pp(equations)
+        pp(root_vars)
         for root_var_id, replaced_var_id in root_vars.items():
-          equations[replaced_var_id][var_id] = root_var_id
+          equations[replaced_var_id]["var_id"] = root_var_id
 
+        pp(equations)
         expr_info["equations"] = list(equations.values())
         data["expressions"].append(expr_info)
 
@@ -419,7 +432,7 @@ class TemplateHandler:
     return self.var_label(var_id) + "(" + self.specific_sets(var_id, index_sets) + ")"
 
   def dependencies(self, expr_info: Dict) -> str:
-    if expr_info["type"] in ["simple", "root"]:
+    if expr_info["type"] in ["simple"]:
       eq_info = expr_info["equations"][0]
       expr_dependencies = [self.var_label(var_id)
                            for var_id in eq_info["dependencies"]]
@@ -434,14 +447,14 @@ class TemplateHandler:
             expr_dependencies.append("indexunion(" + ", ".join(full_set) + ")")
     else:
       all_dependencies = set()
-      all_index_sets = set()
+      # all_index_sets = set()
       for eq_info in expr_info["equations"]:
-        all_index_sets.update(eq_info["index_sets"])
+        # all_index_sets.update(eq_info["index_sets"])
         all_dependencies.update(eq_info["dependencies"])
 
       expr_dependencies = [self.var_label(var_id)
                            for var_id in list(all_dependencies)]
-      expr_dependencies.extend(list(all_index_sets))
+      # expr_dependencies.extend(list(all_index_sets))
 
     return ", ".join(expr_dependencies)
 

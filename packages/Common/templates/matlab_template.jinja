@@ -92,15 +92,17 @@ function output_vars = main
         {% endfor %}
         {{-"    "}}{{expr.equations[0].var_id|var_slice(expr.equations[0].index_sets)}} = 
           {{-" "}}{{expr.id}}({{expr|dependencies}});
-      {% elif expr.type == "root" %}
-        {{-"    "}}{{expr.equations[0].var_id|var_slice(expr.equations[0].index_sets)}} = 
-          {{-" "}}{{expr.id}}({{expr|dependencies}});
-      {% elif expr.type == "system" %}
-        {{-"    "}}sol = {{expr.id}}({{expr|dependencies}});{{"\n"-}}
+      {% else %}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% {{expr.id}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%{{"\n"}}
+        {{-"    "}}sol = {{expr.id}}({{expr|dependencies}});{{"\n"}}
         {% for eq in expr.equations %}
+          {% for index_set_name, indices_list in eq.index_sets|items %}
+            {{-"    "}}{{index_set_name}} = [{{indices_list|join(",")}}];
+          {% endfor %}
           {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = 
             {{-" "}}sol({{eq.interval}});
         {% endfor %}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       {% endif %}
       {{-"\n"-}}
     {% endfor %}
@@ -126,26 +128,27 @@ endfunction
     {{-""}}function sol = {{expr.id}}({{expr.equations|first|arguments}})
       {% set eq = expr.equations|first%}
       {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}};{{"\n"}}
+    {{-""}}endfunction{{"\n"}}
   {% else %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% {{expr.id}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%{{"\n"}}
     {{-""}}function sol = {{expr.id}}({{expr|dependencies}}){{"\n"}}
       {{-"  "}}initial_guess = [{{expr.init_guess|join("; ")}}];{{"\n"}}
-      {{-"  "}}sol = {{solvers.sys_of_equations}}(@sys, initial_guess){{"\n"}}
-      {{"\n"}}
-      {{-"  "}}function sys = sys(x)
+      {{-"  "}}sol = {{solvers.sys_of_equations}}(@sys, initial_guess);{{"\n\n"}}
+
+      {{-"  "}}function F = sys(x)
         {% for eq in expr.equations %}
           {% for index_set_name, indices_list in eq.index_sets|items %}
             {{-"    "}}{{index_set_name}} = [{{indices_list|join(",")}}];
           {% endfor %}
-          {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = x({{eq.interval}})
+          {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = x({{eq.interval}});
         {% endfor %}
-        {{"\n"}}
+        {{-"\n"-}}
         {% for eq in expr.equations %}
-            {{-"    "}}F({{eq.interval}}) = res_{{eq.eq_id}}({{ {"type":"simple", "equations":[eq]}|dependencies}})
+            {{-"    "}}F({{eq.interval}}) = res_{{eq.eq_id}}({{ {"type":"simple", "equations":[eq]}|dependencies}});
         {% endfor %}
       {{-"  "}}endfunction{{"\n"}}
     {{-""}}endfunction{{"\n"}}
-    {{"\n"}}
+    {{-"\n"-}}
     {{-""}}% Residue equations
     {% for eq in expr.equations %}
       {{-""}}function sol = res_{{eq.eq_id}}({{eq|arguments}})
@@ -154,9 +157,9 @@ endfunction
         {{-"\n"-}}
         {{-"  "}}sol = sol.value;
         {{-"\n"-}}
-      {{-""}}endfunction{{"\n"}}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%{{"\n"}}
+      {{-""}}endfunction
     {% endfor %}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%{{"\n"}}
   {% endif %}
 {% endfor %}
 
