@@ -237,6 +237,7 @@ class TemplateHandler:
 
     # Information about the expressions
     data["expressions"] = []
+    sys_counter = 1
     for equation_set in self.equation_seq:
       if len(equation_set) == 1:
         eq_id = list(equation_set)[0]
@@ -256,6 +257,35 @@ class TemplateHandler:
                 "dependencies": eq.get_incidence_list(var_id),
             }]
         })
+      else:
+        expr_info = {}
+        expr_info["type"] = "system"
+        expr_info["id"] = f"sys{sys_counter}"
+        sys_counter += 1
+
+        equations = {}
+        root_vars = {}
+        for eq_id in equation_set:
+          eq = self.all_equations[eq_id]
+          var_id = eq.get_main_var_id()
+          index_sets = self.get_index_sets(eq_id)
+
+          if eq.is_root():
+            root_vars[var_id] = eq.get_incidence_list(var_id)[0]
+          else:
+            equations[var_id] = {
+                "eq_id": eq_id,
+                "var_id": var_id,
+                "index_sets": index_sets,
+                "dependencies": eq.get_incidence_list(var_id),
+            }
+
+        # TODO: go through the root vars and update the equations
+        for root_var_id, replaced_var_id in root_vars.items():
+          equations[replaced_var_id][var_id] = root_var_id
+
+        expr_info["equations"] = list(equations.values())
+        data["expressions"].append(expr_info)
 
         # pp(data["expressions"])
         # for expr in self.var_eq.expressions:

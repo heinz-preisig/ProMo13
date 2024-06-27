@@ -127,20 +127,25 @@ endfunction
       {% set eq = expr.equations|first%}
       {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}};{{"\n"}}
   {% else %}
-    {{-""}}function sol = {{expr.id}}({{expr|dependencies}})
-      {{-"  "}}initial_guess = [{{expr.init_guess|join("; ")}}]{{"\n"}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% {{expr.id}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%{{"\n"}}
+    {{-""}}function sol = {{expr.id}}({{expr|dependencies}}){{"\n"}}
+      {{-"  "}}initial_guess = [{{expr.init_guess|join("; ")}}];{{"\n"}}
       {{-"  "}}sol = {{solvers.sys_of_equations}}(@sys, initial_guess){{"\n"}}
-
+      {{"\n"}}
       {{-"  "}}function sys = sys(x)
         {% for eq in expr.equations %}
+          {% for index_set_name, indices_list in eq.index_sets|items %}
+            {{-"    "}}{{index_set_name}} = [{{indices_list|join(",")}}];
+          {% endfor %}
           {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = x({{eq.interval}})
         {% endfor %}
+        {{"\n"}}
         {% for eq in expr.equations %}
             {{-"    "}}F({{eq.interval}}) = res_{{eq.eq_id}}({{ {"type":"simple", "equations":[eq]}|dependencies}})
         {% endfor %}
-      {{-"  "}}endfunction
-    {{-""}}endfunction
-
+      {{-"  "}}endfunction{{"\n"}}
+    {{-""}}endfunction{{"\n"}}
+    {{"\n"}}
     {{-""}}% Residue equations
     {% for eq in expr.equations %}
       {{-""}}function sol = res_{{eq.eq_id}}({{eq|arguments}})
@@ -149,7 +154,8 @@ endfunction
         {{-"\n"-}}
         {{-"  "}}sol = sol.value;
         {{-"\n"-}}
-      {{-""}}endfunction
+      {{-""}}endfunction{{"\n"}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%{{"\n"}}
     {% endfor %}
   {% endif %}
 {% endfor %}

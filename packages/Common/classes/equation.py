@@ -166,10 +166,13 @@ class Equation():
   #       "rhs": self.rhs.get(language)
   #   }
 
-    return translation
+  #  return translation
 
   def get_mod_date(self):
     return self.modified
 
   def is_interface_eq(self) -> bool:
     return ">>>" in self.network
+
+  def is_root(self) -> bool:
+    return "F_17" in str(self.rhs.get("global_ID"))
