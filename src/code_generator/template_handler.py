@@ -41,15 +41,23 @@ class TemplateHandler:
     )
 
     self.load_language_filters()
-    self.template = self.load_language_template()
     self.data = self.generate_language_data()
 
   def generate_content(self):
-    return self.template.render(self.data)
+    template = self.load_language_template()
+    return template.render(self.data)
+
+  def generate_init_content(self):
+    template = self.load_init_template()
+    return template.render(self.data)
 
   def load_language_template(self):
     template_file = self.language + "_template"
     return self.enviroment.get_template(ri.FILE_NAMES[template_file])
+
+  def load_init_template(self):
+    template_file = self.language + "_input.jinja"
+    return self.enviroment.get_template(template_file)
 
   def generate_index_info(self):
     index_sets = {
@@ -272,18 +280,18 @@ class TemplateHandler:
           var_id = eq.get_main_var_id()
           index_sets = self.get_index_sets(eq_id)
 
-          size_by_index = [
-              len(indices_list)
-              for indices_list in index_sets.values()
-          ]
-
-          ini = str(part_counter)
-          part_counter += np.prod(size_by_index)
-          fin = str(part_counter - 1)
-
           if eq.is_root():
             root_vars[var_id] = eq.get_incidence_list(var_id)[0]
           else:
+            size_by_index = [
+                len(indices_list)
+                for indices_list in index_sets.values()
+            ]
+
+            ini = str(part_counter)
+            part_counter += np.prod(size_by_index)
+            fin = str(part_counter - 1)
+
             equations[var_id] = {
                 "eq_id": eq_id,
                 "var_id": var_id,
@@ -291,12 +299,12 @@ class TemplateHandler:
                 "interval": ini + ":" + fin,
                 "dependencies": eq.get_incidence_list(),
             }
-        pp(equations)
-        pp(root_vars)
+        # pp(equations)
+        # pp(root_vars)
         for root_var_id, replaced_var_id in root_vars.items():
           equations[replaced_var_id]["var_id"] = root_var_id
 
-        pp(equations)
+        # pp(equations)
         expr_info["equations"] = list(equations.values())
         data["expressions"].append(expr_info)
 

@@ -1,0 +1,14 @@
+{% for expr in expressions %}
+  {% if expr.type == "system" %}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% {{expr.id}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    {% for eq in expr.equations %}
+      {{-""}}%% Indices:
+      {% for index_set_name, indices_list in eq.index_sets|items %}
+        {{-""}}%%    {{index_set_name}} = [{{indices_list|join(",")}}];
+      {% endfor %}
+      {{-""}}%% Variable: {{eq.var_id|var_slice(eq.index_sets)}}{{"\n"}}
+      {{-""}}{{expr.id}}_init({{eq.interval}}) = [];
+    {% endfor %}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  {% endif %}
+{% endfor %}

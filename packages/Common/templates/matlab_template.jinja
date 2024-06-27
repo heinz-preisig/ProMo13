@@ -132,7 +132,9 @@ endfunction
   {% else %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% {{expr.id}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%{{"\n"}}
     {{-""}}function sol = {{expr.id}}({{expr|dependencies}}){{"\n"}}
-      {{-"  "}}initial_guess = [{{expr.init_guess|join("; ")}}];{{"\n"}}
+      {{-"  "}}% Load initial conditions for the solvers{{"\n"}}
+      {{-"  "}}run("init.m");{{"\n"}}
+      {{-"  "}}initial_guess = {{expr.id}}_init;{{"\n"}}
       {{-"  "}}sol = {{solvers.sys_of_equations}}(@sys, initial_guess);{{"\n\n"}}
 
       {{-"  "}}function F = sys(x)

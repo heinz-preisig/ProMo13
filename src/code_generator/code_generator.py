@@ -65,6 +65,12 @@ file_path = os.path.join(dir_path, "main.m")
 with open(file_path, mode="w", encoding="utf-8") as message:
   message.write(content)
 
+init_file_path = os.path.join(dir_path, "init.m")
+init_content = temp.generate_init_content()
+
+with open(init_file_path, mode="w", encoding="utf-8") as message:
+  message.write(init_content)
+
 # To copy the @MultiDimVar
 lib_path = os.path.join(
     resource_initialisation.DIRECTORIES["ProMo_root"], "ProMo/tests/Matlab/@MultiDimVar")
