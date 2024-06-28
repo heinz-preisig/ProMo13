@@ -19,13 +19,17 @@ function self = subsasgn(self, s, varargin)
       endif
 
       subsrefSelf = self.subsref(s);
+      selfNumEl = numel(subsrefSelf.value);
+      rhsNumEl = numel(rhsValue);
       selfSize = size(subsrefSelf.value);
-      assert(isequal(selfSize, size(rhsValue)),
+      assert(isequal(selfNumEl, rhsNumEl),
           "Error: Nonconformant sizes. Expected %s; obtained %s",
           inputname(3), mat2str(selfSize), mat2str(size(rhsValue))
       )
 
-      self.value = builtin("subsasgn", self.value, s(1), rhsValue);
+      reshapedRhs = reshape(rhsValue, selfSize);
+
+      self.value = builtin("subsasgn", self.value, s(1), reshapedRhs);
     case '.'
       self = builtin('subsasgn', self, s, varargin{:});
     case '{}'

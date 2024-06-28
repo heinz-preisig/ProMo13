@@ -81,3 +81,14 @@
 %! test_output([2 3 4],[2 3]) = [1 1; 1 1; 1 1];
 % ASSERTIONS
 %! assert(isequal(test_output, expected_output))
+
+%!test
+%! ## Testing subsasgn with vector on matrix (different shape) ##
+% SETUP
+%! test_output = M;
+%! expected_output = MultiDimVar({"A", "B"}, [5, 3], indexOrder, ...
+%!                        [1 2 3; 4 1 1; 7 1 1; 10 1 1; 13 14 15]);
+% ACTION
+%! test_output([2 3 4],[2 3]) = [1 1 1 1 1 1];
+% ASSERTIONS
+%! assert(isequal(test_output, expected_output))

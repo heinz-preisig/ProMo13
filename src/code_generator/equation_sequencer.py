@@ -74,12 +74,12 @@ def _build_equation_graph(
     equations_graph.add_node(equation_id)
     processing_queue.append((equation_id, topology_objects))
 
-  pp(equation_topology_map)
-  print("====================")
+  # pp(equation_topology_map)
+  # print("====================")
 
   while processing_queue:
     source_equation_id, topology_objects = processing_queue.popleft()
-    print(source_equation_id, topology_objects)
+    # print(source_equation_id, topology_objects)
 
     for topology_obj in topology_objects:
       equations_info = _find_dependencies(
@@ -99,8 +99,8 @@ def _build_equation_graph(
           processing_queue.append((equation_id, new_topology_objects))
           equation_topology_map[equation_id].update(new_topology_objects)
 
-    pp(equation_topology_map)
-    print("====================")
+    # pp(equation_topology_map)
+    # print("====================")
 
   return (equations_graph, equation_topology_map)
 
@@ -204,8 +204,8 @@ def _find_equations_for_variable(
       # TODO: Maybe raise an exception here.
     return {}
 
-  if entity_instance.is_init(variable_id):
-    return {}
+  # if entity_instance.is_init(variable_id):
+  #   return {}
 
   if entity_instance.is_input(variable_id):
     equation_topology_map = collections.defaultdict(set)
@@ -259,6 +259,7 @@ def _find_solving_order(equations_graph: nx.DiGraph) -> List[Set[str]]:
        equations in the graph. Equations in the same set need to be
        computed together.
   """
+  # pp(equations_graph.edges())
   condensed_graph = nx.condensation(equations_graph)
   topological_order = list(nx.topological_sort(condensed_graph))
 

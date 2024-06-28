@@ -41,15 +41,23 @@ class TemplateHandler:
     )
 
     self.load_language_filters()
-    self.template = self.load_language_template()
     self.data = self.generate_language_data()
 
   def generate_content(self):
-    return self.template.render(self.data)
+    template = self.load_language_template()
+    return template.render(self.data)
+
+  def generate_init_content(self):
+    template = self.load_init_template()
+    return template.render(self.data)
 
   def load_language_template(self):
     template_file = self.language + "_template"
     return self.enviroment.get_template(ri.FILE_NAMES[template_file])
+
+  def load_init_template(self):
+    template_file = self.language + "_input.jinja"
+    return self.enviroment.get_template(template_file)
 
   def generate_index_info(self):
     index_sets = {
@@ -237,85 +245,130 @@ class TemplateHandler:
 
     # Information about the expressions
     data["expressions"] = []
+    sys_counter = 1
     for equation_set in self.equation_seq:
-      eq_id = list(equation_set)[0]
-      eq = self.all_equations[eq_id]
-      var_id = eq.get_main_var_id()
-      index_sets = self.get_index_sets(eq_id)
-      if eq.is_integrator():
-        continue
+      if len(equation_set) == 1:
+        eq_id = list(equation_set)[0]
+        eq = self.all_equations[eq_id]
+        var_id = eq.get_main_var_id()
+        index_sets = self.get_index_sets(eq_id)
+        if eq.is_integrator():
+          continue
 
-      data["expressions"].append({
-          "type": "simple",
-          "id": eq_id,
-          "equations": [{
-              "eq_id": eq_id,
-              "var_id": var_id,
-              "index_sets": index_sets,
-              "dependencies": eq.get_incidence_list(var_id),
-          }]
-      })
-    # pp(data["expressions"])
-    # for expr in self.var_eq.expressions:
-    #   expr_info = {}
+        data["expressions"].append({
+            "type": "simple",
+            "id": eq_id,
+            "equations": [{
+                "eq_id": eq_id,
+                "var_id": var_id,
+                "index_sets": index_sets,
+                "dependencies": eq.get_incidence_list(var_id),
+            }]
+        })
+      else:
+        expr_info = {}
+        expr_info["type"] = "system"
+        expr_info["id"] = f"sys{sys_counter}"
 
-    #   sys_counter = 1
-    #   if len(expr) == 1:
-    #     var_id, eq_id, top_ids, index_sets = expr[0]
-    #     # TODO: Extend this to add all the other index sets needed
-    #     index_sets.add("S")
+        sys_counter += 1
+        part_counter = 1
 
-    #     eq = self.all_equations.get(eq_id)
-    #     if eq.is_integrator():
-    #       continue
+        equations = {}
+        root_vars = {}
+        for eq_id in equation_set:
+          eq = self.all_equations[eq_id]
+          var_id = eq.get_main_var_id()
+          index_sets = self.get_index_sets(eq_id)
 
-    #     if eq.is_explicit_for_var(var_id):
-    #       expr_info["type"] = "simple"
-    #       expr_info["id"] = eq_id
-    #       expr_info["equations"] = [{
-    #           "eq_id": eq_id,
-    #           "var_id": var_id,
-    #           "top_ids": top_ids,
-    #           "index_sets": index_sets,
-    #           "dependencies": eq.get_incidence_list(var_id),
-    #       }]
-    #     else:
-    #       expr_info["type"] = "root"
-    #       expr_info["init_guess"] = ["Initial_Guess"]
-    #       expr_info["id"] = "root" + eq_id
-    #       expr_info["equations"] = [{
-    #           "eq_id": eq_id,
-    #           "var_id": var_id,
-    #           "top_ids": top_ids,
-    #           "index_sets": index_sets,
-    #           "dependencies": eq.get_incidence_list(var_id) + [var_id],
-    #       }]
+          if eq.is_root():
+            root_vars[var_id] = eq.get_incidence_list(var_id)[0]
+          else:
+            size_by_index = [
+                len(indices_list)
+                for indices_list in index_sets.values()
+            ]
 
-    #   else:
-    #     expr_info["type"] = "system"
-    #     expr_info["id"] = f"system{sys_counter}"
-    #     sys_counter += 1
-    #     expr_info["equations"] = []
-    #     expr_info["init_guess"] = ["initial_guess"]
+            ini = str(part_counter)
+            part_counter += np.prod(size_by_index)
+            fin = str(part_counter - 1)
 
-    #     part_counter = 1
-    #     for var_id, eq_id, top_ids, index_sets in expr:
-    #       # TODO: Extend this to add all the other index sets needed
-    #       index_sets.add("S")
-    #       eq = self.all_equations[eq_id]
-    #       ini = str(part_counter)
-    #       part_counter += self.size_by_index(var_id, index_sets)
-    #       fin = str(part_counter - 1)
-    #       expr_info["equations"].append({
-    #           "eq_id": eq_id,
-    #           "var_id": var_id,
-    #           "top_ids": top_ids,
-    #           "interval": ini + ":" + fin,
-    #           "index_sets": index_sets,
-    #           "dependencies": eq.get_incidence_list(),
-    #       })
+            equations[var_id] = {
+                "eq_id": eq_id,
+                "var_id": var_id,
+                "index_sets": index_sets,
+                "interval": ini + ":" + fin,
+                "dependencies": eq.get_incidence_list(),
+            }
+        # pp(equations)
+        # pp(root_vars)
+        for root_var_id, replaced_var_id in root_vars.items():
+          equations[replaced_var_id]["var_id"] = root_var_id
 
-    #   data["expressions"].append(expr_info)
+        # pp(equations)
+        expr_info["equations"] = list(equations.values())
+        data["expressions"].append(expr_info)
+
+        # pp(data["expressions"])
+        # for expr in self.var_eq.expressions:
+        #   expr_info = {}
+
+        #   sys_counter = 1
+        #   if len(expr) == 1:
+        #     var_id, eq_id, top_ids, index_sets = expr[0]
+        #     # TODO: Extend this to add all the other index sets needed
+        #     index_sets.add("S")
+
+        #     eq = self.all_equations.get(eq_id)
+        #     if eq.is_integrator():
+        #       continue
+
+        #     if eq.is_explicit_for_var(var_id):
+        #       expr_info["type"] = "simple"
+        #       expr_info["id"] = eq_id
+        #       expr_info["equations"] = [{
+        #           "eq_id": eq_id,
+        #           "var_id": var_id,
+        #           "top_ids": top_ids,
+        #           "index_sets": index_sets,
+        #           "dependencies": eq.get_incidence_list(var_id),
+        #       }]
+        #     else:
+        #       expr_info["type"] = "root"
+        #       expr_info["init_guess"] = ["Initial_Guess"]
+        #       expr_info["id"] = "root" + eq_id
+        #       expr_info["equations"] = [{
+        #           "eq_id": eq_id,
+        #           "var_id": var_id,
+        #           "top_ids": top_ids,
+        #           "index_sets": index_sets,
+        #           "dependencies": eq.get_incidence_list(var_id) + [var_id],
+        #       }]
+
+        #   else:
+        #     expr_info["type"] = "system"
+        #     expr_info["id"] = f"system{sys_counter}"
+        #     sys_counter += 1
+        #     expr_info["equations"] = []
+        #     expr_info["init_guess"] = ["initial_guess"]
+
+        #     part_counter = 1
+        #     for var_id, eq_id, top_ids, index_sets in expr:
+        #       # TODO: Extend this to add all the other index sets needed
+        #       index_sets.add("S")
+        #       eq = self.all_equations[eq_id]
+        #       ini = str(part_counter)
+        #       part_counter += self.size_by_index(var_id, index_sets)
+        #       fin = str(part_counter - 1)
+        #       expr_info["equations"].append({
+        #           "eq_id": eq_id,
+        #           "var_id": var_id,
+        #           "top_ids": top_ids,
+        #           "interval": ini + ":" + fin,
+        #           "index_sets": index_sets,
+        #           "dependencies": eq.get_incidence_list(),
+        #       })
+
+        #   data["expressions"].append(expr_info)
     data["solvers"] = {
         "root": "fzero",
         "sys_of_equations": "fsolve",
@@ -387,7 +440,7 @@ class TemplateHandler:
     return self.var_label(var_id) + "(" + self.specific_sets(var_id, index_sets) + ")"
 
   def dependencies(self, expr_info: Dict) -> str:
-    if expr_info["type"] in ["simple", "root"]:
+    if expr_info["type"] in ["simple"]:
       eq_info = expr_info["equations"][0]
       expr_dependencies = [self.var_label(var_id)
                            for var_id in eq_info["dependencies"]]
@@ -402,14 +455,14 @@ class TemplateHandler:
             expr_dependencies.append("indexunion(" + ", ".join(full_set) + ")")
     else:
       all_dependencies = set()
-      all_index_sets = set()
+      # all_index_sets = set()
       for eq_info in expr_info["equations"]:
-        all_index_sets.update(eq_info["index_sets"])
+        # all_index_sets.update(eq_info["index_sets"])
         all_dependencies.update(eq_info["dependencies"])
 
       expr_dependencies = [self.var_label(var_id)
                            for var_id in list(all_dependencies)]
-      expr_dependencies.extend(list(all_index_sets))
+      # expr_dependencies.extend(list(all_index_sets))
 
     return ", ".join(expr_dependencies)
 
