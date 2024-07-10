@@ -734,7 +734,7 @@ class UiOntologyDesign(QMainWindow):
     new_var_ID = self.variables.newProMoVariableIRI()
     new_equ_ID = self.variables.newProMoEquationIRI()
 
-    left_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
+    right_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
                                                                   network=right_nw,
                                                                   doc="interface equation", incidence_list=incidence_list)
 
@@ -747,7 +747,7 @@ class UiOntologyDesign(QMainWindow):
                                                                  index_structures=interface_to_right_compiled_global_ID_index_structures,
                                                                  units=interface_to_right_compiled_global_ID_units,
                                                                  equations={
-                                                                     new_equ_ID: left_to_interface_equation_record
+                                                                     new_equ_ID: right_to_interface_equation_record
                                                                  },
                                                                  aliases={},
                                                                  port_variable=False,
