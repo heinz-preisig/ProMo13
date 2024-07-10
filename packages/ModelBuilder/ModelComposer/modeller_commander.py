@@ -2470,7 +2470,7 @@ class Commander(QtCore.QObject):
     if graphics_root_object == NAMES["node"]:  # only add to simple nodes
       if (graphics_root_object not in [INTRAFACE, INTERFACE]) or ():
         indicator = self.__makeIndicators(ID)
-        print("draw node %s indicators %s " % (ID, indicator))
+        # print("draw node %s indicators %s " % (ID, indicator))
         for i in indicator:
           name = indicator[i]["name"]
           type = indicator[i]["type"]

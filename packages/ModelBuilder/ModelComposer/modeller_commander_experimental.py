@@ -584,17 +584,19 @@ class Commander(QtCore.QObject):
 
     # RULE: node type for boundary is constraint to event dynamic
 
-    nw, node_or_arc, application, variant = splitEntity(entity_name)
-    token_list, mechanism, nature = splitApplication(application)
 
     features = None
     if boundary in [NAMES["intraface"], NAMES["arc node"]]:  # note: now the same as arc_node
+
+      nw, node_or_arc, application, variant = splitEntity(entity_name)
+      token_list, mechanism, nature = splitApplication(application)
       features = self.applyNodeDefinitionRules(NAMES["intraface"])
       features.append(token_list)
       features.append(NAMES["intraface"])
     elif boundary == NAMES["interface"]:
       application = self.main.ontology.list_inter_node_objects[0]
       features = self.applyNodeDefinitionRules("interface")
+      variant = entity_name
     else:
       print("fatal error no such boundary: ", boundary)
 
@@ -921,13 +923,14 @@ class Commander(QtCore.QObject):
 
       named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source["named_network"], sink["named_network"])
 
-      selected_tokens, _, entities = self.__getAllowedTokens(sink, source)
+      entities = list(self.main.ontology.node_arc_SubClasses.keys())
       if L_differentDomains:# named connection network
         # connection of two networks
         connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source_intra_domain, sink_intra_domain)
         ands = [connection_network, ]
         ors = []
       else:
+        selected_tokens = self.__getAllowedTokens(sink, source, entities)
         ands = [source_intra_domain, "arc"]
         ors = selected_tokens
 
@@ -956,6 +959,7 @@ class Commander(QtCore.QObject):
         nature = dummy_Interface["nature"]
         variant = "interface"  # RULE: variant is being fixed for the time being
         application = CR.TEMPLATE_ARC_APPLICATION % (token, mechanism, nature)
+        connection_network = CR.TEMPLATE_CONNECTION_NETWORK%(source["network"], sink["network"])
       else:
         # get intraface properties
         boundary = NAMES["arc node"]
@@ -971,7 +975,8 @@ class Commander(QtCore.QObject):
       pars = self.__addBoundaryNode(pos, boundary, application,
                                    connection_network, named_connection_network, selected_entity)
       newnodeID = pars["new node"]
-      self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = [ ]
+      if not L_differentDomains:
+        self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = [ ]
 
       arcID, views_with_arc = self.model_container.addArc(fromNodeID, newnodeID,
                                                           source["network"],
@@ -1425,13 +1430,12 @@ class Commander(QtCore.QObject):
     pars = self.__addBoundaryNode(
             pos, boundary, application, connection_network, named_connection_network)
 
-  def __getAllowedTokens(self, sink, source):
+  def __getAllowedTokens(self, sink, source, entities):
     # find possible tokens left and right from the entities
     variant_source = source["variant"]
     type_source = source["type"]
     variant_sink = sink["variant"]
     type_sink = sink["type"]
-    entities = list(self.main.ontology.node_arc_SubClasses.keys())
     source_entity = extract(entities, filter_and=[variant_source, type_source], filter_or=[
             ], filter_not=[])  # this should yield only one
     sink_entity = extract(entities, filter_and=[
@@ -1453,7 +1457,7 @@ class Commander(QtCore.QObject):
       if not selected_token:
         return self.__abortArcGeneration("error >>> not token chosen")
 
-    return selected_token, application, entities
+    return selected_token
 
   def __abortArcGeneration(self, msg):
     self.__resetNodeStatesAndSelectedArc()
@@ -2838,7 +2842,7 @@ class Commander(QtCore.QObject):
     if graphics_root_object == NAMES["node"]:  # only add to simple nodes
       if (graphics_root_object not in [INTRAFACE, INTERFACE]) or ():
         indicator = self.__makeIndicators(ID)
-        print("draw node %s indicators %s " % (ID, indicator))
+        # print("draw node %s indicators %s " % (ID, indicator))
         for i in indicator:
           name = indicator[i]["name"]
           type = indicator[i]["type"]
