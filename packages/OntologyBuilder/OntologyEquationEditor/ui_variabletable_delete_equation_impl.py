@@ -89,6 +89,7 @@ class UI_VariableTableDeleteEquation(VariableTable):
     buttons = self.buttons
 
     showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
+                   "info": roundButton(buttons["info"], "info", tooltip= "information")
                    # "LaTex": roundButton(buttons["LaTex"], "LaTex", tooltip="make LaTeX document"),
                    # "dot": roundButton(buttons["dot"], "dot_graph", tooltip="show graph"),
                    }
@@ -154,13 +155,8 @@ class UI_VariableTableDeleteEquation(VariableTable):
                                      mode="show",
                                      prompt="delete those equations?",
                                      buttons=["accept", "reject"])
-    # v = d_vars_text[1:-1].replace("\n", ",  ")
-    # e = d_equs_text.replace("\n", "\n   ")
-    # msg += "\n\nand consequently \n...variables:%s \n\n...equations %s" % (v, e)
-    # reply = makeMessageBox(msg, buttons=["NO", "YES"])
-    # if reply == "YES":
+
     if dialog.answer == "accept":
-      # print("debugging -- yes")
       self.__deleteVariable(d_vars, d_equs)
       self.reset_table()
 
