@@ -1931,7 +1931,8 @@ class Commander(QtCore.QObject):
         map_number_id_to_str_id[number_id] = identifier
       elif (
               node_info["class"] == "node_simple" or
-              node_info["class"] == "node_arc"
+              node_info["class"] == "node_arc" or
+              node_info["class"] == "node_interface"
       ):
         data["name"] = str(node_info["name"])
         data["instantiated_variables"] = {}
