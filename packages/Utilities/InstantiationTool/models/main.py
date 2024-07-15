@@ -187,7 +187,7 @@ class MainModel(QtCore.QObject):
       if var_id not in self._typed_tokens_per_variable:
         self._typed_tokens_per_variable[var_id] = set()
 
-      if "I_3" in self._all_variables[var_id].index_structures:
+      if "I_4" in self._all_variables[var_id].index_structures:  #TODO: there should be a dictionary label --> ID
         self._typed_tokens_per_variable[var_id].update(
             set(top_obj.typed_tokens["mass"])
         )
