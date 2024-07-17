@@ -1704,12 +1704,14 @@ class Commander(QtCore.QObject):
     """
 
     # get schnipsel name -- rule: new or used
-    schnipsel_name_to_be_saved, new_model = askForModelFileGivenOntologyLocation(self.main.ontology_name,
-                                                                                 left_icon="reject",
-                                                                                 left_tooltip="reject",
-                                                                                 right_icon="accept",
-                                                                                 right_tooltip="accept",
-                                                                                 alternative=True)
+    kwargs = {'centre': ('new', 'new model', 'show'), 'left': ('reject', 'reject', 'show'), 'right': ('accept', 'accept', 'hide')}
+    schnipsel_name_to_be_saved, new_model = askForModelFileGivenOntologyLocation(self.main.model_library_location,
+                                                                                 alternative=True,
+                                                                                 left=("reject", "reject", "show"),
+                                                                                 centre=("new", "new model", "show"),
+                                                                                 right=("accept", "accept", "hide")
+                                                                                 )
+
     if not schnipsel_name_to_be_saved:
       res_dic = {}
       res_dic["new root"] = None
