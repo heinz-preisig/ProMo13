@@ -374,8 +374,9 @@ class ModelContainer(dict):
     for arc in arcs:
       tokens.add(self["arcs"][arc]["token"])
 
-    for t in list(self["nodes"][nodeID]["tokens"].keys()):
-      tokens.add(t)
+    if "tokens" in self["nodes"][nodeID]:
+      for t in list(self["nodes"][nodeID]["tokens"].keys()):
+        tokens.add(t)
     return list(tokens)
 
   def getNodeApplication(self, nodeID):
