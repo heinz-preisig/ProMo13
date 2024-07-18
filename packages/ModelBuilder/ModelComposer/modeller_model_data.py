@@ -1156,7 +1156,7 @@ class ModelContainer(dict):
           missing_input_arc.append(node)
         elif len(sources[node]) == 0:
           try:
-            missing_output_arc[node].append(node)
+            missing_output_arc.append(node)
           except:
             print("no such node %s" % node)
 

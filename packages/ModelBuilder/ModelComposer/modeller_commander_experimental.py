@@ -790,13 +790,13 @@ class Commander(QtCore.QObject):
       network = this_arc["network"]
       named_network = this_arc["named_network"]
 
-      for child in children:
-        if source["type"] in [NAMES["intraface"], NAMES["interface"]]:
-          if child is not nodeID:
-            self.state_nodes[child] = "block"
-
-        if token not in self.model_container["nodes"][nodeID]["entity_id"]:
-          self.state_nodes[child] = "blocked"
+      # for child in children:
+      #   if source["type"] in [NAMES["intraface"], NAMES["interface"]]:
+      #     if child is not nodeID:
+      #       self.state_nodes[child] = "block"
+      #
+      #   if token not in self.model_container["nodes"][nodeID]["entity_id"]:
+      #     self.state_nodes[child] = "blocked"
 
     self.__redrawScene(self.current_ID_node_or_arc)
 
@@ -3271,40 +3271,45 @@ class Commander(QtCore.QObject):
     arc_options = self.main.ontology.arc_options
 
     sink_node_options = set()
-    for arc_option in arc_options:
-      if source_entity_ID in arc_options[arc_option]["sources"]:
-        for n in arc_options[arc_option]["sinks"]:
-          sink_node_options.add(n)
-    pass
-    for nodeID in childrenIDs:
-      if self.model_container["nodes"][nodeID]["entity_id"] in sink_node_options:
-        self.state_nodes[nodeID] = "enabled"
-      else:
-        self.state_nodes[nodeID] = "blocked"
+
+    if "node" in source_entity_ID:
+      for arc_option in arc_options:
+        if source_entity_ID in arc_options[arc_option]["sources"]:
+          for n in arc_options[arc_option]["sinks"]:
+            sink_node_options.add(n)
+    elif "arc" in source_entity_ID:
+      sink_node_options = arc_options[source_entity_ID]["sinks"]
+
+
+      for nodeID in childrenIDs:
+        if self.model_container["nodes"][nodeID]["entity_id"] in sink_node_options:
+          self.state_nodes[nodeID] = "enabled"
+        else:
+          self.state_nodes[nodeID] = "blocked"
 
     return
 
 
 
-  def  __ruleNodeAccessTopologyAcrossNetworks(self): #todo: eliminate
-    viewed_node = self.currently_viewed_node
-
-    children = self.model_container["ID_tree"].getChildren(viewed_node)
-
-    for child in children:  # set the default when not defined
-      if child not in self.state_nodes:
-        self.state_nodes[child] = STATES[self.editor_phase]["nodes"][
-          0]  # RULE: the first in the list is the default usually "enabled"  # default is enabled
-
-    self.clearBlockedNodes()
-
-    # RULE: Boundary -> only one connection per token for the respective network
-
-    for node in children:
-      # network_node = self.model_container["nodes"][node][NAMES["network"]]
-      node_class = self.model_container["nodes"][node]["class"]
-      if node_class == NAMES["intraface"]:
-        pass
+  # def  __ruleNodeAccessTopologyAcrossNetworks(self): #todo: eliminate
+  #   viewed_node = self.currently_viewed_node
+  #
+  #   children = self.model_container["ID_tree"].getChildren(viewed_node)
+  #
+  #   for child in children:  # set the default when not defined
+  #     if child not in self.state_nodes:
+  #       self.state_nodes[child] = STATES[self.editor_phase]["nodes"][
+  #         0]  # RULE: the first in the list is the default usually "enabled"  # default is enabled
+  #
+  #   self.clearBlockedNodes()
+  #
+  #   # RULE: Boundary -> only one connection per token for the respective network
+  #
+  #   for node in children:
+  #     # network_node = self.model_container["nodes"][node][NAMES["network"]]
+  #     node_class = self.model_container["nodes"][node]["class"]
+  #     if node_class == NAMES["intraface"]:
+  #       pass
         # arcs_connected_to_node = self.model_container.getArcsConnectedToNode(
         #     node)
         # # print("intraface %s , connected arcs %s -- token %s" % (node, arcs_connected_to_node, token))
@@ -3523,7 +3528,7 @@ class Commander(QtCore.QObject):
       else:
         self.resetNodeStates()
         # self.__ruleNodeAccessInNetworkOnly()
-        self.__ruleNodeAccessTopologyAcrossNetworks()
+        # self.__ruleNodeAccessTopologyAcrossNetworks()
     elif phase == EDITOR_PHASES[1]:
       select = self.main.state_inject_or_constrain_or_convert
       if select == "inject":
