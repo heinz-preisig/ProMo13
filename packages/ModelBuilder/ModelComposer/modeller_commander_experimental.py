@@ -3176,20 +3176,7 @@ class Commander(QtCore.QObject):
       if arcID not in self.state_arcs:
         self.state_arcs[arcID] = STATES[self.editor_phase]["arcs"][0]
 
-      fromNodeID = self.model_container["arcs"][arcID]["source"]
-      toNodeID = self.model_container["arcs"][arcID]["sink"]
-      nodes_IDs = self.model_container["ID_tree"].getNodes()
-
-      if fromNodeID not in nodes_IDs:
-        self.state_arcs[arcID] = "open"
-      else:
-        if self.model_container["ID_tree"].getChildren(fromNodeID) != []:
-          self.state_arcs[arcID] = "open"
-      if toNodeID not in nodes_IDs:
-        self.state_arcs[arcID] = "open"
-      else:
-        if self.model_container["ID_tree"].getChildren(toNodeID) != []:
-          self.state_arcs[arcID] = "open"
+      self.__check_for_open_arc(arcID)
 
       subarc = self.model_container.getArcOnNodeScene(arcID)
       sourceID, sinkID = subarc[nodeID]
@@ -3260,7 +3247,46 @@ class Commander(QtCore.QObject):
       else:
         self.__drawArc(arcID, fromNode, toNode, arc_type)
 
-  def __ruleNodeAccessTopologyAcrossNetworks(self):
+  def __check_for_open_arc(self, arcID):
+    fromNodeID = self.model_container["arcs"][arcID]["source"]
+    toNodeID = self.model_container["arcs"][arcID]["sink"]
+    nodes_IDs = self.model_container["ID_tree"].getNodes()
+    if fromNodeID not in nodes_IDs:
+      self.state_arcs[arcID] = "open"
+    else:
+      if self.model_container["ID_tree"].getChildren(fromNodeID) != []:
+        self.state_arcs[arcID] = "open"
+    if toNodeID not in nodes_IDs:
+      self.state_arcs[arcID] = "open"
+    else:
+      if self.model_container["ID_tree"].getChildren(toNodeID) != []:
+        self.state_arcs[arcID] = "open"
+
+  def __ruleConnectArc(self):
+
+    viewed_node = self.currently_viewed_node
+    childrenIDs = self.model_container["ID_tree"].getChildren(viewed_node)
+    arc_source = self.arcSourceID
+    source_entity_ID = self.model_container["nodes"][arc_source]["entity_id"]
+    arc_options = self.main.ontology.arc_options
+
+    sink_node_options = set()
+    for arc_option in arc_options:
+      if source_entity_ID in arc_options[arc_option]["sources"]:
+        for n in arc_options[arc_option]["sinks"]:
+          sink_node_options.add(n)
+    pass
+    for nodeID in childrenIDs:
+      if self.model_container["nodes"][nodeID]["entity_id"] in sink_node_options:
+        self.state_nodes[nodeID] = "enabled"
+      else:
+        self.state_nodes[nodeID] = "blocked"
+
+    return
+
+
+
+  def  __ruleNodeAccessTopologyAcrossNetworks(self): #todo: eliminate
     viewed_node = self.currently_viewed_node
 
     children = self.model_container["ID_tree"].getChildren(viewed_node)
@@ -3323,10 +3349,8 @@ class Commander(QtCore.QObject):
         #       self.state_nodes[node] = "enabled"
 
   def __ruleNodeAccessInNetworkOnly(self):
-    # str(self.model_container[
     nodeID = (self.model_container["arcs"]
     [self.selected_arcID][self.end_to_move])
-    # "arcs"][self.selected_arcID][self.end_to_move]) #HAP:str --> int
 
     source_network = self.model_container["nodes"][nodeID][NAMES["network"]]
     children = self.model_container["ID_tree"].getChildren(
@@ -3430,7 +3454,7 @@ class Commander(QtCore.QObject):
     for node in children:
       if self.state_nodes[node] == fromwhat:
         # "enabled"
-        self.state_nodes[node] = STATES[self.main.current_network]["nodes"][0]
+        self.state_nodes[node] = STATES[self.main.editor_phase]["nodes"][0] #STATES[self.main.current_network]["nodes"][0]
 
   def resetGroups(self):
     self.node_group = set()
@@ -3492,9 +3516,13 @@ class Commander(QtCore.QObject):
     if phase == EDITOR_PHASES[0]:
       if state == "re-connect_arc":
         self.__ruleNodeAccessInNetworkOnly()
+      elif state == "connect_arc":
+        self.__ruleConnectArc()
       # elif state == "insert":
       #   return
       else:
+        self.resetNodeStates()
+        # self.__ruleNodeAccessInNetworkOnly()
         self.__ruleNodeAccessTopologyAcrossNetworks()
     elif phase == EDITOR_PHASES[1]:
       select = self.main.state_inject_or_constrain_or_convert

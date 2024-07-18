@@ -986,7 +986,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     ask for model file and then map and save it
     """
     self.model_name, new_name = askForModelFileGivenOntologyLocation(
-            self.model_library_location, alternative=True)
+            self.model_library_location, alternative=True,
+            left=("reject", "reject", "show"),
+            right=("accept", "accept", "hide"),
+            centre=("new", "new model name","show"))
 
     if not self.model_name:
       return
