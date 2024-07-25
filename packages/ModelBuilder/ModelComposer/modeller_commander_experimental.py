@@ -763,6 +763,13 @@ class Commander(QtCore.QObject):
     self.arcSourceID = nodeID  # used in addThe Arc
     self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(nodeID)
 
+    L_fromInterface = source["class"] == NAMES["interface"]
+    L_fromIntraface = source["class"] == NAMES["interaface"]
+    L_inputMissing = False
+    L_outputMissing = False
+
+    self.arc_construct_status = [L_fromInterface, L_fromIntraface, L_inputMissing, L_outputMissing]
+
     source = self.model_container["nodes"][nodeID]
     L_fromBoundary = source["class"] in [NAMES["intraface"], NAMES["interface"]]
     if L_fromBoundary:
