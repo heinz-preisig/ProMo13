@@ -99,7 +99,13 @@ class MainModel(QtCore.QObject):
     eq = self.all_equations[eq_id]
 
     output_var_id = eq.get_main_var_id()
-    input_var_id = eq.get_incidence_list(output_var_id)[0]
+    for v in eq.get_incidence_list(output_var_id):  # RULE: assumes only o
+      no = int(v.split("V_")[1])
+      input_var_id = v
+      if no > 99:
+        input_var_id = v
+        break
+    #input_var_id = v #eq.get_incidence_list(output_var_id)[0]  #TODO: select the one not being constant
 
     if base_entity is None:
       output_var_alias = self.all_variables[output_var_id].get_alias(
@@ -111,6 +117,18 @@ class MainModel(QtCore.QObject):
           f"{eq.network} ({input_var_alias} -> {output_var_alias})",
           self.all_equations,
       )
+    # elif ">>>" in base_entity.entity_name:                      # TODO: this blocks redoes the interfaces every time
+    #   output_var_alias = self.all_variables[output_var_id].get_alias(
+    #       "internal_code")
+    #   input_var_alias = self.all_variables[input_var_id].get_alias(
+    #       "internal_code")
+    #   del self.all_entities[base_entity.entity_name]
+    #   base_entity.entity_name  = f"{eq.network} ({input_var_alias} -> {output_var_alias})"
+    #   new_ent = entity.Entity(
+    #           f"{eq.network} ({input_var_alias} -> {output_var_alias})",
+    #           self.all_equations,
+    #   )
+
     else:
       new_ent = entity.Entity(
           base_entity.entity_name,
@@ -263,14 +281,33 @@ class MainModel(QtCore.QObject):
       interface_input_var = interface_ent.get_input_vars()[0]
       interface_output_var = interface_ent.get_output_vars()[0]
 
+      # if ("control" in interface_ent_name) and ("macroscopic" in interface_ent_name):
+      #   print("debugging 1 -- found control", current_ent.entity_name)
+
       for ent_name in node_entities + arc_entities:
         current_ent = self.all_entities[ent_name]
         if (current_ent.get_network()[0] == interface_networks[0] and
                 interface_input_var in current_ent.get_output_vars()):
           arc_options[interface_ent_name]["sources"].append(ent_name)
+          print(">> added source")
 
         if (current_ent.get_network()[0] == interface_networks[1] and
                 interface_output_var in current_ent.get_input_vars()):
           arc_options[interface_ent_name]["sinks"].append(ent_name)
+          print(">>> added sink")
+
+        if ("control >>> macroscopic" in interface_ent_name): # and ("macroscopic" in interface_ent_name):
+          print("debugging -- found ", interface_ent_name, current_ent.entity_name)
+          if "macroscopic" in ent_name : # == "macroscopic.node.mass|dynamic|lumped.dynamicReactiveLump":
+            print("debugging 3",
+                  "\n interface_input:", interface_input_var,
+                  "\n interface_output_var", interface_output_var,
+                  "\n current_ent.get_input_vars", current_ent.get_input_vars(),
+                  "\n current_ent.get_output_vars", current_ent.get_output_vars(),
+                  "\n arc_options[interface_ent_name][sources]", arc_options[interface_ent_name]["sources"],
+                  "\n arc_options[interface_ent_name][sinks]", arc_options[interface_ent_name]["sinks"],
+                  )
+
+            pass
 
     io.save_arc_options_to_file(self.ontology_name, arc_options)
