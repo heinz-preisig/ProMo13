@@ -29,11 +29,11 @@ from packages.ModelBuilder.ModelComposer.variant_selection import Ui_Dialog
 def extract(variants, filter_and, filter_or, filter_not):
   remove_them = set()
   for f in filter_and:
-    if "solid" in f:
-      print("debugging", f)
+    # if "solid" in f:
+    #   print("debugging", f)
     for v in variants:
-      if "solid" in v:
-        print("debugging", f, v)
+      # if "solid" in v:
+      #   print("debugging", f, v)
       if f not in v:
         remove_them.add(v)
   for f in filter_not:

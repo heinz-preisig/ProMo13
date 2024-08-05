@@ -38,7 +38,7 @@ import Common.common_resources as CR
 import ModelBuilder.ModelComposer.resources as R
 from Common.automata_objects import GRAPH_EDITOR_STATES
 from Common.common_resources import askForModelFileGivenOntologyLocation
-from Common.common_resources import NODE_COMPONENT_SEPARATOR
+from Common.common_resources import NODE_COMPONENT_SEPARATOR, TEMPLATE_ENTITY_OBJECT
 from Common.graphics_objects import INTERFACE
 from Common.graphics_objects import INTRAFACE
 from Common.graphics_objects import LOCATION_PARAMETERS
@@ -154,6 +154,7 @@ class Commander(QtCore.QObject):
     self.state_nodes[rootID] = STATES[self.editor_phase]["nodes"][0]
     self.__makeViewAndScene(rootID)
     self.currently_viewed_node = rootID
+    self.__arc_building_state = None
 
   def __loadAutomata(self):
     automata = CR.getData(self.main.automata_working_file_spec)
@@ -513,8 +514,7 @@ class Commander(QtCore.QObject):
 
       entities = list(self.main.ontology.node_arc_SubClasses.keys())
       selections = extract(entities,
-                           filter_and=[
-                                   current_inter_branch, "node", node_type],
+                           filter_and=[current_inter_branch, "node", node_type],
                            filter_or=[],
                            filter_not=CR.CONNECTION_NETWORK_SEPARATOR)
 
@@ -741,7 +741,6 @@ class Commander(QtCore.QObject):
     """
     #        print "__c09_makeThisCurrentNode", ">__c09_makeThisCurrentNode>", nodeID
 
-    # self.__resetNodeStatesAndSelectedArc()
     self.__redrawScene(nodeID)
 
     return {
@@ -761,56 +760,17 @@ class Commander(QtCore.QObject):
     self.state_nodes[nodeID] = "selected"
     # nw = self.main.current_network
     self.arcSourceID = nodeID  # used in addThe Arc
-    self.current_ID_node_or_arc = self.model_container["ID_tree"].getImmediateParent(nodeID)
-
-    L_fromInterface = source["class"] == NAMES["interface"]
-    L_fromIntraface = source["class"] == NAMES["interaface"]
-    L_inputMissing = False
-    L_outputMissing = False
-
-    self.arc_construct_status = [L_fromInterface, L_fromIntraface, L_inputMissing, L_outputMissing]
-
-    source = self.model_container["nodes"][nodeID]
-    L_fromBoundary = source["class"] in [NAMES["intraface"], NAMES["interface"]]
-    if L_fromBoundary:
-      missing_input_arc, missing_output_arc = self.model_container.checkforMissingBoundaryArcs()
-      L_inputMissing =  nodeID in missing_input_arc
-      L_outputMissing = nodeID in missing_output_arc
-
-      if L_inputMissing and L_outputMissing:
-        return self.__abortArcGeneration("node arc is isolated -- delete !")
-
-      arcs_out, arcs_in = self.model_container.getArcsInAndOutOfNode(nodeID)
-      children = self.model_container["ID_tree"].getLeaves(0)
-      if L_inputMissing:
-        # get output properties
-        existing_arc = arcs_out[0]
-      else:
-        # get input properties
-        existing_arc = arcs_in[0]
-
-      this_arc = self.model_container["arcs"][existing_arc]
-      token = this_arc["token"]
-      mechanism = this_arc["mechanism"]
-      nature = this_arc["nature"]
-      variant = this_arc["variant"]
-      network = this_arc["network"]
-      named_network = this_arc["named_network"]
-
-      # for child in children:
-      #   if source["type"] in [NAMES["intraface"], NAMES["interface"]]:
-      #     if child is not nodeID:
-      #       self.state_nodes[child] = "block"
-      #
-      #   if token not in self.model_container["nodes"][nodeID]["entity_id"]:
-      #     self.state_nodes[child] = "blocked"
-
-    self.__redrawScene(self.current_ID_node_or_arc)
+    parent_node = self.model_container["ID_tree"].getImmediateParent(nodeID)
+    # self.current_ID_node_or_arc =
+    self.__arc_building_state = "begin"
+    self.__redrawScene(parent_node) #self.current_ID_node_or_arc)
 
     return {
             "selected source": nodeID,
             "failed"         : False
             }
+
+
 
   def __c07_addTheArc(self, toNodeID):
     """
@@ -847,7 +807,7 @@ class Commander(QtCore.QObject):
         source_intra_domain = d
 
     if (source_intra_domain == None) or (sink_intra_domain == None):
-      self.__abortArcGeneration("there is as serious problem with the ontology")
+      return self.__abortArcGeneration("there is as serious problem with the ontology")
 
     # intra or inter -----------------------------------------------------------------------------------
     L_differentDomains = source_intra_domain != sink_intra_domain
@@ -1002,181 +962,9 @@ class Commander(QtCore.QObject):
                                                           variant=variant)
 
 
-    # if not L_differentDomains:  # two different domains
-    #   print("debugging two different domains --> ")
-    #   insert_interface = True
-    #
-    # # are we in the physical domain ---------------------------------------------------------------------
-    # source_domain_physical = source["network"] in self.main.ontology.heirs_network_dictionary["physical"]
-    # sink_domain_physical = sink["network"] in self.main.ontology.heirs_network_dictionary["physical"]
-    #
-    # # named connection network
-    # named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source["named_network"], sink["named_network"])
-    #
-    # # connection of two networks
-    # connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source_intra_domain, sink_intra_domain)
-    #
-    # # nature of the connection
-    # selected_token, _, entities = self.__getAllowedTokens(sink, source)
-    # both_in_physics_domain = sink_domain_physical and source_domain_physical
-    #
-    # # or any other domain
-    # if both_in_physics_domain:
-    #   # print("debugging -- insert normal arc in the corresponding intra domain")
-    #   insert_physics_arc = True
-    #   source_is_arc_node = (source["class"] == NAMES["arc node"])
-    #   sink_is_arc_node = (sink["class"] == NAMES["arc node"])
-    #   if sink_is_arc_node and source_is_arc_node:  # rule: boundary to boundary is forbidden
-    #     self.__abortArcGeneration("you cannot connect boundaries to boundaries")
-    #     return {"failed": True}
-    #
-    #   if source_is_arc_node:
-    #     arcs_out, arcs_in = self.model_container.getArcsInAndOutOfNode(fromNodeID)
-    #   elif sink_is_arc_node:
-    #     arcs_out, arcs_in = self.model_container.getArcsInAndOutOfNode(toNodeID)
-    #   else:
-    #     arcs_out = arcs_in = []
-    #
-    #
-    #   reverse = False
-    #   if source_is_arc_node or sink_is_arc_node:
-    #     missing_input_arc, missing_output_arc = self.model_container.checkforMissingBoundaryArcs()
-    #     if fromNodeID in missing_input_arc:
-    #       make_new_input_arc = True
-    #       reverse = True  # reverse
-    #       arc_node_ID = fromNodeID
-    #       existing_arc = arcs_out[0]
-    #       # get output info
-    #     elif fromNodeID in missing_output_arc:
-    #       make_new_output_arc = True
-    #       reverse = False  # "do not reverse"
-    #       arc_node_ID = fromNodeID
-    #       existing_arc = arcs_in[0]
-    #       # get input arc info
-    #     elif toNodeID in missing_input_arc:
-    #       make_new_input_arc = True
-    #       reverse = False  # "do not reverse"
-    #       arc_node_ID = toNodeID
-    #       existing_arc = arcs_out[0]
-    #       # get output arc info
-    #     elif toNodeID in missing_output_arc:
-    #       make_new_output_arc = True
-    #       arc_node_ID = toNodeID
-    #       existing_arc = arcs_in[0]
-    #       reverse = True
-    #       # get output arc info
-    #     else:
-    #       make_new_input_arc = True      &&&&&&&&&&&&
-    #       make_new_output_arc = True
-    #     print("debugging -- got here")
-    #
-    # selected_variant = None
-    # if not arc_node_ID:
-    #   if insert_physics_arc:  # RULE: physics arcs have intrafaces
-    #     ands = [source_intra_domain, "arc"]
-    #     ors = [selected_token]
-    #   elif insert_interface:
-    #     ands = [connection_network, ]
-    #     ors = []
-    #   else:  # RULE: non-physics arcs have no intraface
-    #     ands = [source_intra_domain, "arc"]
-    #     ors = [selected_token]
-    #
-    #   # get possible entities --------------------------------------------------------------------------
-    #   selections = extract(entities, filter_and=ands, filter_or=ors, filter_not=[])
-    #
-    #   if len(selections) == 1:
-    #     selected_entity = selections[0]
-    #   elif len(selections) == 0:
-    #     return self.__abortArcGeneration("there is no entity defined")
-    #   else:
-    #     dialogue = VariantGUI(selections)
-    #     dialogue.exec_()
-    #     selected_entity = dialogue.selection
-    #
-    #   if not selected_entity:
-    #     return self.__abortArcGeneration("there was no entity")
-    # # else:
-    # #   selected_variant = self.model_container["arcs"][existing_arc]["variant"]
-    #
-    # if insert_physics_arc:
-    #   if make_new_input_arc or make_new_output_arc:
-    #     this_arc = self.model_container["arcs"][existing_arc]
-    #     token = this_arc["token"]
-    #     mechanism =  this_arc["mechanism"]
-    #     nature = this_arc["nature"]
-    #     variant = this_arc["variant"]
-    #   else:
-    #     boundary = NAMES["arc node"]
-    #     nw, node_or_arc, application, variant = splitEntity(selected_entity)
-    #     token, mechanism, nature = splitApplication(application)
-    #     connection_network = self.main.current_network
-    # elif insert_interface:
-    #   boundary = NAMES["interface"]
-    #   dummy_Interface = Interface(
-    #           "label", "left_network", "right_network", "left_variable_classes")
-    #   token = dummy_Interface["token"]
-    #   mechanism = dummy_Interface["mechanism"]
-    #   nature = dummy_Interface["nature"]
-    #   variant = "interface"  # RULE: variant is being fixed for the time being
-    #   application = CR.TEMPLATE_ARC_APPLICATION % (token, mechanism, nature)
-    # else:
-    #   boundary = None
-    #   application = None
-    #   mechanism = None
-    #   nature = None
-    #   variant = None
-    #   token = None
-    #
-    # pos = self.__getMidPoint(fromNodeID, toNodeID)
-    #
-    # if (insert_physics_arc or insert_interface):
-    #   if not(make_new_output_arc or make_new_input_arc):
-    #     pars = self.__addBoundaryNode(pos, boundary, application,
-    #                                   connection_network, named_connection_network, selected_entity)
-    #     newnodeID = pars["new node"]
-    #
-    #   if make_new_input_arc:
-    #     if reverse:
-    #       newnodeID = fromNodeID
-    #       source_node = toNodeID
-    #     else:
-    #       newnodeID = toNodeID
-    #       source_node = fromNodeID
-    #   else:
-    #     source_node = self.arcSourceID
-    #   arcID, views_with_arc = self.model_container.addArc(source_node, newnodeID,
-    #                                                       source["network"],
-    #                                                       source["named_network"],
-    #                                                       mechanism,
-    #                                                       token,
-    #                                                       nature,
-    #                                                       variant=variant)
-    #   # used in colouring
-    #   self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = [
-    #           ]
-    #
-    # else:
-    #   newnodeID = fromNodeID
-    #
-    # if make_new_output_arc:
-    #   if reverse:
-    #     newnodeID = toNodeID
-    #     toNodeID = fromNodeID
-    #   else:
-    #     newnodeID = fromNodeID
-    #
-    # if make_new_output_arc:
-    #   arcID, views_with_arc = self.model_container.addArc(newnodeID, toNodeID,
-    #                                                       sink["network"],
-    #                                                       sink["named_network"],
-    #                                                       mechanism,
-    #                                                       token,
-    #                                                       nature,
-    #                                                       variant=variant)
-
     self.state_nodes[self.arcSourceID] = STATES[self.editor_phase]["arcs"][0]
     self.arcSourceID = None
+    self.__arc_building_state = None
 
     self.clearSelectedNodes()
     self.clearBlockedNodes()
@@ -1425,8 +1213,8 @@ class Commander(QtCore.QObject):
             toNodeID)
     x_sink = self.model_container["scenes"][parent_nodeID_sink]["nodes"][toNodeID]["position_x"]
     y_sink = self.model_container["scenes"][parent_nodeID_sink]["nodes"][toNodeID]["position_y"]
-    x_mid = x_sink + (x_source - x_sink) / 2
-    y_mid = y_sink + (y_source - y_sink) / 2
+    x_mid = int(x_sink + (x_source - x_sink) / 2)
+    y_mid = int(y_sink + (y_source - y_sink) / 2)
     pos = QtCore.QPoint(x_mid, y_mid)
     return pos
 
@@ -1468,8 +1256,9 @@ class Commander(QtCore.QObject):
 
   def __abortArcGeneration(self, msg):
     self.__resetNodeStatesAndSelectedArc()
+    self.setDefaultEditorState()
     self.main.writeStatus(msg)
-    self.__redrawScene(self.current_ID_node_or_arc)
+    self.__arc_building_state = None
     return {"failed": True}
 
   def __abortNodeGeneration(self, msg):
@@ -2823,6 +2612,7 @@ class Commander(QtCore.QObject):
     self.resetGroups()
     self.clearSelectedNodes()
     self.selected_intraface_node = None
+    self.__arc_building_state = None
 
   def __reportEvent(self, state, next_state, action, item_type, event):
     """
@@ -3005,7 +2795,7 @@ class Commander(QtCore.QObject):
     siblings_pannel_data["position_x"] = x + width_view - width_siblings_panel
     siblings_pannel_data["position_y"] = y
     siblings_pannel_data["height"] = h_root
-    self.view.offset = QtCore.QPoint(x, y)  # transformation of rubber band
+    self.view.offset = QtCore.QPoint(int(x), int(y))  # transformation of rubber band
 
     #  setup environment
     ancestors = self.model_container["ID_tree"].getAncestors(nodeID)
@@ -3165,8 +2955,8 @@ class Commander(QtCore.QObject):
     if debug:
       print("start redraw node ", nodeID)
 
-    # check for missing arcs
-    missing_input_arc, missing_output_arc = self.model_container.checkforMissingBoundaryArcs()
+    # # check for missing arcs
+    # missing_input_arc, missing_output_arc = self.model_container.checkforMissingBoundaryArcs()
 
     children = self.model_container["ID_tree"].getChildren(nodeID)
 
@@ -3271,32 +3061,129 @@ class Commander(QtCore.QObject):
 
   def __ruleConnectArc(self):
 
-    viewed_node = self.currently_viewed_node
-    childrenIDs = self.model_container["ID_tree"].getChildren(viewed_node)
-    arc_source = self.arcSourceID
-    source_entity_ID = self.model_container["nodes"][arc_source]["entity_id"]
-    arc_options = self.main.ontology.arc_options
+    nodeID = self.arcSourceID
+    source = self.model_container["nodes"][nodeID]
+    L_fromIsInterface = source["class"] == NAMES["interface"]
+    L_fromIsIntraface = source["class"] == NAMES["intraface"]
+    arc_entities = self.main.ontology.arc_options
+    source_node_variant = self.model_container["nodes"][nodeID]["entity_id"]
 
-    sink_node_options = set()
+    self.partialInterface = (False, None)
 
-    if "node" in source_entity_ID:
-      for arc_option in arc_options:
-        if source_entity_ID in arc_options[arc_option]["sources"]:
-          for n in arc_options[arc_option]["sinks"]:
-            sink_node_options.add(n)
-    elif "arc" in source_entity_ID:
-      sink_node_options = arc_options[source_entity_ID]["sinks"]
+    arc_node_block = None
 
+    possible_sinks_variants = set()
+    possible_arc_variants = set()
 
-      for nodeID in childrenIDs:
-        if self.model_container["nodes"][nodeID]["entity_id"] in sink_node_options:
-          self.state_nodes[nodeID] = "enabled"
+    if not (L_fromIsIntraface or  L_fromIsInterface):
+      # ========================================= either ===============================================================
+
+      print("seek all possible options")
+      for arcentity in arc_entities:
+        if source_node_variant in arc_entities[arcentity]["sources"]:
+          for e in arc_entities[arcentity]["sinks"]:
+            possible_sinks_variants.add(e)
+            possible_arc_variants.add(arcentity)
+      self.possible_arc_variants = list(possible_arc_variants)
+      feasible_node_variants = list(possible_sinks_variants)
+
+      # ===================================== inter and intra faces ====================================================
+    else:
+      # possible_sinks_variants = arc_entities[source_node_variant]["sinks"]
+
+      if L_fromIsInterface:
+        # ===================================================  interface ================================================
+        output_arcs,input_arcs = self.model_container.getArcsInAndOutOfNode(nodeID)
+        e_input = len(input_arcs)
+        e_output = len(output_arcs)
+        if ( e_input == 1) and (e_output == 1):
+          return self.__abortArcGeneration("this interface is properly connected")
+        elif (e_input == 0) and (e_output == 0):
+          return self.__abortArcGeneration("error >>> isolated interface node --> delete")
+        elif (e_input == 0):
+          print("seek feasible sources in inter domains")
+          feasible_node_variants = arc_entities[source_node_variant]["sources"]
+          self.partialInterface = (True, "reverse")
+          pass
+
+        elif (e_output == 0):
+          print("seek feasible sink variants in inter domains")
+          feasible_node_variants = arc_entities[source_node_variant]["sinks"]
+          self.partialInterface = (True, "forward")
+          pass
         else:
-          self.state_nodes[nodeID] = "blocked"
-
-    return
+          return self.__abortArcGeneration("error >>> should not get here inputs %s, outputs %s"%(input_arcs, output_arcs))
 
 
+      # ======================================== intraface =============================================================
+      elif L_fromIsIntraface:
+        tokens = self.model_container.getTokensInNode(nodeID)
+        output_arcs,input_arcs = self.model_container.getArcsInAndOutOfNode(nodeID, tokens=tokens)
+        a_input = len(input_arcs)
+        a_output = len(output_arcs)
+
+        arc_entity = self.model_container["nodes"][nodeID]["entity_id"]
+
+        # if (l_input == 0) and (l_output == 0):
+        #   return self.__abortArcGeneration("error >>> isolated intraface node")
+
+
+        if a_output == 0:
+          feasible_node_variants = arc_entities[arc_entity]["sinks"]
+          self.partialInterface = (True, "forward")
+          # arc_node_block.add(self.model_container["arcs"][input_arcs[0]]["source"])
+          print("seek sinks in intra domain")
+        elif a_input == 0:
+          print("seek sources in intra domain")
+          self.partialInterface = (True, "reverse")
+          feasible_node_variants = arc_entities[arc_entity]["sources"]
+          # arc_node_block.add(self.model_container["arcs"][output_arcs[0]]["sink"])
+        elif (a_input == 1) and (a_output == 1): # RULE:
+          print("seek possible sinks in inter domains")
+          return self.__abortArcGeneration("nothing to connect")
+
+    print("enable feasible target nodes")
+
+
+    self.feasible_node_variants = feasible_node_variants
+    self.arc_node_block = arc_node_block
+
+    parent_node = self.model_container["ID_tree"].getImmediateParent(nodeID)
+    self.__enableDisableNodesWhenBuildingArc(parent_node)
+    self.state_nodes[nodeID] = "selected"
+
+    pass
+
+    self.__arc_building_state = "building"
+
+  def __enableDisableNodesWhenBuildingArc(self, nodeID):
+
+    arc_node_block = set()
+
+    children = self.model_container["ID_tree"].getChildren(nodeID)
+    for s in children:
+      if self.model_container["nodes"][s]["class"] == NAMES["intraface"]:
+        arc_node_block.add(s)
+
+    # childrenIDs = self.model_container["ID_tree"].getChildren(self.currently_viewed_node)
+    for id in children:
+      if self.model_container["nodes"][id]["entity_id"] in self.feasible_node_variants:
+        self.state_nodes[id] = "enabled"
+      else:
+        self.state_nodes[id] = "blocked"
+
+
+    if arc_node_block:
+      for a in arc_node_block:
+        self.state_nodes[a] = "blocked"
+
+  # def __makeBlockList_intrafaces(self, nodeID):
+  #   arc_node_block = set()
+  #   siblings = self.model_container["ID_tree"].getSiblings(nodeID)
+  #   for s in siblings:
+  #     if self.model_container["nodes"][s]["class"] == NAMES["intraface"]:
+  #       arc_node_block.add(s)
+  #   return arc_node_block
 
   # def  __ruleNodeAccessTopologyAcrossNetworks(self): #todo: eliminate
   #   viewed_node = self.currently_viewed_node
@@ -3528,8 +3415,11 @@ class Commander(QtCore.QObject):
     if phase == EDITOR_PHASES[0]:
       if state == "re-connect_arc":
         self.__ruleNodeAccessInNetworkOnly()
-      elif state == "connect_arc":
+      elif (state == "connect_arc") and (self.__arc_building_state == "begin"):
         self.__ruleConnectArc()
+      elif (self.__arc_building_state == "building"):
+        self.__enableDisableNodesWhenBuildingArc(self.current_ID_node_or_arc)
+        pass
       # elif state == "insert":
       #   return
       else:

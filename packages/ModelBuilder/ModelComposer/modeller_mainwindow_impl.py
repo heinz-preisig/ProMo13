@@ -1113,7 +1113,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     open_arcs = self.commander.model_container.checkforOpenArcs()
 
     # check for missing arcs
-    missing_input_arc, missing_output_arc = self.commander.model_container.checkforMissingBoundaryArcs()
+    # missing_input_arc, missing_output_arc = self.commander.model_container.checkforMissingBoundaryArcs()
 
     self.editor_phase = phase
     if len(open_arcs) != 0:

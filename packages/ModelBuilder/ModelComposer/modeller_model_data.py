@@ -17,7 +17,7 @@ from copy import copy
 from copy import deepcopy
 
 import Common.common_resources as CR
-from Common.common_resources import NODE_COMPONENT_SEPARATOR
+from Common.common_resources import NODE_COMPONENT_SEPARATOR, TEMPLATE_ENTITY_OBJECT
 from Common.common_resources import walkBreathFirstFnc
 from Common.common_resources import walkDepthFirstFnc
 from Common.graphics_objects import NamedNetworkDataObjects
@@ -119,6 +119,9 @@ class ArcInfo(dict):  # OrderedDict):  # NOTE: changed to dictionary -- OrderedD
 
   def addTypedTokens(self, typed_tokens):
     self["typed_tokens"].append(typed_tokens)
+
+
+
 
 
 class ModelGraphicsData(dict):
@@ -322,19 +325,36 @@ class ModelContainer(dict):
 
     print("model -- rename named domain")
 
-  def getArcsInAndOutOfNode(self, nodeID):
+  def getArcsInAndOutOfNode(self, nodeID, tokens=[]):
     arcs_out = []
     arcs_in = []
     for arc in self["arcs"]:
-      # str(self["arcs"][arc]["source"]) # HAP: str --> int
       source = self["arcs"][arc]["source"]
-      # str(self["arcs"][arc]["sink"])  #HAP: str --> int
       sink = self["arcs"][arc]["sink"]
       if nodeID == source:
         arcs_out.append(arc)
       elif nodeID == sink:
         arcs_in.append(arc)
-    return arcs_out, arcs_in
+    f_arcs_out = self.__filter_arcs_with_tokens(arcs_out, tokens)
+    f_arcs_in = self.__filter_arcs_with_tokens(arcs_in, tokens)
+
+    return list(f_arcs_out), list(f_arcs_in)
+
+  def __filter_arcs_with_tokens(self, arcs, tokens):
+    if not tokens:
+      return arcs
+
+    accepted_arcs = set()
+    set_arc_tokens = set()
+    set_tokens = set(tokens)
+    for arcID in arcs:
+      set_arc_tokens.add(self["arcs"][arcID]["token"])
+      if (set_tokens - set_arc_tokens) == set():
+        accepted_arcs.add(arcID)
+    return accepted_arcs
+
+
+
 
   def getArcsConnectedToNode(self, nodeID):
     arcs = []
@@ -999,6 +1019,8 @@ class ModelContainer(dict):
           # print("named networks ", nw, "--", s, ds, ls)
           # self["named_networks"][nw] = ls
       else:
+        # if the_hash == "arcs":
+        #   print("debugging -- arcs")
         self[the_hash].update(odata[the_hash])
 
     # pos = [position.x(), position.y()]
@@ -1125,6 +1147,33 @@ class ModelContainer(dict):
               (self["arcs"][arc]["sink"] not in leave_nodes_IDs):
         open_arcs.add(arc)
     return open_arcs
+
+  # def checkIntrafaceNodeConnectivity(self, nodeID): #rule: single-input-single-output
+  #   return self.checkInterfaceNodeConnectivity(nodeID)
+
+  # def checkInterfaceNodeConnectivity(self, nodeID): #rule: single-input-single-output
+  #   """
+  #   check if interface node has both input and output
+  #   """
+  #   arc_in, arc_out = self.checkNodeConnectivity(nodeID)
+  #   if len(arc_in) > 1:
+  #     raise DataError("interface node cannot have more than one in arc")
+  #   if len(arc_out) > 1:
+  #     raise DataError("interface node cannot have more than one out arc")
+  #   return arc_in, arc_out
+  #
+  # def checkNodeConnectivity(self, nodeID):
+  #   arc_in = []
+  #   arc_out = []
+  #   for arc in self["arcs"]:
+  #     if self["arcs"][arc]["source"] == nodeID:
+  #       arc_out.append(arc)
+  #     elif self["arcs"][arc]["sink"] == nodeID:
+  #       arc_in.append(arc)
+  #     else:
+  #       pass
+  #   return arc_in, arc_out
+
 
   def checkforMissingBoundaryArcs(self):
     """ look through all boundary nodes and check if each has two connected arcs"""
@@ -1404,50 +1453,7 @@ class ModelContainer(dict):
             named_network = self["nodes"][node]["named_network"]
             self.colourBranch(named_network, node, token,
                               typed_token, adj_matrix, conversions)
-    #
-    # for node in domain:
-    #   arcs_out, arcs_in = self.getArcsInAndOutOfNode(node)
-    #   if self["nodes"][node]["class"] == NAMES["node"]:
-    #     for arc in arcs_in:
-    #       arc_data = self["arcs"][arc]
-    #       source = arc_data["source"]
-    #       for s in self["nodes"][source]["tokens"][token]:
-    #         if s not in arc_data["typed_tokens"]:
-    #           arc_data["typed_tokens"].append(s)
-    #       arc_data["typed_tokens"] = sorted(arc_data["typed_tokens"])
-    #   elif self["nodes"][node]["class"] == NAMES["intraface"]:
-    #     for arc in arcs_out:
-    #       arc_data = self["arcs"][arc]
-    #       arc_data["typed_tokens"] = []
-    #       for s in self["nodes"][node]["tokens_right"][token]:
-    #         if s not in arc_data["typed_tokens"]:
-    #           arc_data["typed_tokens"].append(s)
-    #       print("debugging -- halting place")
-    #     for arc in arcs_in:
-    #       arc_data = self["arcs"][arc]
-    #       arc_data["typed_tokens"] = []
-    #       for s in self["nodes"][node]["tokens_left"][token]:
-    #         if s not in arc_data["typed_tokens"]:
-    #           arc_data["typed_tokens"].append(s)
-    #       print("debugging -- halting place")
 
-        #
-        # for arc in (arcs_in + arcs_out):
-        #   t = self["arcs"][arc]["token"]
-        #   source = self["arcs"][arc]["source"]
-        #   if self["nodes"][node]["class"] != NAMES["intraface"]:
-        #     arc_data = self["arcs"][arc]["typed_tokens"][t]
-        #     arc_data = []
-        #     for s in self["nodes"][source]["tokens"][t]:
-        #       arc_data.append(s) #= copy(self["nodes"][source]["tokens"][t])
-        #     for s in self["nodes"][sink]["tokens"][t]:
-        #       arc_data.append(s)
-        #   else:
-        #     if t not in self["nodes"][node]["transfer_constraints"][token]:
-        #       self["arcs"][arc]["typed_tokens"] = copy(self["nodes"][source]["tokens"][t])
-        #     else:
-        #       if t in self["arcs"][arc]["typed_tokens"] :
-        #         self["arcs"][arc]["typed_tokens"].remove(t)      # TODO:  check
 
       node_data = self["nodes"][node]
       boundary = NAMES["intraface"] == node_data["class"]
@@ -1593,7 +1599,7 @@ class ModelContainer(dict):
       if len(l) == 2:
         [node_component, app] = l
       elif len(l) == 3:
-        print("this is a arc node")
+        print("this is an arc node")
         return False
     else:
       node_component = node_type
