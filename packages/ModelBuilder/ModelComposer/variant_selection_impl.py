@@ -43,11 +43,11 @@ def extract(variants, filter_and, filter_or, filter_not):
 
   selection = set(variants) - remove_them
   if filter_or:
-    selection_2 = []
+    selection_2 = set()
     for v in selection:
       for f in filter_or:
         if f in v:
-          selection_2.append(v)
+          selection_2.add(v)
   else:
     selection_2 = list(selection)
 

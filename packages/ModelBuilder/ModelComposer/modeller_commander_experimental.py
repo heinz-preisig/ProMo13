@@ -154,7 +154,7 @@ class Commander(QtCore.QObject):
     self.state_nodes[rootID] = STATES[self.editor_phase]["nodes"][0]
     self.__makeViewAndScene(rootID)
     self.currently_viewed_node = rootID
-    self.__arc_building_state = None
+    self.__arc_building_state = (None, False, False)
 
   def __loadAutomata(self):
     automata = CR.getData(self.main.automata_working_file_spec)
@@ -762,7 +762,7 @@ class Commander(QtCore.QObject):
     self.arcSourceID = nodeID  # used in addThe Arc
     parent_node = self.model_container["ID_tree"].getImmediateParent(nodeID)
     # self.current_ID_node_or_arc =
-    self.__arc_building_state = "begin"
+    self.__arc_building_state = ("begin", False, False)
     self.__redrawScene(parent_node) #self.current_ID_node_or_arc)
 
     return {
@@ -797,73 +797,16 @@ class Commander(QtCore.QObject):
     parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(self.arcSourceID)
     self.current_ID_node_or_arc = parent_nodeID_source  # insert on source side
 
-    # find intra domains ------------------------------------------------------------------------------
-    source_intra_domain = None
-    sink_intra_domain = None
-    for d in self.main.ontology.intra_domains:
-      if sink["network"] in self.main.ontology.intra_domains[d]:
-        sink_intra_domain = d
-      if source["network"] in self.main.ontology.intra_domains[d]:
-        source_intra_domain = d
-
-    if (source_intra_domain == None) or (sink_intra_domain == None):
-      return self.__abortArcGeneration("there is as serious problem with the ontology")
-
-    # intra or inter -----------------------------------------------------------------------------------
-    L_differentDomains = source_intra_domain != sink_intra_domain
-
-    L_fromBoundary = source["class"] in [NAMES["intraface"], NAMES["interface"]]
-    L_toBoundary = sink["class"] in [NAMES["intraface"], NAMES["interface"]]
-
-    if L_fromBoundary and L_toBoundary:
-      return self.__abortArcGeneration("boundary to boundary is not allowed")
-
-    if L_fromBoundary or L_toBoundary:
-      # insert missing arc
-      if L_fromBoundary:
-        arcs_out, arcs_in = self.model_container.getArcsInAndOutOfNode(fromNodeID)
-      elif L_toBoundary:
-        arcs_out, arcs_in = self.model_container.getArcsInAndOutOfNode(toNodeID)
+    # --------------------------- fixing partial connection ---------------------------------------
+    if self.partialInterfaceOrIntraFace[0]:
+      existing_arc = self.partialInterfaceOrIntraFace[2]
+      if self.partialInterfaceOrIntraFace[1] == "reverse":
+        arcSource = toNodeID
+        arcSink = fromNodeID
       else:
-        arcs_out = arcs_in = []
-      missing_input_arc, missing_output_arc = self.model_container.checkforMissingBoundaryArcs()
-      L_inputMissing = False
-      L_outputMissing = False
-      if fromNodeID in missing_input_arc:
-        # fromNode points to boundary thus fromNode will be sink for the arc
-        L_inputMissing = True
-        insertArcSource = toNodeID
-        insertArcSink = fromNodeID
-      elif toNodeID in missing_input_arc:
-        # toNode point is boundary
-        L_inputMissing = True
-        insertArcSource = fromNodeID
-        insertArcSink = toNodeID
-      elif fromNodeID in missing_output_arc:
-        # fromNode is boundary
-        L_outputMissing = False
-        insertArcSource = fromNodeID
-        insertArcSink = toNodeID
-      elif toNodeID in missing_output_arc:
-        # toNode is boundary
-        L_outputMissing = False
-        insertArcSource = toNodeID
-        insertArcSink = fromNodeID
-      else:
-        self.main.writeStatus("no input no output ????")
-        return self.__abortArcGeneration("no input no output ????")
+        arcSource = fromNodeID
+        arcSink = toNodeID
 
-      print("debugging -- insert missing arc")
-
-      if L_inputMissing and L_outputMissing:
-        return self.__abortArcGeneration("node arc is isolated -- delete !")
-
-      if L_inputMissing:
-        # get output properties
-        existing_arc = arcs_out[0]
-      else:
-        # get input properties
-        existing_arc = arcs_in[0]
 
       this_arc = self.model_container["arcs"][existing_arc]
       token = this_arc["token"]
@@ -873,7 +816,7 @@ class Commander(QtCore.QObject):
       network = this_arc["network"]
       named_network = this_arc["named_network"]
 
-      arcID, views_with_arc = self.model_container.addArc(insertArcSource, insertArcSink,
+      arcID, views_with_arc = self.model_container.addArc(arcSource, arcSink, #insertArcSource, insertArcSink,
                                                           network,
                                                           named_network,
                                                           mechanism,
@@ -884,9 +827,22 @@ class Commander(QtCore.QObject):
 
 
     else:
-      # insert full arc
+      # ------------------------ insert full arc -------------------------------------------------------
 
-      # get entity
+      # find intra domains ------------------------------------------------------------------------------
+      source_intra_domain = None
+      sink_intra_domain = None
+      for d in self.main.ontology.intra_domains:
+        if sink["network"] in self.main.ontology.intra_domains[d]:
+          sink_intra_domain = d
+        if source["network"] in self.main.ontology.intra_domains[d]:
+          source_intra_domain = d
+
+      if (source_intra_domain == None) or (sink_intra_domain == None):
+        return self.__abortArcGeneration("there is as serious problem with the ontology")
+
+      # intra or inter --------------------------------------------------------------------<<<<<<<<<<<---------------
+      L_differentDomains = source_intra_domain != sink_intra_domain
 
       named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source["named_network"], sink["named_network"])
 
@@ -964,7 +920,7 @@ class Commander(QtCore.QObject):
 
     self.state_nodes[self.arcSourceID] = STATES[self.editor_phase]["arcs"][0]
     self.arcSourceID = None
-    self.__arc_building_state = None
+    self.__arc_building_state = (None, False, False)
 
     self.clearSelectedNodes()
     self.clearBlockedNodes()
@@ -1258,7 +1214,7 @@ class Commander(QtCore.QObject):
     self.__resetNodeStatesAndSelectedArc()
     self.setDefaultEditorState()
     self.main.writeStatus(msg)
-    self.__arc_building_state = None
+    self.__arc_building_state = (None, False, False)
     return {"failed": True}
 
   def __abortNodeGeneration(self, msg):
@@ -1429,18 +1385,10 @@ class Commander(QtCore.QObject):
 
     if NAMES["tail"] in pointer_object_name:
       self.end_to_move = "source"
-      # str(self.model_container[
-      node_to_block = (
-              self.model_container["arcs"][self.selected_arcID]["sink"])
-      # "arcs"][self.selected_arcID]["sink"]) #HAP: str --> int
     elif NAMES["head"] in pointer_object_name:
       self.end_to_move = "sink"
-      # str(self.model_container[
-      node_to_block = (
-              self.model_container["arcs"][self.selected_arcID]["source"])
-      # "arcs"][self.selected_arcID]["source"]) #HAP: str --> int
 
-    self.state_nodes[node_to_block] = "selected"
+    # self.state_nodes[node_to_block] = "selected"
 
     self.__resetNodeStatesAndSelectedArc()
     self.redrawCurrentScene()
@@ -2612,7 +2560,7 @@ class Commander(QtCore.QObject):
     self.resetGroups()
     self.clearSelectedNodes()
     self.selected_intraface_node = None
-    self.__arc_building_state = None
+    self.__arc_building_state = (None, False, False)
 
   def __reportEvent(self, state, next_state, action, item_type, event):
     """
@@ -3067,8 +3015,9 @@ class Commander(QtCore.QObject):
     L_fromIsIntraface = source["class"] == NAMES["intraface"]
     arc_entities = self.main.ontology.arc_options
     source_node_variant = self.model_container["nodes"][nodeID]["entity_id"]
+    parent_node = self.model_container["ID_tree"].getImmediateParent(nodeID)
 
-    self.partialInterface = (False, None)
+    self.partialInterfaceOrIntraFace = (False, None, None)  # partial arc, forward|reverse, existing arc ID
 
     arc_node_block = None
 
@@ -3089,12 +3038,11 @@ class Commander(QtCore.QObject):
 
       # ===================================== inter and intra faces ====================================================
     else:
-      # possible_sinks_variants = arc_entities[source_node_variant]["sinks"]
 
       if L_fromIsInterface:
         # ===================================================  interface ================================================
         output_arcs,input_arcs = self.model_container.getArcsInAndOutOfNode(nodeID)
-        e_input = len(input_arcs)
+        e_input = len(input_arcs)  # note: assumes one input arc and one output arc
         e_output = len(output_arcs)
         if ( e_input == 1) and (e_output == 1):
           return self.__abortArcGeneration("this interface is properly connected")
@@ -3103,13 +3051,13 @@ class Commander(QtCore.QObject):
         elif (e_input == 0):
           print("seek feasible sources in inter domains")
           feasible_node_variants = arc_entities[source_node_variant]["sources"]
-          self.partialInterface = (True, "reverse")
+          self.partialInterfaceOrIntraFace = (True, "reverse", output_arcs[0])
           pass
 
         elif (e_output == 0):
           print("seek feasible sink variants in inter domains")
           feasible_node_variants = arc_entities[source_node_variant]["sinks"]
-          self.partialInterface = (True, "forward")
+          self.partialInterfaceOrIntraFace = (True, "forward", input_arcs[0])
           pass
         else:
           return self.__abortArcGeneration("error >>> should not get here inputs %s, outputs %s"%(input_arcs, output_arcs))
@@ -3130,15 +3078,15 @@ class Commander(QtCore.QObject):
 
         if a_output == 0:
           feasible_node_variants = arc_entities[arc_entity]["sinks"]
-          self.partialInterface = (True, "forward")
+          self.partialInterfaceOrIntraFace = (True, "forward", input_arcs[0])
           # arc_node_block.add(self.model_container["arcs"][input_arcs[0]]["source"])
           print("seek sinks in intra domain")
         elif a_input == 0:
           print("seek sources in intra domain")
-          self.partialInterface = (True, "reverse")
+          self.partialInterfaceOrIntraFace = (True, "reverse", output_arcs[0])
           feasible_node_variants = arc_entities[arc_entity]["sources"]
           # arc_node_block.add(self.model_container["arcs"][output_arcs[0]]["sink"])
-        elif (a_input == 1) and (a_output == 1): # RULE:
+        elif (a_input == 1) and (a_output == 1): # TODO: allow for interface connection in and out
           print("seek possible sinks in inter domains")
           return self.__abortArcGeneration("nothing to connect")
 
@@ -3148,108 +3096,51 @@ class Commander(QtCore.QObject):
     self.feasible_node_variants = feasible_node_variants
     self.arc_node_block = arc_node_block
 
-    parent_node = self.model_container["ID_tree"].getImmediateParent(nodeID)
+    self.__arc_building_state = ("building", L_fromIsInterface, L_fromIsIntraface)
     self.__enableDisableNodesWhenBuildingArc(parent_node)
     self.state_nodes[nodeID] = "selected"
 
     pass
 
-    self.__arc_building_state = "building"
 
   def __enableDisableNodesWhenBuildingArc(self, nodeID):
 
     arc_node_block = set()
 
     children = self.model_container["ID_tree"].getChildren(nodeID)
+    if self.__arc_building_state[1] == True: # interface
+      check = NAMES["interface"]
+    elif self.__arc_building_state[2] == True:
+      check = NAMES["intraface"]
+    else:
+      check = None
+
+    if self.partialInterfaceOrIntraFace[0]:
+      existing_arc = self.partialInterfaceOrIntraFace[2];
+      arc_node_block.add(self.model_container["arcs"][existing_arc]["source"])
+      arc_node_block.add(self.model_container["arcs"][existing_arc]["sink"])
+
     for s in children:
-      if self.model_container["nodes"][s]["class"] == NAMES["intraface"]:
+      if self.model_container["nodes"][s]["class"] == check:
         arc_node_block.add(s)
 
-    # childrenIDs = self.model_container["ID_tree"].getChildren(self.currently_viewed_node)
     for id in children:
       if self.model_container["nodes"][id]["entity_id"] in self.feasible_node_variants:
         self.state_nodes[id] = "enabled"
       else:
         self.state_nodes[id] = "blocked"
 
-
     if arc_node_block:
       for a in arc_node_block:
         self.state_nodes[a] = "blocked"
 
-  # def __makeBlockList_intrafaces(self, nodeID):
-  #   arc_node_block = set()
-  #   siblings = self.model_container["ID_tree"].getSiblings(nodeID)
-  #   for s in siblings:
-  #     if self.model_container["nodes"][s]["class"] == NAMES["intraface"]:
-  #       arc_node_block.add(s)
-  #   return arc_node_block
-
-  # def  __ruleNodeAccessTopologyAcrossNetworks(self): #todo: eliminate
-  #   viewed_node = self.currently_viewed_node
-  #
-  #   children = self.model_container["ID_tree"].getChildren(viewed_node)
-  #
-  #   for child in children:  # set the default when not defined
-  #     if child not in self.state_nodes:
-  #       self.state_nodes[child] = STATES[self.editor_phase]["nodes"][
-  #         0]  # RULE: the first in the list is the default usually "enabled"  # default is enabled
-  #
-  #   self.clearBlockedNodes()
-  #
-  #   # RULE: Boundary -> only one connection per token for the respective network
-  #
-  #   for node in children:
-  #     # network_node = self.model_container["nodes"][node][NAMES["network"]]
-  #     node_class = self.model_container["nodes"][node]["class"]
-  #     if node_class == NAMES["intraface"]:
-  #       pass
-        # arcs_connected_to_node = self.model_container.getArcsConnectedToNode(
-        #     node)
-        # # print("intraface %s , connected arcs %s -- token %s" % (node, arcs_connected_to_node, token))
-        #
-        # # if token is in the intraface - allow for only two connections
-        #
-        # if self.state_nodes[node] == "selected":
-        #   return  # when connecting it comes through here twice so this is the second time
-        #
-        # intraface_node = self.model_container["nodes"][node][NAMES["network"]]
-        # try:
-        #   network_left, network_right = intraface_node.split(
-        #       CR.CONNECTION_NETWORK_SEPARATOR)  # NETWORK_SEPARATOR)
-        # except:
-        #   network_left = intraface_node
-        #   network_right = network_left
-        # # network_tokens_left = self.main.tokens_on_networks[network_left]["type"]
-        # tokens = set()
-        # left = set(self.model_container["nodes"][node]["tokens_left"].keys())
-        # right = set(self.model_container["nodes"][node]["tokens_right"].keys())
-        # tokens = left.union(right)
-        #
-        # # are there existing connections ?
-        # arc_IDs = list(self.model_container["arcs"].keys())
-        # mech_left = self.main.selected_transfer_mechanism[network_left]
-        # mech_right = self.main.selected_transfer_mechanism[network_right]
-        # if arc_IDs:
-        #   for arc in arc_IDs:
-        #     mechanism = self.model_container["arcs"][arc]["mechanism"]
-        #   if mech_left != mech_right:
-        #     # error is handled in adding the arcs when going through an intraface
-        #     # print(">>>>>>>>>>>>>>>>> error -- the two mechanisms must be the same" ,"mechanisms left and right:",
-        #     # mech_left, mech_right)
-        #     pass
-        #   else:
-        #     if self.main.selected_token[self.main.editor_phase][network_left] in tokens:
-        #       if mech_left != mechanism:
-        #         self.state_nodes[node] = "enabled"
-        #       else:
-        #         self.state_nodes[node] = "blocked"
-        #     else:
-        #       self.state_nodes[node] = "enabled"
-
   def __ruleNodeAccessInNetworkOnly(self):
-    nodeID = (self.model_container["arcs"]
-    [self.selected_arcID][self.end_to_move])
+    arc = self.model_container["arcs"][self.selected_arcID]
+    nodeID = arc[self.end_to_move]
+    if self.end_to_move == "sink":
+      fixed_nodeID = arc["source"]
+    else:
+      fixed_nodeID = arc["sink"]
 
     source_network = self.model_container["nodes"][nodeID][NAMES["network"]]
     children = self.model_container["ID_tree"].getChildren(
@@ -3262,6 +3153,9 @@ class Commander(QtCore.QObject):
           self.state_nodes[child] = "blocked"
         else:
           self.state_nodes[child] = "enabled"  # default is enabled
+    for child in children:
+      if child == fixed_nodeID:
+        self.state_nodes[child] = "blocked"
 
   def __ruleNodeAccessTypedTokensInject(self):
     # print("debugging -- token control inject rule")
@@ -3415,9 +3309,9 @@ class Commander(QtCore.QObject):
     if phase == EDITOR_PHASES[0]:
       if state == "re-connect_arc":
         self.__ruleNodeAccessInNetworkOnly()
-      elif (state == "connect_arc") and (self.__arc_building_state == "begin"):
+      elif (state == "connect_arc") and (self.__arc_building_state[0] == "begin"):
         self.__ruleConnectArc()
-      elif (self.__arc_building_state == "building"):
+      elif (self.__arc_building_state[0] == "building"):
         self.__enableDisableNodesWhenBuildingArc(self.current_ID_node_or_arc)
         pass
       # elif state == "insert":
