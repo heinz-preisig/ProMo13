@@ -761,7 +761,6 @@ class Commander(QtCore.QObject):
     # nw = self.main.current_network
     self.arcSourceID = nodeID  # used in addThe Arc
     parent_node = self.model_container["ID_tree"].getImmediateParent(nodeID)
-    # self.current_ID_node_or_arc =
     self.__arc_building_state = ("begin", False, False)
     self.__redrawScene(parent_node) #self.current_ID_node_or_arc)
 
@@ -3104,35 +3103,46 @@ class Commander(QtCore.QObject):
 
 
   def __enableDisableNodesWhenBuildingArc(self, nodeID):
-
+    
+    children = self.model_container["ID_tree"].getChildren(nodeID) 
+    
+    for id in children:# RULE: block what is not a feasible variant
+      if self.model_container["nodes"][id]["entity_id"] in self.feasible_node_variants:
+        self.state_nodes[id] = "enabled"
+      else:
+        self.state_nodes[id] = "blocked"
+        
     arc_node_block = set()
-
-    children = self.model_container["ID_tree"].getChildren(nodeID)
+  # rule: block interfaces and intrafaces when building arcs
     if self.__arc_building_state[1] == True: # interface
       check = NAMES["interface"]
     elif self.__arc_building_state[2] == True:
       check = NAMES["intraface"]
     else:
       check = None
+      
+    for id in children:
+      if self.model_container["nodes"][id]["class"] == check:
+        arc_node_block.add(id)
 
-    if self.partialInterfaceOrIntraFace[0]:
+  #rule: don't allow for looping arcs
+    if self.partialInterfaceOrIntraFace[0]:  
       existing_arc = self.partialInterfaceOrIntraFace[2];
       arc_node_block.add(self.model_container["arcs"][existing_arc]["source"])
-      arc_node_block.add(self.model_container["arcs"][existing_arc]["sink"])
-
-    for s in children:
-      if self.model_container["nodes"][s]["class"] == check:
-        arc_node_block.add(s)
-
-    for id in children:
-      if self.model_container["nodes"][id]["entity_id"] in self.feasible_node_variants:
-        self.state_nodes[id] = "enabled"
-      else:
-        self.state_nodes[id] = "blocked"
+      arc_node_block.add(self.model_container["arcs"][existing_arc]["sink"])      
 
     if arc_node_block:
       for a in arc_node_block:
         self.state_nodes[a] = "blocked"
+
+
+  #rule: only one input of information to an arc_node
+    for id in children:
+      if self.model_container["nodes"][id]["class"] == NAMES["intraface"]:
+        output_arcs, input_arcs = self.model_container.getArcsInAndOutOfNode(id, tokens=["information"])
+        if len(input_arcs) >0 :
+          self.state_nodes[id] = "blocked"
+
 
   def __ruleNodeAccessInNetworkOnly(self):
     arc = self.model_container["arcs"][self.selected_arcID]
