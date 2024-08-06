@@ -186,7 +186,7 @@ class Commander(QtCore.QObject):
 
     # print("  item : ", item, item.__class__, "ShapePannel" in str(item.__class__) )
 
-    #  TODO: circumvent problems after deleting objects and changing editor mode via GUI control interface
+    #  Note: circumvent problems after deleting objects and changing editor mode via GUI control interface
     if "ShapePannel" in str(item.__class__):
       self.recover_item = item
 
@@ -453,7 +453,7 @@ class Commander(QtCore.QObject):
                     "explode node", "add arc", "remove arc",
                     "insert knot", "remove knot",
                     "insert model"]:
-      self.modified = True  # TODO: handling of the modified to be completed
+      self.modified = True
     self.main.markModifiedModel(self.modified)
 
     par_dic = res.copy()  # copy results into par list
@@ -1325,7 +1325,7 @@ class Commander(QtCore.QObject):
           arcs_to_delete = arcs
           intraface_interface_possibly_to_delete = node
 
-    # TODO: once a node has no arcs, it has no tokens thus the affected nodes need to be updated
+    # Note: once a node has no arcs, it has no tokens thus the affected nodes need to be updated
     for arc in arcs_to_delete:
       self.model_container.deleteArc(arc)
       print("remove arc ", arc, " from ", self.currently_viewed_node)
@@ -3145,27 +3145,46 @@ class Commander(QtCore.QObject):
 
 
   def __ruleNodeAccessInNetworkOnly(self):
-    arc = self.model_container["arcs"][self.selected_arcID]
+    arcs = self.model_container["arcs"]
+    nodes = self.model_container["nodes"]
+
+    arc = arcs[self.selected_arcID]
     nodeID = arc[self.end_to_move]
     if self.end_to_move == "sink":
       fixed_nodeID = arc["source"]
     else:
       fixed_nodeID = arc["sink"]
 
-    source_network = self.model_container["nodes"][nodeID][NAMES["network"]]
-    children = self.model_container["ID_tree"].getChildren(
-            self.currently_viewed_node)
+  # rule: reconnect only within the same network & subnetwork
+    # note: this could be reduced to nework only --> requires changing the arc_node's properties
+    source_network = nodes[nodeID][NAMES["network"]]
+    source_named_network = nodes[nodeID][NAMES["named_network"]]
+    children = self.model_container["ID_tree"].getChildren(self.currently_viewed_node)
 
     for child in children:
-      network = self.model_container["nodes"][child][NAMES["network"]]
+      network = nodes[child][NAMES["network"]]
+      named_network = nodes[child][NAMES["named_network"]]
       if self.state_nodes[child] != "selected":
-        if network != source_network:
+        if (network != source_network) and (named_network != source_named_network):
           self.state_nodes[child] = "blocked"
         else:
           self.state_nodes[child] = "enabled"  # default is enabled
     for child in children:
       if child == fixed_nodeID:
         self.state_nodes[child] = "blocked"
+
+# rule: no looping
+    tokens = list(nodes[fixed_nodeID]["tokens"].keys())
+    output_arcs, input_arcs = self.model_container.getArcsInAndOutOfNode(fixed_nodeID, tokens=tokens)
+    if  self.selected_arcID in input_arcs:  # Note: we assume only one input and one output token flow
+      existing_arc = output_arcs[0]
+    else:
+      existing_arc = input_arcs[0]
+
+    self.state_nodes[arcs[existing_arc]["source"]] = "blocked"
+    self.state_nodes[arcs[existing_arc]["sink"]] = "blocked"
+    pass
+
 
   def __ruleNodeAccessTypedTokensInject(self):
     # print("debugging -- token control inject rule")
