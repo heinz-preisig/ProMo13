@@ -52,7 +52,7 @@ class ImageItemDelegate(QtWidgets.QStyledItemDelegate):
 
         painter.save()
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.drawPixmap(x, y, scaled_pixmap)
+        painter.drawPixmap(int(x), int(y), scaled_pixmap)
         painter.restore()
       else:
         # Pixmap is null, so draw a red background with text

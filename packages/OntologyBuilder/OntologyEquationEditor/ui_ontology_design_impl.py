@@ -337,23 +337,23 @@ class UiOntologyDesign(QMainWindow):
       print("debugging -- new index defined:", new_index)
 
   # NOTE: was activated with instantiate -- removed
-  def __make_InterfaceEquation(self):
-    variables_not_instantiated = self.variables.indexInstantiated(self.current_network)
-    enabled_var_types = self.variable_types_on_networks[self.current_network]
-    self.variables.indexVariables()
-    self.pick_instantiate = UI_VariableTableInterfaceInstantiate("All not instantiated variables",
-                                                                 self.variables,
-                                                                 self.indices,
-                                                                 self.current_network,
-                                                                 enabled_types=enabled_var_types,
-                                                                 hide_vars=[],
-                                                                 hide_columns=[
-                                                                         3],
-                                                                 info_file=None,
-                                                                 variable_IDs=variables_not_instantiated
-                                                                 )
-    self.pick_instantiate.picked.connect(self.__makeInstantiationEquation)
-    self.pick_instantiate.exec_()
+  # def __make_InterfaceEquation(self):
+  #   variables_not_instantiated = self.variables.indexInstantiated(self.current_network)
+  #   enabled_var_types = self.variable_types_on_networks[self.current_network]
+  #   self.variables.indexVariables()
+  #   self.pick_instantiate = UI_VariableTableInterfaceInstantiate("All not instantiated variables",
+  #                                                                self.variables,
+  #                                                                self.indices,
+  #                                                                self.current_network,
+  #                                                                enabled_types=enabled_var_types,
+  #                                                                hide_vars=[],
+  #                                                                hide_columns=[
+  #                                                                        3],
+  #                                                                info_file=None,
+  #                                                                variable_IDs=variables_not_instantiated
+  #                                                                )
+  #   self.pick_instantiate.picked.connect(self.__makeInstantiationEquation)
+  #   self.pick_instantiate.exec_()
 
   def on_pushCompile_pressed(self):
 
@@ -614,15 +614,20 @@ class UiOntologyDesign(QMainWindow):
       if variable.memory:
         to_node = variable.memory == "node"
         to_arc = variable.memory == "arc"
-      else:
-        answer = makeMessageBox("what is the target, node or arc", buttons=None,
-                                custom_buttons=[("node", "accept"), ("arc", "accept")], default="node")
-        if answer == "node":
-          to_node = True
-          to_arc = False
+        if to_node:
+          default = "node"
         else:
-          to_arc = True
-          to_node = False
+          default = "arc"
+      else:
+        default = None
+      answer = makeMessageBox("what is the target, node or arc", buttons=None,
+                              custom_buttons=[("node", "accept"), ("arc", "accept")], default=default)
+      if answer == "node":
+        to_node = True
+        to_arc = False
+      else:
+        to_arc = True
+        to_node = False
 
       if to_node:
         F = F_NI_source
@@ -1054,36 +1059,36 @@ class UiOntologyDesign(QMainWindow):
     # p = QtCore.QProcess()
     # p.startDetached("sh", [f_name, location])
 
-  def __makeInstantiationEquation(self, var_ID):
-
-    value = "V_0"
-    for ID in self.variables:
-      if self.variables[ID].label == "value":
-        value_ID = ID
-        value = self.variables[ID].aliases["global_ID"]
-
-    variable_compiled = self.variables[var_ID].aliases['global_ID']
-    rhs_internal = CODE["global_ID"]["Instantiate"] % (variable_compiled, value)
-
-    variable_latex = self.variables[var_ID].aliases['latex']
-    rhs_latex = CODE["latex"]["Instantiate"] % (variable_latex, value)
-
-    rhs_dic = {"global_ID": rhs_internal,
-               "latex"    : rhs_latex}
-
-    # TODO: this variable class/type should be centralised. Is currently hard wired in more than one place. -- obsolete ..?
-    # variable_type = VARIABLE_TYPE_INTERFACES
-
-    incident_list = [str(var_ID)]
-    link_equation = makeCompletEquationRecord(rhs=rhs_dic, type="instantiation_equation",
-                                              network=self.current_network,
-                                              doc="instantiation equation", incidence_list=incident_list)
-
-    self.variables.addEquation(var_ID, link_equation)
-
-    self.ontology_container.indexEquations()
-    self.pick_instantiate.close()
-    self.__make_InterfaceEquation()
+  # def __makeInstantiationEquation(self, var_ID):
+  #
+  #   value = "V_0"
+  #   for ID in self.variables:
+  #     if self.variables[ID].label == "value":
+  #       value_ID = ID
+  #       value = self.variables[ID].aliases["global_ID"]
+  #
+  #   variable_compiled = self.variables[var_ID].aliases['global_ID']
+  #   rhs_internal = CODE["global_ID"]["Instantiate"] % (variable_compiled, value)
+  #
+  #   variable_latex = self.variables[var_ID].aliases['latex']
+  #   rhs_latex = CODE["latex"]["Instantiate"] % (variable_latex, value)
+  #
+  #   rhs_dic = {"global_ID": rhs_internal,
+  #              "latex"    : rhs_latex}
+  #
+  #   # TODO: this variable class/type should be centralised. Is currently hard wired in more than one place. -- obsolete ..?
+  #   # variable_type = VARIABLE_TYPE_INTERFACES
+  #
+  #   incident_list = [str(var_ID)]
+  #   link_equation = makeCompletEquationRecord(rhs=rhs_dic, type="instantiation_equation",
+  #                                             network=self.current_network,
+  #                                             doc="instantiation equation", incidence_list=incident_list)
+  #
+  #   self.variables.addEquation(var_ID, link_equation)
+  #
+  #   self.ontology_container.indexEquations()
+  #   self.pick_instantiate.close()
+  #   self.__make_InterfaceEquation()
 
   def __getAllEquationsPerType(self, language):
     eqs = {}

@@ -219,7 +219,8 @@ class UI_Equations(QtWidgets.QWidget):
     self.show()
 
   def resetEquationInterface(self):
-    # NOTE: may not be used any more -- disabled in init
+
+    self.status_new_variable, self.status_new_equation, self.status_edit_expr = (False,False,False)  # reset status
     self.ui_indices = SingleListSelector(self.index_list, alternative=True,
                                          left=("reject", "reject","show"),
                                          right = ("accept", "accept", "show"))

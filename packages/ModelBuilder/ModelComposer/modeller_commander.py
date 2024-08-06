@@ -1480,11 +1480,6 @@ class Commander(QtCore.QObject):
                                                                                  alternative=True,
                                                                                  left=("reject", "reject","show"),
                                                                                  right = ("accept", "accept", "show"))
-                                                                                 # left_icon="reject",
-                                                                                 # left_tooltip="reject",
-                                                                                 # right_icon="accept",
-                                                                                 # right_tooltip="accept",
-                                                                                 # alternative=True)
 
     container = self.model_container.extractSubtree(nodeID)
 

@@ -42,7 +42,7 @@ class InstantiationDialog(QtWidgets.QDialog):
     self.ui.pushInstantiate.hide()
 
 
-    reg_ex = QtCore.QRegExp("[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?")         #"[0-9]+.?[0-9]{,2}")
+    reg_ex = QtCore.QRegExp("[-+]?[0-9]*[.]?[0-9]+([eE][-+]?[0-9]+)?")         #"[0-9]+.?[0-9]{,2}")
     input_validator = QtGui.QRegExpValidator(reg_ex, self.ui.lineEdit)
     self.ui.lineEdit.setValidator(input_validator)
 

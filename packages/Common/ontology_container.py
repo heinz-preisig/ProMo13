@@ -292,7 +292,10 @@ class OntologyContainer():
     # not used
 
     # TODO: currently not used
-    self.entity_behaviours = self.__readVariableAssignmentToEntity()
+    # self.entity_behaviours = self.__readVariableAssignmentToEntity()
+
+    self.arc_options = self.__read_arc_options_to_file()
+
 
     self.interfaces = self.__setupInterfaces()
 
@@ -1224,4 +1227,10 @@ class OntologyContainer():
 
   def __readVariableAssignmentFile(self, file_name):
     data = getData(file_name)
+    return data
+
+  def __read_arc_options_to_file(self):
+    # TODO: move to io.py
+    path = FILES["arc_options"] % self.ontology_name
+    data = getData(path)
     return data

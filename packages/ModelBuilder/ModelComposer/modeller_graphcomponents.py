@@ -755,12 +755,12 @@ class ShapeEllipse(QtWidgets.QGraphicsEllipseItem, G_Item):
       # print("ellipse  head tails")
       x = self.locPoint.x() - width / 2
       y = self.locPoint.y() - height / 2
-      painter.drawEllipse(0, 0, width, height)
+      painter.drawEllipse(0, 0, int(width), int(height))
       self.setPos(x, y)
     else:
       x = self.pos().x() + width / 2  # self.offset[0] - width / 2
       y = self.pos().y() + height / 2  # self.offset[1] - height / 2
-      painter.drawEllipse(x, y, width, height)
+      painter.drawEllipse(int(x), int(y), int(width), int(height))
       # if self.decoration in ["property", "indicator"]:
       #   print("painting ", self.decoration, x,y, width, height)#, self.offset)
 

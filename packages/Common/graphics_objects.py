@@ -450,7 +450,8 @@ OBJECTS_nodes_with_states = [NAMES["node"],
 
 OBJECTS_arcs_with_states = [NAMES["connection"],
                             NAMES["left arc"],
-                            NAMES["right arc"]]
+                            NAMES["right arc"],
+                            ]
 OBJECTS_with_state = OBJECTS_nodes_with_states + OBJECTS_arcs_with_states
 
 OBJECTS_without_state = [NAMES["branch"],
@@ -758,6 +759,7 @@ class GraphDataObjects(OrderedDict):
                 "\n-decoration          : ", decoration,
                 "\n-application         : ", application,
                 "\n-state               : ", state)
+          s = "blocked"                                         # note: a temporary fix
           # ,
           #       '\n1', phase, '\n2', graphics_root_object, '\n3',decoration, '\n4',application, '\n5',state)
       elif decoration in [NAMES["indicator token"], NAMES["indicator typed token"]]:  # RULE: this is the indicator

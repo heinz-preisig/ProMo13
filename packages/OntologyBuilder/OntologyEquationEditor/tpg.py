@@ -18,7 +18,7 @@ trees while parsing.
 """
 
 # Toy Parser Generator: A Python parser generator
-# Copyright (C) 2001-2013 Christophe Delord
+# Copyright (C) 2001-2022 Christophe Delord
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -35,23 +35,22 @@ trees while parsing.
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # For further information about TPG you can visit
-# http://cdsoft.fr/tpg
+# http://cdelord.fr/tpg
 
 # TODO:
 #   - indent and dedent preprocessor
 #
 
 __tpgname__ = 'TPG'
-__version__ = '3.2.2'
-__date__ = '2013-12-29'
+__version__ = '3.2.4'
+__date__ = '2022-01-28'
 __description__ = "A Python parser generator"
 __long_description__ = __doc__
 __license__ = 'LGPL'
 __author__ = 'Christophe Delord'
-__email__ = 'cdsoft.fr'
-__url__ = 'http://cdsoft.fr/tpg/'
+__email__ = 'cdelord.fr'
+__url__ = 'http://cdelord.fr/tpg/'
 
-import parser
 import re
 import sre_parse
 import sys
@@ -61,7 +60,8 @@ __python__ = sys.version_info[0]
 
 if __python__ == 3:
     import collections
-    callable = lambda value: isinstance(value, collections.Callable)
+    if callable is None:
+        callable = lambda value: isinstance(value, collections.Callable)
     exc = lambda: sys.exc_info()[1]
 
 if __python__ == 2:
@@ -916,7 +916,6 @@ class Parser(_Parser):
             self.lexer.next_token()
             return token.value
         else:
-            # print("wrong token: ", token)
             raise WrongToken
 
     def eatCSL(self, name):
@@ -1146,8 +1145,8 @@ class VerboseParser(Parser):
         found = "(%d,%d) %s %s"%(token.line, token.column, token.name, token.text)
         return "[%3d][%2d]%s: %s %s %s"%(eatcnt, stackdepth, callernames, found, op, expected)
 
-blank_line_re = re.compile("^\s*$")
-indent_re = re.compile("^\s*")
+blank_line_re = re.compile(r"^\s*$")
+indent_re = re.compile(r"^\s*")
 
 class tpg:
     """ This class contains some TPG classes to make the parsers usable inside and outside the tpg module
@@ -1229,7 +1228,7 @@ class TPGParser(tpg.Parser):
 
     TOKEN/$token_type(name, self.string_prefix, expr, code)$ ->
         (   'separator'     $ token_type = self.DefSeparator
-        |   "token"         $ token_type = self.DefToken
+        |   'token'         $ token_type = self.DefToken
         )
         ident/name ':'?
         @t string/expr      $ self.re_check(expr, t)
@@ -1325,7 +1324,7 @@ class TPGParser(tpg.Parser):
         lexer.def_token('_tok_1', r'set')
         lexer.def_token('_tok_2', r'=')
         lexer.def_token('_tok_3', r'separator')
-        lexer.def_token('_tok_4', r"token")
+        lexer.def_token('_tok_4', r'token')
         lexer.def_token('_tok_5', r':')
         lexer.def_token('_tok_6', r';')
         lexer.def_token('_tok_7', r'->')
@@ -1418,14 +1417,14 @@ class TPGParser(tpg.Parser):
         return ts
 
     def TOKEN(self, ):
-        r""" ``TOKEN -> ('separator' | "token") ident ':'? string (PY_EXPR ';'? | ';') ;`` """
+        r""" ``TOKEN -> ('separator' | 'token') ident ':'? string (PY_EXPR ';'? | ';') ;`` """
         _p1 = self.lexer.token()
         try:
             self.eat('_tok_3') # 'separator'
             token_type = self.DefSeparator
         except tpg.WrongToken:
             self.lexer.back(_p1)
-            self.eat('_tok_4') # "token"
+            self.eat('_tok_4') # 'token'
             token_type = self.DefToken
         name = self.eat('ident')
         _p2 = self.lexer.token()
@@ -1734,7 +1733,7 @@ class TPGParser(tpg.Parser):
 
     def code_check(self, code, tok):
         try:
-            parser.suite(code.code)
+            compile(code.code, "-", 'exec')
         except Exception:
             erroneous_code = "\n".join([ "%2d: %s"%(i+1, l) for (i, l) in enumerate(code.code.splitlines()) ])
             raise LexicalError((tok.line, tok.column), "Invalid Python code (%s): \n%s"%(exc, erroneous_code))
@@ -1748,7 +1747,7 @@ class TPGParser(tpg.Parser):
                                   'CacheLexer': CacheLexer,
                                   'ContextSensitiveLexer': ContextSensitiveLexer,
                                  },                                                     'NamedGroupLexer'),
-            'word_boundary':    ({'True': True, 'False': False},                        'False'),
+            'word_boundary':    ({'True': True, 'False': False},                        'True'),
             #'indent':           ({'True': True, 'False': False},                        'False'),
             'lexer_ignorecase': ({'True': "IGNORECASE", 'False': False},                'False'),
             'lexer_locale':     ({'True': "LOCALE",     'False': False},                'False'),
