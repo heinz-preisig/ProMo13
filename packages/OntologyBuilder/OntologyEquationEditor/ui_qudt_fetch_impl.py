@@ -62,7 +62,7 @@ class UI_QUDTFetch(QtWidgets.QWidget):
 
 
   def on_push_1_pressed(self):
-    print("debugging -- push_1 pressed")
+    # print("debugging -- push_1 pressed")
     package = "updateQuantityKindInformation"
     error = False
     try:
@@ -106,7 +106,7 @@ class UI_QUDTFetch(QtWidgets.QWidget):
     self.ui.push_1.setText("finished")
 
   def on_push_2_pressed(self):
-    print("debugging -- push_2 pressed")
+    # print("debugging -- push_2 pressed")
     package = "updateQuantityKindInformation"
     try:
       reply = receiver(package)

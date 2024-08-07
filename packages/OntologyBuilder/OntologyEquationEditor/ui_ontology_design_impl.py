@@ -274,13 +274,13 @@ class UiOntologyDesign(QMainWindow):
     self.__setupIndicesAliasTable()
 
   def on_pushMakeInterfaceEquations_pressed(self):
-    print("debugging -- radioMakeInterfaceEquations")
+    # print("debugging -- radioMakeInterfaceEquations")
     self.__setupEditInterface()
     self.__showFilesControl()
     self.ui.pushShowVariables.show()
 
   def on_pushShowInterfaceEquations_pressed(self):
-    print("debugging -- radioShowInterfaceEquations")
+    # print("debugging -- radioShowInterfaceEquations")
     hide = (["LaTex", "dot", "next", "port"])
 
     # no controlled by hiding button
@@ -308,7 +308,7 @@ class UiOntologyDesign(QMainWindow):
     for i in indices:
       exist_list.append(indices[i]["label"])
 
-    print("debugging -- labels:", exist_list)
+    # print("debugging -- labels:", exist_list)
 
     new_index = None
     while not (new_index):
@@ -334,7 +334,7 @@ class UiOntologyDesign(QMainWindow):
       a = CODE[language]["index"] % index_counter
       indices[indexID]["aliases"][language] = a
 
-      print("debugging -- new index defined:", new_index)
+      # print("debugging -- new index defined:", new_index)
 
   # NOTE: was activated with instantiate -- removed
   # def __make_InterfaceEquation(self):
@@ -484,7 +484,7 @@ class UiOntologyDesign(QMainWindow):
 
   @QtCore.pyqtSlot(int)
   def on_tabWidget_currentChanged(self, which):
-    print("debugging -- changed tab", which)
+    # print("debugging -- changed tab", which)
     self.ui.pushShowVariables.hide()
     self.current_network = None
     self.ui.combo_EditVariableTypes.hide()
@@ -499,7 +499,7 @@ class UiOntologyDesign(QMainWindow):
     left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
     right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
     self.equations = self.ontology_container.equations
-    print("debugging -- left and right network:", left_nw, right_nw)
+    # print("debugging -- left and right network:", left_nw, right_nw)
     set_left_variables = set()
     enabled_var_classes = list(
             self.variables.index_accessible_variables_on_networks[left_nw].keys())
@@ -750,7 +750,7 @@ class UiOntologyDesign(QMainWindow):
     # print("debugging -- link_equation", link_equation)
 
   def deleteLinkEquation(self, equ_ID, var_ID):
-    print("debugging -- deleting equation ", var_ID, equ_ID)
+    # print("debugging -- deleting equation ", var_ID, equ_ID)
     self.variables[var_ID].removeEquation(equ_ID)
     self.ontology_container.indexEquations()
 
@@ -1022,7 +1022,7 @@ class UiOntologyDesign(QMainWindow):
     print("debugging tex rep")
     for e_type in self.variables.equation_type_list:
       _s = sortingVariableAndEquationKeys(eqs[e_type].keys())
-      print("debugging -- equation type", e_type)
+      # print("debugging -- equation type", e_type)
       j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
       completed_template = j2_env.get_template(FILES["latex_template_equations"]). \
         render(equations=eqs[e_type], sequence=_s)

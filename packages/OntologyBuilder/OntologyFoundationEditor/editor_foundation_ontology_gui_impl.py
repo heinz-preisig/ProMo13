@@ -1033,7 +1033,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
       r.setChecked(False)
 
   def __ui_status(self, status):
-    print("debugging -- status:", status)
+    # print("debugging -- status:", status)
     for i in self.actions["0"]:
       if i in self.actions[status]:
         i.hide()
@@ -1059,13 +1059,13 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     left_nw = self.interconnection_network_dictionary[choice]["left"]
     right_nw = self.interconnection_network_dictionary[choice]["right"]
     vars_types = self.saved_ontology_container.variable_types_on_interconnection_networks_left_right
-    print("debugging -- left, right", left_nw, right_nw)
-    print("deugging -- var-types", vars_types[choice])
+    # print("debugging -- left, right", left_nw, right_nw)
+    # print("deugging -- var-types", vars_types[choice])
     left_variable_types = self.saved_ontology_container.variable_types_on_networks[left_nw]
     root_variable_types = self.saved_ontology_container.variable_types_on_networks["root"]
     enabled_set = set(left_variable_types) - set(root_variable_types)
-    print("debugging -- left variables classes:", left_variable_types)
-    print("debugging -- enabled_set classes:", enabled_set)
+    # print("debugging -- left variables classes:", left_variable_types)
+    # print("debugging -- enabled_set classes:", enabled_set)
 
     pass
 
@@ -1076,7 +1076,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
 
   def on_treeWidget_clicked(self, index):  # state network_selected
     self.current_network = self.ui.treeWidget.currentItem().name
-    print("debugging -- current network selected: ", self.current_network)
+    # print("debugging -- current network selected: ", self.current_network)
 
     self.__on_network_selected()
 
@@ -1275,7 +1275,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
       self.__ui_status("structure_token_selected")
 
   def on_radioButtonIsEnableAddingIndex_toggled(self, position):
-    print("debugging -- radio button position: ", position)
+    # print("debugging -- radio button position: ", position)
     self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = position
 
   def on_radioButtonHasPortVariables_toggled(self, position):
@@ -1290,7 +1290,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     self.__setRuleValue(position, "variable_classes_having_port_variables")
 
   def on_radioButtonHasPersistantVariables_toggled(self, position):
-    print("debugging -- radio button position: ", position)
+    # print("debugging -- radio button position: ", position)
     rule = "are_persistent_variables"
     self.__setRuleValue(position, rule)
 
@@ -1304,7 +1304,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
         pass
 
   def on_radioButtonAreConstants_toggled(self, position):
-    print("debugging -- radio button position: ", position)
+    # print("debugging -- radio button position: ", position)
     self.__setRuleValue(position, "are_constants")
 
   def on_radioButtonBehaviourNode_toggled(self, position):
@@ -1369,7 +1369,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
   def on_listViewStructureExtension_clicked(self):
     variable_name = self.ui.listViewStructureExtension.currentItem().text()
     self.current_structure_extension_variable = variable_name
-    print("debugging -- extension selected : ", variable_name)
+    # print("debugging -- extension selected : ", variable_name)
     component = self.__whichComponent("structure")
     ###self.__single_click(self.__click_reset)
     if component == "node":

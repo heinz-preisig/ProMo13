@@ -941,6 +941,8 @@ class Arc_Edge(R_Item):
 
   def __init__(self, arcID, sourceNode, destNode, arc_type, scene, view, commander):
     QtWidgets.QGraphicsItem.__init__(self, None)
+    # if arc_type in ["arc_left", "arc_right"]:
+    # print("debugging", arcID, sourceNode.ID, destNode.ID, arc_type)
     self.scene = scene
     self.view = view
     # R_Item.__init__(self, arcID, NAMES["connection"], scene, view, commander)

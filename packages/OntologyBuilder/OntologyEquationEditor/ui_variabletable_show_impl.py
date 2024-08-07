@@ -112,7 +112,7 @@ class UI_VariableTableShow(VariableTable):
 
     self.selected_variable_symbol = data[1]
     self.selected_variable_ID = data[9]
-    print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
+    # print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
 
 
     if column == 9:
@@ -182,7 +182,7 @@ class UI_VariableTableShow(VariableTable):
       data[c] = item(row, c).text()
       # print("debugging -- chose:", c, str(data[c]))
     self.selected_variable_ID = data[9]
-    print("debugging -- selected ID:", self.selected_variable_ID)
+    # print("debugging -- selected ID:", self.selected_variable_ID)
 
   def on_pushFinished_pressed(self):
     self.close()

@@ -753,12 +753,12 @@ class GraphDataObjects(OrderedDict):
           else:
             s = M_None
         except:
-          print("get active object -- problem",
-                "\n-phase               : ", phase,
-                "\n-graphics_root_object: ", graphics_root_object,
-                "\n-decoration          : ", decoration,
-                "\n-application         : ", application,
-                "\n-state               : ", state)
+          # print("get active object -- problem",
+          #       "\n-phase               : ", phase,
+          #       "\n-graphics_root_object: ", graphics_root_object,
+          #       "\n-decoration          : ", decoration,
+          #       "\n-application         : ", application,
+          #       "\n-state               : ", state)
           s = "blocked"                                         # note: a temporary fix
           # ,
           #       '\n1', phase, '\n2', graphics_root_object, '\n3',decoration, '\n4',application, '\n5',state)
@@ -852,6 +852,6 @@ def getGraphData(networks,
       if "states" in data_dict:
         state_colours.update(data_dict["states"])
 
-  if DATA == {}:
-    print("debugging -- empty data")
+  # if DATA == {}:
+  #   print("debugging -- empty data")
   return NETWORK, TOKENS, DATA, state_colours

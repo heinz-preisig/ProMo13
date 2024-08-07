@@ -281,7 +281,7 @@ class UI_VariableTableDialog(VariableTable):
     self.selected_ID = selected_ID
     v = self.variables[selected_ID]
 
-    print("debugging -- argument", selected_ID, self.variables.inv_incidence_dictionary[selected_ID])
+    # print("debugging -- argument", selected_ID, self.variables.inv_incidence_dictionary[selected_ID])
     not_yet_used = (self.variables.inv_incidence_dictionary[selected_ID] == []) and \
                    (len(self.variables[selected_ID].equations.keys()) == 0)
 
@@ -427,7 +427,7 @@ class UI_VariableTableDialog(VariableTable):
           tokens_not_linked.append(token)
       if len(tokens_not_linked) == 0:
         return
-    print("debugging -- token list generation", tokens)
+    # print("debugging -- token list generation", tokens)
     self.phys_var = phys_var  # used to change things
     try:
       del self.ui_selector

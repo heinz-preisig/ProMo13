@@ -530,7 +530,7 @@ class UI_Equations(QtWidgets.QWidget):
 
     alias = self.ui.lineEditLatex.text()
     self.variables.changeVariableAlias(var_ID, "latex", alias)
-    print("debugging -- alias", alias)
+    # print("debugging -- alias", alias)
     self.variables.indexVariables()
     self.ontology_container.indexEquations()
     self.update_space_information.emit()

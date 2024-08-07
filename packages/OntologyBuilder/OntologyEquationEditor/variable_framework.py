@@ -189,7 +189,7 @@ def stringBinaryOperation(language, operation, left, right,
     try:
       s = CODE[language][operation] % (a, b)
     except:
-      print("debugging -- wrong template")
+      # print("debugging -- wrong template")
       if operation == "*":
         s_index_a = set(left.index_structures)
         s_index_b = set(right.index_structures)
@@ -913,7 +913,7 @@ class Variables(OrderedDict):
       equations = self[v].equations
       if equation_ID in equations:
         del equations[equation_ID]
-        print("debugging -- remove equation ", equation_ID, "  in variable ", v, self[v].label)
+        # print("debugging -- remove equation ", equation_ID, "  in variable ", v, self[v].label)
 
     self.indexVariables()  # indexEquationsInNetworks()
 
@@ -930,7 +930,7 @@ class Variables(OrderedDict):
     creation = old_equation_record["created"]
     equation_record["created"] = creation
     variable_record.equations[old_equ_ID] = equation_record
-    print("debugging -- replace equation")
+    # print("debugging -- replace equation")
 
   def existSymbol(self, network, label):
     """
