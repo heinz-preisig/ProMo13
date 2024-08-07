@@ -118,7 +118,7 @@ class Commander(QtCore.QObject):
     # Loading Equations and Entities in the new form.
     self.all_variables, _, all_equations = load_var_idx_eq_from_file(
             self.main.ontology_name
-            )
+    )
     self.all_entities = load_entities_from_file(
             self.main.ontology_name, all_equations)
 
@@ -276,7 +276,7 @@ class Commander(QtCore.QObject):
             "pos"   : position,
             "file"  : "-",
             "failed": False,
-            }
+    }
     if graphics_root_object in [NAMES["connection"], NAMES["right arc"], NAMES["left arc"]]:
       pars["arc"] = item.parent.getArcID()
 
@@ -371,6 +371,7 @@ class Commander(QtCore.QObject):
     if action == "None":
       res = {"failed": False}
     elif action == "-":
+      self.__redrawScene(pars["nodeID"])
       res = {"failed": False}
     elif action == "zoom in":
       res = self.__c01_makeThisCurrentNode(pars["nodeID"])
@@ -544,7 +545,7 @@ class Commander(QtCore.QObject):
     return {
             "new node": newnodeID,
             "failed"  : False
-            }
+    }
 
   def __addBoundaryNode(self, pos, boundary, application, network, named_connection_network, entity_name):
     """
@@ -561,9 +562,7 @@ class Commander(QtCore.QObject):
 
     x, y = pos.x(), pos.y()
 
-
     # RULE: node type for boundary is constraint to event dynamic
-
 
     features = None
     if boundary in [NAMES["intraface"], NAMES["arc node"]]:  # note: now the same as arc_node
@@ -606,7 +605,7 @@ class Commander(QtCore.QObject):
     return {
             "new node": newnodeID,
             "failed"  : False
-            }
+    }
 
   def __c03_deleteNode(self, nodeID):
     """
@@ -688,7 +687,7 @@ class Commander(QtCore.QObject):
 
     return {
             "failed": False
-            }
+    }
 
   def __c05_explodeNode(self, nodeID):
     """
@@ -708,7 +707,7 @@ class Commander(QtCore.QObject):
     return {
             "exploded node": nodeID,
             "failed"       : False
-            }
+    }
 
   def __c01_makeThisCurrentNode(self, nodeID):
     """
@@ -726,7 +725,7 @@ class Commander(QtCore.QObject):
     return {
             "viewed node": nodeID,
             "failed"     : False
-            }
+    }
 
   def __c06_beginArc(self, nodeID):
     """
@@ -742,14 +741,12 @@ class Commander(QtCore.QObject):
     self.arcSourceID = nodeID  # used in addThe Arc
     parent_node = self.model_container["ID_tree"].getImmediateParent(nodeID)
     self.__arc_building_state = ("begin", False, False)
-    self.__redrawScene(parent_node) #self.current_ID_node_or_arc)
+    self.__redrawScene(parent_node)  # self.current_ID_node_or_arc)
 
     return {
             "selected source": nodeID,
             "failed"         : False
-            }
-
-
+    }
 
   def __c07_addTheArc(self, toNodeID):
     """
@@ -786,7 +783,6 @@ class Commander(QtCore.QObject):
         arcSource = fromNodeID
         arcSink = toNodeID
 
-
       this_arc = self.model_container["arcs"][existing_arc]
       token = this_arc["token"]
       mechanism = this_arc["mechanism"]
@@ -795,7 +791,7 @@ class Commander(QtCore.QObject):
       network = this_arc["network"]
       named_network = this_arc["named_network"]
 
-      arcID, views_with_arc = self.model_container.addArc(arcSource, arcSink, #insertArcSource, insertArcSink,
+      arcID, views_with_arc = self.model_container.addArc(arcSource, arcSink,  # insertArcSource, insertArcSink,
                                                           network,
                                                           named_network,
                                                           mechanism,
@@ -806,7 +802,7 @@ class Commander(QtCore.QObject):
 
 
     else:
-      # ------------------------ insert full arc -------------------------------------------------------
+      # ========================- insert full arc ======================================================
 
       # find intra domains ------------------------------------------------------------------------------
       source_intra_domain = None
@@ -826,7 +822,7 @@ class Commander(QtCore.QObject):
       named_connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source["named_network"], sink["named_network"])
 
       entities = list(self.main.ontology.node_arc_SubClasses.keys())
-      if L_differentDomains:# named connection network
+      if L_differentDomains:  # named connection network
         # connection of two networks
         connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source_intra_domain, sink_intra_domain)
         ands = [connection_network, ]
@@ -861,7 +857,7 @@ class Commander(QtCore.QObject):
         nature = dummy_Interface["nature"]
         variant = "interface"  # RULE: variant is being fixed for the time being
         application = CR.TEMPLATE_ARC_APPLICATION % (token, mechanism, nature)
-        connection_network = CR.TEMPLATE_CONNECTION_NETWORK%(source["network"], sink["network"])
+        connection_network = CR.TEMPLATE_CONNECTION_NETWORK % (source["network"], sink["network"])
       else:
         # get intraface properties
         boundary = NAMES["arc node"]
@@ -875,10 +871,10 @@ class Commander(QtCore.QObject):
 
       pos = self.__getMidPoint(fromNodeID, toNodeID)
       pars = self.__addBoundaryNode(pos, boundary, application,
-                                   connection_network, named_connection_network, selected_entity)
+                                    connection_network, named_connection_network, selected_entity)
       newnodeID = pars["new node"]
       if not L_differentDomains:
-        self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = [ ]
+        self.model_container["nodes"][newnodeID]["transfer_constraints"][token] = []
 
       arcID, views_with_arc = self.model_container.addArc(fromNodeID, newnodeID,
                                                           source["network"],
@@ -896,7 +892,6 @@ class Commander(QtCore.QObject):
                                                           nature,
                                                           variant=variant)
 
-
     self.state_nodes[self.arcSourceID] = STATES[self.editor_phase]["arcs"][0]
     self.arcSourceID = None
     self.__arc_building_state = (None, False, False)
@@ -911,11 +906,10 @@ class Commander(QtCore.QObject):
     self.__redrawScene(self.current_ID_node_or_arc)
 
     return {
-            "added arc": arcID,
+            # "added arc": arcID,
             "sink node": toNodeID,
             "failed"   : False
-            }
-
+    }
 
   def __getMidPoint(self, fromNodeID, toNodeID):
     parent_nodeID_source = self.model_container["ID_tree"].getImmediateParent(
@@ -931,7 +925,8 @@ class Commander(QtCore.QObject):
     pos = QtCore.QPoint(x_mid, y_mid)
     return pos
 
-  def __insetArcWithBoundary(self, source_node_ID, sink_node_ID, boundary, application, connection_network, named_connection_network):
+  def __insetArcWithBoundary(self, source_node_ID, sink_node_ID, boundary, application, connection_network,
+                             named_connection_network):
 
     pos = self.__getMidPoint(source_node_ID, sink_node_ID)
 
@@ -945,7 +940,7 @@ class Commander(QtCore.QObject):
     variant_sink = sink["variant"]
     type_sink = sink["type"]
     source_entity = extract(entities, filter_and=[variant_source, type_source], filter_or=[
-            ], filter_not=[])  # this should yield only one
+    ], filter_not=[])  # this should yield only one
     sink_entity = extract(entities, filter_and=[
             variant_sink, type_sink], filter_or=[], filter_not=[])  # ditto
     _, _, application, _ = splitEntity(source_entity[0])
@@ -1031,7 +1026,7 @@ class Commander(QtCore.QObject):
     return {
             "arc"   : arcID,
             "failed": False
-            }
+    }
 
   def __c08_removeArc(self, arcID):
     """
@@ -1088,7 +1083,7 @@ class Commander(QtCore.QObject):
     return {
             "arc"   : arcID,
             "failed": False
-            }
+    }
 
   def __c12_removeKnot(self):
     """
@@ -1106,7 +1101,7 @@ class Commander(QtCore.QObject):
     return {
             "arc"   : knot.arcID,
             "failed": False
-            }
+    }
 
   def __c09_reconnectArc(self, pointer_object_name):
     """
@@ -1140,7 +1135,7 @@ class Commander(QtCore.QObject):
     return {
             # "target node": S_ID,
             "failed": False
-            }
+    }
 
   def __c10_changeArc(self, C_ID):
     """
@@ -1173,7 +1168,7 @@ class Commander(QtCore.QObject):
 
     return {
             "failed": False
-            }
+    }
 
   def __c13_makeCopy(self, nodeID):
     """
@@ -1192,7 +1187,8 @@ class Commander(QtCore.QObject):
     """
 
     # get schnipsel name -- rule: new or used
-    kwargs = {'centre': ('new', 'new model', 'show'), 'left': ('reject', 'reject', 'show'), 'right': ('accept', 'accept', 'hide')}
+    kwargs = {'centre': ('new', 'new model', 'show'), 'left': ('reject', 'reject', 'show'),
+              'right' : ('accept', 'accept', 'hide')}
     schnipsel_name_to_be_saved, new_model = askForModelFileGivenOntologyLocation(self.main.model_library_location,
                                                                                  alternative=True,
                                                                                  left=("reject", "reject", "show"),
@@ -1264,7 +1260,7 @@ class Commander(QtCore.QObject):
 
     return {
             "failed": False,
-            }
+    }
 
   def _load_instantiation_values(self, model_file):
     ontology_name = self.model_container.ontology.ontology_name
@@ -1276,7 +1272,7 @@ class Commander(QtCore.QObject):
             ontology_name,
             model_name,
             self.all_entities,
-            )
+    )
 
     # TODO: Remove when InstInfo only comes from the new model file
     for _, node_info in self.model_container["nodes"].items():
@@ -1333,7 +1329,7 @@ class Commander(QtCore.QObject):
     self.schnipsel_file = schnipsel_file
     return {
             "failed": False
-            }
+    }
 
   # TODO this is obsolete model is always mapped just save maps!
   def __c22_mapAndSaveModel(self, model, f):
@@ -1389,7 +1385,7 @@ class Commander(QtCore.QObject):
     return {
             "saved file": f,
             "failed"    : False
-            }
+    }
 
   def __c24_save_new_model_file(self, model_container, new_model_file_path: str):
     pp(model_container["ID_tree"])
@@ -1408,7 +1404,7 @@ class Commander(QtCore.QObject):
         data["name"] = str(node_info["name"])
         all_topology_objects[identifier] = modeller_classes.NodeComposite(
                 **data
-                )
+        )
 
         map_number_id_to_str_id[number_id] = identifier
       elif (
@@ -1422,7 +1418,7 @@ class Commander(QtCore.QObject):
           data["instantiated_variables"][var_id] = {
                   eval(key): value
                   for key, value in inst_info.items()
-                  }
+          }
 
         entity_id = node_info["entity_id"]
         data["entity_instance"] = self.all_entities[entity_id]
@@ -1449,13 +1445,13 @@ class Commander(QtCore.QObject):
           data["identifier"] = identifier
           all_topology_objects[identifier] = modeller_classes.NodeSimple(
                   **data
-                  )
+          )
         else:
           identifier = f"A_{str(number_id)}"
           data["identifier"] = identifier
           all_topology_objects[identifier] = modeller_classes.Arc(
                   **data
-                  )
+          )
 
         map_number_id_to_str_id[number_id] = data["identifier"]
 
@@ -1471,12 +1467,12 @@ class Commander(QtCore.QObject):
       if isinstance(
               all_topology_objects[current_id],
               modeller_classes.NodeComposite,
-              ):
+      ):
         children_number_ids = id_tree[number_id]["children"]
         children_ids = [
                 map_number_id_to_str_id[child_number_id]
                 for child_number_id in children_number_ids
-                ]
+        ]
         all_topology_objects[current_id].children_ids = children_ids
 
     # Adding the connection info from the arcs
@@ -1497,7 +1493,7 @@ class Commander(QtCore.QObject):
             model_name,
             all_topology_objects,
             new_model_file_path,
-            )
+    )
 
   def __c25_insertSchnipsel(self, position):
     """
@@ -1536,7 +1532,7 @@ class Commander(QtCore.QObject):
     return {
             "failed"      : False,
             "library file": self.library_model_name
-            }
+    }
 
   def __c27_selectNode(self, nodeID):
     """
@@ -1625,7 +1621,6 @@ class Commander(QtCore.QObject):
     Returns:
         _type_: _description_
     """
-
 
     nodes_to_instantiate = []
     if "arc" in pars:
@@ -1856,9 +1851,6 @@ class Commander(QtCore.QObject):
 
     return incomplete_nodes, incomplete_arcs
 
-
-
-
   def _get_entity_name_from_node(self, node_id: str) -> entity.Entity:
     """Gets the entity associated to a node.
 
@@ -1909,7 +1901,6 @@ class Commander(QtCore.QObject):
       return ent_name
     else:
       return None
-
 
   # ===================================================================
   def __setName(self, node, name):
@@ -2037,6 +2028,8 @@ class Commander(QtCore.QObject):
     return node
 
   def __drawArc(self, arcID, fromNode, toNode, arc_type):
+    if arc_type in [NAMES["left arc"], NAMES["right arc"]]:
+      print("debugging -- arc left or right")
     arc = Arc_Edge(arcID,
                    fromNode, toNode,
                    arc_type,
@@ -2257,7 +2250,7 @@ class Commander(QtCore.QObject):
                 "position_y": y,
                 "colour"    : colour,
                 "type"      : NAMES["indicator token"]
-                }
+        }
 
         typed_tokens = self.model_container["nodes"][ID]["tokens"][token]
         y_t = copy.copy(y) - 25
@@ -2272,7 +2265,7 @@ class Commander(QtCore.QObject):
                   "colour"    : colour,
                   "type"      : NAMES["indicator typed token"],
                   "label"     : typed_token
-                  }
+          }
           pass
 
     # print("indicator definition:", indicator)
@@ -2293,11 +2286,11 @@ class Commander(QtCore.QObject):
       print("start redraw node ", nodeID)
 
     children = self.model_container["ID_tree"].getChildren(nodeID)
-
+    nodes = self.model_container["nodes"]
     # nodes
     for child in children:
-      graph_object_class = self.model_container["nodes"][child]["class"]
-      application = self.model_container["nodes"][child]["type"]
+      graph_object_class = nodes[child]["class"]
+      application = nodes[child]["type"]
       self.__drawNode(0, 0, child, graph_object_class, application)
 
     # arcs
@@ -2314,14 +2307,42 @@ class Commander(QtCore.QObject):
       toNode = self.__getObjectFromScene("Node", nodeID, sinkID)
 
       arc_type = NAMES["connection"]
-      if self.model_container["nodes"][sourceID]["class"] in [NAMES["arc node"],
-                                                              NAMES["intraface"],
-                                                              NAMES["interface"]]:
+
+      if arcID in [2, 3]:
+        print("debugging -- arc ", arcID)
+      # if nodes[sourceID]["class"] in [NAMES["interface"]]:
+      #   print("debugging -- interface sourceID", nodeID)
+      # if nodes[sinkID]["class"] in [NAMES["interface"]]:
+      #   print("debugging -- interface sinkID", nodeID)
+      #
+      #
+      # if nodes[sourceID]["class"] in [NAMES["arc node"],
+      #                                                         NAMES["intraface"],
+      #                                                         NAMES["interface"]]:
+      #   arc_type = NAMES["right arc"]
+      # if nodes[sinkID]["class"] in [NAMES["arc node"],
+      #                                                       NAMES["intraface"],
+      #                                                       NAMES["interface"]]:
+      #   arc_type = NAMES["left arc"]
+
+      L_fromNodeInterface = nodes[sourceID]["class"] == NAMES["interface"]
+      L_toNodeInterface = nodes[sinkID]["class"] == NAMES["interface"]
+      L_fromNodeIntraface = nodes[sourceID]["class"] == NAMES["intraface"]
+      L_toNodeIntraface = nodes[sinkID]["class"] == NAMES["intraface"]
+
+      if L_fromNodeInterface and L_toNodeIntraface:
         arc_type = NAMES["right arc"]
-      if self.model_container["nodes"][sinkID]["class"] in [NAMES["arc node"],
-                                                            NAMES["intraface"],
-                                                            NAMES["interface"]]:
+      elif L_fromNodeInterface and not L_toNodeIntraface:
+        arc_type = NAMES["right arc"]
+      elif L_fromNodeIntraface and L_toNodeInterface:
         arc_type = NAMES["left arc"]
+      elif L_fromNodeInterface and not L_toNodeIntraface:
+        arc_type = NAMES["left arc"]
+      else:
+        if L_fromNodeInterface or L_fromNodeIntraface:
+          arc_type = NAMES["right arc"]
+        else:
+          arc_type = NAMES["left arc"]
 
       no_knots = len(self.model_container["scenes"][nodeID]["arcs"][arcID])
       if no_knots != 0:
@@ -2375,6 +2396,8 @@ class Commander(QtCore.QObject):
         self.__drawArc(arcID, last_knot, toNode, arc_type)
 
       else:
+        if arcID == 0:
+          print("debugging -- arc 0")
         self.__drawArc(arcID, fromNode, toNode, arc_type)
 
   def __check_for_open_arc(self, arcID):
@@ -2409,7 +2432,7 @@ class Commander(QtCore.QObject):
     possible_sinks_variants = set()
     possible_arc_variants = set()
 
-    if not (L_fromIsIntraface or  L_fromIsInterface):
+    if not (L_fromIsIntraface or L_fromIsInterface):
       # ========================================= either ===============================================================
 
       print("seek all possible options")
@@ -2426,10 +2449,10 @@ class Commander(QtCore.QObject):
 
       if L_fromIsInterface:
         # ===================================================  interface ================================================
-        output_arcs,input_arcs = self.model_container.getArcsInAndOutOfNode(nodeID)
+        output_arcs, input_arcs = self.model_container.getArcsInAndOutOfNode(nodeID)
         e_input = len(input_arcs)  # note: assumes one input arc and one output arc
         e_output = len(output_arcs)
-        if ( e_input == 1) and (e_output == 1):
+        if (e_input == 1) and (e_output == 1):
           return self.__abortArcGeneration("this interface is properly connected")
         elif (e_input == 0) and (e_output == 0):
           return self.__abortArcGeneration("error >>> isolated interface node --> delete")
@@ -2445,13 +2468,14 @@ class Commander(QtCore.QObject):
           self.partialInterfaceOrIntraFace = (True, "forward", input_arcs[0])
           pass
         else:
-          return self.__abortArcGeneration("error >>> should not get here inputs %s, outputs %s"%(input_arcs, output_arcs))
+          return self.__abortArcGeneration(
+            "error >>> should not get here inputs %s, outputs %s" % (input_arcs, output_arcs))
 
 
       # ======================================== intraface =============================================================
       elif L_fromIsIntraface:
         tokens = self.model_container.getTokensInNode(nodeID)
-        output_arcs,input_arcs = self.model_container.getArcsInAndOutOfNode(nodeID, tokens=tokens)
+        output_arcs, input_arcs = self.model_container.getArcsInAndOutOfNode(nodeID, tokens=tokens)
         a_input = len(input_arcs)
         a_output = len(output_arcs)
 
@@ -2459,7 +2483,6 @@ class Commander(QtCore.QObject):
 
         # if (l_input == 0) and (l_output == 0):
         #   return self.__abortArcGeneration("error >>> isolated intraface node")
-
 
         if a_output == 0:
           feasible_node_variants = arc_entities[arc_entity]["sinks"]
@@ -2471,12 +2494,11 @@ class Commander(QtCore.QObject):
           self.partialInterfaceOrIntraFace = (True, "reverse", output_arcs[0])
           feasible_node_variants = arc_entities[arc_entity]["sources"]
           # arc_node_block.add(self.model_container["arcs"][output_arcs[0]]["sink"])
-        elif (a_input == 1) and (a_output == 1): # TODO: allow for interface connection in and out
+        elif (a_input == 1) and (a_output == 1):  # TODO: allow for interface connection in and out
           print("seek possible sinks in inter domains")
           return self.__abortArcGeneration("nothing to connect")
 
     print("enable feasible target nodes")
-
 
     self.feasible_node_variants = feasible_node_variants
     self.arc_node_block = arc_node_block
@@ -2487,48 +2509,45 @@ class Commander(QtCore.QObject):
 
     pass
 
-
   def __enableDisableNodesWhenBuildingArc(self, nodeID):
-    
-    children = self.model_container["ID_tree"].getChildren(nodeID) 
-    
-    for id in children:# RULE: block what is not a feasible variant
+
+    children = self.model_container["ID_tree"].getChildren(nodeID)
+
+    for id in children:  # RULE: block what is not a feasible variant
       if self.model_container["nodes"][id]["entity_id"] in self.feasible_node_variants:
         self.state_nodes[id] = "enabled"
       else:
         self.state_nodes[id] = "blocked"
-        
+
     arc_node_block = set()
-  # rule: block interfaces and intrafaces when building arcs
-    if self.__arc_building_state[1] == True: # interface
+    # rule: block interfaces and intrafaces when building arcs
+    if self.__arc_building_state[1] == True:  # interface
       check = NAMES["interface"]
     elif self.__arc_building_state[2] == True:
       check = NAMES["intraface"]
     else:
       check = None
-      
+
     for id in children:
       if self.model_container["nodes"][id]["class"] == check:
         arc_node_block.add(id)
 
-  #rule: don't allow for looping arcs
-    if self.partialInterfaceOrIntraFace[0]:  
+    # rule: don't allow for looping arcs
+    if self.partialInterfaceOrIntraFace[0]:
       existing_arc = self.partialInterfaceOrIntraFace[2];
       arc_node_block.add(self.model_container["arcs"][existing_arc]["source"])
-      arc_node_block.add(self.model_container["arcs"][existing_arc]["sink"])      
+      arc_node_block.add(self.model_container["arcs"][existing_arc]["sink"])
 
     if arc_node_block:
       for a in arc_node_block:
         self.state_nodes[a] = "blocked"
 
-
-  #rule: only one input of information to an arc_node
+    # rule: only one input of information to an arc_node
     for id in children:
       if self.model_container["nodes"][id]["class"] == NAMES["intraface"]:
         output_arcs, input_arcs = self.model_container.getArcsInAndOutOfNode(id, tokens=["information"])
-        if len(input_arcs) >0 :
+        if len(input_arcs) > 0:
           self.state_nodes[id] = "blocked"
-
 
   def __ruleNodeAccessInNetworkOnly(self):
     arcs = self.model_container["arcs"]
@@ -2541,7 +2560,7 @@ class Commander(QtCore.QObject):
     else:
       fixed_nodeID = arc["sink"]
 
-  # rule: reconnect only within the same network & subnetwork
+    # rule: reconnect only within the same network & subnetwork
     # note: this could be reduced to nework only --> requires changing the arc_node's properties
     source_network = nodes[nodeID][NAMES["network"]]
     source_named_network = nodes[nodeID][NAMES["named_network"]]
@@ -2559,10 +2578,10 @@ class Commander(QtCore.QObject):
       if child == fixed_nodeID:
         self.state_nodes[child] = "blocked"
 
-# rule: no looping
+    # rule: no looping
     tokens = list(nodes[fixed_nodeID]["tokens"].keys())
     output_arcs, input_arcs = self.model_container.getArcsInAndOutOfNode(fixed_nodeID, tokens=tokens)
-    if  self.selected_arcID in input_arcs:  # Note: we assume only one input and one output token flow
+    if self.selected_arcID in input_arcs:  # Note: we assume only one input and one output token flow
       existing_arc = output_arcs[0]
     else:
       existing_arc = input_arcs[0]
@@ -2571,6 +2590,22 @@ class Commander(QtCore.QObject):
     self.state_nodes[arcs[existing_arc]["sink"]] = "blocked"
     pass
 
+  def __ruleInsertEditorState(self):
+
+    self.__resetNodeStatesAndSelectedArc()
+    # arcs = self.model_container["arcs"]
+    nodes = self.model_container["nodes"]
+    children = self.model_container["ID_tree"].getChildren(self.currently_viewed_node)
+    for child in children:
+      if nodes[child]["type"] == NAMES["interface"]:
+        self.state_nodes[child] = "blocked"
+
+    for id in children:
+      if self.model_container["nodes"][id]["class"] == NAMES["intraface"]:
+        output_arcs, input_arcs = self.model_container.getArcsInAndOutOfNode(id, tokens=["information"])
+        if len(input_arcs) > 0:
+          self.state_nodes[id] = "blocked"
+    pass
 
   def __ruleNodeAccessTypedTokensInject(self):
     # print("debugging -- token control inject rule")
@@ -2658,7 +2693,8 @@ class Commander(QtCore.QObject):
     for node in children:
       if self.state_nodes[node] == fromwhat:
         # "enabled"
-        self.state_nodes[node] = STATES[self.main.editor_phase]["nodes"][0] #STATES[self.main.current_network]["nodes"][0]
+        self.state_nodes[node] = STATES[self.main.editor_phase]["nodes"][
+          0]  # STATES[self.main.current_network]["nodes"][0]
 
   def resetGroups(self):
     self.node_group = set()
@@ -2710,11 +2746,10 @@ class Commander(QtCore.QObject):
         self.__ruleConnectArc()
       elif (self.__arc_building_state[0] == "building"):
         self.__enableDisableNodesWhenBuildingArc(self.current_ID_node_or_arc)
-        pass
+      elif state == "insert":
+        self.__ruleInsertEditorState()
       else:
         self.resetNodeStates()
-        # self.__ruleNodeAccessInNetworkOnly()
-        # self.__ruleNodeAccessTopologyAcrossNetworks()
     elif phase == EDITOR_PHASES[1]:
       select = self.main.state_inject_or_constrain_or_convert
       if select == "inject":

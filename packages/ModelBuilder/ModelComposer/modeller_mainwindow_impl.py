@@ -383,7 +383,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
         self.radio[phase][k].setChecked(True)
 
   def __keyAutomatonSignal(self, token_class, token, strID, value):
-    if value:
+    if value and not self.initialising:
       item = self.commander.setPanelAsCurrentItem()
       self.commander.processGUIEvent("controlboard", item, strID)
 
