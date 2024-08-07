@@ -119,7 +119,7 @@ class UI_VariableTableDeleteEquation(VariableTable):
 
     self.selected_variable_symbol = data[1]
     self.selected_variable_ID = data[9]
-    print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
+    # print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
 
 
     if column == 7:

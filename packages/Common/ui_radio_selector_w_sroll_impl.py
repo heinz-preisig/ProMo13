@@ -43,26 +43,29 @@ class UI_RadioSelector(QtWidgets.QDialog):
     self.ui.setupUi(self)
     self.radioButton = {}
 
-    roundButton(self.ui.pushButton,"back", tooltip="close and submit the chosen set")
+    self.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.Popup)
+
+    roundButton(self.ui.pushButton, "back", tooltip="close and submit the chosen set")
 
     self.setup(initialise=True)
 
   def setup(self, initialise=False):
 
-    active_radios = self.radios #checked
+    active_radios = self.radios  # checked
     if not initialise:
       active_radios = self.checked
       if len(active_radios) < self.allowed:
         active_radios = self.radios
 
     max_width = 0
-    height_offset = 40  # offset for bar etc
+    height_offset = 150  # offset for bar etc
     width_offset = 100
     height = 0
     for i in active_radios:
       label = QtWidgets.QLabel(i)
       width = label.fontMetrics().boundingRect(label.text()).width()
-      height = height + self.allowed * label.fontMetrics().boundingRect(label.text()).height()
+      # height = height + self.allowed * label.fontMetrics().boundingRect(label.text()).height()
+      height = height + label.fontMetrics().boundingRect(label.text()).height()
       if width > max_width:
         max_width = width
 
@@ -91,7 +94,6 @@ class UI_RadioSelector(QtWidgets.QDialog):
     self.radioButton[name].clicked.connect(self.gotClick)
     self.ui.verticalLayout.addWidget(self.radioButton[name])
 
-
   def gotClick(self):
     self.checked = []
     for b in list(self.radioButton.keys()):
@@ -112,8 +114,8 @@ if __name__ == '__main__':
   a = QtWidgets.QApplication([])
   selection = 'b'
   w = UI_RadioSelector(
-          ['a', 'befg', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'], [],allowed=10,
-          maxheight=1000)
+          ['a', 'befg', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k', 'l'], [], allowed=5,
+          maxheight=500)
   w.newSelection.connect(print)
   w.show()
   a.exec_()

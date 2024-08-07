@@ -169,7 +169,7 @@ class EditorGraphComponentsDialogImpl(QtWidgets.QMainWindow):
     self.ui.stackedColouring.setCurrentIndex(2)
 
   def on_comboEditorPhase_currentTextChanged(self, phase):
-    print("debugging -- new editor phase:", str(phase))
+    # print("debugging -- new editor phase:", str(phase))
     # phase = self.ui.comboEditorPhase.currentText()
     self.current_editor_phase = str(phase)
     done = self.__makeComboState()

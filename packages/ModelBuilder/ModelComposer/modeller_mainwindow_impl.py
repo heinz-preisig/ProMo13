@@ -50,9 +50,9 @@ from Common.resources_icons import roundButton
 from Common.save_file_impl import SaveFileDialog
 from Common.ui_combo_integer_dialog_impl import UI_Combo_Integer
 from Common.ui_get_string_impl import UI_GetString
-from ModelBuilder.ModelComposer.modeller_commander_experimental import Commander
+from ModelBuilder.ModelComposer.modeller_commander import Commander
 from ModelBuilder.ModelComposer.modeller_logger_impl import Logger
-from ModelBuilder.ModelComposer.modeller_mainwindow_new import Ui_MainWindow
+from ModelBuilder.ModelComposer.modeller_mainwindow import Ui_MainWindow
 from OntologyBuilder.TypedTokenEditor.editor_typed_token_impl import TypedTokenData
 
 SPACING = 20
@@ -1162,10 +1162,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       # if r != event:
       self.radio[phase][r].setChecked(False)
     #     print("debugging resetting", r)
-    print("debugging -- set radio", phase, event)
+    # print("debugging -- set radio", phase, event)
 
     self.radio[phase][event].setChecked(True)
-    self.radio[phase][event].setChecked(True)
+    # self.radio[phase][event].setChecked(True)
 
   def showMouseAction(self, item, decoration, cursor, actionLeft, actionRight):
     if cursor != "leave":

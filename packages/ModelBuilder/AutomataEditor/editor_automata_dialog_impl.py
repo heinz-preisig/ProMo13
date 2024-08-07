@@ -132,7 +132,7 @@ class GraphEditorDialogImpl(QtWidgets.QWidget):
     active_objects_all_phases = self.DATA.getActiveObjectsRootDecorationState()
     self.mouse_automata, self.key_automata = \
       getAutomata(FILES["automata_file_spec"] % self.ontology_name, active_objects_all_phases)
-    print("debugging -- loaded automata")
+    # print("debugging -- loaded automata")
 
   # @QtCore.pyqtSignature('QString')
   def on_comboPhase_activated(self, index):

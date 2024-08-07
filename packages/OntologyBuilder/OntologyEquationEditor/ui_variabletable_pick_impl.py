@@ -100,8 +100,8 @@ class UI_VariableTablePick(VariableTable):
     self.picked.emit(self.selected_variable_symbol)
     return
 
-  def on_tableVariable_itemDoubleClicked(self, item):
-    print("debugging -- double click on item", item.row(), item.column())
+  # def on_tableVariable_itemDoubleClicked(self, item):
+  #   print("debugging -- double click on item", item.row(), item.column())
 
   def on_pushFinished_pressed(self):
     self.close()
