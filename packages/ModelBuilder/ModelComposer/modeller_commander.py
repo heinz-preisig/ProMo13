@@ -520,6 +520,7 @@ class Commander(QtCore.QObject):
       variant = "composite"
       entity_selection = ""
 
+    name = variant   #todo: make this interactive?
     state = STATES[self.editor_phase]["nodes"][0]
     decoration_positions = ModelGraphicsData(node_class,
                                              x, y,  # this sets the initial position
@@ -528,7 +529,8 @@ class Commander(QtCore.QObject):
                                              node_type,
                                              state)
 
-    newnodeID = self.model_container.addChild(self.current_ID_node_or_arc,
+    newnodeID = self.model_container.addChild(name,
+                                              self.current_ID_node_or_arc,
                                               decoration_positions,
                                               network,
                                               named_network,
@@ -581,6 +583,9 @@ class Commander(QtCore.QObject):
 
     node_class = boundary
 
+    name = variant
+    if boundary == NAMES["interface"]:
+      name = variant.split("(")[1].split(" ")[0]
     state = STATES[self.editor_phase]["nodes"][0]
     decoration_positions = ModelGraphicsData(node_class,
                                              x, y,  # this sets the initial position
@@ -589,7 +594,8 @@ class Commander(QtCore.QObject):
                                              application,
                                              state)
 
-    newnodeID = self.model_container.addChild(self.current_ID_node_or_arc,
+    newnodeID = self.model_container.addChild(name,
+                                              self.current_ID_node_or_arc,
                                               decoration_positions,
                                               network,
                                               named_connection_network,
@@ -1983,35 +1989,38 @@ class Commander(QtCore.QObject):
           else:
             node.addIndicatorText(name, x, y, indicator[i]["label"])
 
-    # RULE: tool tip for root objects
-    if graphics_root_object in [NAMES["node"], NAMES["reservoir"], NAMES["arc node"]]:
-      # add tool tip
+    # RULE: tool tip for root objects  -- tooltips -- hover
+    if graphics_root_object in [NAMES["node"], NAMES["reservoir"], NAMES["arc node"],
+                                NAMES["intraface"], NAMES["interface"]]:
       data = self.model_container["nodes"][ID]
-      s = "<nobr> <b> node: %s <b> </nobr><br/>" % ID
+      s = "<nobr> <b> %s: %s <b> </nobr><br/>" % (ID, graphics_root_object)
       for d in data:
         s += "<nobr> %s -- %s </nobr><br/>" % (d, data[d])
-      # s = TOOLTIP_TEMPLATES["nodes"] % (
-      #         data["network"],
-      #         data["named_network"],
-      #         data["type"],
-      #         data["tokens"])
-      # if "conversions" in data:
-      #   s.join("<br>%s" % data["conversions"])
-      # print("debugging -- tool tip:", s)
-      node.setToolTip(s)
 
-    if graphics_root_object == NAMES["intraface"]:
-      # add tool tip
-      data = self.model_container["nodes"][ID]
-      s = "<nobr> <b> intraface: %s <b> </nobr><br/>" % ID
-      for d in data:
-        s += "<nobr> %s -- %s </nobr><br/>" % (d, data[d])
-      # s = TOOLTIP_TEMPLATES["intraface"] % (data["network"],
-      #                                       data["named_network"],
-      #                                       data["type"],
-      #                                       data["tokens_left"],
-      #                                       data["tokens_right"]
-      #                                       )
+    # note: alternative version using template:
+
+    #   # s = TOOLTIP_TEMPLATES["nodes"] % (
+    #   #         data["network"],
+    #   #         data["named_network"],
+    #   #         data["type"],
+    #   #         data["tokens"])
+    #   # if "conversions" in data:
+    #   #   s.join("<br>%s" % data["conversions"])
+    #   # print("debugging -- tool tip:", s)
+    #   node.setToolTip(s)
+    #
+    # if graphics_root_object in [NAMES["intraface"], NAMES["interface"]]:
+    #   # add tool tip
+    #   data = self.model_container["nodes"][ID]
+    #   s = "<nobr> <b> intraface: %s <b> </nobr><br/>" % ID
+    #   for d in data:
+    #     s += "<nobr> %s -- %s </nobr><br/>" % (d, data[d])
+    #   # s = TOOLTIP_TEMPLATES["intraface"] % (data["network"],
+    #   #                                       data["named_network"],
+    #   #                                       data["type"],
+    #   #                                       data["tokens_left"],
+    #   #                                       data["tokens_right"]
+    #   #                                       )
 
       node.setToolTip(s)
 

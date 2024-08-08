@@ -180,6 +180,7 @@ class ModelContainer(dict):
 
   def addChild(
       self,
+      name,
       parentNodeID,
       decoration_positions,
       network,
@@ -194,7 +195,7 @@ class ModelContainer(dict):
     childNodeID = self["ID_tree"].addChild(parentNodeID)
 
     self["nodes"][childNodeID] = NodeInfo(
-        variant, #CR.DEFAULT,
+        name, #CR.DEFAULT,
         network=network,
         named_network=named_network,
         node_class=node_class,
