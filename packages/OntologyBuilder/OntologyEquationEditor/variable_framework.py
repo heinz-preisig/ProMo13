@@ -506,39 +506,39 @@ class Units():
     pri = ''
     if self.mass != 0:
       if self.mass == 1:
-        pri += "kg \,"
+        pri += r"kg \,"
       else:
-        pri += "kg^{%s} \," % self.mass
+        pri += r"kg^{%s} \," % self.mass
     if self.length != 0:
       if self.length == 1:
-        pri += "m "
+        pri += r"m "
       else:
-        pri += "m^{%s} \," % self.length
+        pri += r"m^{%s} \," % self.length
     if self.amount != 0:
       if self.amount == 1:
-        pri += "mol \,"
+        pri += r"mol \,"
       else:
-        pri += "mol^{%s} \," % self.amount
+        pri += r"mol^{%s} \," % self.amount
     if self.temperature != 0:
       if self.temperature == 1:
-        pri += "K \,"
+        pri += r"K \,"
       else:
-        pri += "K^{%s} \," % self.temperature
+        pri += r"K^{%s} \," % self.temperature
     if self.current != 0:
       if self.current == 1:
-        pri += "A \,"
+        pri += r"A \,"
       else:
         pri += "A^{%s} " % self.current
     if self.light != 0:
       if self.light == 1:
-        pri += "cd \,"
+        pri += r"cd \,"
       else:
-        pri += "cd^{%s} \," % self.light
+        pri += r"cd^{%s} \," % self.light
     if self.time != 0:
       if self.time == 1:
-        pri += "s \,"
+        pri += r"s \,"
       else:
-        pri += "s^{%s} \," % self.time
+        pri += r"s^{%s} \," % self.time
 
     p_units = ""
     if mode == "string":
