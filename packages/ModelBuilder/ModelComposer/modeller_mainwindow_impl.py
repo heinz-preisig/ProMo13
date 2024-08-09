@@ -141,8 +141,6 @@ class MainWindowImpl(QtWidgets.QMainWindow):
                                                                    centre=("new", "new model", "show"),
                                                                    right=("accept", "accept", "hide")
                                                                    )
-    # left_icon = "reject",
-    # right_icon = "accept")
 
     # print("debugging -- model name and new_model", self.model_name, status)
     if status == "existent":
@@ -1156,15 +1154,20 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.interface_set = True
     phase = self.commander.editor_phase
 
-    # self.radio[phase][event].setChecked(True)
+    radios =self.radio[phase]
+    for r in radios:
+      radios[r].blockSignals(True)
 
-    for r in self.radio[phase]:
+    for r in radios:
       # if r != event:
-      self.radio[phase][r].setChecked(False)
+      radios[r].setChecked(False)
     #     print("debugging resetting", r)
     # print("debugging -- set radio", phase, event)
 
-    self.radio[phase][event].setChecked(True)
+    radios[event].setChecked(True)
+
+    for r in radios:
+      radios[r].blockSignals(False)
     # self.radio[phase][event].setChecked(True)
 
   def showMouseAction(self, item, decoration, cursor, actionLeft, actionRight):

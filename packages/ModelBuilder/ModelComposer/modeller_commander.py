@@ -21,6 +21,7 @@ __status__ = "beta"
 
 import copy
 import os
+import time
 from collections import deque
 from collections import OrderedDict
 from pathlib import Path
@@ -46,6 +47,7 @@ from Common.graphics_objects import NAMES
 from Common.graphics_objects import OBJECTS_with_state
 from Common.graphics_objects import STATES
 from Common.graphics_objects import TOOLTIP_TEMPLATES
+from Common.pop_up_message_box import makeMessageBox
 from Common.qt_resources import BUTTON_NAMES
 from Common.record_definitions import Interface
 from Common.resource_initialisation import FILES
@@ -254,12 +256,15 @@ class Commander(QtCore.QObject):
           next_state = mouse_automaton[self.editor_state][object_str][event]["state"]
           action = mouse_automaton[self.editor_state][object_str][event]["output"]
 
+          self.__reportEvent(state, next_state, action, object_str, event)
+
+          # time.sleep(1)
+
           if next_state != "-":
             if next_state in list(self.inverse_key_automata[self.editor_phase].keys()):
               this_key = self.inverse_key_automata[self.editor_phase][next_state]
               self.main.setKeyAutomatonState(this_key)
 
-          self.__reportEvent(state, next_state, action, object_str, event)
 
     # ============ error
     else:
@@ -371,6 +376,7 @@ class Commander(QtCore.QObject):
     if action == "None":
       res = {"failed": False}
     elif action == "-":
+      # if self.editor_state != "insert":
       self.__redrawScene(pars["nodeID"])
       res = {"failed": False}
     elif action == "zoom in":
@@ -624,16 +630,27 @@ class Commander(QtCore.QObject):
             "failed": False
     """
 
-    del_nodes = self.model_container.deleteNode(nodeID)
+    ids_to_delete =set()
+    if self.node_group != []:
+      for node in self.node_group:
+        id = node.ID
+        ids_to_delete.add(id)
+        self.node_group = set()
+    else:
+      ids_to_delete.add(nodeID)
 
-    print("deleting node %s on scene %s" %
-          (nodeID, self.currently_viewed_node))
 
-    for n in reversed(del_nodes):
-      try:
-        del self.state_nodes[n]
-      except:
-        pass
+    for id in ids_to_delete:
+      del_nodes = self.model_container.deleteNode(id)
+
+      print("deleting node %s on scene %s" %
+            (nodeID, self.currently_viewed_node))
+
+      for n in reversed(del_nodes):
+        try:
+          del self.state_nodes[n]
+        except:
+          pass
 
     self.redrawCurrentScene()
 
@@ -1194,12 +1211,17 @@ class Commander(QtCore.QObject):
     # get schnipsel name -- rule: new or used
     kwargs = {'centre': ('new', 'new model', 'show'), 'left': ('reject', 'reject', 'show'),
               'right' : ('accept', 'accept', 'hide')}
-    schnipsel_name_to_be_saved, new_model = askForModelFileGivenOntologyLocation(self.main.model_library_location,
+    schnipsel_name_to_be_saved, status = askForModelFileGivenOntologyLocation(self.main.model_library_location,
                                                                                  alternative=True,
                                                                                  left=("reject", "reject", "show"),
                                                                                  centre=("new", "new model", "show"),
                                                                                  right=("accept", "accept", "hide")
                                                                                  )
+
+    if status == "existent":
+      response = makeMessageBox(message="file exists -- overwrite?", buttons = ["no","yes"], default=["no"])
+      if response != "YES":
+        schnipsel_name_to_be_saved = None
 
     if not schnipsel_name_to_be_saved:
       res_dic = {}
@@ -1525,6 +1547,7 @@ class Commander(QtCore.QObject):
       self.main.writeStatus("no such file %s" % f)
       return {"failed": True}
 
+    # todo: fix node & arc status
     tree, node_map, arc_map, node_offset, parent_ID, BRUSHES = \
       self.model_container.addFromFile(f, self.current_ID_node_or_arc,
                                        position,
@@ -2677,10 +2700,14 @@ class Commander(QtCore.QObject):
             self.currently_viewed_node)
 
     for node in children:
-      if self.state_nodes[node] == fromwhat:
-        # "enabled"
-        self.state_nodes[node] = STATES[self.main.editor_phase]["nodes"][
-          0]  # STATES[self.main.current_network]["nodes"][0]
+      if node not in self.state_nodes:
+        self.state_nodes[node] = STATES[self.main.editor_phase]["nodes"][0]
+      try:
+        if self.state_nodes[node] == fromwhat:
+          # "enabled"
+          self.state_nodes[node] = STATES[self.main.editor_phase]["nodes"][0]
+      except:
+        print("debugging -- clearNodes")
 
   def resetGroups(self):
     self.node_group = set()
