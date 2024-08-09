@@ -2607,7 +2607,11 @@ class Commander(QtCore.QObject):
     children = self.model_container["ID_tree"].getChildren(self.currently_viewed_node)
     for child in children:
       if nodes[child]["type"] == NAMES["interface"]:
-        self.state_nodes[child] = "blocked"
+        output_arcs, input_arcs = self.model_container.getArcsInAndOutOfNode(child, tokens=["information"])
+        if (not input_arcs) or (not output_arcs):
+          self.state_nodes[child] = "enabled"
+        else:
+          self.state_nodes[child] = "blocked"
 
     for id in children:
       if self.model_container["nodes"][id]["class"] == NAMES["intraface"]:
