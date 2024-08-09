@@ -1088,7 +1088,10 @@ class ModelContainer(dict):
     for node in nodeGroupIDS:
       # print("move: ", child)
       self["ID_tree"].moveID(node, newNodeID)
-      self["scenes"][newNodeID]["nodes"][node] = self["scenes"][nodeID]["nodes"][node]
+      try:
+        self["scenes"][newNodeID]["nodes"][node] = self["scenes"][nodeID]["nodes"][node]
+      except:
+        pass
       del self["scenes"][nodeID]["nodes"][node]
 
     arcs = list(self["scenes"][nodeID]["arcs"].keys())
