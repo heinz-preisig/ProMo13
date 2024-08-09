@@ -630,16 +630,27 @@ class Commander(QtCore.QObject):
             "failed": False
     """
 
-    del_nodes = self.model_container.deleteNode(nodeID)
+    ids_to_delete =set()
+    if self.node_group != []:
+      for node in self.node_group:
+        id = node.ID
+        ids_to_delete.add(id)
+        self.node_group = set()
+    else:
+      ids_to_delete.add(nodeID)
 
-    print("deleting node %s on scene %s" %
-          (nodeID, self.currently_viewed_node))
 
-    for n in reversed(del_nodes):
-      try:
-        del self.state_nodes[n]
-      except:
-        pass
+    for id in ids_to_delete:
+      del_nodes = self.model_container.deleteNode(id)
+
+      print("deleting node %s on scene %s" %
+            (nodeID, self.currently_viewed_node))
+
+      for n in reversed(del_nodes):
+        try:
+          del self.state_nodes[n]
+        except:
+          pass
 
     self.redrawCurrentScene()
 
