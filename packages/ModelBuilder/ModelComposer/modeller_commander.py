@@ -2434,19 +2434,21 @@ class Commander(QtCore.QObject):
     nodes = self.model_container["nodes"]
     arcs = self.model_container["arcs"]
     domains = self.main.ontology.intra_domains
+    network = None
     for arc in arcs:
       if "entity_id" not in arcs[arc]:
         for domain in domains:
           if arcs[arc]["network"] in domains[domain]:
             network = domain
 
-
-      current_arc = arcs[arc]
-      application = CR.TEMPLATE_ARC_APPLICATION % (current_arc["token"],
-                                                   current_arc["mechanism"],
-                                                   current_arc["nature"])
-      entity_id = TEMPLATE_ENTITY_OBJECT %(network,"arc",application,current_arc["variant"])
-      current_arc["entity_id"] = entity_id
+        if not network:
+          print("error -- no network defined ???")
+        current_arc = arcs[arc]
+        application = CR.TEMPLATE_ARC_APPLICATION % (current_arc["token"],
+                                                     current_arc["mechanism"],
+                                                     current_arc["nature"])
+        entity_id = TEMPLATE_ENTITY_OBJECT %(network,"arc",application,current_arc["variant"])
+        current_arc["entity_id"] = entity_id
     entities_in_model = set()
     for c in ["nodes", "arcs"]:
       for item in self.model_container[c]:
@@ -2483,10 +2485,10 @@ class Commander(QtCore.QObject):
 
     # arcs =======================================
     # TODO: needs to be done
-    # undefined_arcs = []
-    # for arc in arcs:
-    #   if arcs[arc]["entity_id" in undefined_entities]:
-    #     undefined_arcs = []
+    undefined_arcs = []
+    for arc in arcs:
+      if arcs[arc]["entity_id"] in undefined_entities:
+        undefined_arcs.append(arc)
 
 
     pass
