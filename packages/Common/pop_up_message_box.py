@@ -22,7 +22,7 @@ __status__ = "beta"
 import sys
 
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QLabel
 
 BUTTONS = {
         "OK"             : QtWidgets.QMessageBox.Ok,
@@ -76,22 +76,26 @@ def makeMessageBox(message, buttons=None, custom_buttons=None, default=None, inf
   msg_box.setText(message)
   msg_box.setInformativeText(infotext)
   msg_box.setWindowTitle("dialog")
-  msg_box.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.Popup)
+  # msg_box.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.Popup)
+
+  lines = message.split("\n")
+  max_width = 0
+  test_label = QLabel()
+  for l in lines:
+    test_label.setText(l)
+    width = test_label.fontMetrics().boundingRect(test_label.text()).width()
+    print("debugging", width)
+    if width > max_width:
+      max_width = width
 
 
-
-
-  # save = QtWidgets.QMessageBox.Save
-  # discard = QtWidgets.QMessageBox.Discard
-  # cancel = QtWidgets.QMessageBox.Cancel
   if buttons:
     mybuttons = BUTTONS[buttons[0]]
     for buts in buttons:
       if buts in BUTTONS:
         mybuttons = mybuttons | BUTTONS[buts]
     if mybuttons:
-      msg_box.setStandardButtons(mybuttons)  # discard | save | cancel);
-      # msg_box.setDefaultButton(BUTTONS[buttons[0]])
+      msg_box.setStandardButtons(mybuttons)
 
   if custom_buttons:
     for buts, action in custom_buttons:
@@ -103,6 +107,10 @@ def makeMessageBox(message, buttons=None, custom_buttons=None, default=None, inf
   if MYBUTTONS:
     if default in MYBUTTONS:
       msg_box.setDefaultButton(MYBUTTONS[default])
+
+  # Note: https://stackoverflow.com/questions/37668820/how-can-i-resize-qmessagebox
+  s = "QLabel{min-width: %spx;}"%max_width
+  msg_box.setStyleSheet(s);
 
   msg_box.show()
   r = msg_box.exec_()

@@ -631,7 +631,7 @@ class Commander(QtCore.QObject):
     """
 
     ids_to_delete =set()
-    if self.node_group != []:
+    if self.node_group:
       for node in self.node_group:
         id = node.ID
         ids_to_delete.add(id)
@@ -1281,9 +1281,11 @@ class Commander(QtCore.QObject):
     self.model_container.updateTokensInAllDomains()
     self.model_container.updateTypedTokensInAllDomains()
 
+    self.__checkForMissmatchInEntities()
+
     self.__redrawScene(self.current_ID_node_or_arc)
 
-    self._load_instantiation_values(f)
+    # self._load_instantiation_values(f)
 
     return {
             "failed": False,
@@ -2423,6 +2425,73 @@ class Commander(QtCore.QObject):
     else:
       if self.model_container["ID_tree"].getChildren(toNodeID) != []:
         self.state_arcs[arcID] = "open"
+
+  def __checkForMissmatchInEntities(self):
+    """
+    if an entity is deleted but used in a model, the respective component is deleted.
+
+    """
+    nodes = self.model_container["nodes"]
+    arcs = self.model_container["arcs"]
+    domains = self.main.ontology.intra_domains
+    network = None
+    for arc in arcs:
+      if "entity_id" not in arcs[arc]:
+        for domain in domains:
+          if arcs[arc]["network"] in domains[domain]:
+            network = domain
+
+        if not network:
+          print("error -- no network defined ???")
+        current_arc = arcs[arc]
+        application = CR.TEMPLATE_ARC_APPLICATION % (current_arc["token"],
+                                                     current_arc["mechanism"],
+                                                     current_arc["nature"])
+        entity_id = TEMPLATE_ENTITY_OBJECT %(network,"arc",application,current_arc["variant"])
+        current_arc["entity_id"] = entity_id
+    entities_in_model = set()
+    for c in ["nodes", "arcs"]:
+      for item in self.model_container[c]:
+        variant = self.model_container[c][item]["entity_id"]
+        if variant:
+          entities_in_model.add(variant)
+
+    defined_variants = set(self.all_entities.keys())
+
+    undefined_entities = []
+    for entity in entities_in_model:
+      if entity not in defined_variants:
+        print("entity %s is not defined"%entity)
+        undefined_entities.append(entity)
+
+    print("debugging -- variant checking", undefined_entities)
+
+    # nodes =========================================
+    undefined_nodes = []
+    for node in nodes:
+      if nodes[node]["entity_id"] in undefined_entities:
+        undefined_nodes.append(node)
+
+    if undefined_nodes:
+      msg = "There are entities in the model that are not defined "
+      msg += "\nvariants are:"
+      for node in undefined_nodes:
+        msg += "\n>%s"%undefined_entities
+      msg += "\nThe affected nodes %s are being deleted"% undefined_nodes
+      response = makeMessageBox(msg, custom_buttons=[("confirm","accept")])
+
+    for node in undefined_nodes:
+      self.__c03_deleteNode(node)
+
+    # arcs =======================================
+    # TODO: needs to be done
+    undefined_arcs = []
+    for arc in arcs:
+      if arcs[arc]["entity_id"] in undefined_entities:
+        undefined_arcs.append(arc)
+
+
+    pass
 
   def __ruleConnectArc(self):
 

@@ -32,17 +32,17 @@ from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 from Common.automata_objects import GRAPH_EDITOR_STATES
-from Common.common_resources import askForModelFileGivenOntologyLocation
 from Common.common_resources import CONVERSION_SEPARATOR
-from Common.common_resources import getOntologyName
 from Common.common_resources import M_None
 from Common.common_resources import Stream
-from Common.graphics_objects import getGraphData
+from Common.common_resources import askForModelFileGivenOntologyLocation
+from Common.common_resources import getOntologyName
 from Common.graphics_objects import NetworkData
+from Common.graphics_objects import getGraphData
 from Common.ontology_container import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
-from Common.qt_resources import clearLayout
 from Common.qt_resources import ModellerRadioButton
+from Common.qt_resources import clearLayout
 from Common.radio_selector_impl import RadioSelector
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
@@ -67,17 +67,6 @@ REDIRECT_STDOUT = False
 
 def debugPrint(source, what):
   print(source, ": ", what)
-
-
-# class Stream(QtCore.QObject):
-#   newText = QtCore.pyqtSignal(str)
-#
-#   def write(self, text):
-#     self.newText.emit(str(text))
-#     self.flush()
-#
-#   def flush(self):
-#     pass
 
 
 class ErrorMessage:
@@ -129,6 +118,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     new_model = None
     if not os.path.exists(self.typed_token_file_spec):
+      makeMessageBox("no tped token file \n -- generate one using ProMo_TypedTokenEditor", buttons=["OK"])
       print("no typed token file ")
       sys.exit()
 
@@ -356,6 +346,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.tabifyDockWidget(self.ui.dockWidgetMain, self.ui.dockWidgetLogger)
     self.ui.dockWidgetMain.raise_()
 
+    self.error_media = self.logger.onUpdateErrorOutput
+
     self.__setupKeyAutomatonIndicator()
     self.__shiftKeyAutomaton(EDITOR_PHASES[0])
 
@@ -477,59 +469,6 @@ class MainWindowImpl(QtWidgets.QMainWindow):
                                                                        index,
                                                                        self.ui.layoutTokens)
 
-  # def __makeComboNodeSubClass(self):
-  #   # print("debugging -- make combo node subclass")
-  #   network = self.current_network
-  #   node = self.selected_node_type[network]
-  #   token = self.selected_token[self.editor_phase][network]
-  #   obj_ID = "%s" % node #(token, node)
-  #   # print("ID: " + obj_ID)
-  #   # print("debugging -- make combo node subclass", network, node, token, obj_ID)
-  #
-  #   self.ui.comboNodeSubClass.clear()
-  #   variants = set()
-  #   for o in sorted(self.ontology.node_arc_SubClasses.keys()):
-  #     if obj_ID in o:
-  #       # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
-  #       substrings = o.split('.')
-  #       variant = substrings[-1]
-  #       if "base" not in variant:
-  #         variants.add(substrings[-1])
-  #   if len(variants) == 0:
-  #     if not self.initialising:
-  #       pass  # NOTE: this is a little of a problem for the translator
-  #       # answer = makeMessageBox(
-  #       #     "there is no association defined -- save and define an association", buttons=["OK"])
-  #   self.ui.comboNodeSubClass.addItems(variants)
-  #   self.current_node_variant = self.ui.comboNodeSubClass.currentText()
-  #   pass
-
-  # def __makeComboArcSubClass(self):
-  #   # print("debugging -- arc subclass exposure")
-  #   network = self.current_network
-  #   token = self.selected_token[self.editor_phase][network]
-  #   mechanism = self.selected_transfer_mechanism[network][token]
-  #   nature = self.selected_arc_nature[network][token]
-  #   obj_ID = "arc.%s|%s|%s" % (token, mechanism, nature)
-  #   # print("debugging -- make combo node subclass", network, token, mechanism, nature, obj_ID)
-  #
-  #   self.ui.comboArcSubClass.clear()
-  #   variants = set()
-  #   for o in self.ontology.node_arc_SubClasses:
-  #     if obj_ID in o:
-  #       # print("debugging -- >>>>>>>>>>> found object", obj_ID, o)
-  #       substrings = o.split('.')
-  #       variant = substrings[-1]
-  #       if "base" not in variant:
-  #         variants.add(substrings[-1])
-  #   if len(variants) == 0:
-  #     if not self.initialising:
-  #       pass  # NOTE: this is a little of a problem for the translator
-  #       # answer = makeMessageBox(
-  #       #     "there is no association defined -- save and define an association", buttons=["OK"])
-  #   self.ui.comboArcSubClass.addItems(variants)
-  #   self.current_arc_variant = self.ui.comboArcSubClass.currentText()
-  #   pass
 
   def __clearLayout(self, layout):
     while layout.count():
@@ -619,11 +558,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
 
     self.radio_selectors["nodes"].check("nodes", index)
 
-    # self.__makeComboNodeSubClass()
 
-  # def setNodeVariant(self, variant):
-  #   index = self.ui.comboNodeSubClass.findText(variant)
-  #   self.ui.comboNodeSubClass.setCurrentIndex(index)
 
   @QtCore.pyqtSlot(str)
   def on_comboEditorPhase_currentTextChanged(self, phase):
@@ -692,42 +627,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.selected_node_type[nw] = token_string
     # self.__makeComboNodeSubClass()
 
-  # def radioReceiverArcToken(self, token_class, token, token_string, toggle):
-  #   if toggle:
-  #     self.__trimLayout(0, self.ui.layoutInteractive)
-  #     nw = self.current_network
-  #     self.selected_token[self.editor_phase][nw] = token_string
-  #     s_token = self.selected_token[self.editor_phase][nw]
-  #     mechanisms = sorted(self.arcInfoDictionary[nw][s_token].keys())
-  #     index = self.selected_transfer_mechanism[self.current_network][s_token]
-  #     self.radio_selectors["mechanism"] = self.__makeAndAddSelector("mechanism", mechanisms,
-  #                                                                   self.radioReceiverArcMechanism, index,
-  #                                                                   self.ui.layoutInteractive)
-  #     self.__makeComboNodeSubClass()
-  #     # self.__makeComboArcSubClass()
-  #
-  # def setSelectorChecked(self, selector, group, item_number):
-  #   self.radio_selectors[selector].check(group, item_number)
-  #
-  # def radioReceiverArcMechanism(self, token_class, token, mechanism, toggle):
-  #   if toggle:
-  #     self.__trimLayout(1, self.ui.layoutInteractive)
-  #     nw = self.current_network
-  #     s_token = self.selected_token[self.editor_phase][nw]
-  #     self.selected_transfer_mechanism[nw][s_token] = mechanism
-  #     distributions = self.arcInfoDictionary[nw][s_token][mechanism]
-  #     nature = self.selected_arc_nature[self.current_network][s_token]
-  #     self.radio_selectors["nature"] = self.__makeAndAddSelector("nature", distributions,
-  #                                                                self.radioReceiverArcDistribution, nature,
-  #                                                                self.ui.layoutInteractive)
-  #     # self.__makeComboArcSubClass()
-  #
-  # def radioReceiverArcDistribution(self, token_class, token, token_string, toggle):
-  #   if toggle:
-  #     nw = self.current_network
-  #     s_token = self.selected_token[self.editor_phase][nw]
-  #     self.selected_arc_nature[nw][s_token] = token_string
-  #     # self.__makeComboArcSubClass()
+
 
   def radioReceiverNodeToken(self, token_class, token, token_string, toggle):
     if toggle:
@@ -987,7 +887,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
             self.model_library_location, alternative=True,
             left=("reject", "reject", "show"),
             right=("accept", "accept", "hide"),
-            centre=("new", "new model name","show"))
+            centre=("new", "new model name", "show"))
 
     if not self.model_name:
       return
@@ -1027,7 +927,8 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     parent_ID = self.commander.model_container["ID_tree"].getImmediateAncestor(node_ID)
     pars = {
             "action": "zoom in",
-            "nodeID": parent_ID}
+            "nodeID": parent_ID
+            }
     self.commander.processMainEvent(pars)
 
   def select_arc(self):
@@ -1053,8 +954,10 @@ class MainWindowImpl(QtWidgets.QMainWindow):
       parent_ID = self.commander.model_container["ID_tree"].getImmediateAncestor(arc_sink)
     else:
       return
-    pars = {"action": "zoom in",
-            "nodeID": parent_ID}
+    pars = {
+            "action": "zoom in",
+            "nodeID": parent_ID
+            }
     self.commander.processMainEvent(pars)
 
   def on_pushSave_pressed(self):
@@ -1062,7 +965,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     save current file
     """
     self.writeStatus("saving to file %s" % self.model_name)
-    print(">>> saving to file :", self.model_file)
+    ErrorMessage(self.error_media, (">>> saving to file :%s" % self.model_file))
 
     # folder =
     if not os.path.exists(self.model_location):
@@ -1154,7 +1057,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.interface_set = True
     phase = self.commander.editor_phase
 
-    radios =self.radio[phase]
+    radios = self.radio[phase]
     for r in radios:
       radios[r].blockSignals(True)
 
