@@ -33,6 +33,7 @@ from Common.resources_icons import roundButton
 from Common.single_list_selector_impl import SingleListSelector
 from Common.ui_get_string_impl import UI_GetString
 from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
+from OntologyBuilder.OntologyEquationEditor.resources import CODE
 # from OntologyBuilder.OntologyEquationEditor.resources import INSTANTIATE_EQ_NO
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_EQ
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_VAR
@@ -447,6 +448,12 @@ class UI_Equations(QtWidgets.QWidget):
     documentation = str(self.ui.lineDocumentation.text())
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
+
+    # Rule: root equation -- generate residual representation
+    is_root = CODE["global_ID"]["function"]["Root"] in rhs
+    if is_root:
+      residual_symbol = "res_%s"%symbol
+      root_argument = rhs.split(" ")[3]  # Rule: assumes first blank and form Root(var) -- " F_17 D_0 V_115 D_1" yields V_115
 
     # now add the latex version of the expression
     self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
