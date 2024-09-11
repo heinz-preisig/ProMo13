@@ -64,7 +64,7 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
         Epixmap.load(E_file)
         # print("size %s"%eqID,Epixmap.size() )
         size = FACTOR * Epixmap.size()
-        sEpixmap = Epixmap.scaled(size, transformMode=1)
+        sEpixmap = Epixmap.scaled(size, transformMode=0)
         epic[count].setPixmap(sEpixmap)
         elabel[count].setText(eqID)
         count += 1
@@ -84,8 +84,8 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
 
 if __name__ == '__main__':
   a = QtWidgets.QApplication(sys.argv)
-  image_location = '/home/heinz/Dropbox/workspace/CAM-projects_ProMo/Ontology_Repository/Sandbox20/LaTeX'
-  w = UI_ShowVariableEquation(["E_2", "E_13", "E_52", "E_33", "E_22"], image_location)
+  image_location = '/home/heinz/Dropbox/workspace/CAM-projects_ProMo/Ontology_Repository/processes_HAP_structure_testing/LaTeX'
+  w = UI_ShowVariableEquation(["E_121", "E_13", "E_52", "E_33"], image_location)
   w.show()
   # a.exec_()
   sys.exit()

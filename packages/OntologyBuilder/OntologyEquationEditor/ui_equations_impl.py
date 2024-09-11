@@ -23,24 +23,17 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
-# from Common.common_resources import globalEquationID
-# from Common.common_resources import globalVariableID
-# from Common.record_definitions import RecordEquation
+from Common.common_resources import VARIABLE_TYPE_RESIDUAL
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
-# from Common.record_definitions import makeInitialAliases
 from Common.resources_icons import roundButton
 from Common.single_list_selector_impl import SingleListSelector
-from Common.ui_get_string_impl import UI_GetString
 from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
-# from OntologyBuilder.OntologyEquationEditor.resources import INSTANTIATE_EQ_NO
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_EQ
 from OntologyBuilder.OntologyEquationEditor.resources import NEW_VAR
 from OntologyBuilder.OntologyEquationEditor.resources import OPERATOR_SNIPS
 from OntologyBuilder.OntologyEquationEditor.resources import PORT
-from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
-from OntologyBuilder.OntologyEquationEditor.resources import UNDEF_EQ_NO
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.resources import setValidator, dateString
@@ -449,11 +442,7 @@ class UI_Equations(QtWidgets.QWidget):
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
 
-    # Rule: root equation -- generate residual representation
-    is_root = CODE["global_ID"]["function"]["Root"] in rhs
-    if is_root:
-      residual_symbol = "res_%s"%symbol
-      root_argument = rhs.split(" ")[3]  # Rule: assumes first blank and form Root(var) -- " F_17 D_0 V_115 D_1" yields V_115
+
 
     # now add the latex version of the expression
     self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
@@ -492,10 +481,7 @@ class UI_Equations(QtWidgets.QWidget):
     if (log == (True, True, True)) or (log == (True, True, False)):
 
       equ_ID = self.variables.newProMoEquationIRI()  # globalEquationID(update=True)  # RULE: for global ID
-      tokens = [] #self.checked_var.tokens  # version_change: and this is the replacement
-
-      # aliases = makeInitialAliases(symbol,var_ID)
-
+      tokens = []
 
       variable_record = makeCompleteVariableRecord(var_ID,
                                                    label=symbol,
@@ -520,12 +506,6 @@ class UI_Equations(QtWidgets.QWidget):
       self.variables.addEquation(var_ID, equation_record)
       self.ontology_container.indexEquations()
 
-    # edit equation false, true, true
-    # elif log == (False, True, True):
-    #   self.variables.addEquation(var_ID, equation_record)
-    #   self.ontology_container.indexEquations()
-
-
     # edit equation false, false, true
     elif (log == (False, False, True)) or (log == (False, True, True)):
       old_equ_ID = self.current_eq_ID
@@ -537,6 +517,64 @@ class UI_Equations(QtWidgets.QWidget):
 
     alias = self.ui.lineEditLatex.text()
     self.variables.changeVariableAlias(var_ID, "latex", alias)
+
+
+    # ====================== make residual equation =============================
+    # Rule: root equation -- generate residual representation
+    is_root = CODE["global_ID"]["function"]["Root"] in rhs
+    if is_root:
+      residual_symbol = "res_%s"%symbol
+      root_argument = rhs.split(" ")[3]  # Rule: assumes first blank and form Root(var) -- " F_17 D_0 V_115 D_1" yields V_115
+      minus = CODE["global_ID"]["operator"]["-"]
+      left_bracket = CODE["global_ID"]["delimiter"]["("]
+      right_bracket = CODE["global_ID"]["delimiter"][")"]
+
+      # latex_argument = self.variables[]
+
+      lhs_latex = str(self.variables[root_argument])
+      equations = self.variables[root_argument].equations
+      new_equations = {}
+      for equ_ID in equations:
+        global_ID_expression = "%s %s %s %s %s"%(root_argument,
+                                                 minus,
+                                                 left_bracket,
+                                                 equations[equ_ID]["rhs"]["global_ID"],
+                                                 right_bracket)
+        incidence_list = makeIncidentList(global_ID_expression)
+
+        latex_expression = "%s - ( %s )"%(lhs_latex, equations[equ_ID]["rhs"]["latex"])
+
+        rhs_dic = {"global_ID": global_ID_expression,
+                   "latex"    : latex_expression}
+
+        equ_ID = self.variables.newProMoEquationIRI()
+        new_equations[equ_ID] = makeCompletEquationRecord(rhs=rhs_dic,
+                                                    network=self.network_for_expression,
+                                                    doc="residual formulation",
+                                                    incidence_list=incidence_list,
+                                                    created=dateString())
+
+        pass
+
+      var_ID = self.variables.newProMoVariableIRI()
+      tokens = self.variables[root_argument].tokens
+
+      variable_record = makeCompleteVariableRecord(var_ID,
+                                                   label=residual_symbol,
+                                                   type=VARIABLE_TYPE_RESIDUAL,
+                                                   network=self.network_for_variable,
+                                                   doc="residual variable",
+                                                   index_structures=self.checked_var.index_structures,
+                                                   units=self.checked_var.units,
+                                                   equations=new_equations,
+                                                   aliases={},
+                                                   port_variable=False,
+                                                   tokens=tokens,
+                                                   memory=self.memory,
+                                                   )
+
+      self.variables.addNewVariable(ID=var_ID, **variable_record)
+
     # print("debugging -- alias", alias)
     self.variables.indexVariables()
     self.ontology_container.indexEquations()
@@ -555,8 +593,6 @@ class UI_Equations(QtWidgets.QWidget):
     self.hide()
     self.close()
 
-  # def __textChanged(self,text):
-  #   self.variables.indexVariables()
 
 
   @staticmethod
