@@ -27,7 +27,6 @@ LIMIT = 4
 HEIGHT = 25
 FACTOR = 0.5
 
-
 class ImgWidget(QtWidgets.QWidget):
 
   def __init__(self, parent=None):
@@ -37,7 +36,7 @@ class ImgWidget(QtWidgets.QWidget):
     self.pic = pixmap  # QtGui.QPixmap(path)
     size = self.pic.size()
     scaled_size = FACTOR * size
-    # print("size", size, "\n scaled", scaled_size)
+    print("size", size, "\n scaled", scaled_size)
     self.scaled_pic = self.pic.scaled(scaled_size, transformMode=1)
     self.scaled_size = self.scaled_pic.size()
 
@@ -105,18 +104,21 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
 
     count = 0
     maxsize = QtCore.QSize(0, 0)
+    largest = -1
     for eqID in eq_list_ID:
       E_file = str(os.path.join(image_location, "%s.png" % eqID))
-      Epixmap[eqID] = QtGui.QPixmap()
-      Epixmap[eqID].load(E_file)
+      Epixmap[eqID] = QtGui.QPixmap(E_file)
+      # Epixmap[eqID].load(E_file)
       size = FACTOR * Epixmap[eqID].size()
-      if size.height() > maxsize.height() or size.width() > maxsize.width():
-        maxsize = size
+      if size.height() > maxsize.height():
+        maxsize.setHeight(size.height())
+      if size.width() > maxsize.width():
+        maxsize.setWidth(size.width())
       count += 1
 
     self.ui.tableWidget.setColumnCount(2)
     self.ui.tableWidget.setRowCount(no_eqs)
-    self.ui.tableWidget.setColumnWidth(0, maxsize.width())
+    # self.ui.tableWidget.setColumnWidth(0, 150)
 
     total_height = 0
     row = 0
@@ -173,8 +175,8 @@ class UI_ShowVariableEquation(QtWidgets.QDialog):
 
 if __name__ == '__main__':
   a = QtWidgets.QApplication(sys.argv)
-  image_location = '/home/heinz/Dropbox/workspace/CAM-projects_ProMo/Ontology_Repository/Sandbox20/LaTeX'
-  w = UI_ShowVariableEquation(["E_2", "E_13", "E_52", "E_33", "E_22"],
+  image_location = '/home/heinz/Dropbox/workspace/CAM-projects_ProMo/Ontology_Repository/processes_HAP_structure_testing/LaTeX'
+  w = UI_ShowVariableEquation(["E_121", "E_13", "E_52", "E_33", "E_15", "E_12"],
                               image_location,
                               mode="select",
                               prompt="what to do when things get very long, I mean very long",
