@@ -50,6 +50,7 @@ from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import EquationDeleteError
+from OntologyBuilder.OntologyEquationEditor.variable_framework import makeCompilerForNetwork
 from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidentList
 
 
@@ -327,6 +328,7 @@ class UI_Equations(QtWidgets.QWidget):
 
     # expression must compile
     try:
+      # makeCompilerForNetwork(self.variables, self.indices, )
       self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
                                         self.network_for_variable, language="global_ID")
       expression = Expression(self.compile_space)
@@ -442,16 +444,58 @@ class UI_Equations(QtWidgets.QWidget):
     rhs = str(self.checked_var)
     incidence_list = makeIncidentList(rhs)
 
+    # ====================== make residual equation =============================
+    is_root = CODE["global_ID"]["function"]["Root"] in rhs
+    if is_root:
+    # Rule: root equation -- generate residual representation
+      root_argument = rhs.split(" ")[3]
+      # equations = self.variables[root_argument].equations
+      v = self.variables[root_argument]
+      argument = v.label
+      equation_list = sorted(v.equations.keys())
+      loc = self.variables.ontology_container.latex_image_location
+      dialog = UI_ShowVariableEquation(equation_list, loc,
+                                       mode="select",
+                                       prompt="select an equation for the residual formation -- a must",
+                                       buttons=[])
 
+      root = CODE["internal_code"]["Root"]
+      minus = CODE["internal_code"]["-"]
+      equation = v.equations[dialog.answer]["rhs"]["global_ID"]
+      equation_rendered = renderExpressionFromGlobalIDToInternal(equation, self.variables, self.indices)
+      second = CODE["internal_code"]["bracket"]%equation_rendered
+      new_argument = minus%(argument, second)
+      self.expr = root%new_argument
+
+
+      pass
 
     # now add the latex version of the expression
-    self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
-                                      self.network_for_variable, language="latex")
-    expression = Expression(self.compile_space)
-    self.expression_latex = expression(self.expr)
+    compilers = {}
+    for language in ["latex", "global_ID"]:
+      compilers[language] = makeCompilerForNetwork(self.variables,
+                                            self.indices,
+                                            self.network_for_variable,
+                                            self.network_for_variable,
+                                            language=language,
+                                            verbose=0)
 
-    rhs_dic = {"global_ID": rhs,
-               "latex"    : str(self.expression_latex)}
+    # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
+    #                                   self.network_for_variable, language="latex")
+    # expression_latex = Expression(self.compile_space)
+    # self.expression_latex = str(expression_latex(self.expr))
+    #
+    # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
+    #                                   self.network_for_variable, language="global_ID")
+    #
+    # expression_global_ID = Expression(self.compile_space)
+    #
+    # self.expression_global = str(expression_global_ID(self.expr))
+    expression_global = str(compilers["global_ID"](self.expr))
+    expression_latex = str(compilers["latex"](self.expr))
+
+    rhs_dic = {"global_ID": expression_global,
+               "latex"    : expression_latex} #str(self.expression_latex)}
 
     if self.status_new_variable:
       var_ID = self.variables.newProMoVariableIRI()
@@ -519,61 +563,83 @@ class UI_Equations(QtWidgets.QWidget):
     self.variables.changeVariableAlias(var_ID, "latex", alias)
 
 
-    # ====================== make residual equation =============================
-    # Rule: root equation -- generate residual representation
-    is_root = CODE["global_ID"]["function"]["Root"] in rhs
-    if is_root:
-      residual_symbol = "res_%s"%symbol
-      root_argument = rhs.split(" ")[3]  # Rule: assumes first blank and form Root(var) -- " F_17 D_0 V_115 D_1" yields V_115
-      minus = CODE["global_ID"]["operator"]["-"]
-      left_bracket = CODE["global_ID"]["delimiter"]["("]
-      right_bracket = CODE["global_ID"]["delimiter"][")"]
+    # # ====================== make residual equation =============================
+    # # Rule: root equation -- generate residual representation
+    # is_root = CODE["global_ID"]["function"]["Root"] in rhs
+    # if is_root:
+    #   root_argument = rhs.split(" ")[3]  # Rule: assumes first blank and form Root(var) -- " F_17 D_0 V_115 D_1" yields V_115
+    #   # equations = self.variables[root_argument].equations
+    #   v =self.variables[root_argument]
+    #   equation_list = sorted(v.equations.keys())
+    #   loc = self.variables.ontology_container.latex_image_location
+    #   dialog = UI_ShowVariableEquation(equation_list, loc,
+    #                                    mode="select",
+    #                                    prompt="select an equation for the residual formation -- a must",
+    #                                    buttons=[])
+    #   selected_equation = dialog.answer
+    #   root = CODE["global_ID"]["Root"]
+    #   minus = CODE["global_ID"]["operator"]["-"]
+    #   left_bracket = CODE["global_ID"]["delimiter"]["("]
+    #   right_bracket = CODE["global_ID"]["delimiter"][")"]
+    #   equation = v.equations[dialog.answer]["rhs"]["global_ID"]
+    #   residual_equation = root %(" %s %s %s %s %s " %(root_argument, minus,
+    #                                                   left_bracket, equation,right_bracket))
+    #
+    #
+    #
+    #   pass
 
-      # latex_argument = self.variables[]
-
-      lhs_latex = str(self.variables[root_argument])
-      equations = self.variables[root_argument].equations
-      new_equations = {}
-      for equ_ID in equations:
-        global_ID_expression = "%s %s %s %s %s"%(root_argument,
-                                                 minus,
-                                                 left_bracket,
-                                                 equations[equ_ID]["rhs"]["global_ID"],
-                                                 right_bracket)
-        incidence_list = makeIncidentList(global_ID_expression)
-
-        latex_expression = "%s - ( %s )"%(lhs_latex, equations[equ_ID]["rhs"]["latex"])
-
-        rhs_dic = {"global_ID": global_ID_expression,
-                   "latex"    : latex_expression}
-
-        equ_ID = self.variables.newProMoEquationIRI()
-        new_equations[equ_ID] = makeCompletEquationRecord(rhs=rhs_dic,
-                                                    network=self.network_for_expression,
-                                                    doc="residual formulation",
-                                                    incidence_list=incidence_list,
-                                                    created=dateString())
-
-        pass
-
-      var_ID = self.variables.newProMoVariableIRI()
-      tokens = self.variables[root_argument].tokens
-
-      variable_record = makeCompleteVariableRecord(var_ID,
-                                                   label=residual_symbol,
-                                                   type=VARIABLE_TYPE_RESIDUAL,
-                                                   network=self.network_for_variable,
-                                                   doc="residual variable",
-                                                   index_structures=self.checked_var.index_structures,
-                                                   units=self.checked_var.units,
-                                                   equations=new_equations,
-                                                   aliases={},
-                                                   port_variable=False,
-                                                   tokens=tokens,
-                                                   memory=self.memory,
-                                                   )
-
-      self.variables.addNewVariable(ID=var_ID, **variable_record)
+    #   residual_symbol = "res_%s"%symbol
+    #   root_argument = rhs.split(" ")[3]  # Rule: assumes first blank and form Root(var) -- " F_17 D_0 V_115 D_1" yields V_115
+    #   minus = CODE["global_ID"]["operator"]["-"]
+    #   left_bracket = CODE["global_ID"]["delimiter"]["("]
+    #   right_bracket = CODE["global_ID"]["delimiter"][")"]
+    #
+    #   # latex_argument = self.variables[]
+    #
+    #   lhs_latex = str(self.variables[root_argument])
+    #   equations = self.variables[root_argument].equations
+    #   new_equations = {}
+    #   for equ_ID in equations:
+    #     global_ID_expression = "%s %s %s %s %s"%(root_argument,
+    #                                              minus,
+    #                                              left_bracket,
+    #                                              equations[equ_ID]["rhs"]["global_ID"],
+    #                                              right_bracket)
+    #     incidence_list = makeIncidentList(global_ID_expression)
+    #
+    #     latex_expression = "%s - ( %s )"%(lhs_latex, equations[equ_ID]["rhs"]["latex"])
+    #
+    #     rhs_dic = {"global_ID": global_ID_expression,
+    #                "latex"    : latex_expression}
+    #
+    #     equ_ID = self.variables.newProMoEquationIRI()
+    #     new_equations[equ_ID] = makeCompletEquationRecord(rhs=rhs_dic,
+    #                                                 network=self.network_for_expression,
+    #                                                 doc="residual formulation",
+    #                                                 incidence_list=incidence_list,
+    #                                                 created=dateString())
+    #
+    #     pass
+    #
+    #   var_ID = self.variables.newProMoVariableIRI()
+    #   tokens = self.variables[root_argument].tokens
+    #
+    #   variable_record = makeCompleteVariableRecord(var_ID,
+    #                                                label=residual_symbol,
+    #                                                type=VARIABLE_TYPE_RESIDUAL,
+    #                                                network=self.network_for_variable,
+    #                                                doc="residual variable",
+    #                                                index_structures=self.checked_var.index_structures,
+    #                                                units=self.checked_var.units,
+    #                                                equations=new_equations,
+    #                                                aliases={},
+    #                                                port_variable=False,
+    #                                                tokens=tokens,
+    #                                                memory=self.memory,
+    #                                                )
+    #
+    #   self.variables.addNewVariable(ID=var_ID, **variable_record)
 
     # print("debugging -- alias", alias)
     self.variables.indexVariables()
