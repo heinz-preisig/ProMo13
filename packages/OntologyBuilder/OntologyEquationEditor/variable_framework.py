@@ -349,10 +349,26 @@ def makeCompiler(variables, indices, var_ID, equ_ID, language, verbose=0):
   """
   variable_definition_network = variables[var_ID].network
   expression_definition_network = variables[var_ID].equations[equ_ID]["network"]
-  compile_space = CompileSpace(variables, indices, variable_definition_network, expression_definition_network,
+  return makeCompilerForNetwork(variables,
+                                indices,
+                                variable_definition_network,
+                                expression_definition_network,
+                                language,
+                                verbose)
+
+
+def makeCompilerForNetwork(variables,
+                           indices,
+                           variable_definition_network,
+                           expression_definition_network,
+                           language,
+                           verbose=0):
+  compile_space = CompileSpace(variables,
+                               indices,
+                               variable_definition_network,
+                               expression_definition_network,
                                language=language)
   return Expression(compile_space, verbose=verbose)
-
 
 
 # =============================================================================
@@ -1541,11 +1557,11 @@ class Implicit(Operator):
 
     # NOTE: do the checks only with the input language
     if self.space.language == "global_ID":
-      l, r = str(arg).split("_")
+      # l, r = str(arg).split("_")
       print("debugging", self.space.language)
       # var_function_ID = int(r)
       self.var_to_solve = self.space.getVariable(self.space.variables.to_define_variable_name)  # var_to_solve
-      l, r = str(self.var_to_solve).split("_")
+      # l, r = str(self.var_to_solve).split("_")
       var_to_solve_ID = str(self.var_to_solve).strip()  # int(r)
 
       if self.var_to_solve.label not in space.eq_variable_incidence_list:
@@ -1909,7 +1925,7 @@ class Expression(VerboseParser):
       | 'Integral' '\(' Expression/dx '::'
           Identifier/s IN '\['Identifier/ll ',' Identifier/ul '\]' '\)'   $fu=Integral(dx,s,ll,ul, self.space)
       | 'Product'  '\(' Expression/a ',' Index/u '\)'                     $fu=Product(a, u, self.space)
-      | 'Root'  '\(' Identifier/a '\)'                                    $fu=Implicit(a, self.space)
+      | 'Root'  '\(' Expression/a '\)'                                    $fu=Implicit(a, self.space)
       | MaxMin/s   '\(' Expression/a ',' Expression/b '\)'                $fu=MaxMin(s, a, b, self.space)
       | 'TotalDiff'/f '\(' Expression/x ',' Expression/y '\)'             $fu=TotDifferential(x,y, self.space)
       | 'ParDiff'/f  '\(' Expression/x ',' Expression/y '\)'              $fu=ParDifferential(x,y, self.space)
