@@ -34,5 +34,5 @@
   "instantiate": "instantiate({op1}, {op2})",
   "product": "product({op1}, \"{idx1}\")",
   "integral": "integral({op1}, {op2}, {op3}, {op4})",
-  "root": "root({op1})"
+  "root": "{op1}"
 }

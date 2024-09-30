@@ -26,7 +26,7 @@ class FunctionsMappings:
   RIGHT: str = "F_14"
   INV: str = "F_15"
   SIGN: str = "F_16"
-  ROOT: str = "F_18"
+  ROOT: str = "F_17"
 
 
 class Translator:

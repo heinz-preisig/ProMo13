@@ -155,7 +155,11 @@ endfunction
     {% for eq in expr.equations %}
       {{-""}}function sol = res_{{eq.eq_id}}({{eq|arguments}})
       {{-"\n"-}}
-        {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}} - {{eq.eq_id|eq_label("lhs")}};
+        {% if eq.is_root %}
+          {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}};
+        {% else %}
+          {{-"  "}}sol = {{eq.eq_id|eq_label("rhs")}} - {{eq.eq_id|eq_label("lhs")}};
+        {% endif %}
         {{-"\n"-}}
         {{-"  "}}sol = sol.value;
         {{-"\n"-}}

@@ -247,9 +247,9 @@ class TemplateHandler:
     data["expressions"] = []
     sys_counter = 1
     for equation_set in self.equation_seq:
-      if len(equation_set) == 1:
-        eq_id = list(equation_set)[0]
-        eq = self.all_equations[eq_id]
+      eq_id = list(equation_set)[0]
+      eq = self.all_equations[eq_id]
+      if len(equation_set) == 1 and not eq.is_root():
         var_id = eq.get_main_var_id()
         index_sets = self.get_index_sets(eq_id)
         if eq.is_integrator():
@@ -280,29 +280,30 @@ class TemplateHandler:
           var_id = eq.get_main_var_id()
           index_sets = self.get_index_sets(eq_id)
 
-          if eq.is_root():
-            root_vars[var_id] = eq.get_incidence_list(var_id)[0]
-          else:
-            size_by_index = [
-                len(indices_list)
-                for indices_list in index_sets.values()
-            ]
+          # if eq.is_root():
+          #   root_vars[var_id] = eq.get_incidence_list(var_id)[0]
+          # else:
+          size_by_index = [
+              len(indices_list)
+              for indices_list in index_sets.values()
+          ]
 
-            ini = str(part_counter)
-            part_counter += np.prod(size_by_index)
-            fin = str(part_counter - 1)
+          ini = str(part_counter)
+          part_counter += np.prod(size_by_index)
+          fin = str(part_counter - 1)
 
-            equations[var_id] = {
-                "eq_id": eq_id,
-                "var_id": var_id,
-                "index_sets": index_sets,
-                "interval": ini + ":" + fin,
-                "dependencies": eq.get_incidence_list(),
-            }
+          equations[var_id] = {
+              "eq_id": eq_id,
+              "var_id": var_id,
+              "index_sets": index_sets,
+              "interval": ini + ":" + fin,
+              "dependencies": eq.get_incidence_list(),
+              "is_root": eq.is_root(),
+          }
         # pp(equations)
         # pp(root_vars)
-        for root_var_id, replaced_var_id in root_vars.items():
-          equations[replaced_var_id]["var_id"] = root_var_id
+        # for root_var_id, replaced_var_id in root_vars.items():
+        #   equations[replaced_var_id]["var_id"] = root_var_id
 
         # pp(equations)
         expr_info["equations"] = list(equations.values())
