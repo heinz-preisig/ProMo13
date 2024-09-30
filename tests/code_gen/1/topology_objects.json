@@ -1,0 +1,162 @@
+{
+    "mixer": {
+        "ent": "Simple_Mixer",
+        "inst_vars": {
+            "V_2": 0,
+            "V_3": 0,
+            "V_4": 0,
+            "V_6": 0,
+            "V_7": 0,
+            "V_20": 0,
+            "V_24": 0,
+            "V_35": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                0
+            ],
+            [
+                "Arc",
+                1
+            ],
+            [
+                "Arc",
+                2
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 0,
+        "is_reservoir": false,
+        "name": "mixer"
+    },
+    "source_1": {
+        "ent": "Reservoir",
+        "inst_vars": {
+            "V_13": 0,
+            "V_15": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                0
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 1,
+        "is_reservoir": true,
+        "name": "source_1"
+    },
+    "source_2": {
+        "ent": "Reservoir",
+        "inst_vars": {
+            "V_13": 0,
+            "V_15": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                1
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 2,
+        "is_reservoir": true,
+        "name": "source_2"
+    },
+    "sink": {
+        "ent": "Reservoir",
+        "inst_vars": {
+            "V_13": 0,
+            "V_15": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                2
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 3,
+        "is_reservoir": true,
+        "name": "sink"
+    },
+    "con_1": {
+        "ent": "Connection",
+        "inst_vars": {
+            "V_12": 0,
+            "V_29": 0,
+            "V_30": 0,
+            "V_33": 0,
+            "V_34": 0,
+            "V_27": 0,
+            "V_28": 0
+        },
+        "connections": [
+            [
+                "Node",
+                0
+            ],
+            [
+                "Node",
+                1
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 0,
+        "is_reservoir": false,
+        "name": "con_1"
+    },
+    "con_2": {
+        "ent": "Connection",
+        "inst_vars": {
+            "V_12": 0,
+            "V_29": 0,
+            "V_30": 0,
+            "V_33": 0,
+            "V_34": 0,
+            "V_27": 0,
+            "V_28": 0
+        },
+        "connections": [
+            [
+                "Node",
+                0
+            ],
+            [
+                "Node",
+                2
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 1,
+        "is_reservoir": false,
+        "name": "con_2"
+    },
+    "con_3": {
+        "ent": "Connection",
+        "inst_vars": {
+            "V_12": 0,
+            "V_29": 0,
+            "V_30": 0,
+            "V_33": 0,
+            "V_34": 0,
+            "V_27": 0,
+            "V_28": 0
+        },
+        "connections": [
+            [
+                "Node",
+                0
+            ],
+            [
+                "Node",
+                3
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 2,
+        "is_reservoir": false,
+        "name": "con_3"
+    }
+}
