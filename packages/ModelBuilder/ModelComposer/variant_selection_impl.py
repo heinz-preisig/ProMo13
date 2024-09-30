@@ -26,6 +26,7 @@ from Common.common_resources import ENTITY_OBJECT_SEPARATOR
 from Common.resources_icons import roundButton
 from packages.ModelBuilder.ModelComposer.variant_selection import Ui_Dialog
 
+
 def extract(variants, filter_and, filter_or, filter_not):
   remove_them = set()
   for f in filter_and:
@@ -51,18 +52,19 @@ def extract(variants, filter_and, filter_or, filter_not):
   else:
     selection_2 = list(selection)
 
-  return selection_2
+  return list(selection_2)
+
 
 def splitEntity(entity):
   nw, node_or_arc, application, variant = entity.split(ENTITY_OBJECT_SEPARATOR)
-  return nw,node_or_arc, application, variant
+  return nw, node_or_arc, application, variant
+
 
 def splitApplication(application):
-  token_set, mechanism, nature = application.split(APPLICATION_COMPONENT_SEPARATOR)
+  token_set, mechanism, nature = application.split(
+      APPLICATION_COMPONENT_SEPARATOR)
   token_list = token_set.split("_")
   return token_list, mechanism, nature
-
-
 
 
 class VariantGUI(QDialog):
@@ -73,14 +75,13 @@ class VariantGUI(QDialog):
     self.ui = Ui_Dialog()
     self.ui.setupUi(self)
 
-
     roundButton(self.ui.pushAccept, "accept", "accept choice")
     roundButton(self.ui.pushCancel, "reject", "reject choices")
 
     self.variants = variants
     self.ui.comboBoxVariations.addItems(variants)
 
-  def on_comboBoxVariations_textChanged(self,text):
+  def on_comboBoxVariations_textChanged(self, text):
     self.selection = text
 
   def on_pushCancel_pressed(self):
@@ -90,8 +91,6 @@ class VariantGUI(QDialog):
   def on_pushAccept_pressed(self):
     self.selection = self.ui.comboBoxVariations.currentText()
     self.close()
-
-
 
 
 if __name__ == '__main__':
@@ -106,15 +105,11 @@ if __name__ == '__main__':
               "macroscopic.arc.charge|convection|lumped.ConvectiveFlowPulse",
               "macroscopic.arc.energy|convection|lumped.ConvectiveFlowPulse",
               ]
-  var = extract(variants, ["arc","macroscopic"],["mass","energy"], ["MassDiffusionFick"])
+  var = extract(variants, ["arc", "macroscopic"], [
+                "mass", "energy"], ["MassDiffusionFick"])
 
   print(var)
   w = VariantGUI(var)
   w.show()
   app.exec()
   print(w.selection)
-
-
-
-
-
