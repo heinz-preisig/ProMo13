@@ -1,0 +1,365 @@
+{
+    "N_0": {
+        "identifier": "N_0",
+        "name": "0",
+        "parent_id": null,
+        "modeller_class": "NodeComposite",
+        "children_ids": [
+            "N_1",
+            "N_2",
+            "A_3",
+            "A_4",
+            "A_5",
+            "N_6",
+            "N_7",
+            "N_8",
+            "A_9",
+            "N_10",
+            "A_11",
+            "N_12",
+            "A_13"
+        ]
+    },
+    "N_1": {
+        "identifier": "N_1",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "NodeSimple",
+        "entity_name": "macroscopic.node.mass|constant|infinity.Source",
+        "network": "liquid",
+        "named_network": "A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_85": {}
+        },
+        "outgoing_connections": [
+            "A_3",
+            "A_4"
+        ],
+        "conversions": null,
+        "injected_typed_tokens": null
+    },
+    "N_2": {
+        "identifier": "N_2",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "NodeSimple",
+        "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+        "network": "liquid",
+        "named_network": "A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_138": {
+                "('N_2', 'A')": "121"
+            },
+            "V_145": {},
+            "V_15": {},
+            "V_5": {},
+            "V_6": {},
+            "V_93": {}
+        },
+        "outgoing_connections": [
+            "A_9"
+        ],
+        "conversions": {},
+        "injected_typed_tokens": null
+    },
+    "N_7": {
+        "identifier": "N_7",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "NodeSimple",
+        "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+        "network": "liquid",
+        "named_network": "A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_138": {},
+            "V_145": {},
+            "V_15": {},
+            "V_5": {},
+            "V_6": {},
+            "V_93": {}
+        },
+        "outgoing_connections": [
+            "A_5",
+            "A_11"
+        ],
+        "conversions": {},
+        "injected_typed_tokens": null
+    },
+    "N_6": {
+        "identifier": "N_6",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "NodeSimple",
+        "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+        "network": "liquid",
+        "named_network": "A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_138": {},
+            "V_145": {},
+            "V_15": {},
+            "V_5": {},
+            "V_6": {},
+            "V_93": {}
+        },
+        "outgoing_connections": [],
+        "conversions": {},
+        "injected_typed_tokens": null
+    },
+    "A_3": {
+        "identifier": "A_3",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "Arc",
+        "entity_name": "macroscopic.arc.mass|diffusion|lumped.Diff_arc",
+        "network": "liquid",
+        "named_network": "A-liquid >>> A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_70": {},
+            "V_75": {}
+        },
+        "outgoing_connections": [
+            "N_2"
+        ]
+    },
+    "A_4": {
+        "identifier": "A_4",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "Arc",
+        "entity_name": "macroscopic.arc.mass|diffusion|lumped.Diff_arc",
+        "network": "liquid",
+        "named_network": "A-liquid >>> A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_70": {},
+            "V_75": {}
+        },
+        "outgoing_connections": [
+            "N_7"
+        ]
+    },
+    "A_5": {
+        "identifier": "A_5",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "Arc",
+        "entity_name": "macroscopic.arc.mass|diffusion|lumped.Diff_arc",
+        "network": "liquid",
+        "named_network": "A-liquid >>> A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_70": {},
+            "V_75": {}
+        },
+        "outgoing_connections": [
+            "N_6"
+        ]
+    },
+    "N_8": {
+        "identifier": "N_8",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "NodeSimple",
+        "entity_name": "macroscopic.node.mass|constant|infinity.Source",
+        "network": "liquid",
+        "named_network": "A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_85": {}
+        },
+        "outgoing_connections": [],
+        "conversions": null,
+        "injected_typed_tokens": null
+    },
+    "A_9": {
+        "identifier": "A_9",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "Arc",
+        "entity_name": "macroscopic.arc.mass|diffusion|lumped.Diff_arc",
+        "network": "liquid",
+        "named_network": "A-liquid >>> A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_70": {},
+            "V_75": {}
+        },
+        "outgoing_connections": [
+            "N_8"
+        ]
+    },
+    "N_10": {
+        "identifier": "N_10",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "NodeSimple",
+        "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+        "network": "liquid",
+        "named_network": "A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_138": {},
+            "V_145": {},
+            "V_15": {},
+            "V_5": {},
+            "V_6": {},
+            "V_93": {}
+        },
+        "outgoing_connections": [
+            "A_13"
+        ],
+        "conversions": {},
+        "injected_typed_tokens": null
+    },
+    "A_11": {
+        "identifier": "A_11",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "Arc",
+        "entity_name": "macroscopic.arc.mass|diffusion|lumped.Diff_arc",
+        "network": "liquid",
+        "named_network": "A-liquid >>> A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_70": {},
+            "V_75": {}
+        },
+        "outgoing_connections": [
+            "N_10"
+        ]
+    },
+    "N_12": {
+        "identifier": "N_12",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "NodeSimple",
+        "entity_name": "macroscopic.node.mass|dynamic|lumped.Pore",
+        "network": "liquid",
+        "named_network": "A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_138": {},
+            "V_145": {},
+            "V_15": {},
+            "V_5": {},
+            "V_6": {},
+            "V_93": {}
+        },
+        "outgoing_connections": [],
+        "conversions": {},
+        "injected_typed_tokens": null
+    },
+    "A_13": {
+        "identifier": "A_13",
+        "name": "default",
+        "parent_id": "N_0",
+        "modeller_class": "Arc",
+        "entity_name": "macroscopic.arc.mass|diffusion|lumped.Diff_arc",
+        "network": "liquid",
+        "named_network": "A-liquid >>> A-liquid",
+        "tokens": [
+            "mass"
+        ],
+        "typed_tokens": {
+            "mass": [
+                "A"
+            ]
+        },
+        "instantiated_variables": {
+            "V_70": {},
+            "V_75": {}
+        },
+        "outgoing_connections": [
+            "N_12"
+        ]
+    }
+}

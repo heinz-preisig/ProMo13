@@ -1,0 +1,408 @@
+{
+    "dynamic_1": {
+        "ent": "Dynamic_Node",
+        "inst_vars": {
+            "V_2": 0,
+            "V_3": 0,
+            "V_4": 0,
+            "V_20": 0,
+            "V_24": 0,
+            "V_35": 0,
+            "V_39": 0,
+            "V_42": 0,
+            "V_45": 0,
+            "V_57": 0,
+            "V_58": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                0
+            ],
+            [
+                "Arc",
+                2
+            ],
+            [
+                "Arc",
+                6
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 0,
+        "is_reservoir": false,
+        "name": "dynamic_1"
+    },
+    "dynamic_2": {
+        "ent": "Dynamic_Node",
+        "inst_vars": {
+            "V_2": 0,
+            "V_3": 0,
+            "V_4": 0,
+            "V_7": 0,
+            "V_20": 0,
+            "V_24": 0,
+            "V_35": 0,
+            "V_39": 0,
+            "V_42": 0,
+            "V_45": 0,
+            "V_57": 0,
+            "V_58": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                1
+            ],
+            [
+                "Arc",
+                2
+            ],
+            [
+                "Arc",
+                3
+            ],
+            [
+                "Arc",
+                7
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 1,
+        "is_reservoir": false,
+        "name": "dynamic_2"
+    },
+    "dynamic_3": {
+        "ent": "Dynamic_Node",
+        "inst_vars": {
+            "V_2": 0,
+            "V_3": 0,
+            "V_4": 0,
+            "V_6": 0,
+            "V_7": 0,
+            "V_20": 0,
+            "V_24": 0,
+            "V_35": 0,
+            "V_45": 0,
+            "V_47": 0,
+            "V_57": 0,
+            "V_58": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                4
+            ],
+            [
+                "Arc",
+                5
+            ],
+            [
+                "Arc",
+                6
+            ],
+            [
+                "Arc",
+                7
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 6,
+        "is_reservoir": false,
+        "name": "dynamic_3"
+    },
+    "source_1": {
+        "ent": "Reservoir",
+        "inst_vars": {
+            "V_13": 0,
+            "V_15": 0,
+            "V_56": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                0
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 2,
+        "is_reservoir": true,
+        "name": "source_1"
+    },
+    "source_2": {
+        "ent": "Reservoir",
+        "inst_vars": {
+            "V_13": 0,
+            "V_15": 0,
+            "V_56": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                1
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 3,
+        "is_reservoir": true,
+        "name": "source_2"
+    },
+    "sink": {
+        "ent": "Reservoir",
+        "inst_vars": {
+            "V_13": 0,
+            "V_15": 0,
+            "V_56": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                3
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 4,
+        "is_reservoir": true,
+        "name": "sink"
+    },
+    "source_3": {
+        "ent": "Reservoir",
+        "inst_vars": {
+            "V_13": 0,
+            "V_15": 0,
+            "V_56": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                4
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 5,
+        "is_reservoir": true,
+        "name": "source_3"
+    },
+    "source_4": {
+        "ent": "Reservoir",
+        "inst_vars": {
+            "V_13": 0,
+            "V_15": 0,
+            "V_56": 0
+        },
+        "connections": [
+            [
+                "Arc",
+                5
+            ]
+        ],
+        "index_type": "Node",
+        "index_value": 7,
+        "is_reservoir": true,
+        "name": "source_4"
+    },
+    "con_0": {
+        "ent": "Connection_Convection",
+        "inst_vars": {
+            "V_12": 0,
+            "V_29": 0,
+            "V_30": 0,
+            "V_33": 0,
+            "V_34": 0,
+            "V_27": 0,
+            "V_28": 0,
+            "V_54": 0,
+            "V_59": 0
+        },
+        "connections": [
+            [
+                "Node",
+                0
+            ],
+            [
+                "Node",
+                2
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 0,
+        "is_reservoir": false,
+        "name": "con_0"
+    },
+    "con_1": {
+        "ent": "Connection_Convection",
+        "inst_vars": {
+            "V_12": 0,
+            "V_29": 0,
+            "V_30": 0,
+            "V_33": 0,
+            "V_34": 0,
+            "V_27": 0,
+            "V_28": 0,
+            "V_54": 0,
+            "V_59": 0
+        },
+        "connections": [
+            [
+                "Node",
+                1
+            ],
+            [
+                "Node",
+                3
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 1,
+        "is_reservoir": false,
+        "name": "con_1"
+    },
+    "con_2": {
+        "ent": "Connection_Diffusion",
+        "inst_vars": {
+            "V_37": 0,
+            "V_54": 0,
+            "V_59": 0
+        },
+        "connections": [
+            [
+                "Node",
+                0
+            ],
+            [
+                "Node",
+                1
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 2,
+        "is_reservoir": false,
+        "name": "con_3"
+    },
+    "con_3": {
+        "ent": "Connection_Convection",
+        "inst_vars": {
+            "V_12": 0,
+            "V_29": 0,
+            "V_30": 0,
+            "V_33": 0,
+            "V_34": 0,
+            "V_27": 0,
+            "V_28": 0,
+            "V_54": 0,
+            "V_59": 0
+        },
+        "connections": [
+            [
+                "Node",
+                1
+            ],
+            [
+                "Node",
+                4
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 3,
+        "is_reservoir": false,
+        "name": "con_3"
+    },
+    "con_4": {
+        "ent": "Connection_Convection",
+        "inst_vars": {
+            "V_12": 0,
+            "V_29": 0,
+            "V_30": 0,
+            "V_33": 0,
+            "V_34": 0,
+            "V_27": 0,
+            "V_28": 0,
+            "V_54": 0,
+            "V_59": 0
+        },
+        "connections": [
+            [
+                "Node",
+                5
+            ],
+            [
+                "Node",
+                6
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 4,
+        "is_reservoir": false,
+        "name": "con_4"
+    },
+    "con_5": {
+        "ent": "Connection_Convection",
+        "inst_vars": {
+            "V_12": 0,
+            "V_29": 0,
+            "V_30": 0,
+            "V_33": 0,
+            "V_34": 0,
+            "V_27": 0,
+            "V_28": 0,
+            "V_54": 0,
+            "V_59": 0
+        },
+        "connections": [
+            [
+                "Node",
+                7
+            ],
+            [
+                "Node",
+                6
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 5,
+        "is_reservoir": false,
+        "name": "con_5"
+    },
+    "con_6": {
+        "ent": "Connection_Heat",
+        "inst_vars": {
+            "V_55": 0,
+            "V_59": 0
+        },
+        "connections": [
+            [
+                "Node",
+                0
+            ],
+            [
+                "Node",
+                6
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 6,
+        "is_reservoir": false,
+        "name": "con_6"
+    },
+    "con_7": {
+        "ent": "Connection_Heat",
+        "inst_vars": {
+            "V_55": 0,
+            "V_59": 0
+        },
+        "connections": [
+            [
+                "Node",
+                1
+            ],
+            [
+                "Node",
+                6
+            ]
+        ],
+        "index_type": "Arc",
+        "index_value": 7,
+        "is_reservoir": false,
+        "name": "con_7"
+    }
+}
