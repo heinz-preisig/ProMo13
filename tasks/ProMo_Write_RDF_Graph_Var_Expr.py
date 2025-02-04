@@ -94,8 +94,8 @@ class RDFProMo():
 
     for i in indices:
       index = indices[i]
-      iri = self.getIndexIRI(index)
-      _, no = i.split("_")
+      iri = URIRef(self.namespaces["indices"] + i)
+      # _, no = i.split("_")
 
       if indices[i]["type"] == "index":
         g.add((iri, RDF.type, URIRef(promo["index"])))
@@ -280,16 +280,6 @@ class RDFProMo():
     return name
 
 
-  def getIndexIRI(self, item):
-    """
-    item is either variable or index
-    """
-    # prefix, term = item["IRI"].split(":")
-    t = item["aliases"]["internal_code"]
-
-    # t = term.replace(" ", "").replace("&", "x")
-    iri = URIRef(self.namespaces["indices"] + t)
-    return iri
 
   def renderToRDF(self, equation_index, expression, indices):
     """
@@ -351,7 +341,7 @@ class RDFProMo():
           quad = sub, predicate, obj, self.namespaces[nw]
 
         elif w[0] == "I":
-          key = self.getIndexIRI(indices[w])
+          key = URIRef(self.namespaces["indices"] + w)
           if "<" in key:
             print("bug")
 
