@@ -14,7 +14,7 @@ __project__ = "ProcessModeller  Suite"
 __author__ = "PREISIG, Heinz A"
 __copyright__ = "Copyright 2015, PREISIG, Heinz A"
 __since__ = "2023. 03. 02"
-__license__ = "GPL planned -- until further notice for Bio4Fuel & MarketPlace internal use only"
+__license__ = "GPL planned -- until further notice for sprojects' internal use only"
 __version__ = "6.00"
 __version__ = "7.00"
 __version__ = "8.00"
@@ -48,7 +48,7 @@ from OntologyBuilder.OntologyEquationEditor.resources import LIST_FUNCTIONS
 from OntologyBuilder.OntologyEquationEditor.resources import LIST_OPERATORS
 from OntologyBuilder.OntologyEquationEditor.resources import OPERATORS_alias
 
-render_expression_to_list = True #False
+RENDER_EXPRESSIO_TO_LIST = False
 
 
 def contextPrint(g, l):
@@ -79,7 +79,6 @@ class RDFProMo():
     self.namespaces = namespaces
 
     self.variables = variables
-    # print("number of variables", len(variables))  # gives 146
 
     self.tokens = tokens
     self.equation_dictionary = equation_dictionary
@@ -95,8 +94,8 @@ class RDFProMo():
 
     for i in indices:
       index = indices[i]
-      iri = self.getIndexIRI(index)
-      _, no = i.split("_")
+      iri = URIRef(self.namespaces["indices"] + i)
+      # _, no = i.split("_")
 
       if indices[i]["type"] == "index":
         g.add((iri, RDF.type, URIRef(promo["index"])))
@@ -105,13 +104,6 @@ class RDFProMo():
         triple = (iri, URIRef(promo + "network"), Literal(index["network"]))
         g.add(triple)
 
-        # predicate = eval("RDF._%s" % no)
-        #
-        # obj = URIRef(promo["global_index_list"])
-        #
-        # triple = (obj, predicate, iri)
-        # g.add(triple)
-
     promo_units = Graph(store=store, identifier="promo_units")
 
     # variables ===================================================================
@@ -119,33 +111,29 @@ class RDFProMo():
     set_iri = set()
     list_iri = []
     for vID in variables:
-      v = self.variables[vID]
-      iri = self.getVarIndexIRI(v)
+      variable = self.variables[vID]
+      name = self.getItemName(variable["IRI"])
+      nw = self.stripConnectNetworkName(variable["network"])
+      iri = URIRef(self.namespaces[nw] + "#" + vID)
       set_iri.add(iri)
       list_iri.append(iri)
 
-      nw = self.stripConnectNetworkName(v["network"])
+      nw = self.stripConnectNetworkName(variable["network"])
       gnw = graphs[nw]
       gnw.add((iri, RDF.type, URIRef(promo["variable"])))
       for t in ["label", "type", "doc", "port_variable", "network"]:
-        gnw.add((iri, URIRef(promo + t), Literal(v[t])))
+        gnw.add((iri, URIRef(promo + t), Literal(variable[t])))
+      gnw.add((iri, URIRef(promo + "name"), Literal(name)))
+      gnw.add((iri, URIRef(promo + "created"), Literal(variable["created"])))
+      gnw.add((iri, URIRef(promo + "modified"), Literal(variable["modified"])))
       # contextPrint(g,"first")
 
-      _u = v["units"]
+      _u = variable["units"]
       for quantity, qudt_term in UNITS:
         promo_term = URIRef(promo + PROMO_UNIT_PREFIX + "_" + quantity)
-        promo_value = eval('v["units"].%s' % quantity)
+        promo_value = eval('variable["units"].%s' % quantity)
         promo_units.add((promo_term, URIRef(promo["has_unit"]), URIRef(namespaces["qudt_units"] + qudt_term)))
-        # gnw.add((iri, URIRef(namespaces["qudt"] + qudt_term), promo_term))
         gnw.add((iri, promo_term, Literal(promo_value)))
-
-      # for j in v["index_structures"]:
-      #   _, no = j.split("_")
-      #   predicate = eval("RDF._%s" % no)
-      #   objs = g.objects(promo["global_index_list"], predicate)
-      #   for o in objs:
-      #     triple = (iri, URIRef(promo["has_index"]), o)
-      #     gnw.add(triple)
 
     # equations ===================================================================
     # the equations come last. They need the indices and the variables.
@@ -156,18 +144,21 @@ class RDFProMo():
       doc = e["doc"]
       network = e["network"]
 
-      if render_expression_to_list:
+      if RENDER_EXPRESSIO_TO_LIST:
         triples, quads = self.renderToRDF(eID, expression_internal, indices)
-        s, p, o = triples[0]
+        # s, p, o = triples[0]
         s, p, o, l = quads[0]
         triple = s, RDF.type, RDF.List
-        quad = s, RDF.type, RDF.List, l
+        # quad = s, RDF.type, RDF.List, l
         g.add(triple)
         # g.add(quad)
         # add other info:
         for t in triples:
         # for t in quads:
-          g.add((t))
+          try:
+            g.add((t))
+          except:
+            print("problem -- triple:", t)
 
         triple = (s, URIRef(promo["equation_class"]), Literal(type))
         g.add(triple)
@@ -181,14 +172,18 @@ class RDFProMo():
     no_equation = []
     for vID in variables:
       counter += 1
-      v = self.variables[vID]
-      nw = self.stripConnectNetworkName(v["network"])
+      variable = self.variables[vID]
+      nw = self.stripConnectNetworkName(variable["network"])
       gnw = graphs[nw]
 
-      iri = self.getVarIndexIRI(v)
-      if v["equations"] != {}:
-        for eqID in v["equations"]:
-          if render_expression_to_list:
+
+      variable = self.variables[vID]
+      # name = self.getItemName(variable["IRI"])
+      nw = self.stripConnectNetworkName(variable["network"])
+      iri = URIRef(self.namespaces[nw] + "#" + vID)
+      if variable["equations"] != {}:
+        for eqID in variable["equations"]:
+          if RENDER_EXPRESSIO_TO_LIST:
 
             obj = URIRef(promo["expression_list_%s" % eqID])
             triple = (iri, URIRef(promo["is_defined_by_expression_list"]), obj)
@@ -209,7 +204,11 @@ class RDFProMo():
             gnw.add(triple)
       else:
         triple = (iri, URIRef(promo["is_defined_by_expression_list"]), RDF.nil)
-        gnw.add(triple)
+        try:
+          gnw.add(triple)
+        except:
+          print("again problem: triple", triple)
+
         no_equation.append(vID)
 
     print("number of variables :", counter)
@@ -219,6 +218,8 @@ class RDFProMo():
     contextPrint(g, "finished")
 
     # print("debugging")
+
+
 
   def prepare_graph(self, interconnections, networks):
     store = Memory()
@@ -256,11 +257,6 @@ class RDFProMo():
     promo_language = Graph(store=store, identifier=id)
     promo_language.parse(f_promo_language, format="trig")
 
-    # f_promo_variables = os.path.join(ttl_location, "promo_variables_eq_list.ttl")
-    # id = URIRef(PROMOVARS)
-    # promo_variables = Graph(store=store, identifier=id)
-    # promo_variables.parse(f_promo_variables, format="trig")
-
     # get all namespaces
     namespaces = {}
     namespaces["promovars"] = Namespace(PROMOVARS)
@@ -278,28 +274,12 @@ class RDFProMo():
 
     return g, graphs, namespaces, store
 
-  def getVarIndexIRI(self, item):
-    """
-    item is either variable or index
-    """
-    prefix, term = item["IRI"].split(":")
-    nw_ = item["network"]
-    nw = self.stripConnectNetworkName(nw_)
+  def getItemName(self, variable_iri):
+    _, term = variable_iri.split(":")
+    name = term.replace(" ", "").replace("&", "x")
+    return name
 
-    t = term.replace(" ", "").replace("&", "x")
-    iri = URIRef(self.namespaces[nw] + "#"+t)
-    return iri
 
-  def getIndexIRI(self, item):
-    """
-    item is either variable or index
-    """
-    prefix, term = item["IRI"].split(":")
-    t = item["aliases"]["internal_code"]
-
-    # t = term.replace(" ", "").replace("&", "x")
-    iri = URIRef(self.namespaces["indices"] + t)
-    return iri
 
   def renderToRDF(self, equation_index, expression, indices):
     """
@@ -354,18 +334,14 @@ class RDFProMo():
           quad = sub, predicate, promolg[key], promolg
           # print(triple)
         elif w[0] == "V":
-          vID = int(w.split("V_")[1])
-          v = self.variables[w]  # vID]
           nw_ = self.variables[w]["network"]
           nw = self.stripConnectNetworkName(nw_)
-          obj = self.getVarIndexIRI(v)
+          obj = URIRef(self.namespaces[nw] + "#" + w)
           triple = sub, predicate, obj
           quad = sub, predicate, obj, self.namespaces[nw]
 
         elif w[0] == "I":
-          iID = int(w.split("I_")[1])
-          # key = indices[iID]["IRI"].split(":")[1].replace(" ", "").replace("&", "x")
-          key = self.getIndexIRI(indices[w])  # iID])
+          key = URIRef(self.namespaces["indices"] + w)
           if "<" in key:
             print("bug")
 
@@ -399,26 +375,6 @@ if __name__ == '__main__':
     from PyQt5 import QtCore
     finished = QtCore.pyqtBoundSignal()
 
-    # def makeGraph(self):
-    #   from Common.ontology_container import OntologyContainer
-    #
-    #   self.ontology_name = getOntologyName(task="task_RDF_variable_expression")
-    #
-    #   ontology_container = OntologyContainer(self.ontology_name)
-    #   tokens = ontology_container.tokens
-    #   variables = ontology_container.variables
-    #   indices = ontology_container.indices
-    #   equation_dictionary = ontology_container.equation_dictionary
-    #
-    #   f_promo_ttl = FILES["variablesExpression_ttl_file"] % self.ontology_name
-    #   EQ_ontology = RDFProMo(self.ontology_name)
-    #   EQ_ontology.create(variables, tokens, equation_dictionary, indices)
-    #   # EQ_ontology.graph.serialize(f_promo_ttl + ".ttl", format="ttl")
-    #   # EQ_ontology.graph.serialize(f_promo_ttl + ".n3", format="n3")
-    #   # EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="json-ld")
-    #   EQ_ontology.graph.serialize(f_promo_ttl + ".ld", format="trig")
-    #
-    #   self.finished.emit()
 
     def makeMultiGraph(self):
       from Common.ontology_container import OntologyContainer
@@ -450,7 +406,6 @@ if __name__ == '__main__':
     ttl_location = os.path.join(DIRECTORIES["common"], "ontologies")
     dot = plot(self.graph)
     f_promo_ttl = os.path.join(ttl_location, "var_equ_rdf")
-    # dot.render_expression_to_list(f_promo_ttl, view=True, cleanup=False)
     dot.render(f_promo_ttl, view=True, cleanup=False)
 
 
@@ -460,9 +415,6 @@ if __name__ == '__main__':
       # self.show()
 
       self.worker = Worker()
-
-      # self.thread = QThread()
-      # self.worker.moveToThread(self.thread)
 
       self.worker.makeMultiGraph()
       self.worker.finished.connect(self.close)
