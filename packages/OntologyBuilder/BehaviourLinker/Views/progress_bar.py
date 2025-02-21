@@ -229,7 +229,7 @@ class CircleProgressBar(QWidget):
     if length is None:
       length = self.circle_distance - 2 * border_thickness
 
-    x2 = x1 + length
+    x2 = x1 + int(length)
 
     y = self.height() // 2
 

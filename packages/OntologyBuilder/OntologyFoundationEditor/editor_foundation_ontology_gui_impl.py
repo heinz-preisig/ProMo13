@@ -27,7 +27,6 @@ import shutil
 from collections import OrderedDict
 from copy import copy
 from copy import deepcopy
-from distutils.dir_util import copy_tree
 
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets

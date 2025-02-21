@@ -1,4 +1,3 @@
-from symbol import except_clause
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore

@@ -102,8 +102,8 @@ class ImageItemDelegate(QtWidgets.QStyledItemDelegate):
         Qt.SmoothTransformation,  # type: ignore
     )
 
-    x = option.rect.x() + option.rect.width() / 2 - scaled_pixmap.width() / 2
-    y = option.rect.y() + option.rect.height() / 2 - scaled_pixmap.height() / 2
+    x = option.rect.x() + option.rect.width() // 2 - scaled_pixmap.width() // 2
+    y = option.rect.y() + option.rect.height() // 2 - scaled_pixmap.height() // 2
 
     num_items = index.model().rowCount()
     if (num_items + index.row()) % 2 == 0:
