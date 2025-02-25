@@ -1,37 +1,31 @@
-from pprint import pprint as pp
 import os
 import shutil
 import sys
+from pprint import pprint as pp
 
 sys.path.insert(0, os.path.abspath(".."))
 
 # fmt: off
-from src.code_generator import template_handler
 from packages.Common import resource_initialisation
-from src.code_generator import equation_sequencer
-from src.common.io import IOHandler
 from packages.Common.classes import io
+from src.code_generator import equation_sequencer, template_handler
+from src.common.io import IOHandler
+
 # fmt: on
 
 if len(sys.argv) != 2:
-  print("ERROR: Wrong command-line arguments length")
-  exit()
+    print("ERROR: Wrong command-line arguments length")
+    exit()
 
 ontology_name = sys.argv[0]  # "DEMO"
 model_name = sys.argv[1]  # "DEMO"
 
 # Loading information from the files
-all_variables, all_indices, all_equations = io.load_var_idx_eq_from_file(
-    ontology_name
-)
+all_variables, all_indices, all_equations = io.load_var_idx_eq_from_file(ontology_name)
 
 all_entities = io.load_entities_from_file(ontology_name, all_equations)
 
-all_topology_objects = io.load_topology_objects(
-    ontology_name,
-    model_name,
-    all_entities
-)
+all_topology_objects = io.load_topology_objects(ontology_name, model_name, all_entities)
 
 
 equation_seq, map_eq_top = equation_sequencer.sequence_equations(
@@ -53,33 +47,37 @@ temp = template_handler.TemplateHandler(
     all_topology_objects,
     equation_seq,
     map_eq_top,
-    instantiation_data
+    instantiation_data,
 )
 
 content = temp.generate_content()
 
 dir_path = resource_initialisation.DIRECTORIES["model_location"] % (
-    ontology_name, model_name)
+    ontology_name,
+    model_name,
+)
 file_path = os.path.join(dir_path, "main.m")
 
 with open(file_path, mode="w", encoding="utf-8") as message:
-  message.write(content)
+    message.write(content)
 
 init_file_path = os.path.join(dir_path, "init.m")
 init_content = temp.generate_init_content()
 
 with open(init_file_path, mode="w", encoding="utf-8") as message:
-  message.write(init_content)
+    message.write(init_content)
 
 # To copy the @MultiDimVar
 lib_path = os.path.join(
-    resource_initialisation.DIRECTORIES["ProMo_root"], "ProMo/tests/Matlab/@MultiDimVar")
+    resource_initialisation.DIRECTORIES["ProMo_root"],
+    "ProMo/static_assets/@MultiDimVar",
+)
 dest_path = dir_path + "/@MultiDimVar"
 
 # Check if the destination directory exists
 if os.path.exists(dest_path):
-  # If it exists, remove it
-  shutil.rmtree(dest_path)
+    # If it exists, remove it
+    shutil.rmtree(dest_path)
 
 # Now you can copy the directory
 shutil.copytree(lib_path, dest_path)
