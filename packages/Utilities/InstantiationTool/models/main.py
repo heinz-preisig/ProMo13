@@ -1,379 +1,381 @@
-from email.mime import image
-import os
 import copy
 import logging
+import os
+from email.mime import image
+from pprint import pprint as pp
 from typing import Dict, List, Optional, Tuple, cast
 
 from PyQt5 import QtCore
 
-from packages.Common.classes import io
-from packages.Common.classes import entity
-
+from packages.Common.classes import entity, io
 from packages.Utilities.InstantiationTool.models import topology_tree
-
-from src.common import roles, topology
-from src.common.constants import FixedVariables
+from src.common import old_topology, roles
 from src.common.components import image_list
+from src.common.constants import FixedVariables
 from src.common.io import IOHandler
-
-from pprint import pprint as pp
-
 
 # TODO: The information about the selection needs to be stored in the main_model,
 # there is no way to retrieve it afterwards without talking to the view
 
+
 class InvalidEntityError(Exception):
-  """The entity doesn't exist"""
-  pass
+    """The entity doesn't exist"""
+
+    pass
 
 
 class MainModel(QtCore.QObject):
-  # Signals
-  variable_tree_changed = QtCore.pyqtSignal()
-  topology_tree_changed = QtCore.pyqtSignal()
-  selection_changed = QtCore.pyqtSignal(bool)
+    # Signals
+    variable_tree_changed = QtCore.pyqtSignal()
+    topology_tree_changed = QtCore.pyqtSignal()
+    selection_changed = QtCore.pyqtSignal(bool)
 
-  # Methods
-  def __init__(self):
-    super().__init__()
+    # Methods
+    def __init__(self):
+        super().__init__()
 
-    self._io_handler = IOHandler()
+        self._io_handler = IOHandler()
 
-    self._ontology_name = ""
-    self._model_name = ""
-    self._all_entities = {}
-    self._all_variables = {}
-    self._all_equations = {}  # TODO: Check if I really need to store this
-    self._all_indices = {}
-    self._all_topology_objects = {}
-    self._instantiation = {}
+        self._ontology_name = ""
+        self._model_name = ""
+        self._all_entities = {}
+        self._all_variables = {}
+        self._all_equations = {}  # TODO: Check if I really need to store this
+        self._all_indices = {}
+        self._all_topology_objects = {}
+        self._instantiation = {}
 
-    self._required_variables = []
-    self._optional_variables = []
+        self._required_variables = []
+        self._optional_variables = []
 
-    # Possible typed tokens for each variable in the model.
-    self._typed_tokens_per_variable = {}
+        # Possible typed tokens for each variable in the model.
+        self._typed_tokens_per_variable = {}
 
-    # self.variable_tree_model = variable_tree.VariableTreeModel()
-    self.variable_list = image_list.ImageListModel()
-    self.topology_tree_model = topology_tree.TopologyTreeModel()
+        # self.variable_tree_model = variable_tree.VariableTreeModel()
+        self.variable_list = image_list.ImageListModel()
+        self.topology_tree_model = topology_tree.TopologyTreeModel()
 
-    # The selection state is store in these variables.
-    self._is_variable_selected = False
-    self._is_topology_object_selected = False
+        # The selection state is store in these variables.
+        self._is_variable_selected = False
+        self._is_topology_object_selected = False
 
-    self._variable_filter_string = None
-    self._variable_show_uninstantiated_only = False
+        self._variable_filter_string = None
+        self._variable_show_uninstantiated_only = False
 
-  def load_ontology_info(self, ontology_name: str, model_name: str) -> None:
-    self._ontology_name = ontology_name
-    self._model_name = model_name
+    def load_ontology_info(self, ontology_name: str, model_name: str) -> None:
+        self._ontology_name = ontology_name
+        self._model_name = model_name
 
-    params = {"ontology_name": ontology_name, "model_name": model_name}
-    self._io_handler.add_path_parameters(params)
+        params = {"ontology_name": ontology_name, "model_name": model_name}
+        self._io_handler.add_path_parameters(params)
 
-    var_idx_eq = io.load_var_idx_eq_from_file(self._ontology_name)
-    self._all_variables, self._all_indices, self._all_equations = var_idx_eq
+        var_idx_eq = io.load_var_idx_eq_from_file(self._ontology_name)
+        self._all_variables, self._all_indices, self._all_equations = var_idx_eq
 
-    self._all_entities = io.load_entities_from_file(
-        self._ontology_name,
-        self._all_equations
-    )
-    self._all_topology_objects = io.load_topology_objects(
-        self._ontology_name,
-        self._model_name,
-        self._all_entities,
-    )
-
-    self._instantiation = self._io_handler.get_instantiation_data()
-    self._generate_topology_instantiation()
-
-    self._discover_required_variables()
-    self._update_variable_tree_model()
-
-    # if self._required_variables:
-    #   self._update_topology_tree_model(self._required_variables[0])
-
-  def _generate_topology_instantiation(self) -> None:
-    connections: List[Tuple[str, str]] = []
-    for top_obj in self._all_topology_objects.values():
-      if isinstance(top_obj, topology.NodeComposite):
-        continue
-
-      top_obj = cast(topology.EntityContainer, top_obj)
-
-      for connect_obj_id in top_obj.outgoing_connections:
-        connections.append((top_obj.identifier, connect_obj_id))
-
-    self._instantiation[FixedVariables.INCIDENCE_MATRIX] = {}
-    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SOURCE] = {}
-    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SINK] = {}
-    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SOURCE] = {}
-    self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SINK] = {}
-    self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SOURCE] = {}
-    self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SINK] = {}
-
-    for source, sink in connections:
-      if source.startswith("N"):
-        if sink.startswith("A"):
-          tuple_key = (source, sink)
-
-          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX]
-          update_dict[tuple_key] = "-1"
-
-          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SOURCE]
-          update_dict[tuple_key] = "1"
-        elif sink.startswith("I"):
-          tuple_key = (source, sink)
-          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SOURCE]
-          update_dict[tuple_key] = "1"
-      elif source.startswith("A"):
-        if sink.startswith("N"):
-          tuple_key = (sink, source)
-
-          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX]
-          update_dict[tuple_key] = "1"
-
-          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SINK]
-          update_dict[tuple_key] = "1"
-        else:
-          tuple_key = (source, sink)
-          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SOURCE]
-          update_dict[tuple_key] = "1"
-      else:
-        if sink.startswith("N"):
-          tuple_key = (sink, source)
-          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SINK]
-          update_dict[tuple_key] = "1"
-        else:
-          tuple_key = (sink, source)
-          update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SINK]
-          update_dict[tuple_key] = "1"
-
-  def _discover_required_variables(self):
-    used_entities: Dict[str, entity.Entity] = {}
-    for top_obj in self._all_topology_objects.values():
-      # Composite nodes dont have an associated entity
-      if isinstance(top_obj, topology.NodeComposite):
-        continue
-
-      top_obj = cast(topology.EntityContainer, top_obj)
-
-      ent_name = top_obj.get_entity_name()
-      # TODO: Move this and the test case to io.load_model
-      if ent_name not in self._all_entities:
-        raise InvalidEntityError
-
-      self._find_typed_tokens_per_variable(
-          top_obj,
-          self._all_entities[ent_name]
-      )
-
-      used_entities.setdefault(ent_name, self._all_entities[ent_name])
-
-    required_variables = set()
-    for ent in used_entities.values():
-      required_variables.update(ent.get_init_vars())
-
-    self._required_variables = sorted(required_variables)
-
-  def _find_typed_tokens_per_variable(
-      self,
-      top_obj: topology.EntityContainer,
-      ent: entity.Entity
-  ) -> None:
-    for var_id in ent.get_variables():
-      # TODO: Extend to the other typed tokens
-      if var_id not in self._typed_tokens_per_variable:
-        self._typed_tokens_per_variable[var_id] = set()
-
-      if "I_4" in self._all_variables[var_id].index_structures:  #TODO: there should be a dictionary label --> ID
-        self._typed_tokens_per_variable[var_id].update(
-            set(top_obj.typed_tokens["mass"])
+        self._all_entities = io.load_entities_from_file(
+            self._ontology_name, self._all_equations
+        )
+        self._all_topology_objects = io.load_topology_objects(
+            self._ontology_name,
+            self._model_name,
+            self._all_entities,
         )
 
-  def _update_variable_tree_model(self):
-    """Loads the necessary data into the model
+        self._instantiation = self._io_handler.get_instantiation_data()
+        self._generate_topology_instantiation()
 
-    The list of variables is filtered and the result is loaded into the
-    model. At the end a signal is emited to notify that the data in the
-    model changed.
-    """
-    # filtered_variables = {
-    #     var_id: self._all_variables[var_id]
-    #     for var_id in self._filter_variables()
-    # }
+        self._discover_required_variables()
+        self._update_variable_tree_model()
 
-    # self.variable_tree_model.load_data(
-    #     filtered_variables,
-    #     self._typed_tokens_per_variable
-    # )
-    # self.variable_tree_changed.emit()
-    ids = [self._all_variables[var].var_id for var in self._required_variables]
-    paths = self._io_handler.get_imgs_paths(ids)
-    self.variable_list.load_data(ids, paths)
+        # if self._required_variables:
+        #   self._update_topology_tree_model(self._required_variables[0])
 
-  def _filter_variables(self) -> List[str]:
-    # TODO: Implement this
-    filtered_list = self._required_variables
-    return filtered_list
+    def _generate_topology_instantiation(self) -> None:
+        connections: list[tuple[str, str]] = []
+        for top_obj in self._all_topology_objects.values():
+            if isinstance(top_obj, old_topology.NodeComposite):
+                continue
 
-  def on_variables_selected(
-      self,
-      index: QtCore.QModelIndex
-  ) -> None:
-    """Updates the checked status of the variable_tree_model.
+            top_obj = cast(old_topology.EntityContainer, top_obj)
 
-    It also triggers an update on the topology_tree_model.
-     See :meth:`_update_topology_tree_model`.
+            for connect_obj_id in top_obj.outgoing_connections:
+                connections.append((top_obj.identifier, connect_obj_id))
 
-    Args:
-        index (QtCore.QModelIndex): Index that triggers the update.
-    """
-    # self.variable_tree_model.handle_check_state_change(index)
+        self._instantiation[FixedVariables.INCIDENCE_MATRIX] = {}
+        self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SOURCE] = {}
+        self._instantiation[FixedVariables.INCIDENCE_MATRIX_NA_SINK] = {}
+        self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SOURCE] = {}
+        self._instantiation[FixedVariables.INCIDENCE_MATRIX_NI_SINK] = {}
+        self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SOURCE] = {}
+        self._instantiation[FixedVariables.INCIDENCE_MATRIX_AI_SINK] = {}
 
-    # selected_variables = self.variable_tree_model.get_checked_items()
-    # self._update_topology_tree_model(selected_variables)
+        for source, sink in connections:
+            if source.startswith("N"):
+                if sink.startswith("A"):
+                    tuple_key = (source, sink)
 
-    selected_variable = index.data(roles.ID_ROLE)
-    self._update_topology_tree_model({selected_variable: []})
+                    update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX]
+                    update_dict[tuple_key] = "-1"
 
-    self._check_selection_status()
+                    update_dict = self._instantiation[
+                        FixedVariables.INCIDENCE_MATRIX_NA_SOURCE
+                    ]
+                    update_dict[tuple_key] = "1"
+                elif sink.startswith("I"):
+                    tuple_key = (source, sink)
+                    update_dict = self._instantiation[
+                        FixedVariables.INCIDENCE_MATRIX_NI_SOURCE
+                    ]
+                    update_dict[tuple_key] = "1"
+            elif source.startswith("A"):
+                if sink.startswith("N"):
+                    tuple_key = (sink, source)
 
-  def on_topology_tree_model_check_box_changed(self):
-    # checked_items = self.topology_tree_model.get_checked_items()
-    # self._is_topology_object_selected = bool(checked_items)
+                    update_dict = self._instantiation[FixedVariables.INCIDENCE_MATRIX]
+                    update_dict[tuple_key] = "1"
 
-    self._check_selection_status()
+                    update_dict = self._instantiation[
+                        FixedVariables.INCIDENCE_MATRIX_NA_SINK
+                    ]
+                    update_dict[tuple_key] = "1"
+                else:
+                    tuple_key = (source, sink)
+                    update_dict = self._instantiation[
+                        FixedVariables.INCIDENCE_MATRIX_AI_SOURCE
+                    ]
+                    update_dict[tuple_key] = "1"
+            else:
+                if sink.startswith("N"):
+                    tuple_key = (sink, source)
+                    update_dict = self._instantiation[
+                        FixedVariables.INCIDENCE_MATRIX_NI_SINK
+                    ]
+                    update_dict[tuple_key] = "1"
+                else:
+                    tuple_key = (sink, source)
+                    update_dict = self._instantiation[
+                        FixedVariables.INCIDENCE_MATRIX_AI_SINK
+                    ]
+                    update_dict[tuple_key] = "1"
 
-  def _check_selection_status(self):
-    # bool(self.variable_tree_model.get_checked_items())
-    is_variable_selected = True
-    is_topology_object_selected = bool(
-        self.topology_tree_model.get_checked_items()
-    )
+    def _discover_required_variables(self):
+        used_entities: dict[str, entity.Entity] = {}
+        for top_obj in self._all_topology_objects.values():
+            # Composite nodes dont have an associated entity
+            if isinstance(top_obj, old_topology.NodeComposite):
+                continue
 
-    is_selection_complete = (is_variable_selected and
-                             is_topology_object_selected)
+            top_obj = cast(old_topology.EntityContainer, top_obj)
 
-    self.selection_changed.emit(is_selection_complete)
+            ent_name = top_obj.get_entity_name()
+            # TODO: Move this and the test case to io.load_model
+            if ent_name not in self._all_entities:
+                raise InvalidEntityError
 
-  def _update_topology_tree_model(
-      self,
-      variables_selected: Dict[str, List[str]],
-  ) -> None:
-    """Updates the topology tree model.
+            self._find_typed_tokens_per_variable(top_obj, self._all_entities[ent_name])
 
-    The model is updated and only topology objects that contain at least
-    one of the variables in the variable list passed as argument are 
-    added. If the variable have any typed tokens selected, the topology
-    objects also need to have at least one of the typed tokens to be
-    included. 
+            used_entities.setdefault(ent_name, self._all_entities[ent_name])
 
-    The filtering is done in :meth:`_filter_topology_objects`.
+        required_variables = set()
+        for ent in used_entities.values():
+            required_variables.update(ent.get_init_vars())
 
-    Args:
-        var_list (Dict[str,List[str]]): Variables used for filtering.
-    """
-    filtered_ids = self._filter_topology_objects(variables_selected)
+        self._required_variables = sorted(required_variables)
 
-    self.topology_tree_model.load_data(
-        self._all_topology_objects, filtered_ids)
-    self.topology_tree_changed.emit()
+    def _find_typed_tokens_per_variable(
+        self, top_obj: old_topology.EntityContainer, ent: entity.Entity
+    ) -> None:
+        for var_id in ent.get_variables():
+            # TODO: Extend to the other typed tokens
+            if var_id not in self._typed_tokens_per_variable:
+                self._typed_tokens_per_variable[var_id] = set()
 
-  def _filter_topology_objects(
-      self,
-      variables_selected: Dict[str, List[str]],
-  ) -> List[str]:
-    """Filters all_topology_objects
+            if (
+                "I_4" in self._all_variables[var_id].index_structures
+            ):  # TODO: there should be a dictionary label --> ID
+                self._typed_tokens_per_variable[var_id].update(
+                    set(top_obj.typed_tokens["mass"])
+                )
 
-    The filtering is done at several levels. The main one uses a dict of
-    variables and typed tokens to get only the topology objects that
-    contain at least one of the variables with at least one of its typed
-    tokens.
+    def _update_variable_tree_model(self):
+        """Loads the necessary data into the model
 
-    Args:
-        var_list (Dict[str, List[str]]): The keys are the variable ids.
-         The valus are the corresponding typed tokens.
+        The list of variables is filtered and the result is loaded into the
+        model. At the end a signal is emited to notify that the data in the
+        model changed.
+        """
+        # filtered_variables = {
+        #     var_id: self._all_variables[var_id]
+        #     for var_id in self._filter_variables()
+        # }
 
-    Returns:
-        List[str]: Ids of the Topology Objects that pass the filter.
-    """
-    # TODO: Add filtering for checkbox and searchbar
-    filtered_topology_objects = set()
-    for var_id, typed_tokens in variables_selected.items():
-      for top_obj_id, top_obj in self._all_topology_objects.items():
-        if isinstance(top_obj, topology.NodeComposite):
-          continue
+        # self.variable_tree_model.load_data(
+        #     filtered_variables,
+        #     self._typed_tokens_per_variable
+        # )
+        # self.variable_tree_changed.emit()
+        ids = [self._all_variables[var].var_id for var in self._required_variables]
+        paths = self._io_handler.get_imgs_paths(ids)
+        self.variable_list.load_data(ids, paths)
 
-        top_obj = cast(topology.EntityContainer, top_obj)
+    def _filter_variables(self) -> list[str]:
+        # TODO: Implement this
+        filtered_list = self._required_variables
+        return filtered_list
 
-        # If there are types tokens the topology object needs to contain
-        # at least one of them
-        if typed_tokens:
-          typed_token_condition = bool(
-              set(typed_tokens) & set(top_obj.typed_tokens["mass"])
-          )
-        else:
-          typed_token_condition = True
+    def on_variables_selected(self, index: QtCore.QModelIndex) -> None:
+        """Updates the checked status of the variable_tree_model.
 
-        # Main filter: contains variable + typed token
-        if top_obj.contains_init_var(var_id) and typed_token_condition:
-          filtered_topology_objects.add(top_obj_id)
+        It also triggers an update on the topology_tree_model.
+         See :meth:`_update_topology_tree_model`.
 
-    return sorted(filtered_topology_objects)
+        Args:
+            index (QtCore.QModelIndex): Index that triggers the update.
+        """
+        # self.variable_tree_model.handle_check_state_change(index)
 
-  def instantiate(self, instantiation_value: str, var_index: QtCore.QModelIndex) -> None:
-    instantiated_top_obj = self.topology_tree_model.get_checked_items()
-    var_item = self.variable_list.itemFromIndex(var_index)
-    var_id = var_item.data(roles.ID_ROLE)
+        # selected_variables = self.variable_tree_model.get_checked_items()
+        # self._update_topology_tree_model(selected_variables)
 
-    if var_id not in self._instantiation:
-      self._instantiation[var_id] = {}
+        selected_variable = index.data(roles.ID_ROLE)
+        self._update_topology_tree_model({selected_variable: []})
 
-    for top_obj_id in instantiated_top_obj:
-      typed_tokens = []
-      key_list = []
-      index_structures = self._all_variables[var_id].index_structures
-      if "I_1" in index_structures or "I_2" in index_structures:
-        key_list.append(top_obj_id)
+        self._check_selection_status()
 
-      typed_tokens = []
-      if "I_4" in index_structures:
-        typed_tokens = self._all_topology_objects[top_obj_id].typed_tokens["mass"]
+    def on_topology_tree_model_check_box_changed(self):
+        # checked_items = self.topology_tree_model.get_checked_items()
+        # self._is_topology_object_selected = bool(checked_items)
 
-      if not typed_tokens and not key_list:
-        id_key = ("1", )
-        self._instantiation[var_id][id_key] = instantiation_value
-        continue
+        self._check_selection_status()
 
-      if typed_tokens:
-        for tt in typed_tokens:
-          id_list = []
-          id_list.extend(key_list)
-          id_list.append(tt)
-          id_key = tuple(id_list)
-          self._instantiation[var_id][id_key] = instantiation_value
-      else:
-        id_key = (top_obj_id,)
-        self._instantiation[var_id][id_key] = instantiation_value
+    def _check_selection_status(self):
+        # bool(self.variable_tree_model.get_checked_items())
+        is_variable_selected = True
+        is_topology_object_selected = bool(self.topology_tree_model.get_checked_items())
 
-    pp(self._instantiation)
-    # for top_obj_id in instantiated_top_obj:
-    #   for var_id, typed_tokens in instantiated_variables.items():
-    #     top_obj = self._all_topology_objects[top_obj_id]
-    #     top_obj = cast(topology.EntityContainer, top_obj)
+        is_selection_complete = is_variable_selected and is_topology_object_selected
 
-    #     top_obj.set_instantiation_value(
-    #         self._all_variables[var_id],
-    #         typed_tokens,
-    #         instantiation_value
-    #     )
+        self.selection_changed.emit(is_selection_complete)
 
-    # for top_obj_id, top_obj in self._all_topology_objects.items():
-    #   if isinstance(top_obj, topology.EntityContainer):
-    #     pp(top_obj_id)
-    #     pp(top_obj.instantiated_variables)
+    def _update_topology_tree_model(
+        self,
+        variables_selected: dict[str, list[str]],
+    ) -> None:
+        """Updates the topology tree model.
 
-  def save_instantiation(self):
-    self._io_handler.set_instantiation_data(self._instantiation)
+        The model is updated and only topology objects that contain at least
+        one of the variables in the variable list passed as argument are
+        added. If the variable have any typed tokens selected, the topology
+        objects also need to have at least one of the typed tokens to be
+        included.
+
+        The filtering is done in :meth:`_filter_topology_objects`.
+
+        Args:
+            var_list (Dict[str,List[str]]): Variables used for filtering.
+        """
+        filtered_ids = self._filter_topology_objects(variables_selected)
+
+        self.topology_tree_model.load_data(self._all_topology_objects, filtered_ids)
+        self.topology_tree_changed.emit()
+
+    def _filter_topology_objects(
+        self,
+        variables_selected: dict[str, list[str]],
+    ) -> list[str]:
+        """Filters all_topology_objects
+
+        The filtering is done at several levels. The main one uses a dict of
+        variables and typed tokens to get only the topology objects that
+        contain at least one of the variables with at least one of its typed
+        tokens.
+
+        Args:
+            var_list (Dict[str, List[str]]): The keys are the variable ids.
+             The valus are the corresponding typed tokens.
+
+        Returns:
+            List[str]: Ids of the Topology Objects that pass the filter.
+        """
+        # TODO: Add filtering for checkbox and searchbar
+        filtered_topology_objects = set()
+        for var_id, typed_tokens in variables_selected.items():
+            for top_obj_id, top_obj in self._all_topology_objects.items():
+                if isinstance(top_obj, old_topology.NodeComposite):
+                    continue
+
+                top_obj = cast(old_topology.EntityContainer, top_obj)
+
+                # If there are types tokens the topology object needs to contain
+                # at least one of them
+                if typed_tokens:
+                    typed_token_condition = bool(
+                        set(typed_tokens) & set(top_obj.typed_tokens["mass"])
+                    )
+                else:
+                    typed_token_condition = True
+
+                # Main filter: contains variable + typed token
+                if top_obj.contains_init_var(var_id) and typed_token_condition:
+                    filtered_topology_objects.add(top_obj_id)
+
+        return sorted(filtered_topology_objects)
+
+    def instantiate(
+        self, instantiation_value: str, var_index: QtCore.QModelIndex
+    ) -> None:
+        instantiated_top_obj = self.topology_tree_model.get_checked_items()
+        var_item = self.variable_list.itemFromIndex(var_index)
+        var_id = var_item.data(roles.ID_ROLE)
+
+        if var_id not in self._instantiation:
+            self._instantiation[var_id] = {}
+
+        for top_obj_id in instantiated_top_obj:
+            typed_tokens = []
+            key_list = []
+            index_structures = self._all_variables[var_id].index_structures
+            if "I_1" in index_structures or "I_2" in index_structures:
+                key_list.append(top_obj_id)
+
+            typed_tokens = []
+            if "I_4" in index_structures:
+                typed_tokens = self._all_topology_objects[top_obj_id].typed_tokens[
+                    "mass"
+                ]
+
+            if not typed_tokens and not key_list:
+                id_key = ("1",)
+                self._instantiation[var_id][id_key] = instantiation_value
+                continue
+
+            if typed_tokens:
+                for tt in typed_tokens:
+                    id_list = []
+                    id_list.extend(key_list)
+                    id_list.append(tt)
+                    id_key = tuple(id_list)
+                    self._instantiation[var_id][id_key] = instantiation_value
+            else:
+                id_key = (top_obj_id,)
+                self._instantiation[var_id][id_key] = instantiation_value
+
+        pp(self._instantiation)
+        # for top_obj_id in instantiated_top_obj:
+        #   for var_id, typed_tokens in instantiated_variables.items():
+        #     top_obj = self._all_topology_objects[top_obj_id]
+        #     top_obj = cast(topology.EntityContainer, top_obj)
+
+        #     top_obj.set_instantiation_value(
+        #         self._all_variables[var_id],
+        #         typed_tokens,
+        #         instantiation_value
+        #     )
+
+        # for top_obj_id, top_obj in self._all_topology_objects.items():
+        #   if isinstance(top_obj, topology.EntityContainer):
+        #     pp(top_obj_id)
+        #     pp(top_obj.instantiated_variables)
+
+    def save_instantiation(self):
+        self._io_handler.set_instantiation_data(self._instantiation)
