@@ -97,10 +97,7 @@ class TestDefaultIOManagerConstructor:
         io_manager = DefaultIOManager()
 
         ontology_context = io_manager.get_ontology_context()
-        assert ontology_context.repository_location == ""
-        assert ontology_context.ontology_name == ""
-        assert ontology_context.model_name == ""
-        assert ontology_context.instantiation_name == ""
+        assert ontology_context == OntologyContext()
 
 
 class TestGetOntologyContext:
@@ -145,6 +142,19 @@ class TestSetRepositoryLocation:
         new_ontology_context = io_manager.get_ontology_context()
         assert new_ontology_context.repository_location == repo_location
 
+    def test_reset_depending_context(
+        self,
+        preset_io_manager_with_instantiation_name: IOManager,
+        new_repo_location: str,
+    ) -> None:
+        manager = preset_io_manager_with_instantiation_name
+        expected_context = OntologyContext(new_repo_location)
+
+        manager.set_repository_location(new_repo_location)
+
+        output_context = manager.get_ontology_context()
+        assert output_context == expected_context
+
 
 class TestSetOntologyName:
     def test_exception_on_invalid_ontology(
@@ -170,6 +180,18 @@ class TestSetOntologyName:
         ontology_context = manager.get_ontology_context()
         assert ontology_context.ontology_name == ONTOLOGY_NAME
 
+    def test_reset_depending_context(
+        self, preset_io_manager_with_instantiation_name: IOManager, repo_location: str
+    ) -> None:
+        manager = preset_io_manager_with_instantiation_name
+        ONTOLOGY_NAME = "Ontology1"
+        expected_context = OntologyContext(repo_location, ONTOLOGY_NAME)
+
+        manager.set_ontology_name(ONTOLOGY_NAME)
+
+        output_context = manager.get_ontology_context()
+        assert output_context == expected_context
+
 
 class TestSetModelName:
     def test_exception_on_invalid_model(
@@ -194,6 +216,19 @@ class TestSetModelName:
 
         ontology_context = manager.get_ontology_context()
         assert ontology_context.model_name == MODEL_NAME
+
+    def test_reset_depending_context(
+        self, preset_io_manager_with_instantiation_name: IOManager, repo_location: str
+    ) -> None:
+        manager = preset_io_manager_with_instantiation_name
+        ONTOLOGY_NAME = "TestOntology"
+        MODEL_NAME = "Model1"
+        expected_context = OntologyContext(repo_location, ONTOLOGY_NAME, MODEL_NAME)
+
+        manager.set_model_name(MODEL_NAME)
+
+        output_context = manager.get_ontology_context()
+        assert output_context == expected_context
 
 
 class TestSetInstantiationName:
