@@ -13,6 +13,13 @@ def io_manager() -> IOManager:
 
 
 @pytest.fixture
+def repo_location(tmp_path: Path, current_repository_path: Path) -> str:
+    repo_path = tmp_path / "OntologyRepository"
+    shutil.copytree(current_repository_path, repo_path)
+    return str(repo_path)
+
+
+@pytest.fixture
 def nonexistent_dir_location(tmp_path: Path) -> str:
     return str(tmp_path / "NonexistentDir")
 
@@ -41,23 +48,16 @@ def current_repository_path() -> Path:
 
 
 @pytest.fixture
-def repo_location(tmp_path: Path, current_repository_path: Path) -> str:
-    repo_path = tmp_path / "OntologyRepository"
-    shutil.copytree(current_repository_path, repo_path)
-    return str(repo_path)
-
-
-@pytest.fixture
 def new_repo_location(tmp_path: Path) -> str:
     repo_path = tmp_path / "NewOntologyRepository"
     repo_path.mkdir()
     return str(repo_path)
 
 
-@pytest.mark.describe("Test DefaultIOManager creation:")
 class TestDefaultIOManagerConstructor:
-    @pytest.mark.it("Empty initial OntologyContext")
-    def test_empty_context(self, io_manager: IOManager) -> None:
+    def test_empty_initial_context(self) -> None:
+        io_manager = DefaultIOManager()
+
         ontology_context = io_manager.get_ontology_context()
         assert ontology_context.repository_location == ""
         assert ontology_context.ontology_name == ""
@@ -65,155 +65,121 @@ class TestDefaultIOManagerConstructor:
         assert ontology_context.instantiation_name == ""
 
 
-@pytest.mark.describe("Test get_ontology_context")
 class TestGetOntologyContext:
-    @pytest.mark.it("OntologyContext returned is a copy")
-    def test_context_copy(self, io_manager: IOManager) -> None:
+    def test_returned_context_is_copy(self, io_manager: IOManager) -> None:
         ontology_context = io_manager.get_ontology_context()
         ontology_context.repository_location = "PathModified"
         ontology_context = io_manager.get_ontology_context()
         assert ontology_context.repository_location == ""
 
 
-@pytest.mark.describe("Test update_ontology_context:")
-class TestUpdateOntologyContext:
-    @pytest.mark.it("Exception on invalid repository path")
-    def test_invalid_repository_path(
-        self, io_manager: IOManager, nonexistent_dir_location: Path
+class TestSetRepositoryLocation:
+    def test_exception_on_invalid_location(
+        self, io_manager: IOManager, nonexistent_dir_location: str
     ) -> None:
-        bad_ontology_context = OntologyContext(nonexistent_dir_location)
         with pytest.raises(
             FileNotFoundError,
-            match=f"The directory {nonexistent_dir_location} does not exist.",
+            match=f"The directory at {nonexistent_dir_location} does not exist.",
         ):
-            io_manager.update_ontology_context(bad_ontology_context)
+            io_manager.set_repository_location(nonexistent_dir_location)
 
-    @pytest.mark.it("Exception on read only repository dir")
-    def test_read_only_dir(
+    def test_exception_on_read_only_location(
         self, io_manager: IOManager, read_only_dir_location: str
     ) -> None:
-        ontology_context = OntologyContext(read_only_dir_location)
         with pytest.raises(
             PermissionError,
-            match=f"You have not write permissions on {read_only_dir_location}",
+            match=f"You don't have write permissions at {read_only_dir_location}.",
         ):
-            io_manager.update_ontology_context(ontology_context)
+            io_manager.set_repository_location(read_only_dir_location)
 
-    @pytest.mark.it("Exception on write only repository dir")
-    def test_write_only_dir(
+    def test_exception_on_write_only_location(
         self, io_manager: IOManager, write_only_dir_location: str
     ) -> None:
-        ontology_context = OntologyContext(write_only_dir_location)
         with pytest.raises(
             PermissionError,
-            match=f"You have not read permissions on {write_only_dir_location}",
+            match=f"You don't have read permissions at {write_only_dir_location}.",
         ):
-            io_manager.update_ontology_context(ontology_context)
+            io_manager.set_repository_location(write_only_dir_location)
 
-    @pytest.mark.it("Existing repository path updated correctly")
-    def test_update_existing_repo_ok(
-        self, io_manager: IOManager, repo_location: str
-    ) -> None:
-        existing_ontologies = ["Ontology1", "Ontology2", "TestOntology"]
-        ontology_context = OntologyContext(repo_location)
-        io_manager.update_ontology_context(ontology_context)
+    def test_set_location_ok(self, io_manager: IOManager, repo_location: str) -> None:
+        io_manager.set_repository_location(repo_location)
+
         new_ontology_context = io_manager.get_ontology_context()
-
         assert new_ontology_context.repository_location == repo_location
-        assert sorted(new_ontology_context.ontologies) == sorted(existing_ontologies)
 
-    @pytest.mark.it("New repository path updated correctly")
-    def test_update_new_repo_ok(self, io_manager: IOManager, new_repo_location: str):
-        ontology_context = OntologyContext(new_repo_location)
 
-        io_manager.update_ontology_context(ontology_context)
+class TestSetOntologyName:
+    @pytest.fixture
+    def preset_io_manager(self, io_manager: IOManager, repo_location: str) -> IOManager:
+        io_manager.set_repository_location(repo_location)
+        return io_manager
 
-        new_ontology_context = io_manager.get_ontology_context()
-
-        assert new_ontology_context.repository_location == new_repo_location
-        assert len(new_ontology_context.ontologies) == 0
-
-    @pytest.mark.it("Exception on invalid ontology")
-    def test_invalid_ontology(self, io_manager: IOManager, repo_location: str) -> None:
-        ontology_name = "NonExistentOntology"
-        ontology_context = OntologyContext(repo_location, ontology_name)
+    def test_exception_on_invalid_ontology(self, preset_io_manager: IOManager) -> None:
+        ONTOLOGY_NAME = "NonExistentOntology"
         with pytest.raises(
             FileNotFoundError,
-            match=f"The ontology {ontology_name} does not exist in the repository at {repo_location}",
+            match=f"The ontology {ONTOLOGY_NAME} does not exist.",
         ):
-            io_manager.update_ontology_context(ontology_context)
+            preset_io_manager.set_ontology_name(ONTOLOGY_NAME)
 
-    @pytest.mark.it("Ontology name updated correctly")
-    def test_ontology_ok(self, io_manager: IOManager, repo_location: str):
-        ontology_name = "TestOntology"
-        ontology_context = OntologyContext(repo_location, ontology_name)
-        existing_models = ["Model1", "Model2", "TestModel"]
+    def test_set_ontology_ok(self, preset_io_manager: IOManager) -> None:
+        ONTOLOGY_NAME = "TestOntology"
 
-        io_manager.update_ontology_context(ontology_context)
+        preset_io_manager.set_ontology_name(ONTOLOGY_NAME)
 
-        new_ontology_context = io_manager.get_ontology_context()
+        ontology_context = preset_io_manager.get_ontology_context()
+        assert ontology_context.ontology_name == ONTOLOGY_NAME
 
-        assert new_ontology_context.ontology_name == ontology_name
-        assert sorted(new_ontology_context.models) == sorted(existing_models)
 
-    @pytest.mark.it("Exception on invalid model")
-    def test_invalid_model(self, io_manager: IOManager, repo_location: str) -> None:
-        ontology_name = "TestOntology"
-        model_name = "NonExistentModel"
-        ontology_context = OntologyContext(repo_location, ontology_name, model_name)
+class TestSetModelName:
+    @pytest.fixture
+    def preset_io_manager(self, io_manager: IOManager, repo_location: str) -> IOManager:
+        ONTOLOGY_NAME = "TestOntology"
+        io_manager.set_repository_location(repo_location)
+        io_manager.set_ontology_name(ONTOLOGY_NAME)
+        return io_manager
+
+    def test_exception_on_invalid_model(self, preset_io_manager: IOManager) -> None:
+        MODEL_NAME = "NonExistentModel"
         with pytest.raises(
             FileNotFoundError,
-            match=f"The model {model_name} does not exist in the ontology {ontology_name}",
+            match=f"The model {MODEL_NAME} does not exist.",
         ):
-            io_manager.update_ontology_context(ontology_context)
+            preset_io_manager.set_model_name(MODEL_NAME)
 
-    @pytest.mark.it("Model name updated correctly")
-    def test_model_ok(self, io_manager: IOManager, repo_location: str):
-        ontology_name = "TestOntology"
-        model_name = "TestModel"
-        ontology_context = OntologyContext(repo_location, ontology_name, model_name)
-        existing_instantiations = [
-            "Instantiation1",
-            "Instantiation2",
-            "TestInstantiation",
-        ]
+    def test_set_model_ok(self, preset_io_manager: IOManager) -> None:
+        MODEL_NAME = "TestModel"
 
-        io_manager.update_ontology_context(ontology_context)
+        preset_io_manager.set_model_name(MODEL_NAME)
 
-        new_ontology_context = io_manager.get_ontology_context()
+        ontology_context = preset_io_manager.get_ontology_context()
+        assert ontology_context.model_name == MODEL_NAME
 
-        assert new_ontology_context.model_name == model_name
-        assert sorted(new_ontology_context.instantiations) == sorted(
-            existing_instantiations
-        )
 
-    @pytest.mark.it("Exception on invalid instantiation")
-    def test_invalid_instantiation(
-        self, io_manager: IOManager, repo_location: str
+class TestSetInstantiationName:
+    @pytest.fixture
+    def preset_io_manager(self, io_manager: IOManager, repo_location: str) -> IOManager:
+        ONTOLOGY_NAME = "TestOntology"
+        MODEL_NAME = "TestModel"
+        io_manager.set_repository_location(repo_location)
+        io_manager.set_ontology_name(ONTOLOGY_NAME)
+        io_manager.set_model_name(MODEL_NAME)
+        return io_manager
+
+    def test_exception_on_invalid_instantiation(
+        self, preset_io_manager: IOManager
     ) -> None:
-        ontology_name = "TestOntology"
-        model_name = "TestModel"
-        instantiation_name = "NonExistentInstantiation"
-        ontology_context = OntologyContext(
-            repo_location, ontology_name, model_name, instantiation_name
-        )
+        INSTANTIATION_NAME = "NonExistentInstantiation"
         with pytest.raises(
             FileNotFoundError,
-            match=f"The instantiation {instantiation_name} does not exist in the model {model_name}",
+            match=f"The instantiation {INSTANTIATION_NAME} does not exist.",
         ):
-            io_manager.update_ontology_context(ontology_context)
+            preset_io_manager.set_instantiation_name(INSTANTIATION_NAME)
 
-    @pytest.mark.it("Instantiation name updated correctly")
-    def test_instantiation_ok(self, io_manager: IOManager, repo_location: str):
-        ontology_name = "TestOntology"
-        model_name = "TestModel"
-        instantiation_name = "TestInstantiation"
-        ontology_context = OntologyContext(
-            repo_location, ontology_name, model_name, instantiation_name
-        )
+    def test_set_instantiation_ok(self, preset_io_manager: IOManager) -> None:
+        INSTANTIATION_NAME = "TestInstantiation"
 
-        io_manager.update_ontology_context(ontology_context)
+        preset_io_manager.set_instantiation_name(INSTANTIATION_NAME)
 
-        new_ontology_context = io_manager.get_ontology_context()
-
-        assert new_ontology_context.instantiation_name == instantiation_name
+        ontology_context = preset_io_manager.get_ontology_context()
+        assert ontology_context.instantiation_name == INSTANTIATION_NAME
