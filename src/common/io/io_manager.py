@@ -6,7 +6,8 @@ from typing import Protocol
 
 import attrs
 
-from .ontology_context import OntologyContext, OntologyContextManager
+from .ontology_context import OntologyContext
+from .ontology_context_manager import OntologyContextManager
 
 
 class IOManager(Protocol):
