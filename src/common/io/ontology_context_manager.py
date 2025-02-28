@@ -6,9 +6,7 @@ from pathlib import Path
 
 import attrs
 
-from .ontology_context import OntologyContext
-
-logger = logging.getLogger(__name__)
+from .ontology_context import ContextMember, OntologyContext
 
 
 @attrs.define
@@ -22,33 +20,27 @@ class OntologyContextManager:
     def set_repository_location(self, repo_location: str) -> None:
         self._ontology_context.repository_location = repo_location
 
-    def set_ontology_name(self, name: str, available_ontologies: list[str]) -> None:
-        self._verify_ontology_name(name, available_ontologies)
-        self._ontology_context.ontology_name = name
-
-    def _verify_ontology_name(self, name: str, available_ontologies: list[str]) -> None:
-        if name not in available_ontologies:
-            error_msg = f"The ontology {name} does not exist."
-            raise FileNotFoundError(error_msg)
-
-    def set_model_name(self, name: str, available_models: list[str]) -> None:
-        self._verify_model_name(name, available_models)
-        self._ontology_context.model_name = name
-
-    def _verify_model_name(self, name: str, available_models: list[str]) -> None:
-        if name not in available_models:
-            error_msg = f"The model {name} does not exist."
-            raise FileNotFoundError(error_msg)
-
-    def set_instantiation_name(
-        self, name: str, available_instantiations: list[str]
+    def set_context_member_name(
+        self,
+        context_member: ContextMember,
+        name: str,
+        options: list[str],
     ) -> None:
-        self._verify_instantiation(name, available_instantiations)
-        self._ontology_context.instantiation_name = name
+        self._verify_context_member_name(context_member, name, options)
+        match context_member:
+            case ContextMember.ONTOLOGY:
+                self._ontology_context.ontology_name = name
+            case ContextMember.MODEL:
+                self._ontology_context.model_name = name
+            case ContextMember.INSTANTIATION:
+                self._ontology_context.instantiation_name = name
 
-    def _verify_instantiation(
-        self, name: str, available_instantiations: list[str]
+    def _verify_context_member_name(
+        self,
+        context_member: ContextMember,
+        name: str,
+        options: list[str],
     ) -> None:
-        if name not in available_instantiations:
-            error_msg = f"The instantiation {name} does not exist."
+        if name not in options:
+            error_msg = f"The {context_member} {name} does not exist."
             raise FileNotFoundError(error_msg)

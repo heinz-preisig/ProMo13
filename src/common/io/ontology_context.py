@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from enum import StrEnum
 
 
 @dataclass
@@ -10,3 +11,9 @@ class OntologyContext:
     ontologies: list[str] = field(init=False, default_factory=list)
     models: list[str] = field(init=False, default_factory=list)
     instantiations: list[str] = field(init=False, default_factory=list)
+
+
+class ContextMember(StrEnum):
+    ONTOLOGY = "ontology"
+    MODEL = "model"
+    INSTANTIATION = "instantiation"

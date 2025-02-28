@@ -4,14 +4,14 @@ from pathlib import Path
 from typing import Protocol
 
 from . import path_resolver
-from .ontology_context import OntologyContext
+from .ontology_context import ContextMember, OntologyContext
 
 
 class DataIO(Protocol):
     def validate_repository_location(self, location: str) -> None: ...
-    def get_available_ontologies(self, context: OntologyContext) -> list[str]: ...
-    def get_available_models(self, context: OntologyContext) -> list[str]: ...
-    def get_available_instantiations(self, context: OntologyContext) -> list[str]: ...
+    def get_context_member_options(
+        self, context_member: ContextMember, context: OntologyContext
+    ) -> list[str]: ...
 
 
 class FileIO:
@@ -42,8 +42,17 @@ class FileIO:
             error_msg = f"You don't have read permissions at {repo_path}."
             raise PermissionError(error_msg)
 
-    def get_available_ontologies(self, context: OntologyContext) -> list[str]:
-        template = path_resolver.Templates.ONTOLOGY_INDEX_FILE
+    def get_context_member_options(
+        self, context_member: ContextMember, context: OntologyContext
+    ) -> list[str]:
+        match context_member:
+            case ContextMember.ONTOLOGY:
+                template = path_resolver.Templates.ONTOLOGY_INDEX_FILE
+            case ContextMember.MODEL:
+                template = path_resolver.Templates.MODEL_INDEX_FILE
+            case ContextMember.INSTANTIATION:
+                template = path_resolver.Templates.INSTANTIATION_INDEX_FILE
+
         index_path = path_resolver.resolve(context, template)
 
         with index_path.open("r") as file:
@@ -52,37 +61,7 @@ class FileIO:
         if not isinstance(data, list) or not all(
             isinstance(item, str) for item in data
         ):
-            error_msg = "Invalid data format in ontology index file."
-            raise ValueError(error_msg)
-
-        return data
-
-    def get_available_models(self, context: OntologyContext) -> list[str]:
-        template = path_resolver.Templates.MODEL_INDEX_FILE
-        index_path = path_resolver.resolve(context, template)
-
-        with index_path.open("r") as file:
-            data = json.load(file)
-
-        if not isinstance(data, list) or not all(
-            isinstance(item, str) for item in data
-        ):
-            error_msg = "Invalid data format in model index file."
-            raise ValueError(error_msg)
-
-        return data
-
-    def get_available_instantiations(self, context: OntologyContext) -> list[str]:
-        template = path_resolver.Templates.INSTANTIATION_INDEX_FILE
-        index_path = path_resolver.resolve(context, template)
-
-        with index_path.open("r") as file:
-            data = json.load(file)
-
-        if not isinstance(data, list) or not all(
-            isinstance(item, str) for item in data
-        ):
-            error_msg = "Invalid data format in instantiation index file."
+            error_msg = f"Invalid data format in {context_member} index file."
             raise ValueError(error_msg)
 
         return data
