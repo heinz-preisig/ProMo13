@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common.io import DefaultIOManager, IOManager, OntologyContext
+from src.common.io import DataIOException, DefaultIOManager, IOManager, OntologyContext
 
 
 @pytest.fixture
@@ -92,6 +92,38 @@ def new_repo_location(tmp_path: Path) -> str:
     return str(repo_path)
 
 
+@pytest.fixture
+def repo_with_invalid_json_index(new_repo_location: str) -> str:
+    repo_path = Path(new_repo_location)
+    repo_index = repo_path / ".repository_index.json"
+    repo_index.write_text("invalid json")
+    return str(repo_path)
+
+
+@pytest.fixture
+def repo_with_incorrect_structure_json_index(new_repo_location: str) -> str:
+    repo_path = Path(new_repo_location)
+    repo_index = repo_path / ".repository_index.json"
+    repo_index.write_text('{"incorrect structure": ""}')
+    return str(repo_path)
+
+
+def preset_io_manager(io_manager: IOManager, context: OntologyContext) -> IOManager:
+    if context.repository_location:
+        io_manager.set_repository_location(context.repository_location)
+
+    if context.ontology_name:
+        io_manager.set_ontology_name(context.ontology_name)
+
+    if context.model_name:
+        io_manager.set_model_name(context.model_name)
+
+    if context.instantiation_name:
+        io_manager.set_instantiation_name(context.instantiation_name)
+
+    return io_manager
+
+
 class TestDefaultIOManagerConstructor:
     def test_empty_initial_context(self) -> None:
         io_manager = DefaultIOManager()
@@ -153,7 +185,7 @@ class TestSetRepositoryLocation:
         manager.set_repository_location(new_repo_location)
 
         output_context = manager.get_ontology_context()
-        assert output_context == expected_context
+        assert expected_context == output_context
 
 
 class TestSetOntologyName:
@@ -190,7 +222,7 @@ class TestSetOntologyName:
         manager.set_ontology_name(ONTOLOGY_NAME)
 
         output_context = manager.get_ontology_context()
-        assert output_context == expected_context
+        assert expected_context == output_context
 
 
 class TestSetModelName:
@@ -228,7 +260,7 @@ class TestSetModelName:
         manager.set_model_name(MODEL_NAME)
 
         output_context = manager.get_ontology_context()
-        assert output_context == expected_context
+        assert expected_context == output_context
 
 
 class TestSetInstantiationName:
@@ -254,3 +286,138 @@ class TestSetInstantiationName:
 
         ontology_context = manager.get_ontology_context()
         assert ontology_context.instantiation_name == INSTANTIATION_NAME
+
+
+class TestGetAvailableOntologies:
+    def test_exception_on_index_access_problem(self, io_manager: IOManager) -> None:
+        error_msg = "Can not access ontology index"
+
+        with pytest.raises(DataIOException, match=error_msg):
+            io_manager.get_available_ontologies()
+
+    def test_exception_on_invalid_json_index(
+        self, io_manager: IOManager, repo_with_invalid_json_index: str
+    ) -> None:
+        error_msg = "Corrupted ontology index"
+        context = OntologyContext(repo_with_invalid_json_index)
+        manager = preset_io_manager(io_manager, context)
+
+        with pytest.raises(DataIOException, match=error_msg):
+            manager.get_available_ontologies()
+
+    def test_exception_on_incorrect_structure_json_index(
+        self, io_manager: IOManager, repo_with_incorrect_structure_json_index: str
+    ) -> None:
+        error_msg = "Corrupted ontology index"
+        context = OntologyContext(repo_with_incorrect_structure_json_index)
+        manager = preset_io_manager(io_manager, context)
+
+        with pytest.raises(DataIOException, match=error_msg):
+            manager.get_available_ontologies()
+
+    def test_get_available_ontologies_ok(
+        self, preset_io_manager_with_repo_location: IOManager
+    ) -> None:
+        manager = preset_io_manager_with_repo_location
+        expected_ontologies = ["Ontology1", "Ontology2", "Ontology3", "TestOntology"]
+
+        output_ontologies = manager.get_available_ontologies()
+
+        assert sorted(expected_ontologies) == sorted(output_ontologies)
+
+
+class TestGetAvailableModels:
+    def test_exception_on_missing_index(
+        self, io_manager: IOManager, repo_location: str
+    ) -> None:
+        ONTOLOGY_NAME = "Ontology1"
+        context = OntologyContext(repo_location, ONTOLOGY_NAME)
+        manager = preset_io_manager(io_manager, context)
+        error_msg = "Can not access model index"
+
+        with pytest.raises(DataIOException, match=error_msg):
+            manager.get_available_models()
+
+    def test_exception_on_invalid_json_index(
+        self, io_manager: IOManager, repo_location: str
+    ) -> None:
+        ONTOLOGY_NAME = "Ontology2"
+        context = OntologyContext(repo_location, ONTOLOGY_NAME)
+        manager = preset_io_manager(io_manager, context)
+        error_msg = "Corrupted model index"
+
+        with pytest.raises(DataIOException, match=error_msg):
+            manager.get_available_models()
+
+    def test_exception_on_incorrect_structure_json_index(
+        self, io_manager: IOManager, repo_location: str
+    ) -> None:
+        ONTOLOGY_NAME = "Ontology3"
+        context = OntologyContext(repo_location, ONTOLOGY_NAME)
+        manager = preset_io_manager(io_manager, context)
+        error_msg = "Corrupted model index"
+
+        with pytest.raises(DataIOException, match=error_msg):
+            manager.get_available_models()
+
+    def test_get_available_models_ok(
+        self, preset_io_manager_with_ontology_name: IOManager
+    ) -> None:
+        manager = preset_io_manager_with_ontology_name
+        expected_models = ["Model1", "Model2", "Model3", "TestModel"]
+
+        output_models = manager.get_available_models()
+
+        assert sorted(expected_models) == sorted(output_models)
+
+
+class TestGetAvailableInstantiations:
+    def test_exception_on_missing_index(
+        self, io_manager: IOManager, repo_location: str
+    ) -> None:
+        ONTOLOGY_NAME = "TestOntology"
+        MODEL_NAME = "Model1"
+        context = OntologyContext(repo_location, ONTOLOGY_NAME, MODEL_NAME)
+        manager = preset_io_manager(io_manager, context)
+        error_msg = "Can not access instantiation index"
+
+        with pytest.raises(DataIOException, match=error_msg):
+            manager.get_available_instantiations()
+
+    def test_exception_on_invalid_json_index(
+        self, io_manager: IOManager, repo_location: str
+    ) -> None:
+        ONTOLOGY_NAME = "TestOntology"
+        MODEL_NAME = "Model2"
+        context = OntologyContext(repo_location, ONTOLOGY_NAME, MODEL_NAME)
+        manager = preset_io_manager(io_manager, context)
+        error_msg = "Corrupted instantiation index"
+
+        with pytest.raises(DataIOException, match=error_msg):
+            manager.get_available_instantiations()
+
+    def test_exception_on_incorrect_structure_json_index(
+        self, io_manager: IOManager, repo_location: str
+    ) -> None:
+        ONTOLOGY_NAME = "TestOntology"
+        MODEL_NAME = "Model3"
+        context = OntologyContext(repo_location, ONTOLOGY_NAME, MODEL_NAME)
+        manager = preset_io_manager(io_manager, context)
+        error_msg = "Corrupted instantiation index"
+
+        with pytest.raises(DataIOException, match=error_msg):
+            manager.get_available_instantiations()
+
+    def test_get_available_instantiations_ok(
+        self, preset_io_manager_with_model_name: IOManager
+    ) -> None:
+        manager = preset_io_manager_with_model_name
+        expected_instantiations = [
+            "Instantiation1",
+            "Instantiation2",
+            "TestInstantiation",
+        ]
+
+        output_instantiations = manager.get_available_instantiations()
+
+        assert sorted(expected_instantiations) == sorted(output_instantiations)

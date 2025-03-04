@@ -13,6 +13,9 @@ from .ontology_context_manager import OntologyContextManager
 
 class IOManager(Protocol):
     def get_ontology_context(self) -> OntologyContext: ...
+    def get_available_ontologies(self) -> list[str]: ...
+    def get_available_models(self) -> list[str]: ...
+    def get_available_instantiations(self) -> list[str]: ...
     def set_repository_location(self, location: str) -> None: ...
     def set_ontology_name(self, name: str) -> None: ...
     def set_model_name(self, name: str) -> None: ...
@@ -52,3 +55,27 @@ class DefaultIOManager:
         self._ontology_context_manager.set_context_member_name(
             context_member, name, context_member_options
         )
+
+    def get_available_ontologies(self) -> list[str]:
+        context_member = ContextMember.ONTOLOGY
+        context = self._ontology_context_manager.get_ontology_context()
+        available_ontologies = self._data_io.get_context_member_options(
+            context_member, context
+        )
+        return available_ontologies
+
+    def get_available_models(self) -> list[str]:
+        context_member = ContextMember.MODEL
+        context = self._ontology_context_manager.get_ontology_context()
+        available_models = self._data_io.get_context_member_options(
+            context_member, context
+        )
+        return available_models
+
+    def get_available_instantiations(self) -> list[str]:
+        context_member = ContextMember.INSTANTIATION
+        context = self._ontology_context_manager.get_ontology_context()
+        available_instantiations = self._data_io.get_context_member_options(
+            context_member, context
+        )
+        return available_instantiations

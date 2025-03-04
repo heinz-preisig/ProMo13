@@ -1,10 +1,21 @@
 import json
+import logging
 import stat
 from pathlib import Path
 from typing import Protocol
 
 from . import path_resolver
 from .ontology_context import ContextMember, OntologyContext
+
+logger = logging.Logger(__name__)
+
+
+class DataIOException(Exception):
+    def __init__(
+        self, message: str = "An error ocurred while performing IO operations"
+    ):
+        self.message = message
+        super().__init__(self.message)
 
 
 class DataIO(Protocol):
@@ -55,13 +66,28 @@ class FileIO:
 
         index_path = path_resolver.resolve(context, template)
 
-        with index_path.open("r") as file:
-            data = json.load(file)
+        try:
+            with index_path.open("r") as file:
+                file_content = file.read()
+        except (FileNotFoundError, PermissionError) as err:
+            logger.error(err)
+            new_error_msg = f"Can not access {context_member} index"
+            raise DataIOException(new_error_msg)
+        except Exception as err:
+            logger.error(err)
+            raise Exception(err)
+
+        try:
+            data = json.loads(file_content)
+        except json.JSONDecodeError as err:
+            logger.error(err)
+            new_error_msg = f"Corrupted {context_member} index"
+            raise DataIOException(new_error_msg)
 
         if not isinstance(data, list) or not all(
             isinstance(item, str) for item in data
         ):
-            error_msg = f"Invalid data format in {context_member} index file."
-            raise ValueError(error_msg)
+            error_msg = f"Corrupted {context_member} index"
+            raise DataIOException(error_msg)
 
         return data
