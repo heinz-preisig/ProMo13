@@ -5,7 +5,7 @@
 groups = ["default", "docs", "lint", "pytest", "transitional"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:6366b188ed6b39e81ed96af9704d52d7a5e041356c44d19d0654e649e0ad49b9"
+content_hash = "sha256:0cb18384b20a56be8dee1cf055163ad5d7ee3e80cf28dddd5070e51f02565b23"
 
 [[metadata.targets]]
 requires_python = ">=3.13,<3.14"
@@ -164,6 +164,21 @@ files = [
 ]
 
 [[package]]
+name = "decopatch"
+version = "1.4.10"
+summary = "Create decorators easily in python."
+groups = ["pytest"]
+dependencies = [
+    "enum34; python_version < \"3.4\"",
+    "funcsigs; python_version < \"3.3\"",
+    "makefun>=1.5.0",
+]
+files = [
+    {file = "decopatch-1.4.10-py2.py3-none-any.whl", hash = "sha256:e151f7f93de2b1b3fd3f3272dcc7cefd1a69f68ec1c2d8e288ecd9deb36dc5f7"},
+    {file = "decopatch-1.4.10.tar.gz", hash = "sha256:957f49c93f4150182c23f8fb51d13bb3213e0f17a79e09c8cca7057598b55720"},
+]
+
+[[package]]
 name = "ghp-import"
 version = "2.1.0"
 summary = "Copy your docs directly to the gh-pages branch."
@@ -246,6 +261,19 @@ dependencies = [
 files = [
     {file = "jinja2-3.1.5-py3-none-any.whl", hash = "sha256:aba0f4dc9ed8013c424088f68a5c226f7d6097ed89b246d7749c2ec4175c6adb"},
     {file = "jinja2-3.1.5.tar.gz", hash = "sha256:8fefff8dc3034e27bb80d67c671eb8a9bc424c0ef4c0826edbff304cceff43bb"},
+]
+
+[[package]]
+name = "makefun"
+version = "1.15.6"
+summary = "Small library to dynamically create python functions."
+groups = ["pytest"]
+dependencies = [
+    "funcsigs; python_version < \"3.3\"",
+]
+files = [
+    {file = "makefun-1.15.6-py2.py3-none-any.whl", hash = "sha256:e69b870f0bb60304765b1e3db576aaecf2f9b3e5105afe8cfeff8f2afe6ad067"},
+    {file = "makefun-1.15.6.tar.gz", hash = "sha256:26bc63442a6182fb75efed8b51741dd2d1db2f176bec8c64e20a586256b8f149"},
 ]
 
 [[package]]
@@ -776,6 +804,23 @@ dependencies = [
 files = [
     {file = "pytest-8.3.4-py3-none-any.whl", hash = "sha256:50e16d954148559c9a74109af1eaf0c945ba2d8f30f0a3d3335edde19788b6f6"},
     {file = "pytest-8.3.4.tar.gz", hash = "sha256:965370d062bce11e73868e0335abac31b4d3de0e82f4007408d242b4f8610761"},
+]
+
+[[package]]
+name = "pytest-cases"
+version = "3.8.6"
+summary = "Separate test code from test cases in pytest."
+groups = ["pytest"]
+dependencies = [
+    "decopatch",
+    "funcsigs; python_version < \"3.3\"",
+    "functools32; python_version < \"3.2\"",
+    "makefun>=1.15.1",
+    "packaging",
+]
+files = [
+    {file = "pytest_cases-3.8.6-py2.py3-none-any.whl", hash = "sha256:564c722492ea7e7ec3ac433fd14070180e65866f49fa35bfe938c0d5d9afba67"},
+    {file = "pytest_cases-3.8.6.tar.gz", hash = "sha256:5c24e0ab0cb6f8e802a469b7965906a333d3babb874586ebc56f7e2cbe1a7c44"},
 ]
 
 [[package]]
