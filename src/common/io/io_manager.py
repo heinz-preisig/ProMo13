@@ -24,10 +24,10 @@ class IOManager(Protocol):
 
 @attrs.define
 class DefaultIOManager:
+    _data_io: DataIO = attrs.field(factory=FileIO)
     _ontology_context_manager: OntologyContextManager = attrs.field(
         init=False, factory=OntologyContextManager
     )
-    _data_io: DataIO = attrs.field(init=False, factory=FileIO)
 
     def get_ontology_context(self) -> OntologyContext:
         return self._ontology_context_manager.get_ontology_context()

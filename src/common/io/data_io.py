@@ -38,20 +38,28 @@ class FileIO:
 
     def _check_dir_exists(self, repo_path: Path) -> None:
         if not repo_path.is_dir():
-            error_msg = f"The directory at {repo_path} does not exist."
-            raise FileNotFoundError(error_msg)
+            log_error_msg = f"The directory does not exist: {repo_path}"
+            logger.error(log_error_msg)
+            exception_msg = f"Invalid repository location: {repo_path}"
+            raise DataIOException(exception_msg)
 
     def _check_write_permissions(self, repo_path: Path, mode: int) -> None:
-        is_writable = bool(mode & stat.S_IWUSR)
+        WRITE_MODE = stat.S_IWUSR
+        is_writable = bool(mode & WRITE_MODE)
         if not is_writable:
-            error_msg = f"You don't have write permissions at {repo_path}."
-            raise PermissionError(error_msg)
+            log_error_msg = f"You don't have write permissions: {repo_path}."
+            logger.error(log_error_msg)
+            exception_msg = f"Invalid repository location: {repo_path}"
+            raise DataIOException(exception_msg)
 
     def _check_read_permissions(self, repo_path: Path, mode: int) -> None:
-        is_readable = bool(mode & stat.S_IRUSR)
+        READ_MODE = stat.S_IRUSR
+        is_readable = bool(mode & READ_MODE)
         if not is_readable:
-            error_msg = f"You don't have read permissions at {repo_path}."
-            raise PermissionError(error_msg)
+            log_error_msg = f"You don't have read permissions: {repo_path}."
+            logger.error(log_error_msg)
+            exception_msg = f"Invalid repository location: {repo_path}"
+            raise DataIOException(exception_msg)
 
     def get_context_member_options(
         self, context_member: ContextMember, context: OntologyContext
