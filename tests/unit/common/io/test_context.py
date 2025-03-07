@@ -4,7 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from src.common.io import ContextMember, DefaultIOManager, IOManager, OntologyContext
+from src.common.io import (
+    ContextMember,
+    DefaultIOManager,
+    IOContextError,
+    IOManager,
+    OntologyContext,
+)
 
 
 class FakeDataIO:
@@ -110,8 +116,8 @@ class TestSetOntologyName:
         manager = valid_io_manager
 
         with pytest.raises(
-            FileNotFoundError,
-            match=f"The ontology {ONTOLOGY_NAME} does not exist.",
+            IOContextError,
+            match=f"Invalid ontology name: {ONTOLOGY_NAME}",
         ):
             manager.set_ontology_name(ONTOLOGY_NAME)
 
@@ -146,8 +152,8 @@ class TestSetModelName:
         manager = valid_io_manager
 
         with pytest.raises(
-            FileNotFoundError,
-            match=f"The model {MODEL_NAME} does not exist.",
+            IOContextError,
+            match=f"Invalid model name: {MODEL_NAME}",
         ):
             manager.set_model_name(MODEL_NAME)
 
@@ -181,8 +187,8 @@ class TestSetInstantiationName:
         manager = valid_io_manager
 
         with pytest.raises(
-            FileNotFoundError,
-            match=f"The instantiation {INSTANTIATION_NAME} does not exist.",
+            IOContextError,
+            match=f"Invalid instantiation name: {INSTANTIATION_NAME}",
         ):
             manager.set_instantiation_name(INSTANTIATION_NAME)
 

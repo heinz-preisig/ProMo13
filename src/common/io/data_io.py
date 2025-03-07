@@ -5,17 +5,10 @@ from pathlib import Path
 from typing import Protocol
 
 from . import path_resolver
+from .io_exceptions import DataIOError
 from .ontology_context import ContextMember, OntologyContext
 
 logger = logging.Logger(__name__)
-
-
-class DataIOException(Exception):
-    def __init__(
-        self, message: str = "An error ocurred while performing IO operations"
-    ):
-        self.message = message
-        super().__init__(self.message)
 
 
 class DataIO(Protocol):
@@ -41,7 +34,7 @@ class FileIO:
             log_error_msg = f"The directory does not exist: {repo_path}"
             logger.error(log_error_msg)
             exception_msg = f"Invalid repository location: {repo_path}"
-            raise DataIOException(exception_msg)
+            raise DataIOError(exception_msg)
 
     def _check_write_permissions(self, repo_path: Path, mode: int) -> None:
         WRITE_MODE = stat.S_IWUSR
@@ -50,7 +43,7 @@ class FileIO:
             log_error_msg = f"You don't have write permissions: {repo_path}."
             logger.error(log_error_msg)
             exception_msg = f"Invalid repository location: {repo_path}"
-            raise DataIOException(exception_msg)
+            raise DataIOError(exception_msg)
 
     def _check_read_permissions(self, repo_path: Path, mode: int) -> None:
         READ_MODE = stat.S_IRUSR
@@ -59,7 +52,7 @@ class FileIO:
             log_error_msg = f"You don't have read permissions: {repo_path}."
             logger.error(log_error_msg)
             exception_msg = f"Invalid repository location: {repo_path}"
-            raise DataIOException(exception_msg)
+            raise DataIOError(exception_msg)
 
     def get_context_member_options(
         self, context_member: ContextMember, context: OntologyContext
@@ -80,7 +73,7 @@ class FileIO:
         except (FileNotFoundError, PermissionError) as err:
             logger.error(err)
             new_error_msg = f"Can not access {context_member} index"
-            raise DataIOException(new_error_msg)
+            raise DataIOError(new_error_msg)
         except Exception as err:
             logger.error(err)
             raise Exception(err)
@@ -90,12 +83,12 @@ class FileIO:
         except json.JSONDecodeError as err:
             logger.error(err)
             new_error_msg = f"Corrupted {context_member} index"
-            raise DataIOException(new_error_msg)
+            raise DataIOError(new_error_msg)
 
         if not isinstance(data, list) or not all(
             isinstance(item, str) for item in data
         ):
             error_msg = f"Corrupted {context_member} index"
-            raise DataIOException(error_msg)
+            raise DataIOError(error_msg)
 
         return data

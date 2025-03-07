@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
 
-from src.common.io import DataIOException, DefaultIOManager, IOManager
+from src.common.io import DataIOError, DefaultIOManager, IOManager
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ class TestRepositoryValidation:
         msg = f"Invalid repository location: {location}"
 
         with pytest.raises(
-            DataIOException,
+            DataIOError,
             match=msg,
         ):
             io_manager.set_repository_location(location)
@@ -124,7 +124,7 @@ class TestOntologyIndexValidation:
         )
         error_msg = error_msg.format(type=REPOSITORY_TYPE)
 
-        with pytest.raises(DataIOException, match=error_msg):
+        with pytest.raises(DataIOError, match=error_msg):
             manager.get_available_ontologies()
 
     def test_read_index_ok(
@@ -157,7 +157,7 @@ class TestModelIndexValidation:
         )
         error_msg = error_msg.format(type=REPOSITORY_TYPE)
 
-        with pytest.raises(DataIOException, match=error_msg):
+        with pytest.raises(DataIOError, match=error_msg):
             manager.get_available_models()
 
     def test_read_index_ok(
@@ -190,7 +190,7 @@ class TestInstantiationIndexValidation:
         )
         error_msg = error_msg.format(type=REPOSITORY_TYPE)
 
-        with pytest.raises(DataIOException, match=error_msg):
+        with pytest.raises(DataIOError, match=error_msg):
             manager.get_available_instantiations()
 
     def test_read_index_ok(

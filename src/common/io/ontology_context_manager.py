@@ -1,11 +1,8 @@
 import copy
-import json
-import logging
-import stat
-from pathlib import Path
 
 import attrs
 
+from .io_exceptions import IOContextError
 from .ontology_context import ContextMember, OntologyContext
 
 
@@ -45,8 +42,8 @@ class OntologyContextManager:
         options: list[str],
     ) -> None:
         if name not in options:
-            error_msg = f"The {context_member} {name} does not exist."
-            raise FileNotFoundError(error_msg)
+            error_msg = f"Invalid {context_member} name: {name}"
+            raise IOContextError(error_msg)
 
     def _reset_context_after_repo_location(self) -> None:
         self._ontology_context.ontology_name = ""
