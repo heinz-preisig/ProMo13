@@ -32,16 +32,7 @@ class IOManager:
         self._data_io.validate_repository_location(location)
         self._ontology_context_manager.set_repository_location(location)
 
-    def set_ontology_name(self, name: str) -> None:
-        self._set_context_member_name(IOContextMember.ONTOLOGY, name)
-
-    def set_model_name(self, name: str) -> None:
-        self._set_context_member_name(IOContextMember.MODEL, name)
-
-    def set_instantiation_name(self, name: str) -> None:
-        self._set_context_member_name(IOContextMember.INSTANTIATION, name)
-
-    def _set_context_member_name(
+    def set_context_member_name(
         self, context_member: IOContextMember, name: str
     ) -> None:
         context = self._ontology_context_manager.get_ontology_context()

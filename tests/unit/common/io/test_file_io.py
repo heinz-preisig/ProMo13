@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
 
-from src.common.io import DataIOError, IOManager
+from src.common.io import DataIOError, IOContextMember, IOManager
 
 
 @pytest.fixture
@@ -89,14 +89,14 @@ def setup_io_manager_to_repository(
 
     if repo_type == "model":
         ontology_name = f"ontology{folder_id}"
-        manager.set_ontology_name(ontology_name)
+        manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
         return manager
 
     ontology_name = "ontologyOK"
-    manager.set_ontology_name(ontology_name)
+    manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
     model_name = f"model{folder_id}"
-    manager.set_model_name(model_name)
+    manager.set_context_member_name(IOContextMember.MODEL, model_name)
 
     return manager
 

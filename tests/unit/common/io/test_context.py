@@ -1,4 +1,5 @@
 import pytest
+from pytest_cases import case, parametrize, parametrize_with_cases
 
 from src.common.io import (
     IOContext,
@@ -17,11 +18,11 @@ class FakeDataIO:
     ) -> list[str]:
         match context_member:
             case IOContextMember.ONTOLOGY:
-                return ["VALID_ONTOLOGY", "OntologyOK"]
+                return ["VALID_ONTOLOGY", "ontologyOK"]
             case IOContextMember.MODEL:
-                return ["VALID_MODEL", "ModelOK"]
+                return ["VALID_MODEL", "modelOK"]
             case IOContextMember.INSTANTIATION:
-                return ["VALID_INSTANTIATION", "InstantiationOK"]
+                return ["VALID_INSTANTIATION", "instantiationOK"]
 
 
 @pytest.fixture
@@ -38,25 +39,11 @@ def valid_io_manager(io_manager: IOManager) -> IOManager:
     INSTANTIATION_NAME = "VALID_INSTANTIATION"
 
     io_manager.set_repository_location(REPO_LOCATION)
-    io_manager.set_ontology_name(ONTOLOGY_NAME)
-    io_manager.set_model_name(MODEL_NAME)
-    io_manager.set_instantiation_name(INSTANTIATION_NAME)
-
-    return io_manager
-
-
-def preset_io_manager(io_manager: IOManager, context: IOContext) -> IOManager:
-    if context.repository_location:
-        io_manager.set_repository_location(context.repository_location)
-
-    if context.ontology_name:
-        io_manager.set_ontology_name(context.ontology_name)
-
-    if context.model_name:
-        io_manager.set_model_name(context.model_name)
-
-    if context.instantiation_name:
-        io_manager.set_instantiation_name(context.instantiation_name)
+    io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
+    io_manager.set_context_member_name(IOContextMember.MODEL, MODEL_NAME)
+    io_manager.set_context_member_name(
+        IOContextMember.INSTANTIATION, INSTANTIATION_NAME
+    )
 
     return io_manager
 
@@ -103,96 +90,67 @@ class TestSetRepositoryLocation:
         assert expected_context == output_context
 
 
-class TestSetOntologyName:
-    def test_exception_on_invalid_ontology_name(
-        self, valid_io_manager: IOManager
+@parametrize(
+    context_member=(
+        IOContextMember.ONTOLOGY,
+        IOContextMember.MODEL,
+        IOContextMember.INSTANTIATION,
+    ),
+    ids=("ontology", "model", "instantiation"),
+)
+class CasesSetIOContextMemberName:
+    @case(id="")
+    def invalid_name(
+        self, context_member: IOContextMember
+    ) -> tuple[IOContextMember, str]:
+        INVALID_NAME = f"Invalid {context_member} name"
+
+        return context_member, INVALID_NAME
+
+    @case(id="")
+    def valid_name(
+        self, context_member: IOContextMember
+    ) -> tuple[IOContextMember, str]:
+        VALID_NAME = f"{context_member}OK"
+
+        return context_member, VALID_NAME
+
+
+class TestSetIOContextMemberName:
+    @parametrize_with_cases(
+        "context_member, invalid_name",
+        cases=CasesSetIOContextMemberName,
+        prefix="invalid",
+    )
+    def test_exception_on_invalid_name(
+        self,
+        valid_io_manager: IOManager,
+        context_member: IOContextMember,
+        invalid_name: str,
     ) -> None:
-        ONTOLOGY_NAME = "InvalidOntologyName"
         manager = valid_io_manager
 
         with pytest.raises(
             IOContextError,
-            match=f"Invalid ontology name: {ONTOLOGY_NAME}",
+            match=f"Invalid {context_member} name: {invalid_name}",
         ):
-            manager.set_ontology_name(ONTOLOGY_NAME)
+            manager.set_context_member_name(context_member, invalid_name)
 
-    def test_set_ontology_name_ok(self, valid_io_manager: IOManager) -> None:
-        ONTOLOGY_NAME = "OntologyOK"
-        manager = valid_io_manager
-
-        manager.set_ontology_name(ONTOLOGY_NAME)
-
-        ontology_context = manager.get_ontology_context()
-        output = ontology_context.ontology_name
-        assert ONTOLOGY_NAME == output
-
-    def test_reset_depending_context(self, valid_io_manager: IOManager) -> None:
-        ONTOLOGY_NAME = "OntologyOK"
-        manager = valid_io_manager
-        expected_model_name = ""
-        expected_instantiation_name = ""
-
-        manager.set_ontology_name(ONTOLOGY_NAME)
-
-        output_context = manager.get_ontology_context()
-        output_model_name = output_context.model_name
-        output_instantiation_name = output_context.instantiation_name
-        assert expected_model_name == output_model_name
-        assert expected_instantiation_name == output_instantiation_name
-
-
-class TestSetModelName:
-    def test_exception_on_invalid_model_name(self, valid_io_manager: IOManager) -> None:
-        MODEL_NAME = "InvalidModelName"
-        manager = valid_io_manager
-
-        with pytest.raises(
-            IOContextError,
-            match=f"Invalid model name: {MODEL_NAME}",
-        ):
-            manager.set_model_name(MODEL_NAME)
-
-    def test_set_model_name_ok(self, valid_io_manager: IOManager) -> None:
-        MODEL_NAME = "ModelOK"
-        manager = valid_io_manager
-
-        manager.set_model_name(MODEL_NAME)
-
-        ontology_context = manager.get_ontology_context()
-        output = ontology_context.model_name
-        assert MODEL_NAME == output
-
-    def test_reset_depending_context(self, valid_io_manager: IOManager) -> None:
-        MODEL_NAME = "ModelOK"
-        manager = valid_io_manager
-        expected_instantiation_name = ""
-
-        manager.set_model_name(MODEL_NAME)
-
-        output_context = manager.get_ontology_context()
-        output_instantiation_name = output_context.instantiation_name
-        assert expected_instantiation_name == output_instantiation_name
-
-
-class TestSetInstantiationName:
-    def test_exception_on_invalid_instantiation_name(
-        self, valid_io_manager: IOManager
+    @parametrize_with_cases(
+        "context_member, valid_name",
+        cases=CasesSetIOContextMemberName,
+        prefix="valid",
+    )
+    def test_set_name_ok(
+        self,
+        valid_io_manager: IOManager,
+        context_member: IOContextMember,
+        valid_name: str,
     ) -> None:
-        INSTANTIATION_NAME = "InvalidInstantiationName"
         manager = valid_io_manager
 
-        with pytest.raises(
-            IOContextError,
-            match=f"Invalid instantiation name: {INSTANTIATION_NAME}",
-        ):
-            manager.set_instantiation_name(INSTANTIATION_NAME)
-
-    def test_set_instantiation_name_ok(self, valid_io_manager: IOManager) -> None:
-        INSTANTIATION_NAME = "InstantiationOK"
-        manager = valid_io_manager
-
-        manager.set_instantiation_name(INSTANTIATION_NAME)
+        manager.set_context_member_name(context_member, valid_name)
 
         ontology_context = manager.get_ontology_context()
-        output = ontology_context.instantiation_name
-        assert INSTANTIATION_NAME == output
+        output = ontology_context.get_context_member_name(context_member)
+        assert valid_name == output
