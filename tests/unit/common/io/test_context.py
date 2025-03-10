@@ -2,7 +2,6 @@ import pytest
 
 from src.common.io import (
     ContextMember,
-    DefaultIOManager,
     IOContextError,
     IOManager,
     OntologyContext,
@@ -28,7 +27,7 @@ class FakeDataIO:
 @pytest.fixture
 def io_manager() -> IOManager:
     fake_data_io = FakeDataIO()
-    return DefaultIOManager(data_io=fake_data_io)
+    return IOManager(data_io=fake_data_io)
 
 
 @pytest.fixture
@@ -64,7 +63,7 @@ def preset_io_manager(io_manager: IOManager, context: OntologyContext) -> IOMana
 
 class TestDefaultIOManagerConstructor:
     def test_empty_initial_context(self) -> None:
-        io_manager = DefaultIOManager()
+        io_manager = IOManager()
 
         ontology_context = io_manager.get_ontology_context()
         assert ontology_context == OntologyContext()

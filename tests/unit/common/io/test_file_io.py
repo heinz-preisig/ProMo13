@@ -5,12 +5,12 @@ from pathlib import Path
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
 
-from src.common.io import DataIOError, DefaultIOManager, IOManager
+from src.common.io import DataIOError, IOManager
 
 
 @pytest.fixture
 def io_manager() -> IOManager:
-    return DefaultIOManager()
+    return IOManager()
 
 
 @pytest.fixture
