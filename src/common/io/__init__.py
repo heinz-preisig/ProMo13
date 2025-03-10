@@ -1,10 +1,10 @@
-from .io_exceptions import DataIOError, IOContextError
-from .io_manager import IOManager
-from .ontology_context import ContextMember, OntologyContext
+from .context import IOContext, IOContextMember
+from .exceptions import DataIOError, IOContextError
+from .manager import IOManager
 
 __all__ = [
-    "OntologyContext",
-    "ContextMember",
+    "IOContext",
+    "IOContextMember",
     "IOManager",
     "DataIOError",
     "IOContextError",

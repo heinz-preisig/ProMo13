@@ -1,10 +1,10 @@
 import pytest
 
 from src.common.io import (
-    ContextMember,
+    IOContext,
     IOContextError,
+    IOContextMember,
     IOManager,
-    OntologyContext,
 )
 
 
@@ -13,14 +13,14 @@ class FakeDataIO:
         pass
 
     def get_context_member_options(
-        self, context_member: ContextMember, context: OntologyContext
+        self, context_member: IOContextMember, context: IOContext
     ) -> list[str]:
         match context_member:
-            case ContextMember.ONTOLOGY:
+            case IOContextMember.ONTOLOGY:
                 return ["VALID_ONTOLOGY", "OntologyOK"]
-            case ContextMember.MODEL:
+            case IOContextMember.MODEL:
                 return ["VALID_MODEL", "ModelOK"]
-            case ContextMember.INSTANTIATION:
+            case IOContextMember.INSTANTIATION:
                 return ["VALID_INSTANTIATION", "InstantiationOK"]
 
 
@@ -45,7 +45,7 @@ def valid_io_manager(io_manager: IOManager) -> IOManager:
     return io_manager
 
 
-def preset_io_manager(io_manager: IOManager, context: OntologyContext) -> IOManager:
+def preset_io_manager(io_manager: IOManager, context: IOContext) -> IOManager:
     if context.repository_location:
         io_manager.set_repository_location(context.repository_location)
 
@@ -66,7 +66,7 @@ class TestDefaultIOManagerConstructor:
         io_manager = IOManager()
 
         ontology_context = io_manager.get_ontology_context()
-        assert ontology_context == OntologyContext()
+        assert ontology_context == IOContext()
 
 
 class TestGetOntologyContext:
@@ -95,7 +95,7 @@ class TestSetRepositoryLocation:
     ) -> None:
         manager = valid_io_manager
         new_repo_location = "NEW_REPO_LOCATION"
-        expected_context = OntologyContext(new_repo_location)
+        expected_context = IOContext(new_repo_location)
 
         manager.set_repository_location(new_repo_location)
 

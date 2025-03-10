@@ -2,15 +2,15 @@ import copy
 
 import attrs
 
-from .io_exceptions import IOContextError
-from .ontology_context import ContextMember, OntologyContext
+from .context import IOContext, IOContextMember
+from .exceptions import IOContextError
 
 
 @attrs.define
-class OntologyContextManager:
-    _ontology_context = attrs.field(init=False, factory=OntologyContext)
+class IOContextManager:
+    _ontology_context = attrs.field(init=False, factory=IOContext)
 
-    def get_ontology_context(self) -> OntologyContext:
+    def get_ontology_context(self) -> IOContext:
         context_copy = copy.deepcopy(self._ontology_context)
         return context_copy
 
@@ -20,24 +20,24 @@ class OntologyContextManager:
 
     def set_context_member_name(
         self,
-        context_member: ContextMember,
+        context_member: IOContextMember,
         name: str,
         options: list[str],
     ) -> None:
         self._verify_context_member_name(context_member, name, options)
         match context_member:
-            case ContextMember.ONTOLOGY:
+            case IOContextMember.ONTOLOGY:
                 self._ontology_context.ontology_name = name
                 self._reset_context_after_ontology_name()
-            case ContextMember.MODEL:
+            case IOContextMember.MODEL:
                 self._ontology_context.model_name = name
                 self._reset_context_after_model_name()
-            case ContextMember.INSTANTIATION:
+            case IOContextMember.INSTANTIATION:
                 self._ontology_context.instantiation_name = name
 
     def _verify_context_member_name(
         self,
-        context_member: ContextMember,
+        context_member: IOContextMember,
         name: str,
         options: list[str],
     ) -> None:

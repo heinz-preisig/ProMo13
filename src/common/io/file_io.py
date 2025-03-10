@@ -6,15 +6,15 @@ from pathlib import Path
 import attrs
 
 from . import json_file_reader, path_resolver
-from .io_exceptions import DataIOError
-from .ontology_context import ContextMember, OntologyContext
+from .context import IOContext, IOContextMember
+from .exceptions import DataIOError
 
 logger = logging.Logger(__name__)
 
 
 class FileReader(typing.Protocol):
     def get_index_options(
-        self, context_member: ContextMember, context: OntologyContext
+        self, context_member: IOContextMember, context: IOContext
     ) -> list[str]: ...
 
 
@@ -25,7 +25,7 @@ class FileIO:
     )
 
     def validate_repository_location(self, location: str) -> None:
-        context = OntologyContext(location)
+        context = IOContext(location)
         template = path_resolver.Templates.ONTOLOGY_REPOSITORY_DIR
         repo_path = path_resolver.resolve(context, template)
         self._check_dir_exists(repo_path)
@@ -60,7 +60,7 @@ class FileIO:
             raise DataIOError(exception_msg)
 
     def get_context_member_options(
-        self, context_member: ContextMember, context: OntologyContext
+        self, context_member: IOContextMember, context: IOContext
     ) -> list[str]:
         options = self._file_reader.get_index_options(context_member, context)
         return options

@@ -1,7 +1,7 @@
 from enum import StrEnum
 from pathlib import Path
 
-from .ontology_context import OntologyContext
+from .context import IOContext
 
 
 class Templates(StrEnum):
@@ -16,7 +16,7 @@ class Templates(StrEnum):
     INSTANTIATION_INDEX_FILE = INSTANTIATION_LIBRARY_DIR + ".repository_index.json"
 
 
-def resolve(ontology_context: OntologyContext, template: Templates) -> Path:
+def resolve(ontology_context: IOContext, template: Templates) -> Path:
     path_parameters = {
         "repository_location": ontology_context.repository_location,
         "ontology_name": ontology_context.ontology_name,

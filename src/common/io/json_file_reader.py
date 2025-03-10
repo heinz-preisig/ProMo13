@@ -5,15 +5,15 @@ from pathlib import Path
 
 import jsonschema
 
-from . import io_exceptions, json_schemas, path_resolver
-from .ontology_context import ContextMember, OntologyContext
+from . import exceptions, json_schemas, path_resolver
+from .context import IOContext, IOContextMember
 
 logger = logging.getLogger(__name__)
 
 
 class JSONFileReader:
     def get_index_options(
-        self, context_member: ContextMember, context: OntologyContext
+        self, context_member: IOContextMember, context: IOContext
     ) -> list[str]:
         content = self._get_index_file_content(context_member, context)
         options = self._process_index_file_content(context_member, content)
@@ -21,7 +21,7 @@ class JSONFileReader:
         return options
 
     def _get_index_file_content(
-        self, context_member: ContextMember, context: OntologyContext
+        self, context_member: IOContextMember, context: IOContext
     ) -> str:
         index_path = self._get_path_to_index_file(context_member, context)
 
@@ -31,14 +31,14 @@ class JSONFileReader:
         return file_content
 
     def _get_path_to_index_file(
-        self, context_member: ContextMember, context: OntologyContext
+        self, context_member: IOContextMember, context: IOContext
     ) -> Path:
         match context_member:
-            case ContextMember.ONTOLOGY:
+            case IOContextMember.ONTOLOGY:
                 template = path_resolver.Templates.ONTOLOGY_INDEX_FILE
-            case ContextMember.MODEL:
+            case IOContextMember.MODEL:
                 template = path_resolver.Templates.MODEL_INDEX_FILE
-            case ContextMember.INSTANTIATION:
+            case IOContextMember.INSTANTIATION:
                 template = path_resolver.Templates.INSTANTIATION_INDEX_FILE
 
         index_path = path_resolver.resolve(context, template)
@@ -50,12 +50,12 @@ class JSONFileReader:
                 file_content = file.read()
         except (FileNotFoundError, PermissionError) as err:
             logger.error(err)
-            raise io_exceptions.DataIOError(error_msg) from err
+            raise exceptions.DataIOError(error_msg) from err
 
         return file_content
 
     def _process_index_file_content(
-        self, context_member: ContextMember, content: str
+        self, context_member: IOContextMember, content: str
     ) -> list[str]:
         corrupted_error_msg = f"Corrupted {context_member} index"
         data: list[str] = self._load_json(content, corrupted_error_msg)
@@ -70,7 +70,7 @@ class JSONFileReader:
             data = json.loads(file_content)
         except json.JSONDecodeError as err:
             logger.error(err)
-            raise io_exceptions.DataIOError(error_msg) from err
+            raise exceptions.DataIOError(error_msg) from err
 
         return data
 
@@ -81,4 +81,4 @@ class JSONFileReader:
             jsonschema.validate(data, schema)
         except jsonschema.ValidationError as err:
             logger.error(err)
-            raise io_exceptions.DataIOError(error_msg) from err
+            raise exceptions.DataIOError(error_msg) from err
