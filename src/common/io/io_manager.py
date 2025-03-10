@@ -1,17 +1,17 @@
 import copy
 import json
 import stat
+import typing
 from pathlib import Path
-from typing import Protocol
 
 import attrs
 
-from .data_io import DataIO, FileIO
+from .data_io import FileIO
 from .ontology_context import ContextMember, OntologyContext
 from .ontology_context_manager import OntologyContextManager
 
 
-class IOManager(Protocol):
+class IOManager(typing.Protocol):
     def get_ontology_context(self) -> OntologyContext: ...
     def get_available_ontologies(self) -> list[str]: ...
     def get_available_models(self) -> list[str]: ...
@@ -20,6 +20,13 @@ class IOManager(Protocol):
     def set_ontology_name(self, name: str) -> None: ...
     def set_model_name(self, name: str) -> None: ...
     def set_instantiation_name(self, name: str) -> None: ...
+
+
+class DataIO(typing.Protocol):
+    def validate_repository_location(self, location: str) -> None: ...
+    def get_context_member_options(
+        self, context_member: ContextMember, context: OntologyContext
+    ) -> list[str]: ...
 
 
 @attrs.define
