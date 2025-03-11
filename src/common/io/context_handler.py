@@ -14,7 +14,7 @@ class IOContextNode:
     value: str = ""
 
 
-class IOContextManager:
+class IOContextHandler:
     def __init__(self) -> None:
         key_ontology_name = self._get_context_member_key(IOContextMember.ONTOLOGY)
         key_model_name = self._get_context_member_key(IOContextMember.MODEL)
@@ -74,7 +74,7 @@ class IOContextManager:
         self._nodes[child_key].value = ""
         self._reset_dependent_context(child_key)
 
-    def get_ontology_context(self) -> IOContext:
+    def get_io_context(self) -> IOContext:
         return IOContext(
             repository_location=self.get_repository_location(),
             ontology_name=self.get_context_member_name(IOContextMember.ONTOLOGY),

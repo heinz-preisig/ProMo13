@@ -52,16 +52,16 @@ class TestDefaultIOManagerConstructor:
     def test_empty_initial_context(self) -> None:
         io_manager = IOManager()
 
-        ontology_context = io_manager.get_ontology_context()
+        ontology_context = io_manager.get_io_context()
         assert ontology_context == IOContext()
 
 
 class TestGetOntologyContext:
     def test_returned_context_is_copy(self, io_manager: IOManager) -> None:
-        ontology_context = io_manager.get_ontology_context()
+        ontology_context = io_manager.get_io_context()
         ontology_context.repository_location = "PathModified"
 
-        ontology_context = io_manager.get_ontology_context()
+        ontology_context = io_manager.get_io_context()
 
         assert ontology_context.repository_location == ""
 
@@ -71,7 +71,7 @@ class TestSetRepositoryLocation:
         LOCATION = "VALID_LOCATION"
         io_manager.set_repository_location(LOCATION)
 
-        new_ontology_context = io_manager.get_ontology_context()
+        new_ontology_context = io_manager.get_io_context()
         output = new_ontology_context.repository_location
 
         assert LOCATION == output
@@ -86,7 +86,7 @@ class TestSetRepositoryLocation:
 
         manager.set_repository_location(new_repo_location)
 
-        output_context = manager.get_ontology_context()
+        output_context = manager.get_io_context()
         assert expected_context == output_context
 
 
@@ -151,6 +151,6 @@ class TestSetIOContextMemberName:
 
         manager.set_context_member_name(context_member, valid_name)
 
-        ontology_context = manager.get_ontology_context()
+        ontology_context = manager.get_io_context()
         output = ontology_context.get_context_member_name(context_member)
         assert valid_name == output
