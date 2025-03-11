@@ -1,3 +1,5 @@
+import dataclasses
+
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
@@ -7,6 +9,11 @@ from src.common.io import (
     IOContextMember,
     IOManager,
 )
+
+
+@pytest.fixture
+def io_manager() -> IOManager:
+    return IOManager()
 
 
 class FakeDataIO:
@@ -26,26 +33,26 @@ class FakeDataIO:
 
 
 @pytest.fixture
-def io_manager() -> IOManager:
+def fake_io_manager() -> IOManager:
     fake_data_io = FakeDataIO()
     return IOManager(data_io=fake_data_io)
 
 
 @pytest.fixture
-def valid_io_manager(io_manager: IOManager) -> IOManager:
+def valid_io_manager(fake_io_manager: IOManager) -> IOManager:
     REPO_LOCATION = "VALID_LOCATION"
     ONTOLOGY_NAME = "VALID_ONTOLOGY"
     MODEL_NAME = "VALID_MODEL"
     INSTANTIATION_NAME = "VALID_INSTANTIATION"
 
-    io_manager.set_repository_location(REPO_LOCATION)
-    io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
-    io_manager.set_context_member_name(IOContextMember.MODEL, MODEL_NAME)
-    io_manager.set_context_member_name(
+    fake_io_manager.set_repository_location(REPO_LOCATION)
+    fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
+    fake_io_manager.set_context_member_name(IOContextMember.MODEL, MODEL_NAME)
+    fake_io_manager.set_context_member_name(
         IOContextMember.INSTANTIATION, INSTANTIATION_NAME
     )
 
-    return io_manager
+    return fake_io_manager
 
 
 class TestDefaultIOManagerConstructor:
@@ -67,13 +74,14 @@ class TestGetOntologyContext:
 
 
 class TestSetRepositoryLocation:
-    def test_set_location_ok(self, io_manager: IOManager) -> None:
+    def test_set_location_ok(self, fake_io_manager: IOManager) -> None:
+        manager = fake_io_manager
         LOCATION = "VALID_LOCATION"
-        io_manager.set_repository_location(LOCATION)
 
-        new_ontology_context = io_manager.get_io_context()
+        manager.set_repository_location(LOCATION)
+
+        new_ontology_context = manager.get_io_context()
         output = new_ontology_context.repository_location
-
         assert LOCATION == output
 
     def test_reset_depending_context(
@@ -190,3 +198,20 @@ class TestSetIOContextMemberName:
         output = manager.get_io_context()
         for member in cleared_members:
             assert output.get_context_member_name(member) == ""
+
+    @parametrize_with_cases(
+        "context_member, valid_name",
+        cases=CasesSetIOContextMemberName,
+        prefix="valid",
+    )
+    def test_set_name_on_incomplete_context(
+        self,
+        io_manager: IOManager,
+        context_member: IOContextMember,
+        valid_name: str,
+    ) -> None:
+        context = io_manager.get_io_context()
+        error_msg = "Insufficient data in IOContext"
+
+        with pytest.raises(IOContextError, match=error_msg):
+            io_manager.set_context_member_name(context_member, valid_name)

@@ -1,6 +1,7 @@
 from enum import StrEnum
 from pathlib import Path
 
+from . import exceptions
 from .context import IOContext
 
 
@@ -24,4 +25,15 @@ def resolve(ontology_context: IOContext, template: Templates) -> Path:
         "instantiation_name": ontology_context.instantiation_name,
     }
 
+    _validate_parameters_for_template(template, path_parameters)
+
     return Path(template.format(**path_parameters))
+
+
+def _validate_parameters_for_template(
+    template: Templates, path_parameters: dict[str, str]
+) -> None:
+    for key, value in path_parameters.items():
+        if key in template.value and not value:
+            error_msg = "Insufficient data in IOContext"
+            raise exceptions.IOContextError(error_msg)
