@@ -115,6 +115,22 @@ class CasesSetIOContextMemberName:
 
         return context_member, VALID_NAME
 
+    @case(id="")
+    def cleared_members(
+        self, context_member: IOContextMember
+    ) -> tuple[IOContextMember, str, list[IOContextMember]]:
+        VALID_NAME = f"{context_member}OK"
+
+        match context_member:
+            case IOContextMember.ONTOLOGY:
+                cleared_members = [IOContextMember.MODEL, IOContextMember.INSTANTIATION]
+            case IOContextMember.MODEL:
+                cleared_members = [IOContextMember.INSTANTIATION]
+            case IOContextMember.INSTANTIATION:
+                cleared_members = []
+
+        return context_member, VALID_NAME, cleared_members
+
 
 class TestSetIOContextMemberName:
     @parametrize_with_cases(
@@ -154,3 +170,23 @@ class TestSetIOContextMemberName:
         ontology_context = manager.get_io_context()
         output = ontology_context.get_context_member_name(context_member)
         assert valid_name == output
+
+    @parametrize_with_cases(
+        "context_member, valid_name, cleared_members",
+        cases=CasesSetIOContextMemberName,
+        prefix="cleared",
+    )
+    def test_reset_depending_context(
+        self,
+        valid_io_manager: IOManager,
+        context_member: IOContextMember,
+        valid_name: str,
+        cleared_members: list[IOContextMember],
+    ) -> None:
+        manager = valid_io_manager
+
+        manager.set_context_member_name(context_member, valid_name)
+
+        output = manager.get_io_context()
+        for member in cleared_members:
+            assert output.get_context_member_name(member) == ""
