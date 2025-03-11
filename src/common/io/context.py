@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+import dataclasses
 from enum import StrEnum
 
 
@@ -8,7 +8,7 @@ class IOContextMember(StrEnum):
     INSTANTIATION = "instantiation"
 
 
-@dataclass
+@dataclasses.dataclass
 class IOContext:
     repository_location: str = ""
     ontology_name: str = ""
@@ -18,8 +18,10 @@ class IOContext:
     def get_context_member_name(self, context_member: IOContextMember) -> str:
         match context_member:
             case IOContextMember.ONTOLOGY:
-                return self.ontology_name
+                name = self.ontology_name
             case IOContextMember.MODEL:
-                return self.model_name
+                name = self.model_name
             case IOContextMember.INSTANTIATION:
-                return self.instantiation_name
+                name = self.instantiation_name
+
+        return name
