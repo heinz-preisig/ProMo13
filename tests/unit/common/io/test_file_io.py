@@ -3,9 +3,9 @@ from collections.abc import Generator
 from pathlib import Path
 
 import pytest
-from pytest_cases import parametrize, parametrize_with_cases
+from pytest_cases import case, parametrize, parametrize_with_cases
 
-from src.common.io import DataIOError, IOContextMember, IOManager
+from src.common.io import DataIOError, IOContextError, IOContextMember, IOManager
 
 
 @pytest.fixture
@@ -133,6 +133,7 @@ class CasesIndexValidation:
 
         return manager, member, error_msg
 
+    @case(id="")
     def valid_index(
         self,
         valid_io_manager: IOManager,
@@ -140,6 +141,15 @@ class CasesIndexValidation:
         folder_prefix: str,
     ) -> tuple[IOManager, IOContextMember]:
         return valid_io_manager, member
+
+    @case(id="")
+    def incomplete_context(
+        self,
+        io_manager: IOManager,
+        member: IOContextMember,
+        folder_prefix: str,
+    ) -> tuple[IOManager, IOContextMember]:
+        return io_manager, member
 
 
 class TestIndexValidation:
@@ -166,3 +176,14 @@ class TestIndexValidation:
         output = manager.get_context_member_valid_options(member)
 
         assert sorted(expected) == sorted(output)
+
+    @parametrize_with_cases(
+        "manager, member", cases=CasesIndexValidation, prefix="incomplete"
+    )
+    def test_exception_on_read_index_with_incomplete_context(
+        self, manager: IOManager, member: IOContextMember
+    ) -> None:
+        error_msg = "Insufficient data in IOContext"
+
+        with pytest.raises(IOContextError, match=error_msg):
+            manager.get_context_member_valid_options(member)
