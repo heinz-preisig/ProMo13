@@ -26,7 +26,7 @@ class FileIO:
 
     def validate_repository_location(self, location: str) -> None:
         context = IOContext(location)
-        template = path_resolver.Templates.ONTOLOGY_REPOSITORY_DIR
+        template = path_resolver.PathTemplateStrings.ONTOLOGY_REPOSITORY_DIR
         repo_path = path_resolver.resolve(context, template)
         self._check_dir_exists(repo_path)
 

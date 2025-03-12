@@ -35,11 +35,11 @@ class JSONFileReader:
     ) -> Path:
         match context_member:
             case IOContextMember.ONTOLOGY:
-                template = path_resolver.Templates.ONTOLOGY_INDEX_FILE
+                template = path_resolver.PathTemplateStrings.ONTOLOGY_INDEX_FILE
             case IOContextMember.MODEL:
-                template = path_resolver.Templates.MODEL_INDEX_FILE
+                template = path_resolver.PathTemplateStrings.MODEL_INDEX_FILE
             case IOContextMember.INSTANTIATION:
-                template = path_resolver.Templates.INSTANTIATION_INDEX_FILE
+                template = path_resolver.PathTemplateStrings.INSTANTIATION_INDEX_FILE
 
         index_path = path_resolver.resolve(context, template)
         return index_path
