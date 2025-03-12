@@ -59,24 +59,6 @@ class TestRepositoryValidation:
             io_manager.set_repository_location(location)
 
 
-class CasesIndexValidation:
-    def case_missing_file(
-        self,
-    ) -> tuple[str, str]:
-        folder_id = "1"
-        error_msg = "Can not access {type} index"
-
-        return folder_id, error_msg
-
-    @parametrize(folder_id=("2", "3"), ids=("invalid json", "invalid json schema"))
-    def case_json_problem(
-        self,
-        folder_id: str,
-    ) -> tuple[str, str]:
-        error_msg = "Corrupted {type} index"
-        return folder_id, error_msg
-
-
 def setup_io_manager_to_repository(
     base_path: Path, repo_type: str, manager: IOManager, folder_id: str
 ) -> IOManager:
@@ -109,100 +91,69 @@ def set_repo_location(
     manager.set_repository_location(repository_location)
 
 
-class TestOntologyIndexValidation:
-    @parametrize_with_cases("folder_id, error_msg", cases=CasesIndexValidation)
+@parametrize(
+    member=(
+        IOContextMember.ONTOLOGY,
+        IOContextMember.MODEL,
+        IOContextMember.INSTANTIATION,
+    ),
+    ids=("ontology", "model", "instantiation"),
+)
+class CasesIndexValidation:
+    def case_missing_file(
+        self,
+        member: IOContextMember,
+    ) -> tuple[str, str, IOContextMember]:
+        folder_id = "1"
+        error_msg = "Can not access {type} index"
+
+        return folder_id, error_msg, member
+
+    @parametrize(folder_id=("2", "3"), ids=("invalid json", "invalid json schema"))
+    def case_json_problem(
+        self,
+        folder_id: str,
+        member: IOContextMember,
+    ) -> tuple[str, str, IOContextMember]:
+        error_msg = "Corrupted {type} index"
+        return folder_id, error_msg, member
+
+
+class TestIndexValidation:
+    @parametrize_with_cases("folder_id, error_msg, member", cases=CasesIndexValidation)
     def test_exception_on_invalid_index(
         self,
         io_manager: IOManager,
         tmp_test_files_path: Path,
         folder_id: str,
         error_msg: str,
+        member: IOContextMember,
     ) -> None:
-        REPOSITORY_TYPE = "ontology"
         manager = setup_io_manager_to_repository(
-            tmp_test_files_path, REPOSITORY_TYPE, io_manager, folder_id
+            tmp_test_files_path, member, io_manager, folder_id
         )
-        error_msg = error_msg.format(type=REPOSITORY_TYPE)
+        error_msg = error_msg.format(type=member)
 
         with pytest.raises(DataIOError, match=error_msg):
-            manager.get_available_ontologies()
+            manager.get_context_member_valid_options(member)
 
+    @parametrize(
+        member=(
+            IOContextMember.ONTOLOGY,
+            IOContextMember.MODEL,
+            IOContextMember.INSTANTIATION,
+        ),
+        ids=("ontology", "model", "instantiation"),
+    )
     def test_read_index_ok(
-        self, io_manager: IOManager, tmp_test_files_path: Path
+        self, io_manager: IOManager, tmp_test_files_path: Path, member: IOContextMember
     ) -> None:
-        REPOSITORY_TYPE = "ontology"
         FOLDER_ID = "OK"
         manager = setup_io_manager_to_repository(
-            tmp_test_files_path, REPOSITORY_TYPE, io_manager, FOLDER_ID
+            tmp_test_files_path, member, io_manager, FOLDER_ID
         )
-        expected = [f"{REPOSITORY_TYPE}{id}" for id in ["1", "2", "3", "OK"]]
+        expected = [f"{member}{id}" for id in ["1", "2", "3", "OK"]]
 
-        output = manager.get_available_ontologies()
-
-        assert sorted(expected) == sorted(output)
-
-
-class TestModelIndexValidation:
-    @parametrize_with_cases("folder_id, error_msg", cases=CasesIndexValidation)
-    def test_exception_on_invalid_index(
-        self,
-        io_manager: IOManager,
-        tmp_test_files_path: Path,
-        folder_id: str,
-        error_msg: str,
-    ) -> None:
-        REPOSITORY_TYPE = "model"
-        manager = setup_io_manager_to_repository(
-            tmp_test_files_path, REPOSITORY_TYPE, io_manager, folder_id
-        )
-        error_msg = error_msg.format(type=REPOSITORY_TYPE)
-
-        with pytest.raises(DataIOError, match=error_msg):
-            manager.get_available_models()
-
-    def test_read_index_ok(
-        self, io_manager: IOManager, tmp_test_files_path: Path
-    ) -> None:
-        REPOSITORY_TYPE = "model"
-        FOLDER_ID = "OK"
-        manager = setup_io_manager_to_repository(
-            tmp_test_files_path, REPOSITORY_TYPE, io_manager, FOLDER_ID
-        )
-        expected = [f"{REPOSITORY_TYPE}{id}" for id in ["1", "2", "3", "OK"]]
-
-        output = manager.get_available_models()
-
-        assert sorted(expected) == sorted(output)
-
-
-class TestInstantiationIndexValidation:
-    @parametrize_with_cases("folder_id, error_msg", cases=CasesIndexValidation)
-    def test_exception_on_invalid_index(
-        self,
-        io_manager: IOManager,
-        tmp_test_files_path: Path,
-        folder_id: str,
-        error_msg: str,
-    ) -> None:
-        REPOSITORY_TYPE = "instantiation"
-        manager = setup_io_manager_to_repository(
-            tmp_test_files_path, REPOSITORY_TYPE, io_manager, folder_id
-        )
-        error_msg = error_msg.format(type=REPOSITORY_TYPE)
-
-        with pytest.raises(DataIOError, match=error_msg):
-            manager.get_available_instantiations()
-
-    def test_read_index_ok(
-        self, io_manager: IOManager, tmp_test_files_path: Path
-    ) -> None:
-        REPOSITORY_TYPE = "instantiation"
-        FOLDER_ID = "OK"
-        manager = setup_io_manager_to_repository(
-            tmp_test_files_path, REPOSITORY_TYPE, io_manager, FOLDER_ID
-        )
-        expected = [f"{REPOSITORY_TYPE}{id}" for id in ["1", "2", "3", "OK"]]
-
-        output = manager.get_available_instantiations()
+        output = manager.get_context_member_valid_options(member)
 
         assert sorted(expected) == sorted(output)

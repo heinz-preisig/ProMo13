@@ -43,26 +43,8 @@ class IOManager:
             context_member, name, context_member_options
         )
 
-    def get_available_ontologies(self) -> list[str]:
-        context_member = IOContextMember.ONTOLOGY
+    def get_context_member_valid_options(
+        self, context_member: IOContextMember
+    ) -> list[str]:
         context = self._context_handler.get_io_context()
-        available_ontologies = self._data_io.get_context_member_options(
-            context_member, context
-        )
-        return available_ontologies
-
-    def get_available_models(self) -> list[str]:
-        context_member = IOContextMember.MODEL
-        context = self._context_handler.get_io_context()
-        available_models = self._data_io.get_context_member_options(
-            context_member, context
-        )
-        return available_models
-
-    def get_available_instantiations(self) -> list[str]:
-        context_member = IOContextMember.INSTANTIATION
-        context = self._context_handler.get_io_context()
-        available_instantiations = self._data_io.get_context_member_options(
-            context_member, context
-        )
-        return available_instantiations
+        return self._data_io.get_context_member_options(context_member, context)
