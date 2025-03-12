@@ -59,99 +59,108 @@ class TestRepositoryValidation:
             io_manager.set_repository_location(location)
 
 
-def setup_io_manager_to_repository(
-    base_path: Path, repo_type: str, manager: IOManager, folder_id: str
+@pytest.fixture
+def valid_io_manager(io_manager: IOManager, tmp_test_files_path: Path) -> IOManager:
+    REPO_LOCATION = str(tmp_test_files_path / "repositoryOK")
+    ONTOLOGY_NAME = "ontologyOK"
+    MODEL_NAME = "modelOK"
+    INSTANTIATION_NAME = "instantiationOK"
+
+    io_manager.set_repository_location(REPO_LOCATION)
+    io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
+    io_manager.set_context_member_name(IOContextMember.MODEL, MODEL_NAME)
+    io_manager.set_context_member_name(
+        IOContextMember.INSTANTIATION, INSTANTIATION_NAME
+    )
+
+    return io_manager
+
+
+def set_io_manager_context(
+    manager: IOManager, member: IOContextMember, value: str, base_path: Path
 ) -> IOManager:
-    if repo_type == "ontology":
-        repository_name = f"repository{folder_id}"
-        set_repo_location(manager, base_path, repository_name)
-        return manager
-
-    set_repo_location(manager, base_path)
-
-    if repo_type == "model":
-        ontology_name = f"ontology{folder_id}"
-        manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
-        return manager
-
-    ontology_name = "ontologyOK"
-    manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
-
-    model_name = f"model{folder_id}"
-    manager.set_context_member_name(IOContextMember.MODEL, model_name)
+    match member:
+        case IOContextMember.ONTOLOGY:
+            location = str(base_path / value)
+            manager.set_repository_location(location)
+        case IOContextMember.MODEL:
+            manager.set_context_member_name(IOContextMember.ONTOLOGY, value)
+        case IOContextMember.INSTANTIATION:
+            manager.set_context_member_name(IOContextMember.MODEL, value)
 
     return manager
 
 
-def set_repo_location(
-    manager: IOManager, base_path: Path, repo_name: str = "repositoryOK"
-) -> None:
-    repository_path = base_path / repo_name
-    repository_location = str(repository_path)
-    manager.set_repository_location(repository_location)
-
-
 @parametrize(
-    member=(
-        IOContextMember.ONTOLOGY,
-        IOContextMember.MODEL,
-        IOContextMember.INSTANTIATION,
-    ),
+    "member, folder_prefix",
+    [
+        (IOContextMember.ONTOLOGY, "repository"),
+        (IOContextMember.MODEL, "ontology"),
+        (IOContextMember.INSTANTIATION, "model"),
+    ],
     ids=("ontology", "model", "instantiation"),
 )
 class CasesIndexValidation:
-    def case_missing_file(
+    def invalid_missing_file(
         self,
+        valid_io_manager: IOManager,
+        tmp_test_files_path: Path,
         member: IOContextMember,
-    ) -> tuple[str, str, IOContextMember]:
-        folder_id = "1"
-        error_msg = "Can not access {type} index"
+        folder_prefix: str,
+    ) -> tuple[IOManager, IOContextMember, str]:
+        folder_name = f"{folder_prefix}1"
+        manager = set_io_manager_context(
+            valid_io_manager, member, folder_name, tmp_test_files_path
+        )
+        error_msg = "Can not access {member} index"
 
-        return folder_id, error_msg, member
+        return manager, member, error_msg
 
     @parametrize(folder_id=("2", "3"), ids=("invalid json", "invalid json schema"))
-    def case_json_problem(
+    def invalid_json_problem(
         self,
-        folder_id: str,
+        valid_io_manager: IOManager,
+        tmp_test_files_path: Path,
         member: IOContextMember,
-    ) -> tuple[str, str, IOContextMember]:
-        error_msg = "Corrupted {type} index"
-        return folder_id, error_msg, member
+        folder_prefix: str,
+        folder_id: str,
+    ) -> tuple[IOManager, IOContextMember, str]:
+        error_msg = "Corrupted {member} index"
+        folder_name = f"{folder_prefix}{folder_id}"
+        manager = set_io_manager_context(
+            valid_io_manager, member, folder_name, tmp_test_files_path
+        )
+
+        return manager, member, error_msg
+
+    def valid_index(
+        self,
+        valid_io_manager: IOManager,
+        member: IOContextMember,
+        folder_prefix: str,
+    ) -> tuple[IOManager, IOContextMember]:
+        return valid_io_manager, member
 
 
 class TestIndexValidation:
-    @parametrize_with_cases("folder_id, error_msg, member", cases=CasesIndexValidation)
+    @parametrize_with_cases(
+        "manager, member, error_msg", cases=CasesIndexValidation, prefix="invalid"
+    )
     def test_exception_on_invalid_index(
         self,
-        io_manager: IOManager,
-        tmp_test_files_path: Path,
-        folder_id: str,
-        error_msg: str,
+        manager: IOManager,
         member: IOContextMember,
+        error_msg: str,
     ) -> None:
-        manager = setup_io_manager_to_repository(
-            tmp_test_files_path, member, io_manager, folder_id
-        )
-        error_msg = error_msg.format(type=member)
+        error_msg = error_msg.format(member=member)
 
         with pytest.raises(DataIOError, match=error_msg):
             manager.get_context_member_valid_options(member)
 
-    @parametrize(
-        member=(
-            IOContextMember.ONTOLOGY,
-            IOContextMember.MODEL,
-            IOContextMember.INSTANTIATION,
-        ),
-        ids=("ontology", "model", "instantiation"),
+    @parametrize_with_cases(
+        "manager, member", cases=CasesIndexValidation, prefix="valid"
     )
-    def test_read_index_ok(
-        self, io_manager: IOManager, tmp_test_files_path: Path, member: IOContextMember
-    ) -> None:
-        FOLDER_ID = "OK"
-        manager = setup_io_manager_to_repository(
-            tmp_test_files_path, member, io_manager, FOLDER_ID
-        )
+    def test_read_index_ok(self, manager: IOManager, member: IOContextMember) -> None:
         expected = [f"{member}{id}" for id in ["1", "2", "3", "OK"]]
 
         output = manager.get_context_member_valid_options(member)
