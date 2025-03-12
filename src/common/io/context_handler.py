@@ -64,7 +64,8 @@ class IOContextHandler:
     ) -> None:
         if name not in options:
             error_msg = f"Invalid {context_member} name: {name}"
-            raise IOContextError(error_msg)
+            context = self.get_io_context()
+            raise IOContextError(error_msg, context)
 
     def _reset_dependent_context(self, key_name: str) -> None:
         child_key = self._nodes[key_name].child

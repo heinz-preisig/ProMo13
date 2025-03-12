@@ -18,16 +18,16 @@ class PathTemplateStrings(StrEnum):
     INSTANTIATION_INDEX_FILE = INSTANTIATION_LIBRARY_DIR + ".repository_index.json"
 
 
-def resolve(ontology_context: IOContext, template_string: PathTemplateStrings) -> Path:
+def resolve(context: IOContext, template_string: PathTemplateStrings) -> Path:
     template = Template(template_string)
     path_parameters = {
-        "repository_location": ontology_context.repository_location,
-        "ontology_name": ontology_context.ontology_name,
-        "model_name": ontology_context.model_name,
-        "instantiation_name": ontology_context.instantiation_name,
+        "repository_location": context.repository_location,
+        "ontology_name": context.ontology_name,
+        "model_name": context.model_name,
+        "instantiation_name": context.instantiation_name,
     }
 
-    _validate_parameters_for_template(template, path_parameters)
+    _validate_parameters_for_template(template, path_parameters, context)
 
     path_string = template.substitute(path_parameters)
 
@@ -35,10 +35,10 @@ def resolve(ontology_context: IOContext, template_string: PathTemplateStrings) -
 
 
 def _validate_parameters_for_template(
-    template: Template, path_parameters: dict[str, str]
+    template: Template, path_parameters: dict[str, str], context: IOContext
 ) -> None:
     template_identifiers = template.get_identifiers()
     for key, value in path_parameters.items():
         if key in template_identifiers and not value:
             error_msg = "Insufficient data in IOContext"
-            raise exceptions.IOContextError(error_msg)
+            raise exceptions.IOContextError(error_msg, context)
