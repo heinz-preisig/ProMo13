@@ -1,0 +1,86 @@
+{
+  "topology_objects": {
+    "N_0": {
+      "name": "Root",
+      "modeller_class": "NodeComposite"
+    },
+    "N_1": {
+      "name": "Node1",
+      "modeller_class": "NodeSimple",
+      "entity_instance": "ENT_0"
+    },
+    "N_2": {
+      "name": "Node2",
+      "modeller_class": "NodeSimple",
+      "entity_instance": "ENT_0"
+    },
+    "A_3": {
+      "name": "Arc3",
+      "modeller_class": "Arc",
+      "entity_instance": "ENT_2"
+    },
+    "A_4": {
+      "identifier": "A_4",
+      "name": "Arc4",
+      "modeller_class": "Arc",
+      "entity_instance": "ENT_2"
+    },
+    "N_5": {
+      "identifier": "N_5",
+      "name": "Container",
+      "modeller_class": "NodeComposite"
+    },
+    "N_6": {
+      "identifier": "N_6",
+      "name": "Node6",
+      "modeller_class": "NodeSimple",
+      "entity_instance": "ENT_1"
+    },
+    "N_7": {
+      "identifier": "N_7",
+      "name": "Node7",
+      "modeller_class": "NodeSimple",
+      "entity_instance": "ENT_1"
+    },
+    "N_8": {
+      "identifier": "N_8",
+      "name": "Node8",
+      "modeller_class": "NodeSimple",
+      "entity_instance": "ENT_3"
+    },
+    "A_9": {
+      "identifier": "A_9",
+      "name": "Arc9",
+      "modeller_class": "Arc",
+      "entity_instance": "ENT_4"
+    },
+    "A_10": {
+      "identifier": "A_10",
+      "name": "Arc10",
+      "modeller_class": "Arc",
+      "entity_instance": "ENT_4"
+    }
+  },
+  "hierarchy_tree": [
+    ["N_0", "N_1"],
+    ["N_0", "N_2"],
+    ["N_0", "A_3"],
+    ["N_0", "A_4"],
+    ["N_0", "N_5"],
+    ["N_5", "N_6"],
+    ["N_5", "N_7"],
+    ["N_5", "N_8"],
+    ["N_5", "A_9"],
+    ["N_5", "A_10"]
+  ],
+  "connectivity_graph": [
+    ["N_1", "A_3"],
+    ["A_3", "N_6"],
+    ["N_6", "A_9"],
+    ["A_9", "N_8"],
+    ["N_2", "A_4"],
+    ["A_4", "N_7"],
+    ["N_7", "A_10"],
+    ["A_10", "N_8"]
+  ]
+}

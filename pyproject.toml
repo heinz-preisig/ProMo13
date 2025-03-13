@@ -11,6 +11,7 @@ dependencies = [
     "rdflib>=7.1.3",
     "attrs>=25.1.0",
     "numpy>=2.2.3",
+    "jsonschema>=4.23.0",
 ]
 requires-python = ">=3.13, <3.14"
 readme = "README.md"
@@ -19,12 +20,18 @@ license = { text = "" }
 [project.optional-dependencies]
 transitional = ["PyQt5>=5.15.11", "pypdf2>=3.0.1", "pydotplus>=2.0.2"]
 [dependency-groups]
-lint = ["ruff>=0.8.4", "mypy>=1.14.1", "PySide6-stubs>=6.4.2.0"]
+lint = [
+    "ruff>=0.8.4",
+    "mypy>=1.14.1",
+    "PySide6-stubs>=6.4.2.0",
+    "types-jsonschema>=4.23.0.20241208",
+]
 pytest = [
     "pytest-cov>=6.0.0",
     "pytest-icdiff>=0.9",
     "pytest-mock>=3.14.0",
     "pytest-testdox>=3.1.0",
+    "pytest-cases>=3.8.6",
 ]
 docs = [
     "mkdocs>=1.6.1",
