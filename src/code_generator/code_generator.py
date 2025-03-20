@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(".."))
 from packages.Common import resource_initialisation
 from packages.Common.classes import io
 from src.code_generator import equation_sequencer, template_handler
-from src.common.io import IOHandler
+from src.common.old_io import IOHandler
 
 # fmt: on
 
