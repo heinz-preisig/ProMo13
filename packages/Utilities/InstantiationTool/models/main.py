@@ -12,7 +12,7 @@ from packages.Utilities.InstantiationTool.models import topology_tree
 from src.common import old_topology, roles
 from src.common.components import image_list
 from src.common.constants import FixedVariables
-from src.common.io import IOHandler
+from src.common.old_io import IOHandler
 
 # TODO: The information about the selection needs to be stored in the main_model,
 # there is no way to retrieve it afterwards without talking to the view
