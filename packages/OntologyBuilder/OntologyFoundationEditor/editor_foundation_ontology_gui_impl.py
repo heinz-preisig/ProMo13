@@ -59,6 +59,7 @@ from OntologyBuilder.OntologyFoundationEditor.rulesClass import Rules
 from OntologyBuilder.OntologyFoundationEditor.rulesClass import RulesRadioButtons
 
 
+
 # RULE: defining the tree structure, and its components
 class Behaviour(OrderedDict):
   def __init__(self):
@@ -159,7 +160,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
       self.ontology_dir = DIRECTORIES["ontology_location"] % ontology_name
       self.__writeMessage("make directory tree %s" % self.ontology_dir)
       src = DIRECTORIES["new_ontology_starting_set"]
-      copy_tree(src, self.ontology_dir)
+      # copy_tree(src, self.ontology_dir)   # TODO: copy_tree used to be in distutils.dir_util
       self.ontology_file = FILES["ontology_file"] % ontology_name
       # self.__makeOntology()
 
@@ -302,6 +303,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
                     ui.radioButtonHasPersistantVariables,
                     ui.radioButtonAreConstants,
                     ui.radioButtonIsEnableAddingIndex,
+                    ui.radioButtonNormedDomain,
                     ui.groupBoxStructureRules,
                     ui.groupBoxBehaviourRules,
                     ],
@@ -314,6 +316,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
                     ui.radioButtonHasPersistantVariables,
                     ui.radioButtonAreConstants,
                     ui.radioButtonIsEnableAddingIndex,
+                    ui.radioButtonNormedDomain,
                     ],
             "new_variable_file"                : [
                     # ui.groupBoxFile,
@@ -409,6 +412,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
                     ui.radioButtonHasPersistantVariables,
                     ui.radioButtonAreConstants,
                     ui.radioButtonIsEnableAddingIndex,
+                    ui.radioButtonNormedDomain,
                     ui.groupBoxStructureRules,
                     ui.groupBoxBehaviourRules,
                     ],
@@ -438,6 +442,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
                     ui.radioButtonHasPersistantVariables,
                     ui.radioButtonAreConstants,
                     ui.radioButtonIsEnableAddingIndex,
+                    ui.radioButtonNormedDomain,
                     ui.groupBoxStructureRules,
                     ui.groupBoxBehaviourRules,
                     ],
@@ -761,6 +766,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
                     ui.radioButtonHasPersistantVariables,
                     ui.radioButtonAreConstants,
                     ui.radioButtonIsEnableAddingIndex,
+                    ui.radioButtonNormedDomain,
                     ui.groupBoxStructureRules,
                     ui.groupBoxBehaviourRules,
                     ],
@@ -792,6 +798,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
                     ui.radioButtonHasPersistantVariables,
                     ui.radioButtonAreConstants,
                     ui.radioButtonIsEnableAddingIndex,
+                    ui.radioButtonNormedDomain,
                     ui.groupBoxStructureRules,
                     ui.groupBoxBehaviourRules,
                     ],
@@ -851,6 +858,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
                     ui.radioButtonHasPersistantVariables,
                     ui.radioButtonAreConstants,
                     ui.radioButtonIsEnableAddingIndex,
+                    ui.radioButtonNormedDomain,
                     ui.groupBoxStructureRules,
                     ui.groupBoxBehaviourRules,
                     ],
@@ -1216,6 +1224,10 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
       self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = False
     self.ui.radioButtonIsEnableAddingIndex.setChecked(
             self.ontology["rules"]["network_enable_adding_indices"][self.current_network])
+    if self.current_network not in self.ontology["rules"]["normed_network"]:
+      self.ontology["rules"]["normed_network"][self.current_network] = False
+    self.ui.radioButtonNormedDomain.setChecked(
+            self.ontology["rules"]["normed_network"][self.current_network])
 
   def on_radioButtonInter_toggled(self, position):
     what = "intra"
