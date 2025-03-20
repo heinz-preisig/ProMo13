@@ -1277,6 +1277,9 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     # print("debugging -- radio button position: ", position)
     self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = position
 
+  def on_radioButtonNormedDomain_toggled(self, position):
+    self.ontology["rules"]["normed_network"][self.current_network] = position
+
   def on_radioButtonHasPortVariables_toggled(self, position):
     # print("debugging -- radio button position: ", position)
     # variable_classes_having_port_variables = set(self.ontology["rules"]["variable_classes_having_port_variables"])

@@ -25,7 +25,7 @@ root = os.path.abspath(os.path.join(".."))
 sys.path.extend([root, os.path.join(root, 'packages'), os.path.join(root, 'tasks')])
 
 from graphviz import Digraph
-from PyPDF2 import PdfFileMerger
+from PyPDF2 import PdfMerger
 
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
@@ -346,7 +346,7 @@ def makeOntologyDotGraph(ontology_tree, ontology_name, show="write"):
 
   pdf_template = dot_path + ".pdf"
 
-  merger = PdfFileMerger()
+  merger = PdfMerger()
   pdf = pdf_template % "tree"
   merger.append(open(pdf, 'rb'))
   pdf = pdf_template % str("root")

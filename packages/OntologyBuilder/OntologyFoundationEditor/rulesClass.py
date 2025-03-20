@@ -7,6 +7,7 @@ class Rules(dict):
     dict.__init__(self)
     self["networks"] = {
             "network_enable_adding_indices": {},
+            "normed_network" : {},
             }
     self["variable_classes"] = {
             "variable_classes_having_port_variables": [],
