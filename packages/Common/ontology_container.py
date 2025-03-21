@@ -232,6 +232,10 @@ class OntologyContainer():
 
     self.rules = self.ontology_container["rules"]  #
 
+    for nw in self.ontology_tree:
+      if nw not in self.rules["normed_network"]:
+        self.rules["normed_network"][nw] = False
+
     #
     # TODO: converting tokens
     # FILES["converting_tokens_file"] % ontology_name

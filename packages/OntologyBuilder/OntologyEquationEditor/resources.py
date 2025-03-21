@@ -134,6 +134,9 @@ TEMPLATES["conversion_label"] = "%s_conversion"
 TEMPLATES["conversion_alias"] = "C%s"
 TEMPLATES["interface_variable"] = "_%s"
 # TEMPLATES["sub_index"] = "%s_%s"
+TEMPLATES["fromNormed"] = "_cx_I"
+TEMPLATES["toNormedScalar"] = "_mv_I"
+TEMPLATES["toNormedVector"] = "_mw_IS"
 
 # differential space
 TEMPLATES["differential_space"] = "d%s"
