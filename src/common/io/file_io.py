@@ -56,3 +56,6 @@ class FileIO:
     ) -> list[str]:
         options = self._file_reader.get_index_options(context_member, context)
         return options
+
+    def get_index_data(self, context: IOContext) -> typing.Any:
+        return None

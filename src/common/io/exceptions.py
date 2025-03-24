@@ -10,3 +10,8 @@ class IOContextError(Exception):
 class DataIOError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
+
+
+class IOBuilderError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)

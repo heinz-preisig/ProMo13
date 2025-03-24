@@ -1,5 +1,5 @@
 from .context import IOContext, IOContextMember
-from .exceptions import DataIOError, IOContextError
+from .exceptions import DataIOError, IOBuilderError, IOContextError
 from .manager import IOManager
 
 __all__ = [
@@ -8,4 +8,5 @@ __all__ = [
     "IOManager",
     "DataIOError",
     "IOContextError",
+    "IOBuilderError",
 ]
