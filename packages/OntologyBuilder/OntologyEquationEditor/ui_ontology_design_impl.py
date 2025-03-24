@@ -568,11 +568,17 @@ class UiOntologyDesign(QMainWindow):
     type = variable.type
     node_index_ID = "I_1"  # TODO: should not be hardwired
     arc_index_ID = "I_2"  # ditto
+    species_index = "I_4" # ditto
 
     from_centre = left_nw in CENTRE_NETWORKS
     to_centre = right_nw in CENTRE_NETWORKS
     from_node = node_index_ID in variable.index_structures
     from_arc = arc_index_ID in variable.index_structures
+
+    from_normed = self.rules["normed_network"][left_nw]
+    to_normed = self.rules["normed_network"][right_nw]
+
+    has_species_index = species_index in variable.index_structures
 
     # constants
     F_NI_source_ID = constants.FixedVariables.INCIDENCE_MATRIX_NI_SOURCE
@@ -588,9 +594,17 @@ class UiOntologyDesign(QMainWindow):
     S_Ip = self.variables[S_Ip_ID].label
     S_Iq = self.variables[S_Iq_ID].label
 
-    interface_variable = TEMPLATES["interface_variable"] % label
-    while self.variables.existSymbol(self.current_network, interface_variable):
-      interface_variable = TEMPLATES["interface_variable"] % interface_variable
+    if from_normed:
+      interface_variable = TEMPLATES["fromNormed"]
+    elif to_normed:
+      if has_species_index:
+        interface_variable = TEMPLATES["toNormedVector"]
+      else:
+        interface_variable = TEMPLATES["toNormedScalar"]
+    else:
+      interface_variable = TEMPLATES["interface_variable"] % label
+      while self.variables.existSymbol(self.current_network, interface_variable):
+        interface_variable = TEMPLATES["interface_variable"] % interface_variable
 
     # RULE: keep information on if it came from node or arc and from the centre
     if from_centre:

@@ -60,7 +60,7 @@ class UI_QUDTFetch_IRI(QtWidgets.QDialog):
 
     self.ui.tableWidget.itemClicked.connect(self.on_tableItem_clicked)
     self.ui.lineEdit.textChanged.connect(self.on_lineEdit_textChanged)
-    regex = QtCore.QRegExp("[A-Z-a-z_\-]*")
+    regex = QtCore.QRegExp("[A-Z-a-z_-]*")
     reg = QtGui.QRegExpValidator(regex)
     self.ui.lineEdit.setValidator(reg)
     self.ui.label.setText(label)
