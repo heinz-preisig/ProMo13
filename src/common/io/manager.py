@@ -59,14 +59,28 @@ class IOManager:
 
     def get_current_index_map(self) -> IndexMap:
         context = self._context_handler.get_io_context()
+        self._build_index_map(context)
+
+        return self._builder.indices
+
+    def _build_index_map(self, context: IOContext) -> None:
+        if self._builder.indices:
+            return
+
         data = self._data_io.get_index_data(context)
-        index_map = self._builder.build_index_map(data)
-        return index_map
+        self._builder.build_index_map(data)
 
     def get_current_variable_map(self) -> VariableMap:
-        self.get_current_index_map()
-
         context = self._context_handler.get_io_context()
+        self._build_variable_map(context)
+
+        return self._builder.variables
+
+    def _build_variable_map(self, context: IOContext) -> None:
+        self._build_index_map(context)
+
+        if self._builder.variables:
+            return
+
         data = self._data_io.get_variable_data(context)
-        variable_map = self._builder.build_variable_map(data)
-        return variable_map
+        self._builder.build_variable_map(data)

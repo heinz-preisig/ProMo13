@@ -20,7 +20,8 @@ def validate_type(val: typing.Any, type: typing.Any) -> typing.Any:
 class IOBuilder:
     def __init__(self) -> None:
         self._strict_converter = self._generate_strict_converter()
-        self._indices: IndexMap = {}
+        self.indices: IndexMap = {}
+        self.variables: VariableMap = {}
 
     def _generate_strict_converter(self) -> cattrs.Converter:
         # Necessary to enforce type strictness in cattrs 24.1.2.
@@ -34,7 +35,7 @@ class IOBuilder:
 
         return c
 
-    def build_index_map(self, data: typing.Any) -> IndexMap:
+    def build_index_map(self, data: typing.Any) -> None:
         new_index_map = {}
 
         try:
@@ -45,10 +46,9 @@ class IOBuilder:
             logger.error(err)
             raise exceptions.IOBuilderError("Corrupted Index file") from err
 
-        self._indices = new_index_map
-        return new_index_map
+        self.indices = new_index_map
 
-    def build_variable_map(self, data: typing.Any) -> VariableMap:
+    def build_variable_map(self, data: typing.Any) -> None:
         new_variable_map = {}
 
         self._strict_converter.register_structure_hook(Index, validate_type)
@@ -56,7 +56,7 @@ class IOBuilder:
         try:
             for var_data in data:
                 var_indices_ids = var_data["indices"]
-                var_indices = [self._indices[idx_id] for idx_id in var_indices_ids]
+                var_indices = [self.indices[idx_id] for idx_id in var_indices_ids]
                 new_var_data = var_data | {"indices": var_indices}
                 new_variable = self._strict_converter.structure(new_var_data, Variable)
                 new_variable_map[new_variable.identifier] = new_variable
@@ -66,4 +66,4 @@ class IOBuilder:
 
         self._strict_converter.register_structure_hook(Index, cattrs.structure)
 
-        return new_variable_map
+        self.variables = new_variable_map
