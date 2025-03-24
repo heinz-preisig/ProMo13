@@ -15,7 +15,15 @@ def io_manager() -> IOManager:
 
 @pytest.fixture
 def test_files_path() -> Path:
-    return Path.cwd() / "tests" / "unit" / "common" / "io" / "test_files"
+    return (
+        Path.cwd()
+        / "tests"
+        / "unit"
+        / "common"
+        / "io"
+        / "file_system_implementation"
+        / "test_files"
+    )
 
 
 @pytest.fixture
