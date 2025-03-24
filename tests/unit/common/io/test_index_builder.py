@@ -1,37 +1,11 @@
 import typing
 
 import pytest
+from conftest import FakeDataIO
 from pytest_cases import case, fixture, parametrize, parametrize_with_cases
 
 from src.common.corelib import Index, IndexMap
 from src.common.io import IOBuilderError, IOContext, IOContextMember, IOManager
-
-
-class FakeDataIO:
-    def validate_repository_location(self, location: str) -> None:
-        pass
-
-    def get_context_member_options(
-        self, context_member: IOContextMember, context: IOContext
-    ) -> list[str]:
-        return []
-
-    def set_index_data(self, data: typing.Any) -> None:
-        self._data = data
-
-    def get_index_data(self, context: IOContext) -> typing.Any:
-        return self._data
-
-
-@pytest.fixture
-def fake_data_io() -> FakeDataIO:
-    return FakeDataIO()
-
-
-@pytest.fixture
-def fake_io_manager(fake_data_io: FakeDataIO) -> IOManager:
-    return IOManager(fake_data_io)
-
 
 GOOD_DATA = [
     {"identifier": "I_1", "label": "node"},

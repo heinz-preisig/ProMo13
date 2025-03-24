@@ -1,5 +1,3 @@
-import dataclasses
-
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
@@ -14,28 +12,6 @@ from src.common.io import (
 @pytest.fixture
 def io_manager() -> IOManager:
     return IOManager()
-
-
-class FakeDataIO:
-    def validate_repository_location(self, location: str) -> None:
-        pass
-
-    def get_context_member_options(
-        self, context_member: IOContextMember, context: IOContext
-    ) -> list[str]:
-        match context_member:
-            case IOContextMember.ONTOLOGY:
-                return ["VALID_ONTOLOGY", "ontologyOK"]
-            case IOContextMember.MODEL:
-                return ["VALID_MODEL", "modelOK"]
-            case IOContextMember.INSTANTIATION:
-                return ["VALID_INSTANTIATION", "instantiationOK"]
-
-
-@pytest.fixture
-def fake_io_manager() -> IOManager:
-    fake_data_io = FakeDataIO()
-    return IOManager(data_io=fake_data_io)
 
 
 @pytest.fixture
