@@ -60,3 +60,6 @@ class FileIO:
     def get_variable_data(self, context: IOContext) -> typing.Any:
         variable_data = self._file_reader.read_variable_file(context)
         return variable_data
+
+    def get_equation_data(self, context: IOContext) -> typing.Any:
+        pass

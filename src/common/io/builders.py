@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 import cattrs
 
-from src.common.corelib import Index, IndexMap, Variable
+from src.common.corelib import Equation, Index, IndexMap, Variable, VariableMap
 
 from . import exceptions
 
@@ -108,3 +108,30 @@ class VariableMapBuilder(BaseMapBuilder[Variable]):
         INDICES_KEY = "indices"
         instanced_indices = [self._indices[idx_id] for idx_id in data[INDICES_KEY]]
         return data | {INDICES_KEY: instanced_indices}
+
+
+class EquationMapBuilder(BaseMapBuilder[Equation]):
+    def __init__(self, variables: VariableMap):
+        self._variables = variables
+
+        super().__init__()
+
+        self._corrupted_error_msg = "Corrupted Equation data"
+        self._item_type = Equation
+
+    def _register_extra_hooks(self) -> None:
+        self._converter.register_structure_hook(Variable, validate_type)
+
+    def _clean_extra_hooks(self) -> None:
+        self._converter.register_structure_hook(Variable, cattrs.structure)
+
+    def _pre_process_data(self, data: typing.Any) -> typing.Any:
+        VARIABLES_KEY = "variables"
+
+        instanced_variables = [
+            self._variables[var_id] for var_id in data[VARIABLES_KEY]
+        ]
+
+        instanced_dict = {VARIABLES_KEY: instanced_variables}
+
+        return data | instanced_dict

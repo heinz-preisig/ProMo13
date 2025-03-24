@@ -2,7 +2,14 @@ import typing
 
 import pytest
 
-from src.common.corelib import Index, IndexMap, Variable, VariableMap
+from src.common.corelib import (
+    Equation,
+    EquationMap,
+    Index,
+    IndexMap,
+    Variable,
+    VariableMap,
+)
 from src.common.io import IOContext, IOContextMember, IOManager
 
 
@@ -10,6 +17,7 @@ class FakeDataIO:
     def __init__(self) -> None:
         self._index_data: dict[str, typing.Any] = {}
         self._variable_data: dict[str, typing.Any] = {}
+        self._equation_data: dict[str, typing.Any] = {}
 
     def validate_repository_location(self, location: str) -> None:
         pass
@@ -36,6 +44,12 @@ class FakeDataIO:
 
     def get_variable_data(self, context: IOContext) -> typing.Any:
         return self._variable_data[context.ontology_name]
+
+    def set_equation_data(self, data: typing.Any, ontology_name: str) -> None:
+        self._equation_data[ontology_name] = data
+
+    def get_equation_data(self, context: IOContext) -> typing.Any:
+        return self._equation_data[context.ontology_name]
 
 
 @pytest.fixture
@@ -74,3 +88,21 @@ def build_variable_map(map_data: typing.Any, indices: IndexMap) -> VariableMap:
         variables[identifier] = new_var
 
     return variables
+
+
+def build_equation_map(map_data: typing.Any, variables: VariableMap) -> EquationMap:
+    VARIABLES_KEY = "variables"
+
+    equations = {}
+    for eq_data in map_data:
+        instanced_variables = [variables[idx] for idx in eq_data[VARIABLES_KEY]]
+        instanced_dict = {VARIABLES_KEY: instanced_variables}
+
+        instanced_eq_data = eq_data | instanced_dict
+
+        new_eq = Equation(**instanced_eq_data)
+
+        identifier = eq_data[IDENTIFIER_KEY]
+        equations[identifier] = new_eq
+
+    return equations

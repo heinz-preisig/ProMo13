@@ -1,6 +1,6 @@
-from src.common.corelib import IndexMap, VariableMap
+from src.common.corelib import EquationMap, IndexMap, VariableMap
 
-from .builders import IndexMapBuilder, VariableMapBuilder
+from .builders import EquationMapBuilder, IndexMapBuilder, VariableMapBuilder
 from .context import IOContext
 from .protocols import DataIO
 
@@ -10,10 +10,12 @@ class IOBuildManager:
         self._data_io = data_io
         self._indices: IndexMap = {}
         self._variables: VariableMap = {}
+        self._equations: EquationMap = {}
 
     def reset(self) -> None:
         self._indices = {}
         self._variables = {}
+        self._equations = {}
 
     def get_indices(self, context: IOContext) -> IndexMap:
         self._build_indices(context)
@@ -45,3 +47,20 @@ class IOBuildManager:
 
         data = self._data_io.get_variable_data(context)
         self._variables = builder.build(data)
+
+    def get_equations(self, context: IOContext) -> EquationMap:
+        self._build_equations(context)
+
+        return self._equations
+
+    def _build_equations(self, context: IOContext) -> None:
+        equations_cached = bool(self._equations)
+        if equations_cached:
+            return
+
+        self._build_variables(context)
+
+        data = self._data_io.get_equation_data(context)
+
+        builder = EquationMapBuilder(self._variables)
+        self._equations = builder.build(data)

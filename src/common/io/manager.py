@@ -1,15 +1,5 @@
-import copy
-import json
-import stat
-import typing
-from pathlib import Path
+from src.common.corelib import EquationMap, IndexMap, VariableMap
 
-import attrs
-import cattrs
-
-from src.common.corelib import IndexMap, VariableMap
-
-from . import exceptions
 from .build_manager import IOBuildManager
 from .context import IOContext, IOContextMember
 from .context_handler import IOContextHandler
@@ -58,3 +48,8 @@ class IOManager:
         context = self._context_handler.get_io_context()
 
         return self._builder.get_variables(context)
+
+    def get_current_equation_map(self) -> EquationMap:
+        context = self._context_handler.get_io_context()
+
+        return self._builder.get_equations(context)
