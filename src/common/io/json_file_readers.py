@@ -110,3 +110,23 @@ class IndexFileReader(BaseJsonFileReader):
             cleaned_data.append(new_index_data)
 
         return cleaned_data
+
+
+class VariableFileReader(BaseJsonFileReader):
+    _template_string = path_resolver.PathTemplateStrings.VARIABLE_FILE
+    _access_err_msg = "Can not access variable data"
+    _corrupted_err_msg = "Corrupted variable data"
+    _schema = json_schemas.VARIABLE_FILE
+
+    def _filter_data(self, data: typing.Any) -> typing.Any:
+        cleaned_data = []
+        for var_id, var_data in data["variables"].items():
+            new_variable_data = {"identifier": var_id}
+            new_variable_data["iri"] = var_data["IRI"]
+            new_variable_data["label"] = var_data["label"]
+            new_variable_data["doc"] = var_data["doc"]
+            new_variable_data["indices"] = var_data["index_structures"]
+
+            cleaned_data.append(new_variable_data)
+
+        return cleaned_data
