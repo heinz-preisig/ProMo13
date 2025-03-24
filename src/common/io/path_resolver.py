@@ -16,6 +16,7 @@ class PathTemplateStrings(StrEnum):
     ONTOLOGY_INDEX_FILE = ONTOLOGY_REPOSITORY_DIR + ".repository_index.json"
     MODEL_INDEX_FILE = MODEL_LIBRARY_DIR + ".repository_index.json"
     INSTANTIATION_INDEX_FILE = INSTANTIATION_LIBRARY_DIR + ".repository_index.json"
+    INDEX_FILE = ONTOLOGY_DIR + "variables_v8.json"
 
 
 def resolve(context: IOContext, template_string: PathTemplateStrings) -> Path:

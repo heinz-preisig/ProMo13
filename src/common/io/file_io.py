@@ -16,6 +16,7 @@ class FileReader(typing.Protocol):
     def get_index_options(
         self, context_member: IOContextMember, context: IOContext
     ) -> list[str]: ...
+    def read_index_file(self, context: IOContext) -> typing.Any: ...
 
 
 @attrs.define
@@ -58,4 +59,5 @@ class FileIO:
         return options
 
     def get_index_data(self, context: IOContext) -> typing.Any:
-        return None
+        index_data = self._file_reader.read_index_file(context)
+        return index_data

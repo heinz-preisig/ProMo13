@@ -82,3 +82,21 @@ class JSONFileReader:
         except jsonschema.ValidationError as err:
             logger.error(err)
             raise exceptions.DataIOError(error_msg) from err
+
+    def read_index_file(self, context: IOContext) -> typing.Any:
+        file_path = path_resolver.resolve(
+            context, path_resolver.PathTemplateStrings.INDEX_FILE
+        )
+        error_msg = "Can not access index file"
+        content = self._get_file_content(file_path, error_msg)
+
+        data = self._load_json(content, error_msg)
+
+        cleaned_data = []
+        for idx_id, idx_data in data["indices"].items():
+            new_index_data = {"identifier": idx_id}
+            new_index_data["iri"] = idx_data["IRI"]
+            new_index_data["label"] = idx_data["label"]
+            cleaned_data.append(new_index_data)
+
+        return cleaned_data
