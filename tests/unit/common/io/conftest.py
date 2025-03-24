@@ -29,7 +29,7 @@ class FakeDataIO:
     def set_index_data(
         self, data: typing.Any, ontology_name: str = DEFAULT_ONTOLOGY_NAME
     ) -> None:
-        self._index_data[DEFAULT_ONTOLOGY_NAME] = data
+        self._index_data[ontology_name] = data
 
     def get_index_data(self, context: IOContext) -> typing.Any:
         is_ontology_name_set = bool(context.ontology_name)
@@ -41,7 +41,7 @@ class FakeDataIO:
     def set_variable_data(
         self, data: typing.Any, ontology_name: str = DEFAULT_ONTOLOGY_NAME
     ) -> None:
-        self._variable_data[DEFAULT_ONTOLOGY_NAME] = data
+        self._variable_data[ontology_name] = data
 
     def get_variable_data(self, context: IOContext) -> typing.Any:
         is_ontology_name_set = bool(context.ontology_name)
