@@ -1,11 +1,11 @@
 import typing
 
 import pytest
-from conftest import FakeDataIO
-from pytest_cases import case, fixture, parametrize, parametrize_with_cases
+from conftest import FakeDataIO, build_index_map, build_variable_map
+from pytest_cases import case, parametrize, parametrize_with_cases
 
-from src.common.corelib import Index, IndexMap, Variable, VariableMap
-from src.common.io import IOBuilderError, IOContext, IOContextMember, IOManager
+from src.common.corelib import VariableMap
+from src.common.io import IOBuilderError, IOContextMember, IOManager
 
 INDEX_DATA_1 = [
     {"identifier": "I_1", "label": "node"},
@@ -35,33 +35,6 @@ BAD_DATA_WRONG_TYPE = [
     {"identifier": "V_2", "label": "x", "doc": "position", "indices": ["I_3"]},
     {"identifier": 3, "label": "n", "doc": "moles", "indices": ["I_1", "I_2"]},
 ]
-
-IDENTIFIER_KEY = "identifier"
-INDICES_KEY = "indices"
-
-
-def build_index_map(map_data: typing.Any) -> IndexMap:
-    indices = {}
-    for idx_data in map_data:
-        new_index = Index(**idx_data)
-
-        identifier = idx_data[IDENTIFIER_KEY]
-        indices[identifier] = new_index
-
-    return indices
-
-
-def build_variable_map(map_data: typing.Any, indices: IndexMap) -> VariableMap:
-    variables = {}
-    for var_data in map_data:
-        instanced_indices = [indices[idx] for idx in var_data[INDICES_KEY]]
-        instanced_var_data = var_data | {INDICES_KEY: instanced_indices}
-        new_var = Variable(**instanced_var_data)
-
-        identifier = var_data[IDENTIFIER_KEY]
-        variables[identifier] = new_var
-
-    return variables
 
 
 class CasesVariableBuilding:

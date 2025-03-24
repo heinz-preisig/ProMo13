@@ -2,6 +2,7 @@ import typing
 
 import pytest
 
+from src.common.corelib import Index, IndexMap, Variable, VariableMap
 from src.common.io import IOContext, IOContextMember, IOManager
 
 DEFAULT_ONTOLOGY_NAME = "default"
@@ -59,3 +60,31 @@ def fake_data_io() -> FakeDataIO:
 @pytest.fixture
 def fake_io_manager(fake_data_io: FakeDataIO) -> IOManager:
     return IOManager(fake_data_io)
+
+
+IDENTIFIER_KEY = "identifier"
+INDICES_KEY = "indices"
+
+
+def build_index_map(map_data: typing.Any) -> IndexMap:
+    indices = {}
+    for idx_data in map_data:
+        new_index = Index(**idx_data)
+
+        identifier = idx_data[IDENTIFIER_KEY]
+        indices[identifier] = new_index
+
+    return indices
+
+
+def build_variable_map(map_data: typing.Any, indices: IndexMap) -> VariableMap:
+    variables = {}
+    for var_data in map_data:
+        instanced_indices = [indices[idx] for idx in var_data[INDICES_KEY]]
+        instanced_var_data = var_data | {INDICES_KEY: instanced_indices}
+        new_var = Variable(**instanced_var_data)
+
+        identifier = var_data[IDENTIFIER_KEY]
+        variables[identifier] = new_var
+
+    return variables
