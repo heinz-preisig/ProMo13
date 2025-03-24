@@ -1,4 +1,4 @@
-from . import context
+from src.common.io import context
 
 
 class IOContextError(Exception):

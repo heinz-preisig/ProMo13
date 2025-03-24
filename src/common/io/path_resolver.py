@@ -2,8 +2,7 @@ from enum import StrEnum
 from pathlib import Path
 from string import Template
 
-from . import exceptions
-from .context import IOContext
+from src.common.io import context, exceptions
 
 
 class PathTemplateStrings(StrEnum):
@@ -21,16 +20,18 @@ class PathTemplateStrings(StrEnum):
     EQUATION_FILE = ONTOLOGY_DIR + "variables_v8.json"
 
 
-def resolve(context: IOContext, template_string: PathTemplateStrings) -> Path:
+def resolve(
+    io_context: context.IOContext, template_string: PathTemplateStrings
+) -> Path:
     template = Template(template_string)
     path_parameters = {
-        "repository_location": context.repository_location,
-        "ontology_name": context.ontology_name,
-        "model_name": context.model_name,
-        "instantiation_name": context.instantiation_name,
+        "repository_location": io_context.repository_location,
+        "ontology_name": io_context.ontology_name,
+        "model_name": io_context.model_name,
+        "instantiation_name": io_context.instantiation_name,
     }
 
-    _validate_parameters_for_template(template, path_parameters, context)
+    _validate_parameters_for_template(template, path_parameters, io_context)
 
     path_string = template.substitute(path_parameters)
 
@@ -38,10 +39,10 @@ def resolve(context: IOContext, template_string: PathTemplateStrings) -> Path:
 
 
 def _validate_parameters_for_template(
-    template: Template, path_parameters: dict[str, str], context: IOContext
+    template: Template, path_parameters: dict[str, str], io_context: context.IOContext
 ) -> None:
     template_identifiers = template.get_identifiers()
     for key, value in path_parameters.items():
         if key in template_identifiers and not value:
             error_msg = "Insufficient data in IOContext"
-            raise exceptions.IOContextError(error_msg, context)
+            raise exceptions.IOContextError(error_msg, io_context)

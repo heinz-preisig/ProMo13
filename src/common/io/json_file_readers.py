@@ -1,25 +1,24 @@
+import abc
 import json
 import logging
 import typing
-from abc import ABC, abstractmethod
 from pathlib import Path
 
 import jsonschema
 
-from . import exceptions, json_schemas, path_resolver
-from .context import IOContext
+from src.common.io import context, exceptions, json_schemas, path_resolver
 
 logger = logging.getLogger(__name__)
 
 
-class BaseJsonFileReader(ABC):
+class BaseJsonFileReader(abc.ABC):
     _template_string: path_resolver.PathTemplateStrings
     _access_err_msg: str
     _corrupted_err_msg: str
     _schema: dict[str, typing.Any]
 
-    def __init__(self, context: IOContext) -> None:
-        self._context = context
+    def __init__(self, io_context: context.IOContext) -> None:
+        self._io_context = io_context
 
     def read(self) -> typing.Any:
         content = self._get_file_content()
@@ -30,7 +29,7 @@ class BaseJsonFileReader(ABC):
         return filtered_data
 
     def _get_file_content(self) -> str:
-        file_path = path_resolver.resolve(self._context, self._template_string)
+        file_path = path_resolver.resolve(self._io_context, self._template_string)
 
         return self._read_file(file_path)
 
@@ -60,7 +59,7 @@ class BaseJsonFileReader(ABC):
             logger.error(err)
             raise exceptions.DataIOError(self._corrupted_err_msg) from err
 
-    @abstractmethod
+    @abc.abstractmethod
     def _filter_data(self, data: typing.Any) -> typing.Any:
         pass
 

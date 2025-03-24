@@ -1,13 +1,11 @@
-import functools
+import abc
 import logging
 import typing
-from abc import ABC, abstractmethod
 
 import cattrs
 
-from src.common.corelib import Equation, Index, IndexMap, Variable, VariableMap
-
-from . import exceptions
+from src.common import corelib
+from src.common.io import exceptions
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +32,7 @@ def validate_type(val: typing.Any, target_type: typing.Any) -> typing.Any:
     return val
 
 
-class BaseMapBuilder(ABC, typing.Generic[T]):
+class BaseMapBuilder(abc.ABC, typing.Generic[T]):
     def __init__(self) -> None:
         self._corrupted_error_msg = "Corrupted file"
         self._item_type: type[T]
@@ -48,7 +46,7 @@ class BaseMapBuilder(ABC, typing.Generic[T]):
     def _clean_extra_hooks(self) -> None:
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def _pre_process_data(self, data: typing.Any) -> typing.Any:
         pass
 
@@ -78,31 +76,31 @@ class BaseMapBuilder(ABC, typing.Generic[T]):
             raise exceptions.IOBuilderError(self._corrupted_error_msg) from err
 
 
-class IndexMapBuilder(BaseMapBuilder[Index]):
+class IndexMapBuilder(BaseMapBuilder[corelib.Index]):
     def __init__(self) -> None:
         super().__init__()
 
         self._corrupted_error_msg = "Corrupted Index file"
-        self._item_type = Index
+        self._item_type = corelib.Index
 
     def _pre_process_data(self, data: typing.Any) -> typing.Any:
         return data
 
 
-class VariableMapBuilder(BaseMapBuilder[Variable]):
-    def __init__(self, indices: IndexMap):
+class VariableMapBuilder(BaseMapBuilder[corelib.Variable]):
+    def __init__(self, indices: corelib.IndexMap):
         self._indices = indices
 
         super().__init__()
 
         self._corrupted_error_msg = "Corrupted Variable file"
-        self._item_type = Variable
+        self._item_type = corelib.Variable
 
     def _register_extra_hooks(self) -> None:
-        self._converter.register_structure_hook(Index, validate_type)
+        self._converter.register_structure_hook(corelib.Index, validate_type)
 
     def _clean_extra_hooks(self) -> None:
-        self._converter.register_structure_hook(Index, cattrs.structure)
+        self._converter.register_structure_hook(corelib.Index, cattrs.structure)
 
     def _pre_process_data(self, data: typing.Any) -> typing.Any:
         INDICES_KEY = "indices"
@@ -110,20 +108,20 @@ class VariableMapBuilder(BaseMapBuilder[Variable]):
         return data | {INDICES_KEY: instanced_indices}
 
 
-class EquationMapBuilder(BaseMapBuilder[Equation]):
-    def __init__(self, variables: VariableMap):
+class EquationMapBuilder(BaseMapBuilder[corelib.Equation]):
+    def __init__(self, variables: corelib.VariableMap):
         self._variables = variables
 
         super().__init__()
 
         self._corrupted_error_msg = "Corrupted Equation data"
-        self._item_type = Equation
+        self._item_type = corelib.Equation
 
     def _register_extra_hooks(self) -> None:
-        self._converter.register_structure_hook(Variable, validate_type)
+        self._converter.register_structure_hook(corelib.Variable, validate_type)
 
     def _clean_extra_hooks(self) -> None:
-        self._converter.register_structure_hook(Variable, cattrs.structure)
+        self._converter.register_structure_hook(corelib.Variable, cattrs.structure)
 
     def _pre_process_data(self, data: typing.Any) -> typing.Any:
         VARIABLES_KEY = "variables"
