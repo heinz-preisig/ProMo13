@@ -37,10 +37,13 @@ class CasesIndexBuilding:
         self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
     ) -> tuple[IOManager, IndexMap]:
         map_data = GOOD_DATA1
+        ontology_name = "ontologyOK"
 
-        fake_data_io.set_index_data(map_data)
+        fake_data_io.set_index_data(map_data, ontology_name)
 
         expected_index_map = build_index_map(map_data)
+
+        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
         return fake_io_manager, expected_index_map
 
@@ -49,15 +52,21 @@ class CasesIndexBuilding:
     ) -> tuple[IOManager, IndexMap]:
         initial_index_data = GOOD_DATA1
         final_index_data = GOOD_DATA2
-        ontology_name = "ontologyOK"
+        ontology_name1 = "VALID_ONTOLOGY"
+        ontology_name2 = "ontologyOK"
 
-        fake_data_io.set_index_data(initial_index_data)
-        fake_data_io.set_index_data(final_index_data, ontology_name)
+        fake_data_io.set_index_data(initial_index_data, ontology_name1)
+        fake_data_io.set_index_data(final_index_data, ontology_name2)
 
         expected_index_map = build_index_map(final_index_data)
 
+        fake_io_manager.set_context_member_name(
+            IOContextMember.ONTOLOGY, ontology_name1
+        )
         fake_io_manager.get_current_index_map()
-        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
+        fake_io_manager.set_context_member_name(
+            IOContextMember.ONTOLOGY, ontology_name2
+        )
 
         return fake_io_manager, expected_index_map
 
@@ -69,7 +78,11 @@ class CasesIndexBuilding:
     def invalid_data(
         self, fake_io_manager: IOManager, fake_data_io: FakeDataIO, data: typing.Any
     ) -> IOManager:
-        fake_data_io.set_index_data(data)
+        ontology_name = "ontologyOK"
+
+        fake_data_io.set_index_data(data, ontology_name)
+
+        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
         return fake_io_manager
 

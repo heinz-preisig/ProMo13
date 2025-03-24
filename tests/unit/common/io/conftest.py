@@ -5,13 +5,11 @@ import pytest
 from src.common.corelib import Index, IndexMap, Variable, VariableMap
 from src.common.io import IOContext, IOContextMember, IOManager
 
-DEFAULT_ONTOLOGY_NAME = "default"
-
 
 class FakeDataIO:
     def __init__(self) -> None:
-        self._index_data: dict[str, typing.Any] = {DEFAULT_ONTOLOGY_NAME: []}
-        self._variable_data: dict[str, typing.Any] = {DEFAULT_ONTOLOGY_NAME: []}
+        self._index_data: dict[str, typing.Any] = {}
+        self._variable_data: dict[str, typing.Any] = {}
 
     def validate_repository_location(self, location: str) -> None:
         pass
@@ -27,29 +25,17 @@ class FakeDataIO:
             case IOContextMember.INSTANTIATION:
                 return ["VALID_INSTANTIATION", "instantiationOK"]
 
-    def set_index_data(
-        self, data: typing.Any, ontology_name: str = DEFAULT_ONTOLOGY_NAME
-    ) -> None:
+    def set_index_data(self, data: typing.Any, ontology_name: str) -> None:
         self._index_data[ontology_name] = data
 
     def get_index_data(self, context: IOContext) -> typing.Any:
-        is_ontology_name_set = bool(context.ontology_name)
-        if is_ontology_name_set:
-            return self._index_data[context.ontology_name]
+        return self._index_data[context.ontology_name]
 
-        return self._index_data[DEFAULT_ONTOLOGY_NAME]
-
-    def set_variable_data(
-        self, data: typing.Any, ontology_name: str = DEFAULT_ONTOLOGY_NAME
-    ) -> None:
+    def set_variable_data(self, data: typing.Any, ontology_name: str) -> None:
         self._variable_data[ontology_name] = data
 
     def get_variable_data(self, context: IOContext) -> typing.Any:
-        is_ontology_name_set = bool(context.ontology_name)
-        if is_ontology_name_set:
-            return self._variable_data[context.ontology_name]
-
-        return self._variable_data[DEFAULT_ONTOLOGY_NAME]
+        return self._variable_data[context.ontology_name]
 
 
 @pytest.fixture

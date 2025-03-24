@@ -44,9 +44,13 @@ class CasesVariableBuilding:
     ) -> tuple[IOManager, VariableMap]:
         index_map_data = INDEX_DATA
         variable_map_data = GOOD_DATA1
+        ontology_name = "ontologyOK"
 
-        fake_data_io.set_index_data(index_map_data)
-        fake_data_io.set_variable_data(variable_map_data)
+        self._setup_fake_data(
+            fake_data_io, index_map_data, variable_map_data, ontology_name
+        )
+
+        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
         indices = build_index_map(index_map_data)
         expected_variables = build_variable_map(variable_map_data, indices)
@@ -59,18 +63,26 @@ class CasesVariableBuilding:
         index_map_data = INDEX_DATA
         initial_variable_map_data = GOOD_DATA1
         final_variable_map_data = GOOD_DATA2
-        ontology_name = "ontologyOK"
+        ontology_name1 = "ontologyOK"
+        ontology_name2 = "VALID_ONTOLOGY"
 
-        fake_data_io.set_index_data(index_map_data)
-        fake_data_io.set_index_data(index_map_data, ontology_name)
-        fake_data_io.set_variable_data(initial_variable_map_data)
-        fake_data_io.set_variable_data(final_variable_map_data, ontology_name)
+        self._setup_fake_data(
+            fake_data_io, index_map_data, initial_variable_map_data, ontology_name1
+        )
+        self._setup_fake_data(
+            fake_data_io, index_map_data, final_variable_map_data, ontology_name2
+        )
 
         indices = build_index_map(index_map_data)
         expected_variables = build_variable_map(final_variable_map_data, indices)
 
+        fake_io_manager.set_context_member_name(
+            IOContextMember.ONTOLOGY, ontology_name1
+        )
         fake_io_manager.get_current_variable_map()
-        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
+        fake_io_manager.set_context_member_name(
+            IOContextMember.ONTOLOGY, ontology_name2
+        )
 
         return fake_io_manager, expected_variables
 
@@ -82,10 +94,27 @@ class CasesVariableBuilding:
     def invalid_data(
         self, fake_io_manager: IOManager, fake_data_io: FakeDataIO, data: typing.Any
     ) -> IOManager:
-        fake_data_io.set_index_data(INDEX_DATA)
-        fake_data_io.set_variable_data(data)
+        index_map_data = INDEX_DATA
+        variable_map_data = data
+        ontology_name = "ontologyOK"
+
+        self._setup_fake_data(
+            fake_data_io, index_map_data, variable_map_data, ontology_name
+        )
+
+        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
         return fake_io_manager
+
+    def _setup_fake_data(
+        self,
+        fake: FakeDataIO,
+        index_map_data: typing.Any,
+        variable_map_data: typing.Any,
+        ontology_name: str,
+    ) -> None:
+        fake.set_index_data(index_map_data, ontology_name)
+        fake.set_variable_data(variable_map_data, ontology_name)
 
 
 class TestVariableBuilding:
