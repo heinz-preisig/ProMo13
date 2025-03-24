@@ -12,25 +12,25 @@ logger = logging.getLogger(__name__)
 
 
 class JSONFileReader:
-    def get_index_options(
+    def get_repository_index_options(
         self, context_member: IOContextMember, context: IOContext
     ) -> list[str]:
-        content = self._get_index_file_content(context_member, context)
-        options = self._process_index_file_content(context_member, content)
+        content = self._get_repository_index_file_content(context_member, context)
+        options = self._process_repository_index_file_content(context_member, content)
 
         return options
 
-    def _get_index_file_content(
+    def _get_repository_index_file_content(
         self, context_member: IOContextMember, context: IOContext
     ) -> str:
-        index_path = self._get_path_to_index_file(context_member, context)
+        path = self._get_path_to_repository_index_file(context_member, context)
 
-        access_error_msg = f"Can not access {context_member} index"
-        file_content = self._get_file_content(index_path, access_error_msg)
+        access_error_msg = f"Can not access {context_member} repository index"
+        file_content = self._get_file_content(path, access_error_msg)
 
         return file_content
 
-    def _get_path_to_index_file(
+    def _get_path_to_repository_index_file(
         self, context_member: IOContextMember, context: IOContext
     ) -> Path:
         match context_member:
@@ -41,12 +41,12 @@ class JSONFileReader:
             case IOContextMember.INSTANTIATION:
                 template = path_resolver.PathTemplateStrings.INSTANTIATION_INDEX_FILE
 
-        index_path = path_resolver.resolve(context, template)
-        return index_path
+        path = path_resolver.resolve(context, template)
+        return path
 
-    def _get_file_content(self, index_path: Path, error_msg: str) -> str:
+    def _get_file_content(self, file_path: Path, error_msg: str) -> str:
         try:
-            with index_path.open("r") as file:
+            with file_path.open("r") as file:
                 file_content = file.read()
         except (FileNotFoundError, PermissionError) as err:
             logger.error(err)
@@ -54,20 +54,20 @@ class JSONFileReader:
 
         return file_content
 
-    def _process_index_file_content(
+    def _process_repository_index_file_content(
         self, context_member: IOContextMember, content: str
     ) -> list[str]:
-        corrupted_error_msg = f"Corrupted {context_member} index"
+        corrupted_error_msg = f"Corrupted {context_member} repository index"
         data: list[str] = self._load_json(content, corrupted_error_msg)
 
-        schema = json_schemas.INDEX_FILE
+        schema = json_schemas.REPOSITORY_INDEX_FILE
         self._validate_json(data, schema, corrupted_error_msg)
 
         return data
 
-    def _load_json(self, file_content: str, error_msg: str) -> typing.Any:
+    def _load_json(self, json_str: str, error_msg: str) -> typing.Any:
         try:
-            data = json.loads(file_content)
+            data = json.loads(json_str)
         except json.JSONDecodeError as err:
             logger.error(err)
             raise exceptions.DataIOError(error_msg) from err

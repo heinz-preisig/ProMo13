@@ -120,7 +120,7 @@ class CasesIndexValidation:
         manager = set_io_manager_context(
             valid_io_manager, member, folder_name, tmp_test_files_path
         )
-        error_msg = "Can not access {member} index"
+        error_msg = "Can not access {member} repository index"
 
         return manager, member, error_msg
 
@@ -133,7 +133,7 @@ class CasesIndexValidation:
         folder_prefix: str,
         folder_id: str,
     ) -> tuple[IOManager, IOContextMember, str]:
-        error_msg = "Corrupted {member} index"
+        error_msg = "Corrupted {member} repository index"
         folder_name = f"{folder_prefix}{folder_id}"
         manager = set_io_manager_context(
             valid_io_manager, member, folder_name, tmp_test_files_path

@@ -13,7 +13,7 @@ logger = logging.Logger(__name__)
 
 
 class FileReader(typing.Protocol):
-    def get_index_options(
+    def get_repository_index_options(
         self, context_member: IOContextMember, context: IOContext
     ) -> list[str]: ...
     def read_index_file(self, context: IOContext) -> typing.Any: ...
@@ -55,7 +55,9 @@ class FileIO:
     def get_context_member_options(
         self, context_member: IOContextMember, context: IOContext
     ) -> list[str]:
-        options = self._file_reader.get_index_options(context_member, context)
+        options = self._file_reader.get_repository_index_options(
+            context_member, context
+        )
         return options
 
     def get_index_data(self, context: IOContext) -> typing.Any:
