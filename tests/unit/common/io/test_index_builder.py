@@ -93,5 +93,7 @@ class TestIndexBuilding:
 
     @parametrize_with_cases("manager", cases=CasesIndexBuilding, prefix="invalid")
     def test_exception_on_invalid_data(self, manager: IOManager) -> None:
-        with pytest.raises(IOBuilderError):
+        error_msg = "Corrupted Index file"
+
+        with pytest.raises(IOBuilderError, match=error_msg):
             manager.get_current_index_map()

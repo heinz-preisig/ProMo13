@@ -42,6 +42,6 @@ class IOBuilder:
                 new_index_map[new_index.identifier] = new_index
         except cattrs.BaseValidationError as err:
             logger.error(err)
-            raise exceptions.IOBuilderError("") from err
+            raise exceptions.IOBuilderError("Corrupted Index file") from err
 
         return new_index_map
