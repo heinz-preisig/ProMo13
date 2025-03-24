@@ -1,7 +1,7 @@
 import typing
 
 import pytest
-from conftest import FakeDataIO
+from conftest import FakeDataIO, build_index_map
 from pytest_cases import case, fixture, parametrize, parametrize_with_cases
 
 from src.common.corelib import Index, IndexMap
@@ -30,16 +30,13 @@ class CasesIndexBuilding:
     def valid_data_ok(
         self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
     ) -> tuple[IOManager, IndexMap]:
-        data = GOOD_DATA
-        fake_data_io.set_index_data(data)
+        map_data = GOOD_DATA
 
-        expected_index__map = {}
-        for idx_data in data:
-            identifier = idx_data["identifier"]
-            new_index = Index(**idx_data)  # type: ignore
-            expected_index__map[identifier] = new_index
+        fake_data_io.set_index_data(map_data)
 
-        return fake_io_manager, expected_index__map
+        expected_index_map = build_index_map(map_data)
+
+        return fake_io_manager, expected_index_map
 
     @parametrize(
         data=(BAD_DATA_MISSING_REQUIRED, BAD_DATA_WRONG_TYPE),
