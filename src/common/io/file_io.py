@@ -62,4 +62,5 @@ class FileIO:
         return variable_data
 
     def get_equation_data(self, context: IOContext) -> typing.Any:
-        pass
+        equation_data = self._file_reader.read_equation_file(context)
+        return equation_data

@@ -51,3 +51,45 @@ VARIABLE_FILE = {
     "required": ["variables"],
     "additionalProperties": True,
 }
+EQUATION_FILE = {
+    "type": "object",
+    "properties": {
+        "variables": {
+            "type": "object",
+            "patternProperties": {
+                "^V_\\d+$": {
+                    "type": "object",
+                    "properties": {
+                        "equations": {
+                            "type": "object",
+                            "patternProperties": {
+                                "^E_\\d+$": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rhs": {
+                                            "type": "object",
+                                            "properties": {
+                                                "global_ID": {"type": "string"},
+                                                "latex": {"type": "string"},
+                                            },
+                                            "required": ["global_ID"],
+                                            "additionalProperties": True,
+                                        }
+                                    },
+                                    "additionalProperties": True,
+                                }
+                            },
+                            "additionalProperties": False,
+                            "minProperties": 0,
+                        }
+                    },
+                    "required": ["equations"],
+                    "additionalProperties": True,
+                }
+            },
+            "additionalProperties": False,
+        }
+    },
+    "required": ["variables"],
+    "additionalProperties": True,
+}

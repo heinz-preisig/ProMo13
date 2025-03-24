@@ -34,3 +34,9 @@ class JSONFileReader:
         data = reader.read()
 
         return data
+
+    def read_equation_file(self, context: IOContext) -> typing.Any:
+        reader = json_file_readers.EquationFileReader(context)
+        data = reader.read()
+
+        return data

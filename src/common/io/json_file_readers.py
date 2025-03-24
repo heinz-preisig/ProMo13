@@ -130,3 +130,36 @@ class VariableFileReader(BaseJsonFileReader):
             cleaned_data.append(new_variable_data)
 
         return cleaned_data
+
+
+class EquationFileReader(BaseJsonFileReader):
+    _template_string = path_resolver.PathTemplateStrings.EQUATION_FILE
+    _access_err_msg = "Can not access equation data"
+    _corrupted_err_msg = "Corrupted equation data"
+    _schema = json_schemas.EQUATION_FILE
+
+    def _filter_data(self, data: typing.Any) -> typing.Any:
+        cleaned_data = []
+        for var_id, var_data in data["variables"].items():
+            for eq_id, eq_data in var_data["equations"].items():
+                new_equation_data = {"identifier": eq_id}
+                rhs_variables = self._parse_variables_from_rhs(
+                    eq_data["rhs"]["global_ID"]
+                )
+
+                new_equation_data["variables"] = [var_id] + rhs_variables
+
+                cleaned_data.append(new_equation_data)
+
+        return cleaned_data
+
+    def _parse_variables_from_rhs(self, rhs: str) -> list[str]:
+        variables = set()
+        for term in rhs.split():
+            if "V_" in term:
+                variables.add(term)
+
+        return sorted(list(variables), key=self._sorting_key)
+
+    def _sorting_key(self, element: str) -> int:
+        return int(element.split("_")[1])
