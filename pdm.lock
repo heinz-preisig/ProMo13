@@ -5,7 +5,7 @@
 groups = ["default", "docs", "lint", "pytest", "transitional"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:0b0e9b00e2ff24b9547058d40f92801392a4164af1953ec1f982f6501a0357a0"
+content_hash = "sha256:b898b25be821c63b5fe723fccec01a485f91faa63e442d1a874c61fe13fa82d0"
 
 [[metadata.targets]]
 requires_python = ">=3.13,<3.14"
@@ -33,6 +33,22 @@ dependencies = [
 files = [
     {file = "babel-2.17.0-py3-none-any.whl", hash = "sha256:4d0b53093fdfb4b21c92b5213dba5a1b23885afa8383709427046b21c366e5f2"},
     {file = "babel-2.17.0.tar.gz", hash = "sha256:0c54cffb19f690cdcc52a3b50bcbf71e07a808d1c80d549f2459b9d2cf0afb9d"},
+]
+
+[[package]]
+name = "cattrs"
+version = "24.1.2"
+requires_python = ">=3.8"
+summary = "Composable complex class support for attrs and dataclasses."
+groups = ["default"]
+dependencies = [
+    "attrs>=23.1.0",
+    "exceptiongroup>=1.1.1; python_version < \"3.11\"",
+    "typing-extensions!=4.6.3,>=4.1.0; python_version < \"3.11\"",
+]
+files = [
+    {file = "cattrs-24.1.2-py3-none-any.whl", hash = "sha256:67c7495b760168d931a10233f979b28dc04daf853b30752246f4f8471c6d68d0"},
+    {file = "cattrs-24.1.2.tar.gz", hash = "sha256:8028cfe1ff5382df59dd36474a86e02d817b06eaf8af84555441bac915d2ef85"},
 ]
 
 [[package]]
