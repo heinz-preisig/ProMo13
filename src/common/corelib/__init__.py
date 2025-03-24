@@ -7,5 +7,6 @@ structures and interfaces used throughout the application.
 """
 
 from .index import Index, IndexMap
+from .variable import Variable, VariableMap
 
-__all__ = ["Index", "IndexMap"]
+__all__ = ["Index", "IndexMap", "Variable", "VariableMap"]
