@@ -8,10 +8,10 @@ from .protocols import DataIO
 
 
 class IOManager:
-    def __init__(self, data_io: DataIO = FileIO()) -> None:
-        self._data_io = data_io
+    def __init__(self, data_io: DataIO | None = None) -> None:
+        self._data_io = data_io or FileIO()
         self._context_handler = IOContextHandler()
-        self._builder = IOBuildManager(data_io)
+        self._builder = IOBuildManager(self._data_io)
 
     def get_io_context(self) -> IOContext:
         return self._context_handler.get_io_context()
