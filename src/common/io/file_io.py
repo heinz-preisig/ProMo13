@@ -5,7 +5,7 @@ from pathlib import Path
 
 import attrs
 
-from . import json_file_reader, path_resolver
+from . import json_file_reader_manager, path_resolver
 from .context import IOContext, IOContextMember
 from .exceptions import DataIOError
 
@@ -22,7 +22,7 @@ class FileReader(typing.Protocol):
 @attrs.define
 class FileIO:
     _file_reader: FileReader = attrs.field(
-        init=False, factory=json_file_reader.JSONFileReader
+        init=False, factory=json_file_reader_manager.JSONFileReader
     )
 
     def validate_repository_location(self, location: str) -> None:
