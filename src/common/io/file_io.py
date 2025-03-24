@@ -5,23 +5,16 @@ from pathlib import Path
 
 import attrs
 
-from . import json_file_reader_manager, path_resolver
+from . import json_file_reader_manager, path_resolver, protocols
 from .context import IOContext, IOContextMember
 from .exceptions import DataIOError
 
 logger = logging.Logger(__name__)
 
 
-class FileReader(typing.Protocol):
-    def get_repository_index_options(
-        self, context_member: IOContextMember, context: IOContext
-    ) -> list[str]: ...
-    def read_index_file(self, context: IOContext) -> typing.Any: ...
-
-
 @attrs.define
 class FileIO:
-    _file_reader: FileReader = attrs.field(
+    _file_reader: protocols.FileReader = attrs.field(
         init=False, factory=json_file_reader_manager.JSONFileReader
     )
 
