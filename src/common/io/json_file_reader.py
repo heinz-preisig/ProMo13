@@ -87,10 +87,14 @@ class JSONFileReader:
         file_path = path_resolver.resolve(
             context, path_resolver.PathTemplateStrings.INDEX_FILE
         )
-        error_msg = "Can not access index file"
+        error_msg = "Can not access index data"
         content = self._get_file_content(file_path, error_msg)
 
+        error_msg = "Corrupted index data"
         data = self._load_json(content, error_msg)
+
+        schema = json_schemas.INDEX_FILE
+        self._validate_json(data, schema, error_msg)
 
         cleaned_data = []
         for idx_id, idx_data in data["indices"].items():
