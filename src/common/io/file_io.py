@@ -63,3 +63,6 @@ class FileIO:
     def get_index_data(self, context: IOContext) -> typing.Any:
         index_data = self._file_reader.read_index_file(context)
         return index_data
+
+    def get_variable_data(self, context: IOContext) -> typing.Any:
+        pass

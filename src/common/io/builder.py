@@ -3,7 +3,7 @@ import typing
 
 import cattrs
 
-from src.common.corelib import Index, IndexMap
+from src.common.corelib import Index, IndexMap, Variable, VariableMap
 
 from . import exceptions
 
@@ -20,6 +20,7 @@ def validate_type(val: typing.Any, type: typing.Any) -> typing.Any:
 class IOBuilder:
     def __init__(self) -> None:
         self._strict_converter = self._generate_strict_converter()
+        self._indices: IndexMap = {}
 
     def _generate_strict_converter(self) -> cattrs.Converter:
         # Necessary to enforce type strictness in cattrs 24.1.2.
@@ -44,4 +45,25 @@ class IOBuilder:
             logger.error(err)
             raise exceptions.IOBuilderError("Corrupted Index file") from err
 
+        self._indices = new_index_map
         return new_index_map
+
+    def build_variable_map(self, data: typing.Any) -> VariableMap:
+        new_variable_map = {}
+
+        self._strict_converter.register_structure_hook(Index, validate_type)
+
+        try:
+            for var_data in data:
+                var_indices_ids = var_data["indices"]
+                var_indices = [self._indices[idx_id] for idx_id in var_indices_ids]
+                new_var_data = var_data | {"indices": var_indices}
+                new_variable = self._strict_converter.structure(new_var_data, Variable)
+                new_variable_map[new_variable.identifier] = new_variable
+        except cattrs.BaseValidationError as err:
+            logger.error(err)
+            raise exceptions.IOBuilderError("Corrupted Variable file") from err
+
+        self._strict_converter.register_structure_hook(Index, cattrs.structure)
+
+        return new_variable_map

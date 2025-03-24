@@ -21,10 +21,16 @@ class FakeDataIO:
                 return ["VALID_INSTANTIATION", "instantiationOK"]
 
     def set_index_data(self, data: typing.Any) -> None:
-        self._data = data
+        self._index_data = data
 
     def get_index_data(self, context: IOContext) -> typing.Any:
-        return self._data
+        return self._index_data
+
+    def set_variable_data(self, data: typing.Any) -> None:
+        self._variable_data = data
+
+    def get_variable_data(self, context: IOContext) -> typing.Any:
+        return self._variable_data
 
 
 @pytest.fixture

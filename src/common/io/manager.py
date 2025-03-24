@@ -7,7 +7,7 @@ from pathlib import Path
 import attrs
 import cattrs
 
-from src.common.corelib import Index, IndexMap
+from src.common.corelib import IndexMap, VariableMap
 
 from . import exceptions
 from .builder import IOBuilder
@@ -22,6 +22,7 @@ class DataIO(typing.Protocol):
         self, context_member: IOContextMember, context: IOContext
     ) -> list[str]: ...
     def get_index_data(self, context: IOContext) -> typing.Any: ...
+    def get_variable_data(self, context: IOContext) -> typing.Any: ...
 
 
 @attrs.define
@@ -61,3 +62,11 @@ class IOManager:
         data = self._data_io.get_index_data(context)
         index_map = self._builder.build_index_map(data)
         return index_map
+
+    def get_current_variable_map(self) -> VariableMap:
+        self.get_current_index_map()
+
+        context = self._context_handler.get_io_context()
+        data = self._data_io.get_variable_data(context)
+        variable_map = self._builder.build_variable_map(data)
+        return variable_map
