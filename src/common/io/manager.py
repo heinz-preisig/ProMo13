@@ -10,6 +10,7 @@ import cattrs
 from src.common.corelib import Index, IndexMap
 
 from . import exceptions
+from .builder import IOBuilder
 from .context import IOContext, IOContextMember
 from .context_handler import IOContextHandler
 from .file_io import FileIO
@@ -25,10 +26,11 @@ class DataIO(typing.Protocol):
 
 @attrs.define
 class IOManager:
-    _data_io: DataIO = attrs.field(factory=FileIO)
+    _data_io: DataIO = attrs.Factory(FileIO)
     _context_handler: IOContextHandler = attrs.field(
         init=False, factory=IOContextHandler
     )
+    _builder: IOBuilder = attrs.field(init=False, factory=IOBuilder)
 
     def get_io_context(self) -> IOContext:
         return self._context_handler.get_io_context()
@@ -57,25 +59,5 @@ class IOManager:
     def get_current_index_map(self) -> IndexMap:
         context = self._context_handler.get_io_context()
         data = self._data_io.get_index_data(context)
-        new_index_map = {}
-
-        c = cattrs.Converter()
-
-        def validate_type(val, type):
-            if not isinstance(val, type):
-                raise ValueError(f"Not a {type}")
-            return val
-
-        c.register_structure_hook(int, validate_type)
-        c.register_structure_hook(float, validate_type)
-        c.register_structure_hook(str, validate_type)
-        c.register_structure_hook(bool, validate_type)
-
-        try:
-            for idx_data in data:
-                new_index = c.structure(idx_data, Index)
-                new_index_map[new_index.identifier] = new_index
-        except cattrs.BaseValidationError as err:
-            raise exceptions.IOBuilderError("") from err
-
-        return new_index_map
+        index_map = self._builder.build_index_map(data)
+        return index_map
