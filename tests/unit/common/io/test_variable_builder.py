@@ -7,20 +7,21 @@ from pytest_cases import case, parametrize, parametrize_with_cases
 from src.common.corelib import VariableMap
 from src.common.io import IOBuilderError, IOContextMember, IOManager
 
-INDEX_DATA_1 = [
+INDEX_DATA = [
     {"identifier": "I_1", "label": "node"},
     {"identifier": "I_2"},
     {"identifier": "I_3", "label": "interface", "iri": "promo:interface"},
 ]
-INDEX_DATA_2 = [
-    {"identifier": "I_1", "label": "node"},
-    {"identifier": "I_2", "label": "random_variable"},
-    {"identifier": "I_3", "label": "interface", "iri": "promo:interface"},
-]
 
-GOOD_DATA: list[dict[str, typing.Any]] = [
+GOOD_DATA1 = [
     {"identifier": "V_1", "label": "t", "doc": "time", "indices": []},
     {"identifier": "V_2", "label": "x", "doc": "position", "indices": ["I_3"]},
+    {"identifier": "V_3", "label": "n", "doc": "moles", "indices": ["I_1", "I_2"]},
+]
+
+GOOD_DATA2 = [
+    {"identifier": "V_1", "label": "t", "doc": "time", "indices": []},
+    {"identifier": "V_2", "label": "not x", "doc": "position", "indices": ["I_3"]},
     {"identifier": "V_3", "label": "n", "doc": "moles", "indices": ["I_1", "I_2"]},
 ]
 
@@ -41,8 +42,8 @@ class CasesVariableBuilding:
     def valid_data_ok(
         self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
     ) -> tuple[IOManager, VariableMap]:
-        index_map_data = INDEX_DATA_1
-        variable_map_data = GOOD_DATA
+        index_map_data = INDEX_DATA
+        variable_map_data = GOOD_DATA1
 
         fake_data_io.set_index_data(index_map_data)
         fake_data_io.set_variable_data(variable_map_data)
@@ -55,18 +56,18 @@ class CasesVariableBuilding:
     def valid_context_change(
         self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
     ) -> tuple[IOManager, VariableMap]:
-        initial_index_map_data = INDEX_DATA_1
-        final_index_map_data = INDEX_DATA_2
-        variable_map_data = GOOD_DATA
+        index_map_data = INDEX_DATA
+        initial_variable_map_data = GOOD_DATA1
+        final_variable_map_data = GOOD_DATA2
         ontology_name = "ontologyOK"
 
-        fake_data_io.set_index_data(initial_index_map_data)
-        fake_data_io.set_index_data(final_index_map_data, ontology_name)
-        fake_data_io.set_variable_data(variable_map_data)
-        fake_data_io.set_variable_data(variable_map_data, ontology_name)
+        fake_data_io.set_index_data(index_map_data)
+        fake_data_io.set_index_data(index_map_data, ontology_name)
+        fake_data_io.set_variable_data(initial_variable_map_data)
+        fake_data_io.set_variable_data(final_variable_map_data, ontology_name)
 
-        indices = build_index_map(final_index_map_data)
-        expected_variables = build_variable_map(variable_map_data, indices)
+        indices = build_index_map(index_map_data)
+        expected_variables = build_variable_map(final_variable_map_data, indices)
 
         fake_io_manager.get_current_variable_map()
         fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
@@ -81,7 +82,7 @@ class CasesVariableBuilding:
     def invalid_data(
         self, fake_io_manager: IOManager, fake_data_io: FakeDataIO, data: typing.Any
     ) -> IOManager:
-        fake_data_io.set_index_data(INDEX_DATA_1)
+        fake_data_io.set_index_data(INDEX_DATA)
         fake_data_io.set_variable_data(data)
 
         return fake_io_manager
