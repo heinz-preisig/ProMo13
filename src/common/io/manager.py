@@ -29,6 +29,7 @@ class IOManager:
     def set_repository_location(self, location: str) -> None:
         self._data_io.validate_repository_location(location)
         self._context_handler.set_repository_location(location)
+        self._builder.reset()
 
     def set_context_member_name(
         self, context_member: IOContextMember, name: str
@@ -40,6 +41,7 @@ class IOManager:
         self._context_handler.set_context_member_name(
             context_member, name, context_member_options
         )
+        self._builder.reset()
 
     def get_context_member_valid_options(
         self, context_member: IOContextMember

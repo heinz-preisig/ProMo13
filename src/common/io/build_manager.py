@@ -11,6 +11,10 @@ class IOBuildManager:
         self._indices: IndexMap = {}
         self._variables: VariableMap = {}
 
+    def reset(self) -> None:
+        self._indices = {}
+        self._variables = {}
+
     def get_indices(self, context: IOContext) -> IndexMap:
         self._build_indices(context)
 

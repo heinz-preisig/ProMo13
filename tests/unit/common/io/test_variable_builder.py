@@ -13,9 +13,9 @@ INDEX_DATA_1 = [
     {"identifier": "I_3", "label": "interface", "iri": "promo:interface"},
 ]
 INDEX_DATA_2 = [
-    {"identifier": "I_4"},
-    {"identifier": "I_5"},
-    {"identifier": "I_6"},
+    {"identifier": "I_1", "label": "node"},
+    {"identifier": "I_2", "label": "random_variable"},
+    {"identifier": "I_3", "label": "interface", "iri": "promo:interface"},
 ]
 
 GOOD_DATA: list[dict[str, typing.Any]] = [
@@ -76,6 +76,27 @@ class CasesVariableBuilding:
 
         indices = build_index_map(index_map_data)
         expected_variables = build_variable_map(variable_map_data, indices)
+
+        return fake_io_manager, expected_variables
+
+    def valid_context_change(
+        self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
+    ) -> tuple[IOManager, VariableMap]:
+        initial_index_map_data = INDEX_DATA_1
+        final_index_map_data = INDEX_DATA_2
+        variable_map_data = GOOD_DATA
+        ontology_name = "ontologyOK"
+
+        fake_data_io.set_index_data(initial_index_map_data)
+        fake_data_io.set_index_data(final_index_map_data, ontology_name)
+        fake_data_io.set_variable_data(variable_map_data)
+        fake_data_io.set_variable_data(variable_map_data, ontology_name)
+
+        indices = build_index_map(final_index_map_data)
+        expected_variables = build_variable_map(variable_map_data, indices)
+
+        fake_io_manager.get_current_variable_map()
+        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
         return fake_io_manager, expected_variables
 
