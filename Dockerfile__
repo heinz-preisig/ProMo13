@@ -1,0 +1,35 @@
+#FROM ubuntu:latest
+ARG PYTHON_BASE=3.13-slim
+# build stage
+FROM python:$PYTHON_BASE AS builder
+
+LABEL authors="Heinz Preisig"
+WORKDIR /project/tasks
+COPY . /project
+
+
+
+RUN apt-get update && apt-get install -y python3-pip
+RUN pip install pdm
+RUN pdm install
+
+# disable update check
+ENV PDM_CHECK_UPDATE=false
+
+
+# copy files
+COPY pyproject.toml pdm.lock README.md /project/
+FROM python:$PYTHON_BASE
+# retrieve packages from build stage
+COPY --from=builder /project/.venv /project/.venv
+ENV PATH="/project/.venv/bin:$PATH"
+# set command/entrypoint, adapt to fit your needs
+COPY tasks /project/tasks
+COPY packages /project/packages
+
+CMD ["python", "/project/tasks/run.py"]
+
+EXPOSE 8000
+
+
+#ENTRYPOINT ["top", "-b"]
