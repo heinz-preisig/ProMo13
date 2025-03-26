@@ -12,7 +12,8 @@ from src.common.corelib import (
     Variable,
     VariableMap,
 )
-from src.common.io import DataIOError, IOContextMember, IOManager
+from src.common.io import IOContextMember, IOManager
+from src.common.io.data_io.exceptions import DataIOError
 
 
 @pytest.fixture

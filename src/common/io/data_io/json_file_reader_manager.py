@@ -1,6 +1,7 @@
 import typing
 
-from src.common.io import context, json_file_readers
+from src.common.io import context
+from src.common.io.data_io import json_file_readers
 
 
 class JSONFileReader:

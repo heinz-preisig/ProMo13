@@ -6,7 +6,8 @@ from pathlib import Path
 
 import jsonschema
 
-from src.common.io import context, exceptions, json_schemas, path_resolver
+from src.common.io import context
+from src.common.io.data_io import exceptions, json_schemas, path_resolver
 
 logger = logging.getLogger(__name__)
 

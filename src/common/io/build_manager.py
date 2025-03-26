@@ -1,10 +1,10 @@
 from src.common import corelib
-from src.common.io import builders, context, protocols
+from src.common.io import builders, context, data_io
 
 
 class IOBuildManager:
-    def __init__(self, data_io: protocols.DataIO):
-        self._data_io = data_io
+    def __init__(self, data_controller: data_io.DataIO):
+        self._data_controller = data_controller
         self._indices: corelib.IndexMap = {}
         self._variables: corelib.VariableMap = {}
         self._equations: corelib.EquationMap = {}
@@ -26,7 +26,7 @@ class IOBuildManager:
 
         builder = builders.IndexMapBuilder()
 
-        data = self._data_io.get_index_data(io_context)
+        data = self._data_controller.get_index_data(io_context)
         self._indices = builder.build(data)
 
     def get_variables(self, io_context: context.IOContext) -> corelib.VariableMap:
@@ -42,7 +42,7 @@ class IOBuildManager:
         self._build_indices(io_context)
         builder = builders.VariableMapBuilder(self._indices)
 
-        data = self._data_io.get_variable_data(io_context)
+        data = self._data_controller.get_variable_data(io_context)
         self._variables = builder.build(data)
 
     def get_equations(self, io_context: context.IOContext) -> corelib.EquationMap:
@@ -57,7 +57,7 @@ class IOBuildManager:
 
         self._build_variables(io_context)
 
-        data = self._data_io.get_equation_data(io_context)
+        data = self._data_controller.get_equation_data(io_context)
 
         builder = builders.EquationMapBuilder(self._variables)
         self._equations = builder.build(data)

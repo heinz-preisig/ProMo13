@@ -5,8 +5,8 @@ import typing
 
 import attrs
 
-from src.common.io import (
-    context,
+from src.common.io import context
+from src.common.io.data_io import (
     exceptions,
     json_file_reader_manager,
     path_resolver,
