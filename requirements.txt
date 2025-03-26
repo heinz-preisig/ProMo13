@@ -6,4 +6,5 @@ PyQt5
 rdflib>=6.2.0
 networkx>=3.1
 ply>=3.11
+typing-extensions
 

@@ -1,0 +1,32 @@
+#FROM ubuntu:latest
+ARG PYTHON_BASE=3.13-slim
+# build stage
+FROM python:$PYTHON_BASE AS builder
+
+RUN apt-get update && apt-get install -y \
+curl
+#CMD /bin/bash
+
+RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
+
+RUN apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+
+WORKDIR /project/tasks
+
+
+LABEL authors="Heinz Preisig"
+#WORKDIR /project/tasks
+COPY . /project
+COPY tasks /project/tasks
+COPY packages /project/packages
+COPY pyproject.toml pdm.lock README.md /project/
+
+RUN curl -sSL https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py | python3 -
+ENV PATH=/root/.local/bin:${PATH}
+
+RUN pdm install -p /project --check -g
+
+CMD ["python3", "/project/tasks/run.py"]
+
+EXPOSE 8000
+
