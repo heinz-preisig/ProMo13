@@ -6,7 +6,7 @@ import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from src.common.io import IOContextError, IOContextMember, IOManager
-from src.common.io.data_io.exceptions import DataIOError
+from src.common.io.storage.exceptions import DataIOError
 
 
 @pytest.fixture

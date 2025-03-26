@@ -1,9 +1,9 @@
 from src.common import corelib
-from src.common.io import builders, context, data_io
+from src.common.io import builders, context, storage
 
 
 class IOBuildManager:
-    def __init__(self, data_controller: data_io.DataIO):
+    def __init__(self, data_controller: storage.DataIO):
         self._data_controller = data_controller
         self._indices: corelib.IndexMap = {}
         self._variables: corelib.VariableMap = {}
