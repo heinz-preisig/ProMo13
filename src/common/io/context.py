@@ -1,8 +1,8 @@
 import dataclasses
-from enum import StrEnum
+import enum
 
 
-class IOContextMember(StrEnum):
+class IOContextMember(enum.StrEnum):
     ONTOLOGY = "ontology"
     MODEL = "model"
     INSTANTIATION = "instantiation"

@@ -5,7 +5,8 @@ import pytest
 from pytest_cases import parametrize, parametrize_with_cases
 
 from src.common.corelib import Index, IndexMap, Variable, VariableMap
-from src.common.io import DataIOError, IOContextMember, IOManager
+from src.common.io import IOContextMember, IOManager
+from src.common.io.data_io.exceptions import DataIOError
 
 
 @pytest.fixture

@@ -1,32 +1,27 @@
-from src.common.corelib import EquationMap, IndexMap, VariableMap
-
-from .build_manager import IOBuildManager
-from .context import IOContext, IOContextMember
-from .context_handler import IOContextHandler
-from .file_io import FileIO
-from .protocols import DataIO
+from src.common import corelib
+from src.common.io import build_manager, context, context_handler, data_io
 
 
 class IOManager:
-    def __init__(self, data_io: DataIO | None = None) -> None:
-        self._data_io = data_io or FileIO()
-        self._context_handler = IOContextHandler()
-        self._builder = IOBuildManager(self._data_io)
+    def __init__(self, data_controller: data_io.DataIO | None = None) -> None:
+        self._data_controller = data_controller or data_io.FileIO()
+        self._context_handler = context_handler.IOContextHandler()
+        self._builder = build_manager.IOBuildManager(self._data_controller)
 
-    def get_io_context(self) -> IOContext:
+    def get_io_context(self) -> context.IOContext:
         return self._context_handler.get_io_context()
 
     def set_repository_location(self, location: str) -> None:
-        self._data_io.validate_repository_location(location)
+        self._data_controller.validate_repository_location(location)
         self._context_handler.set_repository_location(location)
         self._builder.reset()
 
     def set_context_member_name(
-        self, context_member: IOContextMember, name: str
+        self, context_member: context.IOContextMember, name: str
     ) -> None:
-        context = self._context_handler.get_io_context()
-        context_member_options = self._data_io.get_context_member_options(
-            context_member, context
+        io_context = self._context_handler.get_io_context()
+        context_member_options = self._data_controller.get_context_member_options(
+            context_member, io_context
         )
         self._context_handler.set_context_member_name(
             context_member, name, context_member_options
@@ -34,22 +29,24 @@ class IOManager:
         self._builder.reset()
 
     def get_context_member_valid_options(
-        self, context_member: IOContextMember
+        self, context_member: context.IOContextMember
     ) -> list[str]:
-        context = self._context_handler.get_io_context()
-        return self._data_io.get_context_member_options(context_member, context)
+        io_context = self._context_handler.get_io_context()
+        return self._data_controller.get_context_member_options(
+            context_member, io_context
+        )
 
-    def get_current_index_map(self) -> IndexMap:
-        context = self._context_handler.get_io_context()
+    def get_current_index_map(self) -> corelib.IndexMap:
+        io_context = self._context_handler.get_io_context()
 
-        return self._builder.get_indices(context)
+        return self._builder.get_indices(io_context)
 
-    def get_current_variable_map(self) -> VariableMap:
-        context = self._context_handler.get_io_context()
+    def get_current_variable_map(self) -> corelib.VariableMap:
+        io_context = self._context_handler.get_io_context()
 
-        return self._builder.get_variables(context)
+        return self._builder.get_variables(io_context)
 
-    def get_current_equation_map(self) -> EquationMap:
-        context = self._context_handler.get_io_context()
+    def get_current_equation_map(self) -> corelib.EquationMap:
+        io_context = self._context_handler.get_io_context()
 
-        return self._builder.get_equations(context)
+        return self._builder.get_equations(io_context)
