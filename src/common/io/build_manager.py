@@ -3,7 +3,7 @@ from src.common.io import builders, context, storage
 
 
 class IOBuildManager:
-    def __init__(self, data_controller: storage.DataIO):
+    def __init__(self, data_controller: storage.GenericStorage):
         self._data_controller = data_controller
         self._indices: corelib.IndexMap = {}
         self._variables: corelib.VariableMap = {}

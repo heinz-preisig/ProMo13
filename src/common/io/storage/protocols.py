@@ -3,7 +3,7 @@ import typing
 from src.common.io import context
 
 
-class DataIO(typing.Protocol):
+class GenericStorage(typing.Protocol):
     def validate_repository_location(self, location: str) -> None: ...
     def get_context_member_options(
         self, context_member: context.IOContextMember, io_context: context.IOContext

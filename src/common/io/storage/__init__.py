@@ -1,5 +1,5 @@
 from src.common.io.storage.exceptions import DataIOError
 from src.common.io.storage.file_io import FileIO
-from src.common.io.storage.protocols import DataIO
+from src.common.io.storage.protocols import GenericStorage
 
-__all__ = ["DataIO", "FileIO", "DataIOError"]
+__all__ = ["GenericStorage", "FileIO", "DataIOError"]
