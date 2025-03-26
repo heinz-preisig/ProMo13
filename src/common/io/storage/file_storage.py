@@ -17,7 +17,7 @@ logger = logging.Logger(__name__)
 
 
 @attrs.define
-class FileIO:
+class FileStorage:
     _file_reader: protocols.FileReader = attrs.field(
         init=False, factory=json_file_reader_manager.JSONFileReader
     )

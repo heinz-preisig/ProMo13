@@ -4,7 +4,7 @@ from src.common.io import build_manager, context, context_handler, storage
 
 class IOManager:
     def __init__(self, data_controller: storage.GenericStorage | None = None) -> None:
-        self._data_controller = data_controller or storage.FileIO()
+        self._data_controller = data_controller or storage.FileStorage()
         self._context_handler = context_handler.IOContextHandler()
         self._builder = build_manager.IOBuildManager(self._data_controller)
 
