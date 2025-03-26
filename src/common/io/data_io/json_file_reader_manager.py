@@ -27,18 +27,15 @@ class JSONFileReader:
 
     def read_index_file(self, io_context: context.IOContext) -> typing.Any:
         reader = json_file_readers.IndexFileReader(io_context)
-        data = reader.read()
 
-        return data
+        return reader.read()
 
     def read_variable_file(self, io_context: context.IOContext) -> typing.Any:
         reader = json_file_readers.VariableFileReader(io_context)
-        data = reader.read()
 
-        return data
+        return reader.read()
 
     def read_equation_file(self, io_context: context.IOContext) -> typing.Any:
         reader = json_file_readers.EquationFileReader(io_context)
-        data = reader.read()
 
-        return data
+        return reader.read()

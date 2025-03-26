@@ -52,19 +52,15 @@ class FileIO:
     def get_context_member_options(
         self, context_member: context.IOContextMember, io_context: context.IOContext
     ) -> list[str]:
-        options = self._file_reader.get_repository_index_options(
+        return self._file_reader.get_repository_index_options(
             context_member, io_context
         )
-        return options
 
     def get_index_data(self, io_context: context.IOContext) -> typing.Any:
-        index_data = self._file_reader.read_index_file(io_context)
-        return index_data
+        return self._file_reader.read_index_file(io_context)
 
     def get_variable_data(self, io_context: context.IOContext) -> typing.Any:
-        variable_data = self._file_reader.read_variable_file(io_context)
-        return variable_data
+        return self._file_reader.read_variable_file(io_context)
 
     def get_equation_data(self, io_context: context.IOContext) -> typing.Any:
-        equation_data = self._file_reader.read_equation_file(io_context)
-        return equation_data
+        return self._file_reader.read_equation_file(io_context)

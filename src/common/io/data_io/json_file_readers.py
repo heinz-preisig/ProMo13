@@ -25,9 +25,8 @@ class BaseJsonFileReader(abc.ABC):
         content = self._get_file_content()
         json_data = self._convert_content_to_json(content)
         self._validate_json(json_data)
-        filtered_data = self._filter_data(json_data)
 
-        return filtered_data
+        return self._filter_data(json_data)
 
     def _get_file_content(self) -> str:
         file_path = path_resolver.resolve(self._io_context, self._template_string)
@@ -104,9 +103,11 @@ class IndexFileReader(BaseJsonFileReader):
     def _filter_data(self, data: typing.Any) -> typing.Any:
         cleaned_data = []
         for idx_id, idx_data in data["indices"].items():
-            new_index_data = {"identifier": idx_id}
-            new_index_data["iri"] = idx_data["IRI"]
-            new_index_data["label"] = idx_data["label"]
+            new_index_data = {
+                "identifier": idx_id,
+                "iri": idx_data["IRI"],
+                "label": idx_data["label"],
+            }
             cleaned_data.append(new_index_data)
 
         return cleaned_data
@@ -121,12 +122,13 @@ class VariableFileReader(BaseJsonFileReader):
     def _filter_data(self, data: typing.Any) -> typing.Any:
         cleaned_data = []
         for var_id, var_data in data["variables"].items():
-            new_variable_data = {"identifier": var_id}
-            new_variable_data["iri"] = var_data["IRI"]
-            new_variable_data["label"] = var_data["label"]
-            new_variable_data["doc"] = var_data["doc"]
-            new_variable_data["indices"] = var_data["index_structures"]
-
+            new_variable_data = {
+                "identifier": var_id,
+                "iri": var_data["IRI"],
+                "label": var_data["label"],
+                "doc": var_data["doc"],
+                "indices": var_data["index_structures"],
+            }
             cleaned_data.append(new_variable_data)
 
         return cleaned_data
@@ -142,24 +144,21 @@ class EquationFileReader(BaseJsonFileReader):
         cleaned_data = []
         for var_id, var_data in data["variables"].items():
             for eq_id, eq_data in var_data["equations"].items():
-                new_equation_data = {"identifier": eq_id}
                 rhs_variables = self._parse_variables_from_rhs(
                     eq_data["rhs"]["global_ID"]
                 )
 
-                new_equation_data["variables"] = [var_id] + rhs_variables
-
+                new_equation_data = {
+                    "identifier": eq_id,
+                    "variables": [var_id] + rhs_variables,
+                }
                 cleaned_data.append(new_equation_data)
 
         return cleaned_data
 
     def _parse_variables_from_rhs(self, rhs: str) -> list[str]:
-        variables = set()
-        for term in rhs.split():
-            if "V_" in term:
-                variables.add(term)
-
-        return sorted(list(variables), key=self._sorting_key)
+        variables = {term for term in rhs.split() if "V_" in term}
+        return sorted(variables, key=self._sorting_key)
 
     def _sorting_key(self, element: str) -> int:
         return int(element.split("_")[1])
