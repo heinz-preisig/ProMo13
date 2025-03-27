@@ -1,76 +1,62 @@
-import shutil
-from pathlib import Path
+import pathlib
 
 import pytest
-from pytest_cases import parametrize, parametrize_with_cases
+import pytest_cases
 
-from src.common.corelib import Index, IndexMap
-from src.common.io import IOContextMember, IOManager
-from src.common.io.storage.exceptions import DataIOError
+from src.common import io
+from src.common.io import storage
+
+INDEX_DATA = [
+    {"identifier": "I_1", "iri": "iri_I1", "label": "label_I1"},
+    {"identifier": "I_2", "iri": "iri_I2", "label": "label_I2"},
+    {"identifier": "I_3", "iri": "iri_I3", "label": "label_I3"},
+]
 
 
-class CasesIndexReading:
-    def valid_data(
-        self, io_manager: IOManager, base_path: Path
-    ) -> tuple[IOManager, IndexMap]:
-        REPOSITORY_LOCATION = str(base_path / "repositoryOK")
-        ONTOLOGY_NAME = "ontologyOK"
-        io_manager.set_repository_location(REPOSITORY_LOCATION)
-        io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
+@pytest.fixture
+def ok_context(base_path: pathlib.Path) -> io.IOContext:
+    ok_location = str(base_path / "repositoryOK")
+    ok_ontology = "ontologyOK"
+    ok_model = "modelOK"
+    ok_instantiation = "instantiationOK"
+    return io.IOContext(ok_location, ok_ontology, ok_model, ok_instantiation)
 
-        index_map = {
-            "I_1": Index("I_1", "iri_I1", "label_I1"),
-            "I_2": Index("I_2", "iri_I2", "label_I2"),
-            "I_3": Index("I_3", "iri_I3", "label_I3"),
-        }
 
-        return io_manager, index_map
+ACCESS_ERROR = "Can not access index data"
+CORRUPTED_ERROR = "Corrupted index data"
 
-    def invalid_missing_index_file(
-        self, io_manager: IOManager, base_path: Path
-    ) -> tuple[IOManager, str]:
-        REPOSITORY_LOCATION = str(base_path / "repositoryOK")
-        ONTOLOGY_NAME = "ontology1"
-        io_manager.set_repository_location(REPOSITORY_LOCATION)
-        io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
 
-        error_msg = "Can not access index data"
+@pytest_cases.case(id="")
+@pytest_cases.parametrize(
+    "name_id, error_msg",
+    [("1", ACCESS_ERROR), ("2", CORRUPTED_ERROR), ("3", CORRUPTED_ERROR)],
+    ids=("missing file", "invalid json", "invalid json schema"),
+)
+def case_index_file_problem(
+    ok_context: io.IOContext, name_id: str, error_msg: str
+) -> tuple[io.IOContext, str]:
+    ONTOLOGY_NAME = f"ontology{name_id}"
+    ok_context.ontology_name = ONTOLOGY_NAME
 
-        return io_manager, error_msg
-
-    @parametrize(folder_id=("2", "3"), ids=("invalid json", "invalid json schema"))
-    def invalid_json_problem(
-        self,
-        io_manager: IOManager,
-        base_path: Path,
-        folder_id: str,
-    ) -> tuple[IOManager, str]:
-        REPOSITORY_LOCATION = str(base_path / "repositoryOK")
-        ONTOLOGY_NAME = f"ontology{folder_id}"
-        io_manager.set_repository_location(REPOSITORY_LOCATION)
-        io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
-
-        error_msg = "Corrupted index data"
-
-        return io_manager, error_msg
+    return ok_context, error_msg
 
 
 class TestIndexReading:
-    @parametrize_with_cases(
-        "manager, expected_index_map", cases=CasesIndexReading, prefix="valid"
-    )
     def test_index_reading_ok(
-        self, manager: IOManager, expected_index_map: IndexMap
+        self, test_storage: storage.GenericStorage, ok_context: io.IOContext
     ) -> None:
-        output_index_map = manager.get_current_index_map()
+        expected_data = INDEX_DATA
 
-        assert expected_index_map == output_index_map
+        output_data = test_storage.get_index_data(ok_context)
 
-    @parametrize_with_cases(
-        "manager, error_msg", cases=CasesIndexReading, prefix="invalid"
-    )
-    def test_exception_on_missing_index_file(
-        self, manager: IOManager, error_msg: str
+        assert expected_data == output_data
+
+    @pytest_cases.parametrize_with_cases("test_context, error_msg", cases=".")
+    def test_exception_on_problem_with_index_file(
+        self,
+        test_storage: storage.GenericStorage,
+        test_context: io.IOContext,
+        error_msg: str,
     ) -> None:
-        with pytest.raises(DataIOError, match=error_msg):
-            manager.get_current_index_map()
+        with pytest.raises(io.DataIOError, match=error_msg):
+            test_storage.get_index_data(test_context)
