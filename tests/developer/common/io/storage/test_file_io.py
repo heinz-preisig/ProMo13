@@ -9,25 +9,6 @@ from src.common.io import IOContextError, IOContextMember, IOManager
 from src.common.io.storage.exceptions import DataIOError
 
 
-@pytest.fixture
-def io_manager() -> IOManager:
-    return IOManager()
-
-
-@pytest.fixture
-def test_files_path() -> Path:
-    return (
-        Path.cwd() / "tests" / "developer" / "common" / "io" / "storage" / "test_files"
-    )
-
-
-@pytest.fixture
-def tmp_test_files_path(tmp_path: Path, test_files_path: Path) -> Path:
-    path = tmp_path / "test_files"
-    shutil.copytree(test_files_path, path)
-    return path
-
-
 class CasesRepositoryValidation:
     WRITE_ONLY_MODE = 0o222
     READ_ONLY_MODE = 0o444
@@ -63,8 +44,8 @@ class TestRepositoryValidation:
 
 
 @pytest.fixture
-def valid_io_manager(io_manager: IOManager, tmp_test_files_path: Path) -> IOManager:
-    REPO_LOCATION = str(tmp_test_files_path / "repositoryOK")
+def valid_io_manager(io_manager: IOManager, base_path: Path) -> IOManager:
+    REPO_LOCATION = str(base_path / "repositoryOK")
     ONTOLOGY_NAME = "ontologyOK"
     MODEL_NAME = "modelOK"
     INSTANTIATION_NAME = "instantiationOK"
@@ -107,13 +88,13 @@ class CasesIndexValidation:
     def invalid_missing_file(
         self,
         valid_io_manager: IOManager,
-        tmp_test_files_path: Path,
+        base_path: Path,
         member: IOContextMember,
         folder_prefix: str,
     ) -> tuple[IOManager, IOContextMember, str]:
         folder_name = f"{folder_prefix}1"
         manager = set_io_manager_context(
-            valid_io_manager, member, folder_name, tmp_test_files_path
+            valid_io_manager, member, folder_name, base_path
         )
         error_msg = "Can not access {member} repository index"
 
@@ -123,7 +104,7 @@ class CasesIndexValidation:
     def invalid_json_problem(
         self,
         valid_io_manager: IOManager,
-        tmp_test_files_path: Path,
+        base_path: Path,
         member: IOContextMember,
         folder_prefix: str,
         folder_id: str,
@@ -131,7 +112,7 @@ class CasesIndexValidation:
         error_msg = "Corrupted {member} repository index"
         folder_name = f"{folder_prefix}{folder_id}"
         manager = set_io_manager_context(
-            valid_io_manager, member, folder_name, tmp_test_files_path
+            valid_io_manager, member, folder_name, base_path
         )
 
         return manager, member, error_msg

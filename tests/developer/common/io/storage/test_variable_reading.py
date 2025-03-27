@@ -8,26 +8,6 @@ from src.common.corelib import Index, IndexMap, Variable, VariableMap
 from src.common.io import IOContextMember, IOManager
 from src.common.io.storage.exceptions import DataIOError
 
-
-@pytest.fixture
-def test_files_path() -> Path:
-    return (
-        Path.cwd() / "tests" / "developer" / "common" / "io" / "storage" / "test_files"
-    )
-
-
-@pytest.fixture
-def tmp_test_files_path(tmp_path: Path, test_files_path: Path) -> Path:
-    path = tmp_path / "test_files"
-    shutil.copytree(test_files_path, path)
-    return path
-
-
-@pytest.fixture
-def io_manager() -> IOManager:
-    return IOManager()
-
-
 INDEX_MAP = {
     "I_1": Index("I_1", "iri_I1", "label_I1"),
     "I_2": Index("I_2", "iri_I2", "label_I2"),
@@ -56,9 +36,9 @@ VARIABLE_MAP = {
 
 class CasesVariableReading:
     def valid_data(
-        self, io_manager: IOManager, tmp_test_files_path: Path
+        self, io_manager: IOManager, base_path: Path
     ) -> tuple[IOManager, VariableMap]:
-        REPOSITORY_LOCATION = str(tmp_test_files_path / "repositoryOK")
+        REPOSITORY_LOCATION = str(base_path / "repositoryOK")
         ONTOLOGY_NAME = "ontologyOK"
         io_manager.set_repository_location(REPOSITORY_LOCATION)
         io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
@@ -66,9 +46,9 @@ class CasesVariableReading:
         return io_manager, VARIABLE_MAP
 
     def invalid_missing_index_file(
-        self, io_manager: IOManager, tmp_test_files_path: Path
+        self, io_manager: IOManager, base_path: Path
     ) -> tuple[IOManager, str]:
-        REPOSITORY_LOCATION = str(tmp_test_files_path / "repositoryOK")
+        REPOSITORY_LOCATION = str(base_path / "repositoryOK")
         ONTOLOGY_NAME = "ontology1"
         io_manager.set_repository_location(REPOSITORY_LOCATION)
         io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
@@ -84,10 +64,10 @@ class CasesVariableReading:
     # def invalid_json_problem(
     #     self,
     #     io_manager: IOManager,
-    #     tmp_test_files_path: Path,
+    #     base_path: Path,
     #     folder_id: str,
     # ) -> tuple[IOManager, str]:
-    #     REPOSITORY_LOCATION = str(tmp_test_files_path / "repositoryOK")
+    #     REPOSITORY_LOCATION = str(base_path / "repositoryOK")
     #     ONTOLOGY_NAME = f"ontology{folder_id}"
     #     io_manager.set_repository_location(REPOSITORY_LOCATION)
     #     io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
