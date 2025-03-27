@@ -3,6 +3,7 @@ Jinja2>=3.0.2
 pydotplus
 PyPDF2
 PyQt5
+PyQt5-sip
 rdflib>=6.2.0
 networkx>=3.1
 ply>=3.11

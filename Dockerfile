@@ -1,4 +1,3 @@
-
 FROM ubuntu:22.04
 
 LABEL authors="heinz <heinz.preisig@chemeng.ntnu.no>"
@@ -7,7 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install Python 3, PyQt5
 RUN apt-get update && apt-get install -qq -y \
-	python3-pyqt5 \
+#	python3-pyqt5 \
+#    python3-pyqt5sip \
 	texlive okular \
 	texlive-science \
 	texlive-latex-extra \
@@ -26,11 +26,13 @@ RUN apt-get update && apt-get install -qq -y \
     libxkbcommon-dev \
     libxkbcommon-x11-dev \
     libgl1-mesa-glx \
+    libxcb-cursor0 \
    && rm -rf /var/lib/apt/lists/*
 
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
+RUN #apt-get update && apt-get install -y pyqt5-sip
 
 WORKDIR /ProMo
 COPY ./tasks/ tasks/
@@ -46,13 +48,15 @@ COPY ./src/ src/
 #
 ## Mount the host machine's X11 socket
 #RUN mkdir -p /tmp/.X11-unix
-#VOLUME /tmp/.X11-unix
+VOLUME /tmp/.X11-unix
 
 # Set the DISPLAY environment variable
 ENV DISPLAY=:0
 
 # Allow the container to connect to the host machine's display
 #CMD ["your_qt_application"]
+
+ENV QT_QPA_PLATFORM=xcb
 
 RUN chmod +x tasks/task.sh
 
