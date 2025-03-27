@@ -13,7 +13,7 @@ from src.common.io.storage import (
 @attrs.define
 class FileStorage:
     _file_reader: protocols.FileReader = attrs.field(
-        init=False, factory=file_reader.JSONFileReader
+        init=False, factory=file_reader.FileReader
     )
 
     def validate_repository_location(self, location: str) -> None:
