@@ -4,7 +4,7 @@ import attrs
 
 from src.common.io import context
 from src.common.io.storage import (
-    json_file_reader_manager,
+    file_reader,
     protocols,
     repository_validation,
 )
@@ -13,7 +13,7 @@ from src.common.io.storage import (
 @attrs.define
 class FileStorage:
     _file_reader: protocols.FileReader = attrs.field(
-        init=False, factory=json_file_reader_manager.JSONFileReader
+        init=False, factory=file_reader.JSONFileReader
     )
 
     def validate_repository_location(self, location: str) -> None:
