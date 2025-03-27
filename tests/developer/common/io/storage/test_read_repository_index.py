@@ -8,11 +8,6 @@ from src.common.io import storage
 
 
 @pytest.fixture
-def test_storage() -> storage.GenericStorage:
-    return storage.FileStorage()
-
-
-@pytest.fixture
 def ok_context(base_path: pathlib.Path) -> io.IOContext:
     ok_location = str(base_path / "repositoryOK")
     ok_ontology = "ontologyOK"
