@@ -19,13 +19,7 @@ from src.common.io.storage.exceptions import DataIOError
 @pytest.fixture
 def test_files_path() -> Path:
     return (
-        Path.cwd()
-        / "tests"
-        / "developer"
-        / "common"
-        / "io"
-        / "file_system_implementation"
-        / "test_files"
+        Path.cwd() / "tests" / "developer" / "common" / "io" / "storage" / "test_files"
     )
 
 
