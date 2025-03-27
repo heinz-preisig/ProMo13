@@ -4,7 +4,14 @@ from pathlib import Path
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
 
-from src.common.corelib import Index, IndexMap, Variable, VariableMap
+from src.common.corelib import (
+    Equation,
+    EquationMap,
+    Index,
+    IndexMap,
+    Variable,
+    VariableMap,
+)
 from src.common.io import IOContextMember, IOManager
 from src.common.io.storage.exceptions import DataIOError
 
@@ -14,7 +21,7 @@ def test_files_path() -> Path:
     return (
         Path.cwd()
         / "tests"
-        / "unit"
+        / "developer"
         / "common"
         / "io"
         / "file_system_implementation"
@@ -59,66 +66,48 @@ VARIABLE_MAP = {
     "V_12": Variable("V_12", "iri_V12", "label_V12", "doc_V12", [I_1]),
 }
 
+V_1 = VARIABLE_MAP["V_1"]
+V_2 = VARIABLE_MAP["V_2"]
+V_3 = VARIABLE_MAP["V_3"]
+V_4 = VARIABLE_MAP["V_4"]
+V_5 = VARIABLE_MAP["V_5"]
+V_6 = VARIABLE_MAP["V_6"]
+V_7 = VARIABLE_MAP["V_7"]
+V_8 = VARIABLE_MAP["V_8"]
+V_9 = VARIABLE_MAP["V_9"]
+V_10 = VARIABLE_MAP["V_10"]
+V_11 = VARIABLE_MAP["V_11"]
+V_12 = VARIABLE_MAP["V_12"]
 
-class CasesVariableReading:
+EQUATION_MAP = {
+    "E_1": Equation("E_1", [V_1, V_2, V_3]),
+    "E_2": Equation("E_2", [V_4, V_5, V_6]),
+    "E_3": Equation("E_3", [V_5, V_1, V_7]),
+    "E_4": Equation("E_4", [V_8, V_9, V_10]),
+    "E_5": Equation("E_5", [V_9, V_4, V_11, V_12]),
+    "E_6": Equation("E_6", [V_1, V_2, V_5, V_6]),
+}
+
+
+class CasesEquationReading:
     def valid_data(
         self, io_manager: IOManager, tmp_test_files_path: Path
-    ) -> tuple[IOManager, VariableMap]:
+    ) -> tuple[IOManager, EquationMap]:
         REPOSITORY_LOCATION = str(tmp_test_files_path / "repositoryOK")
         ONTOLOGY_NAME = "ontologyOK"
         io_manager.set_repository_location(REPOSITORY_LOCATION)
         io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
 
-        return io_manager, VARIABLE_MAP
-
-    def invalid_missing_index_file(
-        self, io_manager: IOManager, tmp_test_files_path: Path
-    ) -> tuple[IOManager, str]:
-        REPOSITORY_LOCATION = str(tmp_test_files_path / "repositoryOK")
-        ONTOLOGY_NAME = "ontology1"
-        io_manager.set_repository_location(REPOSITORY_LOCATION)
-        io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
-
-        error_msg = "Can not access variable data"
-
-        return io_manager, error_msg
-
-    # Indices, Variables and Equations are in the same file now, Indices
-    # are read first and is the one failing.
-
-    # @parametrize(folder_id=("2", "3"), ids=("invalid json", "invalid json schema"))
-    # def invalid_json_problem(
-    #     self,
-    #     io_manager: IOManager,
-    #     tmp_test_files_path: Path,
-    #     folder_id: str,
-    # ) -> tuple[IOManager, str]:
-    #     REPOSITORY_LOCATION = str(tmp_test_files_path / "repositoryOK")
-    #     ONTOLOGY_NAME = f"ontology{folder_id}"
-    #     io_manager.set_repository_location(REPOSITORY_LOCATION)
-    #     io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
-
-    #     error_msg = "Corrupted variable data"
-
-    #     return io_manager, error_msg
+        return io_manager, EQUATION_MAP
 
 
-class TestIndexReading:
+class TestEquationReading:
     @parametrize_with_cases(
-        "manager, expected_variable_map", cases=CasesVariableReading, prefix="valid"
+        "manager, expected_equation_map", cases=CasesEquationReading, prefix="valid"
     )
-    def test_index_reading_ok(
-        self, manager: IOManager, expected_variable_map: VariableMap
+    def test_equation_reading_ok(
+        self, manager: IOManager, expected_equation_map: EquationMap
     ) -> None:
-        output_variable_map = manager.get_current_variable_map()
+        output_equation_map = manager.get_current_equation_map()
 
-        assert expected_variable_map == output_variable_map
-
-    # @parametrize_with_cases(
-    #     "manager, error_msg", cases=CasesVariableReading, prefix="invalid"
-    # )
-    # def test_exception_on_missing_index_file(
-    #     self, manager: IOManager, error_msg: str
-    # ) -> None:
-    #     with pytest.raises(DataIOError, match=error_msg):
-    #         manager.get_current_variable_map()
+        assert expected_equation_map == output_equation_map
