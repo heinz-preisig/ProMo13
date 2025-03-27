@@ -76,6 +76,7 @@ EQUATION_FILE = {
                                             "additionalProperties": True,
                                         }
                                     },
+                                    "required": ["rhs"],
                                     "additionalProperties": True,
                                 }
                             },
