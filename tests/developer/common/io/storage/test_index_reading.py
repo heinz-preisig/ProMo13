@@ -13,15 +13,6 @@ INDEX_DATA = [
 ]
 
 
-@pytest.fixture
-def ok_context(base_path: pathlib.Path) -> io.IOContext:
-    ok_location = str(base_path / "repositoryOK")
-    ok_ontology = "ontologyOK"
-    ok_model = "modelOK"
-    ok_instantiation = "instantiationOK"
-    return io.IOContext(ok_location, ok_ontology, ok_model, ok_instantiation)
-
-
 ACCESS_ERROR = "Can not access index data"
 CORRUPTED_ERROR = "Corrupted index data"
 

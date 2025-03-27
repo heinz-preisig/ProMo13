@@ -7,15 +7,6 @@ from src.common import io
 from src.common.io import storage
 
 
-@pytest.fixture
-def ok_context(base_path: pathlib.Path) -> io.IOContext:
-    ok_location = str(base_path / "repositoryOK")
-    ok_ontology = "ontologyOK"
-    ok_model = "modelOK"
-    ok_instantiation = "instantiationOK"
-    return io.IOContext(ok_location, ok_ontology, ok_model, ok_instantiation)
-
-
 def replace_context_attribute(
     member: io.IOContextMember,
     io_context: io.IOContext,
