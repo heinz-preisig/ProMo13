@@ -4,11 +4,14 @@ LABEL authors="heinz <heinz.preisig@chemeng.ntnu.no>"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+WORKDIR /ProMo
+
 # Install Python 3, PyQt5
 RUN apt-get update && apt-get install -qq -y \
 #	python3-pyqt5 \
 #    python3-pyqt5sip \
-	texlive okular \
+    graphviz \
+#	texlive okular \
 	texlive-science \
 	texlive-latex-extra \
 	dvipng\
@@ -32,7 +35,7 @@ RUN apt-get update && apt-get install -qq -y \
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-RUN #apt-get update && apt-get install -y pyqt5-sip
+#RUN apt-get update && apt-get install -y pyqt5-sip
 
 WORKDIR /ProMo
 COPY ./tasks/ tasks/
@@ -52,6 +55,8 @@ VOLUME /tmp/.X11-unix
 
 # Set the DISPLAY environment variable
 ENV DISPLAY=:0
+ENV XDG_RUNTIME_DIR="/ProMo/tasks/"
+RUN chmod 0700 /ProMo/tasks
 
 # Allow the container to connect to the host machine's display
 #CMD ["your_qt_application"]
