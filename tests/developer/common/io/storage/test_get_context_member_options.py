@@ -88,7 +88,7 @@ class CasesReadRepositoryIndex:
         repo_prefix: str,
     ) -> tuple[io.IOContextMember, io.IOContext, str]:
         test_context = io.IOContext()
-        error_msg = "Insufficient data in IOContext"
+        error_msg = "Insufficient IOContext to access data"
 
         return test_member, test_context, error_msg
 
@@ -138,5 +138,5 @@ class TestGetContextMemberOptions:
         test_context: io.IOContext,
         error_msg: str,
     ) -> None:
-        with pytest.raises(io.IOContextError, match=error_msg):
+        with pytest.raises(storage.IOStorageError, match=error_msg):
             test_storage.get_context_member_options(test_member, test_context)

@@ -2,7 +2,8 @@ from enum import StrEnum
 from pathlib import Path
 from string import Template
 
-from src.common.io import context, exceptions
+from src.common.io import context
+from src.common.io.storage import exceptions
 
 
 class PathTemplateStrings(StrEnum):
@@ -44,5 +45,5 @@ def _validate_parameters_for_template(
     template_identifiers = template.get_identifiers()
     for key, value in path_parameters.items():
         if key in template_identifiers and not value:
-            error_msg = "Insufficient data in IOContext"
-            raise exceptions.IOContextError(error_msg, io_context)
+            error_msg = "Insufficient IOContext to access data"
+            raise exceptions.IOStorageError(error_msg)
