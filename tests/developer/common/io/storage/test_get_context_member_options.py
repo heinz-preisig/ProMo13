@@ -93,11 +93,11 @@ class CasesReadRepositoryIndex:
         return test_member, test_context, error_msg
 
 
-class TestReadRepositoryIndex:
+class TestGetContextMemberOptions:
     @pytest_cases.parametrize_with_cases(
         "test_member, test_context", cases=CasesReadRepositoryIndex, prefix="valid"
     )
-    def test_read_repository_index_ok(
+    def test_get_context_member_options_ok(
         self,
         test_storage: storage.GenericStorage,
         test_member: io.IOContextMember,
@@ -116,7 +116,7 @@ class TestReadRepositoryIndex:
         cases=CasesReadRepositoryIndex,
         prefix="invalid",
     )
-    def test_exception_on_invalid_index(
+    def test_exception_on_invalid_context_member_options(
         self,
         test_storage: storage.GenericStorage,
         test_member: io.IOContextMember,
@@ -131,7 +131,7 @@ class TestReadRepositoryIndex:
         cases=CasesReadRepositoryIndex,
         prefix="incomplete",
     )
-    def test_exception_on_read_repository_index_with_empty_context(
+    def test_exception_on_get_context_member_options_with_empty_context(
         self,
         test_storage: storage.GenericStorage,
         test_member: io.IOContextMember,
