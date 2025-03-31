@@ -165,5 +165,5 @@ class TestGetDataMethods:
         tested_method_name = f"get_{data_name}_data"
         tested_method = getattr(test_storage, tested_method_name)
 
-        with pytest.raises(io.DataIOError, match=error_msg):
+        with pytest.raises(io.IOStorageError, match=error_msg):
             tested_method(test_context)

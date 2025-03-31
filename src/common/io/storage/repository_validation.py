@@ -31,7 +31,7 @@ class FolderRepositoryValidator:
 
     def _raise_invalid_repository_error(self) -> None:
         exception_msg = f"Invalid repository location: {self._location}"
-        raise exceptions.DataIOError(exception_msg)
+        raise exceptions.IOStorageError(exception_msg)
 
     def _check_permissions(self) -> None:
         directory_info = self._path.stat()

@@ -123,7 +123,7 @@ class TestGetContextMemberOptions:
         test_context: io.IOContext,
         error_msg: str,
     ) -> None:
-        with pytest.raises(io.DataIOError, match=error_msg):
+        with pytest.raises(io.IOStorageError, match=error_msg):
             test_storage.get_context_member_options(test_member, test_context)
 
     @pytest_cases.parametrize_with_cases(
