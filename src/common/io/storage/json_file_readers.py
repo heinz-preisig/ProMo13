@@ -39,7 +39,7 @@ class BaseJsonFileReader(abc.ABC):
                 file_content = file.read()
         except (FileNotFoundError, PermissionError) as err:
             logger.error(err)
-            raise exceptions.DataIOError(self._access_err_msg) from err
+            raise exceptions.IOStorageError(self._access_err_msg) from err
 
         return file_content
 
@@ -48,7 +48,7 @@ class BaseJsonFileReader(abc.ABC):
             data = json.loads(content)
         except json.JSONDecodeError as err:
             logger.error(err)
-            raise exceptions.DataIOError(self._corrupted_err_msg) from err
+            raise exceptions.IOStorageError(self._corrupted_err_msg) from err
 
         return data
 
@@ -57,7 +57,7 @@ class BaseJsonFileReader(abc.ABC):
             jsonschema.validate(data, self._schema)
         except jsonschema.ValidationError as err:
             logger.error(err)
-            raise exceptions.DataIOError(self._corrupted_err_msg) from err
+            raise exceptions.IOStorageError(self._corrupted_err_msg) from err
 
     @abc.abstractmethod
     def _filter_data(self, data: typing.Any) -> typing.Any:

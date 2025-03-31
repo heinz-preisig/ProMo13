@@ -34,5 +34,5 @@ class TestRepositoryValidation:
     ) -> None:
         msg = f"Invalid repository location: {location}"
 
-        with pytest.raises(storage.DataIOError, match=msg):
+        with pytest.raises(storage.IOStorageError, match=msg):
             test_storage.validate_repository_location(location)

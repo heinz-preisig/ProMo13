@@ -165,5 +165,20 @@ class TestGetDataMethods:
         tested_method_name = f"get_{data_name}_data"
         tested_method = getattr(test_storage, tested_method_name)
 
-        with pytest.raises(io.DataIOError, match=error_msg):
+        with pytest.raises(io.IOStorageError, match=error_msg):
             tested_method(test_context)
+
+    @pytest_cases.parametrize(data_name=("index", "variable", "equation"))
+    def test_insufficient_io_context(
+        self,
+        ok_context: io.IOContext,
+        test_storage: storage.GenericStorage,
+        data_name: str,
+    ) -> None:
+        error_msg = "Insufficient IOContext to access data"
+        tested_method_name = f"get_{data_name}_data"
+        tested_method = getattr(test_storage, tested_method_name)
+        ok_context.ontology_name = ""
+
+        with pytest.raises(io.IOStorageError, match=error_msg):
+            tested_method(ok_context)

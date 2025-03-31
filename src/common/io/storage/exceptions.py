@@ -1,3 +1,3 @@
-class DataIOError(Exception):
+class IOStorageError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
