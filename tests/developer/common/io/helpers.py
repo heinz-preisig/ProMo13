@@ -13,12 +13,23 @@ from src.common.io import IOContext, IOContextMember
 
 class FakeStorage:
     def __init__(self) -> None:
+        self._context_member_options: dict[IOContextMember, list[str]] = {}
         self._index_data: dict[str, typing.Any] = {}
         self._variable_data: dict[str, typing.Any] = {}
         self._equation_data: dict[str, typing.Any] = {}
 
     def validate_repository_location(self, location: str) -> None:
         pass
+
+    def set_context_member_options(
+        self, context_member: IOContextMember, options: list[str]
+    ) -> None:
+        self._context_member_options[context_member] = options
+
+    def new_get_context_member_options(
+        self, context_member: IOContextMember, context: IOContext
+    ) -> list[str]:
+        return self._context_member_options[context_member]
 
     def get_context_member_options(
         self, context_member: IOContextMember, context: IOContext
