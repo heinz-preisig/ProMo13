@@ -1,11 +1,11 @@
 import typing
 
 import pytest
-from conftest import FakeDataIO, build_index_map
 from pytest_cases import case, fixture, parametrize, parametrize_with_cases
 
 from src.common.corelib import Index, IndexMap
 from src.common.io import IOBuilderError, IOContext, IOContextMember, IOManager
+from tests.developer.common.io.helpers import FakeDataIO, build_index_map
 
 GOOD_DATA1 = [
     {"identifier": "I_1", "label": "node"},

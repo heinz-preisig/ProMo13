@@ -1,11 +1,15 @@
 import typing
 
 import pytest
-from conftest import FakeDataIO, build_index_map, build_variable_map
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from src.common.corelib import VariableMap
 from src.common.io import IOBuilderError, IOContextMember, IOManager
+from tests.developer.common.io.helpers import (
+    FakeDataIO,
+    build_index_map,
+    build_variable_map,
+)
 
 INDEX_DATA = [
     {"identifier": "I_1", "label": "node"},
