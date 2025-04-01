@@ -6,6 +6,7 @@ from src.common.io import (
     IOContextError,
     IOContextMember,
     IOManager,
+    IOStorageError,
 )
 
 
@@ -187,7 +188,7 @@ class TestSetIOContextMemberName:
         valid_name: str,
     ) -> None:
         context = io_manager.get_io_context()
-        error_msg = "Insufficient data in IOContext"
+        error_msg = "Insufficient IOContext to access data"
 
-        with pytest.raises(IOContextError, match=error_msg):
+        with pytest.raises(IOStorageError, match=error_msg):
             io_manager.set_context_member_name(context_member, valid_name)
