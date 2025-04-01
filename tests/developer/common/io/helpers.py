@@ -26,21 +26,10 @@ class FakeStorage:
     ) -> None:
         self._context_member_options[context_member] = options
 
-    def new_get_context_member_options(
-        self, context_member: IOContextMember, context: IOContext
-    ) -> list[str]:
-        return self._context_member_options[context_member]
-
     def get_context_member_options(
         self, context_member: IOContextMember, context: IOContext
     ) -> list[str]:
-        match context_member:
-            case IOContextMember.ONTOLOGY:
-                return ["VALID_ONTOLOGY", "ontologyOK"]
-            case IOContextMember.MODEL:
-                return ["VALID_MODEL", "modelOK"]
-            case IOContextMember.INSTANTIATION:
-                return ["VALID_INSTANTIATION", "instantiationOK"]
+        return self._context_member_options[context_member]
 
     def set_index_data(self, data: typing.Any, ontology_name: str) -> None:
         self._index_data[ontology_name] = data

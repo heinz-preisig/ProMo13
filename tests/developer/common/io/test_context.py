@@ -1,9 +1,11 @@
 import dataclasses
+import string
 
 import pytest
 import pytest_cases
 
 from src.common import io
+from tests.developer.common.io import helpers
 
 
 @pytest.fixture
@@ -11,19 +13,39 @@ def io_manager() -> io.IOManager:
     return io.IOManager()
 
 
+VALID_NAME_TEMPLATE = string.Template("valid_${member_name}_name")
+ANOTHER_VALID_NAME_TEMPLATE = string.Template("another_valid_${member_name}_name")
+VALID_REPOSITORY_LOCATION = "valid_repository_location"
+ANOTHER_VALID_REPOSITORY_LOCATION = "another_valid_repository_location"
+
+
+@pytest.fixture
+def test_storage(fake_storage: helpers.FakeStorage) -> helpers.FakeStorage:
+    for context_member in io.IOContextMember:
+        valid_name = VALID_NAME_TEMPLATE.substitute(member_name=context_member)
+        another_valid_name = ANOTHER_VALID_NAME_TEMPLATE.substitute(
+            member_name=context_member
+        )
+
+        fake_storage.set_context_member_options(
+            context_member, [valid_name, another_valid_name]
+        )
+
+    return fake_storage
+
+
+@pytest.fixture
+def test_io_manager(test_storage: helpers.FakeStorage) -> io.IOManager:
+    return io.IOManager(test_storage)
+
+
 @pytest.fixture
 def valid_io_manager(test_io_manager: io.IOManager) -> io.IOManager:
-    REPO_LOCATION = "VALID_LOCATION"
-    ONTOLOGY_NAME = "VALID_ONTOLOGY"
-    MODEL_NAME = "VALID_MODEL"
-    INSTANTIATION_NAME = "VALID_INSTANTIATION"
+    test_io_manager.set_repository_location(VALID_REPOSITORY_LOCATION)
 
-    test_io_manager.set_repository_location(REPO_LOCATION)
-    test_io_manager.set_context_member_name(io.IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
-    test_io_manager.set_context_member_name(io.IOContextMember.MODEL, MODEL_NAME)
-    test_io_manager.set_context_member_name(
-        io.IOContextMember.INSTANTIATION, INSTANTIATION_NAME
-    )
+    for context_member in io.IOContextMember:
+        valid_name = VALID_NAME_TEMPLATE.substitute(member_name=context_member)
+        test_io_manager.set_context_member_name(context_member, valid_name)
 
     return test_io_manager
 
@@ -50,26 +72,27 @@ class TestGetOntologyContext:
 
 class TestSetRepositoryLocation:
     def test_set_location_ok(self, test_io_manager: io.IOManager) -> None:
-        manager = test_io_manager
-        LOCATION = "VALID_LOCATION"
+        expected_location = VALID_REPOSITORY_LOCATION
 
-        manager.set_repository_location(LOCATION)
+        test_io_manager.set_repository_location(expected_location)
 
-        new_ontology_context = manager.get_io_context()
-        output = new_ontology_context.repository_location
-        assert LOCATION == output
+        ontology_context = test_io_manager.get_io_context()
+        output_location = ontology_context.repository_location
+        assert expected_location == output_location
 
+    @pytest.mark.it(
+        "reset other IOContext attributes when repository location is changed"
+    )
     def test_reset_depending_context(
         self,
         valid_io_manager: io.IOManager,
     ) -> None:
-        manager = valid_io_manager
-        new_repo_location = "NEW_REPO_LOCATION"
+        new_repo_location = ANOTHER_VALID_REPOSITORY_LOCATION
         expected_context = io.IOContext(new_repo_location)
 
-        manager.set_repository_location(new_repo_location)
+        valid_io_manager.set_repository_location(new_repo_location)
 
-        output_context = manager.get_io_context()
+        output_context = valid_io_manager.get_io_context()
         assert expected_context == output_context
 
 
@@ -85,59 +108,45 @@ class CasesSetIOContextMemberName:
     @pytest_cases.case(id="")
     def invalid_name(
         self, context_member: io.IOContextMember
-    ) -> tuple[io.IOContextMember, str]:
-        INVALID_NAME = f"Invalid {context_member} name"
+    ) -> tuple[io.IOContextMember, str, str]:
+        invalid_context_member_name = f"Invalid{context_member}name"
+        error_msg = f"Invalid {context_member} name: {invalid_context_member_name}"
 
-        return context_member, INVALID_NAME
+        return context_member, invalid_context_member_name, error_msg
 
     @pytest_cases.case(id="")
     def valid_name(
         self, context_member: io.IOContextMember
     ) -> tuple[io.IOContextMember, str]:
-        VALID_NAME = f"{context_member}OK"
+        another_valid_name = ANOTHER_VALID_NAME_TEMPLATE.substitute(
+            member_name=context_member
+        )
 
-        return context_member, VALID_NAME
+        return context_member, another_valid_name
 
     @pytest_cases.case(id="")
     def cleared_members(
         self, context_member: io.IOContextMember
-    ) -> tuple[io.IOContextMember, str, list[io.IOContextMember]]:
-        VALID_NAME = f"{context_member}OK"
+    ) -> tuple[
+        io.IOContextMember, str, dict[io.IOContextMember, list[io.IOContextMember]]
+    ]:
+        another_valid_name = ANOTHER_VALID_NAME_TEMPLATE.substitute(
+            member_name=context_member
+        )
 
-        match context_member:
-            case io.IOContextMember.ONTOLOGY:
-                cleared_members = [
-                    io.IOContextMember.MODEL,
-                    io.IOContextMember.INSTANTIATION,
-                ]
-            case io.IOContextMember.MODEL:
-                cleared_members = [io.IOContextMember.INSTANTIATION]
-            case io.IOContextMember.INSTANTIATION:
-                cleared_members = []
+        resetted_members = {
+            io.IOContextMember.ONTOLOGY: [
+                io.IOContextMember.MODEL,
+                io.IOContextMember.INSTANTIATION,
+            ],
+            io.IOContextMember.MODEL: [io.IOContextMember.INSTANTIATION],
+            io.IOContextMember.INSTANTIATION: [],
+        }
 
-        return context_member, VALID_NAME, cleared_members
+        return context_member, another_valid_name, resetted_members
 
 
 class TestSetIOContextMemberName:
-    @pytest_cases.parametrize_with_cases(
-        "context_member, invalid_name",
-        cases=CasesSetIOContextMemberName,
-        prefix="invalid",
-    )
-    def test_exception_on_invalid_name(
-        self,
-        valid_io_manager: io.IOManager,
-        context_member: io.IOContextMember,
-        invalid_name: str,
-    ) -> None:
-        manager = valid_io_manager
-
-        with pytest.raises(
-            io.IOContextError,
-            match=f"Invalid {context_member} name: {invalid_name}",
-        ):
-            manager.set_context_member_name(context_member, invalid_name)
-
     @pytest_cases.parametrize_with_cases(
         "context_member, valid_name",
         cases=CasesSetIOContextMemberName,
@@ -158,24 +167,40 @@ class TestSetIOContextMemberName:
         assert valid_name == output
 
     @pytest_cases.parametrize_with_cases(
-        "context_member, valid_name, cleared_members",
+        "context_member, invalid_name, error_msg",
+        cases=CasesSetIOContextMemberName,
+        prefix="invalid",
+    )
+    def test_exception_on_invalid_name(
+        self,
+        valid_io_manager: io.IOManager,
+        context_member: io.IOContextMember,
+        invalid_name: str,
+        error_msg: str,
+    ) -> None:
+        manager = valid_io_manager
+
+        with pytest.raises(io.IOContextError, match=error_msg):
+            manager.set_context_member_name(context_member, invalid_name)
+
+    @pytest_cases.parametrize_with_cases(
+        "context_member, valid_name, resetted_members",
         cases=CasesSetIOContextMemberName,
         prefix="cleared",
     )
+    @pytest.mark.it("reset depending IOContext attributes when name is changed")
     def test_reset_depending_context(
         self,
         valid_io_manager: io.IOManager,
         context_member: io.IOContextMember,
         valid_name: str,
-        cleared_members: list[io.IOContextMember],
+        resetted_members: dict[io.IOContextMember, list[io.IOContextMember]],
     ) -> None:
-        manager = valid_io_manager
+        valid_io_manager.set_context_member_name(context_member, valid_name)
 
-        manager.set_context_member_name(context_member, valid_name)
-
-        output = manager.get_io_context()
-        for member in cleared_members:
-            assert output.get_context_member_name(member) == ""
+        output_io_context = valid_io_manager.get_io_context()
+        for member in resetted_members[context_member]:
+            assert output_io_context.get_context_member_name(member) == ""
 
     @pytest_cases.parametrize_with_cases(
         "context_member, valid_name",
