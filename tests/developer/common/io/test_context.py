@@ -1,3 +1,5 @@
+import dataclasses
+
 import pytest
 import pytest_cases
 
@@ -37,11 +39,13 @@ class TestDefaultIOManagerConstructor:
 class TestGetOntologyContext:
     def test_returned_context_is_copy(self, io_manager: io.IOManager) -> None:
         ontology_context = io_manager.get_io_context()
-        ontology_context.repository_location = "PathModified"
+        original_data = dataclasses.asdict(ontology_context)
 
-        ontology_context = io_manager.get_io_context()
+        ontology_context.repository_location = "LocationModified"
 
-        assert not ontology_context.repository_location
+        new_ontology_context = io_manager.get_io_context()
+        data_after_modification = dataclasses.asdict(new_ontology_context)
+        assert original_data == data_after_modification
 
 
 class TestSetRepositoryLocation:
