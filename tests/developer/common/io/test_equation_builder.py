@@ -51,7 +51,7 @@ BAD_DATA_WRONG_TYPE = [
 
 class CasesEquationBuilding:
     def valid_data_ok(
-        self, fake_io_manager: IOManager, fake_storage: FakeStorage
+        self, test_io_manager: IOManager, fake_storage: FakeStorage
     ) -> tuple[IOManager, EquationMap]:
         ontology_name = "ontologyOK"
 
@@ -59,16 +59,16 @@ class CasesEquationBuilding:
             fake_storage, INDEX_DATA, VARIABLE_DATA, EQUATION_DATA, ontology_name
         )
 
-        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
+        test_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
         indices = build_index_map(INDEX_DATA)
         variables = build_variable_map(VARIABLE_DATA, indices)
         expected_equations = build_equation_map(EQUATION_DATA, variables)
 
-        return fake_io_manager, expected_equations
+        return test_io_manager, expected_equations
 
     def valid_context_change(
-        self, fake_io_manager: IOManager, fake_storage: FakeStorage
+        self, test_io_manager: IOManager, fake_storage: FakeStorage
     ) -> tuple[IOManager, EquationMap]:
         ontology_name1 = "ontologyOK"
         ontology_name2 = "VALID_ONTOLOGY"
@@ -85,15 +85,15 @@ class CasesEquationBuilding:
         variables = build_variable_map(VARIABLE_DATA, indices)
         expected_equations = build_equation_map(EQUATION_DATA2, variables)
 
-        fake_io_manager.set_context_member_name(
+        test_io_manager.set_context_member_name(
             IOContextMember.ONTOLOGY, ontology_name1
         )
-        fake_io_manager.get_current_equation_map()
-        fake_io_manager.set_context_member_name(
+        test_io_manager.get_current_equation_map()
+        test_io_manager.set_context_member_name(
             IOContextMember.ONTOLOGY, ontology_name2
         )
 
-        return fake_io_manager, expected_equations
+        return test_io_manager, expected_equations
 
     @parametrize(
         data=(BAD_DATA_MISSING_REQUIRED, BAD_DATA_WRONG_TYPE),
@@ -101,7 +101,7 @@ class CasesEquationBuilding:
     )
     @case(id="")
     def invalid_data(
-        self, fake_io_manager: IOManager, fake_storage: FakeStorage, data: typing.Any
+        self, test_io_manager: IOManager, fake_storage: FakeStorage, data: typing.Any
     ) -> IOManager:
         ontology_name = "ontologyOK"
 
@@ -109,9 +109,9 @@ class CasesEquationBuilding:
             fake_storage, INDEX_DATA, VARIABLE_DATA, data, ontology_name
         )
 
-        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
+        test_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
-        return fake_io_manager
+        return test_io_manager
 
     def _setup_fake_data(
         self,

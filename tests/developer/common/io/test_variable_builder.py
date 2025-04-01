@@ -44,7 +44,7 @@ BAD_DATA_WRONG_TYPE = [
 
 class CasesVariableBuilding:
     def valid_data_ok(
-        self, fake_io_manager: IOManager, fake_storage: FakeStorage
+        self, test_io_manager: IOManager, fake_storage: FakeStorage
     ) -> tuple[IOManager, VariableMap]:
         index_map_data = INDEX_DATA
         variable_map_data = GOOD_DATA1
@@ -54,15 +54,15 @@ class CasesVariableBuilding:
             fake_storage, index_map_data, variable_map_data, ontology_name
         )
 
-        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
+        test_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
         indices = build_index_map(index_map_data)
         expected_variables = build_variable_map(variable_map_data, indices)
 
-        return fake_io_manager, expected_variables
+        return test_io_manager, expected_variables
 
     def valid_context_change(
-        self, fake_io_manager: IOManager, fake_storage: FakeStorage
+        self, test_io_manager: IOManager, fake_storage: FakeStorage
     ) -> tuple[IOManager, VariableMap]:
         index_map_data = INDEX_DATA
         initial_variable_map_data = GOOD_DATA1
@@ -80,15 +80,15 @@ class CasesVariableBuilding:
         indices = build_index_map(index_map_data)
         expected_variables = build_variable_map(final_variable_map_data, indices)
 
-        fake_io_manager.set_context_member_name(
+        test_io_manager.set_context_member_name(
             IOContextMember.ONTOLOGY, ontology_name1
         )
-        fake_io_manager.get_current_variable_map()
-        fake_io_manager.set_context_member_name(
+        test_io_manager.get_current_variable_map()
+        test_io_manager.set_context_member_name(
             IOContextMember.ONTOLOGY, ontology_name2
         )
 
-        return fake_io_manager, expected_variables
+        return test_io_manager, expected_variables
 
     @parametrize(
         data=(BAD_DATA_MISSING_REQUIRED, BAD_DATA_WRONG_TYPE),
@@ -96,7 +96,7 @@ class CasesVariableBuilding:
     )
     @case(id="")
     def invalid_data(
-        self, fake_io_manager: IOManager, fake_storage: FakeStorage, data: typing.Any
+        self, test_io_manager: IOManager, fake_storage: FakeStorage, data: typing.Any
     ) -> IOManager:
         index_map_data = INDEX_DATA
         variable_map_data = data
@@ -106,9 +106,9 @@ class CasesVariableBuilding:
             fake_storage, index_map_data, variable_map_data, ontology_name
         )
 
-        fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
+        test_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 
-        return fake_io_manager
+        return test_io_manager
 
     def _setup_fake_data(
         self,

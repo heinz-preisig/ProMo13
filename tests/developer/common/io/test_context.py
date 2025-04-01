@@ -10,20 +10,20 @@ def io_manager() -> io.IOManager:
 
 
 @pytest.fixture
-def valid_io_manager(fake_io_manager: io.IOManager) -> io.IOManager:
+def valid_io_manager(test_io_manager: io.IOManager) -> io.IOManager:
     REPO_LOCATION = "VALID_LOCATION"
     ONTOLOGY_NAME = "VALID_ONTOLOGY"
     MODEL_NAME = "VALID_MODEL"
     INSTANTIATION_NAME = "VALID_INSTANTIATION"
 
-    fake_io_manager.set_repository_location(REPO_LOCATION)
-    fake_io_manager.set_context_member_name(io.IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
-    fake_io_manager.set_context_member_name(io.IOContextMember.MODEL, MODEL_NAME)
-    fake_io_manager.set_context_member_name(
+    test_io_manager.set_repository_location(REPO_LOCATION)
+    test_io_manager.set_context_member_name(io.IOContextMember.ONTOLOGY, ONTOLOGY_NAME)
+    test_io_manager.set_context_member_name(io.IOContextMember.MODEL, MODEL_NAME)
+    test_io_manager.set_context_member_name(
         io.IOContextMember.INSTANTIATION, INSTANTIATION_NAME
     )
 
-    return fake_io_manager
+    return test_io_manager
 
 
 class TestDefaultIOManagerConstructor:
@@ -45,8 +45,8 @@ class TestGetOntologyContext:
 
 
 class TestSetRepositoryLocation:
-    def test_set_location_ok(self, fake_io_manager: io.IOManager) -> None:
-        manager = fake_io_manager
+    def test_set_location_ok(self, test_io_manager: io.IOManager) -> None:
+        manager = test_io_manager
         LOCATION = "VALID_LOCATION"
 
         manager.set_repository_location(LOCATION)

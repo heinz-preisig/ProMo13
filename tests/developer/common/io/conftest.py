@@ -10,5 +10,5 @@ def fake_storage() -> FakeStorage:
 
 
 @pytest.fixture
-def fake_io_manager(fake_storage: FakeStorage) -> IOManager:
+def test_io_manager(fake_storage: FakeStorage) -> IOManager:
     return IOManager(fake_storage)
