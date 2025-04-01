@@ -5,7 +5,7 @@ from pytest_cases import case, fixture, parametrize, parametrize_with_cases
 
 from src.common.corelib import Index, IndexMap
 from src.common.io import IOBuilderError, IOContext, IOContextMember, IOManager
-from tests.developer.common.io.helpers import FakeDataIO, build_index_map
+from tests.developer.common.io.helpers import FakeStorage, build_index_map
 
 GOOD_DATA1 = [
     {"identifier": "I_1", "label": "node"},
@@ -34,12 +34,12 @@ BAD_DATA_WRONG_TYPE = [
 
 class CasesIndexBuilding:
     def valid_data_ok(
-        self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
+        self, fake_io_manager: IOManager, fake_storage: FakeStorage
     ) -> tuple[IOManager, IndexMap]:
         map_data = GOOD_DATA1
         ontology_name = "ontologyOK"
 
-        fake_data_io.set_index_data(map_data, ontology_name)
+        fake_storage.set_index_data(map_data, ontology_name)
 
         expected_index_map = build_index_map(map_data)
 
@@ -48,15 +48,15 @@ class CasesIndexBuilding:
         return fake_io_manager, expected_index_map
 
     def valid_context_change(
-        self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
+        self, fake_io_manager: IOManager, fake_storage: FakeStorage
     ) -> tuple[IOManager, IndexMap]:
         initial_index_data = GOOD_DATA1
         final_index_data = GOOD_DATA2
         ontology_name1 = "VALID_ONTOLOGY"
         ontology_name2 = "ontologyOK"
 
-        fake_data_io.set_index_data(initial_index_data, ontology_name1)
-        fake_data_io.set_index_data(final_index_data, ontology_name2)
+        fake_storage.set_index_data(initial_index_data, ontology_name1)
+        fake_storage.set_index_data(final_index_data, ontology_name2)
 
         expected_index_map = build_index_map(final_index_data)
 
@@ -76,11 +76,11 @@ class CasesIndexBuilding:
     )
     @case(id="")
     def invalid_data(
-        self, fake_io_manager: IOManager, fake_data_io: FakeDataIO, data: typing.Any
+        self, fake_io_manager: IOManager, fake_storage: FakeStorage, data: typing.Any
     ) -> IOManager:
         ontology_name = "ontologyOK"
 
-        fake_data_io.set_index_data(data, ontology_name)
+        fake_storage.set_index_data(data, ontology_name)
 
         fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
 

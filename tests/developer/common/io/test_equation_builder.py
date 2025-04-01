@@ -6,7 +6,7 @@ from pytest_cases import case, parametrize, parametrize_with_cases
 from src.common.corelib import EquationMap
 from src.common.io import IOBuilderError, IOContextMember, IOManager
 from tests.developer.common.io.helpers import (
-    FakeDataIO,
+    FakeStorage,
     build_equation_map,
     build_index_map,
     build_variable_map,
@@ -51,12 +51,12 @@ BAD_DATA_WRONG_TYPE = [
 
 class CasesEquationBuilding:
     def valid_data_ok(
-        self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
+        self, fake_io_manager: IOManager, fake_storage: FakeStorage
     ) -> tuple[IOManager, EquationMap]:
         ontology_name = "ontologyOK"
 
         self._setup_fake_data(
-            fake_data_io, INDEX_DATA, VARIABLE_DATA, EQUATION_DATA, ontology_name
+            fake_storage, INDEX_DATA, VARIABLE_DATA, EQUATION_DATA, ontology_name
         )
 
         fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
@@ -68,17 +68,17 @@ class CasesEquationBuilding:
         return fake_io_manager, expected_equations
 
     def valid_context_change(
-        self, fake_io_manager: IOManager, fake_data_io: FakeDataIO
+        self, fake_io_manager: IOManager, fake_storage: FakeStorage
     ) -> tuple[IOManager, EquationMap]:
         ontology_name1 = "ontologyOK"
         ontology_name2 = "VALID_ONTOLOGY"
 
         self._setup_fake_data(
-            fake_data_io, INDEX_DATA, VARIABLE_DATA, EQUATION_DATA, ontology_name1
+            fake_storage, INDEX_DATA, VARIABLE_DATA, EQUATION_DATA, ontology_name1
         )
 
         self._setup_fake_data(
-            fake_data_io, INDEX_DATA, VARIABLE_DATA, EQUATION_DATA2, ontology_name2
+            fake_storage, INDEX_DATA, VARIABLE_DATA, EQUATION_DATA2, ontology_name2
         )
 
         indices = build_index_map(INDEX_DATA)
@@ -101,12 +101,12 @@ class CasesEquationBuilding:
     )
     @case(id="")
     def invalid_data(
-        self, fake_io_manager: IOManager, fake_data_io: FakeDataIO, data: typing.Any
+        self, fake_io_manager: IOManager, fake_storage: FakeStorage, data: typing.Any
     ) -> IOManager:
         ontology_name = "ontologyOK"
 
         self._setup_fake_data(
-            fake_data_io, INDEX_DATA, VARIABLE_DATA, data, ontology_name
+            fake_storage, INDEX_DATA, VARIABLE_DATA, data, ontology_name
         )
 
         fake_io_manager.set_context_member_name(IOContextMember.ONTOLOGY, ontology_name)
@@ -115,7 +115,7 @@ class CasesEquationBuilding:
 
     def _setup_fake_data(
         self,
-        fake: FakeDataIO,
+        fake: FakeStorage,
         index_map_data: typing.Any,
         variable_map_data: typing.Any,
         equation_map_data: typing.Any,

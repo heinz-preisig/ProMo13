@@ -11,7 +11,7 @@ from src.common.corelib import (
 from src.common.io import IOContext, IOContextMember
 
 
-class FakeDataIO:
+class FakeStorage:
     def __init__(self) -> None:
         self._index_data: dict[str, typing.Any] = {}
         self._variable_data: dict[str, typing.Any] = {}
