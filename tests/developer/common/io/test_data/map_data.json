@@ -1,0 +1,72 @@
+{
+  "index": {
+    "empty": [],
+    "one_item": [{ "identifier": "I_1", "label": "label_I1", "iri": "iri_I1" }],
+    "multiple_items": [
+      { "identifier": "I_1", "label": "label_I1", "iri": "iri_I1" },
+      { "identifier": "I_2", "label": "label_I2", "iri": "iri_I2" },
+      { "identifier": "I_3", "label": "label_I3", "iri": "iri_I3" }
+    ],
+    "missing_required": [{ "label": "label_I1", "iri": "iri_I1" }],
+    "wrong_attribute_type": [
+      { "identifier": 1, "label": "label_I1", "iri": "iri_I1" }
+    ]
+  },
+  "variable": {
+    "empty": [],
+    "one_item": [
+      {
+        "identifier": "V_1",
+        "iri": "iri_V1",
+        "label": "label_V1",
+        "doc": "doc_V1",
+        "indices": ["I_1"]
+      }
+    ],
+    "multiple_items": [
+      {
+        "identifier": "V_1",
+        "iri": "iri_V1",
+        "label": "label_V1",
+        "doc": "doc_V1",
+        "indices": ["I_1"]
+      },
+      {
+        "identifier": "V_2",
+        "iri": "iri_V2",
+        "label": "label_V2",
+        "doc": "doc_V2",
+        "indices": []
+      },
+      {
+        "identifier": "V_3",
+        "iri": "iri_V3",
+        "label": "label_V3",
+        "doc": "doc_V3",
+        "indices": ["I_2", "I_3"]
+      }
+    ],
+    "missing_required": [
+      { "iri": "iri_V1", "label": "label_V1", "indices": ["I_1"] }
+    ],
+    "wrong_attribute_type": [
+      {
+        "identifier": 1,
+        "iri": "iri_V1",
+        "label": "label_V1",
+        "indices": ["I_1"]
+      }
+    ]
+  },
+  "equation": {
+    "empty": [],
+    "one_item": [{ "identifier": "E_1", "variables": ["V_1", "V_2"] }],
+    "multiple_items": [
+      { "identifier": "E_1", "variables": ["V_1", "V_2"] },
+      { "identifier": "E_2", "variables": ["V_2", "V_1", "V_3"] },
+      { "identifier": "E_3", "variables": ["V_3", "V_1", "V_2"] }
+    ],
+    "missing_required": [{ "variables": ["V_1", "V_2"] }],
+    "wrong_attribute_type": [{ "identifier": 1, "variables": ["V_1", "V_2"] }]
+  }
+}

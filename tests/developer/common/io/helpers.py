@@ -1,62 +1,74 @@
 import typing
 
-from src.common.corelib import (
-    Equation,
-    EquationMap,
-    Index,
-    IndexMap,
-    Variable,
-    VariableMap,
-)
+from src.common import corelib
 from src.common.io import IOContext, IOContextMember
 
 
 class FakeStorage:
     def __init__(self) -> None:
-        self._context_member_options: dict[IOContextMember, list[str]] = {}
-        self._index_data: dict[str, typing.Any] = {}
-        self._variable_data: dict[str, typing.Any] = {}
-        self._equation_data: dict[str, typing.Any] = {}
+        self._context_member_options: dict[IOContextMember, list[str]] = {
+            IOContextMember.ONTOLOGY: [],
+            IOContextMember.MODEL: [],
+            IOContextMember.INSTANTIATION: [],
+        }
+        self._map_data: dict[str, dict[str, typing.Any]] = {}
 
     def validate_repository_location(self, location: str) -> None:
         pass
-
-    def set_context_member_options(
-        self, context_member: IOContextMember, options: list[str]
-    ) -> None:
-        self._context_member_options[context_member] = options
 
     def get_context_member_options(
         self, context_member: IOContextMember, context: IOContext
     ) -> list[str]:
         return self._context_member_options[context_member]
 
-    def set_index_data(self, data: typing.Any, ontology_name: str) -> None:
-        self._index_data[ontology_name] = data
-
     def get_index_data(self, context: IOContext) -> typing.Any:
-        return self._index_data[context.ontology_name]
+        ontology_name = context.ontology_name
+        map_name = "index"
 
-    def set_variable_data(self, data: typing.Any, ontology_name: str) -> None:
-        self._variable_data[ontology_name] = data
+        return self._map_data[ontology_name][map_name]
 
     def get_variable_data(self, context: IOContext) -> typing.Any:
-        return self._variable_data[context.ontology_name]
+        ontology_name = context.ontology_name
+        map_name = "variable"
 
-    def set_equation_data(self, data: typing.Any, ontology_name: str) -> None:
-        self._equation_data[ontology_name] = data
+        return self._map_data[ontology_name][map_name]
 
     def get_equation_data(self, context: IOContext) -> typing.Any:
-        return self._equation_data[context.ontology_name]
+        ontology_name = context.ontology_name
+        map_name = "equation"
+
+        return self._map_data[ontology_name][map_name]
+
+    # Extra methods to change the state of the storage
+    def set_context_member_options(
+        self, context_member: IOContextMember, options: list[str]
+    ) -> None:
+        self._context_member_options[context_member] = options
+
+    def set_map_data(self, ontology_name: str, full_map_data: typing.Any) -> None:
+        self._map_data[ontology_name] = full_map_data
 
 
 IDENTIFIER_KEY = "identifier"
 
+type IOMap = corelib.IndexMap | corelib.VariableMap | corelib.EquationMap
 
-def build_index_map(map_data: typing.Any) -> IndexMap:
+
+def build_map(map_name: str, full_map_data: typing.Any) -> IOMap:
+    match map_name:
+        case "index":
+            return build_index_map(full_map_data)
+        case "variable":
+            return build_variable_map(full_map_data)
+        case "equation":
+            return build_equation_map(full_map_data)
+
+
+def build_index_map(full_map_data: typing.Any) -> corelib.IndexMap:
+    index_map_data = full_map_data["index"]
     indices = {}
-    for idx_data in map_data:
-        new_index = Index(**idx_data)
+    for idx_data in index_map_data:
+        new_index = corelib.Index(**idx_data)
 
         identifier = idx_data[IDENTIFIER_KEY]
         indices[identifier] = new_index
@@ -64,13 +76,16 @@ def build_index_map(map_data: typing.Any) -> IndexMap:
     return indices
 
 
-def build_variable_map(map_data: typing.Any, indices: IndexMap) -> VariableMap:
+def build_variable_map(full_map_data: typing.Any) -> corelib.VariableMap:
+    indices = build_index_map(full_map_data)
+    variable_map_data = full_map_data["variable"]
+
     INDICES_KEY = "indices"
     variables = {}
-    for var_data in map_data:
+    for var_data in variable_map_data:
         instanced_indices = [indices[idx] for idx in var_data[INDICES_KEY]]
         instanced_var_data = var_data | {INDICES_KEY: instanced_indices}
-        new_var = Variable(**instanced_var_data)
+        new_var = corelib.Variable(**instanced_var_data)
 
         identifier = var_data[IDENTIFIER_KEY]
         variables[identifier] = new_var
@@ -78,17 +93,19 @@ def build_variable_map(map_data: typing.Any, indices: IndexMap) -> VariableMap:
     return variables
 
 
-def build_equation_map(map_data: typing.Any, variables: VariableMap) -> EquationMap:
-    VARIABLES_KEY = "variables"
+def build_equation_map(full_map_data: typing.Any) -> corelib.EquationMap:
+    variables = build_variable_map(full_map_data)
+    equations_map_data = full_map_data["equation"]
 
+    VARIABLES_KEY = "variables"
     equations = {}
-    for eq_data in map_data:
+    for eq_data in equations_map_data:
         instanced_variables = [variables[idx] for idx in eq_data[VARIABLES_KEY]]
         instanced_dict = {VARIABLES_KEY: instanced_variables}
 
         instanced_eq_data = eq_data | instanced_dict
 
-        new_eq = Equation(**instanced_eq_data)
+        new_eq = corelib.Equation(**instanced_eq_data)
 
         identifier = eq_data[IDENTIFIER_KEY]
         equations[identifier] = new_eq
