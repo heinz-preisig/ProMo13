@@ -80,7 +80,7 @@ class IndexMapBuilder(BaseMapBuilder[corelib.Index]):
     def __init__(self) -> None:
         super().__init__()
 
-        self._corrupted_error_msg = "Corrupted Index file"
+        self._corrupted_error_msg = "Corrupted index data"
         self._item_type = corelib.Index
 
     def _pre_process_data(self, data: typing.Any) -> typing.Any:
@@ -93,7 +93,7 @@ class VariableMapBuilder(BaseMapBuilder[corelib.Variable]):
 
         super().__init__()
 
-        self._corrupted_error_msg = "Corrupted Variable file"
+        self._corrupted_error_msg = "Corrupted variable data"
         self._item_type = corelib.Variable
 
     def _register_extra_hooks(self) -> None:
@@ -114,7 +114,7 @@ class EquationMapBuilder(BaseMapBuilder[corelib.Equation]):
 
         super().__init__()
 
-        self._corrupted_error_msg = "Corrupted Equation data"
+        self._corrupted_error_msg = "Corrupted equation data"
         self._item_type = corelib.Equation
 
     def _register_extra_hooks(self) -> None:
