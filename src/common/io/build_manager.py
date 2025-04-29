@@ -1,5 +1,3 @@
-import typing
-
 from src.common import corelib
 from src.common.io import builders, context, storage
 
@@ -58,24 +56,3 @@ class IOBuildManager:
                 data = self._data_controller.get_equation_data(io_context)
 
         self._core_maps[map_variant] = builder.build(data)
-
-    def get_indices(self, io_context: context.IOContext) -> corelib.IndexMap:
-        index_map = typing.cast(
-            corelib.IndexMap,
-            self.get_core_map(io_context, corelib.CoreMapVariant.INDEX),
-        )
-        return index_map
-
-    def get_variables(self, io_context: context.IOContext) -> corelib.VariableMap:
-        variable_map = typing.cast(
-            corelib.VariableMap,
-            self.get_core_map(io_context, corelib.CoreMapVariant.VARIABLE),
-        )
-        return variable_map
-
-    def get_equations(self, io_context: context.IOContext) -> corelib.EquationMap:
-        equation_map = typing.cast(
-            corelib.EquationMap,
-            self.get_core_map(io_context, corelib.CoreMapVariant.EQUATION),
-        )
-        return equation_map
