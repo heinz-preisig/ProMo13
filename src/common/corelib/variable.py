@@ -2,8 +2,6 @@ import attrs
 
 from . import index
 
-type VariableMap = dict[str, Variable]
-
 
 @attrs.define
 class Variable:
