@@ -1,6 +1,7 @@
 import json
 import pathlib
 import typing
+from collections.abc import Callable
 
 import pytest
 import pytest_cases
@@ -15,6 +16,7 @@ ONE_ITEM_DATA_KEY = "one_item"
 MULTIPLE_ITEMS_DATA_KEY = "multiple_items"
 MISSING_REQUIRED_DATA_KEY = "missing_required"
 WRONG_ATTRIBUTE_TYPE_DATA_KEY = "wrong_attribute_type"
+INVALID_REFERENCE_DATA_KEY = "invalid_reference"
 
 
 @pytest.fixture(scope="module")
@@ -289,7 +291,11 @@ def test_get_map_correctly_second_time(
 
 
 @pytest_cases.parametrize(
-    data_key=(MISSING_REQUIRED_DATA_KEY, WRONG_ATTRIBUTE_TYPE_DATA_KEY)
+    data_key=(
+        MISSING_REQUIRED_DATA_KEY,
+        WRONG_ATTRIBUTE_TYPE_DATA_KEY,
+        INVALID_REFERENCE_DATA_KEY,
+    )
 )
 @pytest_cases.parametrize(map_name=("index", "variable", "equation"))
 @pytest_cases.case(id="")
@@ -330,8 +336,18 @@ def configure_io_manager_case_exception_on_invalid_data(
     cases=case_exception_on_invalid_data,
 )
 def test_exception_on_invalid_data(
-    test_io_manager: io.IOManager, error_message: str, get_map_method_name: str
+    test_io_manager: io.IOManager,
+    error_message: str,
+    get_map_method_name: str,
+    current_cases: dict[str, tuple[str, Callable[..., None], dict[str, typing.Any]]],
 ) -> None:
+    _, _, params = current_cases["test_io_manager"]
+    if (
+        params["data_key"] == INVALID_REFERENCE_DATA_KEY
+        and params["map_name"] == "index"
+    ):
+        pytest.skip("Index map does not have any references")
+
     # GIVEN an IOManager with a fake storage supplying incorrect map data,
     #  the expected error message
     #  and a get_map method
@@ -341,6 +357,3 @@ def test_exception_on_invalid_data(
     # THEN the expected error message should be raised
     with pytest.raises(io.IOBuilderError, match=error_message):
         get_map_method()
-
-
-# # Test when the reference for an item in a map is not found

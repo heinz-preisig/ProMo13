@@ -10,6 +10,9 @@
     "missing_required": [{ "label": "label_I1", "iri": "iri_I1" }],
     "wrong_attribute_type": [
       { "identifier": 1, "label": "label_I1", "iri": "iri_I1" }
+    ],
+    "invalid_reference": [
+      { "identifier": "I_1", "label": "label_I1", "iri": "iri_I1" }
     ]
   },
   "variable": {
@@ -56,6 +59,15 @@
         "label": "label_V1",
         "indices": ["I_1"]
       }
+    ],
+    "invalid_reference": [
+      {
+        "identifier": "V_1",
+        "iri": "iri_V1",
+        "label": "label_V1",
+        "doc": "doc_V1",
+        "indices": ["I_4"]
+      }
     ]
   },
   "equation": {
@@ -67,6 +79,7 @@
       { "identifier": "E_3", "variables": ["V_3", "V_1", "V_2"] }
     ],
     "missing_required": [{ "variables": ["V_1", "V_2"] }],
-    "wrong_attribute_type": [{ "identifier": 1, "variables": ["V_1", "V_2"] }]
+    "wrong_attribute_type": [{ "identifier": 1, "variables": ["V_1", "V_2"] }],
+    "invalid_reference": [{ "identifier": "E_1", "variables": ["V_4"] }]
   }
 }

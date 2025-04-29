@@ -104,7 +104,13 @@ class VariableMapBuilder(BaseMapBuilder[corelib.Variable]):
 
     def _pre_process_data(self, data: typing.Any) -> typing.Any:
         INDICES_KEY = "indices"
-        instanced_indices = [self._indices[idx_id] for idx_id in data[INDICES_KEY]]
+
+        try:
+            instanced_indices = [self._indices[idx_id] for idx_id in data[INDICES_KEY]]
+        except KeyError as e:
+            logger.error(e)
+            raise exceptions.IOBuilderError(self._corrupted_error_msg) from e
+
         return data | {INDICES_KEY: instanced_indices}
 
 
@@ -126,9 +132,13 @@ class EquationMapBuilder(BaseMapBuilder[corelib.Equation]):
     def _pre_process_data(self, data: typing.Any) -> typing.Any:
         VARIABLES_KEY = "variables"
 
-        instanced_variables = [
-            self._variables[var_id] for var_id in data[VARIABLES_KEY]
-        ]
+        try:
+            instanced_variables = [
+                self._variables[var_id] for var_id in data[VARIABLES_KEY]
+            ]
+        except KeyError as e:
+            logger.error(e)
+            raise exceptions.IOBuilderError(self._corrupted_error_msg) from e
 
         instanced_dict = {VARIABLES_KEY: instanced_variables}
 
