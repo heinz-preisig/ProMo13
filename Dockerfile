@@ -8,7 +8,7 @@ WORKDIR /ProMo
 
 # Install Python 3, PyQt5
 RUN apt-get update && apt-get install -qq -y \
-#	python3-pyqt5 \
+	python3-pyqt5 \
 #    python3-pyqt5sip \
     graphviz \
 #	texlive okular \
@@ -47,10 +47,10 @@ COPY ./src/ src/
 #ENV DISPLAY=:
 #
 ## Start Xvfb before running the Qt application
-#CMD ["Xvfb", ":99", "-screen", "0", "1024x768x24", "&", "promo"]
+CMD ["Xvfb", ":99", "-screen", "0", "1024x768x24", "&", "promo"]
 #
 ## Mount the host machine's X11 socket
-#RUN mkdir -p /tmp/.X11-unix
+RUN mkdir -p /tmp/.X11-unix
 VOLUME /tmp/.X11-unix
 
 # Set the DISPLAY environment variable
@@ -63,10 +63,11 @@ RUN chmod 0700 /ProMo/tasks
 
 ENV QT_QPA_PLATFORM=xcb
 
-RUN chmod +x tasks/task.sh
+RUN chmod +x tasks/*.sh
 
 
 #EXPOSE 8000
 
 WORKDIR /ProMo/tasks
-CMD ["bash", "task.sh"]
+#CMD ["bash", "cd /ProMo/tasks"]
+CMD ["python3", "run.py"]
