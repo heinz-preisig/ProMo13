@@ -1,3 +1,5 @@
+import typing
+
 from src.common import corelib
 from src.common.io import build_manager, context, context_handler, storage
 
@@ -36,17 +38,7 @@ class IOManager:
             context_member, io_context
         )
 
-    def get_current_index_map(self) -> corelib.IndexMap:
+    def get_core_map(self, map_variant: corelib.CoreMapVariant) -> corelib.CoreMap:
         io_context = self._context_handler.get_io_context()
 
-        return self._builder.get_indices(io_context)
-
-    def get_current_variable_map(self) -> corelib.VariableMap:
-        io_context = self._context_handler.get_io_context()
-
-        return self._builder.get_variables(io_context)
-
-    def get_current_equation_map(self) -> corelib.EquationMap:
-        io_context = self._context_handler.get_io_context()
-
-        return self._builder.get_equations(io_context)
+        return self._builder.get_core_map(io_context, map_variant)

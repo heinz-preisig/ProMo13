@@ -1,7 +1,5 @@
 import attrs
 
-type IndexMap = dict[str, Index]
-
 
 @attrs.define
 class Index:

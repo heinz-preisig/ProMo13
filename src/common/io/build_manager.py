@@ -1,63 +1,58 @@
 from src.common import corelib
 from src.common.io import builders, context, storage
 
+CORE_MAPS_BUILD_DEPENDENCIES = {
+    corelib.CoreMapVariant.INDEX: [],
+    corelib.CoreMapVariant.VARIABLE: [corelib.CoreMapVariant.INDEX],
+    corelib.CoreMapVariant.EQUATION: [corelib.CoreMapVariant.VARIABLE],
+}
+
 
 class IOBuildManager:
     def __init__(self, data_controller: storage.GenericStorage):
         self._data_controller = data_controller
-        self._indices: corelib.IndexMap = {}
-        self._variables: corelib.VariableMap = {}
-        self._equations: corelib.EquationMap = {}
+
+        self._core_maps: dict[corelib.CoreMapVariant, corelib.CoreMap] = {
+            corelib.CoreMapVariant.INDEX: {},
+            corelib.CoreMapVariant.VARIABLE: {},
+            corelib.CoreMapVariant.EQUATION: {},
+        }
 
     def reset(self) -> None:
-        self._indices = {}
-        self._variables = {}
-        self._equations = {}
+        for core_map_variant in self._core_maps:
+            self._core_maps[core_map_variant] = {}
 
-    def get_indices(self, io_context: context.IOContext) -> corelib.IndexMap:
-        self._build_indices(io_context)
+    def get_core_map(
+        self, io_context: context.IOContext, map_variant: corelib.CoreMapVariant
+    ) -> corelib.CoreMap:
+        self._build_core_map(io_context, map_variant)
 
-        return self._indices
+        return self._core_maps[map_variant]
 
-    def _build_indices(self, io_context: context.IOContext) -> None:
-        indices_cached = bool(self._indices)
-        if indices_cached:
+    def _build_core_map(
+        self, io_context: context.IOContext, map_variant: corelib.CoreMapVariant
+    ) -> None:
+        core_map_cached = bool(self._core_maps[map_variant])
+        if core_map_cached:
             return
 
-        builder = builders.IndexMapBuilder()
+        for dependency_variant in CORE_MAPS_BUILD_DEPENDENCIES[map_variant]:
+            self._build_core_map(io_context, dependency_variant)
 
-        data = self._data_controller.get_index_data(io_context)
-        self._indices = builder.build(data)
+        dependencies = [
+            self._core_maps[dependency_variant]
+            for dependency_variant in CORE_MAPS_BUILD_DEPENDENCIES[map_variant]
+        ]
 
-    def get_variables(self, io_context: context.IOContext) -> corelib.VariableMap:
-        self._build_variables(io_context)
+        match map_variant:
+            case corelib.CoreMapVariant.INDEX:
+                builder = builders.IndexMapBuilder(*dependencies)
+                data = self._data_controller.get_index_data(io_context)
+            case corelib.CoreMapVariant.VARIABLE:
+                builder = builders.VariableMapBuilder(*dependencies)
+                data = self._data_controller.get_variable_data(io_context)
+            case corelib.CoreMapVariant.EQUATION:
+                builder = builders.EquationMapBuilder(*dependencies)
+                data = self._data_controller.get_equation_data(io_context)
 
-        return self._variables
-
-    def _build_variables(self, io_context: context.IOContext) -> None:
-        variables_cached = bool(self._variables)
-        if variables_cached:
-            return
-
-        self._build_indices(io_context)
-        builder = builders.VariableMapBuilder(self._indices)
-
-        data = self._data_controller.get_variable_data(io_context)
-        self._variables = builder.build(data)
-
-    def get_equations(self, io_context: context.IOContext) -> corelib.EquationMap:
-        self._build_equations(io_context)
-
-        return self._equations
-
-    def _build_equations(self, io_context: context.IOContext) -> None:
-        equations_cached = bool(self._equations)
-        if equations_cached:
-            return
-
-        self._build_variables(io_context)
-
-        data = self._data_controller.get_equation_data(io_context)
-
-        builder = builders.EquationMapBuilder(self._variables)
-        self._equations = builder.build(data)
+        self._core_maps[map_variant] = builder.build(data)
