@@ -38,29 +38,7 @@ class IOManager:
             context_member, io_context
         )
 
-    def get_current_index_map(self) -> corelib.IndexMap:
+    def get_core_map(self, map_variant: corelib.CoreMapVariant) -> corelib.CoreMap:
         io_context = self._context_handler.get_io_context()
 
-        index_map = typing.cast(
-            corelib.IndexMap,
-            self._builder.get_core_map(io_context, corelib.CoreMapVariant.INDEX),
-        )
-        return index_map
-
-    def get_current_variable_map(self) -> corelib.VariableMap:
-        io_context = self._context_handler.get_io_context()
-
-        variable_map = typing.cast(
-            corelib.VariableMap,
-            self._builder.get_core_map(io_context, corelib.CoreMapVariant.VARIABLE),
-        )
-        return variable_map
-
-    def get_current_equation_map(self) -> corelib.EquationMap:
-        io_context = self._context_handler.get_io_context()
-
-        equation_map = typing.cast(
-            corelib.EquationMap,
-            self._builder.get_core_map(io_context, corelib.CoreMapVariant.EQUATION),
-        )
-        return equation_map
+        return self._builder.get_core_map(io_context, map_variant)

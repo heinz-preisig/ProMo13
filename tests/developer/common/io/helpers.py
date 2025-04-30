@@ -51,17 +51,19 @@ class FakeStorage:
 
 IDENTIFIER_KEY = "identifier"
 
-type IOMap = corelib.IndexMap | corelib.VariableMap | corelib.EquationMap
 
-
-def build_map(map_name: str, full_map_data: typing.Any) -> IOMap:
-    match map_name:
-        case "index":
+def build_map(
+    map_variant: corelib.CoreMapVariant, full_map_data: typing.Any
+) -> corelib.CoreMap:
+    match map_variant:
+        case corelib.CoreMapVariant.INDEX:
             return build_index_map(full_map_data)
-        case "variable":
+        case corelib.CoreMapVariant.VARIABLE:
             return build_variable_map(full_map_data)
-        case "equation":
+        case corelib.CoreMapVariant.EQUATION:
             return build_equation_map(full_map_data)
+
+    return {}
 
 
 def build_index_map(full_map_data: typing.Any) -> corelib.IndexMap:
