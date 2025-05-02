@@ -11,8 +11,8 @@ CORE_MAPS_BUILD_DEPENDENCIES = {
 
 
 class IOBuildManager:
-    def __init__(self, data_controller: storage.GenericStorage):
-        self._data_controller = data_controller
+    def __init__(self, active_storage: storage.GenericStorage):
+        self._storage = active_storage
 
         self._core_maps: dict[corelib.CoreMapVariant, corelib.CoreMap] = {
             corelib.CoreMapVariant.INDEX: {},
@@ -39,7 +39,7 @@ class IOBuildManager:
             return
 
         builder = self._get_core_map_builder(map_variant, io_context)
-        data = self._data_controller.get_core_map_data(map_variant, io_context)
+        data = self._storage.get_core_map_data(map_variant, io_context)
 
         self._core_maps[map_variant] = builder.build(data)
 
