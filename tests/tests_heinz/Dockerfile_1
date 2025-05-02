@@ -1,0 +1,55 @@
+#FROM python:3.10-slim
+FROM ubuntu:22.04
+
+# Install all required system libraries for Qt/xcb support
+RUN apt-get update && apt-get install -y \
+    libx11-xcb1 \
+    libxcb1 \
+    libxcb-glx0 \
+    libxcb-keysyms1 \
+    libxcb-image0 \
+    libxcb-shm0 \
+    libxcb-icccm4 \
+    libxcb-sync1 \
+    libxcb-xfixes0 \
+    libxcb-shape0 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-xinerama0 \
+    libxrender1 \
+    libsm6 \
+    libxext6 \
+    libgl1-mesa-glx \
+    libgl1 \
+    libxkbcommon-x11-0 \
+    libglib2.0-0 \    
+    xvfb \
+    libglu1-mesa-dev \
+    libx11-xcb-dev \
+    '^libxcb*' \
+    libxcb-cursor-dev \
+    libxkbcommon-dev \
+    libxkbcommon-x11-dev \
+    libgl1-mesa-glx \
+    libxcb-cursor0 \
+    x11-apps \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PyQt5
+RUN pip install --no-cache-dir PyQt5
+
+# Set working directory
+WORKDIR /app
+
+# Copy your PyQt5 application
+COPY . /app
+
+CMD ["bash", "ldd $(find / -name libqxcb.so 2>/dev/null)"]
+
+# Run your PyQt5 app
+CMD ["python", "your_pyqt_app.py"]
+
+
+#docker run --rm -it --net=host  -e DISPLAY=$DISPLAY   -v /tmp/.X11-unix:/tmp/.X11-unix   pyqt5-app
+

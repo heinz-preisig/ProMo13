@@ -28,7 +28,7 @@ COPY --from=builder /opt/venv /opt/venv
 # Set environment variables for virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install only runtime dependencies, not build tools
+# Install only runtime dependencies including Graphviz
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libxext6 \
@@ -54,11 +54,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxkbcommon0 \
     ibus \
     python3-minimal \
+    graphviz \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set Qt plugin path and other environment variables
 ENV QT_QPA_PLATFORM_PLUGIN_PATH=/opt/venv/lib/python3.10/site-packages/PyQt5/Qt5/plugins
-#ENV QT_DEBUG_PLUGINS=1   # can be omitted
 ENV QT_XCB_GL_INTEGRATION=none
 ENV QT_IM_MODULE=ibus
 ENV XMODIFIERS=@im=ibus
@@ -67,11 +67,11 @@ ENV GTK_IM_MODULE=ibus
 # Create workspace
 WORKDIR /app
 
-# Copy your application
-COPY . /app/
+# Copy your test application
+COPY graphviz_test.py /app/
 
 # Set display for X11 forwarding
 ENV DISPLAY=:0
 
-# Command to run your application
-CMD ["python3", "your_pyqt_app.py"]
+# Command to run the test application
+CMD ["python3", "graphviz_test.py"]
