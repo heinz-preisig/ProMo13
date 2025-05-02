@@ -1,3 +1,5 @@
+import typing
+
 from src.common import corelib
 from src.common.io import builders, context, storage
 
@@ -9,8 +11,8 @@ CORE_MAPS_BUILD_DEPENDENCIES = {
 
 
 class IOBuildManager:
-    def __init__(self, data_controller: storage.GenericStorage):
-        self._data_controller = data_controller
+    def __init__(self, active_storage: storage.GenericStorage):
+        self._storage = active_storage
 
         self._core_maps: dict[corelib.CoreMapVariant, corelib.CoreMap] = {
             corelib.CoreMapVariant.INDEX: {},
@@ -36,22 +38,39 @@ class IOBuildManager:
         if core_map_cached:
             return
 
-        for dependency_variant in CORE_MAPS_BUILD_DEPENDENCIES[map_variant]:
-            self._build_core_map(io_context, dependency_variant)
-
-        dependencies = [
-            self._core_maps[dependency_variant]
-            for dependency_variant in CORE_MAPS_BUILD_DEPENDENCIES[map_variant]
-        ]
-
-        match map_variant:
-            case corelib.CoreMapVariant.INDEX:
-                builder = builders.IndexMapBuilder(*dependencies)
-            case corelib.CoreMapVariant.VARIABLE:
-                builder = builders.VariableMapBuilder(*dependencies)
-            case corelib.CoreMapVariant.EQUATION:
-                builder = builders.EquationMapBuilder(*dependencies)
-
-        data = self._data_controller.get_core_map_data(map_variant, io_context)
+        builder = self._get_core_map_builder(map_variant, io_context)
+        data = self._storage.get_core_map_data(map_variant, io_context)
 
         self._core_maps[map_variant] = builder.build(data)
+
+    def _get_core_map_builder(
+        self, map_variant: corelib.CoreMapVariant, io_context: context.IOContext
+    ) -> builders.CoreMapBuilder[typing.Any]:
+        dependencies = self._build_core_map_dependencies(map_variant, io_context)
+
+        return self._select_core_map_builder(map_variant, dependencies)
+
+    def _build_core_map_dependencies(
+        self, map_variant: corelib.CoreMapVariant, io_context: context.IOContext
+    ) -> list[corelib.CoreMap]:
+        dependencies = []
+        for dependency_variant in CORE_MAPS_BUILD_DEPENDENCIES[map_variant]:
+            self._build_core_map(io_context, dependency_variant)
+            dependencies.append(self._core_maps[dependency_variant])
+
+        return dependencies
+
+    def _select_core_map_builder(
+        self,
+        map_variant: corelib.CoreMapVariant,
+        dependencies: list[corelib.CoreMap],
+    ) -> builders.CoreMapBuilder[typing.Any]:
+        match map_variant:
+            case corelib.CoreMapVariant.INDEX:
+                return builders.IndexMapBuilder()
+            case corelib.CoreMapVariant.VARIABLE:
+                index_map = typing.cast(corelib.IndexMap, dependencies[0])
+                return builders.VariableMapBuilder(index_map)
+            case corelib.CoreMapVariant.EQUATION:
+                variable_map = typing.cast(corelib.VariableMap, dependencies[0])
+                return builders.EquationMapBuilder(variable_map)
