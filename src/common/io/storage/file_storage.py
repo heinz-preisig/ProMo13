@@ -2,6 +2,7 @@ import typing
 
 import attrs
 
+from src.common import corelib
 from src.common.io import context
 from src.common.io.storage import (
     file_reader,
@@ -27,11 +28,7 @@ class FileStorage:
             context_member, io_context
         )
 
-    def get_index_data(self, io_context: context.IOContext) -> typing.Any:
-        return self._file_reader.read_index_file(io_context)
-
-    def get_variable_data(self, io_context: context.IOContext) -> typing.Any:
-        return self._file_reader.read_variable_file(io_context)
-
-    def get_equation_data(self, io_context: context.IOContext) -> typing.Any:
-        return self._file_reader.read_equation_file(io_context)
+    def get_core_map_data(
+        self, map_variant: corelib.CoreMapVariant, io_context: context.IOContext
+    ) -> typing.Any:
+        return self._file_reader.read_core_map_file(map_variant, io_context)

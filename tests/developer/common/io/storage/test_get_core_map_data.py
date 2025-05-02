@@ -6,11 +6,11 @@ import typing
 import pytest
 import pytest_cases
 
-from src.common import io
+from src.common import corelib, io
 from src.common.io import storage
 
-ACCESS_ERROR = string.Template("Can not access $data_name data")
-CORRUPTED_ERROR = string.Template("Corrupted $data_name data")
+ACCESS_ERROR = string.Template("Can not access $map_variant data")
+CORRUPTED_ERROR = string.Template("Corrupted $map_variant data")
 
 
 @pytest.fixture(scope="module")
@@ -31,7 +31,10 @@ def expected_data_dict(data_dir_path: pathlib.Path) -> dict[str, typing.Any]:
 @pytest_cases.parametrize(
     "name_id, error_msg_template",
     [("1", ACCESS_ERROR), ("2", CORRUPTED_ERROR), ("3", CORRUPTED_ERROR)],
-    ids=("missing file", "invalid json", "invalid json schema"),
+    ids=[
+        f"|error: {error_type}|"
+        for error_type in ["missing file", "invalid json", "invalid json schema"]
+    ],
 )
 def case_index_file_problem(
     ok_context: io.IOContext, name_id: str, error_msg_template: string.Template
@@ -42,50 +45,74 @@ def case_index_file_problem(
     return ok_context, error_msg_template
 
 
-class TestGetDataMethods:
-    @pytest_cases.parametrize(data_name=("index", "variable", "equation"))
-    def test_get_data_ok(
-        self,
-        test_storage: storage.GenericStorage,
-        ok_context: io.IOContext,
-        expected_data_dict: dict[str, typing.Any],
-        data_name: str,
-    ) -> None:
-        expected_data = expected_data_dict[data_name]
-        tested_method_name = f"get_{data_name}_data"
-        tested_method = getattr(test_storage, tested_method_name)
+@pytest_cases.parametrize(
+    map_variant=list(corelib.CoreMapVariant),
+    ids=[f"|map_variant: {map_variant}|" for map_variant in corelib.CoreMapVariant],
+)
+def test_get_core_map_data_correctly(
+    test_storage: storage.GenericStorage,
+    ok_context: io.IOContext,
+    map_variant: corelib.CoreMapVariant,
+    expected_data_dict: dict[str, typing.Any],
+) -> None:
+    # GIVEN a storage instance,
+    # an IOContext pointing to valid data,
+    # a map_variant
+    # and the expected map data,
+    expected_data = expected_data_dict[map_variant]
 
-        output_data = tested_method(ok_context)
+    # WHEN retrieving the map data
+    output_data = test_storage.get_core_map_data(map_variant, ok_context)
 
-        assert expected_data == output_data
+    # THEN the output data should match the expected data
+    assert expected_data == output_data
 
-    @pytest_cases.parametrize(data_name=("index", "variable", "equation"))
-    @pytest_cases.parametrize_with_cases("test_context, error_msg_template", cases=".")
-    def test_exception_on_problem_with_data(
-        self,
-        test_storage: storage.GenericStorage,
-        test_context: io.IOContext,
-        error_msg_template: string.Template,
-        data_name: str,
-    ) -> None:
-        error_msg = error_msg_template.substitute(data_name=data_name)
-        tested_method_name = f"get_{data_name}_data"
-        tested_method = getattr(test_storage, tested_method_name)
 
-        with pytest.raises(io.IOStorageError, match=error_msg):
-            tested_method(test_context)
+@pytest_cases.parametrize_with_cases(
+    "test_context, error_msg_template", cases=case_index_file_problem
+)
+@pytest_cases.parametrize(
+    map_variant=list(corelib.CoreMapVariant),
+    ids=[f"|map_variant: {map_variant}|" for map_variant in corelib.CoreMapVariant],
+)
+def test_exception_on_problem_with_data(
+    test_storage: storage.GenericStorage,
+    test_context: io.IOContext,
+    map_variant: corelib.CoreMapVariant,
+    error_msg_template: string.Template,
+) -> None:
+    # GIVEN a storage instance,
+    # an IOContext pointing to a file with a problem,
+    # a map_variant,
+    # and an error message
+    error_message = error_msg_template.substitute(map_variant=map_variant)
 
-    @pytest_cases.parametrize(data_name=("index", "variable", "equation"))
-    def test_insufficient_io_context(
-        self,
-        ok_context: io.IOContext,
-        test_storage: storage.GenericStorage,
-        data_name: str,
-    ) -> None:
-        error_msg = "Insufficient IOContext to access data"
-        tested_method_name = f"get_{data_name}_data"
-        tested_method = getattr(test_storage, tested_method_name)
-        ok_context.ontology_name = ""
+    # WHEN retrieving the map data
+    # THEN the expected error message should be raised
+    with pytest.raises(io.IOStorageError, match=error_message):
+        test_storage.get_core_map_data(map_variant, test_context)
 
-        with pytest.raises(io.IOStorageError, match=error_msg):
-            tested_method(ok_context)
+
+@pytest.fixture
+def context_with_no_ontology_name() -> io.IOContext:
+    context = io.IOContext()
+    context.ontology_name = ""
+    return context
+
+
+@pytest_cases.parametrize(map_variant=list(corelib.CoreMapVariant))
+def test_exception_on_insufficient_io_context(
+    test_storage: storage.GenericStorage,
+    context_with_no_ontology_name: io.IOContext,
+    map_variant: corelib.CoreMapVariant,
+) -> None:
+    # GIVEN a storage instance,
+    # an IOContext without an ontology name,
+    # a map_variant
+    # and an error message
+    error_message = "Insufficient IOContext to access data"
+
+    # WHEN retrieving the map data
+    # THEN the expected error message should be raised
+    with pytest.raises(io.IOStorageError, match=error_message):
+        test_storage.get_core_map_data(map_variant, context_with_no_ontology_name)
