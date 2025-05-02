@@ -1,5 +1,6 @@
 import typing
 
+from src.common import corelib
 from src.common.io import context
 from src.common.io.storage import json_file_readers
 
@@ -25,17 +26,20 @@ class FileReader:
                     io_context
                 )
 
-    def read_index_file(self, io_context: context.IOContext) -> typing.Any:
-        reader = json_file_readers.IndexFileReader(io_context)
+    def read_core_map_file(
+        self, map_variant: corelib.CoreMapVariant, io_context: context.IOContext
+    ) -> typing.Any:
+        reader = self._get_core_map_file_reader(map_variant, io_context)
 
         return reader.read()
 
-    def read_variable_file(self, io_context: context.IOContext) -> typing.Any:
-        reader = json_file_readers.VariableFileReader(io_context)
-
-        return reader.read()
-
-    def read_equation_file(self, io_context: context.IOContext) -> typing.Any:
-        reader = json_file_readers.EquationFileReader(io_context)
-
-        return reader.read()
+    def _get_core_map_file_reader(
+        self, map_variant: corelib.CoreMapVariant, io_context: context.IOContext
+    ) -> json_file_readers.BaseJsonFileReader:
+        match map_variant:
+            case corelib.CoreMapVariant.INDEX:
+                return json_file_readers.IndexFileReader(io_context)
+            case corelib.CoreMapVariant.VARIABLE:
+                return json_file_readers.VariableFileReader(io_context)
+            case corelib.CoreMapVariant.EQUATION:
+                return json_file_readers.EquationFileReader(io_context)

@@ -21,23 +21,10 @@ class FakeStorage:
     ) -> list[str]:
         return self._context_member_options[context_member]
 
-    def get_index_data(self, context: IOContext) -> typing.Any:
-        ontology_name = context.ontology_name
-        map_name = "index"
-
-        return self._map_data[ontology_name][map_name]
-
-    def get_variable_data(self, context: IOContext) -> typing.Any:
-        ontology_name = context.ontology_name
-        map_name = "variable"
-
-        return self._map_data[ontology_name][map_name]
-
-    def get_equation_data(self, context: IOContext) -> typing.Any:
-        ontology_name = context.ontology_name
-        map_name = "equation"
-
-        return self._map_data[ontology_name][map_name]
+    def get_core_map_data(
+        self, map_variant: corelib.CoreMapVariant, context: IOContext
+    ) -> typing.Any:
+        return self._map_data[context.ontology_name][map_variant]
 
     # Extra methods to change the state of the storage
     def set_context_member_options(

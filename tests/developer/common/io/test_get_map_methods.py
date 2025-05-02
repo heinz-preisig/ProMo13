@@ -103,15 +103,10 @@ class SetupGetMap:
     ) -> dict[str, typing.Any]:
         dummy_context = io.IOContext(ontology_name=ontology_name)
         return {
-            corelib.CoreMapVariant.INDEX: self._fake_storage.get_index_data(
-                dummy_context
-            ),
-            corelib.CoreMapVariant.VARIABLE: self._fake_storage.get_variable_data(
-                dummy_context
-            ),
-            corelib.CoreMapVariant.EQUATION: self._fake_storage.get_equation_data(
-                dummy_context
-            ),
+            map_variant: self._fake_storage.get_core_map_data(
+                map_variant, dummy_context
+            )
+            for map_variant in corelib.CoreMapVariant
         }
 
 
