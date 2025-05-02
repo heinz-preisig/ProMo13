@@ -1,3 +1,5 @@
+import json
+import pathlib
 import string
 import typing
 
@@ -10,114 +12,19 @@ from src.common.io import storage
 ACCESS_ERROR = string.Template("Can not access $data_name data")
 CORRUPTED_ERROR = string.Template("Corrupted $data_name data")
 
-INDEX_DATA = [
-    {"identifier": "I_1", "iri": "iri_I1", "label": "label_I1"},
-    {"identifier": "I_2", "iri": "iri_I2", "label": "label_I2"},
-    {"identifier": "I_3", "iri": "iri_I3", "label": "label_I3"},
-]
+
+@pytest.fixture(scope="module")
+def data_dir_path() -> pathlib.Path:
+    return pathlib.Path(__file__).parent / "test_data"
 
 
-VARIABLE_DATA = [
-    {
-        "identifier": "V_1",
-        "iri": "iri_V1",
-        "label": "label_V1",
-        "doc": "doc_V1",
-        "indices": ["I_1", "I_2"],
-    },
-    {
-        "identifier": "V_2",
-        "iri": "iri_V2",
-        "label": "label_V2",
-        "doc": "doc_V2",
-        "indices": [],
-    },
-    {
-        "identifier": "V_3",
-        "iri": "iri_V3",
-        "label": "label_V3",
-        "doc": "doc_V3",
-        "indices": ["I_1"],
-    },
-    {
-        "identifier": "V_4",
-        "iri": "iri_V4",
-        "label": "label_V4",
-        "doc": "doc_V4",
-        "indices": ["I_3"],
-    },
-    {
-        "identifier": "V_5",
-        "iri": "iri_V5",
-        "label": "label_V5",
-        "doc": "doc_V5",
-        "indices": ["I_1"],
-    },
-    {
-        "identifier": "V_6",
-        "iri": "iri_V6",
-        "label": "label_V6",
-        "doc": "doc_V6",
-        "indices": ["I_1"],
-    },
-    {
-        "identifier": "V_7",
-        "iri": "iri_V7",
-        "label": "label_V7",
-        "doc": "doc_V7",
-        "indices": ["I_1"],
-    },
-    {
-        "identifier": "V_8",
-        "iri": "iri_V8",
-        "label": "label_V8",
-        "doc": "doc_V8",
-        "indices": ["I_1"],
-    },
-    {
-        "identifier": "V_9",
-        "iri": "iri_V9",
-        "label": "label_V9",
-        "doc": "doc_V9",
-        "indices": ["I_1"],
-    },
-    {
-        "identifier": "V_10",
-        "iri": "iri_V10",
-        "label": "label_V10",
-        "doc": "doc_V10",
-        "indices": ["I_1"],
-    },
-    {
-        "identifier": "V_11",
-        "iri": "iri_V11",
-        "label": "label_V11",
-        "doc": "doc_V11",
-        "indices": ["I_1"],
-    },
-    {
-        "identifier": "V_12",
-        "iri": "iri_V12",
-        "label": "label_V12",
-        "doc": "doc_V12",
-        "indices": ["I_1"],
-    },
-]
+@pytest.fixture(scope="module")
+def expected_data_dict(data_dir_path: pathlib.Path) -> dict[str, typing.Any]:
+    data_file_path = data_dir_path / "data.json"
+    with data_file_path.open() as f:
+        data: dict[str, typing.Any] = json.load(f)
 
-
-EQUATION_DATA = [
-    {"identifier": "E_1", "variables": ["V_1", "V_2", "V_3"]},
-    {"identifier": "E_6", "variables": ["V_1", "V_2", "V_5", "V_6"]},
-    {"identifier": "E_2", "variables": ["V_4", "V_5", "V_6"]},
-    {"identifier": "E_3", "variables": ["V_5", "V_1", "V_7"]},
-    {"identifier": "E_4", "variables": ["V_8", "V_9", "V_10"]},
-    {"identifier": "E_5", "variables": ["V_9", "V_4", "V_11", "V_12"]},
-]
-
-
-@pytest.fixture
-def expected_data_dict() -> dict[str, typing.Any]:
-    return {"index": INDEX_DATA, "variable": VARIABLE_DATA, "equation": EQUATION_DATA}
+    return data
 
 
 @pytest_cases.case(id="")
