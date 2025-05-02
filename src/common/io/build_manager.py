@@ -45,7 +45,7 @@ class IOBuildManager:
 
     def _get_core_map_builder(
         self, map_variant: corelib.CoreMapVariant, io_context: context.IOContext
-    ) -> builders.BaseMapBuilder[typing.Any]:
+    ) -> builders.CoreMapBuilder[typing.Any]:
         dependencies = self._build_core_map_dependencies(map_variant, io_context)
 
         return self._select_core_map_builder(map_variant, dependencies)
@@ -64,7 +64,7 @@ class IOBuildManager:
         self,
         map_variant: corelib.CoreMapVariant,
         dependencies: list[corelib.CoreMap],
-    ) -> builders.BaseMapBuilder[typing.Any]:
+    ) -> builders.CoreMapBuilder[typing.Any]:
         match map_variant:
             case corelib.CoreMapVariant.INDEX:
                 return builders.IndexMapBuilder()

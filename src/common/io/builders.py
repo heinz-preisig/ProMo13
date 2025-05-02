@@ -32,7 +32,7 @@ def validate_type(val: typing.Any, target_type: typing.Any) -> typing.Any:
     return val
 
 
-class BaseMapBuilder(abc.ABC, typing.Generic[T]):
+class CoreMapBuilder(abc.ABC, typing.Generic[T]):
     def __init__(self) -> None:
         self._corrupted_error_msg = "Corrupted file"
         self._item_type: type[T]
@@ -76,7 +76,7 @@ class BaseMapBuilder(abc.ABC, typing.Generic[T]):
             raise exceptions.IOBuilderError(self._corrupted_error_msg) from err
 
 
-class IndexMapBuilder(BaseMapBuilder[corelib.Index]):
+class IndexMapBuilder(CoreMapBuilder[corelib.Index]):
     def __init__(self) -> None:
         super().__init__()
 
@@ -87,7 +87,7 @@ class IndexMapBuilder(BaseMapBuilder[corelib.Index]):
         return data
 
 
-class VariableMapBuilder(BaseMapBuilder[corelib.Variable]):
+class VariableMapBuilder(CoreMapBuilder[corelib.Variable]):
     def __init__(self, indices: corelib.IndexMap):
         self._indices = indices
 
@@ -114,7 +114,7 @@ class VariableMapBuilder(BaseMapBuilder[corelib.Variable]):
         return data | {INDICES_KEY: instanced_indices}
 
 
-class EquationMapBuilder(BaseMapBuilder[corelib.Equation]):
+class EquationMapBuilder(CoreMapBuilder[corelib.Equation]):
     def __init__(self, variables: corelib.VariableMap):
         self._variables = variables
 
