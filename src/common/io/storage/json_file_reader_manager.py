@@ -5,7 +5,7 @@ from src.common.io import context
 from src.common.io.storage import json_file_readers
 
 
-class FileReader:
+class JSONFileReaderManager:
     def get_repository_index_options(
         self, context_member: context.IOContextMember, io_context: context.IOContext
     ) -> list[str]:

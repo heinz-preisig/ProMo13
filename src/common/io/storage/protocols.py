@@ -14,7 +14,7 @@ class GenericStorage(typing.Protocol):
     ) -> typing.Any: ...
 
 
-class FileReader(typing.Protocol):
+class FileReaderManager(typing.Protocol):
     def get_repository_index_options(
         self, context_member: context.IOContextMember, io_context: context.IOContext
     ) -> list[str]: ...
