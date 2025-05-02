@@ -1,0 +1,17 @@
+{
+  "variables": {
+    "V_1": {
+      "label": "MISSING FIELDS",
+      "equations": {
+        "E_1": {
+          "label": "MISSING FIELDS"
+        }
+      }
+    }
+  },
+  "indices": {
+    "I_1": {
+      "label": "MISSING FIELDS"
+    }
+  }
+}

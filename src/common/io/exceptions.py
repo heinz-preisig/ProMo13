@@ -1,4 +1,4 @@
-from . import context
+from src.common.io import context
 
 
 class IOContextError(Exception):
@@ -7,6 +7,6 @@ class IOContextError(Exception):
         super().__init__(message)
 
 
-class DataIOError(Exception):
+class IOBuilderError(Exception):
     def __init__(self, message: str):
         super().__init__(message)

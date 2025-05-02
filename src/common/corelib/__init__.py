@@ -5,19 +5,19 @@ This package contains the foundational classes that form the base of
 ProMo. It includes essential building blocks that define the core data
 structures and interfaces used throughout the application.
 """
-from typing import Dict
 
+from .data_types import CoreMap, CoreMapVariant, EquationMap, IndexMap, VariableMap
+from .equation import Equation
 from .index import Index
-from .index import IndexMap
+from .variable import Variable
 
-from .math_components import Equation
-from .math_components import EquationTag
-from .math_components import EquationMap
-from .math_components import Variable
-from .math_components import VariableTag
-from .math_components import VariableMap
-from .math_components import VarEqJSONDecoder
-
-from .entity import Entity
-from .entity import EntityMathGraph
-from .entity import EntityMap
+__all__ = [
+    "CoreMap",
+    "CoreMapVariant",
+    "Index",
+    "IndexMap",
+    "Variable",
+    "VariableMap",
+    "Equation",
+    "EquationMap",
+]

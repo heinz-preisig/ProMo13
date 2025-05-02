@@ -1,0 +1,23 @@
+import typing
+
+from src.common import corelib
+from src.common.io import context
+
+
+class GenericStorage(typing.Protocol):
+    def validate_repository_location(self, location: str) -> None: ...
+    def get_context_member_options(
+        self, context_member: context.IOContextMember, io_context: context.IOContext
+    ) -> list[str]: ...
+    def get_core_map_data(
+        self, map_variant: corelib.CoreMapVariant, io_context: context.IOContext
+    ) -> typing.Any: ...
+
+
+class FileReaderManager(typing.Protocol):
+    def get_repository_index_options(
+        self, context_member: context.IOContextMember, io_context: context.IOContext
+    ) -> list[str]: ...
+    def read_core_map_file(
+        self, map_variant: corelib.CoreMapVariant, io_context: context.IOContext
+    ) -> typing.Any: ...
