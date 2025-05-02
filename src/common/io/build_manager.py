@@ -47,12 +47,11 @@ class IOBuildManager:
         match map_variant:
             case corelib.CoreMapVariant.INDEX:
                 builder = builders.IndexMapBuilder(*dependencies)
-                data = self._data_controller.get_index_data(io_context)
             case corelib.CoreMapVariant.VARIABLE:
                 builder = builders.VariableMapBuilder(*dependencies)
-                data = self._data_controller.get_variable_data(io_context)
             case corelib.CoreMapVariant.EQUATION:
                 builder = builders.EquationMapBuilder(*dependencies)
-                data = self._data_controller.get_equation_data(io_context)
+
+        data = self._data_controller.get_core_map_data(map_variant, io_context)
 
         self._core_maps[map_variant] = builder.build(data)
