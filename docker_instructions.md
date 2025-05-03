@@ -47,5 +47,13 @@ DOKER_ONTOLOGY_REPOSITORY="/Ontology_Repository"
 
 
 
+### Docker hub operations
 
+what has been done 2025-05-02:
+tag: 		docker tag promo hapdocker/promo2025
+login:		docker login hapdocker
+			pwd from vault using copy paste
+push:		docker push hapdocker/promo2025
+
+pulling:	docker pull hapdocker/promo2025
 
