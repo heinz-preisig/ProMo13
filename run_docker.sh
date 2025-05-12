@@ -36,6 +36,7 @@ docker run --rm -it \
   -e DISPLAY=$DISPLAY_ENV \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
   -v $LOCAL_ONTOLOGY_REPOSITORY:$DOKER_ONTOLOGY_REPOSITORY \
+  --network=host \
   $IMAGE_NAME $1
 
 # Cleanup X11 access (Linux only)

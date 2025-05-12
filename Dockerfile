@@ -72,11 +72,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Set Qt plugin path and other environment variables
 ENV QT_QPA_PLATFORM_PLUGIN_PATH=/opt/venv/lib/python3.10/site-packages/PyQt5/Qt5/plugins
+
 #ENV QT_DEBUG_PLUGINS=1   # can be omitted
-ENV QT_XCB_GL_INTEGRATION=none
-ENV QT_IM_MODULE=ibus
-ENV XMODIFIERS=@im=ibus
-ENV GTK_IM_MODULE=ibus
+#ENV QT_XCB_GL_INTEGRATION=none
+#ENV QT_IM_MODULE=ibus
+#ENV XMODIFIERS=@im=ibus
+#ENV GTK_IM_MODULE=ibus
+
+
+
+# Create a non-root user
+RUN useradd -m appuser
+# X11 forwarding setup
+ENV DISPLAY=:0
+ENV QT_X11_NO_MITSHM=1
+ENV QT_QPA_PLATFORM=xcb
+ENV XDG_RUNTIME_DIR=/tmp/runtime-appuser
 
 
 #WORKDIR /ProMo
