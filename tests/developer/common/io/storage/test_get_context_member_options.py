@@ -35,31 +35,37 @@ def replace_context_attribute(
     ids=("ontology", "model", "instantiation"),
 )
 class CasesReadRepositoryIndex:
+    @pytest_cases.parametrize(
+        io_context=(
+            pytest_cases.fixture_ref("ok_context"),
+            pytest_cases.fixture_ref("ok_context_no_index"),
+        )
+    )
     @pytest_cases.case(id="")
     def valid_repository_index(
         self,
-        ok_context: io.IOContext,
+        io_context: io.IOContext,
         test_member: io.IOContextMember,
         repo_prefix: str,
     ) -> tuple[io.IOContextMember, io.IOContext]:
-        return test_member, ok_context
+        return test_member, io_context
 
-    def invalid_missing_file(
-        self,
-        ok_context: io.IOContext,
-        base_path: pathlib.Path,
-        test_member: io.IOContextMember,
-        repo_prefix: str,
-    ) -> tuple[io.IOContextMember, io.IOContext, str]:
-        repository_name = f"{repo_prefix}1"
+    # def invalid_missing_file(
+    #     self,
+    #     ok_context: io.IOContext,
+    #     base_path: pathlib.Path,
+    #     test_member: io.IOContextMember,
+    #     repo_prefix: str,
+    # ) -> tuple[io.IOContextMember, io.IOContext, str]:
+    #     repository_name = f"{repo_prefix}1"
 
-        test_context = replace_context_attribute(
-            test_member, ok_context, repository_name, base_path
-        )
+    #     test_context = replace_context_attribute(
+    #         test_member, ok_context, repository_name, base_path
+    #     )
 
-        error_msg = f"Can not access {test_member} repository index"
+    #     error_msg = f"Can not access {test_member} repository index"
 
-        return test_member, test_context, error_msg
+    #     return test_member, test_context, error_msg
 
     @pytest_cases.parametrize(
         repo_id=("2", "3"), ids=("invalid json", "invalid json schema")
