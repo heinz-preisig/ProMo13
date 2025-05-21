@@ -41,7 +41,9 @@ def compile_ui_files() -> None:
     for compilation_item in compilation_info:
         ui_file_path, py_file_path = get_file_paths(compilation_item)
         if is_compilation_needed(ui_file_path, py_file_path):
-            subprocess.run(["pyuic5", ui_file_path, "-o", py_file_path], check=True)
+            subprocess.run(
+                ["pyside6-uic", ui_file_path, "-o", py_file_path], check=True
+            )
             print(f"Generated: {py_file_path}")
         else:
             print(f"Skipped: {py_file_path}")
