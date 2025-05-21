@@ -1,0 +1,7 @@
+[
+  {
+    "name": "view",
+    "ui_dir": "src/common/components/starting_dialog/",
+    "ui_gen_dir": "src/common/components/starting_dialog/"
+  }
+]
