@@ -28,7 +28,7 @@ RUN apt-get update \
 	imagemagick\
 	python3-simplejson \
 	python3-ujson \
-    evince
+    evince 
 
 
 
