@@ -45,21 +45,33 @@ class StartingDialogView(QtWidgets.QDialog):
         )
         self.setStyleSheet(DIALOG_STYLE_SHEET)
 
-        list_min_width = 20
-        list_base_height = 20
-
-        list_width = list_min_width
-        list_height = list_base_height
+    def configure_size(self) -> None:
+        list_size = self._calculate_selection_list_size()
 
         button_bar_width = 3 * ICON_SIZE
 
-        components_width = max(list_width, button_bar_width)
+        components_width = max(list_size.width(), button_bar_width)
 
         dialog_width = components_width + 30
-        dialog_height = list_height + ICON_SIZE + 60
+        dialog_height = list_size.height() + ICON_SIZE + 60
 
-        self.ui.selection_list.resize(components_width, list_height)
+        self.ui.selection_list.resize(components_width, list_size.height())
         self.resize(dialog_width, dialog_height)
+
+    def _calculate_selection_list_size(self) -> QtCore.QSize:
+        width = 20
+        height = 20
+
+        list_view = self.ui.selection_list
+        list_model = list_view.model()
+
+        for row in range(list_model.rowCount()):
+            index = list_model.index(row, 0)
+            item_size = list_view.sizeHintForIndex(index)
+            height += item_size.height()
+            width = max(width, item_size.width())
+
+        return QtCore.QSize(width, height)
 
     def _configure_buttons(self) -> None:
         self.ui.pushLeft.setText("")
@@ -80,7 +92,6 @@ class StartingDialogView(QtWidgets.QDialog):
         self.ui.pushRight.hide()
 
     def showEvent(self, arg__1: QtGui.QShowEvent) -> None:
-        print("Show event")
         super().showEvent(arg__1)
         self.show_event_triggered.emit()
 

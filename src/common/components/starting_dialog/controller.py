@@ -11,10 +11,13 @@ class StartingDialogController(QtCore.QObject):
         self._model = model
         self._view = view
 
-        self._view.ui.selection_list.setModel(self._model._ontologies_model)
+        self._view.ui.selection_list.setModel(self._model.ontologies_model)
 
         # Connectons from the View
         self._view.show_event_triggered.connect(self.on_show_event_triggered)
+
+        # Connections from the Model
+        self._model.ontologies_model.modelReset.connect(self._view.configure_size)
 
     def on_show_event_triggered(self) -> None:
         self._model.load_available_ontologies()
