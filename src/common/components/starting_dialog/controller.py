@@ -10,6 +10,3 @@ class StartingDialogController(QtCore.QObject):
 
         self._model = model
         self._view = view
-
-    def test_launch_dialog(self) -> None:
-        self._view.exec_()
