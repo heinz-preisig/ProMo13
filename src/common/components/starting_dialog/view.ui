@@ -16,7 +16,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QListWidget" name="listWidget">
+  <widget class="QListView" name="selection_list">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -24,9 +24,6 @@
      <width>321</width>
      <height>111</height>
     </rect>
-   </property>
-   <property name="sortingEnabled">
-    <bool>true</bool>
    </property>
   </widget>
   <widget class="QWidget" name="layoutWidget">

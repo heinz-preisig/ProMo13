@@ -56,7 +56,7 @@ class StartingDialogView(QtWidgets.QDialog):
         dialog_width = components_width + 30
         dialog_height = list_height + ICON_SIZE + 60
 
-        self.ui.listWidget.resize(components_width, list_height)
+        self.ui.selection_list.resize(components_width, list_height)
         self.resize(dialog_width, dialog_height)
 
     def _configure_buttons(self) -> None:

@@ -16,8 +16,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLayout,
-    QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
-    QWidget)
+    QListView, QPushButton, QSizePolicy, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -25,10 +24,9 @@ class Ui_Dialog(object):
             Dialog.setObjectName(u"Dialog")
         Dialog.setWindowModality(Qt.NonModal)
         Dialog.resize(349, 257)
-        self.listWidget = QListWidget(Dialog)
-        self.listWidget.setObjectName(u"listWidget")
-        self.listWidget.setGeometry(QRect(10, 90, 321, 111))
-        self.listWidget.setSortingEnabled(True)
+        self.selection_list = QListView(Dialog)
+        self.selection_list.setObjectName(u"selection_list")
+        self.selection_list.setGeometry(QRect(10, 90, 321, 111))
         self.layoutWidget = QWidget(Dialog)
         self.layoutWidget.setObjectName(u"layoutWidget")
         self.layoutWidget.setGeometry(QRect(10, 10, 242, 71))
