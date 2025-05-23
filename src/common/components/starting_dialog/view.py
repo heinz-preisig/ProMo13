@@ -27,6 +27,8 @@ class StartingDialogView(QtWidgets.QDialog):
         self.ui = view_ui.Ui_Dialog()
         self.ui.setupUi(self)
 
+        self._mouse_position = self.pos()
+
         self._configure_appearance()
         self._configure_buttons()
 
@@ -38,8 +40,6 @@ class StartingDialogView(QtWidgets.QDialog):
             | Qt.WindowType.WindowStaysOnTopHint
             | Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.Dialog
-            | Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.WindowStaysOnTopHint
         )
         self.setStyleSheet(DIALOG_STYLE_SHEET)
 
@@ -67,6 +67,8 @@ class StartingDialogView(QtWidgets.QDialog):
         self.ui.pushLeft.setStyleSheet(ICON_STYLE_SHEET)
         self.ui.pushLeft.setToolTip("reject")
 
+        self.ui.pushCentre.setText("")
+        self.ui.pushCentre.setFixedSize(ICON_SIZE, ICON_SIZE)
         self.ui.pushCentre.setIcon(QtGui.QIcon(ICON_ACCEPT_PATH))
         self.ui.pushCentre.setIconSize(QtCore.QSize(ICON_SIZE, ICON_SIZE))
         self.ui.pushCentre.setStyleSheet(ICON_STYLE_SHEET)
@@ -74,3 +76,17 @@ class StartingDialogView(QtWidgets.QDialog):
 
         self.ui.pushCentre.hide()
         self.ui.pushRight.hide()
+
+    # The Mouse move and mouse press are used to move the dialog
+    # This will not work if the system uses Wayland!
+    def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
+        self.oldPos = event.globalPos()
+        print("Pressed")
+        print(self.oldPos)
+
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
+        print("Moving")
+        delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+        self.move(self.x() + delta.x(), self.y() + delta.y())
+        self.oldPos = event.globalPos()
+        print(self.oldPos)
