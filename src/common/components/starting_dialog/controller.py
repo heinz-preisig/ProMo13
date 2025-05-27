@@ -15,9 +15,18 @@ class StartingDialogController(QtCore.QObject):
 
         # Connectons from the View
         self._view.show_event_triggered.connect(self.on_show_event_triggered)
+        self._view.ui.selection_list.selectionModel().currentChanged.connect(
+            self._model.set_ontology_name
+        )
+        self._view.ui.selection_list.selectionModel().currentChanged.connect(
+            self._view.on_selection_changed
+        )
+        self._view.ui.selection_list.doubleClicked.connect(self._view.on_double_click)
+        self._view.ui.pushLeft.clicked.connect(self._view.reject)
+        self._view.ui.pushCentre.clicked.connect(self._view.accept)
 
         # Connections from the Model
-        self._model.ontologies_model.modelReset.connect(self._view.configure_size)
+        self._model.ontologies_model.modelReset.connect(self._view.on_list_populated)
 
     def on_show_event_triggered(self) -> None:
         self._model.load_available_ontologies()

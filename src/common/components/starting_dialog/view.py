@@ -34,8 +34,6 @@ class StartingDialogView(QtWidgets.QDialog):
         self._configure_appearance()
         self._configure_buttons()
 
-        self.ui.pushLeft.clicked.connect(self.reject)
-
     def _configure_appearance(self) -> None:
         self.setWindowFlags(
             self.windowFlags()
@@ -45,7 +43,31 @@ class StartingDialogView(QtWidgets.QDialog):
         )
         self.setStyleSheet(DIALOG_STYLE_SHEET)
 
-    def configure_size(self) -> None:
+    def _configure_buttons(self) -> None:
+        self.ui.pushLeft.setText("")
+        self.ui.pushLeft.setFixedSize(ICON_SIZE, ICON_SIZE)
+        self.ui.pushLeft.setIcon(QtGui.QIcon(ICON_REJECT_PATH))
+        self.ui.pushLeft.setIconSize(QtCore.QSize(ICON_SIZE, ICON_SIZE))
+        self.ui.pushLeft.setStyleSheet(ICON_STYLE_SHEET)
+        self.ui.pushLeft.setToolTip("reject")
+
+        self.ui.pushCentre.setText("")
+        self.ui.pushCentre.setFixedSize(ICON_SIZE, ICON_SIZE)
+        self.ui.pushCentre.setIcon(QtGui.QIcon(ICON_ACCEPT_PATH))
+        self.ui.pushCentre.setIconSize(QtCore.QSize(ICON_SIZE, ICON_SIZE))
+        self.ui.pushCentre.setStyleSheet(ICON_STYLE_SHEET)
+        self.ui.pushCentre.setToolTip("accept")
+
+        self.ui.pushCentre.hide()
+        self.ui.pushRight.hide()
+
+    def on_list_populated(self) -> None:
+        self._configure_size()
+        self.ui.selection_list.clearSelection()
+        self.ui.selection_list.setCurrentIndex(QtCore.QModelIndex())
+        self.ui.pushCentre.hide()
+
+    def _configure_size(self) -> None:
         list_size = self._calculate_selection_list_size()
 
         button_bar_width = 3 * ICON_SIZE
@@ -73,23 +95,12 @@ class StartingDialogView(QtWidgets.QDialog):
 
         return QtCore.QSize(width, height)
 
-    def _configure_buttons(self) -> None:
-        self.ui.pushLeft.setText("")
-        self.ui.pushLeft.setFixedSize(ICON_SIZE, ICON_SIZE)
-        self.ui.pushLeft.setIcon(QtGui.QIcon(ICON_REJECT_PATH))
-        self.ui.pushLeft.setIconSize(QtCore.QSize(ICON_SIZE, ICON_SIZE))
-        self.ui.pushLeft.setStyleSheet(ICON_STYLE_SHEET)
-        self.ui.pushLeft.setToolTip("reject")
+    def on_selection_changed(self) -> None:
+        self.ui.pushCentre.setVisible(True)
 
-        self.ui.pushCentre.setText("")
-        self.ui.pushCentre.setFixedSize(ICON_SIZE, ICON_SIZE)
-        self.ui.pushCentre.setIcon(QtGui.QIcon(ICON_ACCEPT_PATH))
-        self.ui.pushCentre.setIconSize(QtCore.QSize(ICON_SIZE, ICON_SIZE))
-        self.ui.pushCentre.setStyleSheet(ICON_STYLE_SHEET)
-        self.ui.pushCentre.setToolTip("accept")
-
-        self.ui.pushCentre.hide()
-        self.ui.pushRight.hide()
+    def on_double_click(self, index: QtCore.QModelIndex) -> None:
+        if index.isValid():
+            self.accept()
 
     def showEvent(self, arg__1: QtGui.QShowEvent) -> None:
         super().showEvent(arg__1)
@@ -98,13 +109,9 @@ class StartingDialogView(QtWidgets.QDialog):
     # The Mouse move and mouse press are used to move the dialog
     # This will not work if the system uses Wayland!
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
-        self.oldPos = event.globalPos()
-        print("Pressed")
-        print(self.oldPos)
+        self._mouse_position = event.globalPos()
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
-        print("Moving")
-        delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+        delta = QtCore.QPoint(event.globalPos() - self._mouse_position)
         self.move(self.x() + delta.x(), self.y() + delta.y())
-        self.oldPos = event.globalPos()
-        print(self.oldPos)
+        self._mouse_position = event.globalPos()

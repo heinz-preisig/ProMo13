@@ -13,3 +13,9 @@ class StartingDialogModel:
             io.IOContextMember.ONTOLOGY
         )
         self.ontologies_model.setStringList(available_ontologies)
+
+    def set_ontology_name(self, index: QtCore.QModelIndex) -> None:
+        if index.isValid():
+            self._manager.set_context_member_name(
+                io.IOContextMember.ONTOLOGY, index.data()
+            )
