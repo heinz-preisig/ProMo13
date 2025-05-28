@@ -3,8 +3,8 @@ from PySide6.QtCore import Qt
 
 from src.common.components.starting_dialog import view_ui
 
-ICON_ACCEPT_PATH = "packages/Common/icons/accept_button_hap.png"
-ICON_REJECT_PATH = "packages/Common/icons/reject_button_hap.png"
+ICON_ACCEPT_PATH = "packages/Common/icons/accept_button_hap.svg"
+ICON_REJECT_PATH = "packages/Common/icons/reject_button_hap.svg"
 ICON_SIZE = 52
 ICON_STYLE_SHEET = """
     background-color: white;
