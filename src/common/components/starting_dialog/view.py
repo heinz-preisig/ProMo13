@@ -21,8 +21,6 @@ DIALOG_STYLE_SHEET = """
 
 
 class StartingDialogView(QtWidgets.QDialog):
-    show_event_triggered = QtCore.Signal()
-
     def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
 
@@ -61,11 +59,12 @@ class StartingDialogView(QtWidgets.QDialog):
         self.ui.pushCentre.hide()
         self.ui.pushRight.hide()
 
-    def on_list_populated(self) -> None:
+    def showEvent(self, arg__1: QtGui.QShowEvent) -> None:
+        super().showEvent(arg__1)
+
         self._configure_size()
         self.ui.selection_list.clearSelection()
         self.ui.selection_list.setCurrentIndex(QtCore.QModelIndex())
-        self.ui.pushCentre.hide()
 
     def _configure_size(self) -> None:
         list_size = self._calculate_selection_list_size()
@@ -97,14 +96,6 @@ class StartingDialogView(QtWidgets.QDialog):
 
     def on_selection_changed(self) -> None:
         self.ui.pushCentre.setVisible(True)
-
-    def on_double_click(self, index: QtCore.QModelIndex) -> None:
-        if index.isValid():
-            self.accept()
-
-    def showEvent(self, arg__1: QtGui.QShowEvent) -> None:
-        super().showEvent(arg__1)
-        self.show_event_triggered.emit()
 
     # The Mouse move and mouse press are used to move the dialog
     # This will not work if the system uses Wayland!
