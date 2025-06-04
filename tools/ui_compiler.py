@@ -3,6 +3,8 @@ import pathlib
 import subprocess
 
 COMPILATION_MAP_FILE = "tools/ui_map.json"
+# COMPILER = "pyside6-uic"
+COMPILER = "pyuic5"
 
 
 def load_compilation_info() -> list[dict[str, str]]:
@@ -41,9 +43,7 @@ def compile_ui_files() -> None:
     for compilation_item in compilation_info:
         ui_file_path, py_file_path = get_file_paths(compilation_item)
         if is_compilation_needed(ui_file_path, py_file_path):
-            subprocess.run(
-                ["pyside6-uic", ui_file_path, "-o", py_file_path], check=True
-            )
+            subprocess.run([COMPILER, ui_file_path, "-o", py_file_path], check=True)
             print(f"Generated: {py_file_path}")
         else:
             print(f"Skipped: {py_file_path}")
