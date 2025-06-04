@@ -1,4 +1,4 @@
-from PySide6 import QtCore
+from PyQt5 import QtCore
 
 from src.common.components.starting_dialog.view import StartingDialogView
 

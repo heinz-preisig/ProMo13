@@ -1,10 +1,10 @@
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import Qt
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
 
 from src.common.components.starting_dialog import view_ui
 
-ICON_ACCEPT_PATH = "packages/Common/icons/accept_button_hap.svg"
-ICON_REJECT_PATH = "packages/Common/icons/reject_button_hap.svg"
+ICON_ACCEPT_PATH = "../packages/Common/icons/accept_button_hap.svg"
+ICON_REJECT_PATH = "../packages/Common/icons/reject_button_hap.svg"
 ICON_SIZE = 52
 ICON_STYLE_SHEET = """
     background-color: white;
@@ -59,8 +59,8 @@ class StartingDialogView(QtWidgets.QDialog):
         self.ui.pushCentre.hide()
         self.ui.pushRight.hide()
 
-    def showEvent(self, arg__1: QtGui.QShowEvent) -> None:
-        super().showEvent(arg__1)
+    def showEvent(self, a0: QtGui.QShowEvent) -> None:
+        super().showEvent(a0)
 
         self._configure_size()
         self.ui.selection_list.clearSelection()
@@ -99,10 +99,10 @@ class StartingDialogView(QtWidgets.QDialog):
 
     # The Mouse move and mouse press are used to move the dialog
     # This will not work if the system uses Wayland!
-    def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
-        self._mouse_position = event.globalPos()
+    def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
+        self._mouse_position = a0.globalPos()
 
-    def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
-        delta = QtCore.QPoint(event.globalPos() - self._mouse_position)
+    def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
+        delta = QtCore.QPoint(a0.globalPos() - self._mouse_position)
         self.move(self.x() + delta.x(), self.y() + delta.y())
-        self._mouse_position = event.globalPos()
+        self._mouse_position = a0.globalPos()
