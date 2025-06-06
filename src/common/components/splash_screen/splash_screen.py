@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 
 class PromoModule(enum.StrEnum):
     LINKER = "../packages/Common/icons/task_entity_generation.svg"
+    INSTANTIATION = "../packages/Common/icons/task_instantiation.svg"
 
 
 SPLASH_SCREEN_SIZE = QtCore.QSize(300, 300)

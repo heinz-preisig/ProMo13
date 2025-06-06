@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -61,8 +60,6 @@ if __name__ == "__main__":
     app = App([])
 
     splash = splash_screen.ClickableSplashScreen(splash_screen.PromoModule.LINKER)
-    # pixmap = QtGui.QPixmap("../packages/Common/icons/task_entity_generation.svg")
-    # splash = QtWidgets.QSplashScreen(pixmap)
     splash.show()
     app.processEvents()
 
