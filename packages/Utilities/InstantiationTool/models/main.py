@@ -1,18 +1,12 @@
-import copy
-import logging
-import os
-from email.mime import image
-from pprint import pprint as pp
-from typing import Dict, List, Optional, Tuple, cast
+from typing import cast
 
 from PyQt5 import QtCore
 
 from packages.Common.classes import entity, io
 from packages.Utilities.InstantiationTool.models import topology_tree
-from src.common import old_topology, roles
+from src.common import old_io, old_topology, roles
 from src.common.components import image_list
 from src.common.constants import FixedVariables
-from src.common.old_io import IOHandler
 
 # TODO: The information about the selection needs to be stored in the main_model,
 # there is no way to retrieve it afterwards without talking to the view
@@ -31,10 +25,10 @@ class MainModel(QtCore.QObject):
     selection_changed = QtCore.pyqtSignal(bool)
 
     # Methods
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
-        self._io_handler = IOHandler()
+        self._io_handler = old_io.IOHandler()
 
         self._ontology_name = ""
         self._model_name = ""
@@ -158,7 +152,7 @@ class MainModel(QtCore.QObject):
                     ]
                     update_dict[tuple_key] = "1"
 
-    def _discover_required_variables(self):
+    def _discover_required_variables(self) -> None:
         used_entities: dict[str, entity.Entity] = {}
         for top_obj in self._all_topology_objects.values():
             # Composite nodes dont have an associated entity
@@ -197,7 +191,7 @@ class MainModel(QtCore.QObject):
                     set(top_obj.typed_tokens["mass"])
                 )
 
-    def _update_variable_tree_model(self):
+    def _update_variable_tree_model(self) -> None:
         """Loads the necessary data into the model
 
         The list of variables is filtered and the result is loaded into the
@@ -242,13 +236,10 @@ class MainModel(QtCore.QObject):
 
         self._check_selection_status()
 
-    def on_topology_tree_model_check_box_changed(self):
-        # checked_items = self.topology_tree_model.get_checked_items()
-        # self._is_topology_object_selected = bool(checked_items)
-
+    def on_topology_tree_model_check_box_changed(self) -> None:
         self._check_selection_status()
 
-    def _check_selection_status(self):
+    def _check_selection_status(self) -> None:
         # bool(self.variable_tree_model.get_checked_items())
         is_variable_selected = True
         is_topology_object_selected = bool(self.topology_tree_model.get_checked_items())
@@ -360,22 +351,5 @@ class MainModel(QtCore.QObject):
                 id_key = (top_obj_id,)
                 self._instantiation[var_id][id_key] = instantiation_value
 
-        pp(self._instantiation)
-        # for top_obj_id in instantiated_top_obj:
-        #   for var_id, typed_tokens in instantiated_variables.items():
-        #     top_obj = self._all_topology_objects[top_obj_id]
-        #     top_obj = cast(topology.EntityContainer, top_obj)
-
-        #     top_obj.set_instantiation_value(
-        #         self._all_variables[var_id],
-        #         typed_tokens,
-        #         instantiation_value
-        #     )
-
-        # for top_obj_id, top_obj in self._all_topology_objects.items():
-        #   if isinstance(top_obj, topology.EntityContainer):
-        #     pp(top_obj_id)
-        #     pp(top_obj.instantiated_variables)
-
-    def save_instantiation(self):
+    def save_instantiation(self) -> None:
         self._io_handler.set_instantiation_data(self._instantiation)
