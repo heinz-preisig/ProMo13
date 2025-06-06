@@ -56,6 +56,12 @@ class MainModel(QtCore.QObject):
         self._variable_filter_string = None
         self._variable_show_uninstantiated_only = False
 
+    def get_available_ontologies(self) -> list[str]:
+        return io.get_available_ontologies()
+
+    def get_available_models(self, ontology_name: str) -> list[str]:
+        return io.get_available_models(ontology_name)
+
     def load_ontology_info(self, ontology_name: str, model_name: str) -> None:
         self._ontology_name = ontology_name
         self._model_name = model_name

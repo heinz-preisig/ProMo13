@@ -1,3 +1,5 @@
+import sys
+
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject, pyqtSlot
 
@@ -13,7 +15,7 @@ from packages.Utilities.InstantiationTool.delegates.topology_tree_item import (
 )
 from packages.Utilities.InstantiationTool.models.main import MainModel
 from packages.Utilities.InstantiationTool.views.main import MainView
-from src.common.components import image_list
+from src.common.components import image_list, starting_dialog
 
 
 class MainController(QObject):
@@ -22,9 +24,6 @@ class MainController(QObject):
 
         self._model = main_model
         self._view = main_view
-
-        # self._view.ui.tree_required_variables.setModel(
-        #     self._model.variable_tree_model)
 
         var_list_controller = image_list.ImageListController(
             self._view.ui.tree_required_variables, self._model.variable_list
@@ -56,39 +55,33 @@ class MainController(QObject):
 
         If the Dialog gets accepted it calls the
         """
-        dlg = list_selector.ListSelectorView(
-            io.get_available_ontologies(),
-            self._view,
-            "Ontology selection",
-            "Select an ontology:",
+        available_ontologies = self._model.get_available_ontologies()
+        view = starting_dialog.StartingDialogView()
+        controller = starting_dialog.StartingDialogController(
+            view, available_ontologies
         )
 
         model_selected = False
         while not model_selected:
-            dialog_status = dlg.exec_()
-            if dialog_status == QtWidgets.QDialog.Rejected:
-                self.load_default_data()
-                break
-
-            ontology_name = dlg.ui.list.currentIndex().data()
-            model_selected = self.select_model(ontology_name)
+            result = view.exec_()
+            if result == QtWidgets.QDialog.Accepted:
+                ontology_name = view.ui.selection_list.currentIndex().data()
+                model_selected = self.select_model(ontology_name)
+            else:
+                sys.exit()
 
     def select_model(self, ontology_name: str) -> bool:
-        dlg = list_selector.ListSelectorView(
-            io.get_available_models(ontology_name),
-            self._view,
-            "Model selection",
-            "Select a model:",
-        )
+        available_models = self._model.get_available_models(ontology_name)
+        view = starting_dialog.StartingDialogView()
+        controller = starting_dialog.StartingDialogController(view, available_models)
 
-        dialog_status = dlg.exec_()
-        if dialog_status == QtWidgets.QDialog.Rejected:
-            return False
+        result = view.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+            model_name = view.ui.selection_list.currentIndex().data()
+            self._model.load_ontology_info(ontology_name, model_name)
+            return True
 
-        model_name = dlg.ui.list.currentIndex().data()
-        self._model.load_ontology_info(ontology_name, model_name)
-
-        return True
+        return False
 
     def on_instantiate_clicked(self) -> None:
         # TODO: Catch this exception with a suitable notification system.
