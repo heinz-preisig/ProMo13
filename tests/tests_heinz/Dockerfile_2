@@ -1,0 +1,52 @@
+FROM ubuntu:22.04
+
+# Prevent some timezone/Debconf issues during install
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip python3-setuptools \
+    libgl1-mesa-glx \
+    libxkbcommon-x11-0 \
+    libxcb1 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-shape0 \
+    libxcb-shm0 \
+    libxcb-sync1 \
+    libxcb-xfixes0 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libx11-xcb1 \
+    libxrender1 \
+    libxext6 \
+    libsm6 \
+    libice6 \
+    libglib2.0-0 \
+    x11-apps \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install PyQt5 using pip
+RUN pip3 install PyQt5
+
+# Create app directory
+WORKDIR /app
+
+# Copy your app
+COPY . /app
+# ... your existing Dockerfile steps
+
+# Diagnostic step: check shared library dependencies of libqxcb.so
+#RUN apt-get update && apt-get install -y findutils libc-bin && \
+#    echo "Diagnosing libqxcb.so dependencies..." && \
+#    find / -name libqxcb.so 2>/dev/null | while read lib; do echo "Checking: $lib"; ldd "$lib"; done
+
+ENV QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/x86_64-linux-gnu/qt5/plugins/platforms
+ENV QT_XCB_GL_INTEGRATION=none
+
+
+# Run the app (replace with your script name)
+CMD ["python3", "your_pyqt_app.py"]
