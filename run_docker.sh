@@ -4,7 +4,7 @@
 # $1 may be empty, then predefined task is started else it is what one defines
 
 # Set image name - replace with your image name
-IMAGE_NAME="promo"
+IMAGE_NAME="hapdocker/promo2025"
 LOCAL_ONTOLOGY_REPOSITORY="/home/heinz/1_Gits/CAM/Ontology_Repository"
 DOKER_ONTOLOGY_REPOSITORY="/Ontology_Repository"
 BASH=$1
