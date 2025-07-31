@@ -743,7 +743,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     else:
       self.ui.listLeft.clear()
 
-  def on_pushButtonMakeLatex_pressed(self):
+  def on_pushButtonMakeLatex_pressed(self): #TODO use troughout the suite
     non_existing = []
     self.ui.pushButtonViewLatex.hide()
     for obj in self.entity_behaviours:
