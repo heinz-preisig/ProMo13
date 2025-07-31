@@ -1,14 +1,31 @@
 # Stage 1: Build environment
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Update apt and install Python 3.12 and pip
+RUN apt-get update && \
+    apt-get install -y python3.12  && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.12 as the default python executable
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
+
+
+#RUN apt update && \
+#    apt install -y software-properties-common && \
+#    add-apt-repository ppa:deadsnakes/ppa \
+#
+#RUN apt update && \
+#    apt install -y python3.13 # Replace X with the desired minor version (e.g., python3.11, python3.12)
+#
+#RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.X 1 # Replace X with the installed version
 # Install only the packages needed for building
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y \
+#    python3 \
+#    python3-pip \
+#    python3-venv \
+#    && apt-get clean && rm -rf /var/lib/apt/lists/*
     
 
 
@@ -23,7 +40,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Stage 2: Runtime environment
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
