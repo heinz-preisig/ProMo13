@@ -1,15 +1,27 @@
 # Stage 1: Build environment
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get --allow-insecure-repositories install -y curl gnupg
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
 
 # Install only the packages needed for building
-RUN apt-get update && apt-get install -y \
+RUN apt-get update --allow-insecure-repositories && apt-get install -y \
     python3 \
-    python3-pip \
-    python3-venv \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update --allow-insecure-repositories && apt-get install -y \
+    python3-pip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update --allow-insecure-repositories && apt-get install -y \
+    python3-venv \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
 
+RUN #apt-get update && apt-get install -y \
+#    python3 \
+#    python3-pip \
+#    python3-venv \
+#    && apt-get clean && rm -rf /var/lib/apt/lists/*
 # Create and activate virtual environment
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
