@@ -2,22 +2,22 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="300"
    height="300"
    viewBox="0 0 300 300"
    id="svg3336"
    version="1.1"
-   inkscape:version="0.92.4 (f8dce91, 2019-08-02)"
-   sodipodi:docname="task_entity_generation.svg">
+   inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
+   sodipodi:docname="task_instantiation.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb">
   <defs
      id="defs3338">
     <linearGradient
@@ -714,19 +714,22 @@
      inkscape:pageopacity="0.56470588"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="112.26451"
-     inkscape:cy="180.48625"
+     inkscape:cx="112.37947"
+     inkscape:cy="180.56477"
      inkscape:document-units="px"
      inkscape:current-layer="layer3"
      showgrid="false"
      units="px"
-     inkscape:window-width="1869"
-     inkscape:window-height="1025"
-     inkscape:window-x="51"
-     inkscape:window-y="27"
+     inkscape:window-width="2510"
+     inkscape:window-height="1371"
+     inkscape:window-x="50"
+     inkscape:window-y="32"
      inkscape:window-maximized="1"
      showguides="false"
-     inkscape:snap-text-baseline="false" />
+     inkscape:snap-text-baseline="false"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <metadata
      id="metadata3341">
     <rdf:RDF>
@@ -735,7 +738,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -771,7 +774,8 @@
            height="74.285713"
            x="144.28572"
            y="150" /></flowRegion><flowPara
-         id="flowPara2261" /></flowRoot>    <path
+         id="flowPara2261" /></flowRoot>
+    <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 13.637059,762.95346 273.498801,-0.25254 -0.50507,97.47972 -184.60538,-2.27284 -0.50508,66.9226 -88.135809,-0.25253 z"
        id="path945"
@@ -803,15 +807,15 @@
      inkscape:label="Layer 3">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:68.89933014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:5.2013216;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       x="29.363783"
-       y="277.47083"
+       style="font-style:normal;font-weight:normal;font-size:68.8993px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:5.20132;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       x="94.84343"
+       y="278.52271"
        id="text989"
        transform="scale(1.0413205,0.96031913)"><tspan
          sodipodi:role="line"
          id="tspan987"
-         x="29.363783"
-         y="277.47083"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:330.71679688px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:5.2013216;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">V</tspan></text>
+         x="94.84343"
+         y="278.52271"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:330.717px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:5.20132;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">I</tspan></text>
   </g>
 </svg>
