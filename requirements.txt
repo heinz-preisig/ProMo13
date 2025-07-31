@@ -1,3 +1,4 @@
+attrs
 graphviz
 Jinja2
 pydotplus
@@ -8,4 +9,6 @@ rdflib
 networkx
 ply
 typing-extensions
-
+numpy
+jsonschema
+cattrs

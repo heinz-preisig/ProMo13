@@ -22,8 +22,8 @@ CODE_PATHS = {
     "ProMo_OntologyFoundationDesigner.py": "ProMo_OntologyFoundationDesigner.py",
     "ProMo_OntologyEquationComposer.py": "ProMo_OntologyEquationComposer.py",
     "ProMo_ComposerGraphComponentDesigner.py": "ProMo_ComposerGraphComponentDesigner.py",
-    # "ProMo_BehaviourLinker.py": "ProMo_BehaviourLinker.py",
-    "ProMo_BehaviourLinker.py": "ProMo_BL.py",
+    "ProMo_ModelInstantiate.py": "ProMo_ModelInstantiate.py",
+    "ProMo_BehaviourLinker.py": "ProMo_BehaviourLinker.py",
     "ProMo_ComposerAutomataDesigner.py": "ProMo_ComposerAutomataDesigner.py",
     "ProMo_TypedTokenEditor.py": "ProMo_TypedTokenEditor.py",
     "ProMo_ModelComposer.py": "ProMo_ModelComposer.py"
@@ -191,6 +191,8 @@ class HomeWindow(QtWidgets.QMainWindow):
     typedtoken_action.triggered.connect(self.open_typedtoken)
     modeller_action = QtWidgets.QAction("modeller", self)
     modeller_action.triggered.connect(self.open_modeller)
+    instantiate_action = QtWidgets.QAction("instantiate", self)
+    instantiate_action.triggered.connect(self.open_instantiate)
 
     # add action to each menu tool menu
     tools_menu.addAction(foundation_action)
@@ -200,6 +202,7 @@ class HomeWindow(QtWidgets.QMainWindow):
     tools_menu.addAction(automaton_action)
     tools_menu.addAction(typedtoken_action)
     tools_menu.addAction(modeller_action)
+    tools_menu.addAction(instantiate_action)
 
     # create help menu actions
     foundation_help = QtWidgets.QAction("foundation", self)
@@ -329,6 +332,17 @@ class HomeWindow(QtWidgets.QMainWindow):
     self.process.start("python", [CODE_PATHS["ProMo_ModelComposer.py"]])
     self.opened_window_list_widget.addItem(
         QtWidgets.QListWidgetItem("ProMo_ModelComposer.py"))
+
+
+
+  def open_instantiate(self):
+    os.chdir(tasks_dir)
+    self.process = QtCore.QProcess(self)
+    self.process.readyReadStandardError.connect(
+        partial(self.onStandardError, "ProMo_ModelInstantiate.py"))
+    self.process.start("python", [CODE_PATHS["ProMo_ModelInstantiate.py"]])
+    self.opened_window_list_widget.addItem(
+        QtWidgets.QListWidgetItem("ProMo_ModelInstantiate.py"))
 
   def onStandardError(self, program_name):
     returned_data = self.process.readAllStandardError().data().decode()

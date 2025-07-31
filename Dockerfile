@@ -1,15 +1,25 @@
 # Stage 1: Build environment
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install only the packages needed for building
-RUN apt-get update && apt-get install -y \
+# Install Python 3.12 and required build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
-    python3-pip \
     python3-venv \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-    
+    python3-dev \
+    python3-pip \
+    python3-full \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create and activate a virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Upgrade pip in the virtual environment
+RUN pip install --upgrade pip
+
 
 
 # Create and activate virtual environment
@@ -23,18 +33,16 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Stage 2: Runtime environment
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy the virtual environment from the builder stage
-COPY --from=builder /opt/venv /opt/venv
-
-# Set environment variables for virtual environment
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Install only runtime dependencies, not build tools
+# Install Python 3.12 and runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-venv \
+    python3-dev \
+    # Graphics and UI dependencies
     libgl1 \
     libxext6 \
     libx11-6 \
@@ -58,27 +66,36 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libdbus-1-3 \
     libxkbcommon0 \
     ibus \
-    python3-minimal \    
+    # Documentation and graphics
     graphviz \
-	texlive-science \
-	texlive-latex-extra \
-	dvipng\
-	imagemagick\
-	python3-simplejson \
-	python3-ujson \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    texlive-science \
+    texlive-latex-extra \
+    dvipng \
+    imagemagick \
+    # Core libraries
+    libssl3 \
+    libffi8 \
+    zlib1g \
+    libsqlite3-0 \
+    liblzma5 \
+    libbz2-1.0 \
+    libncursesw6 \
+    libtinfo6 \
+    libreadline8 \
+    libgdbm6 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the virtual environment from the builder stage
+COPY --from=builder /opt/venv /opt/venv
+
+# Set environment variables for virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
     
 
 
 # Set Qt plugin path and other environment variables
 ENV QT_QPA_PLATFORM_PLUGIN_PATH=/opt/venv/lib/python3.10/site-packages/PyQt5/Qt5/plugins
-
-#ENV QT_DEBUG_PLUGINS=1   # can be omitted
-#ENV QT_XCB_GL_INTEGRATION=none
-#ENV QT_IM_MODULE=ibus
-#ENV XMODIFIERS=@im=ibus
-#ENV GTK_IM_MODULE=ibus
-
 
 
 # Create a non-root user
@@ -90,38 +107,6 @@ ENV QT_QPA_PLATFORM=xcb
 ENV XDG_RUNTIME_DIR=/tmp/runtime-appuser
 
 
-#WORKDIR /ProMo
-
-## Install the other tools
-#RUN apt-get update && apt-get install -qq -y \
-#	python3-pyqt5 \
-##    python3-pyqt5sip \
-#    graphviz \
-##	texlive okular \
-#	texlive-science \
-#	texlive-latex-extra \
-#	dvipng\
-#	imagemagick\
-#	libcanberra-gtk-module \
-#	libcanberra-gtk3-module \
-#	python3-simplejson \
-#	python3-ujson \
-#	python3-pip \
-#    xvfb \
-#    libglu1-mesa-dev \
-#    libx11-xcb-dev \
-#    '^libxcb*' \
-#    libxcb-cursor-dev \
-#    libxkbcommon-dev \
-#    libxkbcommon-x11-dev \
-#    libgl1-mesa-glx \
-#    libxcb-cursor0 \
-#   && rm -rf /var/lib/apt/lists/*
-
-
-#COPY requirements.txt .
-#RUN pip install -r requirements.txt
-#RUN apt-get update && apt-get install -y pyqt5-sip
 
 RUN mkdir "Ontology_Repository"
 
@@ -135,10 +120,6 @@ COPY ./static_assets static_assets/
 
 
 ## Set the DISPLAY environment variable
-ENV DISPLAY=:0
-
-# Set the DISPLAY environment variable
-#ENV DISPLAY=:0
 ENV XDG_RUNTIME_DIR="/ProMo/tasks/"
 RUN chmod 0700 /ProMo/tasks
 
