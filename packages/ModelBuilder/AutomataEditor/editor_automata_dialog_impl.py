@@ -24,7 +24,8 @@ __status__ = "beta"
 
 import os as OS
 import shutil  as U
-import subprocess
+
+from pathlib import Path
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui, QtWidgets
@@ -41,6 +42,7 @@ from Common.graphics_objects import PHASES
 from Common.ontology_container import OntologyContainer
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
+from Common.common_resources import displayPdf
 from ModelBuilder.AutomataEditor.editor_automata_dialog import Ui_Dialog
 from ModelBuilder.ModelComposer.resources import ACTIONS
 from ModelBuilder.ModelComposer.resources import M_None
@@ -538,12 +540,16 @@ class GraphEditorDialogImpl(QtWidgets.QWidget):
 
       f_name = FILES["latex_shell_automata_doc_command"] % self.ontology_name
       latex_location = DIRECTORIES["latex_location"] % self.ontology_name
-      args = ['sh', f_name, latex_location]  # ontology_location + '/']
-      print('ARGS: ', args)
-      make_it = subprocess.Popen(
-              args,
-              # start_new_session=True,
-              # stdout=subprocess.PIPE,
-              # stderr=subprocess.PIPE
-              )
-      out, error = make_it.communicate()
+
+      path = Path(latex_location + "/main.pdf")
+      displayPdf(path)
+
+      # args = ['sh', f_name, latex_location]  # ontology_location + '/']
+      # print('ARGS: ', args)
+      # make_it = subprocess.Popen(
+      #         args,
+      #         # start_new_session=True,
+      #         # stdout=subprocess.PIPE,
+      #         # stderr=subprocess.PIPE
+      #         )
+      # out, error = make_it.communicate()

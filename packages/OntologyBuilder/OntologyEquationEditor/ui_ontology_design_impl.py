@@ -37,6 +37,7 @@ from PyQt5.QtWidgets import QMainWindow
 
 import constants
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
+from Common.common_resources import displayPdf
 from Common.common_resources import getOntologyName
 from Common.common_resources import makeTreeView
 from Common.common_resources import putData
@@ -1065,10 +1066,20 @@ class UiOntologyDesign(QMainWindow):
 
     location = DIRECTORIES["latex_main_location"] % self.ontology_location
     path = Path(location + "/main.pdf")
-    if sys.platform.startswith('linux'):
-      subprocess.Popen(['xdg-open', str(path)])
-    elif sys.platform.startswith('win32'):
-      subprocess.Popen(['start', str(path)], shell=True)
+    displayPdf(path)
+    # if os.path.exists("/.dockerenv"):
+    #   subprocess.Popen(['evince', str(path)])
+    # elif sys.platform.startswith('linux'):
+    #   subprocess.Popen(['xdg-open', str(path)])
+    # elif sys.platform.startswith('win32'):
+    #   subprocess.Popen(['start', str(path)], shell=True)
+    # del path
+
+
+    # if sys.platform.startswith('linux'):
+    #   subprocess.Popen(['xdg-open', str(path)])
+    # elif sys.platform.startswith('win32'):
+    #   subprocess.Popen(['start', str(path)], shell=True)
     # f_name = FILES["latex_shell_show_pdf"] % self.ontology_location
     # p = QtCore.QProcess()
     # p.startDetached("sh", [f_name, location])

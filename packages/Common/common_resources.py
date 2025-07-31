@@ -45,6 +45,7 @@ __status__ = "beta"
 import json
 import os
 import sys
+import subprocess
 
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
@@ -547,3 +548,11 @@ class Redirect(QtWidgets.QWidget):
     cursor.insertText(text)
     self.std_outbox.setTextCursor(cursor)
     self.std_outbox.ensureCursorVisible()
+
+def displayPdf(path):  # TODO check on using it in other places. Search for subprocess
+  if os.path.exists("/.dockerenv"):
+    subprocess.Popen(['evince', str(path)])
+  elif sys.platform.startswith('linux'):
+    subprocess.Popen(['xdg-open', str(path)])
+  elif sys.platform.startswith('win32'):
+    subprocess.Popen(['start', str(path)], shell=True)
