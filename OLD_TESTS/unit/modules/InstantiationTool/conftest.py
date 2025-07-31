@@ -2,7 +2,7 @@ import pytest
 
 from PyQt5.QtWidgets import QApplication
 
-from tasks.ProMo_inst import App
+from tasks.ProMo_ModelInstantiate import App
 from packages.Utilities.InstantiationTool.models.main import MainModel
 
 
