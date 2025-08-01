@@ -394,8 +394,7 @@ def selectFromList(title, items,**kwargs):
 
 def saveBackupFile(path):
   ver_temp = "(%s)"
-  (abs_name, ext) = os.path.splitext(path)  # path : directory/<name>.<ext>
-  #  TODO: the access check fails -- not clear why, when removed writing works OK
+  (abs_name, ext) = os.path.splitext(path)
   if os.path.exists(path):
     _f, ver = getFilesAndVersions(abs_name, ext)
     old_path = path
