@@ -126,7 +126,7 @@ class UI_VariableTableShow(VariableTable):
       self.buttons["dot"].show()
 
     if column == 9:
-      if len(list_equations) == 0:
+      if len(list_equations) != 0:
         UI_ShowVariableEquation(list_equations, image_location,
                                 mode="show",
                                 prompt="These are the equations:",
