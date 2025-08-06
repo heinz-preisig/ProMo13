@@ -48,13 +48,11 @@ class VariableTable(QtWidgets.QDialog):
                hide_columns,
                info_file):
 
-
     self.variables = variables
     self.indices = indices
     self.network = network
     self.what = what
     self.info_file = info_file
-
 
     self.enabled_variable_types = enabled_variable_types
     self.hide_vars = hide_vars
@@ -67,7 +65,7 @@ class VariableTable(QtWidgets.QDialog):
     self.reset_table()
     self.hide()
 
-    # self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+    self.setWindowFlag(QtCore.Qt.FramelessWindowHint)  # note: made table frameless
     self.setWindowFlags(
             self.windowFlags() |
             QtCore.Qt.FramelessWindowHint
@@ -118,7 +116,8 @@ class VariableTable(QtWidgets.QDialog):
                                                                          self.network,
                                                                          self.enabled_variable_types)
     if (no_of_variables == 0) and (self.what == "variable_picking"):
-      print("debugging -- should build no table")
+      # print("debugging -- should build no table")
+      pass
 
     variable_ID_list = self.makeVariableIDList()
 
@@ -145,7 +144,6 @@ class VariableTable(QtWidgets.QDialog):
     variable_ID_list = set()
     if self.what == 'interface_picking':
       # print("debugging -- gugus gugus", self.network)
-      # source,sink = self.network.split(CONNECTION_NETWORK_SEPARATOR)
       networks = self.variables.ontology_container.heirs_network_dictionary[self.network]
     else:
       networks = [self.network]
@@ -165,8 +163,7 @@ class VariableTable(QtWidgets.QDialog):
     else:
       variable_ID_list_sorted = []
 
-
-    return variable_ID_list_sorted #variable_ID_list
+    return variable_ID_list_sorted  # variable_ID_list
 
   def populateTable(self, table, variable_ID_list):
     table.clearContents()
@@ -200,7 +197,7 @@ class VariableTable(QtWidgets.QDialog):
           self.__addQtTableItem(table, 'x', rowCount, 7)
           self.__addQtTableItem(table, v.network, rowCount, 8)
           self.__addQtTableItem(table, str(ID), rowCount, 9)
-          self.__addQtTableItem(table,v.IRI, rowCount, 10)
+          self.__addQtTableItem(table, v.IRI, rowCount, 10)
           rowCount += 1
     return variable_ID_list
 

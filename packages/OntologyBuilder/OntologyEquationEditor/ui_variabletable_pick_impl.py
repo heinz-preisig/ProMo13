@@ -43,7 +43,7 @@ class UI_VariableTablePick(VariableTable):
                hide_columns=[],
                info_file=None,
                hidden=[],
-               which = "variable_picking",
+               which="variable_picking",
                ):
     """
     constructs a dialog window based on QDialog for picking variables

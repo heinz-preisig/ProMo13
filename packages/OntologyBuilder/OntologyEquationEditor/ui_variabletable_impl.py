@@ -24,7 +24,6 @@ from PyQt5 import QtWidgets
 
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.pop_up_message_box import makeMessageBox
-# from Common.common_resources import globalVariableID
 from Common.record_definitions import makeCompleteVariableRecord
 from Common.resources_icons import roundButton
 from Common.single_list_selector_impl import SingleListSelector
@@ -136,7 +135,6 @@ class UI_VariableTableDialog(VariableTable):
 
     self.ui.tableVariable.setSortingEnabled(True)
 
-
   def show(self):
     self.reset_table()
     QtWidgets.QDialog.show(self)
@@ -192,8 +190,6 @@ class UI_VariableTableDialog(VariableTable):
 
   def showVariableEquations(self, v):
     list_equations = sorted(v.equations.keys())
-    v_ID = v.aliases["global_ID"]
-    # ontology_name = self.variables.ontology_container.ontology_name
     image_location = self.variables.ontology_container.latex_image_location
     UI_ShowVariableEquation(list_equations, image_location,
                             mode="show",
@@ -222,9 +218,9 @@ class UI_VariableTableDialog(VariableTable):
 
   def __change_variable_type_dialogue(self):
     variable_types = list(set(self.variable_types_on_networks[self.network]))
-    self.selector = SingleListSelector(variable_types,alternative=True,
-                                       left=("reject", "reject","show"),
-                                       right = ("accept", "accept", "show"))
+    self.selector = SingleListSelector(variable_types, alternative=True,
+                                       left=("reject", "reject", "show"),
+                                       right=("accept", "accept", "show"))
     self.selector.exec_()
     selection, button = self.selector.getSelection()
     if button == "reject":
@@ -262,13 +258,13 @@ class UI_VariableTableDialog(VariableTable):
     # print("debugg row chosen is: %s" % r)
     # print("debugg column chosen is: %s" % c)
     item = self.ui.tableVariable.item
-    self.selected_variable_type = str(item(r, 0).text())  # DOC: here I know if a new dimension must be generated
+    self.selected_variable_type = str(item(r, 0).text())  # note: here I know if a new dimension must be generated
 
     selected_ID = str(item(r, 9).text())
 
     # picking only
     try:
-      self.selected_variable_symbol = str(item(r, 1).text())  # in some circumstances this can be empty.
+      self.selected_variable_symbol = str(item(r, 1).text())  # note:in some circumstances, this can be empty.
     except:
       return
 
@@ -326,10 +322,7 @@ class UI_VariableTableDialog(VariableTable):
     return
 
   def definePortVariable(self):
-    var_ID = self.variables.newProMoVariableIRI()  # globalVariableID(update=True)
-    #
-    # NOTE: there is something fundamentally wrong as when using the default things go utterly wrong.. python ???
-
+    var_ID = self.variables.newProMoVariableIRI()
     variable_record = makeCompleteVariableRecord(var_ID,
                                                  label=NEW_VAR,
                                                  type=self.selected_variable_type,

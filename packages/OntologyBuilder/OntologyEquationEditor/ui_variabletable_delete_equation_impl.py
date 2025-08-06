@@ -19,13 +19,9 @@ from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
 
 MAX_HEIGHT = 800
 
-import os
-from PyQt5 import QtWidgets
-
 from Common.resources_icons import roundButton
 from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
 from OntologyBuilder.OntologyEquationEditor.variable_framework import simulateDeletion
-
 
 
 class UI_VariableTableDeleteEquation(VariableTable):
@@ -89,7 +85,7 @@ class UI_VariableTableDeleteEquation(VariableTable):
     buttons = self.buttons
 
     showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
-                   "info": roundButton(buttons["info"], "info", tooltip= "information")
+                   "info": roundButton(buttons["info"], "info", tooltip="information")
                    # "LaTex": roundButton(buttons["LaTex"], "LaTex", tooltip="make LaTeX document"),
                    # "dot": roundButton(buttons["dot"], "dot_graph", tooltip="show graph"),
                    }
@@ -98,7 +94,6 @@ class UI_VariableTableDeleteEquation(VariableTable):
       if b not in showButtons:
         # print("debugging -- hide button", b)
         buttons[b].hide()
-
 
     self.hide_columns = hide_columns
 
@@ -121,7 +116,6 @@ class UI_VariableTableDeleteEquation(VariableTable):
     self.selected_variable_ID = data[9]
     # print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
 
-
     if column == 7:
       self.__showDeleteDialog(self.selected_variable_ID)
 
@@ -131,15 +125,9 @@ class UI_VariableTableDeleteEquation(VariableTable):
       UI_ShowVariableEquation(list_equations, image_location,
                               mode="show",
                               prompt="all defined equations",
-                              buttons=["reject","accept"])
-
-    # list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-    # if len(list_equations) == 0:
-    #   makeMessageBox("there are no equation", buttons=["OK"])
+                              buttons=["reject", "accept"])
 
     return
-
-
 
   def __showDeleteDialog(self, selected_ID):
     port_variable = self.variables[selected_ID].port_variable

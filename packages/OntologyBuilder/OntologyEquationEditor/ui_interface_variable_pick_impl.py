@@ -29,6 +29,7 @@ class UI_VariableTableInterfacePick(VariableTable):
   #
   # completed = QtCore.pyqtSignal(str)
   picked = QtCore.pyqtSignal(str)
+
   # new_variable = QtCore.pyqtSignal(str)
   # new_equation = QtCore.pyqtSignal(str, str)
   # deleted_symbol = QtCore.pyqtSignal(str)
@@ -63,7 +64,7 @@ class UI_VariableTableInterfacePick(VariableTable):
 
     VariableTable.__init__(self,
                            title,
-                           "variable_picking", #"interface_picking",
+                           "variable_picking",  # "interface_picking",
                            variables,
                            indices,
                            network,
@@ -96,7 +97,7 @@ class UI_VariableTableInterfacePick(VariableTable):
   def on_tableVariable_itemClicked(self, item):
     row = int(item.row())
     item = self.ui.tableVariable.item
-    var_ID = str(item(row,9).text()) #str(item(row, 1).text())
+    var_ID = str(item(row, 9).text())  # str(item(row, 1).text())
     self.selected_ID = var_ID
     self.picked.emit(var_ID)
     return
