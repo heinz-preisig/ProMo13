@@ -139,24 +139,34 @@ class UI_VariableTableDeleteEquation(VariableTable):
 
     return
 
+
+
   def __showDeleteDialog(self, selected_ID):
     port_variable = self.variables[selected_ID].port_variable
     if port_variable:
-      reply = makeMessageBox("this is a port variable -- do you want to delete it ?",buttons=["NO","YES"])
+      reply = makeMessageBox("this is a port variable -- do you want to delete it ?", buttons=["NO", "YES"])
       if reply == 'NO':
         return
 
     var_symbol = self.variables[selected_ID].label
     msg = "deleting variable : %s" % var_symbol
     d_vars, d_equs, d_vars_text, d_equs_text = simulateDeletion(self.variables, selected_ID, self.indices)
+
     eqs = list(d_equs)
     loc = self.variables.ontology_container.latex_image_location
-    dialog = UI_ShowVariableEquation(eqs, loc,
-                                     mode="show",
-                                     prompt="delete those equations?",
-                                     buttons=["accept", "reject"])
+    if eqs == []:
+      answer = makeMessageBox("no equations detelet variable?", buttons=["YES", "NO"], default="NO", infotext="delete ?")
+      delete = answer == "YES"
 
-    if dialog.answer == "accept":
+    else:
+      dialog = UI_ShowVariableEquation(eqs, loc,
+                                       mode="show",
+                                       prompt="delete those equations?",
+                                       buttons=["accept", "reject"])
+      delete = dialog.answer == "accept"
+
+    if delete:
+      # print("debugging -- yes")
       self.__deleteVariable(d_vars, d_equs)
       self.reset_table()
 
