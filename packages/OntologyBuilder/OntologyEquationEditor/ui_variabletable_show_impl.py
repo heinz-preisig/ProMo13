@@ -137,8 +137,9 @@ class UI_VariableTableShow(VariableTable):
     # print("debugging -- generate latex table", self.selected_variable_symbol)
 
     assignments, dot_graph_file, file_name = self.__makeDotGraph()
-    makeLatexDoc(file_name, assignments, self.ontology_container, dot_graph_file)
-    self.buttons["dot"].show()
+    pdf = makeLatexDoc(file_name, assignments, self.ontology_container, dot_graph_file)
+
+    showPDF(pdf)
 
   def __makeDotGraph(self):
     var_equ_tree_graph, assignments = AnalyseBiPartiteGraph(self.selected_variable_ID,

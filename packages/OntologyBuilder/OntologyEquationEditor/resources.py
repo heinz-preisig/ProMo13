@@ -1007,7 +1007,7 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
   # print('ARGS: ', args)
 
   try:  # reports an error after completing the last one -- no idea
-    make_it = subprocess.Popen(
+    make_it = subprocess.run(
             args,
             start_new_session=True,
             # check=True
@@ -1021,112 +1021,17 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
     print("equation generation failed")
     pass
 
+  pdf_name = latex_location + "/" + file_name + ".pdf"
+  return pdf_name
 
 def showPDF(file_name):
-  args = ["evince", file_name]
-  view_it = subprocess.Popen(args, start_new_session=True)
-  out, error = view_it.communicate()
+  from Common.common_resources import displayPdf
+  # args = ["evince", file_name]
+  # view_it = subprocess.Popen(args, start_new_session=True)
+  # out, error = view_it.communicate()
+  displayPdf(file_name)  # NOTE: redirected for the time being
 
 
-# def generateLatexImages(ontology_name, ontology_container):
-#
-#   # all_variables, _, all_equations = load_var_idx_eq_from_file(ontology_name)
-#
-#   variables = ontology_container.variables
-#   equations = ontology_container.equation_dictionary
-#   incidence_dictionary = ontology_container.incidence_dictionary
-#   inv_incidence_dictionary = ontology_container.inv_incidence_dictionary
-#
-#   latex_folder_path =  Path(DIRECTORIES["latex_doc_location"] % ontology_name  )
-#
-#
-#   latex_info = {}
-#   modified_vars = []
-#   for var_id in variables:
-#     var_png_file_path = latex_folder_path / (var_id + ".png")
-#     if os.path.exists(var_png_file_path): #.exists():
-#       png_mod_date = datetime.fromtimestamp(var_png_file_path.stat().st_mtime)
-#       modified = variables[var_id]["modified"]
-#       date_format = "%Y-%m-%d %H:%M:%S"
-#       var_mod_date = datetime.strptime(modified, date_format)
-#       # if "165" in var_id:
-#       #   print("got it",png_mod_date, var_mod_date,  png_mod_date > var_mod_date)
-#       if png_mod_date > var_mod_date:
-#         continue
-#
-#     var_latex_alias = variables[var_id]["compiled_lhs"]["latex"]
-#
-#     latex_info[var_id] = "$" + var_latex_alias + "$" #"$" + var.get_alias("latex") + "$"
-#     modified_vars.append(var_id)
-#     # self.writeMessage("modified variable", var_id)
-#
-#   for eq_id in equations: #, eq in all_equations.items():
-#     eq_png_file_path = latex_folder_path / (eq_id + ".png")
-#     if eq_png_file_path.exists():
-#       png_mod_date = datetime.fromtimestamp(eq_png_file_path.stat().st_mtime)
-#       modified = equations[eq_id]["modified"] #eq.get_mod_date()
-#       date_format = "%Y-%m-%d %H:%M:%S"
-#       eq_mod_date = datetime.strptime(modified, date_format)
-#       if png_mod_date > eq_mod_date:
-#         continue
-#     (var_id,_) = incidence_dictionary[eq_id]
-#     lhs = variables[var_id]["compiled_lhs"]["latex"]
-#     rhs = equations[eq_id]["rhs"]["latex"] #eq.get_translation("latex")
-#     # pp(latex_translation)
-#     latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
-#
-# # pick up the equations that are modified due to changing variable
-#   for var_id in modified_vars:
-#     for eq_id in inv_incidence_dictionary[var_id]:
-#       (var_id, _) = incidence_dictionary[eq_id]
-#       lhs = variables[var_id]["compiled_lhs"]["latex"]
-#       rhs = equations[eq_id]["rhs"]["latex"] #eq.get_translation("latex")
-#       # pp(latex_translation)
-#       latex_info[eq_id] = "$" + lhs  + "=" + rhs + "$"
-#
-#
-#
-#   original_work_dir = os.getcwd()
-#   os.chdir(latex_folder_path)
-# #
-#   for file_name, latex_alias in latex_info.items():
-#     # f_path = DIRECTORIES["latex_location"]%self.ontology_name
-#     # f_name = os.path.join(f_path, file_name)
-#     # print(f_name)
-#     f = open(file_name + ".tex", "w") # as f:
-#     f.write("\\documentclass[border=1pt]{standalone}\n")
-#     f.write("\\usepackage{amsmath}\n")
-#     f.write("\\begin{document}\n")
-#     f.write(latex_alias)
-#     f.write("\\end{document}\n")
-#     f.close()
-#
-#     print("......................................................................................................................")
-#     time.sleep(1)
-#
-#     # location = DIRECTORIES["latex_main_location"] % self.ontology_location
-#     # f_name = FILES["latex_shell_var_equ_doc_command_exec"] % self.ontology_location
-#     # documentation_file = FILES["latex_documentation"] % self.ontology_name
-#     # if not self.compile_only:
-#     #   saveBackupFile(documentation_file)
-#     # self.writeMessage("busy making var/eq images")
-#     p = QtCore.QProcess()
-#     p.startDetached("sh", ["resources/make_images.sh", file_name])
-#
-#     # subprocess.run(["latex", "-interaction=nonstopmode", file_name + ".tex"],
-#     #                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#     # subprocess.run(["dvipng", "-D", "150", "-T", "tight", "-z", "9",
-#     #                 "-bg", "Transparent", "-o", file_name + ".png", file_name + ".dvi"],
-#     #                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#
-#     print("cwd", os.getcwd(), "--", file_name + ".tex")
-#
-#     #os.remove(file_name + ".tex")
-#     # os.remove(file_name + ".aux")
-#     # os.remove(file_name + ".log")
-#     # os.remove(file_name + ".dvi")
-#
-#   os.chdir(original_work_dir)
 
 def dateString():
   now = datetime.now()  # datetime object containing current date and time
