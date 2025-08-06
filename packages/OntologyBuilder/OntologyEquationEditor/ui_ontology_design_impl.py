@@ -20,51 +20,49 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 import os
-import subprocess
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
 
+import constants
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QMainWindow
 from jinja2 import Environment  # sudo apt-get install python-jinja2
 from jinja2 import FileSystemLoader
 from pydotplus.graphviz import Cluster
 from pydotplus.graphviz import Dot
 from pydotplus.graphviz import Edge
 from pydotplus.graphviz import Node
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow
 
-import constants
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
+from Common.common_resources import UI_GetString
+from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.common_resources import displayPdf
 from Common.common_resources import getOntologyName
 from Common.common_resources import makeTreeView
 from Common.common_resources import putData
 from Common.common_resources import saveBackupFile
-from Common.common_resources import UI_GetString
-from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.ontology_container import CENTRE_NETWORKS
 from Common.ontology_container import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
+from Common.record_definitions import RecordIndex
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
-from Common.record_definitions import RecordIndex
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.ui_radio_buttons_impl import RadioSelectorDialog
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
-from OntologyBuilder.OntologyEquationEditor.resources import dateString
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
+from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
+from OntologyBuilder.OntologyEquationEditor.resources import dateString
 # from OntologyBuilder.OntologyEquationEditor.resources import makeInterfaceVariableName
 from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.resources import revertInterfaceVariableName
 from OntologyBuilder.OntologyEquationEditor.resources import sortingVariableAndEquationKeys
-from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
 from OntologyBuilder.OntologyEquationEditor.tpg import LexicalError
 from OntologyBuilder.OntologyEquationEditor.tpg import SemanticError
 from OntologyBuilder.OntologyEquationEditor.tpg import SyntacticError
@@ -76,17 +74,16 @@ from OntologyBuilder.OntologyEquationEditor.ui_interface_variable_pick_impl impo
 from OntologyBuilder.OntologyEquationEditor.ui_ontology_design import Ui_OntologyDesigner
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_delete_equation_impl import UI_VariableTableDeleteEquation
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_impl import UI_VariableTableDialog
-from OntologyBuilder.OntologyEquationEditor.ui_variabletable_instantiate import UI_VariableTableInterfaceInstantiate
 from OntologyBuilder.OntologyEquationEditor.ui_variabletable_show_impl import UI_VariableTableShow
 from OntologyBuilder.OntologyEquationEditor.variable_framework import CompileSpace
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Expression
 from OntologyBuilder.OntologyEquationEditor.variable_framework import IndexStructureError
-from OntologyBuilder.OntologyEquationEditor.variable_framework import makeCompiler
-from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidenceDictionaries
-from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidentList
 from OntologyBuilder.OntologyEquationEditor.variable_framework import UnitError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import VarError
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Variables  # Indices
+from OntologyBuilder.OntologyEquationEditor.variable_framework import makeCompiler
+from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidenceDictionaries
+from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidentList
 
 # Note: keep
 # from Common.classes.io import translate_equations  # must be last
@@ -569,7 +566,7 @@ class UiOntologyDesign(QMainWindow):
     type = variable.type
     node_index_ID = "I_1"  # TODO: should not be hardwired
     arc_index_ID = "I_2"  # ditto
-    species_index = "I_4" # ditto
+    species_index = "I_4"  # ditto
 
     from_centre = left_nw in CENTRE_NETWORKS
     to_centre = right_nw in CENTRE_NETWORKS
@@ -1074,7 +1071,6 @@ class UiOntologyDesign(QMainWindow):
     # elif sys.platform.startswith('win32'):
     #   subprocess.Popen(['start', str(path)], shell=True)
     # del path
-
 
     # if sys.platform.startswith('linux'):
     #   subprocess.Popen(['xdg-open', str(path)])

@@ -18,16 +18,13 @@ from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
 
 MAX_HEIGHT = 800
 
-import os
 from PyQt5 import QtWidgets
 
 from Common.resources_icons import roundButton
-from Common.common_resources import DIRECTORIES
 from OntologyBuilder.OntologyEquationEditor.resources import AnalyseBiPartiteGraph
 from OntologyBuilder.OntologyEquationEditor.resources import makeLatexDoc
 from OntologyBuilder.OntologyEquationEditor.resources import showPDF
 from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
-
 
 
 class UI_VariableTableShow(VariableTable):
@@ -80,9 +77,9 @@ class UI_VariableTableShow(VariableTable):
 
     buttons = self.buttons
 
-    showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
+    showButtons = {"back" : roundButton(buttons["back"], "back", tooltip="go back"),
                    "LaTex": roundButton(buttons["LaTex"], "LaTex", tooltip="make LaTeX document"),
-                   "dot": roundButton(buttons["dot"], "dot_graph", tooltip="show graph"),
+                   "dot"  : roundButton(buttons["dot"], "dot_graph", tooltip="show graph"),
                    }
 
     for b in buttons:
@@ -146,7 +143,7 @@ class UI_VariableTableShow(VariableTable):
                                                             self.ontology_container,
                                                             self.ontology_name,
                                                             [],
-                                                            "%s_graph"%self.selected_variable_symbol)
+                                                            "%s_graph" % self.selected_variable_symbol)
     # var_equ_tree_graph.render_expression_to_list()
     var_equ_tree_graph.render()
     dot_graph_file = var_equ_tree_graph.outputFile + ".pdf"
