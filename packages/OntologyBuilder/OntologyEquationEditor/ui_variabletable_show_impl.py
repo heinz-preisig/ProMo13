@@ -132,6 +132,7 @@ class UI_VariableTableShow(VariableTable):
 
   def on_pushLaTex_pressed(self):
     # print("debugging -- generate latex table", self.selected_variable_symbol)
+    # todo: extend to show each expression tree separaately
 
     assignments, dot_graph_file, file_name = self.__makeDotGraph()
     pdf = makeLatexDoc(file_name, assignments, self.ontology_container, dot_graph_file)
