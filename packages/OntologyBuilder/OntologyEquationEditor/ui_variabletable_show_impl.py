@@ -114,25 +114,19 @@ class UI_VariableTableShow(VariableTable):
     self.selected_variable_ID = data[9]
     # print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
 
+    image_location = self.variables.ontology_container.latex_image_location
+    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+
+    if len(list_equations) == 0:
+      makeMessageBox("there are no equation", buttons=["OK"])
+      self.buttons["LaTex"].hide()
+      self.buttons["dot"].hide()
+    else:
+      self.buttons["LaTex"].show()
+      self.buttons["dot"].show()
 
     if column == 9:
-      image_location = self.variables.ontology_container.latex_image_location
-      list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-
-      # UI_ShowVariableEquation(list_equations, image_location,
-      #                         mode="show",
-      #                         prompt="These are the equations:",
-      #                         buttons=["back"])
-
-      list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
       if len(list_equations) == 0:
-        makeMessageBox("there are no equation", buttons=["OK"])
-        self.buttons["LaTex"].hide()
-        self.buttons["dot"].hide()
-      else:
-        self.buttons["LaTex"].show()
-        self.buttons["dot"].show()
-
         UI_ShowVariableEquation(list_equations, image_location,
                                 mode="show",
                                 prompt="These are the equations:",

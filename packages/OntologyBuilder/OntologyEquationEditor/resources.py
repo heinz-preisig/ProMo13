@@ -775,7 +775,7 @@ class VarEqTree():
             if next_eq_ID:
               stack.append((next_var_ID, next_eq_ID))
         self.addLink(next_var_label, equ_label)
-    print("debugging -- end of iteration")
+    # print("debugging -- end of iteration")
 
   def initObjects(self):
     return None
@@ -847,7 +847,7 @@ class DotGraphVariableEquations(VarEqTree):
     self.simple_graph.edge_attr = edge_attr
 
     self.file = f
-    print("debugging -- get started")
+    # print("debugging -- get started")
 
   def addLink(self, source_label, sink_label):
     if sink_label == self.starting_node_ID_label:
@@ -918,7 +918,7 @@ def AnalyseBiPartiteGraph(variable_ID, ontology_container, ontology_name, blocke
                                            file_name=file_name,
                                            start_equation=start_equation)
 
-  print("debugging -- dotgraph done")
+  # print("debugging -- dotgraph done")
   buddies = getListOfBuddies(ontology_container, var_equ_tree, variable_ID)
 
   assignments = VariantRecord(tree=var_equ_tree.tree["tree"],
@@ -986,7 +986,6 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
         latex_var_equ.append(s)
         count += 1
 
-  print("debugging -- got here")
 
   # get variable in LaTex form
   root_var = assignments["root_variable"]
@@ -1005,15 +1004,19 @@ def makeLatexDoc(file_name, assignments: entity.Entity, ontology_container, dot_
   shell_name = FILES["latex_shell_var_equ_list_command"] % ontology_name
   latex_location = DIRECTORIES["latex_location"] % ontology_name
   args = ['bash', shell_name, latex_location, file_name]
-  print('ARGS: ', args)
+  # print('ARGS: ', args)
 
   try:  # reports an error after completing the last one -- no idea
     make_it = subprocess.Popen(
             args,
             start_new_session=True,
             # check=True
-            )
-    out, error = make_it.communicate()
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            ),
+
+    # out, error = make_it.communicate()
+
   except:
     print("equation generation failed")
     pass

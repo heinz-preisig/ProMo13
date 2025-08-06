@@ -76,6 +76,7 @@ def makeMessageBox(message, buttons=None, custom_buttons=None, default=None, inf
   msg_box.setText(message)
   msg_box.setInformativeText(infotext)
   msg_box.setWindowTitle("dialog")
+  msg_box.setWindowFlag(QtCore.Qt.FramelessWindowHint)  # note: made table frameless
   # msg_box.setWindowFlags(QtCore.Qt.CustomizeWindowHint | QtCore.Qt.Popup)
 
   lines = message.split("\n")
