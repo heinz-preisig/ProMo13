@@ -24,7 +24,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-import constants
+import constants   #todo: find a better solution
+
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow
 from jinja2 import Environment  # sudo apt-get install python-jinja2
@@ -138,10 +139,35 @@ class UiOntologyDesign(QMainWindow):
 
     self.ui = Ui_OntologyDesigner()
     self.ui.setupUi(self)
+
+    # help extraction the relevant attributes
+    # push, radio, tab, tree, combo
+    # can be done with a debugger, for example
+    ui_state_build = True
+
+    if ui_state_build:
+      attributes = dir(self.ui)
+      self.pushButtons = {}
+      self.radios = {}
+      self.tabs = {}
+      self.combos = {}
+      self.trees = {}
+      for attribute in attributes:
+        if "push" in attribute:
+          self.pushButtons[attribute] = getattr(self.ui, attribute)
+        if "radio" in attribute:
+          self.radios[attribute] = getattr(self.ui, attribute)
+        if "tab" in attribute:
+          self.tabs[attribute] = getattr(self.ui, attribute)
+        if "tree" in attribute:
+          self.trees[attribute] = getattr(self.ui, attribute)
+        if "combo" in attribute:
+          self.combos[attribute] = getattr(self.ui, attribute)
+
+
     self.setWindowTitle("OntologyFoundationEditor Design")
     roundButton(self.ui.pushInfo, "info", tooltip="information")
     roundButton(self.ui.pushCompile, "compile", tooltip="compile")
-
     roundButton(self.ui.pushShowVariables, "variable_show", tooltip="show variables")
     roundButton(self.ui.pushWrite, "save", tooltip="save")
     roundButton(self.ui.pushShowPDF, "PDF", tooltip="show pdf variable equation documentation")
@@ -149,15 +175,17 @@ class UiOntologyDesign(QMainWindow):
     roundButton(self.ui.pushMakeInterfaceEquations, "plus", "display table for generating new interface equations")
     roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
 
+
+
     self.ui.pushShowVariables.hide()
-    self.radio = [
+    self.ui_components = [
             self.ui.radioVariables,
             self.ui.radioVariablesAliases,
             self.ui.radioIndicesAliases,
             self.ui.pushMakeInterfaceEquations,
             self.ui.pushShowInterfaceEquations,
             ]
-    [i.hide() for i in self.radio]
+    # [i.hide() for i in self.ui_components]
 
     self.ui.pushShowPDF.hide()
     self.ui.groupVariables.hide()
@@ -196,13 +224,6 @@ class UiOntologyDesign(QMainWindow):
     self.intraconnection_nws = self.ontology_container.intraconnection_network_dictionary
     self.intraconnection_nws_list = list(self.intraconnection_nws.keys())
 
-    # # RULE: constrain interconnections to in and out of centre domain
-    # self.interconnection_nws_list = []
-    # for nw in self.ontology_container.list_inter_branches_pairs:
-    #   for c in CENTRE_NETWORKS:
-    #     if c in nw:
-    #       if nw not in self.interconnection_nws_list:
-    #         self.interconnection_nws_list.append(nw)
     self.interconnection_nws_list = self.ontology_container.interconnection_nws_list
 
     self.indices = self.ontology_container.indices
@@ -217,8 +238,12 @@ class UiOntologyDesign(QMainWindow):
     self.state = "edit"
 
     # setup for next GUI-phase
-    [i.show() for i in self.radio]
+    [i.show() for i in self.ui_components]
     self.ui.pushAddIndex.hide()
+
+    for p in self.pushButtons:
+      print(p)
+      self.pushButtons[p].hide()
 
     makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
     self.ui.combo_InterConnectionNetwork.clear()
