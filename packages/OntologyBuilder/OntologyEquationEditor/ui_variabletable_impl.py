@@ -52,6 +52,8 @@ class UI_VariableTableDialog(VariableTable):
   new_equation = QtCore.pyqtSignal(str)
   deleted_symbol = QtCore.pyqtSignal(str)
 
+  changed = QtCore.pyqtSignal(bool)
+
   def __init__(self,
                title,
                variables,
@@ -187,6 +189,8 @@ class UI_VariableTableDialog(VariableTable):
       self.variables.removeVariable(s)
     self.variables.indexVariables()  # indexEquationsInNetworks()
     self.reset_table()
+    self.changed.emit(True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+
 
   def showVariableEquations(self, v):
     list_equations = sorted(v.equations.keys())
@@ -230,10 +234,14 @@ class UI_VariableTableDialog(VariableTable):
     else:
       self.variables[self.selected_ID].shiftType(selection)
       self.variables.indexVariables()
+      self.changed.emit(True)
+      self.reset_table()
       self.close()
 
   def __defineNewVarWithEquation(self):
     self.new_variable.emit(self.selected_variable_type)
+    self.changed.emit(True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+
 
   ### table handling
   def on_tableVariable_itemClicked(self, item):
@@ -350,14 +358,18 @@ class UI_VariableTableDialog(VariableTable):
         forbidden_symbols.append(self.variables[var_ID].label)
     self.ui_symbol.setUp(variable, forbidden_symbols)
     self.ui_symbol.show()
+    self.changed.emit(True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
 
   def __changeUnits(self, phys_var):
     self.ui_units.setUp(phys_var)
     self.ui_units.show()
+    self.changed.emit(True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+
 
   def __changeDocumentation(self, phys_var):
     self.ui_documentation = UI_DocumentationDialog(phys_var)
     self.ui_documentation.finished.connect(self.reset_table)
+    self.changed.emit(True)
     self.ui_documentation.show()
 
   def __changeIndexing(self, phys_var):  # TODO: when does this make sense ?
@@ -389,6 +401,7 @@ class UI_VariableTableDialog(VariableTable):
                                         phys_var.index_structures,
                                         allowed=5)  # RULE: number of allowed indices is currently 5
     self.ui_selector.newSelection.connect(self.__gotNewIndexStrucList)
+    self.changed.emit(True)
     self.ui_selector.show()
 
   def __getIndexListPerNetwork(self, nw):
@@ -431,6 +444,8 @@ class UI_VariableTableDialog(VariableTable):
                                         allowed=1)  # RULE: number of allowed tokens is currently 1
     self.ui_selector.newSelection.connect(self.__gotNewTokens)
     self.ui_selector.show()
+    self.changed.emit(True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+
 
   def __gotNewTokens(self, token_list):
     print("debugging got tokens", token_list)

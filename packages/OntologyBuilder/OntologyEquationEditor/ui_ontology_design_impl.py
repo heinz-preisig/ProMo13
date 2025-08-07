@@ -69,14 +69,14 @@ from OntologyBuilder.OntologyEquationEditor.tpg import LexicalError
 from OntologyBuilder.OntologyEquationEditor.tpg import SemanticError
 from OntologyBuilder.OntologyEquationEditor.tpg import SyntacticError
 from OntologyBuilder.OntologyEquationEditor.tpg import WrongToken
-from OntologyBuilder.OntologyEquationEditor.ui_aliastableindices_impl import UI_AliasTableIndices
-from OntologyBuilder.OntologyEquationEditor.ui_aliastablevariables_impl import UI_AliasTableVariables
+from OntologyBuilder.OntologyEquationEditor.ui_aliastableindices_impl import UI_AliasTableIndices                        #>
+from OntologyBuilder.OntologyEquationEditor.ui_aliastablevariables_impl import UI_AliasTableVariables                    #>
 from OntologyBuilder.OntologyEquationEditor.ui_equations_impl import UI_Equations
-from OntologyBuilder.OntologyEquationEditor.ui_interface_variable_pick_impl import UI_VariableTableInterfacePick
+from OntologyBuilder.OntologyEquationEditor.ui_interface_variable_pick_impl import UI_VariableTableInterfacePick         #>
 from OntologyBuilder.OntologyEquationEditor.ui_ontology_design import Ui_OntologyDesigner
-from OntologyBuilder.OntologyEquationEditor.ui_variabletable_delete_equation_impl import UI_VariableTableDeleteEquation
-from OntologyBuilder.OntologyEquationEditor.ui_variabletable_impl import UI_VariableTableDialog
-from OntologyBuilder.OntologyEquationEditor.ui_variabletable_show_impl import UI_VariableTableShow
+from OntologyBuilder.OntologyEquationEditor.ui_variabletable_delete_equation_impl import UI_VariableTableDeleteEquation  #>
+from OntologyBuilder.OntologyEquationEditor.ui_variabletable_impl import UI_VariableTableDialog                          #>
+from OntologyBuilder.OntologyEquationEditor.ui_variabletable_show_impl import UI_VariableTableShow                       #>
 from OntologyBuilder.OntologyEquationEditor.variable_framework import CompileSpace
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Expression
 from OntologyBuilder.OntologyEquationEditor.variable_framework import IndexStructureError
@@ -209,8 +209,14 @@ class UiOntologyDesign(QMainWindow):
     condition = os.path.exists(path)
     self.interface_control.start(condition)
 
-
     return
+
+  def dataChanged(self, b):
+    self.changed = b
+    print(">>>> data changed :", b)
+    if b:
+      self.interface_control.do_change_LED(b)
+
 
   def on_pushInfo_pressed(self):
     msg_popup = UI_FileDisplayWindow(FILES["info_ontology_equation_editor"])
@@ -269,6 +275,7 @@ class UiOntologyDesign(QMainWindow):
                                                           self.current_network,
                                                           info_file=FILES["info_ontology_variable_table"],
                                                           )
+    self.table_variables.changed.connect(self.dataChanged)
     self.table_variables.show()
 
   def on_pushAddIndex_pressed(self):
@@ -367,6 +374,7 @@ class UiOntologyDesign(QMainWindow):
                                           ["info", "new", "port", "LaTex", "dot"]
                                           )
     variable_table.exec_()
+    self.variable_table.changed.connect(self.dataChanged)
 
   def on_pushExit_pressed(self):
     variable_list = sorted(self.variables.keys())
@@ -383,7 +391,7 @@ class UiOntologyDesign(QMainWindow):
     if equation_list != self.initial_equation_list:
       modified = True
 
-    if modified:
+    if modified or self.changed:
       response = makeMessageBox("things have changed\ndo you want to exit?", default="cancel")
       if response == "OK":
         self.close()
@@ -1252,6 +1260,7 @@ class UiOntologyDesign(QMainWindow):
                                                   hidden_buttons=hide,
                                                   )
     self.table_variables.show()
+    self.table_variables.changed.connect(self.dataChanged)
 
     # for choice in choice:
     try:
@@ -1279,6 +1288,7 @@ class UiOntologyDesign(QMainWindow):
       self.table_aliases_v = UI_AliasTableVariables(self.variables,
                                                     self.current_network)
       self.table_aliases_v.completed.connect(self.finished_edit_table)
+      self.table_aliases_v.changed.connect(self.dataChanged)
       self.table_aliases_v.show()
       OK = True
     else:
@@ -1288,6 +1298,7 @@ class UiOntologyDesign(QMainWindow):
 
   def __setupIndicesAliasTable(self):
     self.table_aliases_i = UI_AliasTableIndices(self.indices)
+    self.table_aliases_i.changed.connect(self.dataChanged)
     self.table_aliases_i.completed.connect(self.finished_edit_table)
     self.table_aliases_i.show()
 

@@ -13,6 +13,8 @@
 
 __author__ = 'Preisig, Heinz A'
 
+from PyQt5 import QtCore
+
 from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.pop_up_message_box import makeMessageBox
 from Common.ui_show_equation_list_impl import UI_ShowVariableEquation
@@ -42,6 +44,8 @@ class UI_VariableTableDeleteEquation(VariableTable):
     9 variable ID
     10 IRI
   """
+
+  changed = QtCore.pyqtSignal(bool)
 
   def __init__(self,
                title,
@@ -143,7 +147,7 @@ class UI_VariableTableDeleteEquation(VariableTable):
     eqs = list(d_equs)
     loc = self.variables.ontology_container.latex_image_location
     if eqs == []:
-      answer = makeMessageBox("no equations detelet variable?", buttons=["YES", "NO"], default="NO", infotext="delete ?")
+      answer = makeMessageBox("no equations delete variable?", buttons=["YES", "NO"], default="NO", infotext="delete ?")
       delete = answer == "YES"
 
     else:
@@ -157,6 +161,7 @@ class UI_VariableTableDeleteEquation(VariableTable):
       # print("debugging -- yes")
       self.__deleteVariable(d_vars, d_equs)
       self.reset_table()
+      self.changed.emit(True)
 
   def __deleteVariable(self, d_vars, d_equs):
     print("going to delete: \n...variables:%s \n...equations %s" % (d_vars, d_equs))

@@ -74,6 +74,7 @@ class InterfaceControl():
     roundButton(self.ui.pushExit, "off", tooltip="exit")
     roundButton(self.ui.pushMakeInterfaceEquations, "plus", "display table for generating new interface equations")
     roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
+    self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
 
   def start(self, condition):
     pass
@@ -130,6 +131,11 @@ class InterfaceControl():
     self._do_show_and_hide(hide, show)
 
 
+  def do_change_LED(self, state):
+    if state:
+      self.signalButton.changeIcon("LED_red")
+    else:
+      self.signalButton.changeIcon("LED_green")
 
   def _do_show_and_hide(self, hide, show):
     for component in hide:

@@ -215,9 +215,9 @@
   <widget class="QGroupBox" name="groupOntology">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>40</x>
      <y>10</y>
-     <width>381</width>
+     <width>361</width>
      <height>191</height>
     </rect>
    </property>
@@ -631,6 +631,25 @@
    </property>
    <property name="acceptDrops">
     <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="LED">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>32</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>20</horstretch>
+     <verstretch>20</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

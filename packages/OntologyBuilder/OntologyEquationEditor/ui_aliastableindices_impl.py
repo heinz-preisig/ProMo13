@@ -39,6 +39,7 @@ class UI_AliasTableIndices(QtWidgets.QWidget):
   '''
 
   completed = QtCore.pyqtSignal(str)
+  changed = QtCore.pyqtSignal(bool)
 
   def __init__(self, indices):
     '''
@@ -142,6 +143,7 @@ class UI_AliasTableIndices(QtWidgets.QWidget):
             self.indices[ind_ID]["aliases"][language] = alias
     # self.indices.compile()
     self.__resize()
+    self.changed.emit(True)
 
   def on_pushInfo_pressed(self):
     msg_popup = UI_FileDisplayWindow(FILES["info_index_alias_table"])
