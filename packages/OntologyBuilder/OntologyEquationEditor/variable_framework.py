@@ -896,9 +896,9 @@ class Variables(OrderedDict):
     return variable_space, v_counter
 
   def changeVariableAlias(self, variable_ID, language, new_alias):
-    old_alias =     self[variable_ID].aliases[language]
+    old_alias =     self[variable_ID].variable_aliases[language]
     if new_alias != old_alias:
-      self[variable_ID].aliases[language] = new_alias
+      self[variable_ID].variable_aliases[language] = new_alias
       # if language == "latex":
       #   self[variable_ID].compiled_lhs["latex"] = new_alias
       date = dateString()

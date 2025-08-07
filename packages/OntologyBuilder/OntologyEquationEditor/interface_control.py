@@ -1,31 +1,138 @@
 
+"""
+interface control
+buttons = ['pushAddIndex',
+               'pushCompile',
+               'pushExit',
+               'pushInfo',
+               'pushMakeInterfaceEquations',
+               'pushShowInterfaceEquations',
+               'pushShowPDF',
+               'pushShowVariables',
+               'pushWrite'
+               ]
+  radios = ['radioArc',
+            'radioGraph',
+            'radioIndicesAliases',
+            'radioNode',
+            'radioVariables',
+            'radioVariablesAliases'
+            ]
+  tabs = ['tab_internets',
+          'tab_networks'
+          ]
+  trees = ['treeWidget']
+  combos = ['combo_EditVariableTypes',
+            'combo_InterConnectionNetwork'
+            ]
+"""
 
-def ui_components():
-  buttons = []
-  buttons.apppend()
-  buttons.append (pushAddIndex)
-  buttons.append (pushCompile)
-  buttons.apppend (pushExit)
-  pushInfo
-  pushMakeInterfaceEquations
-  pushShowInterfaceEquations
-  pushShowPDF
-  pushShowVariables
-  pushWrite
+from Common.resources_icons import roundButton
 
-  radioArc
-  radioGraph
-  radioIndicesAliases
-  radioNode
-  radioVariables
-  radioVariablesAliases
+class InterfaceControl():
 
-  tabWidget
-  tab_internets
-  tab_networks
+  def __init__(self, ui):
+    self.ui = ui
+    attributes = dir(self.ui)
+    self.pushButtons = {}
+    self.radios = {}
+    self.tabs = {}
+    self.combos = {}
+    self.trees = {}
+    self.groups = {}
+    self.ui_components = {}
+    for attribute in attributes:
+      if "push" in attribute:
+        self.pushButtons[attribute] = getattr(self.ui, attribute)
+        self.ui_components.update(self.pushButtons)
+      if "radio" in attribute:
+        self.radios[attribute] = getattr(self.ui, attribute)
+        self.ui_components.update(self.radios)
+      if "tab" in attribute:
+        self.tabs[attribute] = getattr(self.ui, attribute)
+        self.ui_components.update(self.tabs)
+      if "tree" in attribute:
+        self.trees[attribute] = getattr(self.ui, attribute)
+        self.ui_components.update(self.trees)
+      if "combo" in attribute:
+        self.combos[attribute] = getattr(self.ui, attribute)
+        self.ui_components.update(self.combos)
+      if "group" in attribute:
+        self.groups[attribute] = getattr(self.ui, attribute)
+        self.ui_components.update(self.groups)
 
-  treeWidget
 
-  combo_EditVariableTypes
-  combo_InterConnectionNetwork
 
+
+  def place_buttons(self):
+
+    roundButton(self.ui.pushInfo, "info", tooltip="information")
+    roundButton(self.ui.pushCompile, "compile", tooltip="compile")
+    roundButton(self.ui.pushShowVariables, "variable_show", tooltip="show variables")
+    roundButton(self.ui.pushWrite, "save", tooltip="save")
+    roundButton(self.ui.pushShowPDF, "PDF", tooltip="show pdf variable equation documentation")
+    roundButton(self.ui.pushExit, "off", tooltip="exit")
+    roundButton(self.ui.pushMakeInterfaceEquations, "plus", "display table for generating new interface equations")
+    roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
+
+  def start(self, condition):
+    pass
+    hide = ["pushMakeInterfaceEquations",
+            "pushShowInterfaceEquations",
+            "pushShowVariables",
+            "groupVariables",
+            "groupEdit",
+            ]
+    show = ["pushShowPDF",]
+    self._do_show_and_hide(hide, show)
+
+  def aliases(self):
+    hide = ["groupEdit",
+            "combo_EditVariableTypes",]
+    show = ["groupVariables",]
+    self._do_show_and_hide(hide, show)
+
+  def tree_widget_radio_variables(self, condition):
+    if condition:
+      show = ["pushAddIndex",]
+      hide = []
+    else:
+      show = ["groupEdit",]
+      hide = ["pushAddIndex",]
+
+      self._do_show_and_hide(hide, show)
+
+  def tree_widget_clicked(self):
+    show = ["pushShowVariables",]
+    hide = []
+    self._do_show_and_hide(hide, show)
+
+  def tab_internets(self):
+    show = []
+    hide = ["pushShowVariables",
+            "combo_EditVariableTypes",
+            "groupEdit",
+            "pushMakeInterfaceEquations",
+            "pushShowInterfaceEquations",]
+    self._do_show_and_hide(hide, show)
+
+  def combo_InterConnectionNetwork_activated(self, condition):
+    if condition:
+      show = ["pushMakeInterfaceEquations",
+              "pushShowVariables"]
+      hide = ["pushShowInterfaceEquations",]
+    else:
+      show = ["pushMakeInterfaceEquations",
+              "pushShowInterfaceEquations",
+              "pushShowVariables"]
+      hide = []
+
+    self._do_show_and_hide(hide, show)
+
+
+
+  def _do_show_and_hide(self, hide, show):
+    for component in hide:
+      self.ui_components[component].hide()
+    for component in show:
+      self.ui_components[component].show()

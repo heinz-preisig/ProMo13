@@ -54,6 +54,7 @@ from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.ui_radio_buttons_impl import RadioSelectorDialog
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
+from OntologyBuilder.OntologyEquationEditor.interface_control import InterfaceControl
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import ENABLED_COLUMNS
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
@@ -132,71 +133,24 @@ class UiOntologyDesign(QMainWindow):
     """
 
     # set up dialog window with new title
+    # note:needs mousePressEvent and mouseMoveEvent
+
     QMainWindow.__init__(self)
-
-    # needs mousePressEvent and mouseMoveEvent
+    self.setWindowTitle("OntologyFoundationEditor Design")
     self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
-
     self.ui = Ui_OntologyDesigner()
     self.ui.setupUi(self)
 
-    # help extraction the relevant attributes
-    # push, radio, tab, tree, combo
-    # can be done with a debugger, for example
-    ui_state_build = True
+    self.interface_control = InterfaceControl(self.ui)
+    self.interface_control.place_buttons()
 
-    if ui_state_build:
-      attributes = dir(self.ui)
-      self.pushButtons = {}
-      self.radios = {}
-      self.tabs = {}
-      self.combos = {}
-      self.trees = {}
-      for attribute in attributes:
-        if "push" in attribute:
-          self.pushButtons[attribute] = getattr(self.ui, attribute)
-        if "radio" in attribute:
-          self.radios[attribute] = getattr(self.ui, attribute)
-        if "tab" in attribute:
-          self.tabs[attribute] = getattr(self.ui, attribute)
-        if "tree" in attribute:
-          self.trees[attribute] = getattr(self.ui, attribute)
-        if "combo" in attribute:
-          self.combos[attribute] = getattr(self.ui, attribute)
-
-
-    self.setWindowTitle("OntologyFoundationEditor Design")
-    roundButton(self.ui.pushInfo, "info", tooltip="information")
-    roundButton(self.ui.pushCompile, "compile", tooltip="compile")
-    roundButton(self.ui.pushShowVariables, "variable_show", tooltip="show variables")
-    roundButton(self.ui.pushWrite, "save", tooltip="save")
-    roundButton(self.ui.pushShowPDF, "PDF", tooltip="show pdf variable equation documentation")
-    roundButton(self.ui.pushExit, "off", tooltip="exit")
-    roundButton(self.ui.pushMakeInterfaceEquations, "plus", "display table for generating new interface equations")
-    roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
-
-
-
-    self.ui.pushShowVariables.hide()
-    self.ui_components = [
-            self.ui.radioVariables,
-            self.ui.radioVariablesAliases,
-            self.ui.radioIndicesAliases,
-            self.ui.pushMakeInterfaceEquations,
-            self.ui.pushShowInterfaceEquations,
-            ]
-    # [i.hide() for i in self.ui_components]
-
-    self.ui.pushShowPDF.hide()
-    self.ui.groupVariables.hide()
-    # self.ui.pushInstantiate.hide()  #TODO: eliminate?
-    self.ui.groupEdit.hide()
 
     try:
       assert os.path.exists(DIRECTORIES["ontology_repository"])
     except:
       print("directory %s does not exist" % DIRECTORIES["ontology_repository"])
 
+    # get ontology
     self.ontology_name = getOntologyName(task="task_ontology_equations")
     if not self.ontology_name:
       exit(-1)
@@ -223,7 +177,6 @@ class UiOntologyDesign(QMainWindow):
     self.interconnection_nws = self.ontology_container.interconnection_network_dictionary
     self.intraconnection_nws = self.ontology_container.intraconnection_network_dictionary
     self.intraconnection_nws_list = list(self.intraconnection_nws.keys())
-
     self.interconnection_nws_list = self.ontology_container.interconnection_nws_list
 
     self.indices = self.ontology_container.indices
@@ -233,22 +186,12 @@ class UiOntologyDesign(QMainWindow):
             self.ontology_container.variables, self.indices)
 
     self.initial_variable_list = sorted(self.variables.keys())
-    self.initial_equation_list = sorted(
-            self.ontology_container.equation_dictionary.keys())
+    self.initial_equation_list = sorted(self.ontology_container.equation_dictionary.keys())
     self.state = "edit"
-
-    # setup for next GUI-phase
-    [i.show() for i in self.ui_components]
-    self.ui.pushAddIndex.hide()
-
-    for p in self.pushButtons:
-      print(p)
-      self.pushButtons[p].hide()
 
     makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
     self.ui.combo_InterConnectionNetwork.clear()
-    self.ui.combo_InterConnectionNetwork.addItems(
-            sorted(self.interconnection_nws_list))
+    self.ui.combo_InterConnectionNetwork.addItems(sorted(self.interconnection_nws_list))
 
     self.ui.combo_InterConnectionNetwork.show()
 
@@ -259,6 +202,13 @@ class UiOntologyDesign(QMainWindow):
     self.compiled_variable_labels = {}
 
     self.compile_only = True
+
+    # start the interface
+    location = DIRECTORIES["latex_main_location"] % self.ontology_location
+    path = Path(location + "/main.pdf")
+    condition = os.path.exists(path)
+    self.interface_control.start(condition)
+
 
     return
 
@@ -281,9 +231,7 @@ class UiOntologyDesign(QMainWindow):
     self.__checkRadios("variable_aliases")
     self.__hideTable()
     self.writeMessage("edit variable alias table")
-    self.ui.groupVariables.show()
-    self.ui.groupEdit.hide()
-    self.ui.combo_EditVariableTypes.hide()
+    self.interface_control.aliases()
     if self.current_network:
       self.__setupVariablesAliasTable()
     else:
@@ -293,7 +241,7 @@ class UiOntologyDesign(QMainWindow):
     self.__checkRadios("indices_aliases")
     self.__hideTable()
     self.writeMessage("edit alias table")
-    self.ui.groupVariables.hide()
+    self.interface_control.aliases()
     self.__setupIndicesAliasTable()
 
   def on_pushMakeInterfaceEquations_pressed(self):
@@ -477,13 +425,16 @@ class UiOntologyDesign(QMainWindow):
       self.ui.groupEdit.show()
       self.ui.combo_EditVariableTypes.show()
       self.on_radioVariables_pressed()
-      if self.ontology_container.rules["network_enable_adding_indices"][self.current_network]:
-        self.ui.pushAddIndex.show()
-      else:
-        self.ui.pushAddIndex.hide()
-        self.ui.groupEdit.show()
+      condition = self.ontology_container.rules["network_enable_adding_indices"][self.current_network]
+      self.interface_control.tree_widget_radio_variables(condition)
+      # if self.ontology_container.rules["network_enable_adding_indices"][self.current_network]:
+      #   self.ui.pushAddIndex.show()
+      # else:
+      #   self.ui.pushAddIndex.hide()
+      #   self.ui.groupEdit.show()
     # self.ui.pushInstantiate.show()
-    self.ui.pushShowVariables.show()
+    # self.ui.pushShowVariables.show()
+    self.interface_control.tree_widget_clicked()
 
   @QtCore.pyqtSlot(str)
   def on_combo_InterConnectionNetwork_activated(self, choice):
@@ -498,25 +449,20 @@ class UiOntologyDesign(QMainWindow):
       _, no_of_variables = self.variables.variableSpaces("interface_picking",
                                                          self.current_network,
                                                          [VARIABLE_TYPE_INTERFACES])
-      self.ui.pushMakeInterfaceEquations.show()
-      if no_of_variables == 0:
-        self.ui.pushShowInterfaceEquations.hide()
-      else:
-        self.ui.pushShowInterfaceEquations.show()
-      self.ui.pushShowVariables.show()
+      # self.ui.pushMakeInterfaceEquations.show()
+      # if no_of_variables == 0:
+      #   self.ui.pushShowInterfaceEquations.hide()
+      # else:
+      #   self.ui.pushShowInterfaceEquations.show()
+      # self.ui.pushShowVariables.show()
+      self.interface_control.combo_InterConnectionNetwork_activated(no_of_variables == 0)
 
   @QtCore.pyqtSlot(int)
   def on_tabWidget_currentChanged(self, which):
     # print("debugging -- changed tab", which)
-    self.ui.pushShowVariables.hide()
     self.current_network = None
-    self.ui.combo_EditVariableTypes.hide()
     self.ui.treeWidget.clearSelection()
-
-    self.ui.groupEdit.hide()
-
-    self.ui.pushMakeInterfaceEquations.hide()
-    self.ui.pushShowInterfaceEquations.hide()
+    self.interface_control.tab_internets()
 
   def __setupEditInterface(self):
     left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]

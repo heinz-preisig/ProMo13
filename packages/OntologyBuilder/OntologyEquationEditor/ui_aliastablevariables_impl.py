@@ -61,7 +61,7 @@ class UI_AliasTableVariables(QtWidgets.QWidget):
     # for i in range(len(self.variables_ID_list)):
     #   ID = self.variables_ID_list[i]
     for ID in self.variables_ID_list:
-      aliases[ID] = self.variables[ID].aliases
+      aliases[ID] = self.variables[ID].variable_aliases
     a = self.ui.tableWidget
     a.clear()
     a.setRowCount(0)
