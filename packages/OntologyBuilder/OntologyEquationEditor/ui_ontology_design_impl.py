@@ -375,7 +375,6 @@ class UiOntologyDesign(QMainWindow):
                                           ["info", "new", "port", "LaTex", "dot"]
                                           )
     variable_table.exec_()
-    self.variable_table.changed.connect(self.dataChanged)
 
   def on_pushExit_pressed(self):
     variable_list = sorted(self.variables.keys())
