@@ -143,6 +143,7 @@ class UiOntologyDesign(QMainWindow):
 
     self.interface_control = InterfaceControl(self.ui)
     self.interface_control.place_buttons()
+    self.changed = False
 
 
     try:
@@ -391,7 +392,7 @@ class UiOntologyDesign(QMainWindow):
     if equation_list != self.initial_equation_list:
       modified = True
 
-    if modified or self.changed:
+    if modified or self.changed:   # todo: cannot be fixed properly without changing the variables to a class
       response = makeMessageBox("things have changed\ndo you want to exit?", default="cancel")
       if response == "OK":
         self.close()
@@ -694,7 +695,7 @@ class UiOntologyDesign(QMainWindow):
     self.variables.indexVariables()
     # fix latex for variable
     left_interface_variable_record["aliases"]["latex"] = interface_variable.replace(
-            "_", "\_")
+            "_", r"\_")
 
     # step3: make interface-to-right
     dialog = RadioSelectorDialog(variable_types_right_nw, parent=self)
