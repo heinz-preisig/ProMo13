@@ -1,5 +1,0 @@
-hasParticipant
-hasProperParticipant
-Holistic
-Process
-Participant

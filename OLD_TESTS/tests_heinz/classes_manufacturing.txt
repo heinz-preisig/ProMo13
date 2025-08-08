@@ -1,5 +1,0 @@
-Device
-ContinuumManufacturing
-Engineered
-DiscreteManufacturing
-Manufacturing

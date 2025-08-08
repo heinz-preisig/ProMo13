@@ -1,6 +1,0 @@
-@prefix ns1: <http://example.org/> .
-
-ns1:mylist ns1:contents ns1:one,
-        ns1:three,
-        ns1:two .
-
