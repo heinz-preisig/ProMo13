@@ -31,6 +31,9 @@ class MainModel(QtCore.QObject):
     def __init__(self) -> None:
         super().__init__()
 
+        # Add this line to initialize _view as None
+        self._view = None
+
         self._io_handler = old_io.IOHandler()
 
         self._ontology_name = ""
@@ -263,7 +266,9 @@ class MainModel(QtCore.QObject):
       is_selection_complete = is_variable_selected and is_topology_object_selected
 
       # If we have a complete selection, try to find an existing value
-      if is_selection_complete and hasattr(self, '_view'):
+      # if is_selection_complete and hasattr(self, '_view'):
+      if is_selection_complete and hasattr(self, '_view') and self._view is not None:
+        # ... rest of the code ...
         # Get the current variable index from the view
         current_index = self._view.ui.tree_required_variables.currentIndex()
         if current_index.isValid():
