@@ -327,7 +327,7 @@ def get_available_ontologies() -> list[str]:
     ]
     ontology_names = [os.path.splitext(os.path.basename(o))[0] for o in directories]
 
-    return ontology_names
+    return sorted(ontology_names)
 
 
 def get_available_models(ontology_name: str) -> list[str]:
@@ -343,7 +343,7 @@ def get_available_models(ontology_name: str) -> list[str]:
     ]
     model_names = [os.path.splitext(os.path.basename(o))[0] for o in directories]
 
-    return model_names
+    return sorted(model_names)
 
 
 def convert_model_file(ontology_name, model_name):

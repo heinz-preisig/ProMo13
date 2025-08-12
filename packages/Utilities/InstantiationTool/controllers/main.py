@@ -24,6 +24,7 @@ class MainController(QObject):
 
         self._model = main_model
         self._view = main_view
+        self._model._view = self._view
 
         var_list_controller = image_list.ImageListController(
             self._view.ui.tree_required_variables, self._model.variable_list
@@ -49,6 +50,8 @@ class MainController(QObject):
         self._model.topology_tree_model.check_box_state_changed.connect(
             self._model.on_topology_tree_model_check_box_changed
         )
+        # In MainController.__init__
+        self._model.update_instantiate_field.connect(self._view.ui.ledit_instantiate.setText)
 
     def select_ontology(self) -> None:
         """Launches a Dialog to get the ontology name.
@@ -96,4 +99,4 @@ class MainController(QObject):
         if instantiation_value is not None:
             self._model.instantiate(instantiation_value, var_index)
 
-        self._view.ui.ledit_instantiate.setText("")
+        # self._view.ui.ledit_instantiate.setText("")

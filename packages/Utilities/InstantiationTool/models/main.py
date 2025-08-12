@@ -23,6 +23,9 @@ class MainModel(QtCore.QObject):
     variable_tree_changed = QtCore.pyqtSignal()
     topology_tree_changed = QtCore.pyqtSignal()
     selection_changed = QtCore.pyqtSignal(bool)
+    # Add this new signal
+    update_instantiate_field = QtCore.pyqtSignal(str)  # Signal to update the line edit
+
 
     # Methods
     def __init__(self) -> None:
@@ -245,14 +248,62 @@ class MainModel(QtCore.QObject):
     def on_topology_tree_model_check_box_changed(self) -> None:
         self._check_selection_status()
 
+    # def _check_selection_status(self) -> None:
+    #     # bool(self.variable_tree_model.get_checked_items())
+    #     is_variable_selected = True
+    #     is_topology_object_selected = bool(self.topology_tree_model.get_checked_items())
+    #
+    #     is_selection_complete = is_variable_selected and is_topology_object_selected
+    #
+    #     self.selection_changed.emit(is_selection_complete)    #todo: is it here that the values must be entered into the line editor?
     def _check_selection_status(self) -> None:
-        # bool(self.variable_tree_model.get_checked_items())
-        is_variable_selected = True
-        is_topology_object_selected = bool(self.topology_tree_model.get_checked_items())
+      is_variable_selected = True
+      selected_topology_objects = self.topology_tree_model.get_checked_items()
+      is_topology_object_selected = bool(selected_topology_objects)
+      is_selection_complete = is_variable_selected and is_topology_object_selected
 
-        is_selection_complete = is_variable_selected and is_topology_object_selected
+      # If we have a complete selection, try to find an existing value
+      if is_selection_complete and hasattr(self, '_view'):
+        # Get the current variable index from the view
+        current_index = self._view.ui.tree_required_variables.currentIndex()
+        if current_index.isValid():
+          var_item = self.variable_list.itemFromIndex(current_index)
+          if var_item:  # Make sure we got a valid item
+            var_id = var_item.data(roles.ID_ROLE)
 
-        self.selection_changed.emit(is_selection_complete)
+            # For simplicity, let's just use the first selected topology object
+            if selected_topology_objects and var_id in self._instantiation:
+              top_obj_id = selected_topology_objects[0]
+
+              # Try to find a matching key in the instantiation
+              for key, value in self._instantiation[var_id].items():
+                # Check if this key matches our topology object
+                if str(top_obj_id) in key or (len(key) == 1 and key[0] == "1"):
+                  self.update_instantiate_field.emit(str(value))
+                  break
+              else:
+                # No matching value found, clear the line edit
+                self.update_instantiate_field.emit("")
+            else:
+              # No instantiation for this variable, clear the field
+              self.update_instantiate_field.emit("")
+          else:
+            # No valid variable item, clear the field
+            self.update_instantiate_field.emit("")
+        else:
+          # No valid variable selected, clear the field
+          self.update_instantiate_field.emit("")
+      else:
+        # Selection not complete, clear the field
+        self.update_instantiate_field.emit("")
+
+      self.selection_changed.emit(is_selection_complete)
+
+    def instantiate(self, instantiation_value: str, var_index: QtCore.QModelIndex) -> None:
+      # ... existing code ...
+
+      # After updating the instantiation, emit the signal to update the UI
+      self.update_instantiate_field.emit(instantiation_value)
 
     def _update_topology_tree_model(
         self,
