@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-PyQt5 MVC + Delegate Skeleton
+PyQt5 MVC + Delegate Skeleton with UI File
 - Two models: ListModel and TableModel
 - One view that can dynamically switch between a QListView and QTableView
 - Separate controller orchestrating all interactions
 - Custom delegate that supports selection highlighting with a rounded, subtle gradient
 - Headless unit tests that exercise the controller without showing any GUI
+- UI defined in a separate .ui file for better maintainability
 
 USAGE
 -----
@@ -15,12 +16,15 @@ Run GUI normally:
 Run tests only (no GUI shown):
     python pyqt5_mvc_delegate_skeleton.py --test
 
-This file keeps tests inline so you can drop it into any environment easily.
+Run with verbose output:
+    python pyqt5_mvc_delegate_skeleton.py --verbose
 """
+
+import os
 import sys
 import argparse
-from typing import List, Any
-
+from typing import List, Any, Optional
+from pathlib import Path
 
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -51,55 +55,70 @@ from PyQt5.QtWidgets import (
     QStyledItemDelegate,
     QStyle,
     QStackedLayout,
+    QStackedWidget,
     QMessageBox,
+    QMainWindow,
 )
+from PyQt5 import uic
 
 
 # ----------------------------
 # MODELS
 # ----------------------------
 class ListModel(QAbstractListModel):
-    def __init__(self, items: List[str] | None = None):
+    def __init__(self, table_model):
         super().__init__()
-        self._items: List[str] = items or []
+        self._table_model = table_model
+        # Connect to table model's signals to keep in sync
+        self._table_model.rowsAboutToBeRemoved.connect(self._on_table_rows_removed)
+        self._table_model.rowsInserted.connect(self._on_table_rows_inserted)
+        self._table_model.dataChanged.connect(self._on_table_data_changed)
+
+    def _on_table_rows_removed(self, parent, first, last):
+        self.beginRemoveRows(QModelIndex(), first, last)
+        self.endRemoveRows()
+
+    def _on_table_rows_inserted(self, parent, first, last):
+        self.beginInsertRows(QModelIndex(), first, last)
+        self.endInsertRows()
+
+    def _on_table_data_changed(self, top_left, bottom_right, roles):
+        # Forward the data changed signal with adjusted indices
+        top_left = self.index(top_left.row())
+        bottom_right = self.index(bottom_right.row())
+        self.dataChanged.emit(top_left, bottom_right, roles)
 
     # Required
-    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:  # type: ignore[override]
-        return len(self._items)
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
+        return self._table_model.rowCount()
 
-    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> Any:  # type: ignore[override]
-        if not index.isValid():
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole) -> Any:
+        if not index.isValid() or not 0 <= index.row() < self.rowCount():
             return None
-        if role in (Qt.DisplayRole, Qt.EditRole):
-            return self._items[index.row()]
-        return None
+            
+        # Get the name from the first column of the table model
+        table_index = self._table_model.index(index.row(), 0)
+        return self._table_model.data(table_index, role)
 
     # Editing support
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:  # type: ignore[override]
-        base = Qt.ItemIsSelectable | Qt.ItemIsEnabled
-        if index.isValid():
-            base |= Qt.ItemIsEditable
-        return base
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return Qt.NoItemFlags
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
 
-    def setData(self, index: QModelIndex, value: Any, role: int = Qt.EditRole) -> bool:  # type: ignore[override]
+    def setData(self, index: QModelIndex, value: Any, role: int = Qt.EditRole) -> bool:
         if role == Qt.EditRole and index.isValid():
-            self._items[index.row()] = str(value)
-            self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.EditRole])
-            return True
+            table_index = self._table_model.index(index.row(), 0)
+            return self._table_model.setData(table_index, value, role)
         return False
 
     # Convenience API used by controller
     def add_item(self, text: str) -> None:
-        insert_row = len(self._items)
-        self.beginInsertRows(QModelIndex(), insert_row, insert_row)
-        self._items.append(text)
-        self.endInsertRows()
+        # Add a new row with the text in the first column and empty second column
+        self._table_model.add_row(text, "")
 
     def remove_row(self, row: int) -> None:
-        if 0 <= row < len(self._items):
-            self.beginRemoveRows(QModelIndex(), row, row)
-            del self._items[row]
-            self.endRemoveRows()
+        self._table_model.remove_row(row)
 
 
 class TableModel(QAbstractTableModel):
@@ -148,15 +167,19 @@ class TableModel(QAbstractTableModel):
 
     # Convenience API used by controller
     def add_row(self, name: str, value: str) -> None:
-        r = len(self._rows)
-        self.beginInsertRows(QModelIndex(), r, r)
-        self._rows.append([name, value])
+        insert_row = len(self._rows)
+        self.beginInsertRows(QModelIndex(), insert_row, insert_row)
+        self._rows.append([str(name), str(value)])
         self.endInsertRows()
+        # Emit dataChanged for the new row to ensure views update
+        top_left = self.index(insert_row, 0)
+        bottom_right = self.index(insert_row, self.columnCount() - 1)
+        self.dataChanged.emit(top_left, bottom_right, [])
 
     def remove_row(self, row: int) -> None:
         if 0 <= row < len(self._rows):
             self.beginRemoveRows(QModelIndex(), row, row)
-            del self._rows[row]
+            self._rows.pop(row)
             self.endRemoveRows()
 
 
@@ -202,66 +225,55 @@ class SoftHighlightDelegate(QStyledItemDelegate):
 # ----------------------------
 # VIEW (widgets only, no business logic)
 # ----------------------------
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     LIST_MODE = 0
     TABLE_MODE = 1
-
+    
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PyQt5 MVC + Delegate Skeleton")
-
-        # Top controls
-        self.mode_label = QLabel("Mode: List")
-        self.switch_btn = QPushButton("Switch to Table")
-        self.delete_btn = QPushButton("Delete Selected")
-
-        top = QHBoxLayout()
-        top.addWidget(self.mode_label)
-        top.addStretch(1)
-        top.addWidget(self.switch_btn)
-        top.addWidget(self.delete_btn)
-
-        # Stack: List view + input, Table view + inputs
-        self.stack = QStackedLayout()
-
-        # List view page
-        self.list_view = QListView()
-        self.list_input = QLineEdit()
-        self.list_input.setPlaceholderText("Add list item…")
-        self.list_add_btn = QPushButton("Add Item")
-        list_row = QHBoxLayout()
-        list_row.addWidget(self.list_input)
-        list_row.addWidget(self.list_add_btn)
-
-        list_page = QWidget()
-        list_v = QVBoxLayout(list_page)
-        list_v.addWidget(self.list_view)
-        list_v.addLayout(list_row)
-
-        # Table view page
-        self.table_view = QTableView()
-        self.table_name_input = QLineEdit(); self.table_name_input.setPlaceholderText("Name…")
-        self.table_value_input = QLineEdit(); self.table_value_input.setPlaceholderText("Value…")
-        self.table_add_btn = QPushButton("Add Row")
-        table_row = QHBoxLayout()
-        table_row.addWidget(self.table_name_input)
-        table_row.addWidget(self.table_value_input)
-        table_row.addWidget(self.table_add_btn)
-
-        table_page = QWidget()
-        table_v = QVBoxLayout(table_page)
-        table_v.addWidget(self.table_view)
-        table_v.addLayout(table_row)
-
-        # Add pages to stack
-        self.stack.addWidget(list_page)   # index 0
-        self.stack.addWidget(table_page)  # index 1
-
-        # Root layout
-        root = QVBoxLayout()
-        root.addLayout(top)
-        root.addLayout(self.stack)
-        self.setLayout(root)
+        
+        # Load the UI file
+        ui_file = os.path.join(os.path.dirname(__file__), 'ui', 'main_window.ui')
+        uic.loadUi(ui_file, self)
+        
+        # Store references to widgets for easier access
+        self.modeLabel = self.findChild(QLabel, 'modeLabel')
+        self.switchButton = self.findChild(QPushButton, 'switchButton')
+        self.deleteButton = self.findChild(QPushButton, 'deleteButton')
+        self.stackedWidget = self.findChild(QStackedWidget, 'stackedWidget')
+        
+        # List view page widgets
+        self.listView = self.findChild(QListView, 'listView')
+        self.listInput = self.findChild(QLineEdit, 'listInput')
+        self.listAddButton = self.findChild(QPushButton, 'listAddButton')
+        
+        # Table view page widgets
+        self.tableView = self.findChild(QTableView, 'tableView')
+        self.tableNameInput = self.findChild(QLineEdit, 'tableNameInput')
+        self.tableValueInput = self.findChild(QLineEdit, 'tableValueInput')
+        self.tableAddButton = self.findChild(QPushButton, 'tableAddButton')
+        
+        # Set initial mode
+        self._mode = self.LIST_MODE
+        
+    @property
+    def mode(self):
+        return self._mode
+        
+    @mode.setter
+    def mode(self, value):
+        self._mode = value
+        self._apply_mode()
+        
+    def _apply_mode(self):
+        if self._mode == self.LIST_MODE:
+            self.modeLabel.setText("Mode: List")
+            self.switchButton.setText("Switch to Table")
+            self.stackedWidget.setCurrentIndex(0)
+        else:
+            self.modeLabel.setText("Mode: Table")
+            self.switchButton.setText("Switch to List")
+            self.stackedWidget.setCurrentIndex(1)
 
 
 # ----------------------------
@@ -275,17 +287,17 @@ class AppController:
         self.delegate = delegate
 
         # Hook models & delegate to views
-        self.view.list_view.setModel(self.model_list)
-        self.view.table_view.setModel(self.model_table)
-        self.view.list_view.setItemDelegate(self.delegate)
-        self.view.table_view.setItemDelegate(self.delegate)
-        self.view.table_view.horizontalHeader().setStretchLastSection(True)
+        self.view.listView.setModel(self.model_list)
+        self.view.tableView.setModel(self.model_table)
+        self.view.listView.setItemDelegate(self.delegate)
+        self.view.tableView.setItemDelegate(self.delegate)
+        self.view.tableView.horizontalHeader().setStretchLastSection(True)
 
         # Wire controls
-        self.view.switch_btn.clicked.connect(self.toggle_mode)
-        self.view.delete_btn.clicked.connect(self.delete_selected)
-        self.view.list_add_btn.clicked.connect(self.add_list_item)
-        self.view.table_add_btn.clicked.connect(self.add_table_row)
+        self.view.switchButton.clicked.connect(self.toggle_mode)
+        self.view.deleteButton.clicked.connect(self.delete_selected)
+        self.view.listAddButton.clicked.connect(self.add_list_item)
+        self.view.tableAddButton.clicked.connect(self.add_table_row)
 
         # Start in LIST mode
         self._mode = MainWindow.LIST_MODE
@@ -298,48 +310,54 @@ class AppController:
 
     def _apply_mode(self):
         if self._mode == MainWindow.LIST_MODE:
-            self.view.stack.setCurrentIndex(MainWindow.LIST_MODE)
-            self.view.mode_label.setText("Mode: List")
-            self.view.switch_btn.setText("Switch to Table")
+            self.view.stackedWidget.setCurrentIndex(MainWindow.LIST_MODE)
+            self.view.modeLabel.setText("Mode: List")
+            self.view.switchButton.setText("Switch to Table")
         else:
-            self.view.stack.setCurrentIndex(MainWindow.TABLE_MODE)
-            self.view.mode_label.setText("Mode: Table")
-            self.view.switch_btn.setText("Switch to List")
+            self.view.stackedWidget.setCurrentIndex(MainWindow.TABLE_MODE)
+            self.view.modeLabel.setText("Mode: Table")
+            self.view.switchButton.setText("Switch to List")
 
     # ----- Actions (controller logic) -----
     def add_list_item(self):
-        text = self.view.list_input.text().strip()
+        text = self.view.listInput.text().strip()
         if not text:
-            QMessageBox.warning(self.view, "Warning", "Cannot add empty item.")
+            QMessageBox.warning(self.view, "Warning", "Item text cannot be empty.")
             return
-        self.model_list.add_item(text)
-        self.view.list_input.clear()
+        # Add to the table model with an empty value
+        # The list model will update automatically via signals
+        self.model_table.add_row(text, "")
+        self.view.listInput.clear()
 
     def add_table_row(self):
-        name = self.view.table_name_input.text().strip()
-        value = self.view.table_value_input.text().strip()
-        if not name and not value:
-            QMessageBox.warning(self.view, "Warning", "Please enter a Name or Value.")
+        name = self.view.tableNameInput.text().strip()
+        value = self.view.tableValueInput.text().strip()
+        if not name:
+            QMessageBox.warning(self.view, "Warning", "Name cannot be empty.")
             return
+        # Add to the table model
+        # The list model will update automatically via signals
         self.model_table.add_row(name, value)
-        self.view.table_name_input.clear()
-        self.view.table_value_input.clear()
+        self.view.tableNameInput.clear()
+        self.view.tableValueInput.clear()
 
     def delete_selected(self):
         if self._mode == MainWindow.LIST_MODE:
-            selected = self.view.list_view.selectedIndexes()
+            selected = self.view.listView.selectedIndexes()
             if not selected:
                 QMessageBox.information(self.view, "Info", "Select a list item to delete.")
                 return
-            self.model_list.remove_row(selected[0].row())
+            # Remove the selected row from the table model
+            # (the list model will update automatically via signals)
+            self.model_table.remove_row(selected[0].row())
         else:
-            selected = self.view.table_view.selectedIndexes()
+            selected = self.view.tableView.selectedIndexes()
             if not selected:
                 QMessageBox.information(self.view, "Info", "Select a table row to delete.")
                 return
-            # remove the first selected row (collapse multiple selection for simplicity)
-            row = selected[0].row()
-            self.model_table.remove_row(row)
+            # Remove the selected row from the table model
+            # (the list model will update automatically via signals)
+            self.model_table.remove_row(selected[0].row())
 
     # Helpers for tests
     @property
@@ -352,16 +370,31 @@ class AppController:
 # ----------------------------
 def run_gui():
     app = QApplication(sys.argv)
-
-    list_model = ListModel(["Alpha", "Beta", "Gamma"])
-    table_model = TableModel([["A", "1"], ["B", "2"], ["C", "3"]])
-
+    
+    # Set application style for better look
+    app.setStyle('Fusion')
+    
+    # Create the table model with sample data
+    table_model = TableModel([["Alpha", ""], ["Beta", ""], ["Gamma", ""]])
+    
+    # Create the list model that wraps the table model
+    list_model = ListModel(table_model)
+    
+    # Create and show the main window
     view = MainWindow()
+    
+    # Create delegate for custom item rendering
     delegate = SoftHighlightDelegate()
+    
+    # Create controller to manage the application logic
     controller = AppController(list_model, table_model, view, delegate)
-
-    view.resize(700, 480)
+    
+    # Set initial window size and show
+    view.setWindowTitle("PyQt5 MVC + Delegate Example")
+    view.resize(700, 500)
     view.show()
+    
+    # Start the event loop
     sys.exit(app.exec_())
 
 
@@ -385,30 +418,30 @@ class TestController(unittest.TestCase):
 
     def test_initial_mode(self):
         self.assertEqual(self.controller.mode, MainWindow.LIST_MODE)
-        self.assertEqual(self.view.stack.currentIndex(), MainWindow.LIST_MODE)
+        self.assertEqual(self.view.stackedWidget.currentIndex(), MainWindow.LIST_MODE)
 
     def test_toggle_mode(self):
         self.controller.toggle_mode()
         self.assertEqual(self.controller.mode, MainWindow.TABLE_MODE)
-        self.assertEqual(self.view.stack.currentIndex(), MainWindow.TABLE_MODE)
+        self.assertEqual(self.view.stackedWidget.currentIndex(), MainWindow.TABLE_MODE)
 
     def test_add_list_item(self):
-        self.view.list_input.setText("Three")
+        self.view.listInput.setText("Three")
         self.controller.add_list_item()
         self.assertEqual(self.list_model.rowCount(), 3)
         self.assertEqual(self.list_model.data(self.list_model.index(2), Qt.DisplayRole), "Three")
 
     def test_delete_list_item(self):
         # Select row 0 programmatically
-        self.view.list_view.setCurrentIndex(self.list_model.index(0))
+        self.view.listView.setCurrentIndex(self.list_model.index(0))
         self.controller.delete_selected()
         self.assertEqual(self.list_model.rowCount(), 1)
         self.assertEqual(self.list_model.data(self.list_model.index(0), Qt.DisplayRole), "Two")
 
     def test_add_table_row(self):
         self.controller.toggle_mode()  # switch to table mode
-        self.view.table_name_input.setText("M")
-        self.view.table_value_input.setText("30")
+        self.view.tableNameInput.setText("M")
+        self.view.tableValueInput.setText("30")
         self.controller.add_table_row()
         self.assertEqual(self.table_model.rowCount(), 3)
         idx = self.table_model.index(2, 0)
@@ -417,7 +450,7 @@ class TestController(unittest.TestCase):
     def test_delete_table_row(self):
         self.controller.toggle_mode()  # table mode
         # Select row 1, any column
-        self.view.table_view.setCurrentIndex(self.table_model.index(1, 0))
+        self.view.tableView.setCurrentIndex(self.table_model.index(1, 0))
         self.controller.delete_selected()
         self.assertEqual(self.table_model.rowCount(), 1)
         idx = self.table_model.index(0, 0)
@@ -425,23 +458,41 @@ class TestController(unittest.TestCase):
 
     def test_delegate_is_set(self):
         # Verify the same delegate instance is installed on both views
-        self.assertIs(self.view.list_view.itemDelegate(), self.delegate)
-        self.assertIs(self.view.table_view.itemDelegate(), self.delegate)
+        self.assertIs(self.view.listView.itemDelegate(), self.delegate)
+        self.assertIs(self.view.tableView.itemDelegate(), self.delegate)
 
 
 def run_tests() -> int:
+    # Suppress Qt debug output during tests
+    os.environ["QT_LOGGING_RULES"] = "*.debug=false;*.warning=false"
+    
+    # Initialize QApplication for tests if not already done
+    app = QApplication.instance() or QApplication(sys.argv)
+    
+    # Run the tests
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestController)
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
+    
+    # Clean up QApplication
+    if QApplication.instance():
+        QApplication.quit()
+    
     return 0 if result.wasSuccessful() else 1
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="PyQt5 MVC + Delegate Example")
     parser.add_argument("--test", action="store_true", help="run unit tests and exit")
+    parser.add_argument("--verbose", "-v", action="store_true", help="enable verbose output")
     args = parser.parse_args()
 
     if args.test:
         sys.exit(run_tests())
     else:
+        # Run the GUI application
+        if not args.verbose:
+            # Suppress Qt debug output in production
+            os.environ["QT_LOGGING_RULES"] = "*.debug=false;*.warning=false"
         run_gui()
