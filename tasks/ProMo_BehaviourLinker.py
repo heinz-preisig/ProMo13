@@ -8,10 +8,10 @@ sys.path.append(root)
 
 # fmt: off
 import packages.OntologyBuilder.BehaviourLinker.resources.resources_rc
-from packages.OntologyBuilder.BehaviourLinker.Controllers.main import MainController
-from packages.OntologyBuilder.BehaviourLinker.Models.main import MainModel
-from packages.OntologyBuilder.BehaviourLinker.Views.main import MainView
-from src.common.components.splash_screen import splash_screen
+from OntologyBuilder.BehaviourLinker.Controllers.main import MainController
+from OntologyBuilder.BehaviourLinker.Models.main import MainModel
+from OntologyBuilder.BehaviourLinker.Views.main import MainView
+from common.components.splash_screen import splash_screen
 
 # fmt: on
 
