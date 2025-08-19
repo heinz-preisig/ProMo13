@@ -6,9 +6,9 @@ from typing import Dict, List, Optional, Set, Tuple
 import jinja2
 import numpy as np
 
-from packages.Common import resource_initialisation as ri
-from packages.Common.classes import equation, equation_parser, index, variable
-from src.common import old_topology
+from Common import resource_initialisation as ri
+from Common.classes import equation, equation_parser, index, variable
+from common import old_topology
 
 
 class TemplateHandler:
@@ -81,7 +81,8 @@ class TemplateHandler:
                 self.map_id_to_counter[top_id] = index_set_counter["A"]
                 index_set_counter["A"] += 1
 
-            species.update(top_obj.typed_tokens["mass"])
+            if "mass" in top_obj.typed_tokens:
+                species.update(top_obj.typed_tokens["mass"])
 
         index_set_counter["S"] += len(species)
         for key in index_sets:

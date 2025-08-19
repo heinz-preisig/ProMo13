@@ -14,7 +14,7 @@ sys.path.extend([root, os.path.join(root, 'packages','src'),
 from Common import resource_initialisation
 from Common.classes import io
 from code_generator import equation_sequencer, template_handler
-from common.old_io import IOHandler
+from  common.old_io import IOHandler
 
 # fmt: on
 
