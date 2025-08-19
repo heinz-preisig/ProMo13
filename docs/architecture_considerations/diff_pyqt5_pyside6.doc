@@ -1,0 +1,91 @@
+# Test example: differences between PyQt5 and PySide6
+
+
+
+now we have two examples pyqt5_mvc and pyside6_mvc. What is the difference in the individual modules
+
+Let me help you understand the key differences between PyQt5 and PySide6 MVC implementations. The main differences are in their imports and some signal/slot syntax, while the MVC architecture remains the same.
+
+## 1. Module Imports
+
+### PyQt5
+
+```
+pythonfrom PyQt5.QtCore import pyqtSignal, pyqtSlot, QObject
+from PyQt5.QtWidgets import QApplication, QMainWindow
+```
+
+### PySide6
+
+```
+pythonfrom PySide6.QtCore import Signal, Slot, QObject
+from PySide6.QtWidgets import QApplication, QMainWindow
+```
+
+## 2. Signal and Slot Syntax
+
+### PyQt5
+
+```
+pythonclass Model(QObject):
+    data_changed = pyqtSignal(str)
+
+class Controller:
+    @pyqtSlot(str)
+    def handle_data(self, data):
+        print(f"Received: {data}")
+```
+
+### PySide6
+
+```
+pythonclass Model(QObject):
+    data_changed = Signal(str)
+
+class Controller:
+    @Slot(str)
+    def handle_data(self, data):
+        print(f"Received: {data}")
+```
+
+## 3. Resource Files
+
+### PyQt5
+
+- Uses `pyrcc5` to compile `.qrc` files
+- Generated file: `_rc.py`
+
+### PySide6
+
+- Uses `pyside6-rcc` to compile `.qrc` files
+- Generated file: `_rc.py` (same as PyQt5, but different command)
+
+## 4. UI File Loading
+
+### PyQt5
+
+```
+pythonfrom PyQt5 import uic
+uic.loadUi('window.ui', self)
+```
+
+### PySide6
+
+```
+pythonfrom PySide6.QtUiTools import loadUiType
+Ui_MainWindow, QMainWindow = loadUiType('window.ui')
+```
+
+## 5. Key Similarities
+
+1. **MVC Structure**: Both use the same pattern
+2. **Widget Classes**: Same widget classes and methods
+3. **Event Handling**: Similar event handling mechanisms
+4. **Layout Management**: Identical layout management
+
+## Which to Choose?
+
+- **PySide6**: More permissive LGPL license, better for commercial projects
+- **PyQt5**: More mature, but GPL/commercial licensing
+
+The choice depends on your project's licensing requirements and specific needs. The MVC architecture remains consistent between both.
