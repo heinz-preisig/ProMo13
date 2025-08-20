@@ -1955,6 +1955,8 @@ class Commander(QtCore.QObject):
     self.__setupScene(nodeID)
     self.__setupView(nodeID)
     self.__putEnvironment(nodeID)
+    self.scene.update()
+    self.view.update()
 
   def __changeName(self, name):  # connected to c16_editName
     nodeID = self.current_ID_node_or_arc
