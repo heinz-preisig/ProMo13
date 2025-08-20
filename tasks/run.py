@@ -267,82 +267,40 @@ class HomeWindow(QtWidgets.QMainWindow):
     self.close()  # invoke closeEvent implemented below
 
   def open_foundation(self):
-    os.chdir(tasks_dir)
-    self.process = QtCore.QProcess(self)
-    self.process.readyReadStandardError.connect(
-        partial(self.onStandardError, "ProMo_OntologyFoundationDesigner.py"))
-    self.process.start(
-        "python", [CODE_PATHS["ProMo_OntologyFoundationDesigner.py"]])
-    self.opened_window_list_widget.addItem(
-        QtWidgets.QListWidgetItem("ProMo_OntologyFoundationDesigner.py"))
+    self.__run_task("ProMo_OntologyFoundationDesigner.py")
 
   def open_equations(self):
-    os.chdir(tasks_dir)
-    self.process = QtCore.QProcess(self)
-    self.process.readyReadStandardError.connect(
-        partial(self.onStandardError, "ProMo_OntologyEquationComposer.py"))
-    self.process.start(
-        "python", [CODE_PATHS["ProMo_OntologyEquationComposer.py"]])
-    self.opened_window_list_widget.addItem(
-        QtWidgets.QListWidgetItem("ProMo_OntologyEquationComposer.py"))
+    self.__run_task("ProMo_OntologyEquationComposer.py")
 
   def open_components(self):
-    os.chdir(tasks_dir)
-    self.process = QtCore.QProcess(self)
-    self.process.readyReadStandardError.connect(
-        partial(self.onStandardError, "ProMo_ComposerGraphComponentDesigner.py"))
-    self.process.start(
-        "python", [CODE_PATHS["ProMo_ComposerGraphComponentDesigner.py"]])
-    self.opened_window_list_widget.addItem(
-        QtWidgets.QListWidgetItem("ProMo_ComposerGraphComponentDesigner.py"))
+    self.__run_task("ProMo_ComposerGraphComponentDesigner.py")
 
   def open_linker(self):
-    os.chdir(tasks_dir)
-    self.process = QtCore.QProcess(self)
-    self.process.readyReadStandardError.connect(
-        partial(self.onStandardError, "ProMo_BehaviourLinker.py"))
-    self.process.start("python", [CODE_PATHS["ProMo_BehaviourLinker.py"]])
-    self.opened_window_list_widget.addItem(
-        QtWidgets.QListWidgetItem("ProMo_BehaviourLinker.py"))
+    self.__run_task("ProMo_BehaviourLinker.py")
 
   def open_automaton(self):
-    os.chdir(tasks_dir)
-    self.process = QtCore.QProcess(self)
-    self.process.readyReadStandardError.connect(
-        partial(self.onStandardError, "ProMo_ComposerAutomataDesigner.py"))
-    self.process.start(
-        "python", [CODE_PATHS["ProMo_ComposerAutomataDesigner.py"]])
-    self.opened_window_list_widget.addItem(
-        QtWidgets.QListWidgetItem("ProMo_ComposerAutomataDesigner.py"))
+    self.__run_task("ProMo_ComposerAutomataDesigner.py")
+
 
   def open_typedtoken(self):
-    os.chdir(tasks_dir)
-    self.process = QtCore.QProcess(self)
-    self.process.readyReadStandardError.connect(
-        partial(self.onStandardError, "ProMo_TypedTokenEditor.py"))
-    self.process.start("python", [CODE_PATHS["ProMo_TypedTokenEditor.py"]])
-    self.opened_window_list_widget.addItem(
-        QtWidgets.QListWidgetItem("ProMo_TypedTokenEditor.py"))
+    self.__run_task("ProMo_TypedTokenEditor.py")
 
   def open_modeller(self):
-    os.chdir(tasks_dir)
-    self.process = QtCore.QProcess(self)
-    self.process.readyReadStandardError.connect(
-        partial(self.onStandardError, "ProMo_ModelComposer.py"))
-    self.process.start("python", [CODE_PATHS["ProMo_ModelComposer.py"]])
-    self.opened_window_list_widget.addItem(
-        QtWidgets.QListWidgetItem("ProMo_ModelComposer.py"))
-
-
+    self.__run_task("ProMo_ModelComposer.py")
 
   def open_instantiate(self):
+    self.__run_task("ProMo_ModelInstantiate.py")
+
+  def __run_task(self, task):
     os.chdir(tasks_dir)
     self.process = QtCore.QProcess(self)
     self.process.readyReadStandardError.connect(
-        partial(self.onStandardError, "ProMo_ModelInstantiate.py"))
-    self.process.start("python", [CODE_PATHS["ProMo_ModelInstantiate.py"]])
+            partial(self.onStandardError, task))
+    self.process.start(
+            "python", [CODE_PATHS[task]])
     self.opened_window_list_widget.addItem(
-        QtWidgets.QListWidgetItem("ProMo_ModelInstantiate.py"))
+            QtWidgets.QListWidgetItem(task))
+
 
   def onStandardError(self, program_name):
     returned_data = self.process.readAllStandardError().data().decode()
