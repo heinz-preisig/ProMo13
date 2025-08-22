@@ -1,113 +1,166 @@
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import Qt
+import os
+from functools import partial
 
-from ..models import ListModel, TableModel
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+
+from Common.resources_icons import getIcon
+from Common.resources_icons import roundButton
 from ..views import MainWindow
-from ..delegates import SoftHighlightDelegate
+
+DEBUGGING = False
+
+BASE = os.path.curdir
+tasks_dir = os.path.realpath(BASE)
+
+packages_dir = os.path.realpath(os.path.join(BASE, "../packages"))
+image_path = os.path.join(packages_dir, 'Common',
+                          'icons', 'task_ontology_foundation.svg')
+
+help_dir = os.path.join(packages_dir, 'Common')
+
+ACTIONS = {
+        "pushFoundationEditor"        : {"CODE": "ProMo_OntologyFoundationDesigner.py",
+                                         "INFO": "info_ontology_equation_editor",
+                                         "ICON": getIcon("task_ontology_foundation")},
+        "pushEquationEditor"          : {"CODE": "ProMo_OntologyEquationComposer.py",
+                                         "INFO": "info_ontology_foundation_editor",
+                                         "ICON": getIcon("task_ontology_equations")},
+        "pushGraphComoponentDesigner" : {"CODE": "ProMo_ComposerGraphComponentDesigner.py",
+                                         "INFO": "info_graphic_object_editor",
+                                         "ICON": getIcon("task_graphic_objects")},
+        "pushWriteRDFGraph"           : {"CODE": "ProMo_Write_RDF_Graph_Var_Expr.py",
+                                         "INFO": "info_graphic_object_editor",
+                                         "ICON": getIcon("task_write_RDF_graph")},
+        "pushComposerAutomataDesigner": {"CODE": "ProMo_ComposerAutomataDesigner.py",
+                                         "INFO": "info_automata_editor",
+                                         "ICON": getIcon("task_automata")},
+        "pushDotGraphs"               : {"CODE": "ProMo_OntologyDotGraphCreator.py",
+                                         "INFO": "info_dot_graph",
+                                         "ICON": getIcon("task_dot_graphs")},
+        "pushEntityDesigner"          : {"CODE": "ProMo_BehaviourLinker.py",
+                                         "INFO": "info_behaviour_linker",
+                                         "ICON": getIcon("task_entity_generation")},
+        "pushTypedTokenDesigner"      : {"CODE": "ProMo_TypedTokenEditor.py",
+                                         "INFO": "info_typed_token_editor",
+                                         "ICON": getIcon("task_typed_token_editor")},
+        "pushModelComposer"           : {"CODE": "ProMo_ModelComposer.py",
+                                         "INFO": "info_modeller_editor",
+                                         "ICON": getIcon("task_model_composer")},
+        "pushModelInstantiate"             : {"CODE": "ProMo_ModelInstantiate.py",
+                                         "INFO": "info_modeller_instantiator",
+                                         "ICON": getIcon("task_instantiation")},
+        }
 
 
 class AppController:
-    """Controller that manages the interaction between models and views."""
-    
-    def __init__(self, model_list: ListModel, model_table: TableModel, 
-                 view: MainWindow, delegate: SoftHighlightDelegate):
-        """Initialize the controller with models, view, and delegate.
-        
-        Args:
-            model_list: The list model to use
-            model_table: The table model to use
-            view: The main window view
-            delegate: The delegate for custom item rendering
-        """
-        self.model_list = model_list
-        self.model_table = model_table
-        self.view = view
-        self.delegate = delegate
+  """Controller that manages the interaction between models and views."""
 
-        # Hook models & delegate to views
-        self._setup_views()
-        
-        # Wire up UI controls
-        self._connect_signals()
-        
-        # Start in LIST mode
-        self._mode = MainWindow.LIST_MODE
-        self._apply_mode()
+  def __init__(self, view: MainWindow):
+    """Initialize the controller with models, view, and delegate.
+
+    Args:
+        view: The main window view
+        delegate: The delegate for custom item rendering
+    """
+    self.view = view
+    # self.delegate = delegate
+
+    # Hook models & delegate to views
+    self._setup_views()
+    self.view.Exit.clicked.connect(self.view.close)
+    self.view.Minimise.clicked.connect(self.view.showMinimized)
+
+  def _setup_button(self, button_name):
+    """Set up a single button with icon and size.
     
-    def _setup_views(self):
-        """Set up the views with their models and delegates."""
-        self.view.listView.setModel(self.model_list)
-        self.view.tableView.setModel(self.model_table)
-        self.view.listView.setItemDelegate(self.delegate)
-        self.view.tableView.setItemDelegate(self.delegate)
-        self.view.tableView.horizontalHeader().setStretchLastSection(True)
+    Args:
+        button_name (str): The name of the button to set up (without 'view.' prefix)
+    """
+    button = getattr(self.view, button_name, None)
+    ACTIONS[button_name]["ICON"]
+    if button is not None and button_name in ACTIONS:
+      button.setIcon(ACTIONS[button_name]["ICON"])
+      button.setIconSize(QtCore.QSize(64, 64))
+      button.clicked.connect(partial(self.__run_task, button_name))
+
+  def _find_all_buttons(self):
+    """Find all QPushButton widgets in the view and return their names.
     
-    def _connect_signals(self):
-        """Connect UI signals to controller methods."""
-        self.view.switchButton.clicked.connect(self.toggle_mode)
-        self.view.deleteButton.clicked.connect(self.delete_selected)
-        self.view.listAddButton.clicked.connect(self.add_list_item)
-        self.view.tableAddButton.clicked.connect(self.add_table_row)
-    
-    def toggle_mode(self):
-        """Toggle between list and table modes."""
-        self.mode = MainWindow.TABLE_MODE if self.mode == MainWindow.LIST_MODE else MainWindow.LIST_MODE
-    
-    def _apply_mode(self):
-        """Update the UI based on the current mode."""
-        self.view.mode = self._mode
-    
-    def add_list_item(self):
-        """Add a new item to the list."""
-        text = self.view.listInput.text().strip()
-        if not text:
-            QMessageBox.warning(self.view, "Warning", "Item text cannot be empty.")
-            return
-        # Add to the table model with an empty value
-        # The list model will update automatically via signals
-        self.model_table.add_row(text, "")
-        self.view.listInput.clear()
-    
-    def add_table_row(self):
-        """Add a new row to the table."""
-        name = self.view.tableNameInput.text().strip()
-        value = self.view.tableValueInput.text().strip()
-        if not name:
-            QMessageBox.warning(self.view, "Warning", "Name cannot be empty.")
-            return
-        # Add to the table model
-        # The list model will update automatically via signals
-        self.model_table.add_row(name, value)
-        self.view.tableNameInput.clear()
-        self.view.tableValueInput.clear()
-    
-    def delete_selected(self):
-        """Delete the currently selected item(s)."""
-        if self._mode == MainWindow.LIST_MODE:
-            selected = self.view.listView.selectedIndexes()
-            if not selected:
-                QMessageBox.information(self.view, "Info", "Select a list item to delete.")
-                return
-            # Remove the selected row from the table model
-            # (the list model will update automatically via signals)
-            self.model_table.remove_row(selected[0].row())
-        else:
-            selected = self.view.tableView.selectedIndexes()
-            if not selected:
-                QMessageBox.information(self.view, "Info", "Select a table row to delete.")
-                return
-            # Remove the selected row from the table model
-            # (the list model will update automatically via signals)
-            self.model_table.remove_row(selected[0].row())
-    
-    @property
-    def mode(self) -> int:
-        """Get the current mode (LIST_MODE or TABLE_MODE)."""
-        return self._mode
-    
-    @mode.setter
-    def mode(self, value: int) -> None:
-        """Set the current mode and update the UI."""
-        if value != self._mode:
-            self._mode = value
-            self._apply_mode()
+    Returns:
+        list: List of button names (strings)
+    """
+    buttons = []
+    # Find all QPushButton widgets in the view
+    for widget in self.view.findChildren(QtWidgets.QPushButton):
+      button_name = widget.objectName()
+      if button_name:  # Only include widgets with a name
+        if "push" in button_name:
+          buttons.append(button_name)
+    return buttons
+
+  def _setup_views(self):
+    """Set up all the views with their models and delegates."""
+    # Set up window control buttons
+    roundButton(self.view.Minimise, "min_view", tooltip="minimise", mysize=35)
+    roundButton(self.view.Exit, "reject", tooltip="exit", mysize=35)
+
+    # Find all buttons and filter out the ones we want to set up
+    all_buttons = self._find_all_buttons()
+
+    if DEBUGGING:
+      print("All buttons found:", all_buttons)
+
+    # Set up each button that has a corresponding action
+    for button_name in all_buttons:
+      self._setup_button(button_name)
+
+  def __run_task(self, button_name):
+    script_path = ACTIONS[button_name]["CODE"]
+    try:
+      print(f"Script path: {script_path}")
+
+      if not os.path.isfile(script_path):
+        raise FileNotFoundError(f"Script not found: {os.path.abspath(script_path)}")
+
+      os.chdir(tasks_dir)
+      print(f"Changed to directory: {os.getcwd()}")
+
+      self.process = QtCore.QProcess(self.view)
+      self.view.hide()
+
+      # Connect error signals
+      self.process.errorOccurred.connect(self._on_process_error)
+      self.process.finished.connect(self._on_process_finished)
+
+      print(f"Starting process: python {script_path}")
+      self.process.start("python", [script_path])
+
+      if not self.process.waitForStarted():
+        raise RuntimeError("Failed to start the process")
+
+      print(f"Process started successfully with PID: {self.process.processId()}")
+
+    except Exception as e:
+      error_msg = f"Error running task '{script_path}': {str(e)}"
+      print(error_msg)
+      QtWidgets.QMessageBox.critical(self.view, "Error", error_msg)
+
+  def _on_process_error(self, error):
+    error_msg = f"Process error: {error}"
+    print(error_msg)
+    if self.process:
+      error_msg += f"\nError string: {self.process.errorString()}"
+    QtWidgets.QMessageBox.critical(self.view, "Process Error", error_msg)
+
+  def _on_process_finished(self, exit_code, exit_status):
+    print(f"Process finished with exit code: {exit_code}, status: {exit_status}")
+    if exit_code not in [0, 255]:
+      error_msg = f"Process exited with code {exit_code}"
+      if self.process:
+        error_bytes = self.process.readAllStandardError().data()
+        if error_bytes:
+          error_msg += f"\nError output:\n{error_bytes.decode('utf-8', 'ignore')}"
+      print(error_msg)
+      QtWidgets.QMessageBox.warning(self.view, "Process Finished with Errors", error_msg)
+    self.view.show()

@@ -23,9 +23,19 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 import os as OS
+import sys
+from pathlib import Path
 from shutil import copyfile
 
-from packages.Common.pop_up_message_box import makeMessageBox
+# Add project root and packages directory to Python path
+project_root = str(Path(__file__).parent.parent.parent)  # Go up 3 levels to reach ProMo/
+packages_dir = str(Path(project_root) / 'packages')
+
+for path in [project_root, packages_dir]:
+    if path not in sys.path:
+        sys.path.insert(0, path)
+
+from Common.pop_up_message_box import makeMessageBox
 
 # from Common.ui_message_popup_impl import UI_MessagePopUp
 
