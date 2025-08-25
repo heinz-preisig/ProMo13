@@ -14,7 +14,7 @@ import packages.OntologyBuilder.BehaviourLinker.resources.resources_rc
 from Utilities.InstantiationTool.controllers.main import MainController
 from Utilities.InstantiationTool.models.main import MainModel
 from Utilities.InstantiationTool.views.main import MainView
-from common.components.splash_screen import splash_screen
+from src.common.components.splash_screen import splash_screen
 
 # fmt: on
 

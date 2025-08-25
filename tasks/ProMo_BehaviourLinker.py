@@ -3,15 +3,20 @@ import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 root = os.path.abspath(os.path.join(".."))
-sys.path.append(root)
+sys.path.extend([root, os.path.join(root, 'packages'),
+                os.path.join(root, 'tasks')])
+
+# root = os.path.abspath(os.path.join(".."))
+# sys.path.append(root)
 
 # fmt: off
 import packages.OntologyBuilder.BehaviourLinker.resources.resources_rc
 from OntologyBuilder.BehaviourLinker.Controllers.main import MainController
 from OntologyBuilder.BehaviourLinker.Models.main import MainModel
 from OntologyBuilder.BehaviourLinker.Views.main import MainView
-from common.components.splash_screen import splash_screen
+from src.common.components.splash_screen import splash_screen
 
 # fmt: on
 

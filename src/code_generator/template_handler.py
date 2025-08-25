@@ -8,7 +8,7 @@ import numpy as np
 
 from Common import resource_initialisation as ri
 from Common.classes import equation, equation_parser, index, variable
-from common import old_topology
+from src.common import old_topology
 
 
 class TemplateHandler:
