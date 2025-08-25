@@ -60,6 +60,7 @@ class MainWindow(QMainWindow):
   def __init__(self):
     """Initialize the main window and load the UI."""
     super().__init__()
+    self.setWindowFlag(Qt.FramelessWindowHint)
 
     # Load the UI file
     ui_file = os.path.join(

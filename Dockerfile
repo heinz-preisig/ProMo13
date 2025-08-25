@@ -88,4 +88,4 @@ RUN chmod +x tasks/*.sh
 
 WORKDIR /ProMo/tasks
 #CMD ["bash", "cd /ProMo/tasks"]
-CMD ["python3", "run.py"]
+CMD ["python3", "runner.py"]
