@@ -199,7 +199,11 @@ def _find_equations_for_variable(
 
     if not entity_instance.contains_var(variable_id):
         # TODO: Maybe raise an exception here.
+        print("entity", entity_instance.entity_name, "has no variable", variable_id)
         return {}
+    else:
+        print("entity", entity_instance.entity_name, "has variable", variable_id)
+
 
     # if entity_instance.is_init(variable_id):
     #   return {}
