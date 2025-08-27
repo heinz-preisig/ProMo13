@@ -487,32 +487,39 @@ class Commander(QtCore.QObject):
     features = self.applyNodeDefinitionRules(node_characteristics)
 
     if not network == "composite":
-      current_inter_branch = None
-      for inter_branch in self.main.ontology.list_inter_branches:
-        for domain in self.main.ontology.intra_domains[inter_branch]:
-          print("debugging -- ", inter_branch, domain)
-          if network == domain:
-            current_inter_branch = domain
-            print("debugging -- chosen inter_branch & domain:", inter_branch, domain)
-            break
-      # print("debugging -- found:", current_inter_branch, network)
-      if not current_inter_branch:
-        self.__abortNodeGeneration("no current item defined")
-        return {"failed": True}
+      # current_inter_branch = None
+      # for inter_branch in self.main.ontology.list_inter_branches:
+      #   for domain in self.main.ontology.intra_domains[inter_branch]:
+      #     print("debugging -- ", inter_branch, domain)
+      #     if network == domain:
+      #       current_inter_branch = inter_branch
+      #       print("debugging -- chosen inter_branch & domain:", inter_branch, domain)
+      #       break
+      # # print("debugging -- found:", current_inter_branch, network)
+      # if not current_inter_branch or not domain:
+      #   self.__abortNodeGeneration("no current item defined")
+      #   return {"failed": True}
 
       node_type = self.main.selected_node_type[self.main.current_network]
-
+      #
       # get all possible node types for the current inter_branch
-      possible_networks = set()
-      for i in self.main.ontology.heirs_network_dictionary:
-        if current_inter_branch in i:
-          possible_networks.add(i)
+      # possible_networks = set()
+      # heirs_list = self.main.ontology.heirs_network_dictionary[current_inter_branch]
+      # for i in heirs_list:
+      #   if domain in heirs_list:
+      #     possible_networks.add(i)
+
+      # current_inter_branch = self.main.current_inter_branch
+      possible_networks = self.main.ontology.ontology_tree[network]["parents"]
 
       entities = list(self.main.ontology.node_arc_SubClasses.keys())
-      selections = extract(entities,
-                           filter_and=[current_inter_branch, "node", node_type],
-                           filter_or=possible_networks,
+      selections = set()
+      for p in possible_networks:
+        _selections = extract(entities,
+                           filter_and=[p, "node", node_type],
+                           filter_or=[],
                            filter_not=CR.CONNECTION_NETWORK_SEPARATOR)
+        selections.update(_selections)
 
       if not selections:
         self.__abortNodeGeneration("no entity defined")
