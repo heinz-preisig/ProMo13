@@ -490,9 +490,10 @@ class Commander(QtCore.QObject):
       current_inter_branch = None
       for inter_branch in self.main.ontology.list_inter_branches:
         for domain in self.main.ontology.intra_domains[inter_branch]:
-          # print("debugging -- ", inter_branch, domain)
+          print("debugging -- ", inter_branch, domain)
           if network == domain:
-            current_inter_branch = inter_branch
+            current_inter_branch = domain
+            print("debugging -- chosen inter_branch & domain:", inter_branch, domain)
             break
       # print("debugging -- found:", current_inter_branch, network)
       if not current_inter_branch:
@@ -501,10 +502,16 @@ class Commander(QtCore.QObject):
 
       node_type = self.main.selected_node_type[self.main.current_network]
 
+      # get all possible node types for the current inter_branch
+      possible_networks = set()
+      for i in self.main.ontology.heirs_network_dictionary:
+        if current_inter_branch in i:
+          possible_networks.add(i)
+
       entities = list(self.main.ontology.node_arc_SubClasses.keys())
       selections = extract(entities,
                            filter_and=[current_inter_branch, "node", node_type],
-                           filter_or=[],
+                           filter_or=possible_networks,
                            filter_not=CR.CONNECTION_NETWORK_SEPARATOR)
 
       if not selections:
