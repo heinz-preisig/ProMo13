@@ -5,7 +5,7 @@
 
 # Set image name - replace with your image name
 IMAGE_NAME="hapdocker/promo2025"
-LOCAL_ONTOLOGY_REPOSITORY="/home/heinz/1_Gits/CAM/Ontology_Repository"
+LOCAL_ONTOLOGY_REPOSITORY="/home/heinz/1_Gits/CAM/Ontology_Repository" #<<<<<< adjust to your needs"
 DOKER_ONTOLOGY_REPOSITORY="/Ontology_Repository"
 BASH=$1
 
