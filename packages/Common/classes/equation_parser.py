@@ -46,6 +46,29 @@ class EquationParser:
 
   # Define the rule for ignoring whitespace
   t_ignore = ' \t'
+  
+  # Match operator and delimiter tokens
+  def t_OPERATOR_OR_DELIMITER(self, t):
+    r'[OD]_\d+'
+    # Get all token patterns that start with t_O_ or t_D_
+    token_patterns = {}
+    for name in dir(self):
+      if name.startswith(('t_O_', 't_D_')) and name != 't_OPERATOR_OR_DELIMITER':
+        try:
+          pattern = getattr(self, name)
+          if isinstance(pattern, str):  # Only include string patterns
+            token_patterns[name[2:]] = pattern  # Store without 't_' prefix
+        except:
+          continue
+    
+    # Check if the token value matches any known pattern
+    for token_type, pattern in token_patterns.items():
+      if t.value == pattern:
+        t.type = token_type
+        return t
+    
+    logger.warning(f"Unknown token: {t.value}")
+    t.lexer.skip(len(t.value))
 
   ########################## TOKEN DEFINITIONS #########################
   tokens = (
@@ -61,6 +84,7 @@ class EquationParser:
       'O_DOT',
       'O_COLON',
       'O_STAR',
+      'O_DIVIDE',  # Added division operator
       # 'O_PIPE',
       'O_PARTIAL_DIFF',
       'O_TOTAL_DIFF',
@@ -95,6 +119,7 @@ class EquationParser:
   t_O_DOT = r'O_4'
   t_O_COLON = r'O_3'
   t_O_STAR = r'O_5'
+  t_O_DIVIDE = r'O_6'  # Added support for division operator
   t_O_PARTIAL_DIFF = r'O_7'
   t_O_TOTAL_DIFF = r'O_8'
   t_O_INTEGRAL = r'O_9'
@@ -118,6 +143,7 @@ class EquationParser:
   precedence = (
       ('left', 'O_PLUS', 'O_MINUS'),
       ('left', 'O_DOT', 'O_COLON', 'O_PRODUCT'),
+      ('left', 'O_STAR', 'O_DIVIDE'),  # Added O_DIVIDE with same precedence as O_STAR
       ('left', 'O_HAT'),
       ('right', 'UMINUS'),
   )
@@ -146,6 +172,10 @@ class EquationParser:
   def p_expr_einstein_sum(self, p: yacc.YaccProduction) -> None:
     '''expression : expression O_DOT expression'''
     p[0] = self.translator.translate_einstein_sum(p[1], p[3])
+    
+  def p_expr_divide(self, p: yacc.YaccProduction) -> None:
+    '''expression : expression O_DIVIDE expression'''
+    p[0] = f"({p[1]} / {p[3]})"  # Simple division for now, can be customized
 
   # def p_expr_expand_product(self, p: yacc.YaccProduction) -> None:
   #   '''expression : expression O_COLON expression'''
@@ -206,23 +236,64 @@ class EquationParser:
   #       p[1], p[3], p[5], p[7], p[9])
   ##############################################################################
 
+  def p_error(self, p):
+    if p:
+      # Get the line and position of the error
+      try:
+        line = p.lineno
+        position = p.lexpos
+        
+        # Get the line of text where the error occurred
+        lexdata = p.lexer.lexdata
+        lines = lexdata.split('\n')
+        error_line = lines[line-1] if line-1 < len(lines) else ""
+        
+        # Create a pointer to the error position
+        pointer = ' ' * (position - lexdata.rfind('\n', 0, position) - 1) + '^'
+        
+        logger.error(f"Syntax error at line {line}, position {position}")
+        logger.error(error_line)
+        logger.error(pointer)
+        logger.error(f"Unexpected token: {p.type} ('{p.value}')")
+        
+        # Skip the current token and continue parsing
+        return p
+      except Exception as e:
+        logger.error(f"Error in error handling: {e}")
+    else:
+      logger.error("Syntax error at end of input")
+
   def t_error(self, t):
-    logger.warning(f"Illegal character '{t.value[0]}' at index {t.lexpos}")
-    t.lexer.skip(1)
+    if t:
+      logger.warning(f"Illegal character '{t.value[0]}' at position {t.lexpos}")
+      logger.warning(f"Context: {t.lexer.lexdata[max(0, t.lexpos-5):t.lexpos+5]}")
+      t.lexer.skip(1)
+    else:
+      logger.warning("Lexing error: No token provided")
 
   def parse(self, input_string):
     print(f"Input string: {input_string}")
-    # Create the lexer and parser
-    lexer = lex.lex(module=self, debug=False)
-    # lexer.input(input_string)
-    # for token in lexer:
-    #   print(token)
-
-    # print("===============")
-    parser = yacc.yacc(module=self)
-
-    # Parse the input string
-    result = parser.parse(input_string, lexer=lexer)
-
-    # Return the parsed result
-    return result
+    
+    # Create the lexer with debug output
+    lexer = lex.lex(module=self, debug=True)
+    
+    # Test the lexer
+    lexer.input(input_string)
+    print("\nToken stream:")
+    for token in lexer:
+      print(f"  {token.type}: {token.value}")
+    
+    # Reset lexer for the parser
+    lexer = lex.lex(module=self)
+    
+    # Create the parser with debug output
+    parser = yacc.yacc(module=self, debug=True, write_tables=False)
+    
+    try:
+      # Parse the input string
+      result = parser.parse(input_string, lexer=lexer, debug=True)
+      print("\nParse successful!")
+      return result
+    except Exception as e:
+      print(f"\nParse error: {e}")
+      raise
