@@ -44,7 +44,7 @@ function output_vars = main
   % Initial conditions
   {% for i in integrators %}
     {{-"  "}}phi_0({{i.interval}}) =
-      {{-" "}}reshape(({{i.init_value|var_slice(i.index_sets)}}).value, [], 1);
+      {{-" "}}reshape({{i.init_value|label}}.value({{i.index_sets|join(',')}}), [], 1);
   {% endfor %}
 
   % Integration interval
@@ -81,7 +81,7 @@ function output_vars = main
   % Integrands
   function [dphidt, extra_output] = f(t, phi) {{"\n"-}}
     {% for i in integrators %}
-      {{-"    "}}{{i.var_id|var_slice(i.index_sets)}} =
+      {{-"    "}}{{i.var_id|label}}.value({{i.index_sets|join(',')}}) =
         {{-" "}}reshape(phi({{i.interval}}), {{i.size_by_index|join(",")}});{{"\n"-}}
     {% endfor %}
 
@@ -117,7 +117,7 @@ function output_vars = main
 
     {% for i in integrators %}
       {{-"    "}}dphidt({{i.interval}}) = 
-        {{-" "}}reshape(({{i.integrand|var_slice(i.index_sets)}}).value, [], 1);
+        {{-" "}}reshape({{i.integrand|label}}.value({{i.index_sets|join(',')}}), [], 1);
     {% endfor %}
   endfunction
 endfunction
@@ -142,7 +142,7 @@ endfunction
           {% for index_set_name, indices_list in eq.index_sets|items %}
             {{-"    "}}{{index_set_name}} = [{{indices_list|join(",")}}];
           {% endfor %}
-          {{-"    "}}{{eq.var_id|var_slice(eq.index_sets)}} = x({{eq.interval}});
+          {{-"    "}}{{eq.var_id|label}}.value({{eq.index_sets|join(',')}}) = x({{eq.interval}});
         {% endfor %}
         {{-"\n"-}}
         {% for eq in expr.equations %}

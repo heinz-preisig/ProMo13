@@ -274,17 +274,30 @@ class TemplateHandler:
 
                 equations = {}
                 root_vars = {}
-                for eq_id in equation_set:
+                for eq_id in equation_set:    # TODO: we need the index sets for each variable, not the equations and the initalisation must be done accordingly
                     eq = self.all_equations[eq_id]
                     var_id = eq.get_main_var_id()
-                    index_sets = self.get_index_sets(eq_id)
-
+                    equation_index_sets = self.get_index_sets(eq_id) #
+                    root_variable_index_structures = self.all_variables[var_id].index_structures
                     # if eq.is_root():
                     #   root_vars[var_id] = eq.get_incidence_list(var_id)[0]
                     # else:
-                    size_by_index = [
-                        len(indices_list) for indices_list in index_sets.values()
-                    ]
+
+                    # HAP: fix ------------
+
+                    check_ids = []
+                    for id in root_variable_index_structures:
+                      check_ids.append(self.all_indices[id].aliases["internal_code"] + "_" + eq_id)
+
+                    size_by_index = []
+                    for i in equation_index_sets:
+                      if i in check_ids:
+                        size_by_index.append(len(equation_index_sets[i]))
+                    # size_by_index = [
+                    #     len(indices_list) for indices_list in equation_index_sets.values()
+                    # ]
+
+                    # HAP: fix ------------
 
                     ini = str(part_counter)
                     part_counter += np.prod(size_by_index)
