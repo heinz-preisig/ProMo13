@@ -569,7 +569,7 @@ class Units():
 
   def prettyPrintUIString(self):
     _s = self.prettyPrint()
-    return _s.replace("\,", " ")
+    return _s.replace(r"\,", " ")
 
   def asList(self):
     r = [self.time, self.length, self.amount,

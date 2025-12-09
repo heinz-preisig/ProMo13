@@ -3,18 +3,18 @@ from typing import Optional
 
 from PyQt5 import QtCore
 
-from packages.Common.classes import entity, equation, variable
-from packages.Common.classes import io as old_io
-from packages.OntologyBuilder.BehaviourLinker.Models import (
+from Common.classes import entity, equation, variable
+from Common.classes import io as old_io
+from OntologyBuilder.BehaviourLinker.Models import (
     entity_editor,
     entity_generator,
     image_list,
     tree,
 )
-from packages.OntologyBuilder.BehaviourLinker.Models.entity_merger import (
+from OntologyBuilder.BehaviourLinker.Models.entity_merger import (
     EntityMergerModel,
 )
-from src.common import io
+from common import io
 
 
 class MainModel(QtCore.QObject):
@@ -97,7 +97,8 @@ class MainModel(QtCore.QObject):
             new_ent = self.create_entity_from_eq(eq_id)
             self.all_entities[new_ent.entity_name] = new_ent
 
-        old_io.save_entities_to_file(self.ontology_name, self.all_entities)
+#TODO -- not very handy if it crasches an incomplete file is generated
+        # old_io.save_entities_to_file(self.ontology_name, self.all_entities)
 
     def create_entity_from_eq(
         self,

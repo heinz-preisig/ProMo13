@@ -50,7 +50,7 @@ CONSTANT = "constant"
 NEW_VAR = NEW
 TEMP_VARIABLE = "temporary"
 LAYER_DELIMITER = "_"
-VAR_REG_EXPR = QtCore.QRegExp("[a-zA-Z_]\w*")
+VAR_REG_EXPR = QtCore.QRegExp(r"[a-zA-Z_]\w*")
 BLOCK_INDEX_SEPARATOR = " & "
 
 IRIPREFIX_DELIMITER = ":"
@@ -489,7 +489,7 @@ CODE[language]["right"] = r"\left({%s}\right)^{+\epsilon}"
 CODE[language]["equation"] = "%s = %s"
 CODE[language]["()"] = "%s"  # r"\left(%s \right)"
 #
-CODE[language]["index"] = "{\cal{%s}}"
+CODE[language]["index"] = r"{\cal{%s}}"
 CODE[language]["block_index.delimiter"] = " "
 
 CODE[language]["variable"] = "%s"  # label of the variable

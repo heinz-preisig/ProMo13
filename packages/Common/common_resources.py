@@ -249,6 +249,8 @@ def askForModelFileGivenOntologyLocation(model_library_location, alternative, **
 
     if model_name:
       return model_name, "existent"
+  else:
+    status = "new"
 
   if not alternative:
     return None, "exit"

@@ -525,7 +525,7 @@ class Commander(QtCore.QObject):
         self.__abortNodeGeneration("no entity defined")
         return {"failed": True}
       elif len(selections) == 1:
-        entity_selection = selections[0]
+        entity_selection = list(selections)[0]
       else:
         dia = VariantGUI(selections)
         dia.exec_()
@@ -1419,8 +1419,10 @@ class Commander(QtCore.QObject):
     # NOTE: switched off node mapping 2024-01-29
     node_map = self.model_container.write(f)
     self.model_container.makeAndWriteFlatTopology(f_flat)
-    self.__c24_save_new_model_file(self.model_container, new_model_file_path)
-
+    try:
+      self.__c24_save_new_model_file(self.model_container, new_model_file_path)
+    except:
+      makeMessageBox("Error saving model file -- model is empty",buttons=["OK"])
     # mapped_currently_viewed_node = node_map[int(self.currently_viewed_node)]   # NOTE: switched off node mapping 2024-01-29
     # self.currently_viewed_node = (mapped_currently_viewed_node)  # NOTE: switched off node mapping 2024-01-29
     self.__redrawScene(self.currently_viewed_node)

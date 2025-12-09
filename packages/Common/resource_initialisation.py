@@ -19,6 +19,7 @@ __license__ = "GPL planned -- until further notice for Bio4Fuel & MarketPlace in
 __version__ = "6.00"
 __version__ = "7.00"
 __version__ = "8.00"
+__version__ = "12.00"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
@@ -158,6 +159,7 @@ DIRECTORIES["output_language"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
 DIRECTORIES["common_shell_scripts"] = JOIN(DIRECTORIES["common"], "shell_scripts")
 DIRECTORIES["graph_locations"] = JOIN(DIRECTORIES["ontology_repository"], "%s", DIRECTORIES["graphs"])
 DIRECTORIES["templates"] = JOIN(DIRECTORIES["common"], "templates")
+DIRECTORIES["info_location"] = JOIN(DIRECTORIES["common"], "help_files")
 
 FILES = {}
 FILES["ontology_file"] = JOIN(DIRECTORIES["ontology_repository"], "%s", FILE_NAMES["ontology_file"])  # %ontology_name
@@ -295,20 +297,18 @@ FILES["latex_img"] = JOIN(DIRECTORIES["ontology_repository"], "%s", DIRECTORIES[
 
 
 ### info files
-FILES["info_ontology_foundation_editor"] = JOIN(DIRECTORIES["common"], "info_ontology_foundation_editor.html")
-# FILES["info_ontology_foundation_second_stage_editor"] = JOIN(DIRECTORIES["common"],
-#                                                              "info_ontology_foundation_second_stage_editor.html")
-FILES["info_ontology_equation_editor"] = JOIN(DIRECTORIES["common"], "info_ontology_equation_editor.html")
-FILES["info_ontology_variable_table"] = JOIN(DIRECTORIES["common"], "info_ontology_variable_table.html")
-FILES["info_index_alias_table"] = JOIN(DIRECTORIES["common"], "info_index_alias_table.html")
-FILES["info_variable_alias_table"] = JOIN(DIRECTORIES["common"], "info_variable_alias_table.html")
+FILES["info_ontology_foundation_editor"] = JOIN(DIRECTORIES["info_location"], "info_ontology_foundation_editor.html")
+FILES["info_ontology_equation_editor"] = JOIN(DIRECTORIES["info_location"], "info_ontology_equation_editor.html")
+FILES["info_ontology_variable_table"] = JOIN(DIRECTORIES["info_location"], "info_ontology_variable_table.html")
+FILES["info_index_alias_table"] = JOIN(DIRECTORIES["info_location"], "info_index_alias_table.html")
+FILES["info_variable_alias_table"] = JOIN(DIRECTORIES["info_location"], "info_variable_alias_table.html")
+FILES["graph_resource_documentation"] = JOIN(DIRECTORIES["info_location"], "actions.txt")
 
 FILES["ontology_graphs_ps"] = JOIN("%s", DIRECTORIES["ontology_graphs_location"], 'graph__%s.ps')
 FILES["ontology_graphs_gv"] = JOIN("%s", DIRECTORIES["ontology_graphs_location"], 'graph__%s.gv')
 FILES["ontology_graphs_dot"] = JOIN("%s", DIRECTORIES["ontology_graphs_location"], 'graph__%s.dot')
 FILES["network_matrices"] = JOIN(DIRECTORIES["ontology_repository"], "%s", "network_matrices.json")  # %ontology_name
 
-FILES["graph_resource_documentation"] = JOIN(DIRECTORIES["common"], "actions.txt")
 
 FILES["init_nodes"] = JOIN(DIRECTORIES["ontology_repository"], "%s",
                            DIRECTORIES["model_repository"], "%s",
@@ -362,22 +362,6 @@ FILES["matlab_template"] = JOIN(DIRECTORIES["templates"], FILE_NAMES["matlab_tem
 FILES["equations_latex"] = JOIN(DIRECTORIES["ontology_repository"], "%s", "equations_latex.json")
 FILES["equations_matlab"] = JOIN(DIRECTORIES["ontology_repository"], "%s", "equations_matlab.json")
 
-# compilation of rst to html  NOTE: not a good way of doing things -- generate HTML directly with normal editor
-# import docutils.core
-
-# docutils.core.publish_file(
-#       source_path="/home/heinz/1_Gits/ProcessModeller/ProcessModeller_v7_04/packages/Common
-#       /info_ontology_design_editor.rst",
-#       destination_path="/home/heinz/1_Gits/ProcessModeller/ProcessModeller_v7_04/packages/Common
-#       /info_ontology_design_editor.html",
-#       writer_name="html")
-
-# docutils.core.publish_file(
-#       source_path="/home/heinz/1_Gits/ProcessModeller/ProcessModeller_v7_04/packages/Common
-#       /info_ontology_design_editor.rst",
-#       destination_path="/home/heinz/1_Gits/ProcessModeller/ProcessModeller_v7_04/packages/Common
-#       /info_ontology_design_editor.tex",
-#       writer_name="latex")
 
 
 def checkAndFixResources(ontology_name, stage="ontology_stage_1"):
@@ -390,7 +374,7 @@ def checkAndFixResources(ontology_name, stage="ontology_stage_1"):
                             DIRECTORIES["latex_resource_location"] % ontology_name
                             ]
 
-    # touples        #TODO: include all files
+    # tuples        #TODO: include all files
     # - first the required file
     # - second the source
     RESOURCE_FILES = {
