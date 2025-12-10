@@ -5,8 +5,8 @@ import itertools
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtCore import QStringListModel
-from packages.Common.classes import ontology
-from packages.OntologyBuilder.BehaviourLinker.Models import tree_bases
+from Common.classes import ontology
+from OntologyBuilder.BehaviourLinker.Models import tree_bases
 
 
 class EntityGeneratorModel(QtCore.QObject):

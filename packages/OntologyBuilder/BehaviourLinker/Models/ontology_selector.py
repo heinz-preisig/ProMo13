@@ -1,7 +1,7 @@
 import os
 from PyQt5.QtCore import QStringListModel
 
-from packages.Common import resource_initialisation
+from Common import resource_initialisation
 
 class OntologySelectorModel(QStringListModel):
   def __init__(self):

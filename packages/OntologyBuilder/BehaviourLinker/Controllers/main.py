@@ -3,34 +3,34 @@ import sys
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject, pyqtSlot
 
-from packages.Common.classes.io import get_available_ontologies
-from packages.OntologyBuilder.BehaviourLinker.Controllers.entity_editor import (
+from Common.classes.io import get_available_ontologies
+from OntologyBuilder.BehaviourLinker.Controllers.entity_editor import (
     EntityEditorController,
 )
-from packages.OntologyBuilder.BehaviourLinker.Controllers.entity_generator import (
+from OntologyBuilder.BehaviourLinker.Controllers.entity_generator import (
     EntityGeneratorController,
 )
-from packages.OntologyBuilder.BehaviourLinker.Controllers.entity_merger import (
+from OntologyBuilder.BehaviourLinker.Controllers.entity_merger import (
     EntityMergerController,
 )
-from packages.OntologyBuilder.BehaviourLinker.Delegates.image_list import (
+from OntologyBuilder.BehaviourLinker.Delegates.image_list import (
     ImageItemDelegate,
 )
-from packages.OntologyBuilder.BehaviourLinker.Models.main import MainModel
-from packages.OntologyBuilder.BehaviourLinker.Views.entity_editor import (
+from OntologyBuilder.BehaviourLinker.Models.main import MainModel
+from OntologyBuilder.BehaviourLinker.Views.entity_editor import (
     EntityEditorView,
 )
-from packages.OntologyBuilder.BehaviourLinker.Views.entity_generator import (
+from OntologyBuilder.BehaviourLinker.Views.entity_generator import (
     EntityGeneratorView,
 )
-from packages.OntologyBuilder.BehaviourLinker.Views.entity_merger import (
+from OntologyBuilder.BehaviourLinker.Views.entity_merger import (
     EntityMergerView,
 )
-from packages.OntologyBuilder.BehaviourLinker.Views.main import MainView
-from packages.OntologyBuilder.BehaviourLinker.Views.ontology_selector import (
+from OntologyBuilder.BehaviourLinker.Views.main import MainView
+from OntologyBuilder.BehaviourLinker.Views.ontology_selector import (
     OntologySelectorView,
 )
-from src.common.components import starting_dialog
+from common.components import starting_dialog
 
 
 class MainController(QObject):

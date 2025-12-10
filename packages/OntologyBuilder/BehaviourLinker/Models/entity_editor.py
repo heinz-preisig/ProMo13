@@ -3,15 +3,15 @@ from typing import Dict
 
 from PyQt5 import QtCore
 
-from packages.Common.classes import io
-from packages.Common.classes import equation
-from packages.Common.classes import variable
-from packages.Common.classes import entity
+from Common.classes import io
+from Common.classes import equation
+from Common.classes import variable
+from Common.classes import entity
 
-from packages.Common import resource_initialisation
+from Common import resource_initialisation
 
-from packages.OntologyBuilder.BehaviourLinker.Models.variable_editor import VariableEditorModel
-from packages.OntologyBuilder.BehaviourLinker.Models import image_list
+from OntologyBuilder.BehaviourLinker.Models.variable_editor import VariableEditorModel
+from OntologyBuilder.BehaviourLinker.Models import image_list
 
 
 class EntityEditorModel(QtCore.QObject):

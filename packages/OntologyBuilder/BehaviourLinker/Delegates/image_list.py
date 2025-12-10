@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 
 # TODO: Icons should be stored in resources
 import os
-from packages.Common import resource_initialisation
+from Common import resource_initialisation
 
 # TODO: Colors should come from the palette
 
