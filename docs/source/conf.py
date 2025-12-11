@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.githubpages',
     'rinoh.frontend.sphinx',
     'sphinx.ext.todo',
+    #'theme.toml',
     'sphinx_rtd_theme',
     #    'autodocsumm',
 ]

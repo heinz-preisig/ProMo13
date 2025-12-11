@@ -19,3 +19,6 @@ __version__ = "5.04"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
+
+class CodeGenerator:
+  pass
