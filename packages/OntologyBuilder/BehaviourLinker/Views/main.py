@@ -2,8 +2,8 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
-from packages.OntologyBuilder.BehaviourLinker.Views.Compiled_UIs import main_ui
-from packages.OntologyBuilder.BehaviourLinker.Models.main import MainModel
+from OntologyBuilder.BehaviourLinker.Views.Compiled_UIs import main_ui
+from OntologyBuilder.BehaviourLinker.Models.main import MainModel
 
 
 class MainView(QtWidgets.QMainWindow):
