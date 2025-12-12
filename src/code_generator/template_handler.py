@@ -40,6 +40,7 @@ class TemplateHandler:
 
         self.load_language_filters()
         self.data = self.generate_language_data()
+        pass
 
     def generate_content(self):
         template = self.load_language_template()
@@ -51,7 +52,8 @@ class TemplateHandler:
 
     def load_language_template(self):
         template_file = self.language + "_template"
-        return self.enviroment.get_template(ri.FILE_NAMES[template_file])
+        template_file = ri.FILE_NAMES[template_file]
+        return self.enviroment.get_template(template_file)
 
     def load_init_template(self):
         template_file = self.language + "_input.jinja"

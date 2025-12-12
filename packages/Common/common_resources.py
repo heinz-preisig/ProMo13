@@ -279,7 +279,7 @@ def getOntologyName(new=False, task="ProMo_logo", behaviour="on_click"): #, left
   hiden directories are ignored
   :param new: logical
   :param task: selects logo from logo repository -- default is ProMo_logo
-  :param behaviour: on_cklick makes logo to behave as button (default) alterenative is auto_close after selection has 
+  :param behaviour: on_click makes logo to behave as button (default) alterenative is auto_close after selection has 
   been made
   :return:  depends on new
             new == True :  it returns the chosen ontology, but also the list of existing ontologies
@@ -377,15 +377,7 @@ def selectFromList(title, items,**kwargs):
                                 # left_icon=left_icon, left_tooltip=left_tooltip,
                                 # center_icon=center_icon, center_tooltip=center_tooltip,
                                 # right_icon=right_icon, right_tooltip=right_tooltip)
-  # if right_icon:
-  #   if left_icon:
-  #     selector = SingleListSelector(items, left_icon=left_icon, left_tooltip=left_tooltip, right_icon=right_icon, right_tooltip=right_tooltip)
-  #   else:
-  #     selector = SingleListSelector(items, left_icon=left_icon)
-  # elif left_icon:
-  #   selector = SingleListSelector(items, left_icon=left_icon)
-  # else:
-  #   selector = SingleListSelector(items)
+
   selector.setWindowTitle(title)
   selector.exec_()
   selector.show()

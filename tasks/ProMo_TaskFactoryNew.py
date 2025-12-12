@@ -1,9 +1,8 @@
 """
 useProMo_TaskFactory ontology_name model_name
 """
-from CodeGenerator.ui_code_generator_impl import Ui_CodeGenerator
 
-#!/usr/bin/python3
+# !/usr/bin/python3
 # encoding: utf-8
 
 """
@@ -29,28 +28,24 @@ import sys
 root = os.path.abspath(os.path.join(".."))
 sys.path.extend([
         root,
-                 os.path.join(root, 'packages'),
-                 os.path.join(root, 'tasks')])
+        os.path.join(root, 'packages'),
+        os.path.join(root, 'tasks')
+        ])
 
 from PyQt5 import QtGui, QtWidgets, QtCore
-
-print(sys.path)
-
 from CodeGenerator.ui_code_generator_impl import UiCodeGenerator
 
-
 a = QtWidgets.QApplication(sys.argv)
-icon_f = "task_ontology_foundation.svg"
+icon_n = "task_code_factory"
+icon_f = icon_n + ".svg"
 icon = os.path.join(os.path.abspath("../packages/Common/icons"), icon_f)
-a.setWindowIcon(QtGui.QIcon(icon))
+a.setWindowIcon(QtGui.QIcon(icon_n))
 
-w = UiCodeGenerator()
+w = UiCodeGenerator(icon_n)
 w.MAIN = a
 w.move(QtCore.QPoint(100, 100))
 w.show()
 a.exec_()
-
-
 
 # import sys
 #

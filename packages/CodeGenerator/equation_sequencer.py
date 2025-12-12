@@ -180,8 +180,8 @@ def _find_equations_for_variable(
 
     * The variable is instantiated: No equation is returned.
     * The variable is input: The neighbor topology objects are queried and
-       all the appropiate equations and their locations are returned.
-    * The variable have an equation: The equation and the location of the
+       all the appropriate equations and their locations are returned.
+    * The variables have an equation: The equation and the location of the
        current Topology object is returned.
 
     Args:

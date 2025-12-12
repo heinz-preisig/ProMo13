@@ -3,7 +3,7 @@
 
 """
 ===============================================================================
- Ontology design facility
+ Code generation facility
 ===============================================================================
 
 This program is part of the ProcessModelling suite
@@ -24,16 +24,12 @@ import os
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow
 
+from CodeGenerator.code_generator import CodeGenerator
+from CodeGenerator.ui_code_generator import Ui_CodeGenerator
 from Common.common_resources import askForModelFileGivenOntologyLocation
 from Common.common_resources import getOntologyName
 from Common.resource_initialisation import DIRECTORIES
-from CodeGenerator.ui_code_generator import Ui_CodeGenerator
-from CodeGenerator.code_generator import CodeGenerator
-
 from Common.resources_icons import roundButton
-
-
-
 
 
 class EditorError(Exception):
@@ -47,17 +43,12 @@ class EditorError(Exception):
 
 class UiCodeGenerator(QMainWindow):
   """
-  Main window for the ontology design:
+  Main window for the code generation:
   """
 
-  def __init__(self):
+  def __init__(self, task_name):
     """
-    The editor has  the structure of a wizard,  thus goes through several steps
-    to define the ontology.
-    - get the base ontology that provides the bootstrap procedure.
-    - construct the index sets that are used in the definition of the different
-      mathematical objects
-    - start building the ontology by defining the state variables
+    The editor has the structure generates MatLab code from an ontology.
     """
 
     # set up dialog window with new title
@@ -76,8 +67,8 @@ class UiCodeGenerator(QMainWindow):
       print("directory %s does not exist" % DIRECTORIES["ontology_repository"])
 
     # get ontology
-    self.ontology_name = getOntologyName(task="task_ontology_equations")
-    if not self.ontology_name:
+    ontology_name = getOntologyName(task=task_name)
+    if not ontology_name:
       exit(-1)
 
     # setup buttons
@@ -85,20 +76,27 @@ class UiCodeGenerator(QMainWindow):
     roundButton(self.ui.pushExit, "off", tooltip="exit")
     self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
 
+    model_library_location = DIRECTORIES["model_library_location"] % ontology_name
 
-    self.model_library_location = DIRECTORIES["model_library_location"] % self.ontology_name
-
-    self.model_name, status = askForModelFileGivenOntologyLocation(self.model_library_location,
-                                                                   alternative=True,
+    model_name, status = askForModelFileGivenOntologyLocation(model_library_location,
+                                                                   alternative=False,
                                                                    left=("reject", "reject", "show"),
-                                                                   centre=("new", "new model", "show"),
+                                                                   # centre=("new", "new model", "show"),
                                                                    right=("accept", "accept", "hide")
                                                                    )
+    if not model_name:
+      exit(-1)
 
-    self.code_generator = CodeGenerator(self.ontology_name, self.model_name)
+    self.code_generator = CodeGenerator(ontology_name, model_name)
+    self.code_generator.generate_code()
 
+  def on_pushExit_pressed(self):
+    self.close()
 
-    def on_pushExit_pressed(self):
-      self.close()
+  def mousePressEvent(self, event):
+    self.oldPos = event.globalPos()
 
-
+  def mouseMoveEvent(self, event):
+    delta = QtCore.QPoint(event.globalPos() - self.oldPos)
+    self.move(self.x() + delta.x(), self.y() + delta.y())
+    self.oldPos = event.globalPos()

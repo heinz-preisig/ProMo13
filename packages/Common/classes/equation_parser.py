@@ -2,9 +2,9 @@ from typing import Dict
 from ply import lex, yacc
 import logging
 
-from packages.Common.classes import translator
-from packages.Common.classes import variable
-from packages.Common.classes import index
+from Common.classes import translator
+from Common.classes import variable
+from Common.classes import index
 
 # Setting up a logger
 logger = logging.getLogger(__name__)
