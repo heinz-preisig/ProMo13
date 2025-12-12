@@ -20,9 +20,11 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 import os
+import sys
 
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow,QWidget,QVBoxLayout,QSplitter,QSizePolicy
+from PyQt5.QtGui import QFont, QTextCursor,QTextCharFormat,QColor
 
 from CodeGenerator.code_generator import CodeGenerator
 from CodeGenerator.ui_code_generator import Ui_CodeGenerator
@@ -59,6 +61,44 @@ class UiCodeGenerator(QMainWindow):
     self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
     self.ui = Ui_CodeGenerator()
     self.ui.setupUi(self)
+
+
+    self.ui.centralwidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+    splitter = self.ui.splitter
+    splitter.setOrientation(QtCore.Qt.Vertical)
+    splitter.setStretchFactor(0, 1)
+    splitter.setStretchFactor(1, 1)
+
+
+    # setup widgets for stout and sterr
+    self.stdout_widget = self.ui.textStdout
+    self.stderr_widget = self.ui.textStderr
+    
+    # Set size policies for text widgets
+    self.stdout_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+    self.stderr_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+    # Set minimum sizes to prevent widgets from becoming too small
+    self.stdout_widget.setMinimumSize(100, 100)
+    self.stderr_widget.setMinimumSize(100, 100)
+
+
+
+    # Set monospace font for better readability
+    fixed_font = QFont("Monospace")
+    fixed_font.setStyleHint(QFont.TypeWriter)
+    self.stdout_widget.setFont(fixed_font)
+    self.stderr_widget.setFont(fixed_font)
+
+    # Set different background colors for better distinction
+    self.stderr_widget.setStyleSheet("background-color: #fff0f0;")  # Light red background for errors
+
+    # Redirect stdout and stderr
+    self.original_stdout = sys.stdout
+    self.original_stderr = sys.stderr
+    sys.stdout = self.StdoutWrapper(self, "stdout")
+    sys.stderr = self.StdoutWrapper(self, "stderr")
+
 
     # check if ontology repository exists
     try:
@@ -100,3 +140,50 @@ class UiCodeGenerator(QMainWindow):
     delta = QtCore.QPoint(event.globalPos() - self.oldPos)
     self.move(self.x() + delta.x(), self.y() + delta.y())
     self.oldPos = event.globalPos()
+
+
+  class StdoutWrapper:
+    def __init__(self, parent, stream_type):
+      self.parent = parent
+      self.stream_type = stream_type
+      self.buffer = ""
+
+    def write(self, text):
+      self.buffer += text
+      if '\n' in text:
+        self.flush()
+
+    def flush(self):
+      if not self.buffer.strip():
+        self.buffer = ""
+        return
+
+      if self.stream_type == "stdout":
+        widget = self.parent.stdout_widget
+        color = "black"
+      else:
+        widget = self.parent.stderr_widget
+        color = "red"
+
+      cursor = widget.textCursor()
+      cursor.movePosition(QTextCursor.End)
+
+      # Create format with the appropriate color
+      format = QTextCharFormat()
+      format.setForeground(QColor(color))
+      cursor.setCharFormat(format)
+
+      # Insert the text
+      cursor.insertText(self.buffer)
+
+      # Auto-scroll
+      widget.ensureCursorVisible()
+
+      self.buffer = ""
+
+
+  def closeEvent(self, event):
+    # Restore original stdout/stderr
+    sys.stdout = self.original_stdout
+    sys.stderr = self.original_stderr
+    event.accept()
