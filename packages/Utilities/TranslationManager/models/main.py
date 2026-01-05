@@ -1,7 +1,10 @@
 import os
 import copy
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
+from ProMo.packages.OntologyBuilder.BehaviourLinker.Models.tree import TreeModel
+from ProMo.packages.OntologyBuilder.BehaviourLinker.Models import image_list
+from ProMo.packages.Utilities.TranslationManager import file_io
 
 
 class MainModel(QtCore.QObject):
@@ -11,10 +14,10 @@ class MainModel(QtCore.QObject):
   # Methods
   def __init__(self):
     super().__init__()
-    self.
+
 
     # PyQt models
-    self.entity_tree_model = tree.TreeModel()
+    self.entity_tree_model = TreeModel()
     self.entity_list_models = [
         image_list.ImageListModel(self),    # Integrators
         image_list.ImageListModel(self),    # Equations
