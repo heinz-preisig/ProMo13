@@ -65,11 +65,11 @@ from ModelBuilder.ModelComposer.variant_selection_impl import extract
 from ModelBuilder.ModelComposer.variant_selection_impl import splitApplication
 from ModelBuilder.ModelComposer.variant_selection_impl import splitEntity
 from ModelBuilder.ModelComposer.variant_selection_impl import VariantGUI
-from packages.Common.classes import entity
-from packages.Common.classes import io
-from packages.Common.classes import modeller_classes
-from packages.Common.classes.io import load_entities_from_file
-from packages.Common.classes.io import load_var_idx_eq_from_file
+from Common.classes import entity
+from Common.classes import io
+from Common.classes import modeller_classes
+from Common.classes.io import load_entities_from_file
+from Common.classes.io import load_var_idx_eq_from_file
 
 EDITOR_PHASES = list(GRAPH_EDITOR_STATES.keys())
 
