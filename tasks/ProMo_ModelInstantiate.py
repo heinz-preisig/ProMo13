@@ -27,16 +27,16 @@ class App(QApplication):
     def __init__(self, sys_argv: list[str]) -> None:
         super().__init__(sys_argv)
 
-        # TODO: Switch to file reading after the entry point is fixed.
-        # Load the embedded stylesheet from the resource
+
         resource_path = ":/styles/stylesheet.qss"
-        resource_data = QtCore.QResource(resource_path).data()
-        stylesheet = resource_data.decode()
+        style_file = QtCore.QFile(resource_path)
+        if style_file.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
+            stream = QtCore.QTextStream(style_file)
+            stylesheet = stream.readAll()
+            self.setStyleSheet(stylesheet)
 
-        # Apply the stylesheet to the application
-        self.setStyleSheet(stylesheet)
 
-        # Load the embedded font from the resource
+        # Load the embedded font
         resource_path = ":/fonts/Lato-Regular.ttf"
         font_id = QtGui.QFontDatabase.addApplicationFont(resource_path)
 
