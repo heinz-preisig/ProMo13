@@ -24,8 +24,8 @@ from typing import List, Optional, Dict, Tuple
 from typing_extensions import Self
 import json
 
-from packages.Common.classes import entity
-from packages.Common.classes import variable
+from Common.classes import entity
+from Common.classes import variable
 
 # Define type aliases
 InstantiationDict = Dict[str, Dict[Tuple, Optional[str]]]
@@ -117,8 +117,10 @@ class NodeComposite(TopologyObject):
 
   def to_json(self):
     class_dict = super().to_json()
-    class_dict["children_ids"] = self.children_ids
-
+    # Ensure children_ids is a list of strings
+    class_dict["children_ids"] = [str(child_id) for child_id in self.children_ids]
+    # Add the class name for proper deserialization
+    class_dict["modeller_class"] = self.__class__.__name__
     return class_dict
 
 
@@ -429,23 +431,35 @@ modeller_class_mapping = {
 
 
 class CustomJSONEncoder(json.JSONEncoder):
-  """Custom encoder for Topology Objects."""
+  """Custom encoder for Topology Objects.
+  
+  This encoder handles serialization of all TopologyObject subclasses including NodeComposite,
+  EntityContainer, Arc, and NodeSimple.
+  """
 
   def default(self, o):
     """Represents data from Topology Objects as a dictionary.
 
     Args:
-        o (TopologyObject): Topology Object that will be encoded.
+        o: Object to be serialized.
 
     Returns:
-        dict: The dictionary representation of the TopologyObject. If
-          the object is not an Topology Object instance then the default
-          representation is returned.
+        dict: The dictionary representation of the object. If the object is not
+        a known type, the default JSON serialization is used.
     """
-    if isinstance(o, TopologyObject):
+    # Handle all TopologyObject subclasses
+    if hasattr(o, 'to_json') and callable(getattr(o, 'to_json')):
       return o.to_json()
-
-    return super().default(o)
+    # Handle other non-serializable types
+    elif hasattr(o, '__dict__'):
+      # For objects with __dict__, return their dictionary representation
+      return o.__dict__
+    # Fall back to default JSON serialization
+    try:
+      return super().default(o)
+    except TypeError:
+      # If default serialization fails, return a string representation
+      return str(o)
 
 
 def custom_decoder_factory(all_entities: Dict[str, entity.Entity]):

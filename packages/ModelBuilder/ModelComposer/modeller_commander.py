@@ -1419,10 +1419,11 @@ class Commander(QtCore.QObject):
     # NOTE: switched off node mapping 2024-01-29
     node_map = self.model_container.write(f)
     self.model_container.makeAndWriteFlatTopology(f_flat)
-    try:
-      self.__c24_save_new_model_file(self.model_container, new_model_file_path)
-    except:
-      makeMessageBox("Error saving model file -- model is empty",buttons=["OK"])
+    self.__c24_save_new_model_file(self.model_container, new_model_file_path)
+    # try:
+    #   self.__c24_save_new_model_file(self.model_container, new_model_file_path)
+    # except:
+    #   makeMessageBox("Error saving model file -- model is empty",buttons=["OK"])
     # mapped_currently_viewed_node = node_map[int(self.currently_viewed_node)]   # NOTE: switched off node mapping 2024-01-29
     # self.currently_viewed_node = (mapped_currently_viewed_node)  # NOTE: switched off node mapping 2024-01-29
     self.__redrawScene(self.currently_viewed_node)
@@ -1627,326 +1628,326 @@ class Commander(QtCore.QObject):
     print("__c41_makeInterface -- not yet implemented")
     self.variables = self.main.ontology.variables
 
-  def __c51_AssignBehaviour(self):
-    print("__c51_AssignBehaviour -- not yet implemented")
+  # def __c51_AssignBehaviour(self):
+  #   print("__c51_AssignBehaviour -- not yet implemented")
+  #
+  # def __c52__InstantiateObject(self, pars):
+  #   """Handles the instantiation process.
+  #
+  #   There are three main cases depending on the object to instantiate:
+  #
+  #     # Single node.
+  #     # Composite node.
+  #     # Selection of nodes (single and/or composite)
+  #
+  #   In cases 2 and 3 the group of nodes to be instantiated can be:
+  #
+  #     * Same type of nodes (same entity). All non-required variables
+  #       have the same instantiation state in all nodes.
+  #     * Same type of nodes (same entity). At least one non-required
+  #       variable has different instantiation state in one of the nodes.
+  #     * Different type of nodes (different entities).
+  #
+  #   Depending on the situation two types of instantiation can be
+  #     performed:
+  #
+  #     # Full instantiation: All variables can be instantiated. Allowed
+  #         for:
+  #
+  #       * Single node.
+  #       * Composite and Selection if the nodes share the same type
+  #         (entity) and all non-required variables have the same
+  #         instantiation state in all nodes.
+  #     # Partial instantiation: Only "required" variables can be
+  #       instantiated. Used for all the other cases where there are
+  #       differences between the nodes to be instantiated.
+  #
+  #   Args:
+  #       pars (* ): _description_
+  #
+  #   Returns:
+  #       _type_: _description_
+  #   """
+  #
+  #   nodes_to_instantiate = []
+  #   if "arc" in pars:
+  #     print("debugg -- instantiate arc")
+  #     arcs_to_instantiate = [pars["arc"]]
+  #   else:
+  #     nodes_selection = set()
+  #
+  #     if self.node_group == set():
+  #       mode = "single"
+  #       node_id = pars["nodeID"]
+  #       if node_id > 0:
+  #         nodes_selection.add(node_id)
+  #       else:
+  #         print("Nothing to instantiate.")
+  #         return {"failed": True}
+  #     else:
+  #       for node in self.node_group:
+  #         nodes_selection.add(node.ID)
+  #
+  #     nodes_to_instantiate = self.nodes_to_be_instantiated(nodes_selection)
+  #
+  #     vars_to_instantiate = self.node_vars_to_be_instantiated(
+  #             nodes_to_instantiate)
+  #
+  #     vars_instantiated = self.node_vars_being_instantiated(
+  #             nodes_to_instantiate)
+  #
+  #     dialog = InstantiationDialog(
+  #             vars_to_instantiate, vars_instantiated, self.all_variables)
+  #     dialog.setWindowTitle("define parameters for nodes %s" %
+  #                           nodes_to_instantiate)
+  #     dialog.exec_()
+  #
+  #     newly_instantiated = dialog.newly_instantiated
+  #
+  #     for var_id in newly_instantiated:
+  #       for node_id in nodes_to_instantiate:
+  #         entity = self.get_entity_node(node_id)
+  #         try:
+  #           vars = entity.init_vars
+  #         except:
+  #           print("error -- this is a problem with node ", node_id)
+  #         if var_id in vars:
+  #           if var_id in newly_instantiated:
+  #             self.model_container["nodes"][node_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
+  #     pass
+  #
+  #     # ==============================  arcs =========================================
+  #     arcs_to_instantiate = self.arcs_to_be_instantiated(nodes_to_instantiate)
+  #     # print("debugg - arcs", arcs_to_instantiate)
+  #
+  #   # --
+  #   vars_to_instantiate = self.arc_vars_to_instantiate(arcs_to_instantiate)
+  #   vars_instantiated = self.arc_vars_being_instantiated(arcs_to_instantiate)
+  #
+  #   # --
+  #
+  #   if vars_to_instantiate:
+  #     dialog = InstantiationDialog(
+  #             vars_to_instantiate, vars_instantiated, self.all_variables)
+  #     dialog.setWindowTitle("define parameters for arcs: %s" %
+  #                           arcs_to_instantiate)
+  #     dialog.exec_()
+  #
+  #     newly_instantiated = dialog.newly_instantiated
+  #
+  #     for var_id in newly_instantiated:
+  #       for arc_id in arcs_to_instantiate:
+  #         entity = self.get_entity_arc(arc_id)
+  #         vars = entity.init_vars
+  #         if var_id in vars:
+  #           if var_id in newly_instantiated:
+  #             self.model_container["arcs"][arc_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
+  #   pass
+  #
+  #   self.checkIfAllVariablesAreInitialsed()
+  #
+  #   return {"failed": False}
 
-  def __c52__InstantiateObject(self, pars):
-    """Handles the instantiation process.
+  # def arc_vars_being_instantiated(self, arcs_to_instantiate):
+  #   vars_instantiated = {}
+  #   for arc_id in arcs_to_instantiate:
+  #     values = self.model_container["arcs"][arc_id]["instantiated_variables"]
+  #     for var_id in values:
+  #       if var_id not in vars_instantiated:
+  #         vars_instantiated[var_id] = {values[var_id]}
+  #       else:
+  #         vars_instantiated[var_id].add(values[var_id])
+  #     pass
+  #   return vars_instantiated
+  #
+  # def arc_vars_to_instantiate(self, arcs_to_instantiate):
+  #   # make a dictionary: hash: variable ID, value: list of node IDs with this variable
+  #   vars_to_instantiate = {}
+  #   for arc_id in arcs_to_instantiate:
+  #     entity = self.get_entity_arc(arc_id)
+  #     if entity:
+  #       vars = entity.init_vars
+  #       for v in vars:
+  #         if v not in vars_to_instantiate:
+  #           vars_to_instantiate[v] = [arc_id]
+  #         else:
+  #           vars_to_instantiate[v].append(arc_id)
+  #       pass
+  #   return vars_to_instantiate
+  #
+  # def arcs_to_be_instantiated(self, nodes_to_instantiate):
+  #   arcs_to_instantiate = set()
+  #   for node_id in nodes_to_instantiate:
+  #     for arc_id in self.model_container["arcs"]:
+  #       if node_id == self.model_container["arcs"][arc_id]["source"]:
+  #         for n_id in nodes_to_instantiate:
+  #           if n_id == self.model_container["arcs"][arc_id]["sink"]:
+  #             arcs_to_instantiate.add(arc_id)
+  #   return arcs_to_instantiate
+  #
+  # def node_vars_being_instantiated(self, nodes_to_instantiate):
+  #   vars_instantiated = {}
+  #   for node_id in nodes_to_instantiate:
+  #     values = self.model_container["nodes"][node_id]["instantiated_variables"]
+  #     for var_id in values:
+  #       if var_id not in vars_instantiated:
+  #         vars_instantiated[var_id] = {values[var_id]}
+  #       else:
+  #         vars_instantiated[var_id].add(values[var_id])
+  #     pass
+  #   return vars_instantiated
+  #
+  # def node_vars_to_be_instantiated(self, nodes_to_instantiate):
+  #   # make a dictionary: hash: variable ID, value: list of node IDs with this variable
+  #   vars_to_instantiate = {}
+  #   for node_id in nodes_to_instantiate:
+  #     entity = self.get_entity_node(node_id)
+  #     if entity:
+  #       vars = entity.init_vars
+  #       for v in vars:
+  #         if v not in vars_to_instantiate:
+  #           vars_to_instantiate[v] = [node_id]
+  #         else:
+  #           vars_to_instantiate[v].append(node_id)
+  #       pass
+  #   return vars_to_instantiate
+  #
+  # def nodes_to_be_instantiated(self, nodes_selection):
+  #   # Using a queue to get all the simple nodes inside composite nodes.
+  #   nodes_to_instantiate = set()
+  #   node_queue = deque(nodes_selection)
+  #   while node_queue:
+  #     node_id = node_queue.popleft()
+  #     node_class = self.model_container["nodes"][node_id]["class"]
+  #     if node_class in ["node_simple", 'node_intraface']:
+  #       nodes_to_instantiate.add(node_id)
+  #     elif node_class == "node_composite":
+  #       children = self.model_container["ID_tree"].getLeaves(
+  #               node_id)  # getChildren(node_id)
+  #       for i in children:
+  #         node_class = self.model_container["nodes"][i]["class"]
+  #         if node_class == "node_simple":
+  #           nodes_to_instantiate.add(i)
+  #   return nodes_to_instantiate
 
-    There are three main cases depending on the object to instantiate:
+  # def get_entity_node(self, node_id):
+  #   entity_ID = self._get_entity_name_from_node(node_id)
+  #   if not entity_ID:
+  #     return None
+  #   entity = self.all_entities[entity_ID]
+  #   return entity
+  #
+  # def get_entity_arc(self, arc_id):
+  #   entity_ID = self._get_entity_name_from_arc(arc_id)
+  #   if not entity_ID:
+  #     return None
+  #   entity = self.all_entities[entity_ID]
+  #   return entity
+  #
+  # def checkIfAllVariablesAreInitialsed(self):
+  #   nodes = self.model_container["ID_tree"].getAllLeaveNodes()
+  #   arcs = sorted(self.model_container["arcs"].keys())
+  #
+  #   incomplete_nodes = {}
+  #   node_vars_must_instantiate = {}
+  #   arc_vars_must_be_instantitate = {}
+  #
+  #   for node_id in nodes:
+  #     vars_being_instantiated = sorted(
+  #             self.node_vars_being_instantiated([node_id]))
+  #     node_vars_must_instantiate[node_id] = sorted(
+  #             self.node_vars_to_be_instantiated([node_id]))
+  #
+  #     not_instantiated = set(node_vars_must_instantiate[node_id]) - \
+  #                        set(vars_being_instantiated)
+  #     if not_instantiated:
+  #       incomplete_nodes[node_id] = not_instantiated
+  #
+  #   incomplete_arcs = {}
+  #   for arc_id in arcs:
+  #     vars_being_instantiated = sorted(
+  #             self.arc_vars_being_instantiated([arc_id]))
+  #     arc_vars_must_be_instantitate[arc_id] = sorted(
+  #             self.arc_vars_to_instantiate([arc_id]))
+  #     not_instantiated = set(arc_vars_must_be_instantitate[arc_id]) - \
+  #                        set(vars_being_instantiated)
+  #     if not_instantiated:
+  #       incomplete_arcs[arc_id] = not_instantiated
+  #
+  #   print("incomplete nodes: %s" % incomplete_nodes)
+  #   print("incomplete arcs:  %s" % incomplete_arcs)
+  #
+  #   self.main.writeStatus("incomplete nodes: %s\nincomplete arcs: %s" % (
+  #           incomplete_nodes, incomplete_arcs))
+  #
+  #   for node_id in self.model_container["nodes"]:
+  #     instances = self.model_container["nodes"][node_id]["instantiated_variables"]
+  #     vars_in_the_list = list(instances.keys())
+  #     for var_ID in vars_in_the_list:
+  #       if var_ID not in node_vars_must_instantiate[node_id]:
+  #         instances.pop(var_ID)
+  #         print("node pop", var_ID)
+  #
+  #   for arc_id in self.model_container["arcs"]:
+  #     instances = self.model_container["arcs"][arc_id]["instantiated_variables"]
+  #     vars_in_the_list = list(instances.keys())
+  #     for var_ID in vars_in_the_list:
+  #       if var_ID not in arc_vars_must_be_instantitate[arc_id]:
+  #         instances.pop(var_ID)
+  #         print("arc pop", var_ID)
+  #
+  #   return incomplete_nodes, incomplete_arcs
 
-      # Single node.
-      # Composite node.
-      # Selection of nodes (single and/or composite)
+  # def _get_entity_name_from_node(self, node_id: str) -> entity.Entity:
+  #   """Gets the entity associated to a node.
+  #
+  #   Args:
+  #       node_id (str): Id of the node.
+  #
+  #   Returns:
+  #       entity.Entity: Entity associated to the node.
+  #   """
+  #   entity_type = self.model_container["nodes"][node_id]["type"]
+  #   entity_nw = self.model_container["nodes"][node_id]["network"]
+  #   entity_class = self.model_container["nodes"][node_id]["class"]
+  #
+  #   if entity_class in [NAMES["intraface"], NAMES["interface"]]:
+  #     return None
+  #
+  #   entity_domain = self._get_entity_domain(entity_nw)
+  #   tokens = sorted(self.model_container["nodes"][node_id]["tokens"].keys())
+  #   # if not tokens:
+  #   #   return "no tokens defined"
+  #   entity_variant = self.model_container["nodes"][node_id]["variant"]
+  #
+  #   for t in tokens:
+  #     ent_name = f"{entity_domain}.node.{t}|{entity_type}.{entity_variant}"
+  #     if ent_name in self.all_entities:
+  #       return ent_name
+  #     else:
+  #       return None
 
-    In cases 2 and 3 the group of nodes to be instantiated can be:
-
-      * Same type of nodes (same entity). All non-required variables
-        have the same instantiation state in all nodes.
-      * Same type of nodes (same entity). At least one non-required
-        variable has different instantiation state in one of the nodes.
-      * Different type of nodes (different entities).
-
-    Depending on the situation two types of instantiation can be
-      performed:
-
-      # Full instantiation: All variables can be instantiated. Allowed
-          for:
-
-        * Single node.
-        * Composite and Selection if the nodes share the same type
-          (entity) and all non-required variables have the same
-          instantiation state in all nodes.
-      # Partial instantiation: Only "required" variables can be
-        instantiated. Used for all the other cases where there are
-        differences between the nodes to be instantiated.
-
-    Args:
-        pars (* ): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    nodes_to_instantiate = []
-    if "arc" in pars:
-      print("debugg -- instantiate arc")
-      arcs_to_instantiate = [pars["arc"]]
-    else:
-      nodes_selection = set()
-
-      if self.node_group == set():
-        mode = "single"
-        node_id = pars["nodeID"]
-        if node_id > 0:
-          nodes_selection.add(node_id)
-        else:
-          print("Nothing to instantiate.")
-          return {"failed": True}
-      else:
-        for node in self.node_group:
-          nodes_selection.add(node.ID)
-
-      nodes_to_instantiate = self.nodes_to_be_instantiated(nodes_selection)
-
-      vars_to_instantiate = self.node_vars_to_be_instantiated(
-              nodes_to_instantiate)
-
-      vars_instantiated = self.node_vars_being_instantiated(
-              nodes_to_instantiate)
-
-      dialog = InstantiationDialog(
-              vars_to_instantiate, vars_instantiated, self.all_variables)
-      dialog.setWindowTitle("define parameters for nodes %s" %
-                            nodes_to_instantiate)
-      dialog.exec_()
-
-      newly_instantiated = dialog.newly_instantiated
-
-      for var_id in newly_instantiated:
-        for node_id in nodes_to_instantiate:
-          entity = self.get_entity_node(node_id)
-          try:
-            vars = entity.init_vars
-          except:
-            print("error -- this is a problem with node ", node_id)
-          if var_id in vars:
-            if var_id in newly_instantiated:
-              self.model_container["nodes"][node_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
-      pass
-
-      # ==============================  arcs =========================================
-      arcs_to_instantiate = self.arcs_to_be_instantiated(nodes_to_instantiate)
-      # print("debugg - arcs", arcs_to_instantiate)
-
-    # --
-    vars_to_instantiate = self.arc_vars_to_instantiate(arcs_to_instantiate)
-    vars_instantiated = self.arc_vars_being_instantiated(arcs_to_instantiate)
-
-    # --
-
-    if vars_to_instantiate:
-      dialog = InstantiationDialog(
-              vars_to_instantiate, vars_instantiated, self.all_variables)
-      dialog.setWindowTitle("define parameters for arcs: %s" %
-                            arcs_to_instantiate)
-      dialog.exec_()
-
-      newly_instantiated = dialog.newly_instantiated
-
-      for var_id in newly_instantiated:
-        for arc_id in arcs_to_instantiate:
-          entity = self.get_entity_arc(arc_id)
-          vars = entity.init_vars
-          if var_id in vars:
-            if var_id in newly_instantiated:
-              self.model_container["arcs"][arc_id]["instantiated_variables"][var_id] = newly_instantiated[var_id]
-    pass
-
-    self.checkIfAllVariablesAreInitialsed()
-
-    return {"failed": False}
-
-  def arc_vars_being_instantiated(self, arcs_to_instantiate):
-    vars_instantiated = {}
-    for arc_id in arcs_to_instantiate:
-      values = self.model_container["arcs"][arc_id]["instantiated_variables"]
-      for var_id in values:
-        if var_id not in vars_instantiated:
-          vars_instantiated[var_id] = {values[var_id]}
-        else:
-          vars_instantiated[var_id].add(values[var_id])
-      pass
-    return vars_instantiated
-
-  def arc_vars_to_instantiate(self, arcs_to_instantiate):
-    # make a dictionary: hash: variable ID, value: list of node IDs with this variable
-    vars_to_instantiate = {}
-    for arc_id in arcs_to_instantiate:
-      entity = self.get_entity_arc(arc_id)
-      if entity:
-        vars = entity.init_vars
-        for v in vars:
-          if v not in vars_to_instantiate:
-            vars_to_instantiate[v] = [arc_id]
-          else:
-            vars_to_instantiate[v].append(arc_id)
-        pass
-    return vars_to_instantiate
-
-  def arcs_to_be_instantiated(self, nodes_to_instantiate):
-    arcs_to_instantiate = set()
-    for node_id in nodes_to_instantiate:
-      for arc_id in self.model_container["arcs"]:
-        if node_id == self.model_container["arcs"][arc_id]["source"]:
-          for n_id in nodes_to_instantiate:
-            if n_id == self.model_container["arcs"][arc_id]["sink"]:
-              arcs_to_instantiate.add(arc_id)
-    return arcs_to_instantiate
-
-  def node_vars_being_instantiated(self, nodes_to_instantiate):
-    vars_instantiated = {}
-    for node_id in nodes_to_instantiate:
-      values = self.model_container["nodes"][node_id]["instantiated_variables"]
-      for var_id in values:
-        if var_id not in vars_instantiated:
-          vars_instantiated[var_id] = {values[var_id]}
-        else:
-          vars_instantiated[var_id].add(values[var_id])
-      pass
-    return vars_instantiated
-
-  def node_vars_to_be_instantiated(self, nodes_to_instantiate):
-    # make a dictionary: hash: variable ID, value: list of node IDs with this variable
-    vars_to_instantiate = {}
-    for node_id in nodes_to_instantiate:
-      entity = self.get_entity_node(node_id)
-      if entity:
-        vars = entity.init_vars
-        for v in vars:
-          if v not in vars_to_instantiate:
-            vars_to_instantiate[v] = [node_id]
-          else:
-            vars_to_instantiate[v].append(node_id)
-        pass
-    return vars_to_instantiate
-
-  def nodes_to_be_instantiated(self, nodes_selection):
-    # Using a queue to get all the simple nodes inside composite nodes.
-    nodes_to_instantiate = set()
-    node_queue = deque(nodes_selection)
-    while node_queue:
-      node_id = node_queue.popleft()
-      node_class = self.model_container["nodes"][node_id]["class"]
-      if node_class in ["node_simple", 'node_intraface']:
-        nodes_to_instantiate.add(node_id)
-      elif node_class == "node_composite":
-        children = self.model_container["ID_tree"].getLeaves(
-                node_id)  # getChildren(node_id)
-        for i in children:
-          node_class = self.model_container["nodes"][i]["class"]
-          if node_class == "node_simple":
-            nodes_to_instantiate.add(i)
-    return nodes_to_instantiate
-
-  def get_entity_node(self, node_id):
-    entity_ID = self._get_entity_name_from_node(node_id)
-    if not entity_ID:
-      return None
-    entity = self.all_entities[entity_ID]
-    return entity
-
-  def get_entity_arc(self, arc_id):
-    entity_ID = self._get_entity_name_from_arc(arc_id)
-    if not entity_ID:
-      return None
-    entity = self.all_entities[entity_ID]
-    return entity
-
-  def checkIfAllVariablesAreInitialsed(self):
-    nodes = self.model_container["ID_tree"].getAllLeaveNodes()
-    arcs = sorted(self.model_container["arcs"].keys())
-
-    incomplete_nodes = {}
-    node_vars_must_instantiate = {}
-    arc_vars_must_be_instantitate = {}
-
-    for node_id in nodes:
-      vars_being_instantiated = sorted(
-              self.node_vars_being_instantiated([node_id]))
-      node_vars_must_instantiate[node_id] = sorted(
-              self.node_vars_to_be_instantiated([node_id]))
-
-      not_instantiated = set(node_vars_must_instantiate[node_id]) - \
-                         set(vars_being_instantiated)
-      if not_instantiated:
-        incomplete_nodes[node_id] = not_instantiated
-
-    incomplete_arcs = {}
-    for arc_id in arcs:
-      vars_being_instantiated = sorted(
-              self.arc_vars_being_instantiated([arc_id]))
-      arc_vars_must_be_instantitate[arc_id] = sorted(
-              self.arc_vars_to_instantiate([arc_id]))
-      not_instantiated = set(arc_vars_must_be_instantitate[arc_id]) - \
-                         set(vars_being_instantiated)
-      if not_instantiated:
-        incomplete_arcs[arc_id] = not_instantiated
-
-    print("incomplete nodes: %s" % incomplete_nodes)
-    print("incomplete arcs:  %s" % incomplete_arcs)
-
-    self.main.writeStatus("incomplete nodes: %s\nincomplete arcs: %s" % (
-            incomplete_nodes, incomplete_arcs))
-
-    for node_id in self.model_container["nodes"]:
-      instances = self.model_container["nodes"][node_id]["instantiated_variables"]
-      vars_in_the_list = list(instances.keys())
-      for var_ID in vars_in_the_list:
-        if var_ID not in node_vars_must_instantiate[node_id]:
-          instances.pop(var_ID)
-          print("node pop", var_ID)
-
-    for arc_id in self.model_container["arcs"]:
-      instances = self.model_container["arcs"][arc_id]["instantiated_variables"]
-      vars_in_the_list = list(instances.keys())
-      for var_ID in vars_in_the_list:
-        if var_ID not in arc_vars_must_be_instantitate[arc_id]:
-          instances.pop(var_ID)
-          print("arc pop", var_ID)
-
-    return incomplete_nodes, incomplete_arcs
-
-  def _get_entity_name_from_node(self, node_id: str) -> entity.Entity:
-    """Gets the entity associated to a node.
-
-    Args:
-        node_id (str): Id of the node.
-
-    Returns:
-        entity.Entity: Entity associated to the node.
-    """
-    entity_type = self.model_container["nodes"][node_id]["type"]
-    entity_nw = self.model_container["nodes"][node_id]["network"]
-    entity_class = self.model_container["nodes"][node_id]["class"]
-
-    if entity_class in [NAMES["intraface"], NAMES["interface"]]:
-      return None
-
-    entity_domain = self._get_entity_domain(entity_nw)
-    tokens = sorted(self.model_container["nodes"][node_id]["tokens"].keys())
-    # if not tokens:
-    #   return "no tokens defined"
-    entity_variant = self.model_container["nodes"][node_id]["variant"]
-
-    for t in tokens:
-      ent_name = f"{entity_domain}.node.{t}|{entity_type}.{entity_variant}"
-      if ent_name in self.all_entities:
-        return ent_name
-      else:
-        return None
-
-  def _get_entity_domain(self, entity_nw):
-    nws = list(self.model_container.ontology.intra_domains.keys())
-    for nw in nws:
-      if entity_nw in self.model_container.ontology.intra_domains[nw]:
-        entity_domain = self.model_container.ontology.intra_domains[nw][0]
-    return entity_domain
-
-  def _get_entity_name_from_arc(self, arc_id: str):
-
-    arc = self.model_container["arcs"][arc_id]
-    entity_mechanism = arc["mechanism"]
-    entity_nature = arc["nature"]
-    entity_nw = arc["network"]
-    token = arc["token"]
-    entity_variant = arc["variant"]
-    entity_domain = self._get_entity_domain(entity_nw)
-    ent_name = f"{entity_domain}.arc.{token}|{entity_mechanism}|{entity_nature}.{entity_variant}"
-    if ent_name in self.all_entities:
-      return ent_name
-    else:
-      return None
+  # def _get_entity_domain(self, entity_nw):
+  #   nws = list(self.model_container.ontology.intra_domains.keys())
+  #   for nw in nws:
+  #     if entity_nw in self.model_container.ontology.intra_domains[nw]:
+  #       entity_domain = self.model_container.ontology.intra_domains[nw][0]
+  #   return entity_domain
+  #
+  # def _get_entity_name_from_arc(self, arc_id: str):
+  #
+  #   arc = self.model_container["arcs"][arc_id]
+  #   entity_mechanism = arc["mechanism"]
+  #   entity_nature = arc["nature"]
+  #   entity_nw = arc["network"]
+  #   token = arc["token"]
+  #   entity_variant = arc["variant"]
+  #   entity_domain = self._get_entity_domain(entity_nw)
+  #   ent_name = f"{entity_domain}.arc.{token}|{entity_mechanism}|{entity_nature}.{entity_variant}"
+  #   if ent_name in self.all_entities:
+  #     return ent_name
+  #   else:
+  #     return None
 
   # ===================================================================
   def __setName(self, node, name):
