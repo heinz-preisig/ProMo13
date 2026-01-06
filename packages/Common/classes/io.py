@@ -530,22 +530,61 @@ def save_entities_to_file(ontology_name, all_entities):
 
 
 class EntityJSONEncoder(json.JSONEncoder):
-    """Custom encoder for Entity objects."""
+    """Custom encoder for Entity objects with enhanced error handling."""
 
     def default(self, o):
-        """Represents data from Equation objects as a dictionary.
+        """Represents data from Entity objects as a dictionary.
 
         Args:
-            o (Entity): Entity object that will be encoded.
+            o: Object that will be encoded.
 
         Returns:
-            dict: The dictionary representation of the Entity object. If
-              the object is not an Entity instance then the default
-              representation is returned.
+            dict: The dictionary representation of the object.
+            
+        Raises:
+            TypeError: If the object cannot be serialized.
         """
-        if isinstance(o, entity.Entity):
-            return o.convert_to_dict()
-        return super().default(o)
+        # Handle Entity objects
+        if hasattr(o, '__class__') and o.__class__.__name__ == 'Entity':
+            try:
+                # First try the standard convert_to_dict method
+                if hasattr(o, 'convert_to_dict'):
+                    return o.convert_to_dict()
+                
+                # Fallback to extracting known attributes
+                result = {}
+                for attr in ['entity_name', 'index_set', 'integrators', 
+                           'var_eq_forest', 'init_vars', 'input_vars', 
+                           'output_vars', 'all_equations']:
+                    if hasattr(o, attr):
+                        value = getattr(o, attr)
+                        # Recursively handle nested objects
+                        if isinstance(value, (list, dict, str, int, float, bool, type(None))):
+                            result[attr] = value
+                        else:
+                            # Try to convert to string if not directly serializable
+                            try:
+                                result[attr] = str(value)
+                            except:
+                                result[attr] = f"<{type(value).__name__} object>"
+                return result
+                
+            except Exception as e:
+                # If anything goes wrong, return a minimal representation
+                return {
+                    "__entity__": True,
+                    "entity_name": getattr(o, 'entity_name', str(o)),
+                    "error": f"Error during serialization: {str(e)}"
+                }
+                
+        # Handle other non-serializable objects by converting them to strings
+        try:
+            return super().default(o)
+        except TypeError:
+            try:
+                return str(o)
+            except:
+                return f"<non-serializable: {type(o).__name__}>"
 
 
 class VariableJSONEncoder(json.JSONEncoder):
