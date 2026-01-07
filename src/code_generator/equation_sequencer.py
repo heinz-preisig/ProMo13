@@ -10,7 +10,7 @@ from typing import Dict, List, Set, Tuple
 
 import networkx as nx
 
-from src.common import old_corelib, old_topology
+from common import old_corelib, old_topology
 
 _EquationSequence = list[set[str]]
 _MapEquationTopology = dict[str, set[old_topology.EntityContainer]]

@@ -13,8 +13,8 @@ sys.path.extend([root, os.path.join(root, 'packages','src'),
 # fmt: off
 from Common import resource_initialisation
 from Common.classes import io
-from src.code_generator import equation_sequencer, template_handler
-from  src.common.old_io import IOHandler
+from code_generator import equation_sequencer, template_handler
+from common.old_io import IOHandler
 
 # fmt: on
 
