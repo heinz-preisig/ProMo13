@@ -3,19 +3,19 @@ import sys
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject, pyqtSlot
 
-from packages.Common.classes import io
+from Common.classes import io
 
 # from packages.OntologyBuilder.BehaviourLinker.Delegates.image_list import ImageItemDelegate
-from packages.dialogs.views import list_selector
-from packages.OntologyBuilder.BehaviourLinker.Delegates.image_list import (
+from dialogs.views import list_selector
+from OntologyBuilder.BehaviourLinker_HAP_v0.Delegates.image_list import (
     ImageItemDelegate,
 )
-from packages.Utilities.InstantiationTool.delegates.topology_tree_item import (
+from Utilities.InstantiationTool.delegates.topology_tree_item import (
     CustomTopologyItemDelegate,
 )
-from packages.Utilities.InstantiationTool.models.main import MainModel
-from packages.Utilities.InstantiationTool.views.main import MainView
-from src.common.components import image_list, starting_dialog
+from Utilities.InstantiationTool.models.main import MainModel
+from Utilities.InstantiationTool.views.main import MainView
+from common.components import image_list, starting_dialog
 
 
 class MainController(QObject):

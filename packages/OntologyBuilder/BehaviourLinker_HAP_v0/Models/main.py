@@ -4,13 +4,15 @@ from PyQt5 import QtCore
 
 from Common.classes import entity
 from Common.classes import equation
-from Common.classes import variable
-from OntologyBuilder.BehaviourLinker.Models import entity_editor
-from OntologyBuilder.BehaviourLinker.Models import entity_generator
-from OntologyBuilder.BehaviourLinker.Models import image_list
-from OntologyBuilder.BehaviourLinker.Models import tree
-from OntologyBuilder.BehaviourLinker.Models.entity_merger import EntityMergerModel
 from Common.classes import io as old_io
+from Common.classes import variable
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models import entity_editor
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models import entity_generator
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models import image_list
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models import tree
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_merger import EntityMergerModel
+
+
 # from common import io  # 2026.01.09 HAP removed for the time being
 
 
@@ -50,7 +52,6 @@ class MainModel(QtCore.QObject):
   def get_available_ontologies(self) -> list[str]:
     return old_io.get_available_ontologies()
 
-
   def load_ontology(self, ontology_name: str) -> None:
     self.ontology_name = ontology_name
 
@@ -59,15 +60,10 @@ class MainModel(QtCore.QObject):
 
     # Loading data from files
     self.ontology = old_io.load_ontology_from_file(self.ontology_name)
-    self.all_variables, _, self.all_equations = old_io.load_var_idx_eq_from_file(
-            self.ontology_name
-            )
-    self.all_entities = old_io.load_entities_from_file(
-            self.ontology_name, self.all_equations
-            )
+    self.all_variables, _, self.all_equations = old_io.load_var_idx_eq_from_file(self.ontology_name)
+    self.all_entities = old_io.load_entities_from_file(self.ontology_name, self.all_equations)
 
     self._update_interfaces()
-
     self._update_tree_model()
 
   def _update_interfaces(self) -> None:
@@ -112,7 +108,7 @@ class MainModel(QtCore.QObject):
     for v in eq.get_incidence_list(output_var_id):  # RULE: assumes only o
       no = int(v.split("V_")[1])
       input_var_id = v
-      if no > 99:
+      if no > 99: # up to 99 are reserved quantities TODO: globalise this value
         input_var_id = v
         break
     # input_var_id = v #eq.get_incidence_list(output_var_id)[0]  #TODO: select the one not being constant
@@ -216,7 +212,7 @@ class MainModel(QtCore.QObject):
     number_of_bases = len(bases)
 
     if number_of_bases == 1:
-      new_entity = copy.deepcopy(self.all_entities[bases[0]])
+      new_entity = copy.deepcopy(self.all_entities[bases[0]])   # if an alternative is generated
     else:
       new_entity = entity.Entity(new_entity_id, self.all_equations)
 

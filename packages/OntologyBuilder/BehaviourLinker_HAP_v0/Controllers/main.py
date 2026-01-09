@@ -4,30 +4,30 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject, pyqtSlot
 
 from Common.classes.io import get_available_ontologies
-from OntologyBuilder.BehaviourLinker.Controllers.entity_editor import (
+from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_editor import (
     EntityEditorController,
 )
-from OntologyBuilder.BehaviourLinker.Controllers.entity_generator import (
+from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_generator import (
     EntityGeneratorController,
 )
-from OntologyBuilder.BehaviourLinker.Controllers.entity_merger import (
+from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_merger import (
     EntityMergerController,
 )
-from OntologyBuilder.BehaviourLinker.Delegates.image_list import (
+from OntologyBuilder.BehaviourLinker_HAP_v0.Delegates.image_list import (
     ImageItemDelegate,
 )
-from OntologyBuilder.BehaviourLinker.Models.main import MainModel
-from OntologyBuilder.BehaviourLinker.Views.entity_editor import (
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.main import MainModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_editor import (
     EntityEditorView,
 )
-from OntologyBuilder.BehaviourLinker.Views.entity_generator import (
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_generator import (
     EntityGeneratorView,
 )
-from OntologyBuilder.BehaviourLinker.Views.entity_merger import (
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_merger import (
     EntityMergerView,
 )
-from OntologyBuilder.BehaviourLinker.Views.main import MainView
-from OntologyBuilder.BehaviourLinker.Views.ontology_selector import (
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.main import MainView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.ontology_selector import (
     OntologySelectorView,
 )
 from common.components import starting_dialog

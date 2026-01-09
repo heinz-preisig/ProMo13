@@ -38,7 +38,7 @@ ACTIONS = {
         "pushDotGraphs"               : {"CODE": "ProMo_OntologyDotGraphCreator.py",
                                          "INFO": "info_dot_graph",
                                          "ICON": getIcon("task_dot_graphs")},
-        "pushEntityDesigner"          : {"CODE": "ProMo_BehaviourLinker.py",
+        "pushEntityDesigner"          : {"CODE": "ProMo_BehaviourLinker_HAP_v0.py",
                                          "INFO": "info_behaviour_linker",
                                          "ICON": getIcon("task_entity_generation")},
         "pushTypedTokenDesigner"      : {"CODE": "ProMo_TypedTokenEditor.py",

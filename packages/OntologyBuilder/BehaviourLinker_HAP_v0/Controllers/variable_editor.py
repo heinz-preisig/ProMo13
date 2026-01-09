@@ -5,10 +5,10 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
 from PyQt5.QtWidgets import QAbstractItemView, QListView
 
-from OntologyBuilder.BehaviourLinker.Models.variable_editor import VariableEditorModel
-from OntologyBuilder.BehaviourLinker.Views.variable_editor import VariableEditorView
-from OntologyBuilder.BehaviourLinker.Delegates import image_list
-from OntologyBuilder.BehaviourLinker.Views.entity_changes import EntityChangesView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.variable_editor import VariableEditorModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.variable_editor import VariableEditorView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Delegates import image_list
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_changes import EntityChangesView
 # TODO List
 
 

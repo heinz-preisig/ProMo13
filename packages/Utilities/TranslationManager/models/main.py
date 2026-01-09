@@ -2,8 +2,8 @@ import os
 import copy
 
 from PyQt5 import QtCore, QtGui
-from ProMo.packages.OntologyBuilder.BehaviourLinker.Models.tree import TreeModel
-from ProMo.packages.OntologyBuilder.BehaviourLinker.Models import image_list
+from ProMo.packages.OntologyBuilder.BehaviourLinker_HAP_v0.Models.tree import TreeModel
+from ProMo.packages.OntologyBuilder.BehaviourLinker_HAP_v0.Models import image_list
 from ProMo.packages.Utilities.TranslationManager import file_io
 
 

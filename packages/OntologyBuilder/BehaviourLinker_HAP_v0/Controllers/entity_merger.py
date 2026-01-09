@@ -5,9 +5,9 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
 from PyQt5.QtWidgets import QAbstractItemView, QListView
 
-from OntologyBuilder.BehaviourLinker.Models.entity_merger import EntityMergerModel
-from OntologyBuilder.BehaviourLinker.Views.entity_merger import EntityMergerView
-from OntologyBuilder.BehaviourLinker.Delegates import image_list
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_merger import EntityMergerModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_merger import EntityMergerView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Delegates import image_list
 
 
 # TODO List

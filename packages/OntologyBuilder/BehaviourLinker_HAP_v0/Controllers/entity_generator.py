@@ -5,10 +5,10 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
 from PyQt5.QtWidgets import QAbstractItemView, QListView
 
-from OntologyBuilder.BehaviourLinker.Models.entity_generator import EntityGeneratorModel
-from OntologyBuilder.BehaviourLinker.Views.entity_generator import EntityGeneratorView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_generator import EntityGeneratorModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_generator import EntityGeneratorView
 
-from OntologyBuilder.BehaviourLinker.Views.insert_str import InsertStrView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.insert_str import InsertStrView
 # TODO List
 # 1. Animations for the list.
 # 2. Fix animations skip when next/prev buttons are pressed fast.

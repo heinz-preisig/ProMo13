@@ -10,7 +10,7 @@ sys.path.extend([root, os.path.join(root, 'packages','src'),
                 os.path.join(root, 'tasks')])
 
 # fmt: off
-# import packages.OntologyBuilder.BehaviourLinker.resources.resources_rc
+# import packages.OntologyBuilder.BehaviourLinker_HAP_v0.resources.resources_rc
 from Utilities.InstantiationTool.controllers.main import MainController
 from Utilities.InstantiationTool.models.main import MainModel
 from Utilities.InstantiationTool.views.main import MainView

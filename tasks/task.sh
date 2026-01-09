@@ -8,7 +8,7 @@ programs=(
 ProMo_OntologyFoundationDesigner.py     #0
 ProMo_OntologyEquationComposer.py       #1
 ProMo_ComposerGraphComponentDesigner.py #2
-ProMo_BehaviourLinker.py                #3
+BehaviourLinker_HAP_v0.py                #3
 ProMo_ComposerAutomataDesigner.py       #4
 ProMo_TypedTokenEditor.py               #5
 ProMo_ModelComposer.py                  #6

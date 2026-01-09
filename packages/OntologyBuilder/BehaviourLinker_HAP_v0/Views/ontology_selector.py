@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5 import QtCore
 
-from packages.OntologyBuilder.BehaviourLinker.Views.Compiled_UIs import ontology_selector_ui
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import ontology_selector_ui
 
 # TODO: Code the mode that can create a new ontology.
 
