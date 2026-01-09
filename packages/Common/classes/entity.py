@@ -8,7 +8,7 @@ from typing import List, TypedDict, Optional, Dict, Tuple, Callable
 from typing_extensions import Self
 from pprint import pprint as pp
 
-from packages.Common.classes import equation
+from Common.classes import equation
 
 
 class EntityDict(TypedDict):
