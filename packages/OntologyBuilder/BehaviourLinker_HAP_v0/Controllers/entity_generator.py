@@ -5,7 +5,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
 from PyQt5.QtWidgets import QAbstractItemView, QListView
 
-from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_generator import EntityGeneratorModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_generator import EntityGenerator
 from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_generator import EntityGeneratorView
 
 from OntologyBuilder.BehaviourLinker_HAP_v0.Views.insert_str import InsertStrView
@@ -16,7 +16,7 @@ from OntologyBuilder.BehaviourLinker_HAP_v0.Views.insert_str import InsertStrVie
 
 
 class EntityGeneratorController(QtCore.QObject):
-  def __init__(self, model: EntityGeneratorModel, view: EntityGeneratorView):
+  def __init__(self, model: EntityGenerator, view: EntityGeneratorView):
     super().__init__()
 
     self._model = model

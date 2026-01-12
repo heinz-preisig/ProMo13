@@ -186,14 +186,263 @@ class MainModel(QtCore.QObject):
     for model, data in zip(self.entity_list_models, entity_data, strict=False):
       model.load_data(data)
 
-  def _update_tree_model(self) -> None:
-    self.entity_tree_model.load_data(self.all_entities.keys())
-    self.tree_changed.emit()
+  def save(self) -> None:
+    """
+    Save the current state of the model.
+    This is a placeholder that should be implemented according to your application's needs.
+    """
+    print("Save method called - implement saving logic here")
+    # TODO: Implement actual saving logic
+    # This could involve:
+    # 1. Saving the current ontology state
+    # 2. Persisting entity data
+    # 3. Updating any necessary files
+    pass
 
-  def get_entity_generator_model(self) -> entity_generator.EntityGeneratorModel:
-    return entity_generator.EntityGeneratorModel(
-            self.ontology, list(self.all_entities.keys())
-            )
+  def get_network_types_from_ontology(self):
+    """
+    Extract all network types from the ontology that are labeled as "inter".
+
+    Returns:
+        list: List of network type names that are marked as "inter"
+    """
+    if not hasattr(self, 'ontology') or not self.ontology:
+      return ['macroscopic']  # Default fallback
+
+    try:
+      ontology_tree = self.ontology.tree
+      return [
+              net_name for net_name, net_data in ontology_tree.items()
+              if isinstance(net_data, dict) and net_data.get('type') == 'inter'
+              ]
+    except Exception as e:
+      print(f"Error getting network types: {e}")
+      return ['macroscopic']  # Default fallback on error
+
+  def generate_entity_types_for_network(self, network_type):
+    """
+    Generate entity types for a specific network type, organized by node and arc categories.
+
+    Args:
+        network_type: The type of network to generate entity types for
+
+    Returns:
+        dict: Dictionary with 'node' and 'arc' keys, each containing a list of entity types
+    """
+    if not hasattr(self, 'ontology') or not self.ontology:
+      # Default types if no ontology is loaded
+      if network_type == 'macroscopic':
+        return {
+                'node': [
+                        'constant|infinity|charge',
+                        'constant|infinity|energy',
+                        'constant|infinity|mass',
+                        'dynamic|lumped|charge',
+                        'dynamic|lumped|energy',
+                        'dynamic|lumped|mass',
+                        'dynamic|ODE|signal',
+                        'event|distributed|charge',
+                        'event|distributed|energy',
+                        'event|distributed|mass',
+                        'event|lumped|charge',
+                        'event|lumped|energy',
+                        'event|lumped|mass'
+                        ],
+                'arc' : []  # Default empty arc types
+                }
+      return {'node': [], 'arc': []}
+
+    try:
+      network_info = self.ontology.tree.get(network_type, {})
+      structure = network_info.get('structure', {})
+
+      result = {'node': [], 'arc': []}
+
+      # Process node types
+      node_types = structure.get('node', {})
+      token_types = structure.get('token', {})
+
+      for node_type, mechanisms in node_types.items():
+        if not mechanisms:
+          result['node'].append(node_type)
+          continue
+
+        for mechanism in mechanisms:
+          if not token_types:  # If no specific tokens
+            result['node'].append(f"{node_type}|{mechanism}")
+          else:
+            for token in token_types:
+              result['node'].append(f"{node_type}|{mechanism}|{token}")
+
+      # Process arc types
+      arc_types = structure.get('arc', {})
+      for arc_type, arc_mechs in arc_types.items():
+        for mech, sub_mechs in arc_mechs.items():
+          if not sub_mechs:  # If no sub-mechanisms
+            result['arc'].append(f"{arc_type}|{mech}")
+          else:
+            for sub_mech in sub_mechs:
+              result['arc'].append(f"{arc_type}|{mech}|{sub_mech}")
+
+      # Remove duplicates and sort
+      result['node'] = sorted(list(set(result['node'])))
+      result['arc'] = sorted(list(set(result['arc'])))
+
+      return result
+
+    except Exception as e:
+      print(f"Error generating entity types for {network_type}: {e}")
+      return {'node': [], 'arc': []}
+
+  def _update_tree_model(self) -> None:
+    # Debug: Print all loaded entities
+    print("\n=== Loaded Entities ===")
+    for entity_id, entity_obj in self.all_entities.items():
+      print(f"Entity ID: {entity_id}, Type: {type(entity_obj)}")
+      if hasattr(entity_obj, 'entity_name'):
+        print(f"  - Name: {entity_obj.entity_name}")
+      if hasattr(entity_obj, 'get_type'):
+        print(f"  - Type: {entity_obj.get_type()}")
+      if hasattr(entity_obj, 'get_tokens'):
+        print(f"  - Tokens: {entity_obj.get_tokens()}")
+      print("---")
+
+    # Get network types from ontology
+    network_types = self.get_network_types_from_ontology()
+    print(f"\nNetwork types from ontology: {network_types}")
+
+    # Generate entity types for each network, organized by node/arc
+    network_base_types = {
+            net_type: self.generate_entity_types_for_network(net_type)
+            for net_type in network_types
+            }
+
+    # Default base types for unknown network types
+    default_base_types = {
+            'node': ['unknown|node|type'],
+            'arc' : ['unknown|arc|type']
+            }
+
+    # Get all internetworks from existing entities and separate interfaces
+    internetworks = {}
+    interface_entities = {}
+
+    for entity_id, entity_obj in self.all_entities.items():
+      if '>>>' in entity_id:
+        # This is an interface entity
+        interface_parts = entity_id.split('>>>')
+        source_network = interface_parts[0].split('.')[0].strip()
+        interface_entities.setdefault(source_network, []).append(entity_id)
+      else:
+        # This is a regular entity
+        # Format: macroscopic.node.mass|constant|infinity.massSource
+        parts = entity_id.split('.')
+        if len(parts) >= 3:  # Should have at least network, category, and entity parts
+          net = parts[0]
+          category = parts[1]  # 'node' or 'arc'
+          base_type = '|'.join(parts[2].split('|')[:3])  # Get the first three parts of the type
+          entity_name = parts[-1]  # The last part is the entity name
+
+          # Determine network type
+          net_type = network_types[0] if network_types else 'unknown'
+          for ntype in network_types:
+            if net.lower() == ntype.lower():
+              net_type = ntype
+              break
+
+          if net not in internetworks:
+            internetworks[net] = {'type': net_type, 'entities': {}}
+
+          # Store entity data
+          entity_data = {
+                  'id'    : entity_id,
+                  'name'  : entity_name,
+                  'type'  : base_type,
+                  'object': entity_obj
+                  }
+          internetworks[net]['entities'].setdefault(category, {}).setdefault(base_type, []).append(entity_data)
+
+    # If no entities exist yet, add a default network
+    if not internetworks and not interface_entities:
+      default_net = network_types[0] if network_types else 'default'
+      internetworks = {default_net: {'type': default_net, 'entities': {}}}
+
+    # Create a list of all possible entity paths
+    all_entity_paths = []
+
+    # Add networks and their entities
+    for net, net_data in internetworks.items():
+      net_type = net_data['type']
+      base_types = network_base_types.get(net_type, default_base_types)
+
+      # Add the network itself
+      all_entity_paths.append(net)
+
+      # Process nodes and arcs separately
+      for category in ['node', 'arc']:
+        category_path = f"{net}.{category}"
+        all_entity_paths.append(category_path)
+
+        # Get the base types for this category
+        category_base_types = base_types.get(category, [])
+
+        # Add each base type under its category
+        for base_type in category_base_types:
+          type_path = f"{category_path}.{base_type}"
+          all_entity_paths.append(type_path)
+
+          # Add entities of this type
+          for entity_data in net_data['entities'].get(category, {}).get(base_type, []):
+            # For nodes, we need to ensure the path is in the correct format
+            entity_id = entity_data['id']
+
+            if category == 'node':
+              # The entity_id should be in the format: net.node.base_type.entity_name
+              parts = entity_id.split('.')
+              if len(parts) >= 4:  # net.node.base_type.entity_name
+                # Reconstruct the path to ensure it's in the correct format
+                entity_path = f"{net}.node.{base_type}.{parts[-1]}"
+                all_entity_paths.append(entity_path)
+
+                # Add sub-entities if they exist
+                if hasattr(entity_data['object'], 'sub_entities'):
+                  for sub_entity in entity_data['object'].sub_entities:
+                    sub_entity_name = sub_entity.split('.')[-1]
+                    all_entity_paths.append(f"{entity_path}.{sub_entity_name}")
+            else:
+              # For arcs, use the entity ID as is
+              all_entity_paths.append(entity_id)
+
+              # Add sub-entities if they exist
+              if hasattr(entity_data['object'], 'sub_entities'):
+                for sub_entity in entity_data['object'].sub_entities:
+                  sub_entity_name = sub_entity.split('.')[-1]
+                  all_entity_paths.append(f"{entity_id}.{sub_entity_name}")
+
+    # Add interface entities
+    for source_net, interfaces in interface_entities.items():
+      # Add the network if it's not already added
+      if source_net not in internetworks:
+        all_entity_paths.append(source_net)
+
+      # Add interfaces node
+      interfaces_path = f"{source_net}.interfaces"
+      all_entity_paths.append(interfaces_path)
+
+      # Add each interface entity
+      for interface_id in interfaces:
+        # Get the interface name (part after the last dot)
+        interface_name = interface_id.split('.')[-1]
+        all_entity_paths.append(f"{interfaces_path}.{interface_name}")
+
+    # Debug: Print the paths that will be added to the tree
+    print("\nAll entity paths to be added to the tree:")
+    for path in all_entity_paths:
+      print(f"- {path}")
+
+    # Load the data into the tree model
+    self.entity_tree_model.load_data(all_entity_paths)
+    self.tree_changed.emit()
 
   def get_entity_editor_model(
           self, index: QtCore.QModelIndex
