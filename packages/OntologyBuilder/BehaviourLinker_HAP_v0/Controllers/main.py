@@ -59,12 +59,45 @@ class MainController(QObject):
 
         # Connections from the View
         self._view.show_event_triggered.connect(self.on_show_event_triggered)
-        self._view.ui.tree_entities.selectionModel().currentChanged.connect(
-            self._model.load_entity
-        )
-        self._view.ui.tree_entities.selectionModel().currentChanged.connect(
-            self._view.menu_items_state
-        )
+        
+        # Connect selection changed signal with debug logging
+        selection_model = self._view.ui.tree_entities.selectionModel()
+        
+        # Disconnect any existing connections to avoid duplicates
+        try:
+            selection_model.currentChanged.disconnect()
+        except TypeError:
+            # No connections to disconnect
+            pass
+            
+        # Add debug prints to track signal emissions
+        def debug_selection_changed(current, previous):
+            print(f"\n=== Selection Changed ===")
+            print(f"Previous: {previous.row()}, {previous.column()} - Valid: {previous.isValid()}")
+            print(f"Current: {current.row()}, {current.column()} - Valid: {current.isValid()}")
+            
+            # Call load_entity first
+            try:
+                print("Calling _model.load_entity...")
+                self._model.load_entity(current)
+            except Exception as e:
+                print(f"Error in load_entity: {e}")
+                import traceback
+                traceback.print_exc()
+            
+            # Then update menu state
+            try:
+                print("Updating menu state...")
+                self._view.menu_items_state(current)
+            except Exception as e:
+                print(f"Error in menu_items_state: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        # Connect our debug handler
+        selection_model.currentChanged.connect(debug_selection_changed)
+        
+        # Connect other signals
         self._view.ui.actionNew.triggered.connect(self.on_action_new_triggered)
         self._view.ui.tree_entities.doubleClicked.connect(self.on_tree_double_clicked)
         self._view.ui.actionEdit.triggered.connect(self.edit_entity)
@@ -132,14 +165,79 @@ class MainController(QObject):
         self.edit_entity()
 
     def edit_entity(self) -> None:
-        index = self._view.ui.tree_entities.currentIndex()
-        dlg_model = self._model.get_entity_editor_model(index)
-        dlg_view = EntityEditorView(dlg_model, self._view)
-        dlg_controller = EntityEditorController(dlg_model, dlg_view)
+        """Handle the edit entity action."""
+        print("\n" + "=" * 50)
+        print("=== edit_entity called ===")
 
-        result = dlg_view.exec_()
-        if result == QtWidgets.QDialog.Accepted:
-            self._model.update_entity(index, dlg_model.editing_entity)
+        try:
+            # Debug: Print current model state
+            self.debug_model_state()
+
+            # Get the editor model
+            print("Getting entity editor model...")
+            dlg_model = self._model.get_entity_editor_model()
+
+            print("Creating editor view...")
+            dlg_view = EntityEditorView(dlg_model, self._view)
+            dlg_controller = EntityEditorController(dlg_model, dlg_view)
+
+            print("Showing editor dialog...")
+            result = dlg_view.exec_()
+
+            if result == QtWidgets.QDialog.Accepted:
+                print("Dialog accepted, updating entity...")
+                self._model.update_entity(None, dlg_model.editing_entity)
+                print("Entity updated successfully")
+            else:
+                print("Dialog was cancelled")
+
+        except Exception as e:
+            error_msg = f"Error in edit_entity: {e}"
+            print(error_msg)
+            import traceback
+            traceback.print_exc()
+            QtWidgets.QMessageBox.critical(
+                    self._view,
+                    "Edit Error",
+                    error_msg
+                    )
+
+    def debug_model_state(self):
+        """Print debug information about the current model state."""
+        if not hasattr(self, '_model'):
+            print("Model not initialized")
+            return
+
+        print("\n" + "=" * 50)
+        print("=== DEBUG: Model State ===")
+        print(f"Current entity ID: {getattr(self._model, 'current_entity_id', 'Not set')}")
+        print(f"Number of entities: {len(getattr(self._model, 'all_entities', {}))}")
+
+        if hasattr(self._model, 'entity_tree_model'):
+            print(f"Entity tree model rows: {self._model.entity_tree_model.rowCount()}")
+
+        # Print first few entity IDs if available
+        all_entities = getattr(self._model, 'all_entities', {})
+        if all_entities:
+            print("\nFirst 5 entity IDs:")
+            for i, (eid, e) in enumerate(all_entities.items()):
+                if i >= 5:
+                    break
+                print(f"  {i + 1}. {eid} (type: {type(e).__name__})")
+        else:
+            print("\nNo entities found in model")
+
+        print("=" * 50 + "\n")
+
+    # def edit_entity(self) -> None:
+    #     index = self._view.ui.tree_entities.currentIndex()
+    #     dlg_model = self._model.get_entity_editor_model(index)
+    #     dlg_view = EntityEditorView(dlg_model, self._view)
+    #     dlg_controller = EntityEditorController(dlg_model, dlg_view)
+    #
+    #     result = dlg_view.exec_()
+    #     if result == QtWidgets.QDialog.Accepted:
+    #         self._model.update_entity(index, dlg_model.editing_entity)
 
     def delete_entity(self) -> None:
         # TODO: Maybe add safeguard.

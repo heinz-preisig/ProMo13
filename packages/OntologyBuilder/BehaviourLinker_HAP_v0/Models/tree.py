@@ -10,13 +10,15 @@ LEAF_DEPTH = 3
 class TreeModel(QtGui.QStandardItemModel):
   def __init__(self, parent=None):
     super().__init__(parent)
+    # Initialize dictionaries for path-index mapping
+    self._index_to_path = {}
+    self._path_to_index = {}
 
   def load_data(self, data):
     self.clear()
-    # Dictionary for fast lookup of the tree path from an index and
-    # viceversa.
-    self._index_to_path = {}
-    self._path_to_index = {}
+    # Clear existing mappings
+    self._index_to_path.clear()
+    self._path_to_index.clear()
 
     # Dictionary for fast lookup of existing items in the tree.
     items = {}

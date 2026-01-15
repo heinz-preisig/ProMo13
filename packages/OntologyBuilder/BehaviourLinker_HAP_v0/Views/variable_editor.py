@@ -6,8 +6,8 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
 from PyQt5.QtWidgets import QAbstractItemView, QListView
 
-from Common.classes import ontology
-from OntologyBuilder.BehaviourLinker.Views.Compiled_UIs import variable_editor_ui
+from packages.Common.classes import ontology
+from packages.OntologyBuilder.BehaviourLinker.Views.Compiled_UIs import variable_editor_ui
 
 
 class VariableEditorView(QtWidgets.QDialog):

@@ -1,6 +1,9 @@
 import copy
+import re
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QStandardItem, QStandardItemModel
 
 from Common.classes import entity
 from Common.classes import equation
@@ -15,6 +18,72 @@ from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_merger import EntityMe
 
 # from common import io  # 2026.01.09 HAP removed for the time being
 
+
+class SimpleVar:
+  # Class variable to store the model reference
+  _model = None
+  
+  def __init__(self, var_id, model=None):
+    self._id = var_id
+    self._equation = None
+    self._variable = None
+    self._model = model or SimpleVar._model
+    
+  def get_id(self):
+    return self._id
+    
+  def get_img_path(self):
+    """Get the image path for this variable/equation.
+    
+    Returns:
+        str: Path to the image file or a default icon if not found
+    """
+    # First try to get the model from instance, then from class
+    model = self._model or SimpleVar._model
+    
+    if model:
+      # Check if this is an equation
+      if self._id in getattr(model, 'all_equations', {}):
+        self._equation = model.all_equations.get(self._id)
+        if hasattr(self._equation, 'get_img_path') and callable(self._equation.get_img_path):
+          return self._equation.get_img_path()
+      
+      # Check if this is a variable
+      if self._id in getattr(model, 'all_variables', {}):
+        self._variable = model.all_variables.get(self._id)
+        if hasattr(self._variable, 'get_img_path') and callable(self._variable.get_img_path):
+          return self._variable.get_img_path()
+    
+    # Default fallback
+    if self._id and 'eq_' in self._id:
+      return ":/icons/equation.png"
+    return ":/icons/variable.png"
+    
+  def get_display_text(self):
+    """Return a more detailed display text for the variable/equation."""
+    # Try to get the equation or variable details if they exist in the model
+    model = self._model or SimpleVar._model
+    
+    if model:
+      if not self._equation and self._id in getattr(model, 'all_equations', {}):
+        self._equation = model.all_equations.get(self._id)
+      if not self._variable and self._id in getattr(model, 'all_variables', {}):
+        self._variable = model.all_variables.get(self._id)
+    
+    if self._equation:
+      return f"{self._id}: {self._equation.equation if hasattr(self._equation, 'equation') else 'No equation'}"
+    elif self._variable:
+      return f"{self._id}: {self._variable.value if hasattr(self._variable, 'value') else 'No value'}"
+    return self._id
+
+  def __repr__(self):
+    return f"SimpleVar({self._id})"
+
+  @classmethod
+  def set_model(cls, model):
+    """Set the model reference for all SimpleVar instances."""
+    cls._model = model
+    cls._model = model
 
 class MainModel(QtCore.QObject):
   # Signals
@@ -43,6 +112,9 @@ class MainModel(QtCore.QObject):
             image_list.ImageListModel(self),  # Init_vars
             image_list.ImageListModel(self),  # Pending_vars
             ]
+            
+    # Set the model reference for SimpleVar instances
+    SimpleVar.set_model(self)
 
   # def get_available_ontologies(self) -> list[str]:                    # 2026.01.09 HAP removed for the time being
   #   return self._io_manager.get_context_member_valid_options(         # 2026.01.09 HAP removed for the time being
@@ -151,41 +223,323 @@ class MainModel(QtCore.QObject):
 
     return new_ent
 
+  def _load_entity_data(self, entity_obj):
+    """Helper method to load data for an entity object."""
+    try:
+      print(f"Loading data for entity: {entity_obj.entity_name}")
+      
+      # Get all the data we want to display
+      integrators = self.safe_get(entity_obj, 'get_integrators_eq', [])
+      equations = self.safe_get(entity_obj, 'get_equations', [])
+      input_vars = self.safe_get(entity_obj, 'get_input_vars', [])
+      output_vars = self.safe_get(entity_obj, 'get_output_vars', [])
+      init_vars = self.safe_get(entity_obj, 'get_init_vars', [])
+      pending_vars = self.safe_get(entity_obj, 'get_pending_vars', [])
+
+      print(f"Found data - Integrators: {len(integrators)}, Equations: {len(equations)}")
+      print(f"Input vars: {len(input_vars)}, Output vars: {len(output_vars)}")
+      print(f"Init vars: {len(init_vars)}, Pending vars: {len(pending_vars)}")
+
+      # Update the UI with the entity's data
+      self._update_entity_models([
+        integrators,
+        equations,
+        input_vars,
+        output_vars,
+        init_vars,
+        pending_vars
+      ])
+      
+    except Exception as e:
+      print(f"Error loading entity data: {e}")
+      import traceback
+      traceback.print_exc()
+      self._update_entity_models([[], [], [], [], [], []])
+
+  # def load_entity(self, index: QtCore.QModelIndex) -> None:
+  #   """Load an entity based on the selected index in the tree view.
+  #
+  #   Handles display format: 'tokens:type name:entityName' by extracting the entity name
+  #   and finding the matching entity in all_entities.
+  #   """
+  #   print("\n=== load_entity called ===")
+  #
+  #   try:
+  #     # First, verify the index is valid
+  #     if not index.isValid():
+  #       print("Invalid index in load_entity")
+  #       self._update_entity_models([[], [], [], [], [], []])
+  #       return
+  #
+  #     # Get the display text of the selected item
+  #     item = self.entity_tree_model.itemFromIndex(index)
+  #     if item is None:
+  #       print("Error: Could not get item from index")
+  #       self._update_entity_models([[], [], [], [], [], []])
+  #       return
+  #
+  #     display_text = item.text()
+  #     print(f"Display text: {display_text}")
+  #
+  #     # Check if we have the entity ID stored in the item's data
+  #     entity_id = item.data(QtCore.Qt.UserRole + 1)
+  #     self.current_entity_id = entity_id
+  #     item.current_entity_id = entity_id
+  #
+  #     if entity_id:
+  #       print(f"Found entity ID in item data: {entity_id}")
+  #       if entity_id in self.all_entities:
+  #         entity_obj = self.all_entities[entity_id]
+  #         self._load_entity_data(entity_obj)
+  #         return
+  #       else:
+  #         print(f"Entity ID {entity_id} not found in all_entities")
+  #
+  #     # Check if this is a leaf node with the format "tokens:... name:..."
+  #     if display_text.startswith("tokens:") and " name:" in display_text:
+  #       try:
+  #         # Extract the entity name from the display text
+  #         entity_name = display_text.split(" name:", 1)[1].strip()
+  #         print(f"Extracted entity name: {entity_name}")
+  #
+  #         # Find the full entity ID by matching the end of the entity IDs
+  #         matching_entities = [
+  #           eid for eid, e in self.all_entities.items()
+  #           if eid.endswith(f".{entity_name}") or getattr(e, 'entity_name', '') == entity_name
+  #         ]
+  #
+  #         if matching_entities:
+  #           if len(matching_entities) > 1:
+  #             print(f"Warning: Multiple entities match the name '{entity_name}'. Using first one.")
+  #             print(f"Matching entities: {matching_entities}")
+  #           entity_id = matching_entities[0]
+  #           print(f"Found matching entity: {entity_id}")
+  #
+  #           # Load the entity data
+  #           entity_obj = self.all_entities[entity_id]
+  #           self._load_entity_data(entity_obj)
+  #           return
+  #         else:
+  #           print(f"No entity found matching name: {entity_name}")
+  #
+  #       except Exception as e:
+  #         print(f"Error processing entity name: {e}")
+  #         import traceback
+  #         traceback.print_exc()
+  #
+  #     # Fall back to the original method if not a leaf node or if processing failed
+  #     if hasattr(self.entity_tree_model, 'path_from_index'):
+  #       entity_id = self.entity_tree_model.path_from_index(index)
+  #       print(f"Entity ID from path: {entity_id}")
+  #     else:
+  #       # Fallback to old method if path_from_index is not available
+  #       print("Using fallback method to get entity ID")
+  #       parts = []
+  #       current = item
+  #       while current is not None:
+  #         parts.insert(0, current.text())
+  #         current = current.parent()
+  #       entity_id = '.'.join(parts)
+  #       print(f"Built entity_id: {entity_id}")
+  #
+  #     # Now load the entity data
+  #     if not entity_id or not hasattr(self, 'all_entities'):
+  #       print("No entity ID or entities not loaded")
+  #       self._update_entity_models([[], [], [], [], [], []])
+  #       return
+  #
+  #     # Try to find the entity in all_entities
+  #     entity_obj = None
+  #     if entity_id in self.all_entities:
+  #       entity_obj = self.all_entities[entity_id]
+  #     else:
+  #       # Try to find a matching entity by name
+  #       for key, ent in self.all_entities.items():
+  #         if entity_id in key or key.endswith(entity_id):
+  #           entity_obj = ent
+  #           entity_id = key  # Update entity_id to the full key
+  #           break
+  #
+  #     if entity_obj is not None:
+  #       print(f"Found entity: {entity_id}")
+  #       print(f"Entity type: {type(entity_obj).__name__}")
+  #
+  #       # Get all the data we want to display
+  #       try:
+  #         integrators = self.safe_get(entity_obj, 'get_integrators_eq', [])
+  #         equations = self.safe_get(entity_obj, 'get_equations', [])
+  #         input_vars = self.safe_get(entity_obj, 'get_input_vars', [])
+  #         output_vars = self.safe_get(entity_obj, 'get_output_vars', [])
+  #         init_vars = self.safe_get(entity_obj, 'get_init_vars', [])
+  #         pending_vars = self.safe_get(entity_obj, 'get_pending_vars', [])
+  #
+  #         print(f"Found data - Integrators: {len(integrators)}, Equations: {len(equations)}")
+  #         print(f"Input vars: {len(input_vars)}, Output vars: {len(output_vars)}")
+  #         print(f"Init vars: {len(init_vars)}, Pending vars: {len(pending_vars)}")
+  #
+  #         # Update the UI with the entity's data
+  #         self._update_entity_models([
+  #           integrators,
+  #           equations,
+  #           input_vars,
+  #           output_vars,
+  #           init_vars,
+  #           pending_vars
+  #         ])
+  #
+  #       except Exception as e:
+  #         print(f"Error getting entity data: {e}")
+  #         import traceback
+  #         traceback.print_exc()
+  #         self._update_entity_models([[], [], [], [], [], []])
+  #     else:
+  #       print(f"Entity not found: {entity_id}")
+  #       print(f"Available entities: {list(self.all_entities.keys())[:5]}{'...' if len(self.all_entities) > 5 else ''}")
+  #       self._update_entity_models([[], [], [], [], [], []])
+  #
+  #   except Exception as e:
+  #     print(f"Unexpected error in load_entity: {e}")
+  #     import traceback
+  #     traceback.print_exc()
+  #     self._update_entity_models([[], [], [], [], [], []])
+
   def load_entity(self, index: QtCore.QModelIndex) -> None:
-    if not index.isValid():
-      entity_data = [[]] * 6
-      self._update_entity_models(entity_data)
-      return
+    """Load an entity based on the selected index in the tree view."""
+    print("\n" + "=" * 50)
+    print("=== load_entity called ===")
+    print(f"Index valid: {index.isValid()}")
 
-    entity_id = self.entity_tree_model.path_from_index(index)
+    try:
+      if not index.isValid():
+        print("Invalid index in load_entity")
+        self._update_entity_models([[], [], [], [], [], []])
+        return
 
-    current_entity = self.all_entities.get(entity_id)
-    if current_entity is None:
-      # TODO: Maybe make an exception here
-      return False
+      # Get the display text of the selected item
+      item = self.entity_tree_model.itemFromIndex(index)
+      if item is None:
+        print("Error: Could not get item from index")
+        self._update_entity_models([[], [], [], [], []])
+        return
 
-    entity_data = [
-            [
-                    self.all_equations[eq_id]
-                    for eq_id in current_entity.get_integrators_eq()
-                    ],
-            [self.all_equations[eq_id] for eq_id in current_entity.get_equations()],
-            [self.all_variables[var_id] for var_id in current_entity.get_input_vars()],
-            [self.all_variables[var_id] for var_id in current_entity.get_output_vars()],
-            [self.all_variables[var_id] for var_id in current_entity.get_init_vars()],
-            [
-                    self.all_variables[var_id]
-                    for var_id in current_entity.get_pending_vars()
-                    ],
-            ]
-    self._update_entity_models(entity_data)
+      display_text = item.text()
+      print(f"Display text: {display_text}")
 
-  def _update_entity_models(
-          self, entity_data: list[list[equation.Equation | variable.Variable]]
-          ) -> None:
-    for model, data in zip(self.entity_list_models, entity_data, strict=False):
-      model.load_data(data)
+      # Get entity ID from item data
+      entity_id = item.data(QtCore.Qt.UserRole + 1)
+      print(f"Entity ID from item data: {entity_id}")
 
+      # Store the current entity ID
+      self.current_entity_id = entity_id
+      print(f"Set current_entity_id to: {entity_id}")
+
+      # Verify the entity exists
+      if entity_id in self.all_entities:
+        print(f"Entity found in all_entities")
+        entity_obj = self.all_entities[entity_id]
+        self._load_entity_data(entity_obj)
+      else:
+        print(f"Entity ID {entity_id} not found in all_entities")
+        print(f"Available entity IDs (first 5): {list(self.all_entities.keys())[:5]}")
+        self._update_entity_models([[], [], [], [], [], []])
+
+    except Exception as e:
+      print(f"Error in load_entity: {e}")
+      import traceback
+      traceback.print_exc()
+      self._update_entity_models([[], [], [], [], [], []])
+
+
+
+  def safe_get(self, obj, method_name, default=None):
+    """Safely get a value from an object's method."""
+    if hasattr(obj, method_name):
+      method = getattr(obj, method_name)
+      if callable(method):
+        try:
+          result = method()
+          return result if result is not None else default
+        except Exception as e:
+          print(f"Error in {method_name}: {e}")
+          return default
+    return default
+
+  class SimpleVar:
+    def __init__(self, var_id, model=None):
+      self._id = var_id
+      self._model = model
+      self._equation = None
+      self._variable = None
+      
+    def get_id(self):
+      return self._id
+      
+    def get_img_path(self):
+      # Return a default image path or implement your logic here
+      return ":/icons/variable.png"
+      
+    def get_display_text(self):
+      """Return a more detailed display text for the variable/equation."""
+      # Try to get the equation or variable details if they exist in the model
+      if self._model:
+        if self._id in self._model.all_equations:
+          self._equation = self._model.all_equations.get(self._id)
+        if self._id in self._model.all_variables:
+          self._variable = self._model.all_variables.get(self._id)
+      
+      if self._equation:
+        return f"{self._id}: {self._equation.equation if hasattr(self._equation, 'equation') else 'No equation'}"
+      elif self._variable:
+        return f"{self._id}: {self._variable.value if hasattr(self._variable, 'value') else 'No value'}"
+      return self._id
+    
+    print("=====================\n")
+
+  # def _update_entity_models(self, entity_data):
+  #   """Update the entity list models with new data.
+  #
+  #   Args:
+  #       entity_data: A list of lists containing the data for each model.
+  #                   The order should be:
+  #                   [integrators, equations, input_vars, output_vars, init_vars, pending_vars]
+  #   """
+  #   model_names = ["Integrators", "Equations", "Input Vars", "Output Vars", "Init Vars", "Pending Vars"]
+  #
+  #   for i, (model, data, name) in enumerate(zip(self.entity_list_models, entity_data, model_names)):
+  #     try:
+  #       print(f"\nProcessing {name}...")
+  #
+  #       if data is None:
+  #         print(f"  {name}: No data provided")
+  #         model.clear()
+  #         continue
+  #
+  #       if not isinstance(data, (list, tuple)):
+  #         print(f"  Error: Expected list for {name}, got {type(data)}")
+  #         model.clear()
+  #         continue
+  #
+  #       # Ensure data is a list of objects with get_id() and get_img_path() methods
+  #       valid_data = []
+  #       for item in data:
+  #         try:
+  #           if hasattr(item, 'get_id') and callable(getattr(item, 'get_id')):
+  #             if hasattr(item, 'get_img_path') and callable(getattr(item, 'get_img_path')):
+  #               valid_data.append(item)
+  #             else:
+  #               # If item doesn't have get_img_path, wrap it in a SimpleVar
+  #               valid_data.append(SimpleVar(item.get_id()))
+  #         except Exception as e:
+  #           print(f"  Error processing item {item}: {e}")
+  #           continue
+  #
+  #       print(f"  Loading {len(valid_data)} items into {name} model")
+  #       model.load_data(valid_data)
+  #
+  #     except Exception as e:
+  #       print(f"Error updating {name} model: {e}")
+  #       import traceback
+  #       traceback.print_exc()
   def save(self) -> None:
     """
     Save the current state of the model.
@@ -294,165 +648,260 @@ class MainModel(QtCore.QObject):
       print(f"Error generating entity types for {network_type}: {e}")
       return {'node': [], 'arc': []}
 
+  def _update_entity_models(self, entity_data):
+    """Update the entity list models with new data.
+
+    Args:
+        entity_data: A list of lists containing the data for each model.
+                    The order should be:
+                    [integrators, equations, input_vars, output_vars, init_vars, pending_vars]
+    """
+    model_names = ["Integrators", "Equations", "Input Vars", "Output Vars", "Init Vars", "Pending Vars"]
+
+    # Validate inputs
+    if not hasattr(self, 'entity_list_models') or len(self.entity_list_models) != len(model_names):
+        return
+        
+    if not isinstance(entity_data, (list, tuple)) or len(entity_data) != len(model_names):
+        return
+
+    for model, data, name in zip(self.entity_list_models, entity_data, model_names):
+        try:
+            # Skip if model is missing required methods
+            required_methods = ['load_data', 'clear']
+            if not all(hasattr(model, m) for m in required_methods):
+                continue
+                
+            # Skip if no data or invalid data type
+            if data is None or not isinstance(data, (list, tuple)):
+                model.clear()
+                continue
+
+            # Process items
+            valid_data = []
+            for item in data:
+                if item is None:
+                    continue
+                    
+                # Extract item ID
+                item_id = None
+                if hasattr(item, 'get_id') and callable(item.get_id):
+                    item_id = item.get_id()
+                elif hasattr(item, 'id') and not callable(item.id):
+                    item_id = item.id
+                elif hasattr(item, 'name') and not callable(item.name):
+                    item_id = item.name
+                elif isinstance(item, str):
+                    item_id = item
+                
+                if item_id is not None:
+                    valid_data.append(SimpleVar(item_id, self))
+
+            # Update the model
+            model.clear()
+            if valid_data:
+                model.load_data(valid_data)
+                
+        except Exception as e:
+            # Silently handle errors to prevent UI disruption
+            model.clear()
+            continue
+
   def _update_tree_model(self) -> None:
-    # Debug: Print all loaded entities
-    print("\n=== Loaded Entities ===")
-    for entity_id, entity_obj in self.all_entities.items():
-      print(f"Entity ID: {entity_id}, Type: {type(entity_obj)}")
-      if hasattr(entity_obj, 'entity_name'):
-        print(f"  - Name: {entity_obj.entity_name}")
-      if hasattr(entity_obj, 'get_type'):
-        print(f"  - Type: {entity_obj.get_type()}")
-      if hasattr(entity_obj, 'get_tokens'):
-        print(f"  - Tokens: {entity_obj.get_tokens()}")
-      print("---")
+    """Update the tree model with the current state of entities."""
+    # Clear the current model
+    self.entity_tree_model.clear()
 
-    # Get network types from ontology
-    network_types = self.get_network_types_from_ontology()
-    print(f"\nNetwork types from ontology: {network_types}")
+    # Get all networks
+    networks = set()
+    for entity_id in self.all_entities:
+      parts = entity_id.split('.')
+      if len(parts) >= 2:  # At least network and category
+        networks.add(parts[0])
 
-    # Generate entity types for each network, organized by node/arc
-    network_base_types = {
-            net_type: self.generate_entity_types_for_network(net_type)
-            for net_type in network_types
-            }
+    # Add networks to the tree
+    for net in sorted(networks):
+      net_item = QtGui.QStandardItem(net)
+      self.entity_tree_model.appendRow(net_item)
 
-    # Default base types for unknown network types
-    default_base_types = {
-            'node': ['unknown|node|type'],
-            'arc' : ['unknown|arc|type']
-            }
-
-    # Get all internetworks from existing entities and separate interfaces
-    internetworks = {}
-    interface_entities = {}
-
-    for entity_id, entity_obj in self.all_entities.items():
-      if '>>>' in entity_id:
-        # This is an interface entity
-        interface_parts = entity_id.split('>>>')
-        source_network = interface_parts[0].split('.')[0].strip()
-        interface_entities.setdefault(source_network, []).append(entity_id)
-      else:
-        # This is a regular entity
-        # Format: macroscopic.node.mass|constant|infinity.massSource
-        parts = entity_id.split('.')
-        if len(parts) >= 3:  # Should have at least network, category, and entity parts
-          net = parts[0]
-          category = parts[1]  # 'node' or 'arc'
-          base_type = '|'.join(parts[2].split('|')[:3])  # Get the first three parts of the type
-          entity_name = parts[-1]  # The last part is the entity name
-
-          # Determine network type
-          net_type = network_types[0] if network_types else 'unknown'
-          for ntype in network_types:
-            if net.lower() == ntype.lower():
-              net_type = ntype
-              break
-
-          if net not in internetworks:
-            internetworks[net] = {'type': net_type, 'entities': {}}
-
-          # Store entity data
-          entity_data = {
-                  'id'    : entity_id,
-                  'name'  : entity_name,
-                  'type'  : base_type,
-                  'object': entity_obj
-                  }
-          internetworks[net]['entities'].setdefault(category, {}).setdefault(base_type, []).append(entity_data)
-
-    # If no entities exist yet, add a default network
-    if not internetworks and not interface_entities:
-      default_net = network_types[0] if network_types else 'default'
-      internetworks = {default_net: {'type': default_net, 'entities': {}}}
-
-    # Create a list of all possible entity paths
-    all_entity_paths = []
-
-    # Add networks and their entities
-    for net, net_data in internetworks.items():
-      net_type = net_data['type']
-      base_types = network_base_types.get(net_type, default_base_types)
-
-      # Add the network itself
-      all_entity_paths.append(net)
-
-      # Process nodes and arcs separately
+      # Add categories (node/arc) for this network
       for category in ['node', 'arc']:
-        category_path = f"{net}.{category}"
-        all_entity_paths.append(category_path)
+        cat_item = QtGui.QStandardItem(category)
+        net_item.appendRow(cat_item)
 
-        # Get the base types for this category
-        category_base_types = base_types.get(category, [])
+        # Get token types for this network and category
+        token_types = set()
+        for entity_id, entity_obj in self.all_entities.items():
+          if entity_id.startswith(f"{net}.{category}."):
+            parts = entity_id.split('.')
+            if len(parts) >= 3:  # Has token type
+              type_parts = parts[2].split('|')
+              if len(type_parts) >= 3:  # Has token type
+                token_type = '|'.join(type_parts[1:3])  # Get token type part
+                token_types.add(token_type)
 
-        # Add each base type under its category
-        for base_type in category_base_types:
-          type_path = f"{category_path}.{base_type}"
-          all_entity_paths.append(type_path)
+        # Add token types and their entities
+        for token_type in sorted(token_types):
+          token_item = QtGui.QStandardItem(token_type)
+          cat_item.appendRow(token_item)
 
-          # Add entities of this type
-          for entity_data in net_data['entities'].get(category, {}).get(base_type, []):
-            # For nodes, we need to ensure the path is in the correct format
-            entity_id = entity_data['id']
-
-            if category == 'node':
-              # The entity_id should be in the format: net.node.base_type.entity_name
+          # Add entities for this token type
+          for entity_id, entity_obj in self.all_entities.items():
+            if (entity_id.startswith(f"{net}.{category}.") and
+                    f"|{token_type}." in entity_id):
+              # Extract base type and entity name
+              # p = re.split(r'[\.|]', entity_id)
+              [network, node, token, time_scale, length_scale, name] = re.split(r'[\.|]', entity_id)
               parts = entity_id.split('.')
-              if len(parts) >= 4:  # net.node.base_type.entity_name
-                # Reconstruct the path to ensure it's in the correct format
-                entity_path = f"{net}.node.{base_type}.{parts[-1]}"
-                all_entity_paths.append(entity_path)
+              if len(parts) >= 3:
+                type_parts = parts[2].split('|')
+                if len(type_parts) >= 3:
+              # base_type = f"{}"
+                  base_type = type_parts[0] # token
+                  entity_name = parts[-1] # entity_name
+                  display_name = f"tokens:{base_type} name:{entity_name}" # entry shown in tree
 
-                # Add sub-entities if they exist
-                if hasattr(entity_data['object'], 'sub_entities'):
-                  for sub_entity in entity_data['object'].sub_entities:
-                    sub_entity_name = sub_entity.split('.')[-1]
-                    all_entity_paths.append(f"{entity_path}.{sub_entity_name}")
-            else:
-              # For arcs, use the entity ID as is
-              all_entity_paths.append(entity_id)
+                  # Create item with display name and store the full entity ID
+                  item = QtGui.QStandardItem(display_name)
+                  # Store the full entity ID in the item's data
+                  item.setData(entity_id, QtCore.Qt.UserRole + 1)
+                  # Also store it in a custom property for easier debugging
+                  item.setData(entity_id, QtCore.Qt.UserRole + 2)
+                  # Store a reference to the entity object
+                  item.setData(entity_obj, QtCore.Qt.UserRole + 3)
+                  token_item.appendRow(item)
+                  
+                  # Debug print to verify the data is stored correctly
+                  print(f"Added item: {display_name}")
+                  print(f"  - Entity ID: {entity_id}")
+                  print(f"  - Entity type: {type(entity_obj).__name__}")
 
-              # Add sub-entities if they exist
-              if hasattr(entity_data['object'], 'sub_entities'):
-                for sub_entity in entity_data['object'].sub_entities:
-                  sub_entity_name = sub_entity.split('.')[-1]
-                  all_entity_paths.append(f"{entity_id}.{sub_entity_name}")
-
-    # Add interface entities
-    for source_net, interfaces in interface_entities.items():
-      # Add the network if it's not already added
-      if source_net not in internetworks:
-        all_entity_paths.append(source_net)
-
-      # Add interfaces node
-      interfaces_path = f"{source_net}.interfaces"
-      all_entity_paths.append(interfaces_path)
-
-      # Add each interface entity
-      for interface_id in interfaces:
-        # Get the interface name (part after the last dot)
-        interface_name = interface_id.split('.')[-1]
-        all_entity_paths.append(f"{interfaces_path}.{interface_name}")
-
-    # Debug: Print the paths that will be added to the tree
-    print("\nAll entity paths to be added to the tree:")
-    for path in all_entity_paths:
-      print(f"- {path}")
-
-    # Load the data into the tree model
-    self.entity_tree_model.load_data(all_entity_paths)
+    # Emit signal that the tree has been updated
     self.tree_changed.emit()
 
-  def get_entity_editor_model(
-          self, index: QtCore.QModelIndex
-          ) -> entity_editor.EntityEditorModel:
-    entity_id = self.entity_tree_model.path_from_index(index)
-    return entity_editor.EntityEditorModel(
-            copy.deepcopy(self.all_entities[entity_id]),
-            self.all_variables,
-            self.all_equations,
-            )
+  # def get_entity_editor_model(
+  #         self, index: QtCore.QModelIndex
+  #         ) -> entity_editor.EntityEditorModel:
+  #   """Get the entity editor model for the selected item."""
+  #   print("\n=== get_entity_editor_model called ===")
+  #   print(f"Index: row={index.row()}, column={index.column()}, valid={index.isValid()}")
+  #
+  #   # Get the item directly from the tree model
+  #   if not hasattr(self, 'entity_tree_model'):
+  #       raise ValueError("Tree model not initialized")
+  #
+  #   # Get the item using the tree model's itemFromIndex
+  #   item = self.entity_tree_model.itemFromIndex(index)
+  #
+  #   # If we can't get the item, try to find it by traversing the tree
+  #   if not item and index.isValid():
+  #       print("Item not found directly, trying to find by traversing...")
+  #       parent = index.parent()
+  #       if parent.isValid():
+  #           parent_item = self.entity_tree_model.itemFromIndex(parent)
+  #           if parent_item and index.row() < parent_item.rowCount():
+  #               item = parent_item.child(index.row(), index.column())
+  #
+  #   if not item:
+  #       print("Could not find the item in the tree model")
+  #       print(f"Model has {self.entity_tree_model.rowCount()} top-level items")
+  #       raise ValueError("Could not get item from index")
+  #
+  #   # Get the entity ID from the item's data
+  #   entity_id = item.data(QtCore.Qt.UserRole + 1)
+  #   print(f"Found entity ID in item data: {entity_id}")
+  #
+  #   if not entity_id:
+  #       print("No entity ID found in item data")
+  #       print(f"Item text: {item.text()}")
+  #       raise ValueError("No entity ID found in item data")
+  #
+  #   # Verify the entity exists
+  #   if entity_id not in self.all_entities:
+  #       print(f"Entity {entity_id} not found in all_entities")
+  #       print(f"Available entities (first 5): {list(self.all_entities.keys())[:5]}")
+  #       raise ValueError(f"Entity not found: {entity_id}")
+  #
+  #   print(f"Successfully found entity: {entity_id}")
+  #   # Return a new editor model with a copy of the entity
+  #   return entity_editor.EntityEditorModel(
+  #           copy.deepcopy(self.all_entities[entity_id]),
+  #           self.all_variables,
+  #           self.all_entities,
+  #           )
+
+  def get_entity_editor_model(self, index: QtCore.QModelIndex = None) -> entity_editor.EntityEditorModel:
+    """Get the entity editor model for the selected item."""
+    print("\n" + "=" * 50)
+    print("=== get_entity_editor_model called ===")
+
+    try:
+      # Get the current entity ID
+      entity_id = getattr(self, 'current_entity_id', None)
+      print(f"Current entity ID: {entity_id}")
+
+      if not entity_id:
+        print("Error: No current_entity_id set")
+        raise ValueError("No entity is currently selected")
+
+      # Verify the entity exists
+      if entity_id not in self.all_entities:
+        print(f"Error: Entity '{entity_id}' not found in all_entities")
+        print(f"Available entities (first 5): {list(self.all_entities.keys())[:5]}")
+        raise ValueError(f"Entity not found: {entity_id}")
+
+      print(f"Creating editor model for entity: {entity_id}")
+      entity_obj = self.all_entities[entity_id]
+      print(f"Entity type: {type(entity_obj).__name__}")
+      print(f"Entity attributes: {[attr for attr in dir(entity_obj) if not attr.startswith('__')]}")
+
+      # Create and return the editor model
+      editor_model = entity_editor.EntityEditorModel(
+              copy.deepcopy(entity_obj),
+              self.all_variables,
+              self.all_equations,#self.all_entities,
+              )
+      print("Successfully created editor model")
+      return editor_model
+
+    except Exception as e:
+      print(f"Error in get_entity_editor_model: {e}")
+      import traceback
+      traceback.print_exc()
+      raise
+
+def update_entity(self, index: QtCore.QModelIndex, updated_entity: entity.Entity) -> None:
+  """Update an existing entity in the model."""
+  print("\n" + "=" * 50)
+  print("=== update_entity called ===")
+
+  try:
+    entity_id = getattr(self, 'current_entity_id', None)
+    if not entity_id:
+      print("Error: No current_entity_id set")
+      raise ValueError("No entity is currently selected")
+
+    print(f"Updating entity: {entity_id}")
+
+    if entity_id not in self.all_entities:
+      print(f"Error: Entity {entity_id} not found in model")
+      print(f"Available entities (first 5): {list(self.all_entities.keys())[:5]}")
+      raise ValueError(f"Entity {entity_id} not found in model")
+
+    # Update the entity
+    self.all_entities[entity_id] = updated_entity
+    print(f"Successfully updated entity: {entity_id}")
+
+    # Update the tree view
+    print("Updating tree model...")
+    self._update_tree_model()
+    print("Tree model updated")
+
+  except Exception as e:
+    print(f"Error in update_entity: {e}")
+    import traceback
+    traceback.print_exc()
+    raise
 
   def add_entity(
           self, new_entity_id: str, bases: list[str]

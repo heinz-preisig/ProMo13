@@ -11,103 +11,43 @@ class TreeBasesModel(QtGui.QStandardItemModel):
 
   def load_data(self, data):
     self.clear()
+    # Dictionary for fast lookup of the tree path from an index and
+    # viceversa.
     self._index_to_path = {}
     self._path_to_index = {}
+
+    # Dictionary for fast lookup of existing items in the tree.
     items = {}
+
     root = self.invisibleRootItem()
 
-    # Define all possible entity types
-    POSSIBLE_ENTITY_TYPES = [
-        'constant|AE|signal',
-        'constant|infinity|charge',
-        'constant|infinity|energy',
-        'constant|infinity|mass',
-        'constant|infinity|species',
-        'dynamic|ODE|signal',
-        'dynamic|lumped|charge',
-        'dynamic|lumped|energy',
-        'dynamic|lumped|mass',
-        'dynamic|lumped|species',
-        'event|AE|signal',
-        'event|distributed|charge',
-        'event|distributed|energy',
-        'event|distributed|mass',
-        'event|distributed|species',
-        'event|lumped|charge',
-        'event|lumped|energy',
-        'event|lumped|mass',
-        'event|lumped|species'
-    ]
-
-    # Get unique internetworks from the data
-    internetworks = set()
     for path in data:
-        path_parts = path.split('.')
-        if path_parts:
-            internetworks.add(path_parts[0])
+      parent = root
+      path_nodes = path.split('.')
+      tokens = path_nodes[2].split("|")[0]
+      subpath = [tokens, path_nodes[-1]]
 
-    # Add internetworks as first level
-    for net in sorted(internetworks):
-        net_item = QtGui.QStandardItem(net)
-        net_item.setEditable(False)
-        root.appendRow(net_item)
-        items[net] = net_item
+      # print(subpath)
+      for i, node in enumerate(subpath):
+        # Each item is stored in the lookup dict using the tree path.
+        key = '.'.join(subpath[:i+1])
+        child = items.get(key)
 
-        # Add all possible entity types for this network
-        for entity_type in sorted(POSSIBLE_ENTITY_TYPES):
-            type_key = f"{net}.{entity_type}"
-            type_item = QtGui.QStandardItem(entity_type)
-            type_item.setEditable(False)
-            type_item.setData({
-                'network': net,
-                'entity_type': entity_type,
-                'is_entity_type': True
-            }, QtCore.Qt.UserRole + 1)
-            net_item.appendRow(type_item)
-            
-            # Store the mapping for selection handling
-            index = self.indexFromItem(type_item)
-            self._index_to_path[index] = entity_type
-            self._path_to_index[entity_type] = index
+        # If the item does not exist yet a new one is created.
+        if child is None:
+          child = QtGui.QStandardItem(node)
+          child.setEditable(False)
+          parent.appendRow(child)
+          items[key] = child
 
-    # Handle any remaining paths that don't follow the standard format
-    for path in data:
-        if path not in self._path_to_index.values():
-            path_parts = path.split('.')
-            if len(path_parts) >= 2:
-                net = path_parts[0]
-                parent = items.get(net, root)
-                
-                # Build the path
-                path_so_far = net
-                for i, part in enumerate(path_parts[1:], 1):
-                    current_key = f"{path_so_far}.{part}" if i > 1 else f"{net}.{part}"
-                    if current_key not in items:
-                        item = QtGui.QStandardItem(part)
-                        item.setEditable(False)
-                        parent.appendRow(item)
-                        items[current_key] = item
-                    
-                    parent = items.get(current_key, parent)
-                    path_so_far = current_key
-                
-                # Store the mapping for fast lookups
-                if parent != root:
-                    index = self.indexFromItem(parent)
-                    self._index_to_path[index] = path
-                    self._path_to_index[path] = index
+        parent = child
 
-  def get_entity_type_data(self, index):
-    """Get entity type data for the given index"""
-    if not index.isValid():
-        return None
-        
-    item = self.itemFromIndex(index)
-    if not item:
-        return None
-        
-    # Get the data we stored in load_data
-    return item.data(QtCore.Qt.UserRole + 1)
+      # For the fast lookups
+      index = self.indexFromItem(child)
+      self._index_to_path[index] = path
+      self._path_to_index[path] = index
+
+    # pp(self._index_to_path)
 
   def flags(self, index):
     flags = super().flags(index)

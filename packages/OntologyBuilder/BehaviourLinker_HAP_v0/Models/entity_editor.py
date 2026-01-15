@@ -10,8 +10,8 @@ from Common.classes import entity
 
 from Common import resource_initialisation
 
-from OntologyBuilder.BehaviourLinker_HAP_v0.Models.variable_editor import VariableEditorModel
-from OntologyBuilder.BehaviourLinker_HAP_v0.Models import image_list
+from OntologyBuilder.BehaviourLinker.Models.variable_editor import VariableEditorModel
+from OntologyBuilder.BehaviourLinker.Models import image_list
 
 
 class EntityEditorModel(QtCore.QObject):
