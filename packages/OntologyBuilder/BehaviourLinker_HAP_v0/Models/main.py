@@ -133,11 +133,18 @@ class MainModel(QtCore.QObject):
     self.ontology = old_io.load_ontology_from_file(self.ontology_name)
     self.all_variables, _, self.all_equations = old_io.load_var_idx_eq_from_file(self.ontology_name)
     self.all_entities = old_io.load_entities_from_file(self.ontology_name, self.all_equations)
+    self.all_entity_types = {}
+
+    pass
+    self._make_all_entity_types()
 
     self._update_interfaces()
     self._update_tree_model()
 
+    # r = self.generate_entity_types_for_network(newtwork)
+
   def _update_interfaces(self) -> None:
+
     interface_entities = [
             ent for ent_name, ent in self.all_entities.items() if ent.is_interface_ent()
             ]
@@ -164,6 +171,11 @@ class MainModel(QtCore.QObject):
     for eq_id in interface_equations:
       new_ent = self.create_entity_from_eq(eq_id)
       self.all_entities[new_ent.entity_name] = new_ent
+
+  def _make_all_entity_types(self):
+    inter_networks = [nw for nw in self.ontology.tree if self.ontology.tree[nw]["type"] == "inter"]
+    for nw in inter_networks:
+      self.all_entity_types[nw] = self.generate_entity_types_for_network(nw)
 
   # TODO -- not very handy if it crasches an incomplete file is generated
   # old_io.save_entities_to_file(self.ontology_name, self.all_entities)
@@ -379,6 +391,81 @@ class MainModel(QtCore.QObject):
       print(f"Error getting network types: {e}")
       return ['macroscopic']  # Default fallback on error
 
+  # def generate_entity_types_for_network(self, network_type):
+  #   """
+  #   Generate entity types for a specific network type, organized by node and arc categories.
+  #
+  #   Args:
+  #       network_type: The type of network to generate entity types for
+  #
+  #   Returns:
+  #       dict: Dictionary with 'node' and 'arc' keys, each containing a list of entity types
+  #   """
+  #   if not hasattr(self, 'ontology') or not self.ontology:
+  #     # Default types if no ontology is loaded
+  #     if network_type == 'macroscopic':
+  #       return {
+  #               'node': [
+  #                       'constant|infinity|charge',
+  #                       'constant|infinity|energy',
+  #                       'constant|infinity|mass',
+  #                       'dynamic|lumped|charge',
+  #                       'dynamic|lumped|energy',
+  #                       'dynamic|lumped|mass',
+  #                       'dynamic|ODE|signal',
+  #                       'event|distributed|charge',
+  #                       'event|distributed|energy',
+  #                       'event|distributed|mass',
+  #                       'event|lumped|charge',
+  #                       'event|lumped|energy',
+  #                       'event|lumped|mass'
+  #                       ],
+  #               'arc' : []  # Default empty arc types
+  #               }
+  #     return {'node': [], 'arc': []}
+  #
+  #   try:
+  #     network_info = self.ontology.tree.get(network_type, {})
+  #     structure = network_info.get('structure', {})
+  #
+  #     result = {'node': [], 'arc': []}
+  #
+  #     # Process node types
+  #     node_types = structure.get('node', {})
+  #     token_types = structure.get('token', {})
+  #
+  #     for node_type, mechanisms in node_types.items():
+  #       if not mechanisms:
+  #         result['node'].append(node_type)
+  #         continue
+  #
+  #       for mechanism in mechanisms:
+  #         if not token_types:  # If no specific tokens
+  #           result['node'].append(f"{node_type}|{mechanism}")
+  #         else:
+  #           for token in token_types:
+  #             result['node'].append(f"{node_type}|{mechanism}|{token}")
+  #
+  #     # Process arc types
+  #     arc_types = structure.get('arc', {})
+  #     for arc_type, arc_mechs in arc_types.items():
+  #       for mech, sub_mechs in arc_mechs.items():
+  #         if not sub_mechs:  # If no sub-mechanisms
+  #           result['arc'].append(f"{arc_type}|{mech}")
+  #         else:
+  #           for sub_mech in sub_mechs:
+  #             result['arc'].append(f"{arc_type}|{mech}|{sub_mech}")
+  #
+  #     # Remove duplicates and sort
+  #     result['node'] = sorted(list(set(result['node'])))
+  #     result['arc'] = sorted(list(set(result['arc'])))
+  #
+  #     return result
+  #
+  #   except Exception as e:
+  #     print(f"Error generating entity types for {network_type}: {e}")
+  #     return {'node': [], 'arc': []}
+
   def generate_entity_types_for_network(self, network_type):
     """
     Generate entity types for a specific network type, organized by node and arc categories.
@@ -389,34 +476,17 @@ class MainModel(QtCore.QObject):
     Returns:
         dict: Dictionary with 'node' and 'arc' keys, each containing a list of entity types
     """
+    # Default empty result
+    result = {'node': [], 'arc': []}
+
+    # If no ontology is loaded, return empty result
     if not hasattr(self, 'ontology') or not self.ontology:
-      # Default types if no ontology is loaded
-      if network_type == 'macroscopic':
-        return {
-                'node': [
-                        'constant|infinity|charge',
-                        'constant|infinity|energy',
-                        'constant|infinity|mass',
-                        'dynamic|lumped|charge',
-                        'dynamic|lumped|energy',
-                        'dynamic|lumped|mass',
-                        'dynamic|ODE|signal',
-                        'event|distributed|charge',
-                        'event|distributed|energy',
-                        'event|distributed|mass',
-                        'event|lumped|charge',
-                        'event|lumped|energy',
-                        'event|lumped|mass'
-                        ],
-                'arc' : []  # Default empty arc types
-                }
-      return {'node': [], 'arc': []}
+      return result
 
     try:
+      # Get the network info from the ontology
       network_info = self.ontology.tree.get(network_type, {})
       structure = network_info.get('structure', {})
-
-      result = {'node': [], 'arc': []}
 
       # Process node types
       node_types = structure.get('node', {})
@@ -453,7 +523,6 @@ class MainModel(QtCore.QObject):
     except Exception as e:
       print(f"Error generating entity types for {network_type}: {e}")
       return {'node': [], 'arc': []}
-
   def _update_entity_models(self, entity_data):
     """Update the entity list models with new data.
 
@@ -585,56 +654,6 @@ class MainModel(QtCore.QObject):
     # Emit signal that the tree has been updated
     self.tree_changed.emit()
 
-  # def get_entity_editor_model(
-  #         self, index: QtCore.QModelIndex
-  #         ) -> entity_editor.EntityEditorModel:
-  #   """Get the entity editor model for the selected item."""
-  #   print("\n=== get_entity_editor_model called ===")
-  #   print(f"Index: row={index.row()}, column={index.column()}, valid={index.isValid()}")
-  #
-  #   # Get the item directly from the tree model
-  #   if not hasattr(self, 'entity_tree_model'):
-  #       raise ValueError("Tree model not initialized")
-  #
-  #   # Get the item using the tree model's itemFromIndex
-  #   item = self.entity_tree_model.itemFromIndex(index)
-  #
-  #   # If we can't get the item, try to find it by traversing the tree
-  #   if not item and index.isValid():
-  #       print("Item not found directly, trying to find by traversing...")
-  #       parent = index.parent()
-  #       if parent.isValid():
-  #           parent_item = self.entity_tree_model.itemFromIndex(parent)
-  #           if parent_item and index.row() < parent_item.rowCount():
-  #               item = parent_item.child(index.row(), index.column())
-  #
-  #   if not item:
-  #       print("Could not find the item in the tree model")
-  #       print(f"Model has {self.entity_tree_model.rowCount()} top-level items")
-  #       raise ValueError("Could not get item from index")
-  #
-  #   # Get the entity ID from the item's data
-  #   entity_id = item.data(QtCore.Qt.UserRole + 1)
-  #   print(f"Found entity ID in item data: {entity_id}")
-  #
-  #   if not entity_id:
-  #       print("No entity ID found in item data")
-  #       print(f"Item text: {item.text()}")
-  #       raise ValueError("No entity ID found in item data")
-  #
-  #   # Verify the entity exists
-  #   if entity_id not in self.all_entities:
-  #       print(f"Entity {entity_id} not found in all_entities")
-  #       print(f"Available entities (first 5): {list(self.all_entities.keys())[:5]}")
-  #       raise ValueError(f"Entity not found: {entity_id}")
-  #
-  #   print(f"Successfully found entity: {entity_id}")
-  #   # Return a new editor model with a copy of the entity
-  #   return entity_editor.EntityEditorModel(
-  #           copy.deepcopy(self.all_entities[entity_id]),
-  #           self.all_variables,
-  #           self.all_entities,
-  #           )
 
   def get_entity_editor_model(self, index: QtCore.QModelIndex = None) -> entity_editor.EntityEditorModel:
     """Get the entity editor model for the selected item."""
