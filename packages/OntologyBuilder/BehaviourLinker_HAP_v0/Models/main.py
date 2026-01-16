@@ -3,6 +3,7 @@ import re
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
+from uaclient.api.u.unattended_upgrades.status.v1 import UnattendedUpgradesStatusResult
 
 from Common.classes import entity
 from Common.classes import equation
@@ -391,80 +392,30 @@ class MainModel(QtCore.QObject):
       print(f"Error getting network types: {e}")
       return ['macroscopic']  # Default fallback on error
 
-  # def generate_entity_types_for_network(self, network_type):
-  #   """
-  #   Generate entity types for a specific network type, organized by node and arc categories.
-  #
-  #   Args:
-  #       network_type: The type of network to generate entity types for
-  #
-  #   Returns:
-  #       dict: Dictionary with 'node' and 'arc' keys, each containing a list of entity types
-  #   """
-  #   if not hasattr(self, 'ontology') or not self.ontology:
-  #     # Default types if no ontology is loaded
-  #     if network_type == 'macroscopic':
-  #       return {
-  #               'node': [
-  #                       'constant|infinity|charge',
-  #                       'constant|infinity|energy',
-  #                       'constant|infinity|mass',
-  #                       'dynamic|lumped|charge',
-  #                       'dynamic|lumped|energy',
-  #                       'dynamic|lumped|mass',
-  #                       'dynamic|ODE|signal',
-  #                       'event|distributed|charge',
-  #                       'event|distributed|energy',
-  #                       'event|distributed|mass',
-  #                       'event|lumped|charge',
-  #                       'event|lumped|energy',
-  #                       'event|lumped|mass'
-  #                       ],
-  #               'arc' : []  # Default empty arc types
-  #               }
-  #     return {'node': [], 'arc': []}
-  #
-  #   try:
-  #     network_info = self.ontology.tree.get(network_type, {})
-  #     structure = network_info.get('structure', {})
-  #
-  #     result = {'node': [], 'arc': []}
-  #
-  #     # Process node types
-  #     node_types = structure.get('node', {})
-  #     token_types = structure.get('token', {})
-  #
-  #     for node_type, mechanisms in node_types.items():
-  #       if not mechanisms:
-  #         result['node'].append(node_type)
-  #         continue
-  #
-  #       for mechanism in mechanisms:
-  #         if not token_types:  # If no specific tokens
-  #           result['node'].append(f"{node_type}|{mechanism}")
-  #         else:
-  #           for token in token_types:
-  #             result['node'].append(f"{node_type}|{mechanism}|{token}")
-  #
-  #     # Process arc types
-  #     arc_types = structure.get('arc', {})
-  #     for arc_type, arc_mechs in arc_types.items():
-  #       for mech, sub_mechs in arc_mechs.items():
-  #         if not sub_mechs:  # If no sub-mechanisms
-  #           result['arc'].append(f"{arc_type}|{mech}")
-  #         else:
-  #           for sub_mech in sub_mechs:
-  #             result['arc'].append(f"{arc_type}|{mech}|{sub_mech}")
-  #
-  #     # Remove duplicates and sort
-  #     result['node'] = sorted(list(set(result['node'])))
-  #     result['arc'] = sorted(list(set(result['arc'])))
-  #
-  #     return result
-  #
-  #   except Exception as e:
-  #     print(f"Error generating entity types for {network_type}: {e}")
-  #     return {'node': [], 'arc': []}
+
+  def generate_token_combinations(self, tokens):
+    """Generate all possible non-empty combinations of tokens separated by underscores.
+    
+    Args:
+        tokens: List of token strings to combine
+        
+    Returns:
+        List of all possible combinations as strings
+    """
+    if not tokens:
+      return []
+    
+    from itertools import combinations
+    all_combinations = []
+    # Generate combinations of all lengths from 1 to number of tokens
+    for r in range(1, len(tokens) + 1):
+      # Get all combinations of length r
+      for combo in combinations(tokens, r):
+        # Join tokens with underscore
+        all_combinations.append('_'.join(combo))
+    
+    # Remove duplicates while preserving order
+    return list(dict.fromkeys(all_combinations))
 
   def generate_entity_types_for_network(self, network_type):
     """
@@ -490,19 +441,33 @@ class MainModel(QtCore.QObject):
 
       # Process node types
       node_types = structure.get('node', {})
+      dynamics = list(node_types.keys())
+      natures = list(node_types.values())
       token_types = structure.get('token', {})
 
-      for node_type, mechanisms in node_types.items():
-        if not mechanisms:
-          result['node'].append(node_type)
-          continue
+      all_tokens = list(token_types.keys())
+      
+      # Generate all token combinations
+      token_combinations = self.generate_token_combinations(all_tokens)
 
-        for mechanism in mechanisms:
-          if not token_types:  # If no specific tokens
-            result['node'].append(f"{node_type}|{mechanism}")
-          else:
-            for token in token_types:
-              result['node'].append(f"{node_type}|{mechanism}|{token}")
+      # Process node types with all token combinations
+      for token_combo in token_combinations:
+        # result['node'].append(token_combo)
+
+        for dynamics, natures in node_types.items():
+          for nature in natures:
+            result['node'].append(f"{token_combo}|{dynamics}|{nature}")
+          # if not natures:
+          #   result['node'].append(f"{dynamics}|{nature}")
+          #   continue
+          #
+          # for nature in natures:
+          #   if not token_combinations:  # If no token combinations
+          #     result['node'].append(f"{dynamics}|{nature}")
+          #   else:
+          #     # Add all token combinations to the node type
+          #     for token_combo in token_combinations:
+          #       result['node'].append(f"{dynamics}|{nature}|{token_combo}")
 
       # Process arc types
       arc_types = structure.get('arc', {})
@@ -584,74 +549,83 @@ class MainModel(QtCore.QObject):
 
   def _update_tree_model(self) -> None:
     """Update the tree model with the current state of entities."""
-    # Clear the current model
     self.entity_tree_model.clear()
-
-    # Get all networks
     networks = set()
+
+    # Add networks from both entities and generated types
     for entity_id in self.all_entities:
-      parts = entity_id.split('.')
-      if len(parts) >= 2:  # At least network and category
-        networks.add(parts[0])
+        parts = entity_id.split('.')
+        if len(parts) >= 2:
+            networks.add(parts[0])
+    networks.update(self.all_entity_types.keys())
 
-    # Add networks to the tree
     for net in sorted(networks):
-      net_item = QtGui.QStandardItem(net)
-      self.entity_tree_model.appendRow(net_item)
+        net_item = QtGui.QStandardItem(net)
+        self.entity_tree_model.appendRow(net_item)
 
-      # Add categories (node/arc) for this network
-      for category in ['node', 'arc']:
-        cat_item = QtGui.QStandardItem(category)
-        net_item.appendRow(cat_item)
+        for category in ['node', 'arc']:
+            cat_item = QtGui.QStandardItem(category)
+            net_item.appendRow(cat_item)
 
-        # Get token types for this network and category
-        token_types = set()
-        for entity_id, entity_obj in self.all_entities.items():
-          if entity_id.startswith(f"{net}.{category}."):
-            parts = entity_id.split('.')
-            if len(parts) >= 3:  # Has token type
-              type_parts = parts[2].split('|')
-              if len(type_parts) >= 3:  # Has token type
-                token_type = '|'.join(type_parts[1:3])  # Get token type part
-                token_types.add(token_type)
+            # Get all generated types for this network and category
+            generated_types = set()
+            if (net in self.all_entity_types and 
+                category in self.all_entity_types[net]):
+                generated_types = set(self.all_entity_types[net][category])
 
-        # Add token types and their entities
-        for token_type in sorted(token_types):
-          token_item = QtGui.QStandardItem(token_type)
-          cat_item.appendRow(token_item)
+            # Create a dictionary to store type items
+            type_items = {}
 
-          # Add entities for this token type
-          for entity_id, entity_obj in self.all_entities.items():
-            if (entity_id.startswith(f"{net}.{category}.") and
-                    f"|{token_type}." in entity_id):
-              # Extract base type and entity name
-              # p = re.split(r'[\.|]', entity_id)
-              [network, node, token, time_scale, length_scale, name] = re.split(r'[\.|]', entity_id)
-              parts = entity_id.split('.')
-              if len(parts) >= 3:
-                type_parts = parts[2].split('|')
-                if len(type_parts) >= 3:
-                  # base_type = f"{}"
-                  base_type = type_parts[0]  # token
-                  entity_name = parts[-1]  # entity_name
-                  display_name = f"tokens:{base_type} name:{entity_name}"  # entry shown in tree
+            # First, create items for all generated types
+            for entity_type in sorted(generated_types):
+                type_item = QtGui.QStandardItem(entity_type)
+                type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
+                type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+                cat_item.appendRow(type_item)
+                type_items[entity_type] = type_item
 
-                  # Create item with display name and store the full entity ID
-                  item = QtGui.QStandardItem(display_name)
-                  # Store the full entity ID in the item's data
-                  item.setData(entity_id, QtCore.Qt.UserRole + 1)
-                  # Also store it in a custom property for easier debugging
-                  item.setData(entity_id, QtCore.Qt.UserRole + 2)
-                  # Store a reference to the entity object
-                  item.setData(entity_obj, QtCore.Qt.UserRole + 3)
-                  token_item.appendRow(item)
+            # Then add all entities under their types
+            for entity_id, entity_obj in self.all_entities.items():
+                if not entity_id.startswith(f"{net}.{category}."):
+                    continue
 
-                  # Debug print to verify the data is stored correctly
-                  print(f"Added item: {display_name}")
-                  print(f"  - Entity ID: {entity_id}")
-                  print(f"  - Entity type: {type(entity_obj).__name__}")
+                try:
+                    parts = entity_id.split('.')
+                    if len(parts) < 3:
+                        continue
 
-    # Emit signal that the tree has been updated
+                    type_parts = parts[2].split('|')
+                    if len(type_parts) < 3:
+                        continue
+
+                    # Reconstruct the entity type (token|dynamics|nature)
+                    entity_type = '|'.join(type_parts[:3])
+                    entity_name = parts[-1]
+                    base_type = type_parts[0]
+
+                    # Create display name
+                    display_name = f"tokens:{base_type} name:{entity_name}"
+
+                    # Create the item
+                    item = QtGui.QStandardItem(display_name)
+                    item.setData(entity_id, QtCore.Qt.UserRole + 1)
+                    item.setData(entity_id, QtCore.Qt.UserRole + 2)
+                    item.setData(entity_obj, QtCore.Qt.UserRole + 3)
+
+                    # Ensure the type item exists
+                    if entity_type not in type_items:
+                        type_item = QtGui.QStandardItem(entity_type)
+                        type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
+                        type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+                        cat_item.appendRow(type_item)
+                        type_items[entity_type] = type_item
+
+                    # Add the entity to its type
+                    type_items[entity_type].appendRow(item)
+
+                except Exception as e:
+                    print(f"Error processing entity {entity_id}: {e}")
+
     self.tree_changed.emit()
 
 
