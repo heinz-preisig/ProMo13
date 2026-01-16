@@ -173,6 +173,21 @@ class MainModel(QtCore.QObject):
       new_ent = self.create_entity_from_eq(eq_id)
       self.all_entities[new_ent.entity_name] = new_ent
 
+  def get_entity_generator_model(self):
+    """Create and return a new EntityGeneratorModel instance.
+    
+    This is used by the controller to create a new entity.
+    """
+    if not hasattr(self, 'ontology') or self.ontology is None:
+      raise ValueError("No ontology loaded. Please load an ontology first.")
+    
+    # Get the list of existing entity IDs to avoid duplicates
+    entity_ids = list(self.all_entities.keys())
+    
+    # Create and return the model
+    from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_generator import EntityGeneratorModel
+    return EntityGeneratorModel(self.ontology, entity_ids)
+
   def _make_all_entity_types(self):
     inter_networks = [nw for nw in self.ontology.tree if self.ontology.tree[nw]["type"] == "inter"]
     for nw in inter_networks:
@@ -281,23 +296,45 @@ class MainModel(QtCore.QObject):
         self._update_entity_models([[], [], [], [], [], []])
         return
 
-      # Get the display text of the selected item
+      # Get the item from the index
       item = self.entity_tree_model.itemFromIndex(index)
       if item is None:
         print("Error: Could not get item from index")
-        self._update_entity_models([[], [], [], [], []])
+        self._update_entity_models([[], [], [], [], [], []])
         return
 
-      display_text = item.text()
-      print(f"Display text: {display_text}")
-
-      # Get entity ID from item data
+      # Get entity ID from item data (UserRole + 1)
       entity_id = item.data(QtCore.Qt.UserRole + 1)
-      print(f"Entity ID from item data: {entity_id}")
+      if not entity_id:
+        print("Error: No entity ID found in item data")
+        self._update_entity_models([[], [], [], [], [], []])
+        return
 
+      print(f"Loading entity with ID: {entity_id}")
+      
+      # Check if this is a leaf node (entity type)
+      is_leaf = item.rowCount() == 0
+      print(f"Is leaf node: {is_leaf}")
+      
       # Store the current entity ID
       self.current_entity_id = entity_id
       print(f"Set current_entity_id to: {entity_id}")
+      
+      # Find the entity in our dictionary
+      if entity_id in self.all_entities:
+        entity_obj = self.all_entities[entity_id]
+        print(f"Found entity: {entity_obj.entity_name}")
+        self._load_entity_data(entity_obj)
+      else:
+        print(f"Entity with ID {entity_id} not found in all_entities")
+        print(f"Available entity IDs (first 5): {list(self.all_entities.keys())[:5]}")
+        self._update_entity_models([[], [], [], [], [], []])
+        
+    except Exception as e:
+      print(f"Error in load_entity: {e}")
+      import traceback
+      traceback.print_exc()
+      self._update_entity_models([[], [], [], [], [], []])
 
       # Verify the entity exists
       if entity_id in self.all_entities:

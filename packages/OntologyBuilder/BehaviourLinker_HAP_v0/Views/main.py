@@ -2,8 +2,8 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
-from OntologyBuilder.BehaviourLinker.Views.Compiled_UIs import main_ui
-from OntologyBuilder.BehaviourLinker.Models.main import MainModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import main_ui
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.main import MainModel
 
 
 class MainView(QtWidgets.QMainWindow):
@@ -17,6 +17,12 @@ class MainView(QtWidgets.QMainWindow):
     self.ui.setupUi(self)
 
     self._model = main_model
+
+    # Debug menu connections
+    print("Menu items in MainView:")
+    print(f"New action: {self.ui.actionNew}")
+    print(f"Edit action: {self.ui.actionEdit}")
+    print(f"Delete action: {self.ui.actionDelete}")
 
     # Set up tree view
     self.ui.tree_entities.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -91,7 +97,7 @@ class MainView(QtWidgets.QMainWindow):
       # Debug print to confirm the method is called
       print(f"menu_items_state called with index: {index.row()}, {index.column()} - Valid: {index.isValid()}")
       
-      # Only enable edit/delete if it's a valid index and it's a leaf node
+      # Only enable new if it's a valid index and it's a leaf node (entity type)
       is_leaf = False
       if index.isValid():
         model = index.model()
@@ -101,13 +107,18 @@ class MainView(QtWidgets.QMainWindow):
             # Check if this is a leaf node (no children)
             is_leaf = item.rowCount() == 0
       
-      self.ui.actionEdit.setEnabled(index.isValid() and is_leaf)
-      self.ui.actionDelete.setEnabled(index.isValid() and is_leaf)
+      # Enable/disable actions based on selection
+      self.ui.actionNew.setEnabled(is_leaf)  # Enable New for leaf nodes (entity types)
+      self.ui.actionEdit.setEnabled(index.isValid())    # Enable Edit for any selection
+      self.ui.actionDelete.setEnabled(index.isValid())  # Enable Delete for any selection
+      
+      print(f"Menu items state - New: {self.ui.actionNew.isEnabled()}, Edit: {self.ui.actionEdit.isEnabled()}, Delete: {self.ui.actionDelete.isEnabled()}")
       
     except Exception as e:
       print(f"Error in menu_items_state: {e}")
       import traceback
       traceback.print_exc()
       # Make sure to disable actions on error
+      self.ui.actionNew.setEnabled(False)
       self.ui.actionEdit.setEnabled(False)
       self.ui.actionDelete.setEnabled(False)

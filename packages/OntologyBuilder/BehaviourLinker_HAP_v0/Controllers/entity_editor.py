@@ -5,16 +5,16 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
 from PyQt5.QtWidgets import QAbstractItemView, QListView
 
-from OntologyBuilder.BehaviourLinker.Models.entity_editor import EntityEditorModel
-from OntologyBuilder.BehaviourLinker.Views.entity_editor import EntityEditorView
-from OntologyBuilder.BehaviourLinker.Delegates import image_list
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_editor import EntityEditorModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_editor import EntityEditorView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Delegates import image_list
 
 
-from OntologyBuilder.BehaviourLinker.Views.variable_editor import VariableEditorView
-from OntologyBuilder.BehaviourLinker.Controllers.variable_editor import VariableEditorController
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.variable_editor import VariableEditorView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.variable_editor import VariableEditorController
 
-from OntologyBuilder.BehaviourLinker.Views.entity_changes import EntityChangesView
-from OntologyBuilder.BehaviourLinker.Views.variable_selection import VariableSelectionView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_changes import EntityChangesView
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.variable_selection import VariableSelectionView
 
 # TODO List
 # 1. Filter the list of available variables to add.
