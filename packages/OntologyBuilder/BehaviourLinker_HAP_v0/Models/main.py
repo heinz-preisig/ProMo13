@@ -1,9 +1,7 @@
 import copy
-import re
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
-# from uaclient.api.u.unattended_upgrades.status.v1 import UnattendedUpgradesStatusResult
 
 from Common.classes import entity
 from Common.classes import equation
@@ -13,9 +11,6 @@ from OntologyBuilder.BehaviourLinker_HAP_v0.Models import entity_editor
 from OntologyBuilder.BehaviourLinker_HAP_v0.Models import image_list
 from OntologyBuilder.BehaviourLinker_HAP_v0.Models import tree
 from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_merger import EntityMergerModel
-
-
-# from common import io  # 2026.01.09 HAP removed for the time being
 
 
 class SimpleVar:
@@ -180,10 +175,10 @@ class MainModel(QtCore.QObject):
     """
     if not hasattr(self, 'ontology') or self.ontology is None:
       raise ValueError("No ontology loaded. Please load an ontology first.")
-    
+
     # Get the list of existing entity IDs to avoid duplicates
     entity_ids = list(self.all_entities.keys())
-    
+
     # Create and return the model
     from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_generator import EntityGeneratorModel
     return EntityGeneratorModel(self.ontology, entity_ids)
@@ -283,7 +278,6 @@ class MainModel(QtCore.QObject):
       traceback.print_exc()
       self._update_entity_models([[], [], [], [], [], []])
 
-
   def load_entity(self, index: QtCore.QModelIndex) -> None:
     """Load an entity based on the selected index in the tree view."""
     print("\n" + "=" * 50)
@@ -311,15 +305,15 @@ class MainModel(QtCore.QObject):
         return
 
       print(f"Loading entity with ID: {entity_id}")
-      
+
       # Check if this is a leaf node (entity type)
       is_leaf = item.rowCount() == 0
       print(f"Is leaf node: {is_leaf}")
-      
+
       # Store the current entity ID
       self.current_entity_id = entity_id
       print(f"Set current_entity_id to: {entity_id}")
-      
+
       # Find the entity in our dictionary
       if entity_id in self.all_entities:
         entity_obj = self.all_entities[entity_id]
@@ -329,7 +323,7 @@ class MainModel(QtCore.QObject):
         print(f"Entity with ID {entity_id} not found in all_entities")
         print(f"Available entity IDs (first 5): {list(self.all_entities.keys())[:5]}")
         self._update_entity_models([[], [], [], [], [], []])
-        
+
     except Exception as e:
       print(f"Error in load_entity: {e}")
       import traceback
@@ -429,7 +423,6 @@ class MainModel(QtCore.QObject):
       print(f"Error getting network types: {e}")
       return ['macroscopic']  # Default fallback on error
 
-
   def generate_token_combinations(self, tokens):
     """Generate all possible non-empty combinations of tokens separated by underscores.
     
@@ -441,7 +434,7 @@ class MainModel(QtCore.QObject):
     """
     if not tokens:
       return []
-    
+
     from itertools import combinations
     all_combinations = []
     # Generate combinations of all lengths from 1 to number of tokens
@@ -450,7 +443,7 @@ class MainModel(QtCore.QObject):
       for combo in combinations(tokens, r):
         # Join tokens with underscore
         all_combinations.append('_'.join(combo))
-    
+
     # Remove duplicates while preserving order
     return list(dict.fromkeys(all_combinations))
 
@@ -483,7 +476,7 @@ class MainModel(QtCore.QObject):
       token_types = structure.get('token', {})
 
       all_tokens = list(token_types.keys())
-      
+
       # Generate all token combinations
       token_combinations = self.generate_token_combinations(all_tokens)
 
@@ -525,6 +518,7 @@ class MainModel(QtCore.QObject):
     except Exception as e:
       print(f"Error generating entity types for {network_type}: {e}")
       return {'node': [], 'arc': []}
+
   def _update_entity_models(self, entity_data):
     """Update the entity list models with new data.
 
@@ -591,80 +585,79 @@ class MainModel(QtCore.QObject):
 
     # Add networks from both entities and generated types
     for entity_id in self.all_entities:
-        parts = entity_id.split('.')
-        if len(parts) >= 2:
-            networks.add(parts[0])
+      parts = entity_id.split('.')
+      if len(parts) >= 2:
+        networks.add(parts[0])
     networks.update(self.all_entity_types.keys())
 
     for net in sorted(networks):
-        net_item = QtGui.QStandardItem(net)
-        self.entity_tree_model.appendRow(net_item)
+      net_item = QtGui.QStandardItem(net)
+      self.entity_tree_model.appendRow(net_item)
 
-        for category in ['node', 'arc']:
-            cat_item = QtGui.QStandardItem(category)
-            net_item.appendRow(cat_item)
+      for category in ['node', 'arc']:
+        cat_item = QtGui.QStandardItem(category)
+        net_item.appendRow(cat_item)
 
-            # Get all generated types for this network and category
-            generated_types = set()
-            if (net in self.all_entity_types and 
+        # Get all generated types for this network and category
+        generated_types = set()
+        if (net in self.all_entity_types and
                 category in self.all_entity_types[net]):
-                generated_types = set(self.all_entity_types[net][category])
+          generated_types = set(self.all_entity_types[net][category])
 
-            # Create a dictionary to store type items
-            type_items = {}
+        # Create a dictionary to store type items
+        type_items = {}
 
-            # First, create items for all generated types
-            for entity_type in sorted(generated_types):
-                type_item = QtGui.QStandardItem(entity_type)
-                type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
-                type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
-                cat_item.appendRow(type_item)
-                type_items[entity_type] = type_item
+        # First, create items for all generated types
+        for entity_type in sorted(generated_types):
+          type_item = QtGui.QStandardItem(entity_type)
+          type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
+          type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+          cat_item.appendRow(type_item)
+          type_items[entity_type] = type_item
 
-            # Then add all entities under their types
-            for entity_id, entity_obj in self.all_entities.items():
-                if not entity_id.startswith(f"{net}.{category}."):
-                    continue
+        # Then add all entities under their types
+        for entity_id, entity_obj in self.all_entities.items():
+          if not entity_id.startswith(f"{net}.{category}."):
+            continue
 
-                try:
-                    parts = entity_id.split('.')
-                    if len(parts) < 3:
-                        continue
+          try:
+            parts = entity_id.split('.')
+            if len(parts) < 3:
+              continue
 
-                    type_parts = parts[2].split('|')
-                    if len(type_parts) < 3:
-                        continue
+            type_parts = parts[2].split('|')
+            if len(type_parts) < 3:
+              continue
 
-                    # Reconstruct the entity type (token|dynamics|nature)
-                    entity_type = '|'.join(type_parts[:3])
-                    entity_name = parts[-1]
-                    base_type = type_parts[0]
+            # Reconstruct the entity type (token|dynamics|nature)
+            entity_type = '|'.join(type_parts[:3])
+            entity_name = parts[-1]
+            base_type = type_parts[0]
 
-                    # Create display name
-                    display_name = f"tokens:{base_type} name:{entity_name}"
+            # Create display name
+            display_name = f"tokens:{base_type} name:{entity_name}"
 
-                    # Create the item
-                    item = QtGui.QStandardItem(display_name)
-                    item.setData(entity_id, QtCore.Qt.UserRole + 1)
-                    item.setData(entity_id, QtCore.Qt.UserRole + 2)
-                    item.setData(entity_obj, QtCore.Qt.UserRole + 3)
+            # Create the item
+            item = QtGui.QStandardItem(display_name)
+            item.setData(entity_id, QtCore.Qt.UserRole + 1)
+            item.setData(entity_id, QtCore.Qt.UserRole + 2)
+            item.setData(entity_obj, QtCore.Qt.UserRole + 3)
 
-                    # Ensure the type item exists
-                    if entity_type not in type_items:
-                        type_item = QtGui.QStandardItem(entity_type)
-                        type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
-                        type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
-                        cat_item.appendRow(type_item)
-                        type_items[entity_type] = type_item
+            # Ensure the type item exists
+            if entity_type not in type_items:
+              type_item = QtGui.QStandardItem(entity_type)
+              type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
+              type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+              cat_item.appendRow(type_item)
+              type_items[entity_type] = type_item
 
-                    # Add the entity to its type
-                    type_items[entity_type].appendRow(item)
+            # Add the entity to its type
+            type_items[entity_type].appendRow(item)
 
-                except Exception as e:
-                    print(f"Error processing entity {entity_id}: {e}")
+          except Exception as e:
+            print(f"Error processing entity {entity_id}: {e}")
 
     self.tree_changed.emit()
-
 
   def get_entity_editor_model(self, index: QtCore.QModelIndex = None) -> entity_editor.EntityEditorModel:
     """Get the entity editor model for the selected item."""
@@ -705,7 +698,6 @@ class MainModel(QtCore.QObject):
       import traceback
       traceback.print_exc()
       raise
-
 
   def update_entity(self, index: QtCore.QModelIndex, updated_entity: entity.Entity) -> None:
     """Update an existing entity in the model."""
@@ -774,7 +766,7 @@ class MainModel(QtCore.QObject):
 
   def is_a_leaf(self, index: QtCore.QModelIndex) -> None:
     return self.entity_tree_model.get_depth(index) == tree.LEAF_DEPTH
-      
+
   def delete_entity(self, index: QtCore.QModelIndex) -> None:
     """Delete an entity from the model.
     
@@ -783,7 +775,7 @@ class MainModel(QtCore.QObject):
     """
     print("\n" + "=" * 50)
     print("=== delete_entity called ===")
-    
+
     try:
       # Get the entity ID from the current selection
       entity_id = getattr(self, 'current_entity_id', None)
