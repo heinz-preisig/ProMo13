@@ -18,12 +18,6 @@ class MainView(QtWidgets.QMainWindow):
 
     self._model = main_model
 
-    # Debug menu connections
-    print("Menu items in MainView:")
-    print(f"New action: {self.ui.actionNew}")
-    print(f"Edit action: {self.ui.actionEdit}")
-    print(f"Delete action: {self.ui.actionDelete}")
-
     # Set up tree view
     self.ui.tree_entities.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
     self.ui.tree_entities.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
@@ -42,7 +36,6 @@ class MainView(QtWidgets.QMainWindow):
         event.type() == QtCore.QEvent.MouseButtonPress):
         index = self.ui.tree_entities.indexAt(event.pos())
         if index.isValid():
-            print(f"\n=== Mouse click detected at {event.pos()} on item: {index.row()}, {index.column()}")
             # Manually set the current index to ensure selection
             self.ui.tree_entities.setCurrentIndex(index)
             # Force an update of the selection model
@@ -60,7 +53,6 @@ class MainView(QtWidgets.QMainWindow):
     self.show_event_triggered.emit()
 
   def on_tree_changed(self):
-    print("\n=== on_tree_changed called ===")
     try:
         # Expand all items first
         self.ui.tree_entities.expandAll()
@@ -68,7 +60,6 @@ class MainView(QtWidgets.QMainWindow):
         # Get the selection model
         selection_model = self.ui.tree_entities.selectionModel()
         if selection_model is None:
-            print("Error: Could not get selection model")
             return
             
         # Clear any existing selection
@@ -85,17 +76,11 @@ class MainView(QtWidgets.QMainWindow):
         # Ensure the view is set up to emit signals
         self.ui.tree_entities.setUpdatesEnabled(True)
         
-        print("Tree view updated and ready for selection")
-        
-    except Exception as e:
-        print(f"Error in on_tree_changed: {e}")
-        import traceback
-        traceback.print_exc()
+    except Exception:
+        pass
 
   def menu_items_state(self, index: QtCore.QModelIndex):
     try:
-      # Debug print to confirm the method is called
-      print(f"menu_items_state called with index: {index.row()}, {index.column()} - Valid: {index.isValid()}")
       
       # Only enable new if it's a valid index and it's a leaf node (entity type)
       is_leaf = False

@@ -61,11 +61,6 @@ class MainController(QObject):
         # Connections from the View
         self._view.show_event_triggered.connect(self.on_show_event_triggered)
 
-        print("Menu action connections:")
-        print(f"New action connected: {self._view.ui.actionNew is not None}")
-        print(f"New action enabled: {self._view.ui.actionNew.isEnabled()}")
-        
-        # Connect selection changed signal with debug logging
         selection_model = self._view.ui.tree_entities.selectionModel()
         
         # Disconnect any existing connections to avoid duplicates
@@ -75,122 +70,50 @@ class MainController(QObject):
             # No connections to disconnect
             pass
 
-        # In the __init__ method of MainController, add:
         self._last_selected_item_data = None
 
-        # Update the debug_selection_changed function to store the selected item's data
         def debug_selection_changed(current, previous):
-            print(f"\n=== Selection Changed ===")
-            print(f"Previous: {previous.row()}, {previous.column()} - Valid: {previous.isValid()}")
-            print(f"Current: {current.row()}, {current.column()} - Valid: {current.isValid()}")
-
             # Reset the stored data
             self._last_selected_item_data = None
 
             if not current.isValid():
-                print("Invalid current index, skipping...")
                 return
 
             try:
                 # Get the item from the index
                 model = current.model()
                 if model is None:
-                    print("No model for current index")
                     return
 
                 item = model.itemFromIndex(current)
                 if item is None:
-                    print("Could not get item from current index")
                     return
 
                 # Check if this is a leaf node (entity type)
                 is_leaf = item.rowCount() == 0
-                print(f"Is leaf node: {is_leaf}")
 
                 # Store the item's data for later use
                 self._last_selected_item_data = {
-                        'text'   : item.text(),
-                        'is_leaf': is_leaf,
-                        'data'   : item.data(QtCore.Qt.UserRole + 1),  # Store the entity data
-                        'index'  : current
-                        }
-                print(f"Stored item data: {self._last_selected_item_data}")
+                    'text': item.text(),
+                    'is_leaf': is_leaf,
+                    'data': item.data(QtCore.Qt.UserRole + 1),  # Store the entity data
+                    'index': current
+                }
 
-                # Always load entity data when an item is selected (single click)
+                # Load entity data when an item is selected (single click)
                 try:
-                    print("Loading entity data for selected item...")
                     self._model.load_entity(current)
-                    print("Entity data loaded successfully")
-                except Exception as e:
-                    print(f"Error loading entity data: {e}")
-                    import traceback
-                    traceback.print_exc()
+                except Exception:
+                    pass
 
                 # Update menu state
                 try:
-                    print("Updating menu state...")
                     self._view.menu_items_state(current)
-                    print("Menu state updated")
-                except Exception as e:
-                    print(f"Error updating menu state: {e}")
-                    import traceback
-                    traceback.print_exc()
+                except Exception:
+                    pass
 
-            except Exception as e:
-                print(f"Unexpected error in selection changed handler: {e}")
-                import traceback
-                traceback.print_exc()
-            
-        # Handle selection changes (single click)
-        # def debug_selection_changed(current, previous):
-        #     print(f"\n=== Selection Changed ===")
-        #     print(f"Previous: {previous.row()}, {previous.column()} - Valid: {previous.isValid()}")
-        #     print(f"Current: {current.row()}, {current.column()} - Valid: {current.isValid()}")
-        #
-        #     if not current.isValid():
-        #         print("Invalid current index, skipping...")
-        #         return
-        #
-        #     try:
-        #         # Get the item from the index
-        #         model = current.model()
-        #         if model is None:
-        #             print("No model for current index")
-        #             return
-        #
-        #         item = model.itemFromIndex(current)
-        #         if item is None:
-        #             print("Could not get item from current index")
-        #             return
-        #
-        #         # Check if this is a leaf node (entity type)
-        #         is_leaf = item.rowCount() == 0
-        #         print(f"Is leaf node: {is_leaf}")
-        #
-        #         # Always load entity data when an item is selected (single click)
-        #         try:
-        #             print("Loading entity data for selected item...")
-        #             self._model.load_entity(current)
-        #             print("Entity data loaded successfully")
-        #         except Exception as e:
-        #             print(f"Error loading entity data: {e}")
-        #             import traceback
-        #             traceback.print_exc()
-        #
-        #         # Update menu state
-        #         try:
-        #             print("Updating menu state...")
-        #             self._view.menu_items_state(current)
-        #             print("Menu state updated")
-        #         except Exception as e:
-        #             print(f"Error updating menu state: {e}")
-        #             import traceback
-        #             traceback.print_exc()
-        #
-        #     except Exception as e:
-        #         print(f"Unexpected error in selection changed handler: {e}")
-        #         import traceback
-        #         traceback.print_exc()
+            except Exception:
+                pass
         
         # Connect our debug handler
         selection_model.currentChanged.connect(debug_selection_changed)

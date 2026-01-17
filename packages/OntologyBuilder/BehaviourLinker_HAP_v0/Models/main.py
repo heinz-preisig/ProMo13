@@ -3,7 +3,7 @@ import re
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
-from uaclient.api.u.unattended_upgrades.status.v1 import UnattendedUpgradesStatusResult
+# from uaclient.api.u.unattended_upgrades.status.v1 import UnattendedUpgradesStatusResult
 
 from Common.classes import entity
 from Common.classes import equation
