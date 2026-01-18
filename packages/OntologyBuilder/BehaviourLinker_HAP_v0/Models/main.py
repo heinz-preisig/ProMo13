@@ -390,18 +390,7 @@ class MainModel(QtCore.QObject):
 
     print("=====================\n")
 
-  def save(self) -> None:
-    """
-    Save the current state of the model.
-    This is a placeholder that should be implemented according to your application's needs.
-    """
-    print("Save method called - implement saving logic here")
-    # TODO: Implement actual saving logic
-    # This could involve:
-    # 1. Saving the current ontology state
-    # 2. Persisting entity data
-    # 3. Updating any necessary files
-    pass
+
 
   def get_network_types_from_ontology(self):
     """
