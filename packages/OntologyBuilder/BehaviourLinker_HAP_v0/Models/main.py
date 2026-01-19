@@ -569,6 +569,16 @@ class MainModel(QtCore.QObject):
 
   def _update_tree_model(self) -> None:
     """Update the tree model with the current state of entities."""
+    # Define colors
+    NETWORK_COLOR = QtGui.QColor(255, 0, 0)  # Red for networks
+    CATEGORY_COLOR = QtGui.QColor(0, 0, 255)  # Blue for node/arc
+    TYPE_COLOR = QtGui.QColor(0, 128, 0)  # Green for entity types
+    ENTITY_COLOR = QtGui.QColor(0, 0, 0)  # Black for instantiated entities
+
+    network_items = {}
+    category_items = {}
+    type_items = {}
+
     self.entity_tree_model.clear()
     networks = set()
 
@@ -581,10 +591,22 @@ class MainModel(QtCore.QObject):
 
     for net in sorted(networks):
       net_item = QtGui.QStandardItem(net)
+      net_item.setData(('network', net), QtCore.Qt.UserRole + 1)
+      net_item.setData(net, QtCore.Qt.UserRole + 2)
+      net_item.setForeground(NETWORK_COLOR)
+
       self.entity_tree_model.appendRow(net_item)
+      network_items[net] = net_item
 
       for category in ['node', 'arc']:
+
+        category_key = f"{net}.{category}"
         cat_item = QtGui.QStandardItem(category)
+        cat_item.setData(('category', net, category), QtCore.Qt.UserRole + 1)
+        cat_item.setData(category_key, QtCore.Qt.UserRole + 2)
+        cat_item.setForeground(CATEGORY_COLOR)
+        # network_items[net].appendRow(cat_item)
+
         net_item.appendRow(cat_item)
 
         # Get all generated types for this network and category
@@ -601,6 +623,7 @@ class MainModel(QtCore.QObject):
           type_item = QtGui.QStandardItem(entity_type)
           type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
           type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+          type_item.setForeground(TYPE_COLOR)
           cat_item.appendRow(type_item)
           type_items[entity_type] = type_item
 
@@ -631,12 +654,14 @@ class MainModel(QtCore.QObject):
             item.setData(entity_id, QtCore.Qt.UserRole + 1)
             item.setData(entity_id, QtCore.Qt.UserRole + 2)
             item.setData(entity_obj, QtCore.Qt.UserRole + 3)
+            item.setForeground(ENTITY_COLOR)
 
             # Ensure the type item exists
             if entity_type not in type_items:
               type_item = QtGui.QStandardItem(entity_type)
               type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
               type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+
               cat_item.appendRow(type_item)
               type_items[entity_type] = type_item
 
