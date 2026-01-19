@@ -161,7 +161,7 @@ class MainController(QObject):
             QtWidgets.QMessageBox.warning(
                     self._view,
                     "No Selection",
-                    "Please select an entity type to create a new instance or an existing entity to edit.\n"
+                    "Please select an entity type to create a new instance or an entity to copy.\n"
                     "Click on an item in the tree view first."
                     )
             return
@@ -174,8 +174,11 @@ class MainController(QObject):
         if entity_obj is not None and hasattr(entity_obj, 'entity_name'):
             # Create a new instance based on the selected entity
             base_entity = entity_obj
-            entity_type_path = ".".join(base_entity.entity_name.split('.')[:-1])  # Get the type path
-            display_name = base_entity.entity_name.split('.')[-1]  # Get the base name
+            # For existing entities, we need to handle the full entity name properly
+            parts = base_entity.entity_name.split('.')
+            base_name = parts[-1]  # Get just the name part (after last dot)
+            display_name = base_name.split('|')[-1] if '|' in base_name else base_name
+            entity_type_path = ".".join(parts[:-1])  # Everything before the last dot
         else:
             base_entity = None
             # Get the entity type path from the stored data
@@ -188,17 +191,20 @@ class MainController(QObject):
                         )
                 return
 
-            # Handle the tuple format: ('entity_type', 'macroscopic', 'node', 'charge_mass|constant|infinity')
+            # Handle the tuple format: ('entity_type', 'macroscopic', 'node', 'charge_energy_mass|constant|infinity')
             if isinstance(entity_data, tuple) and len(entity_data) > 1 and entity_data[0] == 'entity_type':
-                # Skip the 'entity_type' prefix and join the rest with dots
-                entity_type_path = ".".join(entity_data[1:])
+                # For entity types, the last part is the full type spec (e.g., 'charge_energy_mass|constant|infinity')
+                entity_type_path = ".".join(entity_data[1:-1])  # Skip 'entity_type' and the last part
+                type_spec = entity_data[-1]  # This is the full type spec with tokens
+                display_name = type_spec.split('|')[-1]  # Get the last part as display name
+                # Reconstruct the full path with the type spec
+                entity_type_path = f"{entity_type_path}.{type_spec}" if entity_type_path else type_spec
             else:
+                # For other cases, use the string representation
                 entity_type_path = str(entity_data)
-
-            # Get the display name for the prompt
-            display_name = item_data.get('text', 'entity')
-            if isinstance(display_name, str) and '|' in display_name:
-                display_name = display_name.split('|')[-1]  # Get the last part if it's a path
+                display_name = item_data.get('text', 'entity')
+                if '|' in display_name:
+                    display_name = display_name.split('|')[-1]
 
         # Clean up the entity type path
         entity_type_path = entity_type_path.replace('charge_energy_mass', 'mass')
@@ -215,7 +221,7 @@ class MainController(QObject):
 
         if not ok or not name.strip():
             print("User cancelled or entered empty name")
-            return  # User cancelled or entered empty name
+            return
 
         # Create the full entity ID by appending the instance name
         new_entity_id = f"{entity_type_path}.{name.strip()}"
@@ -236,7 +242,7 @@ class MainController(QObject):
 
             # Add the new entity to the model
             self._model.all_entities[new_entity_id] = new_entity
-            self._model.current_entity_id = new_entity_id  # Set the current entity ID
+            self._model.current_entity_id = new_entity_id
             self._model._update_tree_model()
 
             print(f"Created new entity: {new_entity_id}")

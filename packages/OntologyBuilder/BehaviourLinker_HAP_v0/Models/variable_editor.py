@@ -35,68 +35,6 @@ class VariableEditorModel(QtCore.QObject):
     self.equations_model = image_list.ImageListModel()
     self.load_equations_model()
 
-  # def load_equations_model(self):
-  #   var_equations = list(self.editing_variable.get_equations())
-  #   # TODO: Remove this when the entity stores objects instead of strings
-  #   var_equations = [self.all_equations[eq_id] for eq_id in var_equations]
-  #   self.equations_model.load_data(var_equations)
-
-  # def load_equations_model(self) -> None:
-  #   """Load the equations model with equations that use the current variable."""
-  #   try:
-  #     print("\n=== load_equations_model called ===")
-  #     print(f"Loading equations for variable: {self.variable_id}")
-  #
-  #     # Get the variable's equations
-  #     var_equations = self.entity.get_eq_for_var(self.variable_id)
-  #     print(f"Found {len(var_equations)} equations for variable")
-  #
-  #     # Filter out any equations that don't exist in all_equations
-  #     valid_equations = []
-  #     for eq_id in var_equations:
-  #       if eq_id in self.all_equations:
-  #         valid_equations.append(self.all_equations[eq_id])
-  #       else:
-  #         print(f"Warning: Equation '{eq_id}' not found in all_equations")
-  #
-  #     print(f"Loading {len(valid_equations)} valid equations into model")
-  #     self.equations_model.load_data(valid_equations)
-  #
-  #   except Exception as e:
-  #     print(f"Error in load_equations_model: {e}")
-  #     import traceback
-  #     traceback.print_exc()
-  #     # Initialize with empty list if there's an error
-  #     self.equations_model.load_data([])
-
-  # def load_equations_model(self) -> None:
-  #   """Load the equations model with equations that use the current variable."""
-  #   try:
-  #     print("\n=== load_equations_model called ===")
-  #     var_id = self.editing_variable.get_id()
-  #     print(f"Loading equations for variable: {var_id}")
-  #
-  #     # Get the variable's equations
-  #     var_equations = self.editing_entity.get_eq_for_var(var_id)
-  #     print(f"Found {len(var_equations)} equations for variable")
-  #
-  #     # Filter out any equations that don't exist in all_equations
-  #     valid_equations = []
-  #     for eq_id in var_equations:
-  #       if eq_id in self.all_equations:
-  #         valid_equations.append(self.all_equations[eq_id])
-  #       else:
-  #         print(f"Warning: Equation '{eq_id}' not found in all_equations")
-  #
-  #     print(f"Loading {len(valid_equations)} valid equations into model")
-  #     self.equations_model.load_data(valid_equations)
-  #
-  #   except Exception as e:
-  #     print(f"Error in load_equations_model: {e}")
-  #     import traceback
-  #     traceback.print_exc()
-  #     # Initialize with empty list if there's an error
-  #     self.equations_model.load_data([])
 
   def load_equations_model(self) -> None:
     """Load the equations model with equations that can be used with the current variable."""
