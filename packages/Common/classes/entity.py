@@ -60,12 +60,31 @@ class Entity():
     self.is_reservoir = False
 
     if entity_name != "Topology" and ">>>" not in entity_name:
-      network, ent_type, str1, name = entity_name.split(".")
-      token, mechanism, nature = str1.split("|")
-      self.entity_type = ent_type
-
-      self.index_set = ent_type[0].capitalize() + "_" + mechanism[:4]
-      self.is_reservoir = f"{mechanism}|{nature}" == "constant|infinity"
+      import re
+      # Split on dots, underscores, or pipes
+      parts = re.split(r'[._|]+', entity_name)
+      
+      # Ensure we have enough parts
+      if len(parts) >= 6:
+        network, ent_type, token, mechanism, nature, *name_parts = parts
+        name = '.'.join(name_parts) if name_parts else ''
+        
+        self.entity_type = ent_type
+        self.index_set = ent_type[0].capitalize() + "_" + mechanism[:4]
+        self.is_reservoir = f"{mechanism}|{nature}" == "constant|infinity"
+      else:
+        # Fallback to simple splitting for backward compatibility
+        parts = entity_name.split('.')
+        if len(parts) >= 4:
+          network, ent_type, str1 = parts[0], parts[1], parts[2]
+          if '|' in str1:
+            token_parts = str1.split('|')
+            if len(token_parts) >= 3:
+              token, mechanism, nature = token_parts[0], token_parts[1], token_parts[2]
+              name = '.'.join(parts[3:]) if len(parts) > 3 else ''
+              self.entity_type = ent_type
+              self.index_set = ent_type[0].capitalize() + "_" + mechanism[:4]
+              self.is_reservoir = f"{mechanism}|{nature}" == "constant|infinity"
     else:
       self.entity_type = "interface"
 

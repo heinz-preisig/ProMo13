@@ -185,6 +185,7 @@ class MainModel(QtCore.QObject):
 
   def _make_all_entity_types(self):
     inter_networks = [nw for nw in self.ontology.tree if self.ontology.tree[nw]["type"] == "inter"]
+    self.inter_networks = inter_networks
     for nw in inter_networks:
       self.all_entity_types[nw] = self.generate_entity_types_for_network(nw)
 
@@ -583,18 +584,17 @@ class MainModel(QtCore.QObject):
     networks = set()
 
     # Add networks from both entities and generated types
-    for entity_id in self.all_entities:
-      parts = entity_id.split('.')
-      if len(parts) >= 2:
-        networks.add(parts[0])
-    networks.update(self.all_entity_types.keys())
+    # for entity_id in self.all_entities:
+    #   parts = entity_id.split('.')
+    #   if len(parts) >= 2:
+    #     networks.add(parts[0])
+    # networks.update(self.all_entity_types.keys())
 
-    for net in sorted(networks):
+    for net in sorted(self.inter_networks):
       net_item = QtGui.QStandardItem(net)
       net_item.setData(('network', net), QtCore.Qt.UserRole + 1)
       net_item.setData(net, QtCore.Qt.UserRole + 2)
       net_item.setForeground(NETWORK_COLOR)
-
       self.entity_tree_model.appendRow(net_item)
       network_items[net] = net_item
 
@@ -651,9 +651,9 @@ class MainModel(QtCore.QObject):
 
             # Create the item
             item = QtGui.QStandardItem(display_name)
-            item.setData(entity_id, QtCore.Qt.UserRole + 1)
-            item.setData(entity_id, QtCore.Qt.UserRole + 2)
-            item.setData(entity_obj, QtCore.Qt.UserRole + 3)
+            item.setData(entity_id, QtCore.Qt.UserRole + 1)  # entity_id for quick access
+            item.setData(display_name, QtCore.Qt.UserRole + 2)  # display text
+            item.setData(entity_obj, QtCore.Qt.UserRole + 3)  # entity object
             item.setForeground(ENTITY_COLOR)
 
             # Ensure the type item exists
@@ -770,13 +770,51 @@ class MainModel(QtCore.QObject):
 
     return None
 
-  def update_entity(
-          self, index: QtCore.QModelIndex, updated_entity: entity.Entity
-          ) -> None:
-    entity_id = self.entity_tree_model.path_from_index(index)
-    if updated_entity != self.all_entities[entity_id]:
-      self.all_entities[entity_id] = updated_entity
-      self.load_entity(index)
+  def update_entity(self, entity_id: str, updated_entity: 'Entity') -> None:
+      """Update an existing entity in the model.
+      
+      Args:
+          entity_id: The ID of the entity to update
+          updated_entity: The updated entity object
+      """
+      print("\n" + "=" * 50)
+      print("=== update_entity called ===")
+      print(f"Updating entity with ID: {entity_id}")
+      
+      if not entity_id:
+          raise ValueError("Cannot update entity: entity_id is None or empty")
+          
+      if not updated_entity:
+          raise ValueError("Cannot update entity: updated_entity is None")
+          
+      if entity_id not in self.all_entities:
+          raise KeyError(f"Cannot update entity: entity with ID {entity_id} not found")
+      
+      try:
+          # Update the entity in the model
+          self.all_entities[entity_id] = updated_entity
+          
+          # If the entity name has changed, we need to update the ID
+          if hasattr(updated_entity, 'entity_name') and updated_entity.entity_name != entity_id:
+              new_id = updated_entity.entity_name
+              print(f"Entity name changed from {entity_id} to {new_id}")
+              
+              # Remove the old entry and add the new one
+              self.all_entities[new_id] = self.all_entities.pop(entity_id)
+              entity_id = new_id
+          
+          # Update the tree model to reflect the changes
+          self._update_tree_model()
+          
+          # Update the current entity ID if it matches the old ID
+          if hasattr(self, 'current_entity_id') and self.current_entity_id == entity_id:
+              self.current_entity_id = entity_id
+              
+          print(f"Successfully updated entity: {entity_id}")
+          
+      except Exception as e:
+          print(f"Error updating entity {entity_id}: {str(e)}")
+          raise
 
   def is_a_leaf(self, index: QtCore.QModelIndex) -> None:
     return self.entity_tree_model.get_depth(index) == tree.LEAF_DEPTH
