@@ -7,7 +7,7 @@ from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
 from PyQt5.QtWidgets import QAbstractItemView, QListView
 
 from packages.Common.classes import ontology
-from packages.OntologyBuilder.BehaviourLinker.Views.Compiled_UIs import entity_merger_ui
+from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import entity_merger_ui
 
 
 class EntityMergerView(QtWidgets.QDialog):

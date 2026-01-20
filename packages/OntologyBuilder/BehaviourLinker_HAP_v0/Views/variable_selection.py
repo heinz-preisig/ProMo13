@@ -9,9 +9,9 @@ from PyQt5.QtWidgets import QAbstractItemView, QListView
 
 from packages.Common.classes import ontology
 from packages.Common import resource_initialisation
-from packages.OntologyBuilder.BehaviourLinker.Views.Compiled_UIs import variable_selection_ui
-from packages.OntologyBuilder.BehaviourLinker.Models.image_list import ImageListModel
-from packages.OntologyBuilder.BehaviourLinker.Delegates.image_list import ImageItemDelegate
+from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import variable_selection_ui
+from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Models.image_list import ImageListModel
+from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Delegates.image_list import ImageItemDelegate
 
 
 class VariableSelectionView(QtWidgets.QDialog):
