@@ -173,16 +173,16 @@ class MainModel(QtCore.QObject):
 
     This is used by the controller to create a new entity.
     """
-    if not hasattr(self, 'ontology') or self.ontology is None:
+    if self.ontology is None:
       raise ValueError("No ontology loaded. Please load an ontology first.")
 
     # Get the list of existing entity IDs to avoid duplicates
     entity_ids = list(self.all_entities.keys())
 
     # Create and return the model
-    from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_generator import EntityGeneratorModel
+    from .entity_generator import EntityGeneratorModel
     model = EntityGeneratorModel(self.ontology, entity_ids)
-    model.main_model = self  # Add reference to the main model
+    model.main_model = self
     return model
   
   def _make_all_entity_types(self):
@@ -283,9 +283,9 @@ class MainModel(QtCore.QObject):
 
   def load_entity(self, index: QtCore.QModelIndex) -> None:
     """Load an entity based on the selected index in the tree view."""
-    print("\n" + "=" * 50)
-    print("=== load_entity called ===")
-    print(f"Index valid: {index.isValid()}")
+    # print("\n" + "=" * 50)
+    # print("=== load_entity called ===")
+    # print(f"Index valid: {index.isValid()}")
 
     try:
       if not index.isValid():
@@ -307,46 +307,46 @@ class MainModel(QtCore.QObject):
         self._update_entity_models([[], [], [], [], [], []])
         return
 
-      print(f"Loading entity with ID: {entity_id}")
+      # print(f"Loading entity with ID: {entity_id}")
 
       # Check if this is a leaf node (entity type)
       is_leaf = item.rowCount() == 0
-      print(f"Is leaf node: {is_leaf}")
+      # print(f"Is leaf node: {is_leaf}")
 
       # Store the current entity ID
       self.current_entity_id = entity_id
-      print(f"Set current_entity_id to: {entity_id}")
+      # print(f"Set current_entity_id to: {entity_id}")
 
       # Find the entity in our dictionary
       if entity_id in self.all_entities:
         entity_obj = self.all_entities[entity_id]
-        print(f"Found entity: {entity_obj.entity_name}")
+        # print(f"Found entity: {entity_obj.entity_name}")
         self._load_entity_data(entity_obj)
       else:  # TODO: this must generate a new entity
-        print(f"Entity with ID {entity_id} not found in all_entities")
-        print(f"Available entity IDs (first 5): {list(self.all_entities.keys())[:5]}")
+        # print(f"Entity with ID {entity_id} not found in all_entities")
+        # print(f"Available entity IDs (first 5): {list(self.all_entities.keys())[:5]}")
         self._update_entity_models([[], [], [], [], [], []])
 
     except Exception as e:
       print(f"Error in load_entity: {e}")
-      import traceback
-      traceback.print_exc()
+      # import traceback
+      # traceback.print_exc()
       self._update_entity_models([[], [], [], [], [], []])
 
       # Verify the entity exists
       if entity_id in self.all_entities:
-        print(f"Entity found in all_entities")
+        # print(f"Entity found in all_entities")
         entity_obj = self.all_entities[entity_id]
         self._load_entity_data(entity_obj)
       else:
-        print(f"Entity ID {entity_id} not found in all_entities")
-        print(f"Available entity IDs (first 5): {list(self.all_entities.keys())[:5]}")
+        # print(f"Entity ID {entity_id} not found in all_entities")
+        # print(f"Available entity IDs (first 5): {list(self.all_entities.keys())[:5]}")
         self._update_entity_models([[], [], [], [], [], []])
 
     except Exception as e:
       print(f"Error in load_entity: {e}")
-      import traceback
-      traceback.print_exc()
+      # import traceback
+      # traceback.print_exc()
       self._update_entity_models([[], [], [], [], [], []])
 
   def safe_get(self, obj, method_name, default=None):
@@ -391,7 +391,7 @@ class MainModel(QtCore.QObject):
         return f"{self._id}: {self._variable.value if hasattr(self._variable, 'value') else 'No value'}"
       return self._id
 
-    print("=====================\n")
+    # print("=====================\n")
 
   def get_network_types_from_ontology(self):
     """
@@ -570,8 +570,8 @@ class MainModel(QtCore.QObject):
 
   def _update_tree_model(self) -> None:
     """Update the tree model with the current state of entities."""
-    print("\n=== _update_tree_model called ===")
-    print(f"Current entities: {list(self.all_entities.keys())}")
+    # print("\n=== _update_tree_model called ===")
+    # print(f"Current entities: {list(self.all_entities.keys())}")
     
     # Define colors
     NETWORK_COLOR = QtGui.QColor(255, 0, 0)  # Red for networks
@@ -636,24 +636,27 @@ class MainModel(QtCore.QObject):
             continue
 
           try:
-            parts = entity_id.split('.')
-            if len(parts) < 3:
-              continue
+            # parts = entity_id.split('.')
+            [network, category, entity_type, entity_name] = entity_id.split('.')
+            # if len(parts) < 3:
+            #   continue
 
-            type_parts = parts[2].split('|')
-            if len(type_parts) < 3:
-              continue
+            # type_parts = parts[2].split('|')
+            # if len(type_parts) < 3:
+            #   continue
 
             # Reconstruct the entity type (token|dynamics|nature)
-            entity_type = '|'.join(type_parts[:3])
-            entity_name = parts[-1]
-            base_type = type_parts[0]
+            # entity_type = '|'.join(type_parts[:3])
+            # entity_name = parts[-1]
+            # base_type = type_parts[0]
 
-            # Extract just the name part from the entity ID (after the last | or .)
-            if '|' in entity_name:
-                display_name = entity_name.split('|')[-1]
-            else:
-                display_name = entity_name
+            # # Extract just the name part from the entity ID (after the last | or .)
+            # if '|' in entity_name:
+            #     display_name = entity_name.split('|')[-1]
+            # else:
+            #     display_name = entity_name
+            # Note: here one can adsjust the entity show name
+            display_name = entity_name
 
             # Create the item
             item = QtGui.QStandardItem(display_name)
@@ -744,12 +747,10 @@ class MainModel(QtCore.QObject):
       # Update the tree view
       print("Updating tree model...")
       self._update_tree_model()
-      print("Tree model updated")
+      pass  # Tree model updated successfully
 
     except Exception as e:
-      print(f"Error in update_entity: {e}")
-      import traceback
-      traceback.print_exc()
+      # Re-raise the exception with original traceback
       raise
 
   def create_entity(
@@ -764,13 +765,11 @@ class MainModel(QtCore.QObject):
     Returns:
         tuple: (new_entity, merger_model) where merger_model is None if no merging is needed
     """
-    print(f"\n=== Creating new entity: {new_entity_id} ===")
-    print(f"Current entities in model: {list(self.all_entities.keys())}")
+    # Initialize entity creation
 
     number_of_bases = len(bases)
 
     if number_of_bases == 1:
-      print(f"Creating from base entity: {bases[0]}")
       base_entity = self.all_entities[bases[0]]
       new_entity = copy.deepcopy(base_entity)
 
@@ -788,63 +787,46 @@ class MainModel(QtCore.QObject):
             # Replace the name part with the new name
             new_entity_name = f"{network},{component},{'.'.join(type_parts[:-1])}.{new_entity_id}"
             new_entity.entity_name = new_entity_name
-            print(f"Updated entity name to new format: {new_entity_name}")
           else:
-            # Fallback to simple name if parsing fails
-            new_entity.entity_name = new_entity_id
+            new_entity.entity_name = new_entity_id  # Fallback to simple name
         else:
-          # Fallback to simple name if parsing fails
-          new_entity.entity_name = new_entity_id
-      except Exception as e:
-        print(f"Error parsing entity name: {e}")
-        # Fallback to simple name if parsing fails
-        new_entity.entity_name = new_entity_id
+          new_entity.entity_name = new_entity_id  # Fallback to simple name
+      except Exception:
+        new_entity.entity_name = new_entity_id  # Fallback to simple name on error
     else:
-      print("Creating new base entity")
+      # Creating new base entity
       new_entity = entity.Entity(new_entity_id, self.all_equations)
 
     # Handle merging if needed
     merger_model = None
     if number_of_bases > 1:
-      print(f"Merging {number_of_bases} base entities")
       base_entities = [self.all_entities[b] for b in bases]
       merge_completed = new_entity.start_merging_process(base_entities)
       if not merge_completed:
-        print("Merge not completed, creating merger model")
         merger_model = EntityMergerModel(
                 new_entity, self.all_variables, self.all_equations
                 )
 
-    print(f"Entity {new_entity.entity_name} created, not yet added to model")
-    print(f"Current entities in model after creation: {list(self.all_entities.keys())}")
     return new_entity, merger_model
   def add_entity_to_model(self, entity_obj: entity.Entity) -> None:
     """Add an existing entity to the model and update the tree."""
     if not entity_obj or not hasattr(entity_obj, 'entity_name'):
         raise ValueError("Invalid entity object")
         
-    print(f"\n=== Adding entity to model: {entity_obj.entity_name} ===")
-    print(f"Entities before addition: {list(self.all_entities.keys())}")
-    
     # Add the entity to the dictionary
     self.all_entities[entity_obj.entity_name] = entity_obj
-    print(f"Entity added to all_entities")
     
     try:
         # Update the tree model
-        print("Updating tree model...")
         self._update_tree_model()
         
         # Emit the tree_changed signal to notify views
-        print("Emitting tree_changed signal...")
         self.tree_changed.emit()
         
         # Set the current entity ID to the new entity
         self.current_entity_id = entity_obj.entity_name
-        
-        print(f"Successfully added entity {entity_obj.entity_name} and updated tree")
     except Exception as e:
-        print(f"Error updating tree model: {e}")
+        raise RuntimeError(f"Error updating tree model: {e}")
         import traceback
         traceback.print_exc()
         raise

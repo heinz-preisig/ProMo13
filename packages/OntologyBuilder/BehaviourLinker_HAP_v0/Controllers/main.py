@@ -138,8 +138,8 @@ class MainController(QObject):
     If an entity type is selected, creates a new instance of that type.
     If an existing entity is selected, creates a copy for a new instance.
     """
-    print("\n===", "on_action_new_triggered called", "===")
-    print(f"Stored item data: {hasattr(self, '_last_selected_item_data')}")
+    # print("\n===", "on_action_new_triggered called", "===")
+    # print(f"Stored item data: {hasattr(self, '_last_selected_item_data')}")
 
     if not hasattr(self, '_last_selected_item_data') or not self._last_selected_item_data:
       print("No item data available")

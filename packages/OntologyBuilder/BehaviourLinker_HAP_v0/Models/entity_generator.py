@@ -93,7 +93,6 @@ class EntityGeneratorModel(QtCore.QObject):
     # For pages 1-4 the update information comes from the ontology.
     # For page 5 the possible bases are filtered from the entity_ids.
     if page != 5:
-      print(self.summary.stringList())
       new_list = self.ontology.get_ontology_tree_info(
           page,
           self.summary.stringList(),
@@ -173,7 +172,6 @@ class EntityGeneratorModel(QtCore.QObject):
         for token in token_combinations
     ]
 
-    # print(token_combinations)
     # For each of the token combinations the names of the valid entities
     # are stored to be returned.
     possible_bases = []
@@ -186,13 +184,11 @@ class EntityGeneratorModel(QtCore.QObject):
           nature,
           None,
       )
-      # print(partial_id)
       possible_bases.extend([
           full_id
           for full_id in self.entity_ids
           if partial_id in full_id
       ])
-      # print(possible_bases)
 
     return sorted(possible_bases)
 
