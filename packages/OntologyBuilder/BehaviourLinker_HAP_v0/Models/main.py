@@ -756,43 +756,68 @@ class MainModel(QtCore.QObject):
           self, new_entity_id: str, bases: list[str]
           ) -> tuple[entity.Entity, EntityMergerModel | None]:
     """Create a new entity without adding it to the model.
-    
+
     Args:
         new_entity_id: ID for the new entity
         bases: List of base entity IDs to inherit from
-        
+
     Returns:
         tuple: (new_entity, merger_model) where merger_model is None if no merging is needed
     """
     print(f"\n=== Creating new entity: {new_entity_id} ===")
     print(f"Current entities in model: {list(self.all_entities.keys())}")
-    
+
     number_of_bases = len(bases)
 
     if number_of_bases == 1:
-        print(f"Creating from base entity: {bases[0]}")
-        new_entity = copy.deepcopy(self.all_entities[bases[0]])
-        new_entity.entity_name = new_entity_id  # Update the ID
+      print(f"Creating from base entity: {bases[0]}")
+      base_entity = self.all_entities[bases[0]]
+      new_entity = copy.deepcopy(base_entity)
+
+      # Parse the base entity name to get its components
+      try:
+        # Split the base entity name into its components
+        parts = base_entity.entity_name.split(",")
+        if len(parts) >= 2:
+          network = parts[0]
+          component = parts[1]
+
+          # The rest is tokens.dynamics.nature.name
+          type_parts = ".".join(parts[2:]).split(".")
+          if len(type_parts) >= 2:
+            # Replace the name part with the new name
+            new_entity_name = f"{network},{component},{'.'.join(type_parts[:-1])}.{new_entity_id}"
+            new_entity.entity_name = new_entity_name
+            print(f"Updated entity name to new format: {new_entity_name}")
+          else:
+            # Fallback to simple name if parsing fails
+            new_entity.entity_name = new_entity_id
+        else:
+          # Fallback to simple name if parsing fails
+          new_entity.entity_name = new_entity_id
+      except Exception as e:
+        print(f"Error parsing entity name: {e}")
+        # Fallback to simple name if parsing fails
+        new_entity.entity_name = new_entity_id
     else:
-        print("Creating new base entity")
-        new_entity = entity.Entity(new_entity_id, self.all_equations)
+      print("Creating new base entity")
+      new_entity = entity.Entity(new_entity_id, self.all_equations)
 
     # Handle merging if needed
     merger_model = None
     if number_of_bases > 1:
-        print(f"Merging {number_of_bases} base entities")
-        base_entities = [self.all_entities[b] for b in bases]
-        merge_completed = new_entity.start_merging_process(base_entities)
-        if not merge_completed:
-            print("Merge not completed, creating merger model")
-            merger_model = EntityMergerModel(
+      print(f"Merging {number_of_bases} base entities")
+      base_entities = [self.all_entities[b] for b in bases]
+      merge_completed = new_entity.start_merging_process(base_entities)
+      if not merge_completed:
+        print("Merge not completed, creating merger model")
+        merger_model = EntityMergerModel(
                 new_entity, self.all_variables, self.all_equations
-            )
-    
-    print(f"Entity {new_entity_id} created, not yet added to model")
+                )
+
+    print(f"Entity {new_entity.entity_name} created, not yet added to model")
     print(f"Current entities in model after creation: {list(self.all_entities.keys())}")
     return new_entity, merger_model
-    
   def add_entity_to_model(self, entity_obj: entity.Entity) -> None:
     """Add an existing entity to the model and update the tree."""
     if not entity_obj or not hasattr(entity_obj, 'entity_name'):

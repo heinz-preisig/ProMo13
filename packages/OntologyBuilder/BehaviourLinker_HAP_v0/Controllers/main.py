@@ -226,7 +226,7 @@ class MainController(QObject):
             type_part = parts[2]
             
             # The new entity ID should be: network.category.type_part|name
-            new_entity_id = f"{network}.{category}.{type_part}|{name.strip()}"
+            new_entity_id = f"{network}.{category}.{type_part}.{name.strip()}"
             print(f"Creating new variant with ID: {new_entity_id}")
         else:
             # Fallback to simple appending if the base entity name doesn't have the expected format

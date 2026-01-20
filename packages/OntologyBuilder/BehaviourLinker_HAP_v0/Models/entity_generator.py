@@ -104,6 +104,39 @@ class EntityGeneratorModel(QtCore.QObject):
       self.tree_bases_model.load_data(bases)
       self.tree_changed.emit()
 
+  def _generate_entity_id(
+          self,
+          ent_type: str,
+          network: str,
+          tokens: str,
+          mechanism: str,
+          nature: str,
+          name: Optional[str]
+          ) -> str:
+    """Generates the entity ID based on provided arguments.
+
+    Args:
+        ent_type (str): Entity type.
+        network (str): Entity network.
+        tokens (str): Entity tokens.
+        mechanism (str): Entity mechanism/timescale.
+        nature (str): Entity nature.
+        name (Optional[str]): Entity name.
+
+    Returns:
+        str: A partial ID if name is None. Otherwise a full ID of an
+          entity.
+    """
+    # Join tokens, mechanism, and nature with dots
+    type_parts = [tokens, mechanism, nature]
+    type_str = ".".join(part for part in type_parts if part)  # Skip empty parts
+    full_id = ",".join([network, ent_type, type_str])
+
+    if name is not None:
+      return f"{full_id}.{name}"
+
+    return full_id
+
   def _get_possible_bases(self):
     """Returns valid entity bases from existing entities.
 
@@ -163,36 +196,38 @@ class EntityGeneratorModel(QtCore.QObject):
 
     return sorted(possible_bases)
 
-  def _generate_entity_id(
-      self,
-      ent_type: str,
-      network: str,
-      tokens: str,
-      mechanism: str,
-      nature: str,
-      name: Optional[str]
-  ) -> str:
-    """Generates the entity ID based on provided arguments.
+    def _generate_entity_id(
+            self,
+            ent_type: str,
+            network: str,
+            tokens: str,
+            mechanism: str,
+            nature: str,
+            name: Optional[str]
+            ) -> str:
+      """Generates the entity ID based on provided arguments.
 
-    Args:
-        ent_type (str): Entity type.
-        network (str): Entity network.
-        tokens (str): Entity tokens.
-        mechanism (str): Entity mechanism/timescale.
-        nature (str): Entity nature.
-        name (Optional[str]): Entity name.
+      Args:
+          ent_type (str): Entity type.
+          network (str): Entity network.
+          tokens (str): Entity tokens.
+          mechanism (str): Entity mechanism/timescale.
+          nature (str): Entity nature.
+          name (Optional[str]): Entity name.
 
-    Returns:
-        str: A partial ID if name is None. Otherwise a full ID of an
-          entity.
-    """
-    str1 = "|".join([tokens, mechanism, nature])
-    str2 = ".".join([network, ent_type, str1])
+      Returns:
+          str: A partial ID if name is None. Otherwise a full ID of an
+            entity.
+      """
+      # Join tokens, mechanism, and nature with dots
+      type_parts = [tokens, mechanism, nature]
+      type_str = ".".join(part for part in type_parts if part)  # Skip empty parts
+      full_id = ",".join([network, ent_type, type_str])
 
-    if name is not None:
-      return ".".join([str2, name])
+      if name is not None:
+        return f"{full_id}.{name}"
 
-    return str2
+      return full_id
 
   def get_used_names(self):
     entity_info = self.summary.stringList()[:5]
