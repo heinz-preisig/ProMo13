@@ -170,7 +170,7 @@ class MainModel(QtCore.QObject):
 
   def get_entity_generator_model(self):
     """Create and return a new EntityGeneratorModel instance.
-    
+
     This is used by the controller to create a new entity.
     """
     if not hasattr(self, 'ontology') or self.ontology is None:
@@ -181,8 +181,10 @@ class MainModel(QtCore.QObject):
 
     # Create and return the model
     from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_generator import EntityGeneratorModel
-    return EntityGeneratorModel(self.ontology, entity_ids)
-
+    model = EntityGeneratorModel(self.ontology, entity_ids)
+    model.main_model = self  # Add reference to the main model
+    return model
+  
   def _make_all_entity_types(self):
     inter_networks = [nw for nw in self.ontology.tree if self.ontology.tree[nw]["type"] == "inter"]
     self.inter_networks = inter_networks
@@ -320,7 +322,7 @@ class MainModel(QtCore.QObject):
         entity_obj = self.all_entities[entity_id]
         print(f"Found entity: {entity_obj.entity_name}")
         self._load_entity_data(entity_obj)
-      else:
+      else:  # TODO: this must generate a new entity
         print(f"Entity with ID {entity_id} not found in all_entities")
         print(f"Available entity IDs (first 5): {list(self.all_entities.keys())[:5]}")
         self._update_entity_models([[], [], [], [], [], []])
@@ -568,6 +570,9 @@ class MainModel(QtCore.QObject):
 
   def _update_tree_model(self) -> None:
     """Update the tree model with the current state of entities."""
+    print("\n=== _update_tree_model called ===")
+    print(f"Current entities: {list(self.all_entities.keys())}")
+    
     # Define colors
     NETWORK_COLOR = QtGui.QColor(255, 0, 0)  # Red for networks
     CATEGORY_COLOR = QtGui.QColor(0, 0, 255)  # Blue for node/arc
@@ -644,8 +649,11 @@ class MainModel(QtCore.QObject):
             entity_name = parts[-1]
             base_type = type_parts[0]
 
-            # Create display name
-            display_name = f"tokens:{base_type} name:{entity_name}"
+            # Extract just the name part from the entity ID (after the last | or .)
+            if '|' in entity_name:
+                display_name = entity_name.split('|')[-1]
+            else:
+                display_name = entity_name
 
             # Create the item
             item = QtGui.QStandardItem(display_name)
@@ -744,29 +752,77 @@ class MainModel(QtCore.QObject):
       traceback.print_exc()
       raise
 
-  def add_entity(
+  def create_entity(
           self, new_entity_id: str, bases: list[str]
-          ) -> None | EntityMergerModel:
-    new_entity = None
+          ) -> tuple[entity.Entity, EntityMergerModel | None]:
+    """Create a new entity without adding it to the model.
+    
+    Args:
+        new_entity_id: ID for the new entity
+        bases: List of base entity IDs to inherit from
+        
+    Returns:
+        tuple: (new_entity, merger_model) where merger_model is None if no merging is needed
+    """
+    print(f"\n=== Creating new entity: {new_entity_id} ===")
+    print(f"Current entities in model: {list(self.all_entities.keys())}")
+    
     number_of_bases = len(bases)
 
     if number_of_bases == 1:
-      new_entity = copy.deepcopy(self.all_entities[bases[0]])  # if an alternative is generated
+        print(f"Creating from base entity: {bases[0]}")
+        new_entity = copy.deepcopy(self.all_entities[bases[0]])
+        new_entity.entity_name = new_entity_id  # Update the ID
     else:
-      new_entity = entity.Entity(new_entity_id, self.all_equations)
+        print("Creating new base entity")
+        new_entity = entity.Entity(new_entity_id, self.all_equations)
 
-    self.all_entities[new_entity_id] = new_entity
-    self._update_tree_model()
-
+    # Handle merging if needed
+    merger_model = None
     if number_of_bases > 1:
-      base_entities = [self.all_entities[b] for b in bases]
-      merge_completed = new_entity.start_merging_process(base_entities)
-      if not merge_completed:
-        return EntityMergerModel(
+        print(f"Merging {number_of_bases} base entities")
+        base_entities = [self.all_entities[b] for b in bases]
+        merge_completed = new_entity.start_merging_process(base_entities)
+        if not merge_completed:
+            print("Merge not completed, creating merger model")
+            merger_model = EntityMergerModel(
                 new_entity, self.all_variables, self.all_equations
-                )
-
-    return None
+            )
+    
+    print(f"Entity {new_entity_id} created, not yet added to model")
+    print(f"Current entities in model after creation: {list(self.all_entities.keys())}")
+    return new_entity, merger_model
+    
+  def add_entity_to_model(self, entity_obj: entity.Entity) -> None:
+    """Add an existing entity to the model and update the tree."""
+    if not entity_obj or not hasattr(entity_obj, 'entity_name'):
+        raise ValueError("Invalid entity object")
+        
+    print(f"\n=== Adding entity to model: {entity_obj.entity_name} ===")
+    print(f"Entities before addition: {list(self.all_entities.keys())}")
+    
+    # Add the entity to the dictionary
+    self.all_entities[entity_obj.entity_name] = entity_obj
+    print(f"Entity added to all_entities")
+    
+    try:
+        # Update the tree model
+        print("Updating tree model...")
+        self._update_tree_model()
+        
+        # Emit the tree_changed signal to notify views
+        print("Emitting tree_changed signal...")
+        self.tree_changed.emit()
+        
+        # Set the current entity ID to the new entity
+        self.current_entity_id = entity_obj.entity_name
+        
+        print(f"Successfully added entity {entity_obj.entity_name} and updated tree")
+    except Exception as e:
+        print(f"Error updating tree model: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
   def update_entity(self, entity_id: str, updated_entity: 'Entity') -> None:
     """Update an existing entity in the model.

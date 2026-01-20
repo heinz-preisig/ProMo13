@@ -191,10 +191,15 @@ class MainController(QObject):
         if '|' in display_name:
           display_name = display_name.split('|')[-1]
 
-    # Clean up the entity type path
-    entity_type_path = entity_type_path.replace('charge_energy_mass', 'mass')
+    # Clean up the entity type path by removing any empty parts
     entity_type_path = ".".join(part.strip() for part in entity_type_path.split(".") if part.strip())
-    print(f"Processed entity type path: {entity_type_path}")
+    
+    # If we have a base entity, use its type as the entity type path
+    if base_entity and hasattr(base_entity, 'entity_type'):
+        entity_type_path = base_entity.entity_type
+        print(f"Using base entity type: {entity_type_path}")
+    else:
+        print(f"Using entity type path: {entity_type_path}")
 
     # Prompt user for instance name
     name, ok = QtWidgets.QInputDialog.getText(
@@ -208,43 +213,127 @@ class MainController(QObject):
       print("User cancelled or entered empty name")
       return
 
-    # Create the full entity ID by appending the instance name
-    new_entity_id = f"{entity_type_path}.{name.strip()}"
-    print(f"Creating new entity with ID: {new_entity_id}")
-
-    try:
-      if base_entity:
-        # Create a copy of the existing entity
-        import copy
-        new_entity = copy.deepcopy(base_entity)
-        new_entity.entity_name = new_entity_id
-      else:
-        # Create a new entity instance
+    # Determine the new entity ID based on whether we have a base entity or type path
+    if base_entity:
+        # If we have a base entity, construct the ID from its components
+        parts = base_entity.entity_name.split('.')
+        if len(parts) >= 3:
+            # Extract network and category from the base entity
+            network = parts[0]
+            category = parts[1]
+            
+            # Get the full type part (everything after network.category)
+            type_part = parts[2]
+            
+            # The new entity ID should be: network.category.type_part|name
+            new_entity_id = f"{network}.{category}.{type_part}|{name.strip()}"
+            print(f"Creating new variant with ID: {new_entity_id}")
+        else:
+            # Fallback to simple appending if the base entity name doesn't have the expected format
+            new_entity_id = f"{base_entity.entity_name}|{name.strip()}"
+            print(f"Creating new variant (fallback) with ID: {new_entity_id}")
+            
+        # Create a new entity with the same type and properties as the base entity
         new_entity = Entity(
+            entity_name=new_entity_id,
+            all_equations=base_entity.all_equations,
+            index_set=base_entity.index_set,
+            integrators=dict(base_entity.integrators),
+            var_eq_forest=[dict(tree) for tree in base_entity.var_eq_forest],
+            init_vars=list(base_entity.init_vars),
+            input_vars=list(base_entity.input_vars),
+            output_vars=list(base_entity.output_vars)
+        )
+        
+        # Manually copy over additional attributes that might be needed
+        if hasattr(base_entity, 'entity_type'):
+            new_entity.entity_type = base_entity.entity_type
+        if hasattr(base_entity, 'is_reservoir'):
+            new_entity.is_reservoir = base_entity.is_reservoir
+            
+        print(f"Created new variant from: {base_entity.entity_name}")
+    else:
+        # If no base entity, use the entity_type_path directly
+        new_entity_id = f"{entity_type_path}.{name.strip()}"
+        print(f"Creating new base entity with ID: {new_entity_id}")
+        
+        # Handle multi-token types (e.g., 'charge_energy_mass|constant|infinity')
+        if '|' in entity_type_path:
+            # Extract the base type (part before the first '|')
+            base_type = entity_type_path.split('|')[0]
+            # Try to find the base entity
+            base_entity = self._model.all_entities.get(base_type)
+            
+            if base_entity:
+                # Create a new entity with the same type and properties as the base entity
+                new_entity = Entity(
+                    entity_name=new_entity_id,
+                    all_equations=base_entity.all_equations,
+                    index_set=base_entity.index_set,
+                    integrators=dict(base_entity.integrators),
+                    var_eq_forest=[dict(tree) for tree in base_entity.var_eq_forest],
+                    init_vars=list(base_entity.init_vars),
+                    input_vars=list(base_entity.input_vars),
+                    output_vars=list(base_entity.output_vars)
+                )
+                # Manually copy over additional attributes that might be needed
+                if hasattr(base_entity, 'entity_type'):
+                    new_entity.entity_type = base_entity.entity_type
+                if hasattr(base_entity, 'is_reservoir'):
+                    new_entity.is_reservoir = base_entity.is_reservoir
+                print(f"Created new entity from multi-token base: {base_type}")
+            else:
+                # If base entity not found, create a new one with the full type path
+                new_entity = Entity(
+                    entity_name=new_entity_id,
+                    all_equations=self._model.all_equations
+                )
+                print(f"Created new base entity with multi-token type: {entity_type_path}")
+        else:
+            # Create a new entity instance
+            new_entity = Entity(
                 entity_name=new_entity_id,
                 all_equations=self._model.all_equations
-                )
-
-      # Add the new entity to the model
-      self._model.all_entities[new_entity_id] = new_entity
-      self._model.current_entity_id = new_entity_id
-      self._model._update_tree_model()
-
-      print(f"Created new entity: {new_entity_id}")
-
-      # Open the editor with the new entity
-      self.edit_entity()
-
+            )
+            print(f"Created new base entity: {new_entity_id}")
+    
+    try:
+        print(f"Created new entity in memory: {new_entity_id}")
+        
+        # Create and show the editor
+        from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_editor import EntityEditorController
+        from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_editor import EntityEditorModel
+        from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_editor import EntityEditorView
+        
+        # Create editor components
+        editor_model = EntityEditorModel(
+            editing_entity=new_entity,
+            all_variables=self._model.all_variables,
+            all_equations=self._model.all_equations
+        )
+        editor_view = EntityEditorView(model=editor_model, parent=self._view)
+        editor_controller = EntityEditorController(editor_model, editor_view)
+        
+        # Show the editor dialog
+        result = editor_view.exec_()
+        
+        # Only add the entity if the dialog was accepted
+        if result == QtWidgets.QDialog.Accepted:
+            # Use the model's method to add the entity and update the tree
+            self._model.add_entity_to_model(new_entity)
+            self._model.current_entity_id = new_entity_id
+            print(f"Entity {new_entity_id} added to model after editor confirmation")
+            
     except Exception as e:
-      error_msg = f"Error creating new entity: {e}"
-      print(error_msg)
-      import traceback
-      traceback.print_exc()
-      QtWidgets.QMessageBox.critical(
-              self._view,
-              "Error",
-              f"Failed to create entity: {str(e)}"
-              )
+        error_msg = f"Error creating new entity: {e}"
+        print(error_msg)
+        import traceback
+        traceback.print_exc()
+        QtWidgets.QMessageBox.critical(
+            self._view,
+            "Error",
+            f"Failed to create entity: {str(e)}"
+        )
 
   def edit_entity(self) -> None:
     """Handle the edit entity action."""

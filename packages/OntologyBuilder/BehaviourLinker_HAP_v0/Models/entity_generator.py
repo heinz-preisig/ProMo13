@@ -204,6 +204,47 @@ class EntityGeneratorModel(QtCore.QObject):
         if partial_id in full_id
     ]
 
+  def get_entity_name(self) -> str:
+    """Get the current entity name from the model.
+    
+    Returns:
+        str: The current entity name or None if not set
+    """
+    if hasattr(self, 'new_entity_name') and self.new_entity_name:
+      return self.new_entity_name
+    return None
+
   def add_entity_name(self, name: str):
+    """Set the entity name and generate its ID."""
     entity_info = self.summary.stringList()[:5]
     self.new_entity_id = self._generate_entity_id(*entity_info, name)
+
+  def create_entity(self, name: str) -> tuple[Any, Any]:
+    """Create a new entity without adding it to the model.
+    
+    Args:
+        name: Name for the new entity
+        
+    Returns:
+        tuple: (new_entity, merger_model) where merger_model is None if no merging is needed
+        
+    Raises:
+        RuntimeError: If main model is not available or entity creation fails
+    """
+    # Generate entity ID
+    entity_info = self.summary.stringList()[:5]
+    entity_id = self._generate_entity_id(*entity_info, name)
+    
+    if not hasattr(self, 'main_model'):
+        raise RuntimeError("Main model not available")
+        
+    # Get the base entities from the tree selection
+    base_entities = self.tree_bases_model.get_selected_bases()
+    
+    # Create the entity using the main model
+    return self.main_model.create_entity(entity_id, base_entities)
+      
+  def update_tree(self):
+    """Update the tree view to reflect any changes."""
+    if hasattr(self, 'main_model') and hasattr(self.main_model, '_update_tree_model'):
+      self.main_model._update_tree_model()

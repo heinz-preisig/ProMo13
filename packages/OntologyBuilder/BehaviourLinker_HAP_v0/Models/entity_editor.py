@@ -100,16 +100,29 @@ class EntityEditorModel(QtCore.QObject):
     self.update_equations_model()
 
   def get_unused_variables(self):
-    ent_type = self.editing_entity.entity_name.split(".")[1]
+    # Get the entity type from the entity object if available, otherwise try to parse from name
+    if hasattr(self.editing_entity, 'entity_type'):
+      ent_type = self.editing_entity.entity_type
+    else:
+      # Fallback to the old method if entity_type is not available
+      try:
+        ent_type = self.editing_entity.entity_name.split(".")[1]
+      except IndexError:
+        # If we can't parse the type, return all variables
+        ent_type = ""
+
     all_vars = {
             var_id
             for var_id, var in self.all_variables.items()
-            if var.is_eligible("", ent_type, "")
+            if not ent_type or var.is_eligible("", ent_type, "")
             }
+
     entity_vars = set(self.editing_entity.get_variables())
-    # TODO Change when the entity has var instances.
-    unused_vars = [self.all_variables[var_id]
-                   for var_id in sorted(list(all_vars - entity_vars))]
+    unused_vars = [
+            self.all_variables[var_id]
+            for var_id in sorted(list(all_vars - entity_vars))
+            if var_id in self.all_variables  # Ensure the variable exists
+            ]
 
     return unused_vars
 
