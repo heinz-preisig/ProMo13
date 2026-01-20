@@ -1,14 +1,14 @@
 from typing import List
 
-from PyQt5 import QtWidgets
 from PyQt5 import QtCore
-from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
-from PyQt5.QtWidgets import QAbstractItemView, QListView
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QListView
 
 from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_generator import EntityGeneratorModel
 from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_generator import EntityGeneratorView
-
 from OntologyBuilder.BehaviourLinker_HAP_v0.Views.insert_str import InsertStrView
+
+
 # TODO List
 # 1. Animations for the list.
 # 2. Fix animations skip when next/prev buttons are pressed fast.
@@ -23,12 +23,12 @@ class EntityGeneratorController(QtCore.QObject):
     self._view = view
 
     self.stacked_views: List[QListView] = [
-        None,
-        self._view.ui.list_network,
-        self._view.ui.list_token,
-        self._view.ui.list_mechanism,
-        self._view.ui.list_nature,
-    ]
+            None,
+            self._view.ui.list_network,
+            self._view.ui.list_token,
+            self._view.ui.list_mechanism,
+            self._view.ui.list_nature,
+            ]
 
     for i in range(1, 5):
       self.stacked_views[i].setModel(self._model.stacked_models[i])
@@ -39,13 +39,13 @@ class EntityGeneratorController(QtCore.QObject):
     # Signals from the View
     self._view.ui.pbutton_next.clicked.connect(self.on_next_button_clicked)
     self._view.ui.pbutton_previous.clicked.connect(
-        self.on_previous_button_clicked)
+            self.on_previous_button_clicked)
     self._view.ui.pbutton_cancel.clicked.connect(self._view.reject)
     self._view.ui.pbutton_finish.clicked.connect(
-        self.on_finish_button_clicked)
+            self.on_finish_button_clicked)
     for i in range(1, 5):
       self.stacked_views[i].selectionModel().selectionChanged.connect(
-          self.on_list_selection_change)
+              self.on_list_selection_change)
       self.stacked_views[i].doubleClicked.connect(self.on_next_button_clicked)
 
     # Signals from the Model
@@ -82,11 +82,11 @@ class EntityGeneratorController(QtCore.QObject):
     forbidden_names = [name.lower() for name in used_names]
 
     dlg = InsertStrView(
-        "Entity name",
-        "Insert a name for the new entity:",
-        forbidden_names,
-        self._view
-    )
+            "Entity name",
+            "Insert a name for the new entity:",
+            forbidden_names,
+            self._view
+            )
     result = dlg.exec_()
     if result == QtWidgets.QDialog.Accepted:
       self._model.add_entity_name(dlg.ui.ledit_input.text())
