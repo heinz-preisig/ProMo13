@@ -1,10 +1,8 @@
-import re
-
-from PyQt5 import QtWidgets
-from PyQt5 import QtGui
 from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import insert_str_ui
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import insert_str_ui
 
 
 class InsertStrView(QtWidgets.QDialog):

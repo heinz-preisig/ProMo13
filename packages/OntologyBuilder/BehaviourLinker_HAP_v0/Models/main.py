@@ -391,8 +391,6 @@ class MainModel(QtCore.QObject):
 
     print("=====================\n")
 
-
-
   def get_network_types_from_ontology(self):
     """
     Extract all network types from the ontology that are labeled as "inter".
@@ -771,50 +769,50 @@ class MainModel(QtCore.QObject):
     return None
 
   def update_entity(self, entity_id: str, updated_entity: 'Entity') -> None:
-      """Update an existing entity in the model.
-      
-      Args:
-          entity_id: The ID of the entity to update
-          updated_entity: The updated entity object
-      """
-      print("\n" + "=" * 50)
-      print("=== update_entity called ===")
-      print(f"Updating entity with ID: {entity_id}")
-      
-      if not entity_id:
-          raise ValueError("Cannot update entity: entity_id is None or empty")
-          
-      if not updated_entity:
-          raise ValueError("Cannot update entity: updated_entity is None")
-          
-      if entity_id not in self.all_entities:
-          raise KeyError(f"Cannot update entity: entity with ID {entity_id} not found")
-      
-      try:
-          # Update the entity in the model
-          self.all_entities[entity_id] = updated_entity
-          
-          # If the entity name has changed, we need to update the ID
-          if hasattr(updated_entity, 'entity_name') and updated_entity.entity_name != entity_id:
-              new_id = updated_entity.entity_name
-              print(f"Entity name changed from {entity_id} to {new_id}")
-              
-              # Remove the old entry and add the new one
-              self.all_entities[new_id] = self.all_entities.pop(entity_id)
-              entity_id = new_id
-          
-          # Update the tree model to reflect the changes
-          self._update_tree_model()
-          
-          # Update the current entity ID if it matches the old ID
-          if hasattr(self, 'current_entity_id') and self.current_entity_id == entity_id:
-              self.current_entity_id = entity_id
-              
-          print(f"Successfully updated entity: {entity_id}")
-          
-      except Exception as e:
-          print(f"Error updating entity {entity_id}: {str(e)}")
-          raise
+    """Update an existing entity in the model.
+
+    Args:
+        entity_id: The ID of the entity to update
+        updated_entity: The updated entity object
+    """
+    print("\n" + "=" * 50)
+    print("=== update_entity called ===")
+    print(f"Updating entity with ID: {entity_id}")
+
+    if not entity_id:
+      raise ValueError("Cannot update entity: entity_id is None or empty")
+
+    if not updated_entity:
+      raise ValueError("Cannot update entity: updated_entity is None")
+
+    if entity_id not in self.all_entities:
+      raise KeyError(f"Cannot update entity: entity with ID {entity_id} not found")
+
+    try:
+      # Update the entity in the model
+      self.all_entities[entity_id] = updated_entity
+
+      # If the entity name has changed, we need to update the ID
+      if hasattr(updated_entity, 'entity_name') and updated_entity.entity_name != entity_id:
+        new_id = updated_entity.entity_name
+        print(f"Entity name changed from {entity_id} to {new_id}")
+
+        # Remove the old entry and add the new one
+        self.all_entities[new_id] = self.all_entities.pop(entity_id)
+        entity_id = new_id
+
+      # Update the tree model to reflect the changes
+      self._update_tree_model()
+
+      # Update the current entity ID if it matches the old ID
+      if hasattr(self, 'current_entity_id') and self.current_entity_id == entity_id:
+        self.current_entity_id = entity_id
+
+      print(f"Successfully updated entity: {entity_id}")
+
+    except Exception as e:
+      print(f"Error updating entity {entity_id}: {str(e)}")
+      raise
 
   def is_a_leaf(self, index: QtCore.QModelIndex) -> None:
     return self.entity_tree_model.get_depth(index) == tree.LEAF_DEPTH

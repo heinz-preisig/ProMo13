@@ -1,17 +1,8 @@
-from typing import List
-import os
-
 from PyQt5 import QtWidgets
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
-from PyQt5.QtWidgets import QAbstractItemView, QListView
 
-from packages.Common.classes import ontology
-from packages.Common import resource_initialisation
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import entity_changes_ui
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Models.image_list import ImageListModel
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Delegates.image_list import ImageItemDelegate
+from OntologyBuilder.BehaviourLinker_HAP_v0.Delegates.image_list import ImageItemDelegate
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.image_list import ImageListModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import entity_changes_ui
 
 
 class EntityChangesView(QtWidgets.QDialog):
@@ -24,11 +15,11 @@ class EntityChangesView(QtWidgets.QDialog):
     self.ui.setupUi(self)
 
     view_widgets = [
-        self.ui.list_add_vars,
-        self.ui.list_add_eqs,
-        self.ui.list_delete_vars,
-        self.ui.list_delete_eqs,
-    ]
+            self.ui.list_add_vars,
+            self.ui.list_add_eqs,
+            self.ui.list_delete_vars,
+            self.ui.list_delete_eqs,
+            ]
     for model_list, view_widget in zip(changes, view_widgets):
       self.load_model_and_delegate(model_list, view_widget)
 

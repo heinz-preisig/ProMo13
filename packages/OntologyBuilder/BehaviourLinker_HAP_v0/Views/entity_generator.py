@@ -1,13 +1,8 @@
-from typing import List
-
-from PyQt5 import QtWidgets
 from PyQt5 import QtCore
-from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
-from PyQt5.QtWidgets import QAbstractItemView, QListView
+from PyQt5 import QtWidgets
 
-from packages.Common.classes import ontology
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import entity_generator_ui
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Views.progress_bar import CircleProgressBar
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import entity_generator_ui
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.progress_bar import CircleProgressBar
 
 
 class EntityGeneratorView(QtWidgets.QDialog):

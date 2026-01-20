@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QDialog
 from PyQt5 import QtCore
+from PyQt5.QtWidgets import QDialog
 
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import ontology_selector_ui
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import ontology_selector_ui
+
 
 # TODO: Code the mode that can create a new ontology.
 
@@ -20,7 +21,7 @@ class OntologySelectorView(QDialog):
     # ontologies.
     if is_new_allowed:
       self.ui.label_instruction.setText(
-          "Select an Ontology or create a new one.")
+              "Select an Ontology or create a new one.")
       self.ui.pbutton_create.setVisible(True)
     else:
       self.ui.label_instruction.setText("Select an Ontology.")
@@ -34,8 +35,8 @@ class OntologySelectorView(QDialog):
 
     # Connectiong signals to slots
     self.ui.list_ontologies.selectionModel().selectionChanged.connect(
-        self.on_selection_changed
-    )
+            self.on_selection_changed
+            )
     self.ui.list_ontologies.doubleClicked.connect(self.accept)
 
     self.ui.pbutton_accept.clicked.connect(self.accept)

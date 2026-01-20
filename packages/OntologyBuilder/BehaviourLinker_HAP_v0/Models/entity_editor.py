@@ -1,17 +1,12 @@
-import os
 from typing import Dict
 
 from PyQt5 import QtCore
 
-from Common.classes import io
+from Common.classes import entity
 from Common.classes import equation
 from Common.classes import variable
-from Common.classes import entity
-
-from Common import resource_initialisation
-
-from OntologyBuilder.BehaviourLinker_HAP_v0.Models.variable_editor import VariableEditorModel
 from OntologyBuilder.BehaviourLinker_HAP_v0.Models import image_list
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.variable_editor import VariableEditorModel
 
 
 class EntityEditorModel(QtCore.QObject):
@@ -19,11 +14,11 @@ class EntityEditorModel(QtCore.QObject):
 
   # Methods
   def __init__(
-      self,
-      editing_entity: entity.Entity,
-      all_variables: Dict[str, variable.Variable],
-      all_equations: Dict[str, equation.Equation],
-  ):
+          self,
+          editing_entity: entity.Entity,
+          all_variables: Dict[str, variable.Variable],
+          all_equations: Dict[str, equation.Equation],
+          ):
     super().__init__()
     self.editing_entity = editing_entity
     self.all_variables = all_variables
@@ -66,11 +61,11 @@ class EntityEditorModel(QtCore.QObject):
   def get_variable_editor_model(self, index):
     var_id = index.data()
     return VariableEditorModel(
-        self.editing_entity,
-        self.all_variables[var_id],
-        self.all_variables,
-        self.all_equations,
-    )
+            self.editing_entity,
+            self.all_variables[var_id],
+            self.all_variables,
+            self.all_equations,
+            )
 
   def check_variable(self, index):
     var_id = index.data()
@@ -107,10 +102,10 @@ class EntityEditorModel(QtCore.QObject):
   def get_unused_variables(self):
     ent_type = self.editing_entity.entity_name.split(".")[1]
     all_vars = {
-        var_id
-        for var_id, var in self.all_variables.items()
-        if var.is_eligible("", ent_type, "")
-    }
+            var_id
+            for var_id, var in self.all_variables.items()
+            if var.is_eligible("", ent_type, "")
+            }
     entity_vars = set(self.editing_entity.get_variables())
     # TODO Change when the entity has var instances.
     unused_vars = [self.all_variables[var_id]

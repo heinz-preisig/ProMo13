@@ -1,30 +1,26 @@
-import os
 from typing import Dict
 
 from PyQt5 import QtCore
 
-from Common.classes import io
+from Common.classes import entity
 from Common.classes import equation
 from Common.classes import variable
-from Common.classes import entity
-
-from Common import resource_initialisation
-
 from OntologyBuilder.BehaviourLinker_HAP_v0.Models import image_list
 
 
 class VariableEditorModel(QtCore.QObject):
   initial_data_fetched = QtCore.pyqtSignal(
-      bool, bool, bool, QtCore.QModelIndex)
+          bool, bool, bool, QtCore.QModelIndex)
+
   # Methods
 
   def __init__(
-      self,
-      editing_entity: entity.Entity,
-      editing_variable: variable.Variable,
-      all_variables: Dict[str, variable.Variable],
-      all_equations: Dict[str, equation.Equation],
-  ):
+          self,
+          editing_entity: entity.Entity,
+          editing_variable: variable.Variable,
+          all_variables: Dict[str, variable.Variable],
+          all_equations: Dict[str, equation.Equation],
+          ):
     super().__init__()
     self.editing_entity = editing_entity
     self.editing_variable = editing_variable
@@ -34,7 +30,6 @@ class VariableEditorModel(QtCore.QObject):
 
     self.equations_model = image_list.ImageListModel()
     self.load_equations_model()
-
 
   def load_equations_model(self) -> None:
     """Load the equations model with equations that can be used with the current variable."""
@@ -60,7 +55,6 @@ class VariableEditorModel(QtCore.QObject):
       # Initialize with empty list if there's an error
       self.equations_model.load_data([])
 
-
   def get_last_index(self):
     last_row = self.equations_model.rowCount() - 1
 
@@ -79,18 +73,18 @@ class VariableEditorModel(QtCore.QObject):
       index = self.equations_model.findItems(eq[0])[0].index()
 
     self.initial_config = {
-        "is_input": self.editing_entity.is_input(var_id),
-        "is_output": self.editing_entity.is_output(var_id),
-        "is_init": self.editing_entity.is_init(var_id),
-        "selected_eq": index
-    }
+            "is_input"   : self.editing_entity.is_input(var_id),
+            "is_output"  : self.editing_entity.is_output(var_id),
+            "is_init"    : self.editing_entity.is_init(var_id),
+            "selected_eq": index
+            }
 
     self.initial_data_fetched.emit(
-        self.initial_config["is_input"],
-        self.initial_config["is_output"],
-        self.initial_config["is_init"],
-        self.initial_config["selected_eq"],
-    )
+            self.initial_config["is_input"],
+            self.initial_config["is_output"],
+            self.initial_config["is_init"],
+            self.initial_config["selected_eq"],
+            )
 
   def compute_changes(self, final_config):
     var_id = self.editing_variable.get_id()
@@ -101,7 +95,7 @@ class VariableEditorModel(QtCore.QObject):
     equations = []
     index = final_config["selected_eq"]
     if index.isValid():
-        equations.append(index.data())
+      equations.append(index.data())
 
     changes = self.editing_entity.generate_var_eq_forest({var_id: equations})
     # TODO: Remove when the entity contain instances instead of str
@@ -112,7 +106,7 @@ class VariableEditorModel(QtCore.QObject):
 
     self.editing_entity.set_input_var(var_id, self.initial_config["is_input"])
     self.editing_entity.set_output_var(
-        var_id, self.initial_config["is_output"])
+            var_id, self.initial_config["is_output"])
     self.editing_entity.set_init_var(var_id, self.initial_config["is_init"])
 
     return changes

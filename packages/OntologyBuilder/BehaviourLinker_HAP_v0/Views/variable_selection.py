@@ -1,17 +1,8 @@
-from typing import List
-import os
-
 from PyQt5 import QtWidgets
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5.QtCore import QStringListModel, QItemSelection, QItemSelectionModel
-from PyQt5.QtWidgets import QAbstractItemView, QListView
 
-from packages.Common.classes import ontology
-from packages.Common import resource_initialisation
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import variable_selection_ui
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Models.image_list import ImageListModel
-from packages.OntologyBuilder.BehaviourLinker_HAP_v0.Delegates.image_list import ImageItemDelegate
+from OntologyBuilder.BehaviourLinker_HAP_v0.Delegates.image_list import ImageItemDelegate
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.image_list import ImageListModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import variable_selection_ui
 
 
 class VariableSelectionView(QtWidgets.QDialog):
