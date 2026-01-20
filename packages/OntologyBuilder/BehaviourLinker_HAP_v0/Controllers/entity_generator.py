@@ -38,14 +38,12 @@ class EntityGeneratorController(QtCore.QObject):
     # Connecting signal -> slots
     # Signals from the View
     self._view.ui.pbutton_next.clicked.connect(self.on_next_button_clicked)
-    self._view.ui.pbutton_previous.clicked.connect(
-            self.on_previous_button_clicked)
+    self._view.ui.pbutton_previous.clicked.connect(self.on_previous_button_clicked)
     self._view.ui.pbutton_cancel.clicked.connect(self._view.reject)
-    self._view.ui.pbutton_finish.clicked.connect(
-            self.on_finish_button_clicked)
+    self._view.ui.pbutton_finish.clicked.connect(self.on_finish_button_clicked)
+
     for i in range(1, 5):
-      self.stacked_views[i].selectionModel().selectionChanged.connect(
-              self.on_list_selection_change)
+      self.stacked_views[i].selectionModel().selectionChanged.connect(self.on_list_selection_change)
       self.stacked_views[i].doubleClicked.connect(self.on_next_button_clicked)
 
     # Signals from the Model
