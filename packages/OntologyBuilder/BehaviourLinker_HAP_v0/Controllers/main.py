@@ -18,6 +18,8 @@ from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_editor import (
 from OntologyBuilder.BehaviourLinker_HAP_v0.Views.main import MainView
 from common.components import starting_dialog
 
+# In the imports section at the top of main.py
+from .app_state import AppState, StateMachine
 
 class MainController(QObject):
   def __init__(self, main_model: MainModel, main_view: MainView):
@@ -26,6 +28,23 @@ class MainController(QObject):
     self._model = main_model
     self._view = main_view
 
+    # Load default ontology
+    try:
+      available_ontologies = self._model.get_available_ontologies()
+      if available_ontologies:
+        # Load the first available ontology by default
+        self._model.load_ontology(available_ontologies[0])
+      else:
+        print("Warning: No ontologies found. The tree will be empty.")
+    except Exception as e:
+      print(f"Error loading ontology: {str(e)}")
+      # Continue with empty model if loading fails
+
+    # Rest of the initialization...
+    self.state_machine = StateMachine(initial_state=AppState.IDLE)
+    self._setup_state_handlers()
+
+    # Rest of your existing initialization code
     self._view.ui.tree_entities.setModel(self._model.entity_tree_model)
     entity_views = [
             self._view.ui.list_integrators,
@@ -43,94 +62,208 @@ class MainController(QObject):
       delegate = ImageItemDelegate(view)
       view.setItemDelegate(delegate)
 
-    # Connections from the View
-    self._view.show_event_triggered.connect(self.on_show_event_triggered)
+    # Debug: Print model status
+    print(f"Model tree model: {hasattr(self._model, 'entity_tree_model')}")
+    print(f"Model list models: {hasattr(self._model, 'entity_list_models')}")
+    
+    # Set the model on the view
+    self._view.ui.tree_entities.setModel(self._model.entity_tree_model)
+    print(f"Tree model set on view: {self._view.ui.tree_entities.model() is self._model.entity_tree_model}")
+    
+    # Debug: Check entity views
+    entity_views = [
+        self._view.ui.list_integrators,
+        self._view.ui.list_equations,
+        self._view.ui.list_input,
+        self._view.ui.list_output,
+        self._view.ui.list_instantiate,
+        self._view.ui.list_pending,
+    ]
+    print(f"Number of entity views: {len(entity_views)}")
+    print(f"Number of list models: {len(self._model.entity_list_models)}")
+    
+    # Connect UI signals
+    self._connect_ui_signals()
+    self._last_selected_item_data = None
+    self._current_entity_id = None
+    
+    # Run debug methods
+    self._debug_tree_model()
+    self._debug_view_settings()
 
+  def _debug_tree_model(self):
+    """Debug method to print tree model contents."""
+    model = self._view.ui.tree_entities.model()
+    if not model:
+        print("No model set on tree view")
+        return
+    
+    print("\n=== Tree Model Debug ===")
+    print(f"Model class: {model.__class__.__name__}")
+    print(f"Row count (root): {model.rowCount()}")
+    
+    # Print first level items
+    for row in range(model.rowCount()):
+        index = model.index(row, 0)
+        data = index.data()
+        print(f"Row {row}: {data}")
+        
+        # Print children if any
+        child_count = model.rowCount(index)
+        if child_count > 0:
+            print(f"  Has {child_count} children")
+            for child_row in range(child_count):
+                child_index = model.index(child_row, 0, index)
+                print(f"  - {child_index.data()}")
+    
+    print("======================\n")
+
+  def _debug_view_settings(self):
+    """Debug method to check view settings."""
+    print("\n=== View Settings ===")
+    print(f"View visible: {self._view.isVisible()}")
+    print(f"Tree view visible: {self._view.ui.tree_entities.isVisible()}")
+    print(f"Tree view enabled: {self._view.ui.tree_entities.isEnabled()}")
+    print(f"Tree view has focus: {self._view.ui.tree_entities.hasFocus()}")
+    print("===================\n")
+
+
+  def _setup_state_handlers(self) -> None:
+    """Set up state handlers for the state machine."""
+
+    # IDLE state
+    @self.state_machine.on_enter(AppState.IDLE)
+    def enter_idle(kwargs):
+      print("Entering IDLE state")
+      self._view.ui.actionEdit.setEnabled(False)
+      self._view.ui.actionDelete.setEnabled(False)
+
+    # ENTITY_SELECTED state
+    @self.state_machine.on_enter(AppState.ENTITY_SELECTED)
+    def enter_entity_selected(kwargs):
+      entity_id = kwargs.get('entity_id')
+      print(f"Entering ENTITY_SELECTED state for {entity_id}")
+      self._view.ui.actionEdit.setEnabled(True)
+      self._view.ui.actionDelete.setEnabled(True)
+
+    # EDITING_ENTITY state
+    @self.state_machine.on_enter(AppState.EDITING_ENTITY)
+    def enter_editing_entity(kwargs):
+      entity_id = kwargs.get('entity_id')
+      print(f"Entering EDITING_ENTITY state for {entity_id}")
+      if entity_id:
+        self.edit_entity()
+
+    # State change handler
+    self.state_machine.state_changed.connect(self._on_state_changed)
+
+  def _connect_ui_signals(self) -> None:
+    """Connect UI signals to state machine events."""
+    # Tree selection changed
     selection_model = self._view.ui.tree_entities.selectionModel()
-
-    # Disconnect any existing connections to avoid duplicates
     try:
       selection_model.currentChanged.disconnect()
     except TypeError:
-      # No connections to disconnect
+      pass  # No connections to disconnect
+    selection_model.currentChanged.connect(self._on_tree_selection_changed)
+
+    # Button clicks - Edit
+    try:
+      self._view.ui.actionEdit.triggered.disconnect()
+    except TypeError:
       pass
+    self._view.ui.actionEdit.triggered.connect(
+            lambda: self.state_machine.transition_to(
+                    AppState.EDITING_ENTITY,
+                    entity_id=getattr(self, '_current_entity_id', None)
+                    )
+            )
 
-    self._last_selected_item_data = None
-
-    def debug_selection_changed(current, previous):
-      # Reset the stored data
-      self._last_selected_item_data = None
-
-      if not current.isValid():
-        return
-
+    # Connect other signals with safe disconnection
+    def safe_disconnect(signal):
       try:
-        # Get the item from the index
-        model = current.model()
-        if model is None:
-          return
+        signal.disconnect()
+      except (TypeError, RuntimeError):
+        pass
 
-        item = model.itemFromIndex(current)
-        if item is None:
-          return
+    # New entity
+    safe_disconnect(self._view.ui.actionNew.triggered)
+    self._view.ui.actionNew.triggered.connect(self.on_action_new_triggered)
 
-        # Check if this is a leaf node (entity type)
+    # Double click
+    safe_disconnect(self._view.ui.tree_entities.doubleClicked)
+    self._view.ui.tree_entities.doubleClicked.connect(self.on_tree_double_clicked)
+
+    # Delete
+    safe_disconnect(self._view.ui.actionDelete.triggered)
+    self._view.ui.actionDelete.triggered.connect(self.delete_entity)
+
+    # Save
+    safe_disconnect(self._view.ui.actionSave.triggered)
+    self._view.ui.actionSave.triggered.connect(self._model.save)
+
+    # Tree changed
+    safe_disconnect(self._model.tree_changed)
+    self._model.tree_changed.connect(self._view.on_tree_changed)
+
+  def _on_state_changed(self, new_state: AppState, data: dict) -> None:
+    """Handle state changes and update UI accordingly."""
+    print(f"State changed to: {new_state.name}")
+
+
+  def _on_tree_selection_changed(self, current: QtCore.QModelIndex, previous: QtCore.QModelIndex) -> None:
+    """Handle tree selection changes."""
+    if current.isValid():
+      entity_id = current.data(QtCore.Qt.UserRole + 1)
+      self._current_entity_id = entity_id
+
+      # Store the item's data for later use
+      try:
+        item = current.model().itemFromIndex(current)
         is_leaf = item.rowCount() == 0
-
-        # Store the item's data for later use
         self._last_selected_item_data = {
                 'text'   : item.text(),
                 'is_leaf': is_leaf,
-                'data'   : item.data(QtCore.Qt.UserRole + 1),  # Store the entity data
+                'data'   : item.data(QtCore.Qt.UserRole + 1),
                 'index'  : current
                 }
 
-        # Load entity data when an item is selected (single click)
-        try:
-          self._model.load_entity(current)
-        except Exception:
-          pass
+        # Load entity data
+        self._model.load_entity(current)
 
         # Update menu state
-        try:
-          self._view.menu_items_state(current)
-        except Exception:
-          pass
+        self._view.menu_items_state(current)
 
-      except Exception:
-        pass
-
-    # Connect our debug handler
-    selection_model.currentChanged.connect(debug_selection_changed)
-
-    # Connect other signals
-    self._view.ui.actionNew.triggered.connect(self.on_action_new_triggered)
-    self._view.ui.tree_entities.doubleClicked.connect(self.on_tree_double_clicked)
-    self._view.ui.actionEdit.triggered.connect(self.edit_entity)
-    self._view.ui.actionDelete.triggered.connect(self.delete_entity)
-    self._view.ui.actionSave.triggered.connect(self._model.save)
-    # Connections from the Model
-    self._model.tree_changed.connect(self._view.on_tree_changed)
-
-  def on_show_event_triggered(self) -> None:
-    """Launches a Dialog to get the ontology name.
-
-    If the Dialog gets accepted it updates the model with the ontology
-    name.
-    """
-
-    available_ontologies = self._model.get_available_ontologies()
-    view = starting_dialog.StartingDialogView()
-    controller = starting_dialog.StartingDialogController(
-            view, available_ontologies
-            )
-
-    result = view.exec_()
-    if result == QtWidgets.QDialog.Accepted:
-      ontology_name = view.ui.selection_list.currentIndex().data()
-      self._model.load_ontology(ontology_name)
+        # Transition to ENTITY_SELECTED state
+        self.state_machine.transition_to(
+                AppState.ENTITY_SELECTED,
+                entity_id=entity_id,
+                index=current
+                )
+      except Exception as e:
+        print(f"Error in selection changed: {e}")
+        self.state_machine.transition_to(AppState.IDLE)
     else:
-      sys.exit()
+      self.state_machine.transition_to(AppState.IDLE)
+    def on_show_event_triggered(self) -> None:
+      """Launches a Dialog to get the ontology name.
+
+      If the Dialog gets accepted it updates the model with the ontology
+      name.
+      """
+
+      available_ontologies = self._model.get_available_ontologies()
+      view = starting_dialog.StartingDialogView()
+      controller = starting_dialog.StartingDialogController(
+              view, available_ontologies
+              )
+
+      result = view.exec_()
+      if result == QtWidgets.QDialog.Accepted:
+        ontology_name = view.ui.selection_list.currentIndex().data()
+        self._model.load_ontology(ontology_name)
+      else:
+        sys.exit()
 
   def on_action_new_triggered(self) -> None:
     """Handles creating a new entity or editing an existing one.

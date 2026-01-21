@@ -168,22 +168,6 @@ class MainModel(QtCore.QObject):
       new_ent = self.create_entity_from_eq(eq_id)
       self.all_entities[new_ent.entity_name] = new_ent
 
-  def get_entity_generator_model(self):
-    """Create and return a new EntityGeneratorModel instance.
-
-    This is used by the controller to create a new entity.
-    """
-    if self.ontology is None:
-      raise ValueError("No ontology loaded. Please load an ontology first.")
-
-    # Get the list of existing entity IDs to avoid duplicates
-    entity_ids = list(self.all_entities.keys())
-
-    # Create and return the model
-    from .entity_generator import EntityGeneratorModel
-    model = EntityGeneratorModel(self.ontology, entity_ids)
-    model.main_model = self
-    return model
   
   def _make_all_entity_types(self):
     inter_networks = [nw for nw in self.ontology.tree if self.ontology.tree[nw]["type"] == "inter"]
