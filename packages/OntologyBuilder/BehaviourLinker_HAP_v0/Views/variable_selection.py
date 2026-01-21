@@ -7,25 +7,25 @@ from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import variable_s
 
 class VariableSelectionView(QtWidgets.QDialog):
 
-  def __init__(self, variables, parent=None):
-    super().__init__(parent)
+    def __init__(self, variables, parent=None):
+        super().__init__(parent)
 
-    # Set up the user interface
-    self.ui = variable_selection_ui.Ui_variable_selection()
-    self.ui.setupUi(self)
+        # Set up the user interface
+        self.ui = variable_selection_ui.Ui_variable_selection()
+        self.ui.setupUi(self)
 
-    model = ImageListModel()
-    model.load_data(variables)
-    self.ui.list_variables.setModel(model)
-    delegate = ImageItemDelegate(self.ui.list_variables)
-    self.ui.list_variables.setItemDelegate(delegate)
+        model = ImageListModel()
+        model.load_data(variables)
+        self.ui.list_variables.setModel(model)
+        delegate = ImageItemDelegate(self.ui.list_variables)
+        self.ui.list_variables.setItemDelegate(delegate)
 
-    index = model.index(0, 0)
-    if index.isValid():
-      self.ui.list_variables.setCurrentIndex(index)
-    else:
-      self.ui.pbutton_accept.setEnabled(False)
+        index = model.index(0, 0)
+        if index.isValid():
+            self.ui.list_variables.setCurrentIndex(index)
+        else:
+            self.ui.pbutton_accept.setEnabled(False)
 
-    self.ui.list_variables.doubleClicked.connect(self.accept)
-    self.ui.pbutton_accept.clicked.connect(self.accept)
-    self.ui.pbutton_cancel.clicked.connect(self.reject)
+        self.ui.list_variables.doubleClicked.connect(self.accept)
+        self.ui.pbutton_accept.clicked.connect(self.accept)
+        self.ui.pbutton_cancel.clicked.connect(self.reject)
