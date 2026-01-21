@@ -739,7 +739,7 @@ class MainModel(QtCore.QObject):
 
   def create_entity(
           self, new_entity_id: str, bases: list[str]
-          ) -> tuple[entity.Entity, EntityMergerModel | None]:
+          ) -> tuple[entity.Entity, dict | None]:
     """Create a new entity without adding it to the model.
 
     Args:
@@ -747,10 +747,10 @@ class MainModel(QtCore.QObject):
         bases: List of base entity IDs to inherit from
 
     Returns:
-        tuple: (new_entity, merger_model) where merger_model is None if no merging is needed
+        tuple: (new_entity, merger_data) where merger_data is a dictionary with merger state
+               if merging is needed, or None if no merging is needed
     """
     # Initialize entity creation
-
     number_of_bases = len(bases)
 
     if number_of_bases == 1:
@@ -782,16 +782,14 @@ class MainModel(QtCore.QObject):
       new_entity = entity.Entity(new_entity_id, self.all_equations)
 
     # Handle merging if needed
-    merger_model = None
+    merger_data = None
     if number_of_bases > 1:
       base_entities = [self.all_entities[b] for b in bases]
       merge_completed = new_entity.start_merging_process(base_entities)
       if not merge_completed:
-        merger_model = EntityMergerModel(
-                new_entity, self.all_variables, self.all_equations
-                )
+        merger_data = self._create_merger_model(new_entity)
 
-    return new_entity, merger_model
+    return new_entity, merger_data
   def add_entity_to_model(self, entity_obj: entity.Entity) -> None:
     """Add an existing entity to the model and update the tree."""
     if not entity_obj or not hasattr(entity_obj, 'entity_name'):
@@ -906,6 +904,84 @@ class MainModel(QtCore.QObject):
       print(f"Error in delete_entity: {e}")
       import traceback
       traceback.print_exc()
+
+  def _create_merger_model(self, editing_entity):
+    """Create a merger model for the given entity.
+    
+    Args:
+        editing_entity: The entity being edited/merged
+        
+    Returns:
+        dict: A dictionary containing the merger state
+    """
+    return {
+        'editing_entity': editing_entity,
+        'var_id': None,
+        'equations_model': image_list.ImageListModel(self)
+    }
+
+  def get_next_conflict(self, merger_model):
+    """Get the next conflict for the merger model.
+    
+    Args:
+        merger_model: The merger model state
+        
+    Returns:
+        tuple: (var_id, equations) if there's a conflict, None otherwise
+    """
+    data = merger_model['editing_entity'].get_conflict()
+    if data:
+      self._update_merger_models(merger_model, data)
+    return data
+
+  def solve_conflict(self, merger_model, index):
+    """Solve a conflict in the merger model.
+    
+    Args:
+        merger_model: The merger model state
+        index: The index of the selected equation
+    """
+    if not merger_model['var_id']:
+      return
+    merger_model['editing_entity'].solve_conflict(
+        merger_model['var_id'], 
+        index.data()
+    )
+
+  def undo_merger_step(self, merger_model):
+    """Undo the last merging step.
+    
+    Args:
+        merger_model: The merger model state
+        
+    Returns:
+        tuple: (var_id, equations) if there's a previous state, None otherwise
+    """
+    data = merger_model['editing_entity'].undo_merging_step()
+    if data:
+      self._update_merger_models(merger_model, data)
+    return data
+
+  def _update_merger_models(self, merger_model, data):
+    """Update the merger model with new data.
+    
+    Args:
+        merger_model: The merger model state
+        data: Tuple of (var_id, equations)
+    """
+    if not data:
+      return
+
+    var_id, assigned_equations = data
+    merger_model['var_id'] = var_id
+
+    # Convert equation IDs to equation objects if needed
+    if assigned_equations and isinstance(assigned_equations[0], str):
+      assigned_equations = [self.all_equations[eq_id] for eq_id in assigned_equations]
+
+    conflict_variable = self.all_variables.get(var_id)
+    if conflict_variable:
+      merger_model['equations_model'].load_data(assigned_equations)
 
   def save(self) -> None:
     old_io.save_entities_to_file(self.ontology_name, self.all_entities)

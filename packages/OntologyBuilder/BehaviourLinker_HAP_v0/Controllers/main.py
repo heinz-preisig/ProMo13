@@ -271,9 +271,6 @@ class MainController(QObject):
     If an entity type is selected, creates a new instance of that type.
     If an existing entity is selected, creates a copy for a new instance.
     """
-    # print("\n===", "on_action_new_triggered called", "===")
-    # print(f"Stored item data: {hasattr(self, '_last_selected_item_data')}")
-
     if not hasattr(self, '_last_selected_item_data') or not self._last_selected_item_data:
       print("No item data available")
       QtWidgets.QMessageBox.warning(
@@ -283,6 +280,62 @@ class MainController(QObject):
               "Click on an item in the tree view first."
               )
       return
+      
+    # Get the selected item data
+    item_data = self._last_selected_item_data
+    
+    try:
+      # Determine if this is a leaf node (entity type) or an entity instance
+      is_leaf = item_data.get('is_leaf', False)
+      
+      if is_leaf:
+        # For leaf nodes, create a new instance of the selected type
+        base_entity_id = item_data.get('entity_id')
+        if not base_entity_id:
+          raise ValueError("No entity ID found in selected item")
+          
+        # Prompt for new instance name
+        new_entity_id, ok = QtWidgets.QInputDialog.getText(
+          self._view,
+          'New Instance',
+          'Enter a name for the new instance:',
+          QtWidgets.QLineEdit.Normal,
+          ''
+        )
+        
+        if not ok or not new_entity_id:
+          return  # User cancelled or entered an empty name
+          
+        # Create the new entity
+        new_entity, merger_data = self._model.create_entity(
+          new_entity_id, 
+          [base_entity_id]  # Single base entity
+        )
+        
+        # If merging is needed (for multiple inheritance), handle it
+        if merger_data is not None:
+          self._handle_merging(new_entity, merger_data)
+        else:
+          # No merging needed, add the entity to the model
+          self._model.add_entity_to_model(new_entity)
+          self._select_entity_in_tree(new_entity.entity_name)
+          
+      else:
+        # For non-leaf nodes, open the entity editor for the selected entity
+        entity_id = item_data.get('entity_id')
+        if entity_id and entity_id in self._model.all_entities:
+          self.edit_entity()
+          
+    except Exception as e:
+      error_msg = f"Error creating new entity: {e}"
+      print(error_msg)
+      import traceback
+      traceback.print_exc()
+      QtWidgets.QMessageBox.critical(
+        self._view,
+        "Error",
+        error_msg
+      )
 
     item_data = self._last_selected_item_data
     print(f"Using stored item data: {item_data}")
@@ -455,6 +508,7 @@ class MainController(QObject):
             # Use the model's method to add the entity and update the tree
             self._model.add_entity_to_model(new_entity)
             self._model.current_entity_id = new_entity_id
+            self._handle_merging(new_entity, self._model.get_merger_data())
             print(f"Entity {new_entity_id} added to model after editor confirmation")
             
     except Exception as e:
@@ -467,6 +521,75 @@ class MainController(QObject):
             "Error",
             f"Failed to create entity: {str(e)}"
         )
+
+  def _handle_merging(self, new_entity: 'Entity', merger_data: dict) -> None:
+    """Handle the entity merging process.
+    
+    Args:
+        new_entity: The new entity being created
+        merger_data: Dictionary containing the merger state
+    """
+    from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_merger import EntityMergerView
+    
+    # Create and configure the merger view
+    view = EntityMergerView(merger_data, self._view)
+    
+    # Connect signals
+    view.equation_selected.connect(
+        lambda idx: self._model.solve_conflict(merger_data, idx)
+    )
+    view.undo_requested.connect(
+        lambda: self._model.undo_merger_step(merger_data)
+    )
+    view.accepted.connect(
+        lambda: self._on_merging_completed(new_entity, view)
+    )
+    view.rejected.connect(
+        lambda: self._on_merging_cancelled(new_entity, view)
+    )
+    
+    # Show the dialog
+    view.show()
+    
+    # Load the first conflict
+    conflict = self._model.get_next_conflict(merger_data)
+    if not conflict:
+        # No conflicts, complete the merge
+        self._on_merging_completed(new_entity, view)
+        return
+
+  def _on_merging_completed(self, new_entity: 'Entity', view: 'QtWidgets.QDialog' = None) -> None:
+    """Handle completion of the merging process.
+    
+    Args:
+        new_entity: The entity that was created
+        view: The merger view dialog (optional)
+    """
+    try:
+        self._model.add_entity_to_model(new_entity)
+        self._select_entity_in_tree(new_entity.entity_name)
+    except Exception as e:
+        QtWidgets.QMessageBox.critical(
+            self._view,
+            "Error",
+            f"Failed to add merged entity: {str(e)}"
+        )
+    finally:
+        if view:
+            view.deleteLater()
+
+  def _on_merging_cancelled(self, new_entity: 'Entity', view: 'QtWidgets.QDialog') -> None:
+    """Handle cancellation of the merging process.
+    
+    Args:
+        new_entity: The entity being created
+        view: The merger view dialog
+    """
+    # Clean up the temporary entity
+    if hasattr(new_entity, 'cleanup'):
+        new_entity.cleanup()
+    if view:
+        view.deleteLater()
 
   def edit_entity(self) -> None:
     """Handle the edit entity action."""
