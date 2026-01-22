@@ -15,6 +15,11 @@ class EntityEditorView(QtWidgets.QDialog):
     self.ui.setupUi(self)
 
     self._model = model
+    
+    # Set window title with just the friendly name (part after last dot)
+    if hasattr(model, 'editing_entity') and hasattr(model.editing_entity, 'entity_name'):
+        friendly_name = model.editing_entity.entity_name.split('.')[-1]
+        self.setWindowTitle(f"Edit: {friendly_name}")
 
     self.ui.cbox_view_all.setChecked(True)
     self.ui.pbutton_delete_variable.setEnabled(False)

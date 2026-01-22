@@ -56,42 +56,35 @@ class Entity():
         self.entity_name = entity_name
         self.index_set = index_set
         self.integrators = integrators if integrators is not None else {}
-        self.var_eq_forest = var_eq_forest if var_eq_forest is not None else []
+        self.var_eq_forest = var_eq_forest if var_eq_forest is not None else [{}]
         self.init_vars = init_vars if init_vars is not None else []
         self.input_vars = input_vars if input_vars is not None else []
         self.output_vars = output_vars if output_vars is not None else []
         self.all_equations = all_equations
-
         self.is_reservoir = False
-
-        if entity_name != "Topology" and ">>>" not in entity_name:
-            import re
-            # Split on dots, underscores, or pipes
-            parts = re.split(r'[._|]+', entity_name)
-
-            # Ensure we have enough parts
-            if len(parts) >= 6:
-                network, ent_type, token, mechanism, nature, *name_parts = parts
-                name = '.'.join(name_parts) if name_parts else ''
-
-                self.entity_type = ent_type
-                self.index_set = ent_type[0].capitalize() + "_" + mechanism[:4]
-                self.is_reservoir = f"{mechanism}|{nature}" == "constant|infinity"
-            else:
-                # Fallback to simple splitting for backward compatibility
-                parts = entity_name.split('.')
-                if len(parts) >= 4:
-                    network, ent_type, str1 = parts[0], parts[1], parts[2]
-                    if '|' in str1:
-                        token_parts = str1.split('|')
-                        if len(token_parts) >= 3:
-                            token, mechanism, nature = token_parts[0], token_parts[1], token_parts[2]
-                            name = '.'.join(parts[3:]) if len(parts) > 3 else ''
-                            self.entity_type = ent_type
-                            self.index_set = ent_type[0].capitalize() + "_" + mechanism[:4]
-                            self.is_reservoir = f"{mechanism}|{nature}" == "constant|infinity"
-        else:
+        
+        if entity_name == "Topology" or ">>>" in entity_name:
             self.entity_type = "interface"
+            return
+            
+        try:
+            # Simple split into exactly 4 parts
+            self.network, self.category, self.entity_type, self.name = entity_name.split('.', 3)
+            
+            # Set index set based on category
+            self.index_set = f"{self.category.capitalize()}_{self.entity_type[:4].lower()}"
+            
+            # Check if this is a reservoir (special case with | in entity_type)
+            if '|' in self.entity_type:
+                type_parts = self.entity_type.split('|')
+                if len(type_parts) >= 3:
+                    mechanism, nature = type_parts[1], type_parts[2]
+                    self.is_reservoir = f"{mechanism}|{nature}" == "constant|infinity"
+                    
+        except ValueError:
+            # If split fails, set defaults
+            self.entity_type = "unknown"
+            self.index_set = "Unknown"
 
         self.temp_var_eq_forest = None
         self.merge_conflicts = {}

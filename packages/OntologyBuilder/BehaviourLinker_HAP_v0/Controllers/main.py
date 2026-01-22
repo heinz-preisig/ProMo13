@@ -20,7 +20,13 @@ from common.components import starting_dialog
 # In the imports section at the top of main.py
 from .app_state import AppState
 from .app_state import StateMachine
+from ..Models.entity_editor import EntityEditorModel
+from ..Controllers.entity_editor import EntityEditorController
 
+ID_COMPONENTS_TREE = {0: "network",
+                      1: "category",
+                      2: "entity_type",
+                      3: "entity_instance "}
 
 class MainController(QObject):
     def __init__(self, main_model: MainModel, main_view: MainView):
@@ -211,38 +217,58 @@ class MainController(QObject):
         print(f"State changed to: {new_state.name}")
 
     def _on_tree_selection_changed(self, current: QtCore.QModelIndex, previous: QtCore.QModelIndex) -> None:
-        """Handle tree selection changes."""
-        if current.isValid():
-            entity_id = current.data(QtCore.Qt.UserRole + 1)
-            self._current_entity_id = entity_id
+        """Handle tree selection changes.
+        
+        Only loads entity data when an actual entity is selected, not for containers
+        like networks, arcs, or nodes.
+        """
+        if not current.isValid():
+            self.state_machine.transition_to(AppState.IDLE)
+            return
+
+        try:
+            # Get the item and its data
+            item = current.model().itemFromIndex(current)
+            if not item:
+                self.state_machine.transition_to(AppState.IDLE)
+                return
+
+            # Get the entity data (if any)
+            entity_data = item.data(QtCore.Qt.UserRole + 1)
+            self._current_entity_id = entity_data if entity_data else None
 
             # Store the item's data for later use
-            try:
-                item = current.model().itemFromIndex(current)
-                is_leaf = item.rowCount() == 0
-                self._last_selected_item_data = {
-                        'text'   : item.text(),
-                        'is_leaf': is_leaf,
-                        'data'   : item.data(QtCore.Qt.UserRole + 1),
-                        'index'  : current
-                        }
+            is_leaf = item.rowCount() == 0
+            self._last_selected_item_data = {
+                'text': item.text(),
+                'is_leaf': is_leaf,
+                'data': entity_data,
+                'index': current
+            }
 
-                # Load entity data
-                self._model.load_entity(current)
-
-                # Update menu state
-                self._view.menu_items_state(current)
-
-                # Transition to ENTITY_SELECTED state
-                self.state_machine.transition_to(
+            # Only try to load entity data if this is an actual entity
+            if entity_data and isinstance(entity_data, str) and '|' in entity_data and '.' in entity_data:
+                # This looks like an entity ID (e.g., 'control.node.signal|constant|AE')
+                try:
+                    self._model.load_entity(current)
+                    self.state_machine.transition_to(
                         AppState.ENTITY_SELECTED,
-                        entity_id=entity_id,
+                        entity_id=entity_data,
                         index=current
-                        )
-            except Exception as e:
-                print(f"Error in selection changed: {e}")
+                    )
+                except Exception as e:
+                    print(f"Error loading entity data: {e}")
+                    self.state_machine.transition_to(AppState.IDLE)
+            else:
+                # For non-entity items (networks, arcs, nodes), just update the UI
+                # but don't try to load entity data
                 self.state_machine.transition_to(AppState.IDLE)
-        else:
+
+            # Update menu state based on selection
+            self._view.menu_items_state(current)
+
+        except Exception as e:
+            print(f"Error in selection changed: {e}")
             self.state_machine.transition_to(AppState.IDLE)
 
         def on_show_event_triggered(self) -> None:
@@ -271,256 +297,197 @@ class MainController(QObject):
         If an entity type is selected, creates a new instance of that type.
         If an existing entity is selected, creates a copy for a new instance.
         """
-        if not hasattr(self, '_last_selected_item_data') or not self._last_selected_item_data:
-            print("No item data available")
-            QtWidgets.QMessageBox.warning(
+        try:
+            if not hasattr(self, '_last_selected_item_data') or not self._last_selected_item_data:
+                QtWidgets.QMessageBox.warning(
                     self._view,
                     "No Selection",
-                    "Please select an entity type to create a new instance or an entity to copy.\n"
-                    "Click on an item in the tree view first."
-                    )
-            return
+                    "Please select an entity type to create a new instance.",
+                    QtWidgets.QMessageBox.Ok
+                )
+                return
 
-        # Get the selected item data
-        item_data = self._last_selected_item_data
+            item_data = self._last_selected_item_data
+            print(f"Using stored item data: {item_data}")
 
-        try:
-            # Determine if this is a leaf node (entity type) or an entity instance
-            is_leaf = item_data.get('is_leaf', False)
-
-            if is_leaf:
-                # For leaf nodes, create a new instance of the selected type
-                base_entity_id = item_data.get('entity_id')
-                if not base_entity_id:
-                    raise ValueError("No entity ID found in selected item")
-
-                # Prompt for new instance name
-                new_entity_id, ok = QtWidgets.QInputDialog.getText(
-                        self._view,
-                        'New Instance',
-                        'Enter a name for the new instance:',
-                        QtWidgets.QLineEdit.Normal,
-                        ''
-                        )
-
-                if not ok or not new_entity_id:
-                    return  # User cancelled or entered an empty name
-
-                # Create the new entity
-                new_entity, merger_data = self._model.create_entity(
-                        new_entity_id,
-                        [base_entity_id]  # Single base entity
-                        )
-
-                # If merging is needed (for multiple inheritance), handle it
-                if merger_data is not None:
-                    self._handle_merging(new_entity, merger_data)
-                else:
-                    # No merging needed, add the entity to the model
-                    self._model.add_entity_to_model(new_entity)
-                    self._select_entity_in_tree(new_entity.entity_name)
-
-            else:
-                # For non-leaf nodes, open the entity editor for the selected entity
-                entity_id = item_data.get('entity_id')
-                if entity_id and entity_id in self._model.all_entities:
-                    self.edit_entity()
-
-        except Exception as e:
-            error_msg = f"Error creating new entity: {e}"
-            print(error_msg)
-            import traceback
-            traceback.print_exc()
-            QtWidgets.QMessageBox.critical(
-                    self._view,
-                    "Error",
-                    error_msg
-                    )
-
-        item_data = self._last_selected_item_data
-        print(f"Using stored item data: {item_data}")
-
-        # Check if this is an existing entity (has entity data in UserRole + 3)
-        entity_obj = item_data['index'].data(QtCore.Qt.UserRole + 3)
-        if entity_obj is not None and hasattr(entity_obj, 'entity_name'):
-            # Create a new instance based on the selected entity
-            base_entity = entity_obj
-            # For existing entities, we need to handle the full entity name properly
-            parts = base_entity.entity_name.split('.')
-            base_name = parts[-1]  # Get just the name part (after last dot)
-            display_name = base_name.split('|')[-1] if '|' in base_name else base_name
-            entity_type_path = ".".join(parts[:-1])  # Everything before the last dot
-        else:
+            # Initialize variables
             base_entity = None
-            # Get the entity type path from the stored data
-            entity_data = item_data.get('data')
-            if not entity_data:
-                QtWidgets.QMessageBox.warning(
+            base_entity_id = None
+            display_name = "entity"
+
+            # Check if this is an existing entity (has entity data in UserRole + 3)
+            entity_obj = item_data['index'].data(QtCore.Qt.UserRole + 3)
+            if entity_obj is not None and hasattr(entity_obj, 'entity_name'):
+                # Create a new instance based on the selected entity
+                base_entity = entity_obj
+                base_entity_id = base_entity.entity_name
+                parts = base_entity_id.split('.')
+                display_name = parts[-1].split('|')[-1] if '|' in parts[-1] else parts[-1]
+            else:
+                # Handle entity type selection
+                entity_data = item_data.get('data')
+                if not entity_data:
+                    QtWidgets.QMessageBox.warning(
                         self._view,
                         "Error",
                         "Could not get entity data from the selected item."
-                        )
+                    )
+                    return
+
+                # Handle entity type format: ('entity_type', 'control', 'node', 'signal|constant|AE')
+            if isinstance(entity_data, tuple) and len(entity_data) > 1 and entity_data[0] == 'entity_type':
+                # For format: ('entity_type', 'control', 'node', 'signal|constant|AE')
+                if len(entity_data) >= 4 and '|' in entity_data[3]:
+                    # Handle special case with pipe-separated type
+                    domain, category, entity_type = entity_data[1:4]
+                    name = entity_type.split('|')[-1]  # Take the last part after the last pipe
+                    base_entity_id = f"{domain}.{category}.{entity_type}"
+                    display_name = name
+                else:
+                    # Handle regular entity type format
+                    parts = list(entity_data[1:])  # Skip the first 'entity_type' element
+                    while len(parts) < 3:
+                        parts.append('unknown')
+                    domain, etype, name = parts[:3]
+                    base_entity_id = f"{domain}.{etype}.{name}"
+                    display_name = name.split('|')[-1] if '|' in name else name
+                    return
+
+            if not base_entity_id:
+                QtWidgets.QMessageBox.warning(
+                    self._view,
+                    "Error",
+                    "Could not determine base entity ID."
+                )
                 return
 
-            # Handle the tuple format: ('entity_type', 'macroscopic', 'node', 'charge_energy_mass|constant|infinity')
-            if isinstance(entity_data, tuple) and len(entity_data) > 1 and entity_data[0] == 'entity_type':
-                # For entity types, the last part is the full type spec (e.g., 'charge_energy_mass|constant|infinity')
-                entity_type_path = ".".join(entity_data[1:-1])  # Skip 'entity_type' and the last part
-                type_spec = entity_data[-1]  # This is the full type spec with tokens
-                display_name = type_spec.split('|')[-1]  # Get the last part as display name
-                # Reconstruct the full path with the type spec
-                entity_type_path = f"{entity_type_path}.{type_spec}" if entity_type_path else type_spec
-            else:
-                # For other cases, use the string representation
-                entity_type_path = str(entity_data)
-                display_name = item_data.get('text', 'entity')
-                if '|' in display_name:
-                    display_name = display_name.split('|')[-1]
+            # Check if we need to create the entity type first
+            if base_entity_id not in self._model.all_entities:
+                # This is a new entity type, create it
+                try:
+                    # Create the entity type with default values
+                    from Common.classes.entity import Entity
+                    entity_type = Entity(
+                        entity_name=base_entity_id,
+                        all_equations=self._model.all_equations
+                    )
+                    entity_type.entity_type = base_entity_id
+                    
+                    # Add to model
+                    self._model.all_entities[base_entity_id] = entity_type
+                    print(f"Created new entity type: {base_entity_id}")
+                    
+                except Exception as e:
+                    error_msg = f"Failed to create entity type {base_entity_id}: {str(e)}"
+                    print(error_msg)
+                    QtWidgets.QMessageBox.critical(
+                        self._view,
+                        "Error",
+                        error_msg
+                    )
+                    return
 
-        # Clean up the entity type path by removing any empty parts
-        entity_type_path = ".".join(part.strip() for part in entity_type_path.split(".") if part.strip())
-
-        # If we have a base entity, use its type as the entity type path
-        if base_entity and hasattr(base_entity, 'entity_type'):
-            entity_type_path = base_entity.entity_type
-            print(f"Using base entity type: {entity_type_path}")
-        else:
-            print(f"Using entity type path: {entity_type_path}")
-
-        # Prompt user for instance name
-        name, ok = QtWidgets.QInputDialog.getText(
+            # Prompt for new instance name
+            new_entity_id, ok = QtWidgets.QInputDialog.getText(
                 self._view,
-                "New Entity Instance",
-                f"Enter a name for the new {display_name} instance:",
-                QtWidgets.QLineEdit.Normal
-                )
+                'New Instance',
+                f'Enter a name for the new {display_name} instance:',
+                QtWidgets.QLineEdit.Normal,
+                ''
+            )
+            
+            if ok and new_entity_id:  # Only proceed if user didn't cancel and entered a name
+                try:
+                    # Create the entity but don't add it to the model yet
+                    new_entity, merger_data = self._model.create_entity(
+                        new_entity_id,
+                        [base_entity_id]  # Single base entity
+                    )
 
-        if not ok or not name.strip():
-            print("User cancelled or entered empty name")
+                    # If merging is needed (for multiple inheritance), handle it
+                    if merger_data is not None:
+                        self._handle_merging(new_entity, merger_data)
+                    else:
+                        # Create editor components
+                        editor_model = EntityEditorModel(new_entity, self._model.all_variables, self._model.all_equations)
+                        editor_view = EntityEditorView(editor_model, self._view)
+                        editor_controller = EntityEditorController(editor_model, editor_view)
+                        
+                        # Show the editor dialog
+                        result = editor_view.exec_()
+                        
+                        if result == QtWidgets.QDialog.Accepted:
+                            # Only add to model if user accepted the changes
+                            self._model.add_entity_to_model(new_entity)
+                            self._model._update_tree_model()
+                            self._select_entity_in_tree(new_entity.entity_name)
+                            self._model.current_entity_id = new_entity.entity_name
+                            print("New entity created and added to model")
+                        else:
+                            # User cancelled, don't add to model
+                            print("Entity creation cancelled by user")
+                except Exception as e:
+                    error_msg = f"Error creating entity: {str(e)}"
+                    print(error_msg)
+                    import traceback
+                    traceback.print_exc()
+                    QtWidgets.QMessageBox.critical(
+                        self._view,
+                        "Error",
+                        error_msg
+                    )
             return
 
-        # Determine the new entity ID based on whether we have a base entity or type path
-        if base_entity:
-            # If we have a base entity, construct the ID from its components
-            parts = base_entity.entity_name.split('.')
-            if len(parts) >= 3:
-                # Extract network and category from the base entity
-                network = parts[0]
-                category = parts[1]
-
-                # Get the full type part (everything after network.category)
-                type_part = parts[2]
-
-                # The new entity ID should be: network.category.type_part|name
-                new_entity_id = f"{network}.{category}.{type_part}.{name.strip()}"
-                print(f"Creating new variant with ID: {new_entity_id}")
-            else:
-                # Fallback to simple appending if the base entity name doesn't have the expected format
-                new_entity_id = f"{base_entity.entity_name}|{name.strip()}"
-                print(f"Creating new variant (fallback) with ID: {new_entity_id}")
-
-            # Create a new entity with the same type and properties as the base entity
-            new_entity = Entity(
-                    entity_name=new_entity_id,
-                    all_equations=base_entity.all_equations,
-                    index_set=base_entity.index_set,
-                    integrators=dict(base_entity.integrators),
-                    var_eq_forest=[dict(tree) for tree in base_entity.var_eq_forest],
-                    init_vars=list(base_entity.init_vars),
-                    input_vars=list(base_entity.input_vars),
-                    output_vars=list(base_entity.output_vars)
-                    )
-
-            # Manually copy over additional attributes that might be needed
-            if hasattr(base_entity, 'entity_type'):
-                new_entity.entity_type = base_entity.entity_type
-            if hasattr(base_entity, 'is_reservoir'):
-                new_entity.is_reservoir = base_entity.is_reservoir
-
-            print(f"Created new variant from: {base_entity.entity_name}")
-        else:
-            # If no base entity, use the entity_type_path directly
-            new_entity_id = f"{entity_type_path}.{name.strip()}"
-            print(f"Creating new base entity with ID: {new_entity_id}")
-
-            # Handle multi-token types (e.g., 'charge_energy_mass|constant|infinity')
-            if '|' in entity_type_path:
-                # Extract the base type (part before the first '|')
-                base_type = entity_type_path.split('|')[0]
-                # Try to find the base entity
-                base_entity = self._model.all_entities.get(base_type)
-
-                if base_entity:
-                    # Create a new entity with the same type and properties as the base entity
-                    new_entity = Entity(
-                            entity_name=new_entity_id,
-                            all_equations=base_entity.all_equations,
-                            index_set=base_entity.index_set,
-                            integrators=dict(base_entity.integrators),
-                            var_eq_forest=[dict(tree) for tree in base_entity.var_eq_forest],
-                            init_vars=list(base_entity.init_vars),
-                            input_vars=list(base_entity.input_vars),
-                            output_vars=list(base_entity.output_vars)
-                            )
-                    # Manually copy over additional attributes that might be needed
-                    if hasattr(base_entity, 'entity_type'):
-                        new_entity.entity_type = base_entity.entity_type
-                    if hasattr(base_entity, 'is_reservoir'):
-                        new_entity.is_reservoir = base_entity.is_reservoir
-                    print(f"Created new entity from multi-token base: {base_type}")
-                else:
-                    # If base entity not found, create a new one with the full type path
-                    new_entity = Entity(
-                            entity_name=new_entity_id,
-                            all_equations=self._model.all_equations
-                            )
-                    print(f"Created new base entity with multi-token type: {entity_type_path}")
-            else:
-                # Create a new entity instance
-                new_entity = Entity(
-                        entity_name=new_entity_id,
-                        all_equations=self._model.all_equations
-                        )
-                print(f"Created new base entity: {new_entity_id}")
-
-        try:
-            print(f"Created new entity in memory: {new_entity_id}")
-
-            # Create and show the editor
-            from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_editor import EntityEditorController
-            from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_editor import EntityEditorModel
-            from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_editor import EntityEditorView
-
-            # Create editor components
-            editor_model = EntityEditorModel(
-                    editing_entity=new_entity,
-                    all_variables=self._model.all_variables,
-                    all_equations=self._model.all_equations
-                    )
-            editor_view = EntityEditorView(model=editor_model, parent=self._view)
-            editor_controller = EntityEditorController(editor_model, editor_view)
-
-            # Show the editor dialog
-            result = editor_view.exec_()
-
-            # Only add the entity if the dialog was accepted
-            if result == QtWidgets.QDialog.Accepted:
-                # Use the model's method to add the entity and update the tree
-                self._model.add_entity_to_model(new_entity)
-                self._model.current_entity_id = new_entity_id
-                self._handle_merging(new_entity, self._model.get_merger_data())
-                print(f"Entity {new_entity_id} added to model after editor confirmation")
-
         except Exception as e:
-            error_msg = f"Error creating new entity: {e}"
+            error_msg = f"Unexpected error: {str(e)}"
             print(error_msg)
             import traceback
             traceback.print_exc()
             QtWidgets.QMessageBox.critical(
-                    self._view,
-                    "Error",
-                    f"Failed to create entity: {str(e)}"
-                    )
+                self._view,
+                "Error",
+                error_msg
+            )
+            return
+
+        # Entity creation completed successfully
+        print("Entity created successfully")
+
+    def _select_entity_in_tree(self, entity_id: str) -> None:
+        """Select an entity in the tree view by its ID.
+        
+        Args:
+            entity_id: The ID of the entity to select
+        """
+        # Find the index of the entity in the tree model
+        model = self._view.ui.tree_entities.model()
+        if not model:
+            return
+            
+        # Search through the model for the entity
+        def find_index(parent_index):
+            for row in range(model.rowCount(parent_index)):
+                index = model.index(row, 0, parent_index)
+                item_data = index.data(QtCore.Qt.UserRole)
+                if item_data and 'entity_id' in item_data and item_data['entity_id'] == entity_id:
+                    return index
+                
+                # Recursively search children
+                child_index = find_index(index)
+                if child_index.isValid():
+                    return child_index
+                    
+            return QtCore.QModelIndex()
+            
+        # Start search from root
+        index = find_index(QtCore.QModelIndex())
+        if index.isValid():
+            # Select and expand the item
+            self._view.ui.tree_entities.setCurrentIndex(index)
+            self._view.ui.tree_entities.expand(index)
+            
+        # Update the current entity ID
+        self._current_entity_id = entity_id
 
     def _handle_merging(self, new_entity: 'Entity', merger_data: dict) -> None:
         """Handle the entity merging process.
@@ -622,45 +589,72 @@ class MainController(QObject):
                         )
                 return
 
-            # Get the editor model
-            print("Getting entity editor model...")
-            dlg_model = self._model.get_entity_editor_model()
-            print(f"Editor model created: {dlg_model is not None}")
+            # Get the entity object
+            entity_obj = self._model.all_entities[entity_id]
 
-            if not dlg_model:
-                QtWidgets.QMessageBox.warning(
-                        self._view,
-                        "Error",
-                        "Could not create editor for the selected entity."
-                        )
-                return
+            # Debug: Print entity details
+            print(f"Entity type: {type(entity_obj).__name__}")
+            print(f"Entity attributes: {[attr for attr in dir(entity_obj) if not attr.startswith('__')]}")
 
-            print("Creating editor view...")
-            dlg_view = EntityEditorView(dlg_model, self._view)
-            dlg_controller = EntityEditorController(dlg_model, dlg_view)
+            # Get all variables and equations
+            all_variables = self._model.all_variables
+            all_equations = self._model.all_equations
+            
+            print(f"\n=== DEBUG: Variable and Equation Counts ===")
+            print(f"Total variables in model: {len(all_variables)}")
+            print(f"Total equations in model: {len(all_equations)}")
+            
+            if all_variables:
+                print("\nFirst 5 variables:")
+                for i, (var_id, var) in enumerate(list(all_variables.items())[:5]):
+                    print(f"  {i + 1}. {var_id} (type: {type(var)})")
+                    if hasattr(var, 'get_variables'):
+                        print(f"     Has get_variables() method")
+            
+            if all_equations:
+                print("\nFirst 5 equations:")
+                for i, (eq_id, eq) in enumerate(list(all_equations.items())[:5]):
+                    print(f"  {i + 1}. {eq_id} (type: {type(eq)})")
+                    if hasattr(eq, 'lhs') and eq.lhs:
+                        print(f"     LHS: {eq.lhs}")
 
+            # Create and show the full EntityEditor
+            print("Creating EntityEditor...")
+            from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_editor import EntityEditorModel
+            from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_editor import EntityEditorView
+            from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_editor import EntityEditorController
+            
+            print("Creating EntityEditor components...")
+            # Create the model, view, and controller for the entity editor
+            editor_model = EntityEditorModel(entity_obj, all_variables, all_equations)
+            editor_view = EntityEditorView(editor_model, self._view)
+            editor_controller = EntityEditorController(editor_model, editor_view)
+            
             print("Showing editor dialog...")
-            result = dlg_view.exec_()
+            result = editor_view.exec_()
 
             if result == QtWidgets.QDialog.Accepted:
                 print("Dialog accepted, updating entity...")
-                # Ensure we have the latest entity_id in case it changed
-                current_entity_id = getattr(self._model, 'current_entity_id', None)
-                print(f"Updating entity with ID: {current_entity_id}")
 
-                if current_entity_id is None:
-                    raise ValueError("current_entity_id is None when trying to update entity")
+                # Update the model and refresh the view
+                if hasattr(self, '_current_entity_id') and self._current_entity_id:
+                    # Get the current index before any updates
+                    current_index = self._view.ui.tree_entities.currentIndex()
 
-                # Get the updated entity from the dialog model
-                updated_entity = dlg_model.editing_entity
-                if not updated_entity:
-                    raise ValueError("No entity data to update")
+                    # Force a complete refresh of the tree model
+                    if hasattr(self._model, '_update_tree_model'):
+                        self._model._update_tree_model()
 
-                print(f"Updated entity name: {getattr(updated_entity, 'entity_name', 'N/A')}")
+                    # Reselect the current entity
+                    self._select_entity_in_tree(self._current_entity_id)
 
-                # Update the entity in the model
-                self._model.update_entity(current_entity_id, updated_entity)
-                print("Entity updated successfully")
+                    # Force an update of the entity data display
+                    if current_index.isValid():
+                        self._on_tree_selection_changed(current_index, QtCore.QModelIndex())
+
+                    print("Entity view updated successfully")
+                else:
+                    print("No current entity ID found to update")
             else:
                 print("Dialog was cancelled")
 

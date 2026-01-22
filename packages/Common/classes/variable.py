@@ -123,7 +123,23 @@ class Variable():
         return self.index_structures
 
     def __str__(self):
-        return json.dumps(self.__dict__)
+        import json
+        from datetime import datetime
+        
+        def json_serial(obj):
+            """JSON serializer for objects not serializable by default"""
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            elif hasattr(obj, '__dict__'):
+                return {k: json_serial(v) for k, v in obj.__dict__.items() if not k.startswith('_')}
+            return str(obj)
+            
+        try:
+            return json.dumps({k: json_serial(v) for k, v in self.__dict__.items() 
+                             if not k.startswith('_')}, indent=2)
+        except Exception as e:
+            # Fallback to a simple string representation if serialization fails
+            return f"Variable(id={getattr(self, 'id', 'unknown')}, name={getattr(self, 'name', 'unknown')})"
 
     def get_mod_date(self):
         return self.modified

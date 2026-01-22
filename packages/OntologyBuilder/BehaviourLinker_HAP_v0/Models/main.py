@@ -660,7 +660,7 @@ class MainModel(QtCore.QObject):
                         type_items[entity_type].appendRow(item)
 
                     except Exception as e:
-                        print(f"Error processing entity {entity_id}: {e}")
+                        print(f"Error processing entity here {entity_id}: {e}")
 
         self.tree_changed.emit()
 
@@ -736,48 +736,54 @@ class MainModel(QtCore.QObject):
             raise
 
     def create_entity(
-            self, new_entity_id: str, bases: list[str]
+            self, new_entity_name: str, bases: list[str]
             ) -> tuple[entity.Entity, dict | None]:
         """Create a new entity without adding it to the model.
 
         Args:
-            new_entity_id: ID for the new entity
+            new_entity_name: Name for the new entity (will be used as the name part)
             bases: List of base entity IDs to inherit from
 
         Returns:
             tuple: (new_entity, merger_data) where merger_data is a dictionary with merger state
                    if merging is needed, or None if no merging is needed
         """
-        # Initialize entity creation
         number_of_bases = len(bases)
 
         if number_of_bases == 1:
+            # Get the base entity
             base_entity = self.all_entities[bases[0]]
-            new_entity = copy.deepcopy(base_entity)
-
-            # Parse the base entity name to get its components
+            
+            # Create a new entity with the same parameters as the base
+            new_entity = entity.Entity(
+                entity_name="",  # Will be set below
+                all_equations=self.all_equations,
+                index_set=base_entity.index_set,
+                integrators=dict(base_entity.integrators),
+                var_eq_forest=[dict(tree) for tree in base_entity.var_eq_forest],
+                init_vars=list(base_entity.init_vars),
+                input_vars=list(base_entity.input_vars),
+                output_vars=list(base_entity.output_vars)
+            )
+            
+            # Parse the base entity name and create new name with the provided name
             try:
-                # Split the base entity name into its components
-                parts = base_entity.entity_name.split(",")
-                if len(parts) >= 2:
-                    network = parts[0]
-                    component = parts[1]
-
-                    # The rest is tokens.dynamics.nature.name
-                    type_parts = ".".join(parts[2:]).split(".")
-                    if len(type_parts) >= 2:
-                        # Replace the name part with the new name
-                        new_entity_name = f"{network},{component},{'.'.join(type_parts[:-1])}.{new_entity_id}"
-                        new_entity.entity_name = new_entity_name
-                    else:
-                        new_entity.entity_name = new_entity_id  # Fallback to simple name
-                else:
-                    new_entity.entity_name = new_entity_id  # Fallback to simple name
-            except Exception:
-                new_entity.entity_name = new_entity_id  # Fallback to simple name on error
+                network, category, entity_type, _ = base_entity.entity_name.split('.', 3)
+                new_entity.entity_name = f"{network}.{category}.{entity_type}.{new_entity_name}"
+            except (ValueError, AttributeError):
+                # Fallback if parsing fails
+                new_entity.entity_name = f"{base_entity.entity_name}.{new_entity_name}"
         else:
-            # Creating new base entity
-            new_entity = entity.Entity(new_entity_id, self.all_equations)
+            # For new base entities, the name should be in the format network.category.entity_type.name
+            # We'll use it as-is and let the Entity class validate it
+            new_entity = entity.Entity(
+                entity_name=new_entity_name,
+                all_equations=self.all_equations,
+                var_eq_forest=[{}],  # Initialize with empty forest
+                init_vars=[],
+                input_vars=[],
+                output_vars=[]
+            )
 
         # Handle merging if needed
         merger_data = None
