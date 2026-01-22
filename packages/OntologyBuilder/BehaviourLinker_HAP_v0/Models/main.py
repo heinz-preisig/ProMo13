@@ -618,25 +618,8 @@ class MainModel(QtCore.QObject):
                         continue
 
                     try:
-                        # parts = entity_id.split('.')
                         [network, category, entity_type, entity_name] = entity_id.split('.')
-                        # if len(parts) < 3:
-                        #   continue
 
-                        # type_parts = parts[2].split('|')
-                        # if len(type_parts) < 3:
-                        #   continue
-
-                        # Reconstruct the entity type (token|dynamics|nature)
-                        # entity_type = '|'.join(type_parts[:3])
-                        # entity_name = parts[-1]
-                        # base_type = type_parts[0]
-
-                        # # Extract just the name part from the entity ID (after the last | or .)
-                        # if '|' in entity_name:
-                        #     display_name = entity_name.split('|')[-1]
-                        # else:
-                        #     display_name = entity_name
                         # Note: here one can adsjust the entity show name
                         display_name = entity_name
 
