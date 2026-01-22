@@ -23,6 +23,8 @@ class MainView(QtWidgets.QMainWindow):
 
         # Install event filter to capture all mouse events
         self.ui.tree_entities.viewport().installEventFilter(self)
+        # Disable built-in double-click handling
+        self.ui.tree_entities.setExpandsOnDoubleClick(False)
 
         # Set initial UI state
         self.ui.menuEntity.setFocus()
@@ -31,19 +33,34 @@ class MainView(QtWidgets.QMainWindow):
 
     def eventFilter(self, source, event):
         """Handle events from the tree view."""
-        if (source is self.ui.tree_entities.viewport() and
-                event.type() == QtCore.QEvent.MouseButtonPress):
-            index = self.ui.tree_entities.indexAt(event.pos())
-            if index.isValid():
-                # Manually set the current index to ensure selection
-                self.ui.tree_entities.setCurrentIndex(index)
-                # Force an update of the selection model
-                selection_model = self.ui.tree_entities.selectionModel()
-                if selection_model:
-                    selection_model.select(index,
-                                           QtCore.QItemSelectionModel.ClearAndSelect | QtCore.QItemSelectionModel.Rows)
-                    # Emit the currentChanged signal manually
-                    selection_model.currentChanged.emit(index, QtCore.QModelIndex())
+        if source is self.ui.tree_entities.viewport():
+            if event.type() == QtCore.QEvent.MouseButtonDblClick:
+                # Handle double-click
+                index = self.ui.tree_entities.indexAt(event.pos())
+                if index.isValid():
+                    # Toggle expansion state
+                    if self.ui.tree_entities.isExpanded(index):
+                        self.ui.tree_entities.collapse(index)
+                    else:
+                        self.ui.tree_entities.expand(index)
+                    return True  # Event handled
+            elif event.type() == QtCore.QEvent.MouseButtonPress:
+                # Handle single click for selection
+                index = self.ui.tree_entities.indexAt(event.pos())
+                if index.isValid():
+                    # Manually set the current index to ensure selection
+                    self.ui.tree_entities.setCurrentIndex(index)
+                    # Force an update of the selection model
+                    selection_model = self.ui.tree_entities.selectionModel()
+                    if selection_model:
+                        selection_model.select(
+                            index,
+                            QtCore.QItemSelectionModel.ClearAndSelect | 
+                            QtCore.QItemSelectionModel.Rows
+                        )
+                        # Emit the currentChanged signal manually
+                        selection_model.currentChanged.emit(index, QtCore.QModelIndex())
+                    return True  # Event handled
 
         # Let the default event processing continue
         return super().eventFilter(source, event)
@@ -78,6 +95,7 @@ class MainView(QtWidgets.QMainWindow):
 
         except Exception:
             pass
+
 
     def menu_items_state(self, index: QtCore.QModelIndex):
         try:
