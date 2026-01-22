@@ -60,26 +60,24 @@ class EntityEditorModel(QtCore.QObject):
         entity_variables = []
         pending_variables = []
 
-        # If no variables are assigned, show all available variables
-        if not entity_variable_ids and not pending_variable_ids:
-            print("No variables assigned to entity - showing all available variables")
-            entity_variables = list(self.all_variables.values())
-        else:
-            if not self.view_all and pending_variable_ids:
-                # Show only pending variables
-                entity_variables = [self.all_variables[var_id]
-                                    for var_id in pending_variable_ids
-                                    if var_id in self.all_variables]
-            elif entity_variable_ids:
-                # Show assigned variables
-                entity_variables = [self.all_variables[var_id]
-                                    for var_id in entity_variable_ids
-                                    if var_id in self.all_variables]
-
-            # Always include pending variables for reference
+        # Only show variables that are part of the entity's type definition
+        if entity_variable_ids:
+            # If we have entity variables, show them
+            entity_variables = [self.all_variables[var_id]
+                              for var_id in entity_variable_ids
+                              if var_id in self.all_variables]
+        
+        # Always include pending variables for reference
+        if pending_variable_ids:
             pending_variables = [self.all_variables[var_id]
-                                 for var_id in pending_variable_ids
-                                 if var_id in self.all_variables]
+                               for var_id in pending_variable_ids
+                               if var_id in self.all_variables]
+        
+        # If view_all is True and we have no variables, show an empty list instead of all variables
+        if self.view_all and not entity_variables and not pending_variables:
+            print("No variables to display for this entity")
+            entity_variables = []
+            pending_variables = []
 
         print(f"Found {len(entity_variables)} entity variables and {len(pending_variables)} pending variables")
 
