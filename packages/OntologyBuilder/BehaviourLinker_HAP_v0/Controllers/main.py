@@ -3,6 +3,7 @@ import sys
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject
+from typing import Optional, Dict, List
 
 from Common.classes.entity import Entity
 from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_editor import (
@@ -290,6 +291,69 @@ class MainController(QObject):
                 self._model.load_ontology(ontology_name)
             else:
                 sys.exit()
+# -----------------------
+    # In OntologyBuilder/BehaviourLinker_HAP_v0/Controllers/main.py
+
+    def create_new_entity(self):
+        from OntologyBuilder.BehaviourLinker_HAP_v0.Views.instance_creation_dialog import InstanceCreationDialog
+
+        # Show the instance creation dialog
+        dialog = InstanceCreationDialog(
+                self,
+                existing_instances=list(self.all_entities.values())
+                )
+
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            is_variant, source_entity = dialog.get_selection()
+
+            if is_variant and source_entity:
+                # Create a variant of the selected entity
+                new_name = f"{source_entity.entity_name}_variant"
+                counter = 1
+                while new_name in self.all_entities:
+                    new_name = f"{source_entity.entity_name}_variant_{counter}"
+                    counter += 1
+
+                # Create and show the editor for the variant
+                model = EntityEditorModel(
+                        entity.Entity(new_name, self.all_equations),
+                        self.all_variables,
+                        self.all_equations,
+                        is_variant=True,
+                        variant_source=source_entity
+                        )
+                self.show_entity_editor(model)
+            else:
+                # Create a completely new instance
+                new_name = "New_Instance"
+                counter = 1
+                while new_name in self.all_entities:
+                    new_name = f"New_Instance_{counter}"
+                    counter += 1
+
+                model = EntityEditorModel(
+                        entity.Entity(new_name, self.all_equations),
+                        self.all_variables,
+                        self.all_equations,
+                        is_variant=False
+                        )
+                self.show_entity_editor(model)
+
+    def show_entity_editor(self, model):
+        from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_editor import EntityEditorView
+        from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_editor import EntityEditorController
+
+        view = EntityEditorView(
+                model,
+                self,
+                is_variant=model.is_variant,
+                variant_source_name=model.variant_source.entity_name if model.variant_source else ""
+                )
+
+        controller = EntityEditorController(model, view)
+        controller.show()
+        return controller
+#---------------
 
     def on_action_new_triggered(self) -> None:
         """Handles creating a new entity or editing an existing one.
@@ -309,6 +373,8 @@ class MainController(QObject):
 
             item_data = self._last_selected_item_data
             print(f"Using stored item data: {item_data}")
+
+            entity_data = item_data.get('data')
 
             # Initialize variables
             base_entity = None
@@ -599,18 +665,18 @@ class MainController(QObject):
             # Get all variables and equations
             all_variables = self._model.all_variables
             all_equations = self._model.all_equations
-            
+
             print(f"\n=== DEBUG: Variable and Equation Counts ===")
             print(f"Total variables in model: {len(all_variables)}")
             print(f"Total equations in model: {len(all_equations)}")
-            
+
             if all_variables:
                 print("\nFirst 5 variables:")
                 for i, (var_id, var) in enumerate(list(all_variables.items())[:5]):
                     print(f"  {i + 1}. {var_id} (type: {type(var)})")
                     if hasattr(var, 'get_variables'):
                         print(f"     Has get_variables() method")
-            
+
             if all_equations:
                 print("\nFirst 5 equations:")
                 for i, (eq_id, eq) in enumerate(list(all_equations.items())[:5]):
@@ -623,13 +689,13 @@ class MainController(QObject):
             from OntologyBuilder.BehaviourLinker_HAP_v0.Models.entity_editor import EntityEditorModel
             from OntologyBuilder.BehaviourLinker_HAP_v0.Views.entity_editor import EntityEditorView
             from OntologyBuilder.BehaviourLinker_HAP_v0.Controllers.entity_editor import EntityEditorController
-            
+
             print("Creating EntityEditor components...")
             # Create the model, view, and controller for the entity editor
             editor_model = EntityEditorModel(entity_obj, all_variables, all_equations)
             editor_view = EntityEditorView(editor_model, self._view)
             editor_controller = EntityEditorController(editor_model, editor_view)
-            
+
             print("Showing editor dialog...")
             result = editor_view.exec_()
 

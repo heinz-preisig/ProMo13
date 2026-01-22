@@ -93,6 +93,51 @@ class Entity():
 
         # pp(self.all_equations)
 
+    # In Common/classes/entity.py
+
+    def create_variant(self, new_name):
+        """Create a variant of this entity with the given name.
+
+        Args:
+            new_name: Name for the new variant
+
+        Returns:
+            Entity: A new entity that is a variant of this one
+        """
+        import copy
+        variant = copy.deepcopy(self)
+        variant.entity_name = new_name
+
+        # Add variant relationship metadata
+        if not hasattr(variant, 'variant_of'):
+            variant.variant_of = self.entity_name
+
+        return variant
+
+    def create_new_instance(self, entity_name, entity_type=None):
+        """Create a completely new instance with default values.
+
+        Args:
+            entity_name: Name for the new instance
+            entity_type: Optional type for the new instance
+
+        Returns:
+            Entity: A new entity instance
+        """
+        new_entity = Entity(
+                entity_name=entity_name,
+                all_equations={},  # Will be populated by the caller
+                index_set=self.index_set if hasattr(self, 'index_set') else "",
+                )
+
+        # Set default properties
+        if not hasattr(new_entity, 'is_reservoir'):
+            new_entity.is_reservoir = False
+        if entity_type:
+            new_entity.entity_type = entity_type
+
+        return new_entity
+
     def has_integrators(self) -> bool:
         return bool(self.integrators)
 
