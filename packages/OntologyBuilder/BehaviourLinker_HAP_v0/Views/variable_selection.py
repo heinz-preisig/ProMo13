@@ -2,25 +2,29 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from OntologyBuilder.BehaviourLinker_HAP_v0.Delegates.image_list import ImageItemDelegate
 from OntologyBuilder.BehaviourLinker_HAP_v0.Models.image_list import ImageListModel
+from OntologyBuilder.BehaviourLinker_HAP_v0.Models.main import MainModel
 from OntologyBuilder.BehaviourLinker_HAP_v0.Views.Compiled_UIs import variable_selection_ui
 
 
 class VariableSelectionView(QtWidgets.QDialog):
 
-    def __init__(self, variables, parent=None):
+    def __init__(self, variables, parent=None, model=None):
         super().__init__(parent)
         
-        print("\n=== DEBUG: VariableSelectionView.__init__ ===")
-        print(f"Received {len(variables)} variables")
-        for i, var in enumerate(variables[:3], 1):  # Print first 3 variables for debugging
-            print(f"  Variable {i}: {var}")
-            print(f"    Type: {type(var)}")
-            if hasattr(var, 'get_id'):
-                print(f"    ID: {var.get_id()}")
-            if hasattr(var, 'get_img_path'):
-                print(f"    Image path: {var.get_img_path()}")
-        if len(variables) > 3:
-            print(f"  ... and {len(variables) - 3} more variables")
+        # Store the model reference
+        self._main_model = model
+        
+        # print("\n=== DEBUG: VariableSelectionView.__init__ ===")
+        # print(f"Received {len(variables)} variables")
+        # for i, var in enumerate(variables[:3], 1):  # Print first 3 variables for debugging
+        #     print(f"  Variable {i}: {var}")
+        #     print(f"    Type: {type(var)}")
+        #     if hasattr(var, 'get_id'):
+        #         print(f"    ID: {var.get_id()}")
+        #     if hasattr(var, 'get_img_path'):
+        #         print(f"    Image path: {var.get_img_path()}")
+        # if len(variables) > 3:
+        #     print(f"  ... and {len(variables) - 3} more variables")
 
         # Set up the user interface
         self.ui = variable_selection_ui.Ui_variable_selection()
@@ -44,6 +48,15 @@ class VariableSelectionView(QtWidgets.QDialog):
         has_items = self.model.rowCount() > 0
         print(f"Has items: {has_items}")
         self.ui.pbutton_accept.setEnabled(has_items)
+
+        # Get domain information if model is available
+        if self._main_model is not None:
+            domain_tree = self._main_model.get_domain_information()
+        else:
+            print("Warning: No main model provided, domain information not available")
+            domain_tree = None
+
+        pass
         
         # Select first item if available
         if has_items:

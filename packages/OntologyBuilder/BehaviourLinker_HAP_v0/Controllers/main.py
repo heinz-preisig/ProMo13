@@ -350,7 +350,7 @@ class MainController(QObject):
                 variant_source_name=model.variant_source.entity_name if model.variant_source else ""
                 )
 
-        controller = EntityEditorController(model, view)
+        controller = EntityEditorController(model, view, main_model=self._model)
         controller.show()
         return controller
 #---------------
@@ -477,7 +477,7 @@ class MainController(QObject):
                         # Create editor components
                         editor_model = EntityEditorModel(new_entity, self._model.all_variables, self._model.all_equations)
                         editor_view = EntityEditorView(editor_model, self._view)
-                        editor_controller = EntityEditorController(editor_model, editor_view)
+                        editor_controller = EntityEditorController(editor_model, editor_view, main_model=self._model)
                         
                         # Show the editor dialog
                         result = editor_view.exec_()
@@ -694,7 +694,7 @@ class MainController(QObject):
             # Create the model, view, and controller for the entity editor
             editor_model = EntityEditorModel(entity_obj, all_variables, all_equations)
             editor_view = EntityEditorView(editor_model, self._view)
-            editor_controller = EntityEditorController(editor_model, editor_view)
+            editor_controller = EntityEditorController(editor_model, editor_view, main_model=self._model)
 
             print("Showing editor dialog...")
             result = editor_view.exec_()

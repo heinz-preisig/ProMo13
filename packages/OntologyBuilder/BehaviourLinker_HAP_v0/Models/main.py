@@ -125,10 +125,11 @@ class MainModel(QtCore.QObject):
         # io.generate_latex_images(ontology_name)
 
         # Loading data from files
-        self.ontology = old_io.load_ontology_from_file(self.ontology_name)
+        self.ontology = old_io.load_ontology_from_file(self.ontology_name)  # that contains only the ontology tree hash="tree"
         self.all_variables, _, self.all_equations = old_io.load_var_idx_eq_from_file(self.ontology_name)
         self.all_entities = old_io.load_entities_from_file(self.ontology_name, self.all_equations)
         self.all_entity_types = {}
+
 
         pass
         self._make_all_entity_types()
@@ -344,36 +345,10 @@ class MainModel(QtCore.QObject):
                     return default
         return default
 
-    class SimpleVar:
-        def __init__(self, var_id, model=None):
-            self._id = var_id
-            self._model = model
-            self._equation = None
-            self._variable = None
+    def get_domain_information(self):
+        domain_tree = self.ontology.tree
+        return domain_tree
 
-        def get_id(self):
-            return self._id
-
-        def get_img_path(self):
-            # Return a default image path or implement your logic here
-            return ":/icons/variable.png"
-
-        def get_display_text(self):
-            """Return a more detailed display text for the variable/equation."""
-            # Try to get the equation or variable details if they exist in the model
-            if self._model:
-                if self._id in self._model.all_equations:
-                    self._equation = self._model.all_equations.get(self._id)
-                if self._id in self._model.all_variables:
-                    self._variable = self._model.all_variables.get(self._id)
-
-            if self._equation:
-                return f"{self._id}: {self._equation.equation if hasattr(self._equation, 'equation') else 'No equation'}"
-            elif self._variable:
-                return f"{self._id}: {self._variable.value if hasattr(self._variable, 'value') else 'No value'}"
-            return self._id
-
-        # print("=====================\n")
 
     def get_network_types_from_ontology(self):
         """
@@ -847,8 +822,8 @@ class MainModel(QtCore.QObject):
             print(f"Error updating entity {entity_id}: {str(e)}")
             raise
 
-    def is_a_leaf(self, index: QtCore.QModelIndex) -> None:
-        return self.entity_tree_model.get_depth(index) == tree.LEAF_DEPTH
+    # def is_a_leaf(self, index: QtCore.QModelIndex) -> None:
+    #     return self.entity_tree_model.get_depth(index) == tree.LEAF_DEPTH
 
     def delete_entity(self, index: QtCore.QModelIndex) -> None:
         """Delete an entity from the model.

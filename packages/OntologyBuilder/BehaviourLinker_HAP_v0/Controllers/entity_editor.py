@@ -18,11 +18,12 @@ from OntologyBuilder.BehaviourLinker_HAP_v0.Views.variable_selection import Vari
 class EntityEditorController(QtCore.QObject):
     selectionStatusChanged = QtCore.pyqtSignal(bool)
 
-    def __init__(self, model: EntityEditorModel, view: EntityEditorView):
+    def __init__(self, model: EntityEditorModel, view: EntityEditorView, main_model=None):
         super().__init__()
 
         self._model = model
         self._view = view
+        self._main_model = main_model  # Store reference to the main model
 
         self._view.ui.list_variables.setModel(self._model.variables_model)
         delegate = image_list.IconImageItemDelegate(self._view.ui.list_variables)
@@ -72,7 +73,7 @@ class EntityEditorController(QtCore.QObject):
 
     def on_add_var_clicked(self):
         variable_list = self._model.get_unused_variables()
-        dlg_view = VariableSelectionView(variable_list, self._view)
+        dlg_view = VariableSelectionView(variable_list, self._view, model=self._main_model)
         result = dlg_view.exec_()
         if result == QtWidgets.QDialog.Rejected:
             return
