@@ -21,7 +21,7 @@ __status__ = "beta"
 
 import sys
 
-from PyQt6 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore
 
 # QtWidgets.QMessageBox.StandardButton.OK
 BUTTONS = {

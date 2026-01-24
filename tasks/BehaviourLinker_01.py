@@ -45,16 +45,19 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(icon))
 
+
     # Instantiate each once
     frontend = BehaviourLinkerFrontEnd()
     backend = BehaviourLinerBackEnd()
 
     # Link them together using Signals and Slots
-    # I -> B: Button click triggers backend method
+    # F -> B: Button click triggers backend method
     backend.message.connect(frontend.process_message)
 
-    # B -> I: Backend signal updates interface label
+    # F -> I: Backend signal updates interface label
     frontend.message.connect(backend.process_message)
+
+    backend.load_ontology()
 
     frontend.show()
     sys.exit(app.exec())

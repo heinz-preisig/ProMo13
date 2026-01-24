@@ -2,13 +2,13 @@ import os
 import subprocess
 import sys
 import time
-from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject
 
 # from BricksAndTreeSemantics import ONTOLOGY_REPOSITORY
 # from BricksAndTreeSemantics import PRIMITIVES
-from OntologyBuilder.BehaviourLinker_v01.BricksAndTreeSemantics import RULES
+# from OntologyBuilder.BehaviourLinker_v01.BricksAndTreeSemantics import RULES
 # from DataModelNoBrickNumbers import DataModel
-from OntologyBuilder.BehaviourLinker_v01.main_automaton import UI_state
+# from OntologyBuilder.BehaviourLinker_v01.main_automaton import UI_state
 # from Utilities import TreePlot
 # from Utilities import camelCase
 # from Utilities import debugging
@@ -39,6 +39,13 @@ class BehaviourLinerBackEnd(QObject):
 
   def send_message(self, message):
     self.message.emit(message)
+
+  def load_ontology(self):
+    self.ontology_name = getOntologyName(task="task_entity_generation")
+    if not self.ontology_name:
+      exit(-1)
+    self.send_message({"event": "ontology_loaded", "ontology_name": self.ontology_name})
+
 
   #   self.memory = {
   #           "brick"            : None,

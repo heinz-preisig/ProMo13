@@ -18,12 +18,17 @@ __version__ = "12"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
+import sys
+
 from PyQt5 import QtCore
-from PyQt5.QtCore import  pyqtSignal
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSignal
 
 from Common.resources_icons import roundButton
 from OntologyBuilder.BehaviourLinker_v01.UIs.main import Ui_MainWindow
+from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
+
+
 # from OntologyBuilder.BehaviourLinker_v01.main_back_end import BackEnd
 
 
@@ -40,7 +45,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
-        # self.ui.tabsBrickTrees.setTabVisible(1,False)
 
         roundButton(self.ui.pushNew, "new", tooltip="new instance")
         roundButton(self.ui.pushEdit, "edit", tooltip="edit instance")
@@ -55,19 +59,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
 
         self.changed = False
-
-        # self.ontology_name = getOntologyName(task="task_ontology_equations")
-        # if not self.ontology_name:
-        #     exit(-1)
-
-        # self.interfaceComponents()
-        # self.backend = BackEnd(self)
-
-        # Initialize with a start message
-        # self.send_message({"event": "start"})
-        # self.backend.processEvent(message)
-
-        self.treetop = {}
 
     def send_message(self, message):
         print("sending message", message)
@@ -101,3 +92,43 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
     def on_pushNew_pressed(self):
         self.send_message({"event": "new"})
+
+
+
+
+        # enable moving the window --https://www.youtube.com/watch?v=R4jfg9mP_zo&t=152s
+
+    def mousePressEvent(self, event, QMouseEvent=None):
+        self.dragPos = event.globalPos()
+
+    def mouseMoveEvent(self, event, QMouseEvent=None):
+        if event.buttons() == QtCore.Qt.LeftButton:
+            self.move(self.pos() + event.globalPos() - self.dragPos)
+            self.dragPos = event.globalPos()
+
+    def markChanged(self):
+        global changed
+        changed = True
+        self.signalButton.changeIcon("LED_red")
+        self.ui.statusbar.showMessage("modified")
+
+    def on_pushExit_pressed(self):
+        self.closeMe()
+
+    def markSaved(self):
+        global changed
+        changed = False
+        self.signalButton.changeIcon("LED_green")
+        self.ui.statusbar.showMessage("up to date")
+
+    def closeMe(self):
+
+        if self.changed:
+            dialog = makeMessageBox(message="save changes", buttons=["YES", "NO"])
+            if dialog == "YES":
+                self.on_pushOntologySave_pressed()
+            elif dialog == "NO":
+                pass
+        else:
+            pass
+        sys.exit()
