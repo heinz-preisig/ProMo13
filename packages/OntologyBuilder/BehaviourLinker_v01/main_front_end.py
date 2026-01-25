@@ -20,7 +20,7 @@ __status__ = "beta"
 
 import sys
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal
 
@@ -93,7 +93,122 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
     def on_pushNew_pressed(self):
         self.send_message({"event": "new"})
 
+    def on_pushEdit_pressed(self):
+        print("edit pressed")
 
+    def on_pushDelete_pressed(self):
+        print("delete pressed")
+
+    def on_pushSave_pressed(self):
+        print("save pressed")
+
+    def on_pushExit_pressed(self):
+        print("exit pressed")
+        self.closeMe()
+
+ # ===============================================================
+
+    # def _update_tree_model(self) -> None:
+    #     """Update the tree model with the current state of entities."""
+    #     # print("\n=== _update_tree_model called ===")
+    #     # print(f"Current entities: {list(self.all_entities.keys())}")
+    #
+    #     # Define colors
+    #     NETWORK_COLOR = QtGui.QColor(255, 0, 0)  # Red for networks
+    #     CATEGORY_COLOR = QtGui.QColor(0, 0, 255)  # Blue for node/arc
+    #     TYPE_COLOR = QtGui.QColor(0, 128, 0)  # Green for entity types
+    #     ENTITY_COLOR = QtGui.QColor(0, 0, 0)  # Black for instantiated entities
+    #
+    #     self.entity_tree_model = self.ui.tree_entities
+    #
+    #     network_items = {}
+    #     category_items = {}
+    #     type_items = {}
+    #
+    #     self.entity_tree_model.clear()
+    #     networks = set()
+    #
+    #     # Add networks from both entities and generated types
+    #     # for entity_id in self.all_entities:
+    #     #   parts = entity_id.split('.')
+    #     #   if len(parts) >= 2:
+    #     #     networks.add(parts[0])
+    #     # networks.update(self.all_entity_types.keys())
+    #
+    #     for net in sorted(self.inter_networks):
+    #         net_item = QtGui.QStandardItem(net)
+    #         net_item.setData(('network', net), QtCore.Qt.UserRole + 1)
+    #         net_item.setData(net, QtCore.Qt.UserRole + 2)
+    #         net_item.setForeground(NETWORK_COLOR)
+    #         self.entity_tree_model.appendRow(net_item)
+    #         network_items[net] = net_item
+    #
+    #         for category in ['node', 'arc']:
+    #
+    #             category_key = f"{net}.{category}"
+    #             cat_item = QtGui.QStandardItem(category)
+    #             cat_item.setData(('category', net, category), QtCore.Qt.UserRole + 1)
+    #             cat_item.setData(category_key, QtCore.Qt.UserRole + 2)
+    #             cat_item.setForeground(CATEGORY_COLOR)
+    #             # network_items[net].appendRow(cat_item)
+    #
+    #             net_item.appendRow(cat_item)
+    #
+    #             # Get all generated types for this network and category
+    #             generated_types = set()
+    #             if (net in self.all_entity_types and
+    #                     category in self.all_entity_types[net]):
+    #                 generated_types = set(self.all_entity_types[net][category])
+    #
+    #             # Create a dictionary to store type items
+    #             type_items = {}
+    #
+    #             # First, create items for all generated types
+    #             for entity_type in sorted(generated_types):
+    #                 type_item = QtGui.QStandardItem(entity_type)
+    #                 type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
+    #                 type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+    #                 type_item.setForeground(TYPE_COLOR)
+    #                 cat_item.appendRow(type_item)
+    #                 type_items[entity_type] = type_item
+    #
+    #             # Then add all entities under their types
+    #             for entity_id, entity_obj in self.all_entities.items():
+    #                 if not entity_id.startswith(f"{net}.{category}."):
+    #                     continue
+    #
+    #                 try:
+    #                     [network, category, entity_type, entity_name] = entity_id.split('.')
+    #
+    #                     # Note: here one can adsjust the entity show name
+    #                     display_name = entity_name
+    #
+    #                     # Create the item
+    #                     item = QtGui.QStandardItem(display_name)
+    #                     item.setData(entity_id, QtCore.Qt.UserRole + 1)  # entity_id for quick access
+    #                     item.setData(display_name, QtCore.Qt.UserRole + 2)  # display text
+    #                     item.setData(entity_obj, QtCore.Qt.UserRole + 3)  # entity object
+    #                     item.setForeground(ENTITY_COLOR)
+    #
+    #                     # Ensure the type item exists
+    #                     if entity_type not in type_items:
+    #                         type_item = QtGui.QStandardItem(entity_type)
+    #                         type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
+    #                         type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+    #
+    #                         cat_item.appendRow(type_item)
+    #                         type_items[entity_type] = type_item
+    #
+    #                     # Add the entity to its type
+    #                     type_items[entity_type].appendRow(item)
+    #
+    #                 except Exception as e:
+    #                     print(f"Error processing entity here {entity_id}: {e}")
+    #
+    #     self.tree_changed.emit()
+
+
+# ======================= window controls ==========================
 
 
         # enable moving the window --https://www.youtube.com/watch?v=R4jfg9mP_zo&t=152s
@@ -111,9 +226,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         changed = True
         self.signalButton.changeIcon("LED_red")
         self.ui.statusbar.showMessage("modified")
-
-    def on_pushExit_pressed(self):
-        self.closeMe()
 
     def markSaved(self):
         global changed

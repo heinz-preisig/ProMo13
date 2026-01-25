@@ -25,13 +25,14 @@ __version__ = "8.00"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
+import itertools
 import os as OS
 from collections import OrderedDict
 from copy import copy
 
 from PyQt5 import QtWidgets
-from packages.Common.classes.io import load_entities_from_file
-from packages.Common.classes.io import load_var_idx_eq_from_file
+from Common.classes.io import load_entities_from_file
+from Common.classes.io import load_var_idx_eq_from_file
 
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import M_None
@@ -348,7 +349,8 @@ class OntologyContainer():
             self.list_arc_objects, \
             self.list_reduced_network_node_objects, \
             self.list_reduced_network_arc_objects, \
-            self.list_inter_node_objects_tokens = self.__makeNodeObjectList(
+            self.list_inter_node_objects_tokens, \
+            self.node_entity_types = self.__makeNodeObjectList(
                 )  # TODO: consider deleting those that are not used
 
         # self.arc_types_in_networks_tuples = self.__makeArcTypesInNetworks()
@@ -530,8 +532,6 @@ class OntologyContainer():
 
             pass
 
-        # print("debugging")
-
         for nw, nature, token in self.object_key_list_inter:
             dummy = TEMPLATE_INTER_NODE_OBJECT % (nature)
             nodeObjects_on_inter_networks[nw].add(dummy)
@@ -565,6 +565,32 @@ class OntologyContainer():
         list_arc_objects_on_networks = {}
         for nw in arcObjects_on_networks:
             list_arc_objects_on_networks[nw] = sorted(arcObjects_on_networks[nw])
+
+
+
+        # TODO: make all entity types
+        token_combinations = {}
+        for nw in self.tokens_on_networks:
+            tokens = self.tokens_on_networks[nw]
+
+            # If it's a list of strings, use it directly
+            if isinstance(tokens, list) and all(isinstance(t, str) for t in tokens):
+                token_combinations[nw] = [list(comb) for r in range(1, len(tokens) + 1)
+                                          for comb in itertools.combinations(tokens, r)]
+            # If it's a single string, wrap it in a list
+            elif isinstance(tokens, str):
+                token_combinations[nw] = [[tokens]]  # Just the single token
+        pass
+
+        entity_types = {}
+        for nw in nodeObjects_on_networks:
+            entity_types[nw] = []
+            for node_object in nodeObjects_on_networks[nw]:
+                for token_combination in token_combinations[nw]:
+                    entity_types[nw].append("_".join(token_combination)+"|"+node_object)
+
+        pass
+
 
         list_network_node_objects = sorted(set_node_objects_on_networks)
         list_network_node_objects_with_token = sorted(
@@ -625,7 +651,8 @@ class OntologyContainer():
                 list_arc_objects, \
                 list_reduced_network_node_objects, \
                 list_reduced_network_arc_objects, \
-                list_inter_node_objects_tokens
+                list_inter_node_objects_tokens, \
+                entity_types
 
     ########################
 
