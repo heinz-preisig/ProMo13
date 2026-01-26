@@ -29,6 +29,7 @@ import itertools
 import os as OS
 from collections import OrderedDict
 from copy import copy
+from pathlib import Path
 
 from PyQt5 import QtWidgets
 from Common.classes.io import load_entities_from_file
@@ -50,6 +51,8 @@ from Common.common_resources import invertDict
 from Common.common_resources import saveWithBackup
 from Common.common_resources import walkBreathFirstFnc
 from Common.common_resources import walkDepthFirstFnc
+from Common.pop_up_message_box import makeMessageBox
+from Common.classes.equation import Equation, EquationDict
 from Common.graphics_objects import NAMES
 from Common.qt_resources import OK
 from Common.record_definitions import Interface
@@ -298,7 +301,7 @@ class OntologyContainer():
         # TODO: currently not used
         # self.entity_behaviours = self.__readVariableAssignmentToEntity()
 
-        self.arc_options = self.__read_arc_options_to_file()
+        self.arc_options = self.__load_arc_options_to_file()
 
         self.interfaces = self.__setupInterfaces()
 
@@ -369,7 +372,7 @@ class OntologyContainer():
             self.version, \
             self.ProMoIRI = self.readVariables()
 
-        self.node_arc_SubClasses = self.readNodeArcAssignments()
+        self.node_arc_SubClasses = self.load_node_arc_assignments()
         # self.indices = makeIndices(self)  # todo: remove again
 
         if self.indices == {}:  # DOC: make indices if they do not yet exist
@@ -393,12 +396,38 @@ class OntologyContainer():
                 self.indices[i]["network"] = self.heirs_network_dictionary[def_network]
 
         self.indexEquations()
+
+        self.list_equation_png_files = self.__load_equation_png_files()
+        self.list_variable_png_files = self.__load_variable_png_files()
+        self.list_equation_classes = self.__makeEquationClassesDictionary()
         pass
+
+    def __makeEquationClassesDictionary(self):
+
+        equation_class_list = []
+        for eq_id in self.equation_dictionary:
+            eq_data = self.equation_dictionary[eq_id]
+
+            eq = Equation(eq_id,
+                          self.list_equation_png_files.get(eq_id, ""),
+                          eq_data.get("type", ""),
+                          eq_data.get("lhs", {}),
+                          eq_data.get("rhs", {}),
+                          eq_data.get("network", ""),
+                          eq_data.get("doc", ""),
+                          eq_data.get("created", "2024-01-01 00:00:00"),
+                          eq_data.get("modified", "2024-01-01 00:00:00")
+                          )
+            equation_class_list.append(eq)
+        
+        return equation_class_list
+
+
 
     def indexEquations(self):
         self.equation_dictionary = self.makeEquationDictionary()
         self.equation_variable_dictionary = self.__makeEquationVariableDictionary()
-        self.equations = self.__makeEquationAndIndexLists()
+        # self.equations = self.__makeEquationAndIndexLists()
         # print("debugging -- indexing equations")
 
     def __setupInterfaces(self):
@@ -582,12 +611,12 @@ class OntologyContainer():
                 token_combinations[nw] = [[tokens]]  # Just the single token
         pass
 
-        entity_types = {}
-        for nw in nodeObjects_on_networks:
-            entity_types[nw] = []
+        node_entity_types_in_internetworks = {}
+        for nw in self.list_inter_branches:
+            node_entity_types_in_internetworks[nw] = []
             for node_object in nodeObjects_on_networks[nw]:
                 for token_combination in token_combinations[nw]:
-                    entity_types[nw].append("_".join(token_combination)+"|"+node_object)
+                    node_entity_types_in_internetworks[nw].append("_".join(token_combination)+"|"+node_object)
 
         pass
 
@@ -652,7 +681,7 @@ class OntologyContainer():
                 list_reduced_network_node_objects, \
                 list_reduced_network_arc_objects, \
                 list_inter_node_objects_tokens, \
-                entity_types
+                node_entity_types_in_internetworks
 
     ########################
 
@@ -1121,33 +1150,33 @@ class OntologyContainer():
         _, _, all_variables = load_var_idx_eq_from_file(self.ontology_name)
         return load_entities_from_file(self.ontology_name, all_variables)
 
-    def __makeEquationAndIndexLists(self):
-
-        equations = []
-        # equation_information = {}
-        # equation_inverse_index = {}
-        equation_variable_dictionary = self.equation_variable_dictionary
-        count = -1
-        for eq_ID in equation_variable_dictionary:
-            count += 1
-            var_ID, equation = equation_variable_dictionary[eq_ID]
-            # var_type = self.variables[var_ID]["type"]
-            # nw_eq = self.variables[var_ID]["network"]
-
-            rendered_expressions = renderExpressionFromGlobalIDToInternal(
-                    equation["rhs"]["global_ID"],
-                    self.variables,
-                    self.indices)
-
-            rendered_variable = self.variables[var_ID]["aliases"]["internal_code"]
-            equation_label = "%s := %s" % (rendered_variable, rendered_expressions)
-
-            # equations[eq_ID] = (var_ID, var_type, nw_eq, rendered_equation, pixelled_equation)
-            # equations.append(equation_label)
-            # equation_inverse_index[eq_ID] = count
-            # equation_information[count] = (
-            #     eq_ID, var_ID, var_type, nw_eq, equation_label)
-        return equations  # , equation_information, equation_inverse_index
+    # def __makeEquationAndIndexLists(self):
+    #
+    #     equations = []
+    #     # equation_information = {}
+    #     # equation_inverse_index = {}
+    #     equation_variable_dictionary = self.equation_variable_dictionary
+    #     count = -1
+    #     for eq_ID in equation_variable_dictionary:
+    #         count += 1
+    #         var_ID, equation = equation_variable_dictionary[eq_ID]
+    #         # var_type = self.variables[var_ID]["type"]
+    #         # nw_eq = self.variables[var_ID]["network"]
+    #
+    #         rendered_expressions = renderExpressionFromGlobalIDToInternal(
+    #                 equation["rhs"]["global_ID"],
+    #                 self.variables,
+    #                 self.indices)
+    #
+    #         rendered_variable = self.variables[var_ID]["aliases"]["internal_code"]
+    #         equation_label = "%s := %s" % (rendered_variable, rendered_expressions)
+    #
+    #         # equations[eq_ID] = (var_ID, var_type, nw_eq, rendered_equation, pixelled_equation)
+    #         # equations.append(equation_label)
+    #         # equation_inverse_index[eq_ID] = count
+    #         # equation_information[count] = (
+    #         #     eq_ID, var_ID, var_type, nw_eq, equation_label)
+    #     return equations  # , equation_information, equation_inverse_index
 
     def addVariable(self, ID, **args):
         self.variables[ID] = {}
@@ -1247,22 +1276,45 @@ class OntologyContainer():
     #     variables[v]["index_structures"] = new_structure
     #   return variables, new_indices
 
-    def readNodeArcAssignments(self):
+    def load_node_arc_assignments(self):
         # print("debugging -- read node assignments")
 
         assignment_file_name = FILES["variable_assignment_to_entity_object"] % self.ontology_name
         if OS.path.exists(assignment_file_name):
-            data = self.__readVariableAssignmentFile(assignment_file_name)
+            data = self.__load_variable_assignment_file(assignment_file_name)
             return data
         else:
             return None
 
-    def __readVariableAssignmentFile(self, file_name):
+    def __load_variable_assignment_file(self, file_name):
         data = getData(file_name)
         return data
 
-    def __read_arc_options_to_file(self):
+    def __load_arc_options_to_file(self):
         # TODO: move to io.py
         path = FILES["arc_options"] % self.ontology_name
         data = getData(path)
         return data
+
+    def __load_equation_png_files(self):
+        dict_equation_png = {}
+        latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
+        for eq_id in self.equation_dictionary:
+            equ_png_file_path = latex_folder_path / (eq_id + ".png")
+            if OS.path.exists(equ_png_file_path):
+                dict_equation_png[eq_id] = equ_png_file_path
+            else:
+                makeMessageBox("no such equation png file %s"%equ_png_file_path,"OK")
+        return dict_equation_png
+
+    def __load_variable_png_files(self):
+        dict_variable_png = {}
+        latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
+        for var_id in self.variables:
+            var_png_file_path = latex_folder_path / (var_id + ".png")
+            if OS.path.exists(var_png_file_path):
+                dict_variable_png[var_id] = var_png_file_path
+            else:
+                makeMessageBox("no such equation png file %s"%var_png_file_path,["OK"])
+        return dict_variable_png
+        pass

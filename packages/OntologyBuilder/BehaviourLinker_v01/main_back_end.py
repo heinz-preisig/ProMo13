@@ -78,7 +78,7 @@ class BehaviourLinerBackEnd(QObject):
         self.all_entities = self.load_intities_from_file(self.ontology_name)
         pass
 
-        # def load_entities_from_file(
+        # def load_entities_from_file(  #TODO: do we need the interface entityies?
         #         ontology_name: str,
         #         all_equations: dict[str, equation.Equation],
         #         entity_names: list[str] | None = None,
@@ -239,7 +239,7 @@ class BehaviourLinerBackEnd(QObject):
     #     # return {'node': [], 'arc': []}
 
 
-def load_intities_from_file(self, ontology_name):
+    def load_intities_from_file(self, ontology_name):
     # """Loads data from file to create Entity objects.
 
     # Args:
@@ -268,10 +268,10 @@ def load_intities_from_file(self, ontology_name):
     #       the names of the entities and the corresponding values are
     #       Entity objects.
     # """
-    path = (
-            FILES["variable_assignment_to_entity_object"]
-            % ontology_name
-    )
+        path = (
+                FILES["variable_assignment_to_entity_object"]
+                % ontology_name
+        )
 
     # TODO: This file needs to be created empty when the ontology is
     # created. In here should be only an exception in case the file is not found.
@@ -282,44 +282,45 @@ def load_intities_from_file(self, ontology_name):
     #     json.dump({}, file, indent=4)
     #   return {}
 
-    with open(
-            path,
-            encoding="utf-8",
-            ) as file:
-        data = json.load(file)
+        with open(
+                path,
+                encoding="utf-8",
+                ) as file:
+            data = json.load(file)
     # from pprint import pprint as pp
     # pp(data)
     # TODO Change behaviour in case of no data.
-    if not data:
-        return {}
+        if not data:
+            return {}
 
-    # if entity_names is None:
-    #   entity_names = data.keys()
-    entity_names = data.keys()
+        # if entity_names is None:
+        #   entity_names = data.keys()
+        entity_names = data.keys()
 
-    entities = {}
-    for ent_name in entity_names:
-        if ent_name not in data:
-            print(ent_name + " not found.")
-            continue
+        entities = {}
+        for ent_name in entity_names:
+            if ent_name not in data:
+                print(ent_name + " not found.")
+                continue
 
-        new_entity = Entity(
-                ent_name,
-                all_equations,
-                data[ent_name]["index_set"],
-                data[ent_name]["integrators"],
-                data[ent_name]["var_eq_forest"],
-                data[ent_name]["init_vars"],
-                data[ent_name]["input_vars"],
-                data[ent_name]["output_vars"],
-                )
-        # TODO Check why it cant be stored as base#
-        if "base_" in ent_name:
-            ent_name = ent_name.replace("base_", "base#")
+            all_equations = {}   # TODO: load all equations
+            new_entity = Entity(
+                    ent_name,
+                    all_equations,
+                    data[ent_name]["index_set"],
+                    data[ent_name]["integrators"],
+                    data[ent_name]["var_eq_forest"],
+                    data[ent_name]["init_vars"],
+                    data[ent_name]["input_vars"],
+                    data[ent_name]["output_vars"],
+                    )
+            # TODO Check why it cant be stored as base#
+            if "base_" in ent_name:
+                ent_name = ent_name.replace("base_", "base#")
 
-        entities[ent_name] = new_entity
+            entities[ent_name] = new_entity
 
-    return entities
+        return entities
 #   self.memory = {
 #           "brick"            : None,
 #           "item"             : None,
