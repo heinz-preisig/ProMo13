@@ -19,11 +19,18 @@ from Common.ontology_container import OntologyContainer
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 
+from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd
+from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBackEnd
+
+
+
 TIMING = False
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 root = os.path.abspath(os.path.join("."))
 sys.path.extend([root, os.path.join(root, "resources")])
+
+# from OntologyBuilder.BehaviourLinker_v01.entity_back_end import
 
 
 class BehaviourLinerBackEnd(QObject):
@@ -34,12 +41,20 @@ class BehaviourLinerBackEnd(QObject):
 
     def process_message(self, message):
         print(">>got message: ", message)
-
-        if message.get("event") == "start":
+        event = message.get("event")
+        if event == "start":
             print("Backend received start event")
+        elif event == "new":
+            self.launch_entity_editor(self.ontology_container)
+
 
     def send_message(self, message):
         self.message.emit(message)
+
+    def handle_entity_editor_message(self, message):
+        if message.get("event") == "entity_created":
+            # Handle new entity from entity editor
+            self.add_entity(message.get("entity_data"))
 
     def load_ontology(self):
         self.ontology_name = getOntologyName(task="task_entity_generation")
@@ -76,6 +91,10 @@ class BehaviourLinerBackEnd(QObject):
 
         # load all instances
         self.all_entities = self.load_intities_from_file(self.ontology_name)
+
+        message={"event": "make tree",
+                 "tree data": self.node_entity_types}
+        self.send_message(message)
         pass
 
         # def load_entities_from_file(  #TODO: do we need the interface entityies?
@@ -321,6 +340,21 @@ class BehaviourLinerBackEnd(QObject):
             entities[ent_name] = new_entity
 
         return entities
+
+    def launch_entity_editor(self, ontology_container):
+        # Create entity components
+        self.entity_back_end = EntityEditorBackEnd(self.ontology_container)
+        self.entity_front_end = EntityEditorFrontEnd()
+
+        # Connect entity editor communication
+        self.entity_front_end.message.connect(self.entity_back_end.process_message)
+        self.entity_back_end.message.connect(self.handle_entity_editor_message)
+
+        # Pass ontology data to entity editor
+        # self.entity_back_end.load_ontology_data(self.ontology_container)
+
+        # Show editor
+        self.entity_front_end.show()
 #   self.memory = {
 #           "brick"            : None,
 #           "item"             : None,

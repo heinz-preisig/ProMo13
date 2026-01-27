@@ -66,6 +66,84 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
     def process_message(self, message):
         print("front  end got message", message)
+        event = message.get("event")
+        if event == "make tree":
+            data = message.get("tree data")
+            self.__make_tree(data)
+
+# ================== interface handling =========================
+    def __make_tree(self, data):
+        """Build the entity tree with colors similar to HAP version."""
+        # print(f"__make_tree called with data: {data}")
+        if not data:
+            print("No data received, returning")
+            return
+            
+        # Define colors (same as HAP version)
+        NETWORK_COLOR = QtGui.QColor(255, 0, 0)    # Red for networks
+        CATEGORY_COLOR = QtGui.QColor(0, 0, 255)   # Blue for node/arc
+        TYPE_COLOR = QtGui.QColor(0, 128, 0)      # Green for entity types
+        ENTITY_COLOR = QtGui.QColor(0, 0, 0)      # Black for instantiated entities
+        
+        # Clear existing tree - reset the model
+        from PyQt5.QtGui import QStandardItemModel
+        tree_model = QStandardItemModel()
+        self.ui.tree_entities.setModel(tree_model)
+        # print("Created new tree model")
+        
+        # Extract networks from node_entity_types data
+        networks = set(data.keys())
+        # print(f"Extracted networks: {networks}")
+        
+        network_items = {}
+        
+        # Build tree structure
+        for net in sorted(networks):
+            # print(f"Building network: {net}")
+            # Create network item
+            net_item = QtGui.QStandardItem(net)
+            net_item.setData(('network', net), QtCore.Qt.UserRole + 1)
+            net_item.setData(net, QtCore.Qt.UserRole + 2)
+            net_item.setForeground(NETWORK_COLOR)
+            tree_model.appendRow(net_item)
+            network_items[net] = net_item
+            # print(f"Added network item: {net}")
+            
+            # Create categories (node, arc)
+            for category in ['node', 'arc']:
+                cat_item = QtGui.QStandardItem(category)
+                cat_item.setData(('category', net, category), QtCore.Qt.UserRole + 1)
+                cat_item.setData(f"{net}.{category}", QtCore.Qt.UserRole + 2)
+                cat_item.setForeground(CATEGORY_COLOR)
+                net_item.appendRow(cat_item)
+                
+                # Get entity types for this network from the data
+                entity_types = data.get(net, [])
+                # print(f"Entity types for {net}.{category}: {entity_types}")
+                
+                # Create type items
+                for entity_type in sorted(entity_types):
+                    type_item = QtGui.QStandardItem(entity_type)
+                    type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
+                    type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
+                    type_item.setForeground(TYPE_COLOR)
+                    cat_item.appendRow(type_item)
+                    
+                    # Add placeholder for entities (currently no entities loaded)
+                    # This will be populated when entities are created
+                    placeholder_item = QtGui.QStandardItem("(no entities)")
+                    placeholder_item.setData(('placeholder', net, category, entity_type), QtCore.Qt.UserRole + 1)
+                    placeholder_item.setForeground(ENTITY_COLOR)
+                    type_item.appendRow(placeholder_item)
+        
+        # print(f"Tree built with {len(networks)} networks and colored structure")
+        # print(f"Tree model has {tree_model.rowCount()} top-level items")
+        
+        # Make sure the tree view is properly configured
+        self.ui.tree_entities.expandAll()
+        self.ui.tree_entities.show()
+        # print("Tree expanded and shown")
+# ===============================================================
 
     def interfaceComponents(self):
         self.window_controls = {
@@ -212,7 +290,14 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
 
         # enable moving the window --https://www.youtube.com/watch?v=R4jfg9mP_zo&t=152s
+    def on_pushMinimise_pressed(self):
+        self.showMinimized()
 
+    def on_pushMaximise_pressed(self):
+        self.showMaximized()
+
+    def on_pushNormal_pressed(self):
+        self.showNormal()
     def mousePressEvent(self, event, QMouseEvent=None):
         self.dragPos = event.globalPos()
 
