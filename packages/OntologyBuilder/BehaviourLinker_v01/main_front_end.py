@@ -58,6 +58,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
         self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
 
+        # Add statusbar since the UI doesn't have one but this is a QMainWindow
+        self.statusBar().showMessage("Ready")
+
         self.changed = False
 
     def send_message(self, message):

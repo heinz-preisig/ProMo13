@@ -399,6 +399,8 @@ class OntologyContainer():
 
         self.list_equation_png_files = self.__load_equation_png_files()
         self.list_variable_png_files = self.__load_variable_png_files()
+        # Add PNG paths directly to variable records
+        self.__add_png_paths_to_variables()
         self.list_equation_classes = self.__makeEquationClassesDictionary()
         pass
 
@@ -1304,7 +1306,9 @@ class OntologyContainer():
             if OS.path.exists(equ_png_file_path):
                 dict_equation_png[eq_id] = equ_png_file_path
             else:
-                makeMessageBox("no such equation png file %s"%equ_png_file_path,"OK")
+                # Temporarily comment out to prevent GUI interference during loading
+                # makeMessageBox("no such equation png file %s"%equ_png_file_path,"OK")
+                print(f"Debug: No equation PNG file found: {equ_png_file_path}")
         return dict_equation_png
 
     def __load_variable_png_files(self):
@@ -1315,6 +1319,18 @@ class OntologyContainer():
             if OS.path.exists(var_png_file_path):
                 dict_variable_png[var_id] = var_png_file_path
             else:
-                makeMessageBox("no such equation png file %s"%var_png_file_path,["OK"])
+                # Temporarily comment out to prevent GUI interference during loading
+                # makeMessageBox("no such equation png file %s"%var_png_file_path,["OK"])
+                print(f"Debug: No variable PNG file found: {var_png_file_path}")
         return dict_variable_png
         pass
+
+    def __add_png_paths_to_variables(self):
+        """
+        Add PNG file paths directly to variable records for easier access
+        """
+        for var_id in self.variables:
+            if var_id in self.list_variable_png_files:
+                self.variables[var_id]["png_file"] = str(self.list_variable_png_files[var_id])
+            else:
+                self.variables[var_id]["png_file"] = None

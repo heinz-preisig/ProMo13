@@ -27,6 +27,7 @@ from PyQt5.QtCore import pyqtSignal
 from Common.resources_icons import roundButton
 from OntologyBuilder.BehaviourLinker_v01.UIs.entity_changes import Ui_entity_changes
 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
+from OntologyBuilder.BehaviourLinker_v01.behavior_association.editor import launch_behavior_association_editor
 
 
 class EntityEditorFrontEnd(QtWidgets.QDialog):
@@ -55,10 +56,41 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         roundButton(self.ui.pushNormal, "normal_view", tooltip="normal", mysize=35)
         #
         self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
+        
+        # Add status label since the UI doesn't have a statusbar
+        self.status_label = QtWidgets.QLabel("Ready")
+        self.status_label.setStyleSheet("QLabel { color: gray; font-style: italic; margin: 5px; }")
+        self.ui.verticalLayout_2.addWidget(self.status_label)
 
         self.changed = False
 
+    def set_ontology_container(self, ontology_container):
+        """Set the ontology container for behavior association"""
+        self.ontology_container = ontology_container
 
+    def on_pushAddVariable_pressed(self):
+        """Launch BehaviorAssociation editor to select variable and build tree"""
+        if not hasattr(self, 'ontology_container'):
+            makeMessageBox("Ontology container not set")
+            return
+        
+        try:
+            # Launch the BehaviorAssociation editor
+            assignments = launch_behavior_association_editor(self.ontology_container)
+            
+            if assignments:
+                # Send the assignments back to the backend
+                message = {
+                    "event": "behavior_association_defined",
+                    "assignments": assignments
+                }
+                self.message.emit(message)
+                self.markChanged()
+            else:
+                makeMessageBox("No behavior association defined")
+                
+        except Exception as e:
+            makeMessageBox(f"Error launching BehaviorAssociation editor: {str(e)}")
 
 # ======================= window controls ==========================
 
@@ -85,13 +117,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         global changed
         changed = True
         self.signalButton.changeIcon("LED_red")
-        self.ui.statusbar.showMessage("modified")
+        self.status_label.setText("modified")
 
     def markSaved(self):
         global changed
         changed = False
         self.signalButton.changeIcon("LED_green")
-        self.ui.statusbar.showMessage("up to date")
+        self.status_label.setText("up to date")
 
     def closeMe(self):
 

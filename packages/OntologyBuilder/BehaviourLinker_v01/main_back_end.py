@@ -55,6 +55,35 @@ class BehaviourLinerBackEnd(QObject):
         if message.get("event") == "entity_created":
             # Handle new entity from entity editor
             self.add_entity(message.get("entity_data"))
+        elif message.get("event") == "behavior_association_defined":
+            # Handle behavior association from BehaviorAssociation editor
+            self.handle_behavior_association(message.get("assignments"))
+
+    def handle_behavior_association(self, assignments):
+        """Handle the behavior association assignments from the editor"""
+        try:
+            if assignments:
+                print(f"Received behavior association: {assignments}")
+                
+                # Here you can process the assignments as needed
+                # For example, save them to the entity file or update the entity data
+                
+                # For now, just acknowledge receipt
+                self.send_message({
+                    "event": "behavior_association_processed",
+                    "status": "success",
+                    "assignments": assignments
+                })
+            else:
+                print("No behavior association assignments received")
+                
+        except Exception as e:
+            print(f"Error handling behavior association: {e}")
+            self.send_message({
+                "event": "behavior_association_processed", 
+                "status": "error",
+                "error": str(e)
+            })
 
     def load_ontology(self):
         self.ontology_name = getOntologyName(task="task_entity_generation")
@@ -350,8 +379,8 @@ class BehaviourLinerBackEnd(QObject):
         self.entity_front_end.message.connect(self.entity_back_end.process_message)
         self.entity_back_end.message.connect(self.handle_entity_editor_message)
 
-        # Pass ontology data to entity editor
-        # self.entity_back_end.load_ontology_data(self.ontology_container)
+        # Pass ontology container to entity front end for behavior association
+        self.entity_front_end.set_ontology_container(self.ontology_container)
 
         # Show editor
         self.entity_front_end.show()
