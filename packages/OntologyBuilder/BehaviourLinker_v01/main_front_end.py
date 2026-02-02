@@ -20,9 +20,11 @@ __status__ = "beta"
 
 import sys
 
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QStandardItemModel
 
 from Common.resources_icons import roundButton
 from OntologyBuilder.BehaviourLinker_v01.UIs.main import Ui_MainWindow
@@ -57,6 +59,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         roundButton(self.ui.pushNormal, "normal_view", tooltip="normal", mysize=35)
 
         self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
+        self.interfaceComponents()
 
         # Add statusbar since the UI doesn't have one but this is a QMainWindow
         self.statusBar().showMessage("Ready")
@@ -70,36 +73,50 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
     def process_message(self, message):
         print("front  end got message", message)
         event = message.get("event")
+        gui = message.get("interface")
+        self.__gui_view(gui)
         if event == "make tree":
-            data = message.get("tree data")
+            data = message.get("data")
             self.__make_tree(data)
 
-# ================== interface handling =========================
+    # ================== interface handling =========================
+    def __gui_view(self, gui):
+        pass
+        buttons = self.gui_objects["buttons"]
+        lists = self.gui_objects["lists"]
+        for button in buttons:
+            print("obj", button)
+            buttons[button].setVisible(gui["buttons"][button])
+        for list in lists:
+            if gui["lists"][list]:
+               lists[list].reset()
+
+        pass
+
     def __make_tree(self, data):
         """Build the entity tree with colors similar to HAP version."""
         # print(f"__make_tree called with data: {data}")
         if not data:
             print("No data received, returning")
             return
-            
+
         # Define colors (same as HAP version)
-        NETWORK_COLOR = QtGui.QColor(255, 0, 0)    # Red for networks
-        CATEGORY_COLOR = QtGui.QColor(0, 0, 255)   # Blue for node/arc
-        TYPE_COLOR = QtGui.QColor(0, 128, 0)      # Green for entity types
-        ENTITY_COLOR = QtGui.QColor(0, 0, 0)      # Black for instantiated entities
-        
+        NETWORK_COLOR = QtGui.QColor(255, 0, 0)  # Red for networks
+        CATEGORY_COLOR = QtGui.QColor(0, 0, 255)  # Blue for node/arc
+        TYPE_COLOR = QtGui.QColor(0, 128, 0)  # Green for entity types
+        ENTITY_COLOR = QtGui.QColor(0, 0, 0)  # Black for instantiated entities
+
         # Clear existing tree - reset the model
-        from PyQt5.QtGui import QStandardItemModel
         tree_model = QStandardItemModel()
         self.ui.tree_entities.setModel(tree_model)
         # print("Created new tree model")
-        
+
         # Extract networks from node_entity_types data
         networks = set(data.keys())
         # print(f"Extracted networks: {networks}")
-        
+
         network_items = {}
-        
+
         # Build tree structure
         for net in sorted(networks):
             # print(f"Building network: {net}")
@@ -111,7 +128,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             tree_model.appendRow(net_item)
             network_items[net] = net_item
             # print(f"Added network item: {net}")
-            
+
             # Create categories (node, arc)
             for category in ['node', 'arc']:
                 cat_item = QtGui.QStandardItem(category)
@@ -119,11 +136,11 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 cat_item.setData(f"{net}.{category}", QtCore.Qt.UserRole + 2)
                 cat_item.setForeground(CATEGORY_COLOR)
                 net_item.appendRow(cat_item)
-                
+
                 # Get entity types for this network from the data
                 entity_types = data.get(net, [])
                 # print(f"Entity types for {net}.{category}: {entity_types}")
-                
+
                 # Create type items
                 for entity_type in sorted(entity_types):
                     type_item = QtGui.QStandardItem(entity_type)
@@ -131,46 +148,49 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                     type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
                     type_item.setForeground(TYPE_COLOR)
                     cat_item.appendRow(type_item)
-                    
+
                     # Add placeholder for entities (currently no entities loaded)
                     # This will be populated when entities are created
                     placeholder_item = QtGui.QStandardItem("(no entities)")
                     placeholder_item.setData(('placeholder', net, category, entity_type), QtCore.Qt.UserRole + 1)
                     placeholder_item.setForeground(ENTITY_COLOR)
                     type_item.appendRow(placeholder_item)
-        
+
         # print(f"Tree built with {len(networks)} networks and colored structure")
         # print(f"Tree model has {tree_model.rowCount()} top-level items")
-        
+
         # Make sure the tree view is properly configured
         self.ui.tree_entities.expandAll()
         self.ui.tree_entities.show()
         # print("Tree expanded and shown")
-# ===============================================================
 
-    def interfaceComponents(self):
-        self.window_controls = {
-                "maximise": self.ui.pushMaximise,
-                "minimise": self.ui.pushMinimise,
-                "normal"  : self.ui.pushNormal,
-                }
+    def on_tree_entities_pressed(self):
+        index = self.ui.tree_entities.currentIndex()
+        if index.isValid():
+            # Get the item from the index
+            item = self.ui.tree_entities.model().itemFromIndex(index)
+            if item is not None:
+                # Get the display text
+                text = item.text()
+                # Get the item's data (type information)
+                item_data = item.data(QtCore.Qt.UserRole + 1)
+                # Get the full path
+                path = []
+                current = item
+                while current is not None:
+                    path.insert(0, current.text())
+                    current = current.parent()
+                full_path = " > ".join(path)
 
-        self.gui_objects = {
-                "new"             : self.ui.pushNew,
-                "edit"            : self.ui.pushEdit,
-                "delete"          : self.ui.pushDelete,
-                "save"            : self.ui.pushSave,
-                "exit"            : self.ui.pushExit,
-                "tree"            : self.ui.tree_entities,
-                "LED"             : self.ui.LED,
-                "list_equations"  : self.ui.list_equations,
-                "list_integrators": self.ui.list_integrators,
-                "list_input"      : self.ui.list_input,
-                "list_output"     : self.ui.list_output,
-                "list_instantiate": self.ui.list_instantiate,
-                "list_pending"    : self.ui.list_pending,
-                }
+                print(f"Clicked on: {text}")
+                print(f"Item type data: {item_data}")
+                print(f"Full path: {full_path}")
+                print(f"Row in parent: {index.row()}")
 
+    # ===============================================================
+
+
+    #============== buttons =========================================
     def on_pushNew_pressed(self):
         self.send_message({"event": "new"})
 
@@ -187,7 +207,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         print("exit pressed")
         self.closeMe()
 
- # ===============================================================
+    # ================ tree =========================================
+    # def on_
+    # ================ Window control ===============================
 
     # def _update_tree_model(self) -> None:
     #     """Update the tree model with the current state of entities."""
@@ -288,11 +310,38 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
     #
     #     self.tree_changed.emit()
 
+    # ======================= window controls ==========================
+    def interfaceComponents(self):
+        self.window_controls = {
+                "maximise": self.ui.pushMaximise,
+                "minimise": self.ui.pushMinimise,
+                "normal"  : self.ui.pushNormal,
+                }
 
-# ======================= window controls ==========================
+        self.gui_objects = {
+                "buttons"  : {
+                        "new"   : self.ui.pushNew,
+                        "edit"  : self.ui.pushEdit,
+                        "delete": self.ui.pushDelete,
+                        "save"  : self.ui.pushSave,
+                        "exit"  : self.ui.pushExit,
+                        "tree"  : self.ui.tree_entities,
+                        },
+                "indicator": {
+                        "LED": self.ui.LED,
+                        },
+                "lists"    : {
+                        "list_equations"  : self.ui.list_equations,
+                        "list_integrators": self.ui.list_integrators,
+                        "list_input"      : self.ui.list_input,
+                        "list_output"     : self.ui.list_output,
+                        "list_instantiate": self.ui.list_instantiate,
+                        "list_pending"    : self.ui.list_pending,
+                        },
+                "tree" : self.ui.tree_entities,
+                }
 
-
-        # enable moving the window --https://www.youtube.com/watch?v=R4jfg9mP_zo&t=152s
+    # enable moving the window --https://www.youtube.com/watch?v=R4jfg9mP_zo&t=152s
     def on_pushMinimise_pressed(self):
         self.showMinimized()
 
@@ -301,6 +350,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
     def on_pushNormal_pressed(self):
         self.showNormal()
+
     def mousePressEvent(self, event, QMouseEvent=None):
         self.dragPos = event.globalPos()
 
