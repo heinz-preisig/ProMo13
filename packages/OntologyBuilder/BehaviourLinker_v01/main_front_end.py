@@ -180,12 +180,14 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 while current is not None:
                     path.insert(0, current.text())
                     current = current.parent()
-                full_path = " > ".join(path)
+                full_path = ".".join(path)
+                network, category, entity_type = full_path.split(".")
 
                 print(f"Clicked on: {text}")
                 print(f"Item type data: {item_data}")
                 print(f"Full path: {full_path}")
                 print(f"Row in parent: {index.row()}")
+                print("network:", network, "   category:", category, "   entity type:", entity_type)
 
     # ===============================================================
 
