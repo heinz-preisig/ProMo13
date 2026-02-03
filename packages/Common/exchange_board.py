@@ -396,12 +396,12 @@ class ProMoExchangeBoard():
                 self.indices[i]["network"] = self.heirs_network_dictionary[def_network]
 
 
-        self.list_equation_png_files = self.__load_equation_png_files()
+        self.indexEquations()
+        self.list_equation_png_files = self.__load_equation_png_files_for_ids(self.equation_dictionary.keys())
         self.list_variable_png_files = self.__load_variable_png_files()
         # Add PNG paths directly to variable records
         self.__add_png_paths_to_variables()
         self.list_equation_classes = self.__makeEquationClassesDictionary()
-        self.indexEquations()
 
         pass
 
@@ -1304,19 +1304,6 @@ class ProMoExchangeBoard():
         dict_equation_png = {}
         latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
         for eq_id in equation_ids:
-            equ_png_file_path = latex_folder_path / (eq_id + ".png")
-            if OS.path.exists(equ_png_file_path):
-                dict_equation_png[eq_id] = equ_png_file_path
-            else:
-                # Temporarily comment out to prevent GUI interference during loading
-                # makeMessageBox("no such equation png file %s"%equ_png_file_path,"OK")
-                print(f"Debug: No equation PNG file found: {equ_png_file_path}")
-        return dict_equation_png
-
-    def __load_equation_png_files(self):
-        dict_equation_png = {}
-        latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
-        for eq_id in self.equation_dictionary:
             equ_png_file_path = latex_folder_path / (eq_id + ".png")
             if OS.path.exists(equ_png_file_path):
                 dict_equation_png[eq_id] = equ_png_file_path

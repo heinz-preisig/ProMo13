@@ -205,8 +205,12 @@ class EquationSelectorDialog(QtWidgets.QDialog):
                 
                 print(f"Debug: {eq_id} -> Label: {eq_label}, Expression: {eq_expression}, PNG: {png_file}")
                 
-                # Create list item
-                item_text = f"{eq_label}\n{eq_expression}"
+                # Create list item - show label only when PNG is available, otherwise show LaTeX text
+                if png_file and os.path.exists(png_file):
+                    item_text = eq_label  # Only show label, PNG will show the equation
+                else:
+                    item_text = f"{eq_label}\n{eq_expression}"  # Show LaTeX text when no PNG
+                
                 item = QtWidgets.QListWidgetItem(item_text)
                 item.setData(QtCore.Qt.UserRole, eq_id)
                 
