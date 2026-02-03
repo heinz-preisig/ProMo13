@@ -41,11 +41,11 @@ ext = [root, os.path.join(root, 'packages'), \
 
 sys.path.extend(ext)
 from OntologyBuilder.EMMO_Integration.emmo_attach import ProMoOwlOntology
-from Common.ontology_container import OntologyContainer
+from Common.exchange_board import ProMoExchangeBoard
 
 from owlready2 import *
 
-ontology = OntologyContainer("processes_starter") #'flash_03')
+ontology = ProMoExchangeBoard("processes_starter") #'flash_03')
 
 
 variables = ontology.variables

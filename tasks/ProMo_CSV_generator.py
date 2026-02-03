@@ -36,11 +36,11 @@ if __name__ == '__main__':
 
     def writeCSVfile(self):
 
-      from Common.ontology_container import OntologyContainer
+      from Common.exchange_board import ProMoExchangeBoard
 
       self.ontology_name = getOntologyName(task="task_ONTO_to_CSV")
 
-      ontology_container = OntologyContainer(self.ontology_name)
+      ontology_container = ProMoExchangeBoard(self.ontology_name)
       tokens = ontology_container.tokens
       variables = ontology_container.variables
       indices = ontology_container.indices

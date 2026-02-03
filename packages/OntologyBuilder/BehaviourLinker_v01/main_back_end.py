@@ -15,19 +15,19 @@ from Common.classes.entity import Entity
 # from Utilities import camelCase
 # from Utilities import debugging
 from Common.common_resources import getOntologyName
-from Common.ontology_container import OntologyContainer
+from Common.exchange_board import ProMoExchangeBoard
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBackEnd
 from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd
-
-from OntologyBuilder.BehaviourLinker_v01.main_automaton import automaton
+from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
 TIMING = False
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 root = os.path.abspath(os.path.join("."))
 sys.path.extend([root, os.path.join(root, "resources")])
+
 
 # from OntologyBuilder.BehaviourLinker_v01.entity_back_end import
 
@@ -40,23 +40,77 @@ class BehaviourLinerBackEnd(QObject):
 
     def process_message(self, message):
         print(">>got message: ", message)
-        self.event = message.get("event")
-        message = {"interface": automaton[self.event]}
-        self.send_message(message)
-        if self.event == "new":
+        event = message.get("event")
+
+        # action
+        if event == "failed":
+            pass
+        elif event == "selected_entity_type":
+            self.entity_type = message.get("data", None)
+            print(" got a selected entity type", self.entity_type)
+        elif event == "new":
             self.launch_entity_editor(self.ontology_container)
 
-    def send_message(self, event, data = None):
-        message = {"event": event, "interface": automaton[event], "data": data}
+
+        self.send_message(event)
+
+    def send_message(self, event, data=None):
+        message = {"event": event, "interface": gui_automaton[event], "data": data}
         self.message.emit(message)
 
     def handle_entity_editor_message(self, message):
+        """Handle messages from the entity editor"""
         if message.get("event") == "entity_created":
-            # Handle new entity from entity editor
+            # Handle new entity from entity editor (legacy)
             self.add_entity(message.get("entity_data"))
         elif message.get("event") == "behavior_association_defined":
-            # Handle behavior association from BehaviorAssociation editor
+            # Handle behavior association from BehaviorAssociation editor (legacy)
             self.handle_behavior_association(message.get("assignments"))
+        elif message.get("event") == "entity_data_ready":
+            # Handle new entity data with equation selection
+            self.process_entity_data(message.get("entity_data"))
+        elif message.get("event") == "entity_created_successfully":
+            # Handle successful entity creation
+            print("Entity created successfully")
+            self.send_message("entity_creation_complete")
+        elif message.get("event") == "error":
+            # Handle errors from entity editor
+            error_msg = message.get("error", "Unknown error")
+            print(f"Entity editor error: {error_msg}")
+            self.send_message("error", {"error": error_msg})
+    
+    def process_entity_data(self, entity_data):
+        """Process the entity data with equation selection"""
+        try:
+            if not entity_data:
+                print("No entity data provided")
+                return
+            
+            root_variable = entity_data.get('root_variable')
+            definition_method = entity_data.get('definition_method')
+            
+            print(f"Processing entity for variable: {root_variable}")
+            print(f"Definition method: {definition_method}")
+            
+            if definition_method == 'initialization':
+                init_value = entity_data.get('initialization_value')
+                print(f"Variable will be initialized with: {init_value}")
+            else:
+                equation_id = entity_data.get('equation_id')
+                print(f"Variable will be defined by equation: {equation_id}")
+            
+            # Here you would typically:
+            # 1. Create the Entity object with the selected definition
+            # 2. Add it to the entity list
+            # 3. Update the tree view
+            # 4. Save to file
+            
+            # For now, just acknowledge and show a success message
+            print("Entity data processed successfully")
+            
+        except Exception as e:
+            print(f"Error processing entity data: {e}")
+            self.send_message("error", {"error": str(e)})
 
     def handle_behavior_association(self, assignments):
         """Handle the behavior association assignments from the editor"""
@@ -91,7 +145,7 @@ class BehaviourLinerBackEnd(QObject):
         self.send_message("start")
         # get ontology
         self.ontology_location = DIRECTORIES["ontology_location"] % str(self.ontology_name)
-        self.ontology_container = OntologyContainer(self.ontology_name)
+        self.ontology_container = ProMoExchangeBoard(self.ontology_name)
 
         # self.variable_types_on_networks = self.ontology_container.variable_types_on_networks
         # self.converting_tokens = self.ontology_container.converting_tokens
@@ -120,7 +174,7 @@ class BehaviourLinerBackEnd(QObject):
         # load all instances
         self.all_entities = self.load_intities_from_file(self.ontology_name)
 
-        self.send_message(event="make tree", data = self.node_entity_types)
+        self.send_message(event="make_tree", data=self.node_entity_types)
         pass
 
         # def load_entities_from_file(  #TODO: do we need the interface entityies?

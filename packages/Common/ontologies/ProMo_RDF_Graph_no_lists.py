@@ -245,9 +245,9 @@ class RDFProMo():
 
 
 if __name__ == '__main__':
-  from Common.ontology_container import OntologyContainer
+  from Common.exchange_board import ProMoExchangeBoard
 
-  ontology_container = OntologyContainer("processes_000")
+  ontology_container = ProMoExchangeBoard("processes_000")
   tokens = ontology_container.tokens
   variables = ontology_container.variables
   indices = ontology_container.indices

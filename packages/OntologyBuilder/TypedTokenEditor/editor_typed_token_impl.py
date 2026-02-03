@@ -27,7 +27,7 @@ from Common.common_resources import getData
 from Common.common_resources import getOntologyName
 from Common.common_resources import M_None
 from Common.common_resources import putData
-from Common.ontology_container import OntologyContainer
+from Common.exchange_board import ProMoExchangeBoard
 from Common.resource_initialisation import FILES
 from Common.ui_two_list_selector_dialog_impl import UI_TwoListSelector
 from OntologyBuilder.TypedTokenEditor.editor_typed_token import Ui_MainWindow
@@ -102,7 +102,7 @@ class Ui_TokenEditor(QtWidgets.QMainWindow):
 
     # attach ontology
     ontology_name = getOntologyName(task="task_typed_tokens")
-    ontology = OntologyContainer(ontology_name)  # DIRECTORIES["ontology_location"] % ontology_name)
+    ontology = ProMoExchangeBoard(ontology_name)  # DIRECTORIES["ontology_location"] % ontology_name)
     self.networks = ontology.list_leave_networks
 
     self.typed_token_file_spec = FILES["typed_token_file"] % ontology_name

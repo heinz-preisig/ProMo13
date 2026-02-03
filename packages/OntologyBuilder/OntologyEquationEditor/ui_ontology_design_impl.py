@@ -43,8 +43,8 @@ from Common.common_resources import getOntologyName
 from Common.common_resources import makeTreeView
 from Common.common_resources import putData
 from Common.common_resources import saveBackupFile
-from Common.ontology_container import CENTRE_NETWORKS
-from Common.ontology_container import OntologyContainer
+from Common.exchange_board import CENTRE_NETWORKS
+from Common.exchange_board import ProMoExchangeBoard
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import RecordIndex
 from Common.record_definitions import makeCompletEquationRecord
@@ -166,7 +166,7 @@ class UiOntologyDesign(QMainWindow):
 
     # get ontology
     self.ontology_location = DIRECTORIES["ontology_location"] % str(self.ontology_name)
-    self.ontology_container = OntologyContainer(self.ontology_name)
+    self.ontology_container = ProMoExchangeBoard(self.ontology_name)
     self.ui.groupOntology.setTitle("ontology : %s" % self.ontology_name)
 
     self.variable_types_on_networks = self.ontology_container.variable_types_on_networks

@@ -73,9 +73,13 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
     def process_message(self, message):
         print("front  end got message", message)
         event = message.get("event")
-        gui = message.get("interface")
+
+        # update interface
+        gui = message.get("interface", None)
         self.__gui_view(gui)
-        if event == "make tree":
+
+        # actions
+        if event == "make_tree":
             data = message.get("data")
             self.__make_tree(data)
 
@@ -85,7 +89,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         buttons = self.gui_objects["buttons"]
         lists = self.gui_objects["lists"]
         for button in buttons:
-            print("obj", button)
+            # print("obj", button)
             buttons[button].setVisible(gui["buttons"][button])
         for list in lists:
             if gui["lists"][list]:
@@ -169,26 +173,48 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         if index.isValid():
             # Get the item from the index
             item = self.ui.tree_entities.model().itemFromIndex(index)
+            network = None
+            category = None
+            entity_type = None
+            name = None
             if item is not None:
                 # Get the display text
-                text = item.text()
+                # text = item.text()
                 # Get the item's data (type information)
-                item_data = item.data(QtCore.Qt.UserRole + 1)
+                # item_data = item.data(QtCore.Qt.UserRole + 1)
                 # Get the full path
                 path = []
                 current = item
                 while current is not None:
                     path.insert(0, current.text())
                     current = current.parent()
-                full_path = ".".join(path)
-                network, category, entity_type = full_path.split(".")
+                # full_path = ".".join(path)
+                if len(path) == 3:
+                    network, category, entity_type = path
+                    event ="selected_entity_type"
+                elif len(path) == 4:
+                    network, category, entity_type, name = path
+                    event = "selected_instance"
+                else:
+                    makeMessageBox("please select an entity type or an instance", buttons=["OK"])
+                    event = "failed"
 
-                print(f"Clicked on: {text}")
-                print(f"Item type data: {item_data}")
-                print(f"Full path: {full_path}")
-                print(f"Row in parent: {index.row()}")
-                print("network:", network, "   category:", category, "   entity type:", entity_type)
 
+                # print(f"Clicked on: {text}")
+                # print(f"Item type data: {item_data}")
+                # print(f"Full path: {full_path}")
+                # print(f"Row in parent: {index.row()}")
+                message = {"event": event,
+                           "data":{
+                                   "network"    : network,
+                                   "category"   : category,
+                                   "entity type": entity_type,
+                                   "name"       : name
+                                   }
+                }
+                # print("network:", network, "   category:", category, "   entity type:", entity_type)
+                # print(message)
+                self.send_message(message)
     # ===============================================================
 
 

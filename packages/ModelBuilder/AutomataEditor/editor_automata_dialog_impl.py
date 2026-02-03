@@ -39,7 +39,7 @@ from Common.automata_objects import getAutomata
 from Common.automata_objects import GRAPH_EDITOR_STATES
 from Common.automata_objects import KeyAutomatonEntry
 from Common.graphics_objects import PHASES
-from Common.ontology_container import OntologyContainer
+from Common.exchange_board import ProMoExchangeBoard
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.common_resources import displayPdf
@@ -98,7 +98,7 @@ class GraphEditorDialogImpl(QtWidgets.QWidget):
     # self.file_resources = DataFileResources(self.ontology_name)
 
     #
-    ontology = OntologyContainer(self.ontology_name)  # DIRECTORIES["ontology_location"] % self.ontology_name)
+    ontology = ProMoExchangeBoard(self.ontology_name)  # DIRECTORIES["ontology_location"] % self.ontology_name)
     self.application_node_types = ontology.node_type_list
     self.application_arcs_types = ontology.arc_type_list
     self.tokens = ontology.tokens

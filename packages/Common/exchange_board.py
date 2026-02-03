@@ -194,7 +194,7 @@ def makeIndices(ontology_container):
     return indices
 
 
-class OntologyContainer():
+class ProMoExchangeBoard():
     """
     store ontology in configuration files.
     """
@@ -395,13 +395,14 @@ class OntologyContainer():
                 def_network = self.indices[i]["network"][0]
                 self.indices[i]["network"] = self.heirs_network_dictionary[def_network]
 
-        self.indexEquations()
 
         self.list_equation_png_files = self.__load_equation_png_files()
         self.list_variable_png_files = self.__load_variable_png_files()
         # Add PNG paths directly to variable records
         self.__add_png_paths_to_variables()
         self.list_equation_classes = self.__makeEquationClassesDictionary()
+        self.indexEquations()
+
         pass
 
     def __makeEquationClassesDictionary(self):
@@ -1134,10 +1135,16 @@ class OntologyContainer():
 
     def makeEquationDictionary(self):
         equation_dictionary = {}
+        # First pass: create basic dictionary without PNG files
         for var_ID in self.variables:
             for eq_ID in self.variables[var_ID]["equations"]:
                 equation_dictionary[eq_ID] = self.variables[var_ID]["equations"][eq_ID]
                 equation_dictionary[eq_ID]["lhs"] = self.variables[var_ID]["compiled_lhs"]
+        
+        # Second pass: add PNG files to the completed dictionary
+        equation_png_files = self.__load_equation_png_files_for_ids(equation_dictionary.keys())
+        for eq_id in equation_dictionary:
+            equation_dictionary[eq_id]["png_file"] = equation_png_files.get(eq_id, None)
         return equation_dictionary
 
     def __makeEquationVariableDictionary(self):
@@ -1185,13 +1192,7 @@ class OntologyContainer():
         for i in args:
             self.variables[ID][i] = args[i]
 
-    # def writeMe(self):
-    #
-    #   container = OntologyContainerFile(ONTOLOGY_VERSION)
-    #   for hash in list(container.keys()):
-    #     container[hash] = self.__getattribute__(hash)
-    #
-    #   saveWithBackup(self.ontology_file)
+
 
     def writeVariables(self, variables, indices, ProMoIRI):
         """
@@ -1297,6 +1298,20 @@ class OntologyContainer():
         path = FILES["arc_options"] % self.ontology_name
         data = getData(path)
         return data
+
+    def __load_equation_png_files_for_ids(self, equation_ids):
+        """Load PNG files for a specific set of equation IDs"""
+        dict_equation_png = {}
+        latex_folder_path = Path(DIRECTORIES["latex_doc_location"] % self.ontology_name)
+        for eq_id in equation_ids:
+            equ_png_file_path = latex_folder_path / (eq_id + ".png")
+            if OS.path.exists(equ_png_file_path):
+                dict_equation_png[eq_id] = equ_png_file_path
+            else:
+                # Temporarily comment out to prevent GUI interference during loading
+                # makeMessageBox("no such equation png file %s"%equ_png_file_path,"OK")
+                print(f"Debug: No equation PNG file found: {equ_png_file_path}")
+        return dict_equation_png
 
     def __load_equation_png_files(self):
         dict_equation_png = {}

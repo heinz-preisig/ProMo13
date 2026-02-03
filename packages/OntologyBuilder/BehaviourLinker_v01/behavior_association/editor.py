@@ -25,7 +25,7 @@ from Common.common_resources import indexList
 from Common.common_resources import putData
 from Common.common_resources import TEMPLATE_ENTITY_OBJECT
 from Common.common_resources import walkDepthFirstFnc
-from Common.ontology_container import OntologyContainer
+from Common.exchange_board import ProMoExchangeBoard
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions_equation_linking import EntityBehaviour
 from Common.record_definitions_equation_linking import functionGetObjectsFromObjectStringID
@@ -37,6 +37,7 @@ from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.ui_number_dialog_impl import UI_String
 from Common.ui_two_list_selector_dialog_impl import UI_TwoListSelector
+from OntologyBuilder.BehaviourLinker_v01.behavior_association.equation_selector import select_equation_for_variable
 
 # Import the required classes from CAM10 resources
 # These will need to be adapted for CAM12
@@ -208,12 +209,27 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
             variables = self.ontology_container.variables
             self.variable_list.clear()
             
+            print(f"Debug: Loading {len(variables)} variables from ontology")
+            
+            # Count variables with label "T"
+            t_variables = []
+            for var_id in variables:
+                var_data = variables[var_id]
+                if var_data.get('label') == 'T':
+                    t_variables.append(var_id)
+            
+            print(f"Debug: Found {len(t_variables)} variables with label 'T': {t_variables}")
+            
             for var_id in variables:
                 var_data = variables[var_id]
                 label = var_data.get('label', f'Variable_{var_id}')
                 var_type = var_data.get('type', 'unknown')
                 network = var_data.get('network', 'unknown')
                 png_file = var_data.get('png_file')  # PNG path now stored directly in variable
+                
+                # Debug for T variables
+                if label == 'T':
+                    print(f"Debug: T variable found - ID: {var_id}, Network: {network}, Equations: {list(var_data.get('equations', {}).keys())}, PNG: {png_file}")
                 
                 # Create list item with text
                 item_text = f"{label}\n(ID: {var_id}, Type: {var_type}, Network: {network})"
@@ -226,13 +242,25 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
                         icon = QtGui.QIcon(png_file)
                         if not icon.isNull():
                             item.setIcon(icon)
-                    except Exception:
-                        # Silently handle icon creation errors
+                            if label == 'T':
+                                print(f"✓ Loaded PNG icon for T variable {var_id}: {png_file}")
+                    except Exception as e:
+                        if label == 'T':
+                            print(f"✗ Error loading PNG icon for T variable {var_id}: {e}")
                         pass
+                else:
+                    if label == 'T':
+                        if png_file:
+                            print(f"⚠ PNG file not found for T variable {var_id}: {png_file}")
+                        else:
+                            print(f"○ No PNG file specified for T variable {var_id}")
                 
                 self.variable_list.addItem(item)
+            
+            print(f"Debug: Total variables loaded: {self.variable_list.count()}")
                 
         except Exception as e:
+            print(f"Debug: Error loading variables: {e}")
             makeMessageBox(f"Error loading variables: {str(e)}")
     
     def select_variable_and_build_tree(self):
@@ -245,22 +273,38 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         var_id = current_item.data(QtCore.Qt.UserRole)
         var_data = self.ontology_container.variables[var_id]
         
+        print(f"Debug: Selected variable - ID: {var_id}")
+        print(f"Debug: Selected variable - Label: {var_data.get('label')}")
+        print(f"Debug: Selected variable - Network: {var_data.get('network')}")
+        print(f"Debug: Selected variable - Equations: {list(var_data.get('equations', {}).keys())}")
+        print(f"Debug: Selected variable - Number of equations: {len(var_data.get('equations', {}))}")
+        
         try:
-            # Build the bipartite graph tree
-            self.build_behavior_tree(var_id, var_data)
+            # First, let the user select the equation or initialization method
+            equation_selection = select_equation_for_variable(var_data, self.ontology_container)
+            
+            if equation_selection is None:
+                # User cancelled the selection
+                return
+            
+            # Build the bipartite graph tree with the selected equation
+            self.build_behavior_tree(var_id, var_data, equation_selection)
             
         except Exception as e:
+            print(f"Debug: Error in select_variable_and_build_tree: {e}")
             makeMessageBox(f"Error building behavior tree: {str(e)}")
     
-    def build_behavior_tree(self, var_id, var_data):
-        """Build the behavior tree using the selected variable as root"""
+    def build_behavior_tree(self, var_id, var_data, equation_selection):
+        """Build the behavior tree using the selected variable and equation"""
         try:
             # For now, create a simple assignment structure
             # This will need to be replaced with the actual AnalyseBiPartiteGraph call
             
             self.entity_assignments = {
                 'root_variable': var_id,
-                'root_equation': None,
+                'root_equation': equation_selection.get('equation_id'),
+                'use_initialization': equation_selection.get('use_initialization', False),
+                'initialization_value': equation_selection.get('initialization_value'),
                 'tree': {0: {'children': [], 'parent': None}},
                 'nodes': {0: f'variable_{var_id}'},
                 'IDs': {f'variable_{var_id}': 0},
@@ -268,21 +312,27 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
                 'buddies_list': []
             }
             
-            # If the variable has equations, add them to the tree
-            equations = var_data.get('equations', {})
-            if equations:
-                eq_id = list(equations.keys())[0]  # Take first equation
-                self.entity_assignments['root_equation'] = eq_id
-                
-                # Add equation to tree
-                node_id = 1
-                self.entity_assignments['tree'][0]['children'].append(node_id)
-                self.entity_assignments['tree'][node_id] = {'children': [], 'parent': 0}
-                self.entity_assignments['nodes'][node_id] = f'equation_{eq_id}'
-                self.entity_assignments['IDs'][f'equation_{eq_id}'] = node_id
+            # If using equation definition, add the equation to the tree
+            if not equation_selection.get('use_initialization', False):
+                eq_id = equation_selection.get('equation_id')
+                if eq_id:
+                    # Add equation to tree
+                    node_id = 1
+                    self.entity_assignments['tree'][0]['children'].append(node_id)
+                    self.entity_assignments['tree'][node_id] = {'children': [], 'parent': 0}
+                    self.entity_assignments['nodes'][node_id] = f'equation_{eq_id}'
+                    self.entity_assignments['IDs'][f'equation_{eq_id}'] = node_id
+            else:
+                # Using initialization, no equation in tree
+                self.entity_assignments['root_equation'] = None
             
             # Show success message
-            self.status_label.setText(f"Behavior tree built for variable {var_data.get('label', var_id)}")
+            if equation_selection.get('use_initialization', False):
+                init_value = equation_selection.get('initialization_value', '')
+                self.status_label.setText(f"Variable {var_data.get('label', var_id)} initialized with: {init_value}")
+            else:
+                eq_id = equation_selection.get('equation_id', 'unknown')
+                self.status_label.setText(f"Behavior tree built for variable {var_data.get('label', var_id)} with equation {eq_id}")
             
             # Emit signal with the assignments
             self.behavior_defined.emit(self.entity_assignments)
