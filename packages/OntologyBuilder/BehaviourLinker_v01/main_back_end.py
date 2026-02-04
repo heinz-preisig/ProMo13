@@ -172,9 +172,12 @@ class BehaviourLinerBackEnd(QObject):
         self.arc_entity_types = self.ontology_container.list_arc_objects
 
         # load all instances
-        self.all_entities = self.load_intities_from_file(self.ontology_name)
+        self.all_entities = self.load_entities_from_file(self.ontology_name)
 
-        self.send_message(event="make_tree", data=self.node_entity_types)
+        self.send_message(event="make_tree", data={
+            "node_entity_types": self.node_entity_types,
+            "all_entities": self.all_entities
+        })
         pass
 
         # def load_entities_from_file(  #TODO: do we need the interface entityies?
@@ -338,7 +341,7 @@ class BehaviourLinerBackEnd(QObject):
     #     # print(f"Error generating entity types for {network_type}: {e}")
     #     # return {'node': [], 'arc': []}
 
-    def load_intities_from_file(self, ontology_name):
+    def load_entities_from_file(self, ontology_name):
         # """Loads data from file to create Entity objects.
 
         # Args:

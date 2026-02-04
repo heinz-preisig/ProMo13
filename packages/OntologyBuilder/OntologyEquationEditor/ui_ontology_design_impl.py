@@ -1095,7 +1095,7 @@ class UiOntologyDesign(QMainWindow):
     for e_type in self.variables.equation_type_list:  # split into equation types
       eqs[e_type] = {}
 
-    eq_dic = self.ontology_container.makeEquationDictionary()
+    eq_dic = self.ontology_container.makeEquationDictionary()  #TODO: question of updating dictionary
     for equ_ID in eq_dic:
       e_type = eq_dic[equ_ID]["type"]
       eq_record = eq_dic[equ_ID]

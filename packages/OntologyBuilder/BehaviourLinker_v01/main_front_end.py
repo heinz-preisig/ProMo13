@@ -104,6 +104,10 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             print("No data received, returning")
             return
 
+        # Extract node_entity_types and all_entities from the new data structure
+        node_entity_types = data.get("node_entity_types", {})
+        all_entities = data.get("all_entities", {})
+
         # Define colors (same as HAP version)
         NETWORK_COLOR = QtGui.QColor(255, 0, 0)  # Red for networks
         CATEGORY_COLOR = QtGui.QColor(0, 0, 255)  # Blue for node/arc
@@ -116,7 +120,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         # print("Created new tree model")
 
         # Extract networks from node_entity_types data
-        networks = set(data.keys())
+        networks = set(node_entity_types.keys())
         # print(f"Extracted networks: {networks}")
 
         network_items = {}
@@ -142,7 +146,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 net_item.appendRow(cat_item)
 
                 # Get entity types for this network from the data
-                entity_types = data.get(net, [])
+                entity_types = node_entity_types.get(net, [])
                 # print(f"Entity types for {net}.{category}: {entity_types}")
 
                 # Create type items
@@ -153,12 +157,42 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                     type_item.setForeground(TYPE_COLOR)
                     cat_item.appendRow(type_item)
 
-                    # Add placeholder for entities (currently no entities loaded)
-                    # This will be populated when entities are created
-                    placeholder_item = QtGui.QStandardItem("(no entities)")
-                    placeholder_item.setData(('placeholder', net, category, entity_type), QtCore.Qt.UserRole + 1)
-                    placeholder_item.setForeground(ENTITY_COLOR)
-                    type_item.appendRow(placeholder_item)
+                    # Add entities for this entity type
+                    entities_for_type = []
+                    for entity_id, entity_obj in all_entities.items():
+                        # Check if entity matches this network, category, and type
+                        if ">" not in entity_id:
+                            entity_net, entity_cat, entity_type_name, entity_name = entity_id.split('.')
+
+                            # print("\n ------------------", entity_name)
+                            # print(net, "--", entity_net,"--",  net == entity_net)
+                            # print(category, "--",entity_cat, "--", category ==  entity_cat)
+                            # print(entity_type,"--", entity_type_name, entity_type == entity_type_name)
+                                
+                            if (entity_net == net and
+                                entity_cat == category and
+                                entity_type_name == entity_type):
+                                entities_for_type.append((entity_name, entity_obj))
+
+
+                    # Sort entities by name
+                    entities_for_type.sort(key=lambda x: x[0])
+
+                    # Add entity items or placeholder
+                    if entities_for_type:
+                        for entity_name, entity_obj in entities_for_type:
+                            entity_item = QtGui.QStandardItem(entity_name)
+                            entity_item.setData(('entity', net, category, entity_type, entity_name), QtCore.Qt.UserRole + 1)
+                            entity_item.setData(entity_name, QtCore.Qt.UserRole + 2)
+                            entity_item.setData(entity_obj, QtCore.Qt.UserRole + 3)  # Store entity object
+                            entity_item.setForeground(ENTITY_COLOR)
+                            type_item.appendRow(entity_item)
+                    # else:
+                    #     # Add placeholder for entities (currently no entities loaded)
+                    #     placeholder_item = QtGui.QStandardItem("(no entities)")
+                    #     placeholder_item.setData(('placeholder', net, category, entity_type), QtCore.Qt.UserRole + 1)
+                    #     placeholder_item.setForeground(ENTITY_COLOR)
+                    #     type_item.appendRow(placeholder_item)
 
         # print(f"Tree built with {len(networks)} networks and colored structure")
         # print(f"Tree model has {tree_model.rowCount()} top-level items")
