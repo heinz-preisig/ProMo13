@@ -48,9 +48,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
 
-        roundButton(self.ui.pushNew, "new", tooltip="new instance")
-        roundButton(self.ui.pushEdit, "edit", tooltip="edit instance")
-        roundButton(self.ui.pushDelete, "delete", tooltip="delete instance")
+        # roundButton(self.ui.pushNew, "new", tooltip="new instance")
+        # roundButton(self.ui.pushEdit, "edit", tooltip="edit instance")
+        # roundButton(self.ui.pushDelete, "delete", tooltip="delete instance")
         roundButton(self.ui.pushSave, "save", tooltip="save data")
         roundButton(self.ui.pushExit, "off", tooltip="exit task")
 
@@ -87,13 +87,13 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
     def __gui_view(self, gui):
         pass
         buttons = self.gui_objects["buttons"]
-        lists = self.gui_objects["lists"]
+        # lists = self.gui_objects["lists"]
         for button in buttons:
             # print("obj", button)
             buttons[button].setVisible(gui["buttons"][button])
-        for list in lists:
-            if gui["lists"][list]:
-               lists[list].reset()
+        # for list in lists:
+        #     if gui["lists"][list]:
+        #        lists[list].reset()
 
         pass
 
@@ -382,9 +382,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
         self.gui_objects = {
                 "buttons"  : {
-                        "new"   : self.ui.pushNew,
-                        "edit"  : self.ui.pushEdit,
-                        "delete": self.ui.pushDelete,
+                        # "new"   : self.ui.pushNew,
+                        # "edit"  : self.ui.pushEdit,
+                        # "delete": self.ui.pushDelete,
                         "save"  : self.ui.pushSave,
                         "exit"  : self.ui.pushExit,
                         "tree"  : self.ui.tree_entities,
@@ -392,14 +392,14 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 "indicator": {
                         "LED": self.ui.LED,
                         },
-                "lists"    : {
-                        "list_equations"  : self.ui.list_equations,
-                        "list_integrators": self.ui.list_integrators,
-                        "list_input"      : self.ui.list_input,
-                        "list_output"     : self.ui.list_output,
-                        "list_instantiate": self.ui.list_instantiate,
-                        "list_pending"    : self.ui.list_pending,
-                        },
+                # "lists"    : {
+                #         "list_equations"  : self.ui.list_equations,
+                #         "list_integrators": self.ui.list_integrators,
+                #         "list_input"      : self.ui.list_input,
+                #         "list_output"     : self.ui.list_output,
+                #         "list_instantiate": self.ui.list_instantiate,
+                #         "list_pending"    : self.ui.list_pending,
+                #         },
                 "tree" : self.ui.tree_entities,
                 }
 

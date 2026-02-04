@@ -36,12 +36,32 @@ class EntityEditorBackEnd(QObject):
     def __init__(self, ontology_container):
         super().__init__()
         self.ontology_container = ontology_container
+        self.selected_entity_type = None
+
+    def set_selected_entity_type(self, entity_type_data):
+        """Set the selected entity type from the main tree"""
+        self.selected_entity_type = entity_type_data
+        print(f"EntityEditorBackEnd received selected entity type: {self.selected_entity_type}")
+        
+        # Determine if we're in create or edit mode
+        if self.selected_entity_type and self.selected_entity_type.get("name"):
+            self.mode = "edit"
+            entity_name = self.selected_entity_type.get("name")
+            print(f"EntityEditorBackEnd in EDIT mode for entity: {entity_name}")
+            # TODO: Load existing entity data for editing
+        else:
+            self.mode = "create"
+            print(f"EntityEditorBackEnd in CREATE mode for entity type: {self.selected_entity_type.get('entity type') if self.selected_entity_type else 'Unknown'}")
 
     def process_message(self, message):
         """Process messages from the entity editor frontend"""
         event = message.get("event")
         
-        if event == "behavior_association_defined":
+        if event == "launch_behavior_association_editor":
+            # Launch the behavior association editor
+            ontology_container = message.get("ontology_container")
+            self.launch_behavior_association_editor(ontology_container)
+        elif event == "behavior_association_defined":
             # Handle the behavior association with equation selection
             assignments = message.get("assignments")
             self.handle_behavior_association(assignments)
@@ -51,6 +71,31 @@ class EntityEditorBackEnd(QObject):
             self.handle_entity_creation(entity_data)
         else:
             print(f"Unknown event: {event}")
+    
+    def launch_behavior_association_editor(self, ontology_container):
+        """Launch the behavior association editor and handle its response"""
+        try:
+            from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
+            
+            # Launch the BehaviorAssociation editor
+            assignments = launch_behavior_association_editor(ontology_container)
+            
+            if assignments:
+                # Process the assignments directly
+                self.handle_behavior_association(assignments)
+            else:
+                print("No behavior association defined")
+                self.message.emit({
+                    "event": "info",
+                    "message": "Behavior association cancelled"
+                })
+                
+        except Exception as e:
+            print(f"Error launching BehaviorAssociation editor: {e}")
+            self.message.emit({
+                "event": "error",
+                "error": f"Error launching BehaviorAssociation editor: {str(e)}"
+            })
     
     def handle_behavior_association(self, assignments):
         """Handle the behavior association assignments from the editor"""

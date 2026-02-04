@@ -15,6 +15,9 @@ import sys
 from copy import deepcopy
 from os.path import join
 
+# Add the packages directory to Python path to resolve Common imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -37,7 +40,7 @@ from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.ui_number_dialog_impl import UI_String
 from Common.ui_two_list_selector_dialog_impl import UI_TwoListSelector
-from OntologyBuilder.BehaviourLinker_v01.behavior_association.equation_selector import select_equation_for_variable
+from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import select_equation_for_variable
 
 # Import the required classes from CAM10 resources
 # These will need to be adapted for CAM12
@@ -51,26 +54,29 @@ try:
     from OntologyBuilder.OntologyEquationEditor.variable_framework import makeIncidenceDictionaries
 except ImportError:
     # Fallback for CAM12 - these will need to be implemented
-    def AnalyseBiPartiteGraph(*args, **kwargs):
-        raise NotImplementedError("AnalyseBiPartiteGraph needs to be adapted for CAM12")
-    
-    def isVariableInExpression(*args, **kwargs):
-        raise NotImplementedError("isVariableInExpression needs to be adapted for CAM12")
-    
-    def makeLatexDoc(*args, **kwargs):
-        raise NotImplementedError("makeLatexDoc needs to be adapted for CAM12")
-    
-    def renderExpressionFromGlobalIDToInternal(*args, **kwargs):
-        raise NotImplementedError("renderExpressionFromGlobalIDToInternal needs to be adapted for CAM12")
-    
-    def showPDF(*args, **kwargs):
-        raise NotImplementedError("showPDF needs to be adapted for CAM12")
-    
-    def findDependentVariables(*args, **kwargs):
-        raise NotImplementedError("findDependentVariables needs to be adapted for CAM12")
-    
-    def makeIncidenceDictionaries(*args, **kwargs):
-        raise NotImplementedError("makeIncidenceDictionaries needs to be adapted for CAM12")
+    pass
+
+# Fallback functions for CAM12 - these will need to be implemented
+def AnalyseBiPartiteGraph(*args, **kwargs):
+    raise NotImplementedError("AnalyseBiPartiteGraph needs to be adapted for CAM12")
+
+def isVariableInExpression(*args, **kwargs):
+    raise NotImplementedError("isVariableInExpression needs to be adapted for CAM12")
+
+def makeLatexDoc(*args, **kwargs):
+    raise NotImplementedError("makeLatexDoc needs to be adapted for CAM12")
+
+def renderExpressionFromGlobalIDToInternal(*args, **kwargs):
+    raise NotImplementedError("renderExpressionFromGlobalIDToInternal needs to be adapted for CAM12")
+
+def showPDF(*args, **kwargs):
+    raise NotImplementedError("showPDF needs to be adapted for CAM12")
+
+def findDependentVariables(*args, **kwargs):
+    raise NotImplementedError("findDependentVariables needs to be adapted for CAM12")
+
+def makeIncidenceDictionaries(*args, **kwargs):
+    raise NotImplementedError("makeIncidenceDictionaries needs to be adapted for CAM12")
 
 
 base_variant = "base"  # RULE: nomenclature for base case
@@ -147,9 +153,12 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
     
     # Signal to communicate back to the entity editor
     behavior_defined = QtCore.pyqtSignal(dict)
+    # Add signal for cancellation
+    cancelled = QtCore.pyqtSignal()
     
     def __init__(self, ontology_container, parent=None):
         super().__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
         
         self.ontology_container = ontology_container
         self.ontology_name = ontology_container.ontology_name
@@ -187,7 +196,7 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         button_layout.addWidget(self.select_button)
         
         self.cancel_button = QtWidgets.QPushButton("Cancel")
-        self.cancel_button.clicked.connect(self.close)
+        self.cancel_button.clicked.connect(self.cancel_and_close)
         button_layout.addWidget(self.cancel_button)
         
         layout.addLayout(button_layout)
@@ -203,6 +212,18 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         # Store results
         self.entity_assignments = None
     
+    def cancel_and_close(self):
+        """Handle cancellation and emit cancelled signal"""
+        self.cancelled.emit()
+        self.close()
+    
+    def closeEvent(self, event):
+        """Handle close event to ensure cancellation is handled"""
+        # If no assignments were made, this is a cancellation
+        if self.entity_assignments is None:
+            self.cancelled.emit()
+        super().closeEvent(event)
+    
     def load_variables(self):
         """Load available variables from the ontology container with LaTeX PNG images"""
         try:
@@ -211,14 +232,14 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
             
             print(f"Debug: Loading {len(variables)} variables from ontology")
             
-            # Count variables with label "T"
-            t_variables = []
-            for var_id in variables:
-                var_data = variables[var_id]
-                if var_data.get('label') == 'T':
-                    t_variables.append(var_id)
-            
-            print(f"Debug: Found {len(t_variables)} variables with label 'T': {t_variables}")
+            # # Count variables with label "T"
+            # t_variables = []
+            # for var_id in variables:
+            #     var_data = variables[var_id]
+            #     if var_data.get('label') == 'T':
+            #         t_variables.append(var_id)
+            #
+            # print(f"Debug: Found {len(t_variables)} variables with label 'T': {t_variables}")
             
             for var_id in variables:
                 var_data = variables[var_id]
@@ -227,9 +248,9 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
                 network = var_data.get('network', 'unknown')
                 png_file = var_data.get('png_file')  # PNG path now stored directly in variable
                 
-                # Debug for T variables
-                if label == 'T':
-                    print(f"Debug: T variable found - ID: {var_id}, Network: {network}, Equations: {list(var_data.get('equations', {}).keys())}, PNG: {png_file}")
+                # # Debug for T variables
+                # if label == 'T':
+                #     print(f"Debug: T variable found - ID: {var_id}, Network: {network}, Equations: {list(var_data.get('equations', {}).keys())}, PNG: {png_file}")
                 
                 # Create list item with text
                 item_text = f"{label}\n(ID: {var_id}, Type: {var_type}, Network: {network})"
@@ -242,18 +263,8 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
                         icon = QtGui.QIcon(png_file)
                         if not icon.isNull():
                             item.setIcon(icon)
-                            if label == 'T':
-                                print(f"✓ Loaded PNG icon for T variable {var_id}: {png_file}")
                     except Exception as e:
-                        if label == 'T':
-                            print(f"✗ Error loading PNG icon for T variable {var_id}: {e}")
                         pass
-                else:
-                    if label == 'T':
-                        if png_file:
-                            print(f"⚠ PNG file not found for T variable {var_id}: {png_file}")
-                        else:
-                            print(f"○ No PNG file specified for T variable {var_id}")
                 
                 self.variable_list.addItem(item)
             
@@ -304,7 +315,6 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
                 'root_variable': var_id,
                 'root_equation': equation_selection.get('equation_id'),
                 'use_initialization': equation_selection.get('use_initialization', False),
-                'initialization_value': equation_selection.get('initialization_value'),
                 'tree': {0: {'children': [], 'parent': None}},
                 'nodes': {0: f'variable_{var_id}'},
                 'IDs': {f'variable_{var_id}': 0},
@@ -328,11 +338,14 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
             
             # Show success message
             if equation_selection.get('use_initialization', False):
-                init_value = equation_selection.get('initialization_value', '')
-                self.status_label.setText(f"Variable {var_data.get('label', var_id)} initialized with: {init_value}")
+                var_label = var_data.get('label', var_id)
+                self.status_label.setText(f"Variable '{var_label}' marked for initialization")
+                print(f"Debug: Variable {var_label} marked for initialization")
             else:
                 eq_id = equation_selection.get('equation_id', 'unknown')
-                self.status_label.setText(f"Behavior tree built for variable {var_data.get('label', var_id)} with equation {eq_id}")
+                var_label = var_data.get('label', var_id)
+                self.status_label.setText(f"Variable '{var_label}' defined with equation {eq_id}")
+                print(f"Debug: Variable {var_label} defined with equation {eq_id}")
             
             # Emit signal with the assignments
             self.behavior_defined.emit(self.entity_assignments)
@@ -361,6 +374,10 @@ def launch_behavior_association_editor(ontology_container):
     app = QtWidgets.QApplication.instance()
     if app is None:
         app = QtWidgets.QApplication(sys.argv)
+    else:
+        # Ensure the existing app has proper GUI support for images
+        # This helps with PNG loading in dialogs
+        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
     
     editor = BehaviorAssociationEditor(ontology_container)
     
@@ -376,8 +393,22 @@ def launch_behavior_association_editor(ontology_container):
         assignments = result
         dialog.accept()
     
+    def on_cancelled():
+        # Handle cancellation explicitly
+        assignments = None
+        dialog.reject()
+    
+    # Connect both signals
     editor.behavior_defined.connect(on_behavior_defined)
+    editor.cancelled.connect(on_cancelled)
     
-    dialog.exec_()
+    # Set dialog properties
+    dialog.setWindowTitle("Behavior Association Editor")
+    dialog.setModal(True)
+    dialog.resize(800, 600)
     
-    return assignments
+    # Execute dialog and return result
+    if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        return assignments
+    else:
+        return None

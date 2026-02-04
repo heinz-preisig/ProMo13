@@ -17,7 +17,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 # Add the path to the behavior association module
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from behavior_association.equation_selector import EquationSelectorDialog
+from behaviour_association.equation_selector import EquationSelectorDialog
 
 
 class MockOntologyContainer:

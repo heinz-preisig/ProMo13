@@ -48,8 +48,13 @@ class BehaviourLinerBackEnd(QObject):
         elif event == "selected_entity_type":
             self.entity_type = message.get("data", None)
             print(" got a selected entity type", self.entity_type)
-        elif event == "new":
-            self.launch_entity_editor(self.ontology_container)
+            # Automatically launch entity editor for entity type selection (create mode)
+            self.launch_entity_editor(mode="create")
+        elif event == "selected_instance":
+            self.entity_type = message.get("data", None)
+            print(" got a selected entity instance", self.entity_type)
+            # Automatically launch entity editor for instance selection (edit mode)
+            self.launch_entity_editor(mode="edit")
 
 
         self.send_message(event)
@@ -424,10 +429,27 @@ class BehaviourLinerBackEnd(QObject):
 
         return entities
 
-    def launch_entity_editor(self, ontology_container):
+    def launch_entity_editor(self, mode="create"):
         # Create entity components
         self.entity_back_end = EntityEditorBackEnd(self.ontology_container)
         self.entity_front_end = EntityEditorFrontEnd()
+
+        # Pass the selected entity type information to the entity editor
+        if hasattr(self, 'entity_type') and self.entity_type:
+            self.entity_back_end.set_selected_entity_type(self.entity_type)
+            self.entity_front_end.set_selected_entity_type(self.entity_type)
+            print(f"Passing selected entity type to editor: {self.entity_type}")
+            print(f"Editor mode: {mode}")
+
+        # Set editor mode based on selection type
+        if mode == "edit" and self.entity_type and self.entity_type.get('name'):
+            # Edit mode - load existing entity data
+            entity_name = self.entity_type.get('name')
+            print(f"Loading existing entity for editing: {entity_name}")
+            # TODO: Load existing entity data and populate editor
+        else:
+            # Create mode - prepare for new entity creation
+            print("Preparing for new entity creation")
 
         # Connect entity editor communication
         self.entity_front_end.message.connect(self.entity_back_end.process_message)

@@ -27,7 +27,7 @@ from PyQt5.QtCore import pyqtSignal
 from Common.resources_icons import roundButton
 from OntologyBuilder.BehaviourLinker_v01.UIs.entity_changes import Ui_entity_changes
 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
-from OntologyBuilder.BehaviourLinker_v01.behavior_association.editor import launch_behavior_association_editor
+from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
 
 
 class EntityEditorFrontEnd(QtWidgets.QDialog):
@@ -48,19 +48,18 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         roundButton(self.ui.pushAddVariable, "new", tooltip="new variable")
         roundButton(self.ui.pushEditVariable, "edit", tooltip="edit variable")
         roundButton(self.ui.pushDeleteVariable, "delete", tooltip="delete variable")
+        roundButton(self.ui.pushDeleteEntity, "delete", tooltip="delete entity")
         roundButton(self.ui.pushAccept, "accept", tooltip="accept")
         roundButton(self.ui.pushCancel, "cancel", tooltip="cancel")
         #
-        roundButton(self.ui.pushMinimise, "min_view", tooltip="minimise", mysize=35)
-        roundButton(self.ui.pushMaximise, "max_view", tooltip="maximise", mysize=35)
-        roundButton(self.ui.pushNormal, "normal_view", tooltip="normal", mysize=35)
         #
         self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
         
-        # Add status label since the UI doesn't have a statusbar
+        # Add status label to the grid layout since verticalLayout_2 doesn't exist
         self.status_label = QtWidgets.QLabel("Ready")
         self.status_label.setStyleSheet("QLabel { color: gray; font-style: italic; margin: 5px; }")
-        self.ui.verticalLayout_2.addWidget(self.status_label)
+        # Add to the bottom of the grid layout (row 7, spanning all columns)
+        self.ui.gridLayout.addWidget(self.status_label, 7, 0, 1, 3)
 
         self.changed = False
 
@@ -68,42 +67,46 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         """Set the ontology container for behavior association"""
         self.ontology_container = ontology_container
 
+    def set_selected_entity_type(self, entity_type_data): #TODO: we may not need this one.
+        """Set the selected entity type from the main tree"""
+        self.selected_entity_type = entity_type_data
+        print(f"EntityEditorFrontEnd received selected entity type: {self.selected_entity_type}")
+        
+        # Update the UI to show the selected entity type
+        if self.selected_entity_type:
+            network = self.selected_entity_type.get("network")
+            category = self.selected_entity_type.get("category") 
+            entity_type = self.selected_entity_type.get("entity type")
+            name = self.selected_entity_type.get("name")  # This will be None for entity types, filled for instances
+            
+            if name:
+                # An entity instance was selected - we're in edit mode
+                selection_text = f"Editing: {network}.{category}.{entity_type}.{name}"
+                self.status_label.setText(selection_text)
+                self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
+                # TODO: Load entity data and populate the form fields
+            else:
+                # An entity type was selected - we're in create mode
+                selection_text = f"Creating: {network}.{category}.{entity_type}"
+                self.status_label.setText(selection_text)
+                self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
+
     def on_pushAddVariable_pressed(self):
-        """Launch BehaviorAssociation editor to select variable and build tree"""
+        """Request behavior association editor launch from backend"""
         if not hasattr(self, 'ontology_container'):
             makeMessageBox("Ontology container not set")
             return
         
-        try:
-            # Launch the BehaviorAssociation editor
-            assignments = launch_behavior_association_editor(self.ontology_container)
-            
-            if assignments:
-                # Send the assignments back to the backend
-                message = {
-                    "event": "behavior_association_defined",
-                    "assignments": assignments
-                }
-                self.message.emit(message)
-                self.markChanged()
-            else:
-                makeMessageBox("No behavior association defined")
-                
-        except Exception as e:
-            makeMessageBox(f"Error launching BehaviorAssociation editor: {str(e)}")
+        # Send request to backend to launch association editor
+        message = {
+            "event": "launch_behavior_association_editor",
+            "ontology_container": self.ontology_container
+        }
+        self.message.emit(message)
 
 # ======================= window controls ==========================
 
 
-        # enable moving the window --https://www.youtube.com/watch?v=R4jfg9mP_zo&t=152s
-    def on_pushMinimise_pressed(self):
-        self.showMinimized()
-
-    def on_pushMaximise_pressed(self):
-        self.showMaximized()
-
-    def on_pushNormal_pressed(self):
-        self.showNormal()
 
     def mousePressEvent(self, event, QMouseEvent=None):
         self.dragPos = event.globalPos()

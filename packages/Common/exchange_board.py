@@ -401,6 +401,9 @@ class ProMoExchangeBoard():
         self.list_variable_png_files = self.__load_variable_png_files()
         # Add PNG paths directly to variable records
         self.__add_png_paths_to_variables()
+        
+        # Load equation icons as QIcon objects for use in dialogs
+        self.equation_icons = self.__load_equation_icons()
         self.list_equation_classes = self.__makeEquationClassesDictionary()
 
         pass
@@ -1326,6 +1329,84 @@ class ProMoExchangeBoard():
                 print(f"Debug: No variable PNG file found: {var_png_file_path}")
         return dict_variable_png
         pass
+
+    def __load_equation_icons(self):
+        """Load equation PNG files as QIcon objects for use in dialogs"""
+        from PyQt5 import QtGui, QtCore
+        equation_icons = {}
+        
+        print(f"Debug: Loading {len(self.list_equation_png_files)} equation icons in exchange_board...")
+        
+        # Fine-tuned dimensions for optimal appearance
+        target_height = 45  # Increased from 32 for better readability
+        max_width = 250  # Increased from 180 for better proportions
+        padding = 10  # Increased from 8 for more breathing room
+        
+        for eq_id, png_path in self.list_equation_png_files.items():
+            try:
+                # Load PNG as QIcon in the main GUI context
+                pixmap = QtGui.QPixmap(str(png_path))
+                if not pixmap.isNull():
+                    # Get original dimensions
+                    original_width = pixmap.width()
+                    original_height = pixmap.height()
+                    
+                    # Calculate scale based on height for consistency
+                    if original_height > 0:
+                        scale = target_height / original_height
+                        new_width = int(original_width * scale)
+                        new_height = target_height
+                        
+                        # If too wide, scale down further
+                        if new_width > max_width:
+                            scale = max_width / new_width
+                            new_width = max_width
+                            new_height = int(new_height * scale)
+                    else:
+                        new_width = original_width
+                        new_height = original_height
+                    
+                    # Create a canvas with consistent dimensions and better proportions
+                    canvas_width = max(new_width + padding * 2, 80)  # Minimum width with padding
+                    canvas_height = new_height + padding * 2
+                    
+                    # Create canvas with light background for better contrast
+                    canvas = QtGui.QPixmap(canvas_width, canvas_height)
+                    canvas.fill(QtGui.QColor(248, 248, 248))  # Very light gray background
+                    
+                    # Paint the scaled equation centered on the canvas
+                    painter = QtGui.QPainter(canvas)
+                    painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+                    painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
+                    painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
+                    
+                    # Center the equation on the canvas
+                    x_offset = (canvas_width - new_width) // 2
+                    y_offset = (canvas_height - new_height) // 2
+                    
+                    # Draw the scaled equation with high quality
+                    scaled_pixmap = pixmap.scaled(
+                        new_width, new_height, 
+                        QtCore.Qt.KeepAspectRatio, 
+                        QtCore.Qt.SmoothTransformation
+                    )
+                    painter.drawPixmap(x_offset, y_offset, scaled_pixmap)
+                    painter.end()
+                    
+                    icon = QtGui.QIcon(canvas)
+                    if not icon.isNull():
+                        equation_icons[eq_id] = icon
+                        print(f"✓ Loaded equation icon for {eq_id} ({original_width}x{original_height} -> {canvas_width}x{canvas_height})")
+                    else:
+                        print(f"⚠ Equation icon is null for {eq_id}")
+                else:
+                    print(f"⚠ Equation pixmap is null for {eq_id}")
+                    
+            except Exception as e:
+                print(f"✗ Error loading equation icon for {eq_id}: {e}")
+        
+        print(f"Debug: Successfully loaded {len(equation_icons)} equation icons")
+        return equation_icons
 
     def __add_png_paths_to_variables(self):
         """

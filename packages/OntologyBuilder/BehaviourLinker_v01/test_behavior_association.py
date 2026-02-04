@@ -14,7 +14,7 @@ sys.path.insert(0, '/home/heinz/1_Gits/CAM12/ProMo')
 try:
     from PyQt5 import QtWidgets
     from Common.exchange_board import ProMoExchangeBoard
-    from OntologyBuilder.BehaviourLinker_v01.behavior_association.editor import launch_behavior_association_editor
+    from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
     
     def test_behavior_association():
         """Test the BehaviorAssociation editor"""

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from packages.Common.classes import index
-# from packages.Common.classes.io import load_translation_info_from_file
-from packages.Common.classes import io
-from packages.Common.classes import variable
+from Common.classes import index
+# from Common.classes.io import load_translation_info_from_file
+from Common.classes import io
+from Common.classes import variable
 
 
 @dataclass

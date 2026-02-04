@@ -18,7 +18,7 @@ from Common.classes import index
 from Common.classes import modeller_classes
 from Common.classes import ontology
 from Common.classes import variable
-from common import old_topology
+from Common.classes import modeller_classes as old_topology
 
 
 @dataclass
