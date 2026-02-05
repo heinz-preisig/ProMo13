@@ -41,6 +41,8 @@ from Common.resources_icons import roundButton
 from Common.ui_number_dialog_impl import UI_String
 from Common.ui_two_list_selector_dialog_impl import UI_TwoListSelector
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import select_equation_for_variable
+from OntologyBuilder.BehaviourLinker_v01.variable_classification_rules import VariableClassificationRules
+from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 
 # Import the required classes from CAM10 resources
 # These will need to be adapted for CAM12
@@ -156,12 +158,13 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
     # Add signal for cancellation
     cancelled = QtCore.pyqtSignal()
     
-    def __init__(self, ontology_container, parent=None):
+    def __init__(self, ontology_container, entity_type_info=None, parent=None):
         super().__init__(parent)
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
         
         self.ontology_container = ontology_container
         self.ontology_name = ontology_container.ontology_name
+        self.entity_type_info = entity_type_info or {}  # Store entity type info for rules
         
         # Setup basic UI
         self.setWindowTitle("Behavior Association Editor")
@@ -179,12 +182,7 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         
         # Variable selection area with enhanced display for LaTeX images
         self.variable_list = QtWidgets.QListWidget()
-        self.variable_list.setIconSize(QtCore.QSize(200, 60))  # Larger size for LaTeX images
-        self.variable_list.setSpacing(8)  # More spacing between items
-        self.variable_list.setUniformItemSizes(True)
-        
-        # Set item size to accommodate both image and text
-        self.variable_list.setGridSize(QtCore.QSize(400, 80))
+        UISettings.configure_list_widget(self.variable_list, 'variable_selection')
         
         layout.addWidget(self.variable_list)
         
@@ -225,32 +223,40 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         super().closeEvent(event)
     
     def load_variables(self):
-        """Load available variables from the ontology container with LaTeX PNG images"""
+        """Load available variables from the ontology container with filtering based on entity type rules"""
         try:
             variables = self.ontology_container.variables
             self.variable_list.clear()
             
             print(f"Debug: Loading {len(variables)} variables from ontology")
             
-            # # Count variables with label "T"
-            # t_variables = []
-            # for var_id in variables:
-            #     var_data = variables[var_id]
-            #     if var_data.get('label') == 'T':
-            #         t_variables.append(var_id)
-            #
-            # print(f"Debug: Found {len(t_variables)} variables with label 'T': {t_variables}")
+            # Convert variables to list format for rule processing
+            variable_list = []
+            for var_id, var_data in variables.items():
+                var_info = {
+                    'id': var_id,
+                    'label': var_data.get('label', f'Variable_{var_id}'),
+                    'type': var_data.get('type', 'unknown'),
+                    'network': var_data.get('network', 'unknown'),
+                    'category': var_data.get('category', 'unknown'),
+                    'equations': list(var_data.get('equations', {}).keys()),
+                    'png_file': var_data.get('png_file'),
+                    'data': var_data  # Store full data for later use
+                }
+                variable_list.append(var_info)
             
-            for var_id in variables:
-                var_data = variables[var_id]
-                label = var_data.get('label', f'Variable_{var_id}')
-                var_type = var_data.get('type', 'unknown')
-                network = var_data.get('network', 'unknown')
-                png_file = var_data.get('png_file')  # PNG path now stored directly in variable
-                
-                # # Debug for T variables
-                # if label == 'T':
-                #     print(f"Debug: T variable found - ID: {var_id}, Network: {network}, Equations: {list(var_data.get('equations', {}).keys())}, PNG: {png_file}")
+            # Apply filtering rules based on entity type
+            filtered_variables = self._filter_variables_by_rules(variable_list)
+            
+            print(f"Debug: Filtered to {len(filtered_variables)} variables based on entity type rules")
+            
+            # Load filtered variables into the list
+            for var_info in filtered_variables:
+                var_id = var_info['id']
+                label = var_info['label']
+                var_type = var_info['type']
+                network = var_info['network']
+                png_file = var_info['png_file']
                 
                 # Create list item with text
                 item_text = f"{label}\n(ID: {var_id}, Type: {var_type}, Network: {network})"
@@ -273,6 +279,30 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         except Exception as e:
             print(f"Debug: Error loading variables: {e}")
             makeMessageBox(f"Error loading variables: {str(e)}")
+    
+    def _filter_variables_by_rules(self, variables):
+        """Filter variables based on entity type rules"""
+        if not self.entity_type_info:
+            # No entity type info, return all variables
+            return variables
+        
+        # Get classification rules
+        classification = VariableClassificationRules.classify_variables(variables, self.entity_type_info)
+        
+        # For now, we'll show only variables that can be root (for physical systems: state variables)
+        allowed_root_variables = classification['allowed_root']
+        
+        # You could also show input/output variables separately if needed
+        input_variables = classification['inputs']
+        output_variables = classification['outputs']
+        
+        print(f"Debug: Entity type rules:")
+        print(f"  - Allowed root types: {[v['type'] for v in allowed_root_variables]}")
+        print(f"  - Input types: {[v['type'] for v in input_variables]}")
+        print(f"  - Output types: {[v['type'] for v in output_variables]}")
+        
+        # For the root selection, return only allowed root variables
+        return allowed_root_variables
     
     def select_variable_and_build_tree(self):
         """Select the current variable and build the behavior tree"""
@@ -316,8 +346,8 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
                 'root_equation': equation_selection.get('equation_id'),
                 'use_initialization': equation_selection.get('use_initialization', False),
                 'tree': {0: {'children': [], 'parent': None}},
-                'nodes': {0: f'variable_{var_id}'},
-                'IDs': {f'variable_{var_id}': 0},
+                'nodes': {0: var_id},
+                'IDs': {var_id: 0},
                 'blocked_list': [],
                 'buddies_list': []
             }
@@ -330,8 +360,8 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
                     node_id = 1
                     self.entity_assignments['tree'][0]['children'].append(node_id)
                     self.entity_assignments['tree'][node_id] = {'children': [], 'parent': 0}
-                    self.entity_assignments['nodes'][node_id] = f'equation_{eq_id}'
-                    self.entity_assignments['IDs'][f'equation_{eq_id}'] = node_id
+                    self.entity_assignments['nodes'][node_id] = eq_id
+                    self.entity_assignments['IDs'][eq_id] = node_id
             else:
                 # Using initialization, no equation in tree
                 self.entity_assignments['root_equation'] = None
@@ -361,12 +391,13 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         return self.entity_assignments
 
 
-def launch_behavior_association_editor(ontology_container):
+def launch_behavior_association_editor(ontology_container, entity_type_info=None):
     """
     Launch the BehaviorAssociation editor
     
     Args:
         ontology_container: The ontology container with variables and equations
+        entity_type_info: Dictionary containing network, category, entity_type for rule-based filtering
         
     Returns:
         The entity assignments if defined, None otherwise
@@ -379,7 +410,7 @@ def launch_behavior_association_editor(ontology_container):
         # This helps with PNG loading in dialogs
         app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
     
-    editor = BehaviorAssociationEditor(ontology_container)
+    editor = BehaviorAssociationEditor(ontology_container, entity_type_info)
     
     # Create a modal dialog to wait for result
     dialog = QtWidgets.QDialog()

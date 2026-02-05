@@ -6,6 +6,8 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 
 from Common.classes.entity import Entity
+from OntologyBuilder.BehaviourLinker_v01.entity_automaton import gui_automaton
+
 # from BricksAndTreeSemantics import ONTOLOGY_REPOSITORY
 # from BricksAndTreeSemantics import PRIMITIVES
 # from OntologyBuilder.BehaviourLinker_v01.BricksAndTreeSemantics import RULES
@@ -21,7 +23,6 @@ from Common.resource_initialisation import FILES
 
 
 
-TIMING = False
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 root = os.path.abspath(os.path.join("."))
@@ -53,7 +54,12 @@ class EntityEditorBackEnd(QObject):
             self.mode = "create"
             print(f"EntityEditorBackEnd in CREATE mode for entity type: {self.selected_entity_type.get('entity type') if self.selected_entity_type else 'Unknown'}")
 
-    def process_message(self, message):
+    def set_entity_frontend(self, entity_frontend):
+        """Set the entity frontend reference for direct updates"""
+        self.entity_frontend = entity_frontend
+        print("EntityEditorBackEnd: Entity frontend reference set")
+
+    def process_entity_front_message(self, message):
         """Process messages from the entity editor frontend"""
         event = message.get("event")
         
@@ -71,14 +77,28 @@ class EntityEditorBackEnd(QObject):
             self.handle_entity_creation(entity_data)
         else:
             print(f"Unknown event: {event}")
+
+    # def send_message_to_entity_frontend(self, event, data=None):
+    #     """Send a message to the entity editor frontend"""
+    #     message = {"event": event, "interface": gui_automaton[event], "data": data}
+    #     self.message.emit(message)
     
     def launch_behavior_association_editor(self, ontology_container):
         """Launch the behavior association editor and handle its response"""
         try:
             from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
             
-            # Launch the BehaviorAssociation editor
-            assignments = launch_behavior_association_editor(ontology_container)
+            # Get entity type information for rule-based filtering
+            entity_type_info = {
+                'network': self.selected_entity_type.get('network', 'unknown'),
+                'category': self.selected_entity_type.get('category', 'unknown'),
+                'entity type': self.selected_entity_type.get('entity type', 'unknown')
+            }
+            
+            print(f"Debug: Launching behavior association editor with entity type: {entity_type_info}")
+            
+            # Launch the BehaviorAssociation editor with entity type info
+            assignments = launch_behavior_association_editor(ontology_container, entity_type_info)
             
             if assignments:
                 # Process the assignments directly
@@ -107,20 +127,60 @@ class EntityEditorBackEnd(QObject):
                 root_variable = assignments.get('root_variable')
                 root_equation = assignments.get('root_equation')
                 use_initialization = assignments.get('use_initialization', False)
-                initialization_value = assignments.get('initialization_value')
                 
                 # Create entity data structure
                 entity_data = {
                     'root_variable': root_variable,
                     'definition_method': 'initialization' if use_initialization else 'equation',
                     'equation_id': root_equation if not use_initialization else None,
-                    'initialization_value': initialization_value if use_initialization else None,
                     'tree_structure': assignments.get('tree', {}),
                     'nodes': assignments.get('nodes', {}),
                     'assignments': assignments
                 }
+
+                # Create entity with proper parameters TODO: ask for a name
+                entity_name = f"{self.selected_entity_type.get('network', 'unknown')}.{self.selected_entity_type.get('category', 'unknown')}.{self.selected_entity_type.get('entity type', 'unknown')}.new_entity"
                 
+                # Get equations from ontology container
+                all_equations = getattr(self.ontology_container, 'equation_dictionary', {})
+                
+                # Create entity with empty forest (like in the old implementation)
+                entity = Entity(
+                    entity_name=entity_name,
+                    all_equations=all_equations,
+                    var_eq_forest=[{}],  # Initialize with empty forest
+                    init_vars=[],
+                    input_vars=[],
+                    output_vars=[]
+                )
+                
+                # Set up variable-equation relationships using the Entity's built-in method
+                # Extract variable-equation assignments from the behavior association data
+                var_eq_assignments = self.extract_var_eq_assignments(assignments)
+                
+                if var_eq_assignments:
+                    # Set the root variable as output variable (required for var_eq_forest generation)
+                    root_variable = assignments.get('root_variable')
+                    if root_variable:
+                        entity.set_output_var(root_variable, True)
+                    
+                    # Generate the variable-equation forest using Entity's method
+                    entity.generate_var_eq_forest(var_eq_assignments)
+                    entity.update_var_eq_tree()
+                    
+                    # Update entity_data with the actual Entity object information
+                    entity_data.update({
+                        'entity_object': entity,  # Send the actual Entity object
+                        'var_eq_forest': entity.var_eq_forest,
+                        'output_vars': entity.output_vars,
+                        'input_vars': entity.input_vars,
+                        'init_vars': entity.init_vars,
+                        'integrators': entity.integrators
+                    })
+                    
                 # Send back to main backend for processing
+                print(f"Entity data ready: {entity_data}")
+                entity.printMe()
                 self.message.emit({
                     "event": "entity_data_ready",
                     "entity_data": entity_data
@@ -158,3 +218,36 @@ class EntityEditorBackEnd(QObject):
                 "event": "error",
                 "error": str(e)
             })
+    
+    def extract_var_eq_assignments(self, assignments):
+        """Extract variable-equation assignments from behavior association data"""
+        var_eq_assignments = {}
+        
+        # Get nodes and tree from assignments
+        nodes = assignments.get('nodes', {})
+        tree = assignments.get('tree', {})
+        
+        # Extract variable -> equation relationships
+        # nodes: {node_id: var_id/equation_id}, tree: {tree_node_id: tree_data}
+        for node_id, node_value in nodes.items():
+            if node_value.startswith('V_'):  # It's a variable
+                # Find if this variable has an equation in the tree
+                equation_id = None
+                # Look for this variable node in the tree
+                if node_id in tree:
+                    # Get the children of this variable node
+                    children = tree[node_id].get('children', [])
+                    # Find the equation in the children
+                    for child_node_id in children:
+                        if child_node_id in nodes:
+                            child_value = nodes[child_node_id]
+                            if child_value.startswith('E_'):
+                                equation_id = child_value
+                                break
+                
+                if equation_id:
+                    var_eq_assignments[node_value] = [equation_id]
+                else:
+                    var_eq_assignments[node_value] = []  # Variable with no equation
+        
+        return var_eq_assignments

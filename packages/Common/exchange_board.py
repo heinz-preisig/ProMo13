@@ -404,6 +404,8 @@ class ProMoExchangeBoard():
         
         # Load equation icons as QIcon objects for use in dialogs
         self.equation_icons = self.__load_equation_icons()
+        # Load variable icons as QIcon objects for use in dialogs
+        self.variable_icons = self.__load_variable_icons()
         self.list_equation_classes = self.__makeEquationClassesDictionary()
 
         pass
@@ -1396,7 +1398,7 @@ class ProMoExchangeBoard():
                     icon = QtGui.QIcon(canvas)
                     if not icon.isNull():
                         equation_icons[eq_id] = icon
-                        print(f"✓ Loaded equation icon for {eq_id} ({original_width}x{original_height} -> {canvas_width}x{canvas_height})")
+                        # print(f"✓ Loaded equation icon for {eq_id} ({original_width}x{original_height} -> {canvas_width}x{canvas_height})")
                     else:
                         print(f"⚠ Equation icon is null for {eq_id}")
                 else:
@@ -1407,6 +1409,75 @@ class ProMoExchangeBoard():
         
         print(f"Debug: Successfully loaded {len(equation_icons)} equation icons")
         return equation_icons
+
+    def __load_variable_icons(self):
+        """Load variable PNG files as QIcon objects for use in dialogs"""
+        from PyQt5 import QtGui, QtCore
+        variable_icons = {}
+        
+        print(f"Debug: Loading {len(self.list_variable_png_files)} variable icons in exchange_board...")
+        
+        # Fine-tuned dimensions for optimal appearance
+        target_height = 45  # Increased from 32 for better readability
+        target_width = 45   # Square aspect ratio for consistency
+        
+        for var_id, png_path in self.list_variable_png_files.items():
+            try:
+                # Load PNG as QIcon in the main GUI context
+                pixmap = QtGui.QPixmap(str(png_path))
+                if not pixmap.isNull():
+                    # Get original dimensions
+                    original_width = pixmap.width()
+                    original_height = pixmap.height()
+                    
+                    # Calculate scaled dimensions maintaining aspect ratio
+                    if original_width > 0 and original_height > 0:
+                        aspect_ratio = original_width / original_height
+                        
+                        if aspect_ratio > 1:  # Wider than tall
+                            scaled_width = target_width
+                            scaled_height = int(target_width / aspect_ratio)
+                        else:  # Taller than wide or square
+                            scaled_height = target_height
+                            scaled_width = int(target_height * aspect_ratio)
+                    else:
+                        scaled_width = target_width
+                        scaled_height = target_height
+                    
+                    # Create scaled pixmap
+                    scaled_pixmap = pixmap.scaled(
+                        scaled_width, scaled_height,
+                        QtCore.Qt.KeepAspectRatio,
+                        QtCore.Qt.SmoothTransformation
+                    )
+                    
+                    # Create canvas with target size and center the scaled pixmap
+                    canvas = QtGui.QPixmap(target_width, target_height)
+                    canvas.fill(QtCore.Qt.transparent)  # Transparent background
+                    
+                    # Calculate position to center the pixmap
+                    x_offset = (target_width - scaled_width) // 2
+                    y_offset = (target_height - scaled_height) // 2
+                    
+                    # Paint the scaled pixmap onto the canvas
+                    painter = QtGui.QPainter(canvas)
+                    painter.drawPixmap(x_offset, y_offset, scaled_pixmap)
+                    painter.end()
+                    
+                    icon = QtGui.QIcon(canvas)
+                    if not icon.isNull():
+                        variable_icons[var_id] = icon
+                        # print(f"✓ Loaded variable icon for {var_id} ({original_width}x{original_height} -> {canvas_width}x{canvas_height})")
+                    else:
+                        print(f"⚠ Variable icon is null for {var_id}")
+                else:
+                    print(f"⚠ Variable pixmap is null for {var_id}")
+                    
+            except Exception as e:
+                print(f"✗ Error loading variable icon for {var_id}: {e}")
+        
+        print(f"Debug: Successfully loaded {len(variable_icons)} variable icons")
+        return variable_icons
 
     def __add_png_paths_to_variables(self):
         """

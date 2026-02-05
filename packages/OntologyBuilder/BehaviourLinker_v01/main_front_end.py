@@ -70,7 +70,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         print("sending message", message)
         self.message.emit(message)
 
-    def process_message(self, message):
+    def process_main_backend_message(self, message):
         print("front  end got message", message)
         event = message.get("event")
 

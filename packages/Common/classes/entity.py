@@ -340,8 +340,21 @@ class Entity():
         for tree in self.var_eq_forest:
             new_integrators = {}
             for key, values in tree.items():
-                if "V_" in key and values and self.all_equations[values[0]].is_integrator():
-                    new_integrators[key] = values[0]
+                if "V_" in key and values:
+                    # Handle both Equation objects and dictionary representations
+                    equation = self.all_equations[values[0]]
+                    if hasattr(equation, 'is_integrator'):
+                        # Equation object with method
+                        is_integrator = equation.is_integrator()
+                    elif isinstance(equation, dict) and equation.get('type') == 'integrator':
+                        # Dictionary with type field
+                        is_integrator = True
+                    else:
+                        # Fallback: not an integrator
+                        is_integrator = False
+                    
+                    if is_integrator:
+                        new_integrators[key] = values[0]
             for key in new_integrators:
                 del tree[key]
 
@@ -422,7 +435,17 @@ class Entity():
 
             # pp(self.all_equations)
 
-            incidence_list = self.all_equations[eq_id].get_incidence_list(var_id)
+            # Handle both Equation objects and dictionary representations
+            equation = self.all_equations[eq_id]
+            if hasattr(equation, 'get_incidence_list'):
+                # Equation object with method
+                incidence_list = equation.get_incidence_list(var_id)
+            elif isinstance(equation, dict) and 'incidence_list' in equation:
+                # Dictionary with incidence_list key
+                incidence_list = equation['incidence_list']
+            else:
+                # Fallback: empty incidence list
+                incidence_list = []
 
             # Adding the equation to the tree
             curr_tree[eq_id] = [
@@ -726,3 +749,11 @@ class Entity():
         token_str = str1.split("|")[0]
         tokens = token_str.split("_")
         return tokens
+
+    def printMe(self):
+        dictionary = self.convert_to_dict()
+        print("\n===================")
+        print("\nEntity name: ", self.entity_name)
+        for key, value in dictionary.items():
+            print(key, value)
+        print("\n===================")

@@ -20,6 +20,7 @@ from PyQt5.uic import loadUi
 
 from Common.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.UIs.equation_selector import Ui_Dialog
+from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 
 
 class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
@@ -54,9 +55,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
         self.equation_list = self.equiation_list  # Map the typo to correct name
         
         # Setup equation list with enhanced display
-        self.equation_list.setIconSize(QtCore.QSize(270, 65))
-        self.equation_list.setSpacing(5)
-        self.equation_list.setUniformItemSizes(True)
+        UISettings.configure_list_widget(self.equation_list, 'equation_selection')
         self.equation_list.setViewMode(QtWidgets.QListWidget.ListMode)
         
         # Connect signals

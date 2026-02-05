@@ -52,10 +52,10 @@ def main():
 
     # Link them together using Signals and Slots
     # F -> B: Button click triggers backend method
-    backend.message.connect(frontend.process_message)
+    backend.message.connect(frontend.process_main_backend_message)
 
     # F -> I: Backend signal updates interface label
-    frontend.message.connect(backend.process_message)
+    frontend.message.connect(backend.process_main_frontend_message)
 
     backend.load_ontology()
 
