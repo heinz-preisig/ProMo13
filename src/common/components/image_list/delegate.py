@@ -112,8 +112,7 @@ class ImageItemDelegate(QtWidgets.QStyledItemDelegate):
       background_color = ImageItemDelegate._ODD_ROW_COLOR
     painter.fillRect(option.rect, background_color)
 
-    # painter.drawPixmap(x, y, scaled_pixmap)
-    painter.drawPixmap(x, y, pixmap)
+    painter.drawPixmap(x, y, scaled_pixmap)
 
     painter.restore()
 

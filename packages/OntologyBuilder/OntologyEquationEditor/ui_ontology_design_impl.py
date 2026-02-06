@@ -1416,7 +1416,7 @@ class UiOntologyDesign(QMainWindow):
     #
     for file_name, latex_alias in latex_info.items():
       f = open(file_name + ".tex", "w")  # as f:
-      f.write("\\documentclass[border=2pt]{standalone}\n")
+      f.write("\\documentclass[border=2pt,12pt]{standalone}\n")
       f.write("\\usepackage{amsmath}\n")
       f.write("\\begin{document}\n")
       f.write(latex_alias)

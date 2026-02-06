@@ -90,7 +90,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         "list_input"      : self.ui.list_inputs,
                         "list_output"     : self.ui.list_outputs,
                         "list_instantiate": self.ui.list_instantiate,
-                        "list_pending"    : self.ui.list_pending,
+                        # "list_pending"    : self.ui.list_pending,
                         },
                 }
         pass

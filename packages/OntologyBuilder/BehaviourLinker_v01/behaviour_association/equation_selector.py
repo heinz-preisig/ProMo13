@@ -18,6 +18,7 @@ from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.uic import loadUi
 
+from Common.exchange_board import ProMoExchangeBoard
 from Common.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.UIs.equation_selector import Ui_Dialog
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
@@ -259,7 +260,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
 
 def preload_equation_icons(variable_data, ontology_container):
     """
-    Preload equation PNG icons in the main GUI context before launching dialogs.
+    Preload equation PNG icons using exchange board for consistency.
     
     Args:
         variable_data: Dictionary containing variable information
@@ -268,53 +269,25 @@ def preload_equation_icons(variable_data, ontology_container):
     Returns:
         Dictionary of preloaded icons {equation_id: QIcon}
     """
-    preloaded_icons = {}
-    
     try:
-        # Get equations for this variable
-        variable_equations = variable_data.get('equations', {})
-        equation_dictionary = getattr(ontology_container, 'equation_dictionary', {})
+        # Use exchange board to load all equation icons
+        exchange_board = ProMoExchangeBoard(ontology_container)
+        preloaded_icons = exchange_board.load_equation_icons()
         
-        print(f"Debug: Preloading icons for {len(variable_equations)} equations")
+        # Filter icons to only include equations for this variable
+        variable_equations = variable_data.get('equations', {})
+        filtered_icons = {}
         
         for eq_id in variable_equations:
-            # Get equation data
-            eq_data = equation_dictionary.get(eq_id, {})
-            if not eq_data:
-                eq_data = variable_equations[eq_id]
-            
-            png_file = eq_data.get('png_file')
-            
-            if png_file and os.path.exists(png_file):
-                try:
-                    # Load PNG icon in main GUI context
-                    pixmap = QtGui.QPixmap(png_file)
-                    if not pixmap.isNull():
-                        # Scale pixmap to fit icon size
-                        scaled_pixmap = pixmap.scaled(200, 50, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-                        icon = QtGui.QIcon(scaled_pixmap)
-                        if not icon.isNull():
-                            preloaded_icons[eq_id] = icon
-                            print(f"✓ Preloaded PNG icon for {eq_id}: {png_file}")
-                        else:
-                            print(f"⚠ Preloaded icon is null for {eq_id}")
-                    else:
-                        print(f"⚠ Preloaded pixmap is null for {eq_id}")
-                        
-                except Exception as e:
-                    print(f"✗ Error preloading PNG icon for {eq_id}: {e}")
-            else:
-                if png_file:
-                    print(f"⚠ PNG file not found for preloading {eq_id}: {png_file}")
-                else:
-                    print(f"○ No PNG file specified for preloading {eq_id}")
+            if eq_id in preloaded_icons:
+                filtered_icons[eq_id] = preloaded_icons[eq_id]
         
-        print(f"Debug: Preloaded {len(preloaded_icons)} icons successfully")
+        print(f"Debug: Preloaded {len(filtered_icons)} equation icons for variable")
+        return filtered_icons
         
     except Exception as e:
-        print(f"Debug: Error in preload_equation_icons: {e}")
-    
-    return preloaded_icons
+        print(f"Debug: Error preloading equation icons: {e}")
+        return {}
 
 
 def select_equation_for_variable(variable_data, ontology_container):

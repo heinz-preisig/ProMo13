@@ -403,9 +403,9 @@ class ProMoExchangeBoard():
         self.__add_png_paths_to_variables()
         
         # Load equation icons as QIcon objects for use in dialogs
-        self.equation_icons = self.__load_equation_icons()
+        self.equation_icons = self.load_equation_icons()
         # Load variable icons as QIcon objects for use in dialogs
-        self.variable_icons = self.__load_variable_icons()
+        self.variable_icons = self.load_variable_icons()
         self.list_equation_classes = self.__makeEquationClassesDictionary()
 
         pass
@@ -1332,17 +1332,15 @@ class ProMoExchangeBoard():
         return dict_variable_png
         pass
 
-    def __load_equation_icons(self):
+    def load_equation_icons(self):
         """Load equation PNG files as QIcon objects for use in dialogs"""
         from PyQt5 import QtGui, QtCore
         equation_icons = {}
         
         print(f"Debug: Loading {len(self.list_equation_png_files)} equation icons in exchange_board...")
         
-        # Fine-tuned dimensions for optimal appearance
-        target_height = 45  # Increased from 32 for better readability
-        max_width = 250  # Increased from 180 for better proportions
-        padding = 10  # Increased from 8 for more breathing room
+        # Direct pixel mapping from PNG to icon, then apply simple scaling
+        scale_factor = 0.5  # Scale down to 50% of original size
         
         for eq_id, png_path in self.list_equation_png_files.items():
             try:
@@ -1353,24 +1351,13 @@ class ProMoExchangeBoard():
                     original_width = pixmap.width()
                     original_height = pixmap.height()
                     
-                    # Calculate scale based on height for consistency
-                    if original_height > 0:
-                        scale = target_height / original_height
-                        new_width = int(original_width * scale)
-                        new_height = target_height
-                        
-                        # If too wide, scale down further
-                        if new_width > max_width:
-                            scale = max_width / new_width
-                            new_width = max_width
-                            new_height = int(new_height * scale)
-                    else:
-                        new_width = original_width
-                        new_height = original_height
+                    # Direct pixel mapping: use PNG dimensions as-is, then apply simple scaling
+                    new_width = int(original_width * scale_factor)
+                    new_height = int(original_height * scale_factor)
                     
-                    # Create a canvas with consistent dimensions and better proportions
-                    canvas_width = max(new_width + padding * 2, 80)  # Minimum width with padding
-                    canvas_height = new_height + padding * 2
+                    # Create canvas exactly at the scaled dimensions
+                    canvas_width = new_width
+                    canvas_height = new_height
                     
                     # Create canvas with light background for better contrast
                     canvas = QtGui.QPixmap(canvas_width, canvas_height)
@@ -1382,17 +1369,13 @@ class ProMoExchangeBoard():
                     painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
                     painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
                     
-                    # Center the equation on the canvas
-                    x_offset = (canvas_width - new_width) // 2
-                    y_offset = (canvas_height - new_height) // 2
-                    
-                    # Draw the scaled equation with high quality
+                    # Paint the scaled equation filling the entire canvas (no centering needed)
                     scaled_pixmap = pixmap.scaled(
                         new_width, new_height, 
                         QtCore.Qt.KeepAspectRatio, 
                         QtCore.Qt.SmoothTransformation
                     )
-                    painter.drawPixmap(x_offset, y_offset, scaled_pixmap)
+                    painter.drawPixmap(0, 0, scaled_pixmap)
                     painter.end()
                     
                     icon = QtGui.QIcon(canvas)
@@ -1410,16 +1393,15 @@ class ProMoExchangeBoard():
         print(f"Debug: Successfully loaded {len(equation_icons)} equation icons")
         return equation_icons
 
-    def __load_variable_icons(self):
+    def load_variable_icons(self):
         """Load variable PNG files as QIcon objects for use in dialogs"""
         from PyQt5 import QtGui, QtCore
         variable_icons = {}
         
         print(f"Debug: Loading {len(self.list_variable_png_files)} variable icons in exchange_board...")
         
-        # Fine-tuned dimensions for optimal appearance
-        target_height = 45  # Increased from 32 for better readability
-        target_width = 45   # Square aspect ratio for consistency
+        # Direct pixel mapping from PNG to icon, then apply simple scaling
+        scale_factor = 0.5  # Scale down to 50% of original size
         
         for var_id, png_path in self.list_variable_png_files.items():
             try:
@@ -1430,38 +1412,29 @@ class ProMoExchangeBoard():
                     original_width = pixmap.width()
                     original_height = pixmap.height()
                     
-                    # Calculate scaled dimensions maintaining aspect ratio
-                    if original_width > 0 and original_height > 0:
-                        aspect_ratio = original_width / original_height
-                        
-                        if aspect_ratio > 1:  # Wider than tall
-                            scaled_width = target_width
-                            scaled_height = int(target_width / aspect_ratio)
-                        else:  # Taller than wide or square
-                            scaled_height = target_height
-                            scaled_width = int(target_height * aspect_ratio)
-                    else:
-                        scaled_width = target_width
-                        scaled_height = target_height
+                    # Direct pixel mapping: use PNG dimensions as-is, then apply simple scaling
+                    new_width = int(original_width * scale_factor)
+                    new_height = int(original_height * scale_factor)
                     
-                    # Create scaled pixmap
+                    # Create canvas exactly at the scaled dimensions
+                    canvas_width = new_width
+                    canvas_height = new_height
+                    
+                    # Create canvas with transparent background
+                    canvas = QtGui.QPixmap(canvas_width, canvas_height)
+                    canvas.fill(QtCore.Qt.transparent)
+                    
+                    # Paint the scaled variable filling the entire canvas (no centering needed)
                     scaled_pixmap = pixmap.scaled(
-                        scaled_width, scaled_height,
+                        new_width, new_height,
                         QtCore.Qt.KeepAspectRatio,
                         QtCore.Qt.SmoothTransformation
                     )
-                    
-                    # Create canvas with target size and center the scaled pixmap
-                    canvas = QtGui.QPixmap(target_width, target_height)
-                    canvas.fill(QtCore.Qt.transparent)  # Transparent background
-                    
-                    # Calculate position to center the pixmap
-                    x_offset = (target_width - scaled_width) // 2
-                    y_offset = (target_height - scaled_height) // 2
-                    
-                    # Paint the scaled pixmap onto the canvas
                     painter = QtGui.QPainter(canvas)
-                    painter.drawPixmap(x_offset, y_offset, scaled_pixmap)
+                    painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+                    painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
+                    painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
+                    painter.drawPixmap(0, 0, scaled_pixmap)
                     painter.end()
                     
                     icon = QtGui.QIcon(canvas)

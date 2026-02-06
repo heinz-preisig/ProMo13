@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1323</width>
+    <width>1526</width>
     <height>1103</height>
    </rect>
   </property>
@@ -19,38 +19,72 @@
   <property name="windowTitle">
    <string>Entity Changes</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="6" column="1" colspan="2">
-    <widget class="QListView" name="list_outputs"/>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="3" column="0" rowspan="2">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="3" column="0">
+      <widget class="QListView" name="list_not_defined_variables"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>list of outputs</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>List of inputs</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>List of integrators</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>List of not defined variables</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QListView" name="list_outputs"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>List of defined variables</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>List of variables to be instantiated</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QListView" name="list_integrators"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QListView" name="list_inputs"/>
+     </item>
+     <item row="3" column="1">
+      <widget class="QListView" name="list_instantiate"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QListView" name="list_defined_variables"/>
+     </item>
+    </layout>
    </item>
-   <item row="4" column="0">
-    <widget class="QListView" name="list_defined_variables"/>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>List of defined variables</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QListView" name="list_not_defined_variables"/>
-   </item>
-   <item row="2" column="1" rowspan="2" colspan="2">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>List of inputs</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1" colspan="2">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>List of outputs</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
+   <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="pushAddVariable">
@@ -96,29 +130,6 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="4">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>List of equations</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="4">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>List of integrators</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="4">
-    <widget class="QListView" name="list_equations"/>
-   </item>
-   <item row="4" column="4">
-    <widget class="QListView" name="list_integrators"/>
-   </item>
-   <item row="4" column="1">
-    <widget class="QListView" name="list_inputs"/>
-   </item>
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
@@ -143,30 +154,20 @@
      </item>
     </layout>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_2">
+   <item row="3" column="1">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>List of not defined variables</string>
+      <string>List of equations</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="3">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>List of variables to instantiate</string>
-     </property>
-    </widget>
+   <item row="4" column="1">
+    <widget class="QListView" name="list_equations"/>
    </item>
-   <item row="4" column="3">
-    <widget class="QListWidget" name="list_pending"/>
-   </item>
-   <item row="6" column="3">
-    <widget class="QListWidget" name="list_instantiate"/>
-   </item>
-   <item row="3" column="3">
+   <item row="2" column="0">
     <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>List of variables pending definition</string>
+      <string/>
      </property>
     </widget>
    </item>
