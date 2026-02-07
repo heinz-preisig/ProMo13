@@ -1,5 +1,9 @@
 # ProMo_v11
 
+## Installation
+
+See [INSTALL.md](INSTALL.md) for detailed installation instructions, including system dependencies and troubleshooting tips.
+
 ## ***Issues***
 
 ### 

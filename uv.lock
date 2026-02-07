@@ -581,6 +581,7 @@ dependencies = [
     { name = "networkx" },
     { name = "numpy" },
     { name = "ply" },
+    { name = "pyqt5" },
     { name = "pyside6" },
     { name = "rdflib" },
 ]
@@ -624,6 +625,7 @@ requires-dist = [
     { name = "ply", specifier = ">=3.11" },
     { name = "pydotplus", marker = "extra == 'transitional'", specifier = ">=2.0.2" },
     { name = "pypdf2", marker = "extra == 'transitional'", specifier = ">=3.0.1" },
+    { name = "pyqt5", specifier = ">=5.15.11" },
     { name = "pyqt5", marker = "extra == 'transitional'", specifier = ">=5.15.11" },
     { name = "pyside6", specifier = "==6.8.1" },
     { name = "rdflib", specifier = ">=7.1.3" },
