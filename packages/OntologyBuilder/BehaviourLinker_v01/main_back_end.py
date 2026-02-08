@@ -361,7 +361,7 @@ class BehaviourLinerBackEnd(QObject):
                 'entity_type': entity_type,
                 'variables': entity_variables,
                 'defined_variables': [],  # Will be populated as user defines them
-                'not_defined_variables': entity_variables.copy(),  # Initially all are undefined
+                'not_defined_variables': [], #entity_variables.copy(),  # Initially all are undefined
                 'equations': [],
                 'inputs': [],
                 'outputs': [],
@@ -372,7 +372,7 @@ class BehaviourLinerBackEnd(QObject):
             if hasattr(self, 'entity_front_end'):
                 self.entity_front_end.populate_entity_structure(entity_data)
                 
-            print(f"Generated entity structure with {len(entity_variables)} variables")
+            # print(f"Generated entity structure with {len(entity_variables)} variables")
             
         except Exception as e:
             print(f"Error generating entity from class definition: {e}")

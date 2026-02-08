@@ -1337,7 +1337,7 @@ class ProMoExchangeBoard():
         from PyQt5 import QtGui, QtCore
         equation_icons = {}
         
-        print(f"Debug: Loading {len(self.list_equation_png_files)} equation icons in exchange_board...")
+        # print(f"Debug: Loading {len(self.list_equation_png_files)} equation icons in exchange_board...")
         
         # Direct pixel mapping from PNG to icon, then apply simple scaling
         scale_factor = 0.5  # Scale down to 50% of original size
@@ -1398,7 +1398,7 @@ class ProMoExchangeBoard():
         from PyQt5 import QtGui, QtCore
         variable_icons = {}
         
-        print(f"Debug: Loading {len(self.list_variable_png_files)} variable icons in exchange_board...")
+        # print(f"Debug: Loading {len(self.list_variable_png_files)} variable icons in exchange_board...")
         
         # Direct pixel mapping from PNG to icon, then apply simple scaling
         scale_factor = 0.5  # Scale down to 50% of original size

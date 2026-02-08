@@ -236,7 +236,7 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
             variables = self.ontology_container.variables
             self.variable_list.clear()
 
-            print(f"Debug: Loading {len(variables)} variables from ontology")
+            # print(f"Debug: Loading {len(variables)} variables from ontology")
 
             # Convert variables to list format for rule processing
             variable_list = []

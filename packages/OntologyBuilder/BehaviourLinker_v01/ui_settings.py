@@ -56,7 +56,7 @@ class UISettings:
         if hasattr(list_widget, 'setGridSize'):
             list_widget.setGridSize(QtCore.QSize(-1, row_height))
         
-        print(f"Configured list widget for context '{context}': icon_size={icon_size}, row_height={row_height}, spacing={spacing}")
+        # print(f"Configured list widget for context '{context}': icon_size={icon_size}, row_height={row_height}, spacing={spacing}")
     
     @classmethod
     def get_icon_size(cls, context='default'):

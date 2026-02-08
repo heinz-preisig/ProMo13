@@ -309,12 +309,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         
         self.add_to_list(list_widget, var_text, icon, context='entity_variables')
 
-    def add_port_to_list(self, list_widget, port_info, port_type="input"):
-        """Add a port (input/output) to list with appropriate icon"""
-        port_text = f"{port_info['label']} (ID: {port_info['id']})"
-        # Use appropriate icon based on port type
-        icon = getIcon("port")  # Using port icon for both input and output
-        self.add_to_list(list_widget, port_text, icon)
+    # def add_port_to_list(self, list_widget, port_info, port_type="input"):
+    #     """Add a port (input/output) to list with appropriate icon"""
+    #     port_text = f"{port_info['label']} (ID: {port_info['id']})"
+    #     # Use appropriate icon based on port type
+    #     icon = getIcon("port")  # Using port icon for both input and output
+    #     self.add_to_list(list_widget, port_text, icon)
     
     def set_entity_object(self, entity):
         """Set the Entity object and update the UI"""
@@ -502,12 +502,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Error processing entity update: {e}")
             makeMessageBox(f"Error updating entity: {str(e)}")
 
-    def add_integrator_to_list(self, list_widget, integrator_info):
-        """Add an integrator to list with appropriate icon"""
-        integrator_text = f"{integrator_info['label']} (ID: {integrator_info['id']})"
-        # Using variable icon for integrators (could use a different icon if available)
-        icon = getIcon("dependent_variable")
-        self.add_to_list(list_widget, integrator_text, icon)
+    # def add_integrator_to_list(self, list_widget, integrator_info):
+    #     """Add an integrator to list with appropriate icon"""
+    #     integrator_text = f"{integrator_info['label']} (ID: {integrator_info['id']})"
+    #     # Using variable icon for integrators (could use a different icon if available)
+    #     icon = getIcon("dependent_variable")
+    #     self.add_to_list(list_widget, integrator_text, icon)
 
     def on_pushAddVariable_pressed(self):
         """Request behavior association editor launch from backend"""
