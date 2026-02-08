@@ -102,8 +102,14 @@ class BehaviourLinerBackEnd(QObject):
                 print(f"Entity input_vars: {entity.input_vars}")
                 print(f"Entity init_vars: {entity.init_vars}")
                 
+                # Add the entity to all_entities and save it
+                self.add_entity_to_all_entities(entity)
+                
                 # Update the entity editor frontend with the Entity information
                 self.update_entity_editor_frontend(entity)
+                
+                # Update the main frontend tree to show the new entity
+                self.update_main_frontend_tree()
             else:
                 print("No Entity object found in entity_data")
             
@@ -124,6 +130,64 @@ class BehaviourLinerBackEnd(QObject):
                 print(f"Updated entity editor frontend with Entity: {entity.entity_name}")
             else:
                 print("Entity editor frontend not available")
+                
+        except Exception as e:
+            print(f"Error updating entity editor frontend: {e}")
+    
+    def add_entity_to_all_entities(self, entity):
+        """Add or update an entity in all_entities and save to file"""
+        try:
+            # Check if entity already exists
+            entity_name = entity.entity_name
+            if entity_name in self.all_entities:
+                print(f"Updating existing entity {entity_name} in all_entities")
+            else:
+                print(f"Adding new entity {entity_name} to all_entities")
+            
+            # Add/update the entity in the all_entities dictionary
+            self.all_entities[entity_name] = entity
+            
+            # Save all_entities to file
+            self.save_entities_to_file()
+            print(f"Saved entities to file")
+            
+        except Exception as e:
+            print(f"Error adding entity to all_entities: {e}")
+    
+    def save_entities_to_file(self):
+        """Save all_entities to the entity file"""
+        try:
+            path = (
+                FILES["variable_assignment_to_entity_object"]
+                % self.ontology_name
+            )
+            
+            # Convert Entity objects to serializable format
+            entities_data = {}
+            for entity_id, entity_obj in self.all_entities.items():
+                entities_data[entity_id] = entity_obj.to_dict()
+            
+            # Save to file
+            with open(path, 'w', encoding='utf-8') as file:
+                json.dump(entities_data, file, indent=4)
+            
+            print(f"Saved {len(entities_data)} entities to {path}")
+            
+        except Exception as e:
+            print(f"Error saving entities to file: {e}")
+    
+    def update_main_frontend_tree(self):
+        """Update the main frontend tree with updated all_entities"""
+        try:
+            # Send updated all_entities to main frontend
+            self.send_message_to_main_frontend(event="make_tree", data={
+                "node_entity_types": self.node_entity_types,
+                "all_entities": self.all_entities
+            })
+            print(f"Updated main frontend tree with {len(self.all_entities)} entities")
+            
+        except Exception as e:
+            print(f"Error updating main frontend tree: {e}")
                 
         except Exception as e:
             print(f"Error updating entity editor frontend: {e}")
