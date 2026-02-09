@@ -5,17 +5,11 @@ import sys
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 
-from Common.classes.entity import Entity
 from OntologyBuilder.BehaviourLinker_v01.entity_automaton import gui_automaton
+from Common.classes.entity import Entity
+from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
 
-# from BricksAndTreeSemantics import ONTOLOGY_REPOSITORY
-# from BricksAndTreeSemantics import PRIMITIVES
-# from OntologyBuilder.BehaviourLinker_v01.BricksAndTreeSemantics import RULES
-# from DataModelNoBrickNumbers import DataModel
-# from OntologyBuilder.BehaviourLinker_v01.main_automaton import UI_state
-# from Utilities import TreePlot
-# from Utilities import camelCase
-# from Utilities import debugging
+
 from Common.common_resources import getOntologyName
 from Common.exchange_board import ProMoExchangeBoard
 from Common.resource_initialisation import DIRECTORIES
@@ -39,26 +33,23 @@ class EntityEditorBackEnd(QObject):
         self.ontology_container = ontology_container
         self.selected_entity_type = None
 
-    def set_selected_entity_type(self, entity_type_data):
+    def set_selected_entity_type_or_entity(self, entity_type_data):
         """Set the selected entity type from the main tree"""
         self.selected_entity_type = entity_type_data
         print(f"EntityEditorBackEnd received selected entity type: {self.selected_entity_type}")
-        
+
+
         # Determine if we're in create or edit mode
         if self.selected_entity_type and self.selected_entity_type.get("name"):
             self.mode = "edit"
             entity_name = self.selected_entity_type.get("name")
             print(f"EntityEditorBackEnd in EDIT mode for entity: {entity_name}")
             # Notify frontend of mode change
-            if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                self.entity_frontend.set_mode("edit")
-            # TODO: Load existing entity data for editing
+            self.entity_frontend.set_mode("edit")
         else:
             self.mode = "create"
-            print(f"EntityEditorBackEnd in CREATE mode for entity type: {self.selected_entity_type.get('entity type') if self.selected_entity_type else 'Unknown'}")
             # Notify frontend of mode change
-            if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                self.entity_frontend.set_mode("create")
+            self.entity_frontend.set_mode("create")
 
     def set_entity_frontend(self, entity_frontend):
         """Set the entity frontend reference for direct updates"""
@@ -68,53 +59,30 @@ class EntityEditorBackEnd(QObject):
     def process_entity_front_message(self, message):
         """Process messages from the entity editor frontend"""
         event = message.get("event")
-        
-        if event == "launch_behavior_association_editor":
-            # Launch the behavior association editor
-            ontology_container = message.get("ontology_container")
-            self.launch_behavior_association_editor(ontology_container)
-        elif event == "behavior_association_defined":
-            # Handle the behavior association with equation selection
-            assignments = message.get("assignments")
-            self.handle_behavior_association(assignments)
-        elif event == "entity_created":
-            # Handle new entity creation
-            entity_data = message.get("entity_data")
-            self.handle_entity_creation(entity_data)
-        elif event == "state_variable_selected":
-            # Handle state variable selection in create mode
-            assignments = message.get("assignments")
-            entity_data = message.get("entity_data")
-            self.handle_state_variable_selection(assignments, entity_data)
-        elif event == "new_variable_added":
-            # Handle new variable addition in edit mode
-            assignments = message.get("assignments")
-            entity_data = message.get("entity_data")
-            self.handle_new_variable_addition(assignments, entity_data)
-        else:
-            print(f"Unknown event: {event}")
+        entity_data = self.entity_frontend.current_entity_data
 
-    # def send_message_to_entity_frontend(self, event, data=None):
-    #     """Send a message to the entity editor frontend"""
-    #     message = {"event": event, "interface": gui_automaton[event], "data": data}
-    #     self.message.emit(message)
+        if event == "add_state_variable":
+            self.launch_behavior_association_editor()
+        elif event == "add_variable":
+            self.launch_behavior_association_editor()
     
-    def launch_behavior_association_editor(self, ontology_container):
+    def launch_behavior_association_editor(self):
         """Launch the behavior association editor and handle its response"""
         try:
-            from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
-            
+            # from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
+
+            entity_data = self.entity_frontend.current_entity_data
             # Get entity type information for rule-based filtering
             entity_type_info = {
-                'network': self.selected_entity_type.get('network', 'unknown'),
-                'category': self.selected_entity_type.get('category', 'unknown'),
-                'entity type': self.selected_entity_type.get('entity type', 'unknown')
+                'network': entity_data.get('network', 'unknown'),
+                'category': entity_data.get('category', 'unknown'),
+                'entity_type': entity_data.get('entity_type', 'unknown')
             }
             
             print(f"Debug: Launching behavior association editor with entity type: {entity_type_info}")
             
             # Launch the BehaviorAssociation editor with entity type info
-            assignments = launch_behavior_association_editor(ontology_container, entity_type_info)
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info)
             
             if assignments:
                 # Process the assignments directly
@@ -144,7 +112,7 @@ class EntityEditorBackEnd(QObject):
                 root_equation = assignments.get('root_equation')
                 use_initialization = assignments.get('use_initialization', False)
                 
-                # Check if we already have an entity object from previous operations
+                # Check if we already have an entity object from previous operations #TODO: check if this is necessary
                 existing_entity = None
                 if hasattr(self, 'entity_frontend') and self.entity_frontend:
                     if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
@@ -226,7 +194,9 @@ class EntityEditorBackEnd(QObject):
                 else:
                     # Create new entity only if no existing one
                     print("Creating new entity")
-                    entity_name = f"{self.selected_entity_type.get('network', 'unknown')}.{self.selected_entity_type.get('category', 'unknown')}.{self.selected_entity_type.get('entity type', 'unknown')}.new_entity"
+                    entity_data = self.entity_frontend.current_entity_data
+                    entity_id = entity_data.get('entity_id')
+                    entity_name = entity_id.split(".")[-1] #f"{self.selected_entity_type.get('network', 'unknown')}.{self.selected_entity_type.get('category', 'unknown')}.{self.selected_entity_type.get('entity type', 'unknown')}.new_entity"
                     
                     # Get equations from ontology container - use list_equation_classes for actual Equation objects
                     all_equations = {}
@@ -250,7 +220,7 @@ class EntityEditorBackEnd(QObject):
                         var_eq_forest=[{}],  # Initialize with empty forest
                         init_vars=[],
                         input_vars=[],
-                        output_vars=[]
+                        output_vars=[],
                     )
                     
                     # Set up variable-equation relationships using the Entity's built-in method
@@ -466,24 +436,73 @@ class EntityEditorBackEnd(QObject):
                         print("list_equation_classes not found, falling back to equation_dictionary")
                         all_equations = getattr(self.ontology_container, 'equation_dictionary', {})
                     
-                    # Create entity with the selected state variable
+                    # Create entity with the selected state variable and equation
+                    # Build the var_eq_forest from the assignments
+                    root_equation = assignments.get('root_equation')
+                    var_eq_forest = [{}]  # Start with empty tree
+                    
+                    if root_equation and not assignments.get('use_initialization', False):
+                        # Add the equation to the forest
+                        var_eq_forest[0][root_equation] = [root_variable]
+                        print(f"Added equation {root_equation} with variable {root_variable} to var_eq_forest")
+                    
+                    # Prepare add_var_eq_info for sophisticated Entity class
+                    add_var_eq_info = {}
+                    if root_equation and not assignments.get('use_initialization', False):
+                        add_var_eq_info[root_variable] = [root_equation]
+                    
                     entity = Entity(
                         entity_name=entity_name,
                         all_equations=all_equations,
-                        var_eq_forest=[{}],  # Initialize with empty forest
+                        var_eq_forest=var_eq_forest,  # Use the populated forest
                         init_vars=[root_variable],  # Add state variable to initialization list
                         input_vars=[],
-                        output_vars=[]
+                        output_vars=[root_variable]  # Set as output since defined by equation
                     )
                     
+                    # Add integrator information if this is an integrator equation
+                    if root_equation and not assignments.get('use_initialization', False):
+                        # Check if the equation is an integrator
+                        if root_equation in all_equations:
+                            eq_obj = all_equations[root_equation]
+                            if hasattr(eq_obj, 'is_integrator') and eq_obj.is_integrator():
+                                entity.integrators[root_variable] = root_equation
+                                print(f"Added integrator: {root_variable} -> {root_equation}")
+                    
+                    print(f"Created entity with var_eq_forest: {entity.var_eq_forest}")
+                    print(f"Created entity with output_vars: {entity.output_vars}")
+                    print(f"Created entity with init_vars: {entity.init_vars}")
+                    print(f"Created entity with integrators: {entity.integrators}")
+                    
+                    # Original Entity class doesn't have sophisticated analysis methods
+                    # Use the Entity as-is with manually populated lists
+                    print("Using original Entity class with manual list population")
+                    
                     # Update entity_data with the actual Entity object information
+                    # Get variable information for defined variables list
+                    var_info = None
+                    if hasattr(self.ontology_container, 'variables') and root_variable in self.ontology_container.variables:
+                        var_data = self.ontology_container.variables[root_variable]
+                        var_info = {
+                            'id': root_variable,
+                            'label': var_data.get('label', root_variable),
+                            'network': var_data.get('network', 'unknown')
+                        }
+                    
+                    # For original Entity class, use manually populated lists
+                    entity_equations = [root_equation] if root_equation else []
+                    
+                    print(f"DEBUG: Using manual equation list: {entity_equations}")
+                    
                     entity_data.update({
                         'entity_object': entity,
                         'var_eq_forest': entity.var_eq_forest,
                         'output_vars': entity.output_vars,
                         'input_vars': entity.input_vars,
                         'init_vars': entity.init_vars,
-                        'integrators': entity.integrators
+                        'integrators': entity.integrators,
+                        'defined_variables': [var_info] if var_info else [],  # Add selected variable to defined list
+                        'equations': entity_equations  # Add equations from manual list
                     })
                 
                 # Send back to main backend for processing

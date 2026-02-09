@@ -162,7 +162,14 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                     for entity_id, entity_obj in all_entities.items():
                         # Check if entity matches this network, category, and type
                         if ">" not in entity_id:
-                            entity_net, entity_cat, entity_type_name, entity_name = entity_id.split('.')
+                            parts = entity_id.split('.')
+                            if len(parts) == 4:
+                                entity_net, entity_cat, entity_type_name, entity_name = parts
+                            else:
+                                # makeMessageBox("id failed ?", buttons=["OK"])
+                                print(">>>>>>>>>>>> unpacking of entity_id failed", parts)
+
+                                pass
 
                             # print("\n ------------------", entity_name)
                             # print(net, "--", entity_net,"--",  net == entity_net)

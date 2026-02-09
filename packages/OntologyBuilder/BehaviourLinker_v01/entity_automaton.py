@@ -1,18 +1,21 @@
 gui_automaton = {
-        "start": {
-                "buttons": {
-                        "save": False,
-                        "exit": True,
-                        "tree": True,
-                        "LED" : True,
-                        },
-                "lists"  : {
-                        "list_equations"  : False,
-                        "list_integrators": False,
-                        "list_input"      : False,
-                        "list_output"     : False,
-                        "list_instantiate": False,
-                        "list_pending"    : False,
-                        }
+        "create":
+            {
+                    "accept"            : False,
+                    "add_state_variable": True,
+                    "add_variable"      : True,
+                    "candle"            : False,
+                    "delete_entity"     : False,
+                    "delete_variable"   : False,
+                    "edit_variable"     : False,
+                    },
+        "edit"  : {
+                "accept"            : False,
+                "add_state_variable": True,
+                "add_variable"      : False,
+                "candle"            : False,
+                "delete_entity"     : False,
+                "delete_variable"   : False,
+                "edit_variable"     : False,
                 },
         }

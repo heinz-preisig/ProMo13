@@ -94,6 +94,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushAddStateVariable">
+       <property name="text">
+        <string>PushButton</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushEditVariable">
        <property name="text">
         <string>PushButton</string>

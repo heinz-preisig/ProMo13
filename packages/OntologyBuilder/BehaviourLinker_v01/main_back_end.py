@@ -109,7 +109,7 @@ class BehaviourLinerBackEnd(QObject):
                 self.update_entity_editor_frontend(entity)
                 
                 # Update the main frontend tree to show the new entity
-                self.update_main_frontend_tree()
+                # self.update_main_frontend_tree()
             else:
                 print("No Entity object found in entity_data")
             
@@ -308,14 +308,11 @@ class BehaviourLinerBackEnd(QObject):
                 % ontology_name
         )
 
-        # TODO: This file needs to be created empty when the ontology is
-        # created. In here should be only an exception in case the file is not found.
-
-        # # If the file doesnt exists it creates a new one
-        # if not os.path.isfile(path):
-        #   with open(path, "w", encoding="utf-8",) as file:
-        #     json.dump({}, file, indent=4)
-        #   return {}
+        # Create empty file if it doesn't exist
+        if not os.path.isfile(path):
+            with open(path, "w", encoding="utf-8") as file:
+                json.dump({}, file, indent=4)
+            return {}
 
         with open(
                 path,
@@ -324,7 +321,6 @@ class BehaviourLinerBackEnd(QObject):
             data = json.load(file)
         # from pprint import pprint as pp
         # pp(data)
-        # TODO Change behaviour in case of no data.
         if not data:
             return {}
 
@@ -338,7 +334,7 @@ class BehaviourLinerBackEnd(QObject):
                 print(ent_name + " not found.")
                 continue
 
-            all_equations = {}  # TODO: load all equations
+            all_equations = {}  # Equations are loaded separately when needed
             new_entity = Entity(
                     ent_name,
                     all_equations,
@@ -349,7 +345,7 @@ class BehaviourLinerBackEnd(QObject):
                     data[ent_name]["input_vars"],
                     data[ent_name]["output_vars"],
                     )
-            # TODO Check why it cant be stored as base#
+            # Convert base_ prefix to base# for internal consistency
             if "base_" in ent_name:
                 ent_name = ent_name.replace("base_", "base#")
 
@@ -363,11 +359,11 @@ class BehaviourLinerBackEnd(QObject):
         self.entity_front_end = EntityEditorFrontEnd()
 
         # Pass the selected entity type information to the entity editor
-        if hasattr(self, 'entity_type') and self.entity_type:
-            self.entity_back_end.set_selected_entity_type(self.entity_type)
-            self.entity_front_end.set_selected_entity_type(self.entity_type)
-            print(f"Passing selected entity type to editor: {self.entity_type}")
-            print(f"Editor mode: {mode}")
+        # if hasattr(self, 'entity_type') and self.entity_type:
+        #     self.entity_back_end.set_selected_entity_type(self.entity_type)
+        #     self.entity_front_end.set_selected_entity_type(self.entity_type)
+        #     print(f"Passing selected entity type to editor: {self.entity_type}")
+        #     print(f"Editor mode: {mode}")
 
         # Pass ontology container to entity front end for behavior association
         self.entity_front_end.set_ontology_container(self.ontology_container)
@@ -386,7 +382,7 @@ class BehaviourLinerBackEnd(QObject):
             # Edit mode - load existing entity data
             entity_name = self.entity_type.get('name')
             print(f"Loading existing entity for editing: {entity_name}")
-            # TODO: Load existing entity data and populate editor
+            self.load_existing_entity_data(entity_name)
         else:
             # Create mode - prepare for new entity creation
             print("Preparing for new entity creation")
@@ -419,7 +415,7 @@ class BehaviourLinerBackEnd(QObject):
             
             # Create initial entity data structure
             entity_data = {
-                'entity_name': f"{network}.{category}.{entity_type}.new_entity",
+                'entity_id': f"{network}.{category}.{entity_type}.new_entity",
                 'network': network,
                 'category': category,
                 'entity_type': entity_type,

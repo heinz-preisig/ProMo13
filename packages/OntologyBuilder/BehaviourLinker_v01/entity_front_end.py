@@ -29,7 +29,7 @@ from Common.resources_icons import roundButton, getIcon
 from OntologyBuilder.BehaviourLinker_v01.UIs.entity_changes import Ui_entity_changes
 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
-# from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
+from OntologyBuilder.BehaviourLinker_v01.entity_automaton import gui_automaton
 
 class EntityEditorFrontEnd(QtWidgets.QDialog):
     """
@@ -47,6 +47,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
 
         roundButton(self.ui.pushAddVariable, "new", tooltip="new variable")
+        roundButton(self.ui.pushAddStateVariable, "dependent_variable", tooltip="add state variable")
         roundButton(self.ui.pushEditVariable, "edit", tooltip="edit variable")
         roundButton(self.ui.pushDeleteVariable, "delete", tooltip="delete variable")
         roundButton(self.ui.pushDeleteEntity, "delete", tooltip="delete entity")
@@ -73,6 +74,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.gui_objects = {
                 "buttons"  : {
                         "accept"   : self.ui.pushAccept,
+                        "add_state_variable" : self.ui.pushAddStateVariable,
                         "add_variable": self.ui.pushAddVariable,
                         "candle": self.ui.pushCancle,
                         "delete_entity": self.ui.pushDeleteEntity,
@@ -101,9 +103,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ontology_container = ontology_container
 
     def set_mode(self, mode):
-        """Set the current mode (create, edit, load)"""
+        """Set the current mode (create, edit, load) and configure UI accordingly"""
         self.mode = mode
         print(f"EntityEditorFrontEnd mode set to: {mode}")
+        
+        # Configure button visibility based on mode
+        for button_name in gui_automaton[mode]:
+            self.gui_objects["buttons"][button_name].setVisible(gui_automaton[mode][button_name])
         
         # Update status label based on mode
         if mode == "create":
@@ -115,6 +121,44 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         elif mode == "load":
             self.status_label.setText("Ready")
             self.status_label.setStyleSheet("QLabel { color: gray; font-style: italic; margin: 5px; }")
+
+    def configure_buttons_for_mode(self, mode):
+        """Configure button visibility based on the current mode"""
+        if mode == "create":
+            # In create mode: only show add state variable and cancel buttons
+            self.ui.pushAddStateVariable.show()
+            self.ui.pushCancle.show()
+            
+            # Hide other buttons
+            self.ui.pushAddVariable.hide()
+            self.ui.pushEditVariable.hide()
+            self.ui.pushDeleteVariable.hide()
+            self.ui.pushDeleteEntity.hide()
+            self.ui.pushAccept.hide()
+            
+        elif mode == "edit":
+            # In edit mode: show all relevant buttons
+            self.ui.pushAddVariable.show()
+            self.ui.pushEditVariable.show()
+            self.ui.pushDeleteVariable.show()
+            self.ui.pushAccept.show()
+            self.ui.pushCancle.show()
+            
+            # Hide create-specific buttons
+            self.ui.pushAddStateVariable.hide()
+            self.ui.pushDeleteEntity.hide()
+            
+        elif mode == "load":
+            # In load mode: show minimal buttons until selection is made
+            self.ui.pushCancle.show()
+            
+            # Hide all other buttons initially
+            self.ui.pushAddVariable.hide()
+            self.ui.pushAddStateVariable.hide()
+            self.ui.pushEditVariable.hide()
+            self.ui.pushDeleteVariable.hide()
+            self.ui.pushDeleteEntity.hide()
+            self.ui.pushAccept.hide()
 
     def set_selected_entity_type(self, entity_type_data): #TODO: we may not need this one.
         """Set the selected entity type from the main tree"""
@@ -133,12 +177,14 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 selection_text = f"Editing: {network}.{category}.{entity_type}.{name}"
                 self.status_label.setText(selection_text)
                 self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
-                # TODO: Load entity data and populate the form fields
+                self.set_mode("edit")
+                self.load_entity_data_for_editing()
             else:
                 # An entity type was selected - we're in create mode
                 selection_text = f"Creating: {network}.{category}.{entity_type}"
                 self.status_label.setText(selection_text)
                 self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
+                self.set_mode("create")
 
     def populate_entity_structure(self, entity_data):
         """Populate entity editor with the complete entity structure from class definition"""
@@ -489,33 +535,36 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Error processing entity update: {e}")
             makeMessageBox(f"Error updating entity: {str(e)}")
 
-    # def add_integrator_to_list(self, list_widget, integrator_info):
-    #     """Add an integrator to list with appropriate icon"""
-    #     integrator_text = f"{integrator_info['label']} (ID: {integrator_info['id']})"
-    #     # Using variable icon for integrators (could use a different icon if available)
-    #     icon = getIcon("dependent_variable")
-    #     self.add_to_list(list_widget, integrator_text, icon)
+
+
+    def on_pushAddStateVariable_pressed(self):
+        """Handle add state variable button for create mode"""
+        # entity_id = self.current_entity_data["entity_id"]
+        message = {"event": "add_state_variable"}#, "entity_id": entity_id}
+        self.message.emit(message)
 
     def on_pushAddVariable_pressed(self):
+        message = {"event": "add_variable"}
+        self.message.emit(message)
         """Handle add variable button based on current state (create or edit)"""
-        if not hasattr(self, 'ontology_container'):
-            makeMessageBox("Ontology container not set")
-            return
-        
-        # Check current state/mode
-        if hasattr(self, 'mode'):
-            if self.mode == "create":
-                # In create state: select from list of state variables
-                self.launch_state_variable_selector()
-            elif self.mode == "edit":
-                # In edit state: add new variable to existing entity definition
-                self.launch_new_variable_selector()
-            else:
-                # Default behavior for other modes
-                self.launch_behavior_association_editor()
-        else:
-            # Fallback to original behavior if mode is not set
-            self.launch_behavior_association_editor()
+        # if not hasattr(self, 'ontology_container'):
+        #     makeMessageBox("Ontology container not set")
+        #     return
+        #
+        # # Check current state/mode
+        # if hasattr(self, 'mode'):
+        #     if self.mode == "create":
+        #         # In create state: select from list of state variables
+        #         self.launch_state_variable_selector()
+        #     elif self.mode == "edit":
+        #         # In edit state: add new variable to existing entity definition
+        #         self.launch_new_variable_selector()
+        #     else:
+        #         # Default behavior for other modes
+        #         self.launch_behavior_association_editor()
+        # else:
+        #     # Fallback to original behavior if mode is not set
+        #     self.launch_behavior_association_editor()
     
     def launch_state_variable_selector(self):
         """Launch state variable selector for create mode"""
@@ -532,7 +581,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Create mode: Launching state variable selector for entity type: {entity_type_info}")
             
             # Launch the BehaviorAssociation editor in state variable selection mode
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, mode="state_variable_selection")
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info)
             
             if assignments:
                 # Process the state variable selection
@@ -560,7 +609,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Edit mode: Launching new variable selector for entity: {entity_type_info}")
             
             # Launch the BehaviorAssociation editor in new variable addition mode
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, mode="add_new_variable")
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info)
             
             if assignments:
                 # Process the new variable addition
@@ -591,6 +640,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if root_variable:
                 # Move to edit mode after state selection
                 self.mode = "edit"
+                self.configure_buttons_for_mode("edit")  # Update button visibility
                 self.status_label.setText(f"State variable selected: {root_variable}. Now in edit mode.")
                 self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
                 
@@ -610,6 +660,22 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     # Update current entity data
                     self.current_entity_data['not_defined_variables'] = not_defined_vars
                     self.current_entity_data['defined_variables'] = defined_vars
+                    
+                    # Add equation information if present
+                    root_equation = assignments.get('root_equation')
+                    if root_equation:
+                        equations = self.current_entity_data.get('equations', [])
+                        equations.append(root_equation)
+                        self.current_entity_data['equations'] = equations
+                    
+                    # Add integrator information if using initialization
+                    if assignments.get('use_initialization', False):
+                        integrators = self.current_entity_data.get('integrators', [])
+                        integrators.append({root_variable: 'initialization'})
+                        self.current_entity_data['integrators'] = integrators
+                    
+                    # Update the UI lists with the new data
+                    self.populate_from_entity_data_fallback(self.current_entity_data)
                     
                     # Mark as changed
                     self.markChanged()
@@ -705,8 +771,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def populate_from_entity_data_fallback(self, entity_data):
         """Fallback method to populate lists when no Entity object is available"""
         try:
-            print(f"Using fallback population with data: {entity_data}")
-            
             # Clear all lists
             self.clear_all_lists()
             
@@ -724,6 +788,25 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             equations = entity_data.get('equations', [])
             for eq_info in equations:
                 self.add_to_list(self.ui.list_equations, str(eq_info), getIcon("equation"))
+            
+            # Populate integrators from entity_data (not just from entity object)
+            integrators = entity_data.get('integrators', [])
+            for integrator_info in integrators:
+                if isinstance(integrator_info, dict):
+                    # Handle dict format: {var_id: eq_id}
+                    for var_id, eq_id in integrator_info.items():
+                        if hasattr(self, 'ontology_container') and self.ontology_container:
+                            variables = self.ontology_container.variables
+                            if var_id in variables:
+                                var_data = variables[var_id]
+                                var_info = {
+                                    'id': var_id,
+                                    'label': var_data.get('label', var_id),
+                                    'network': var_data.get('network', 'unknown')
+                                }
+                                # Add integrator info to the text
+                                var_info['label'] = f"{var_info['label']} -> {eq_id}"
+                                self.add_variable_to_list(self.ui.list_integrators, var_info)
             
             # Try to populate other lists if entity object has the data
             if hasattr(self, 'current_entity') and self.current_entity:
