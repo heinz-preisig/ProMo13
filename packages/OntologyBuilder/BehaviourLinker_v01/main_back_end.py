@@ -353,13 +353,6 @@ class BehaviourLinerBackEnd(QObject):
         self.entity_back_end = EntityEditorBackEnd(self.ontology_container)
         self.entity_front_end = EntityEditorFrontEnd()
 
-        # Pass the selected entity type information to the entity editor
-        # if hasattr(self, 'entity_type') and self.entity_type:
-        #     self.entity_back_end.set_selected_entity_type(self.entity_type)
-        #     self.entity_front_end.set_selected_entity_type(self.entity_type)
-        #     print(f"Passing selected entity type to editor: {self.entity_type}")
-        #     print(f"Editor mode: {mode}")
-
         # Pass ontology container to entity front end for behavior association
         self.entity_front_end.set_ontology_container(self.ontology_container)
 

@@ -372,6 +372,10 @@ class EntityEditorBackEnd(QObject):
                     # Check if any equation is an integrator and manually add if needed
                     if hasattr(self.ontology_container, 'equation_dictionary'):
                         eq_dict = self.ontology_container.equation_dictionary
+                        
+                        # Extract variable-equation assignments from the assignments
+                        var_eq_assignments = self.extract_var_eq_assignments(assignments)
+                        
                         for tree in entity.var_eq_forest:
                             for key, values in tree.items():
                                 if key.startswith('E_'):
