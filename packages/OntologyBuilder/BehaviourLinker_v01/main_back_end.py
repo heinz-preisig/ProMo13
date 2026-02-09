@@ -14,12 +14,10 @@ from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBack
 from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
-
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 root = os.path.abspath(os.path.join("."))
 sys.path.extend([root, os.path.join(root, "resources")])
-
 
 
 class BehaviourLinerBackEnd(QObject):
@@ -45,7 +43,6 @@ class BehaviourLinerBackEnd(QObject):
             print(" got a selected entity instance", self.entity_type)
             # Automatically launch entity editor for instance selection (edit mode)
             self.launch_entity_editor(mode="edit")
-
 
         self.send_message_to_main_frontend(event)
 
@@ -73,26 +70,26 @@ class BehaviourLinerBackEnd(QObject):
             error_msg = message.get("error", "Unknown error")
             print(f"Entity editor error: {error_msg}")
             self.send_message_to_main_frontend("error", {"error": error_msg})
-    
+
     def process_entity_data(self, entity_data):
         """Process the entity data with equation selection and update frontend"""
         try:
             if not entity_data:
                 print("No entity data provided")
                 return
-            
+
             root_variable = entity_data.get('root_variable')
             definition_method = entity_data.get('definition_method')
-            
+
             print(f"Processing entity for variable: {root_variable}")
             print(f"Definition method: {definition_method}")
-            
+
             if definition_method == 'initialization':
                 print(f"Variable will be marked for initialization")
             else:
                 equation_id = entity_data.get('equation_id')
                 print(f"Variable will be defined by equation: {equation_id}")
-            
+
             # Get the Entity object if available
             entity = entity_data.get('entity_object')
             if entity:
@@ -101,24 +98,24 @@ class BehaviourLinerBackEnd(QObject):
                 print(f"Entity output_vars: {entity.output_vars}")
                 print(f"Entity input_vars: {entity.input_vars}")
                 print(f"Entity init_vars: {entity.init_vars}")
-                
+
                 # Add the entity to all_entities and save it
                 self.add_entity_to_all_entities(entity)
-                
+
                 # Update the entity editor frontend with the Entity information
                 self.update_entity_editor_frontend(entity)
-                
+
                 # Update the main frontend tree to show the new entity
                 # self.update_main_frontend_tree()
             else:
                 print("No Entity object found in entity_data")
-            
+
             print("Entity data processed successfully")
-            
+
         except Exception as e:
             print(f"Error processing entity data: {e}")
             self.send_message_to_main_frontend("error", {"error": str(e)})
-    
+
     def update_entity_editor_frontend(self, entity):
         """Update the entity editor frontend with Entity object information"""
         try:
@@ -126,14 +123,14 @@ class BehaviourLinerBackEnd(QObject):
             if hasattr(self, 'entity_editor_frontend') and self.entity_editor_frontend:
                 # Update the frontend with the Entity object
                 self.entity_editor_frontend.set_entity_object(entity)
-                
+
                 print(f"Updated entity editor frontend with Entity: {entity.entity_name}")
             else:
                 print("Entity editor frontend not available")
-                
+
         except Exception as e:
             print(f"Error updating entity editor frontend: {e}")
-    
+
     def add_entity_to_all_entities(self, entity):
         """Add or update an entity in all_entities and save to file"""
         try:
@@ -143,59 +140,59 @@ class BehaviourLinerBackEnd(QObject):
                 print(f"Updating existing entity {entity_name} in all_entities")
             else:
                 print(f"Adding new entity {entity_name} to all_entities")
-            
+
             # Add/update the entity in the all_entities dictionary
             self.all_entities[entity_name] = entity
-            
+
             # Save all_entities to file
             self.save_entities_to_file()
             print(f"Saved entities to file")
-            
+
         except Exception as e:
             print(f"Error adding entity to all_entities: {e}")
-    
+
     def save_entities_to_file(self):
         """Save all_entities to the entity file"""
         try:
             path = (
-                FILES["variable_assignment_to_entity_object"]
-                % self.ontology_name
+                    FILES["variable_assignment_to_entity_object"]
+                    % self.ontology_name
             )
-            
+
             # Convert Entity objects to serializable format
             entities_data = {}
             for entity_id, entity_obj in self.all_entities.items():
                 entities_data[entity_id] = entity_obj.to_dict()
-            
+
             # Save to file
             with open(path, 'w', encoding='utf-8') as file:
                 json.dump(entities_data, file, indent=4)
-            
+
             print(f"Saved {len(entities_data)} entities to {path}")
-            
+
         except Exception as e:
             print(f"Error saving entities to file: {e}")
-    
+
     def update_main_frontend_tree(self):
         """Update the main frontend tree with updated all_entities"""
         try:
             # Send updated all_entities to main frontend
             self.send_message_to_main_frontend(event="make_tree", data={
-                "node_entity_types": self.node_entity_types,
-                "all_entities": self.all_entities
-            })
+                    "node_entity_types": self.node_entity_types,
+                    "all_entities"     : self.all_entities
+                    })
             print(f"Updated main frontend tree with {len(self.all_entities)} entities")
-            
+
         except Exception as e:
             print(f"Error updating main frontend tree: {e}")
-                
+
         except Exception as e:
             print(f"Error updating entity editor frontend: {e}")
-    
+
     def send_message_to_entity_frontend(self, event, data=None):
         """Send a message to the entity editor frontend"""
         message = {"event": event, "data": data}
-        
+
         # Send through the main frontend message system
         if hasattr(self, 'entity_editor_frontend') and self.entity_editor_frontend:
             self.entity_editor_frontend.process_message(message)
@@ -267,12 +264,10 @@ class BehaviourLinerBackEnd(QObject):
         self.all_entities = self.load_entities_from_file(self.ontology_name)
 
         self.send_message_to_main_frontend(event="make_tree", data={
-            "node_entity_types": self.node_entity_types,
-            "all_entities": self.all_entities
-        })
+                "node_entity_types": self.node_entity_types,
+                "all_entities"     : self.all_entities
+                })
         pass
-
-
 
     def load_entities_from_file(self, ontology_name):
         # """Loads data from file to create Entity objects.
@@ -367,13 +362,13 @@ class BehaviourLinerBackEnd(QObject):
 
         # Pass ontology container to entity front end for behavior association
         self.entity_front_end.set_ontology_container(self.ontology_container)
-        
+
         # Set up communication between backend and frontend
         self.entity_back_end.message.connect(self.handle_entity_editor_message)
-        
+
         # Give the backend a reference to the frontend for updates
         self.entity_back_end.set_entity_frontend(self.entity_front_end)
-        
+
         # Give the main backend a reference to the entity frontend
         self.entity_editor_frontend = self.entity_front_end
 
@@ -395,79 +390,79 @@ class BehaviourLinerBackEnd(QObject):
 
         # Show editor
         self.entity_front_end.show()
-    
+
     def generate_entity_from_class_definition(self):
         """Generate entity structure from class definition"""
         try:
             if not hasattr(self, 'entity_type') or not self.entity_type:
                 print("No entity type selected for generation")
                 return
-            
+
             # Extract entity type information
             network = self.entity_type.get('network')
             category = self.entity_type.get('category')
             entity_type = self.entity_type.get('entity type')
-            
+
             print(f"Generating entity for: {network}.{category}.{entity_type}")
-            
+
             # Get all variables that belong to this entity type
             entity_variables = self.get_variables_for_entity_type(network, category, entity_type)
-            
+
             # Create initial entity data structure
             entity_data = {
-                'entity_id': f"{network}.{category}.{entity_type}.new_entity",
-                'network': network,
-                'category': category,
-                'entity_type': entity_type,
-                'variables': entity_variables,
-                'defined_variables': [],  # Will be populated as user defines them
-                'not_defined_variables': [], #entity_variables.copy(),  # Initially all are undefined
-                'equations': [],
-                'inputs': [],
-                'outputs': [],
-                'integrators': []
-            }
-            
+                    'entity_id'            : f"{network}.{category}.{entity_type}.new_entity",
+                    'network'              : network,
+                    'category'             : category,
+                    'entity_type'          : entity_type,
+                    'variables'            : entity_variables,
+                    'defined_variables'    : [],  # Will be populated as user defines them
+                    'not_defined_variables': [],  # entity_variables.copy(),  # Initially all are undefined
+                    'equations'            : [],
+                    'inputs'               : [],
+                    'outputs'              : [],
+                    'integrators'          : []
+                    }
+
             # Send entity structure to frontend for display
             if hasattr(self, 'entity_front_end'):
                 self.entity_front_end.populate_entity_structure(entity_data)
-                
+
             # print(f"Generated entity structure with {len(entity_variables)} variables")
-            
+
         except Exception as e:
             print(f"Error generating entity from class definition: {e}")
             self.send_message_to_main_frontend("error", {"error": str(e)})
-    
+
     def get_variables_for_entity_type(self, network, category, entity_type):
         """Get all variables that belong to a specific entity type"""
         try:
             variables = []
-            
+
             # Get all variables from ontology container
             all_variables = self.ontology_container.variables
-            
+
             # Filter variables that belong to this entity type
             for var_id, var_data in all_variables.items():
                 var_network = var_data.get('network')
                 var_category = var_data.get('category', 'unknown')
                 var_type = var_data.get('type', 'unknown')
-                
+
                 # Check if variable belongs to this entity type
                 # This is a simplified approach - you may need to refine the logic
                 if var_network == network:
                     # Add more sophisticated filtering based on your ontology structure
                     variables.append({
-                        'id': var_id,
-                        'label': var_data.get('label', var_id),
-                        'network': var_network,
-                        'category': var_category,
-                        'type': var_type,
-                        'equations': list(var_data.get('equations', {}).keys())
-                    })
-            
+                            'id'       : var_id,
+                            'label'    : var_data.get('label', var_id),
+                            'network'  : var_network,
+                            'category' : var_category,
+                            'type'     : var_type,
+                            'equations': list(var_data.get('equations', {}).keys())
+                            })
+
             print(f"Found {len(variables)} variables for entity type {network}.{category}.{entity_type}")
             return variables
-            
+
         except Exception as e:
             print(f"Error getting variables for entity type: {e}")
             return []

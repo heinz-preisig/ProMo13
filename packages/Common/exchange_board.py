@@ -32,9 +32,10 @@ from copy import copy
 from pathlib import Path
 
 from PyQt5 import QtWidgets
+
+from Common.classes.equation import Equation
 from Common.classes.io import load_entities_from_file
 from Common.classes.io import load_var_idx_eq_from_file
-
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import M_None
 from Common.common_resources import PROMO_IRI_PREFIX
@@ -51,8 +52,6 @@ from Common.common_resources import invertDict
 from Common.common_resources import saveWithBackup
 from Common.common_resources import walkBreathFirstFnc
 from Common.common_resources import walkDepthFirstFnc
-from Common.pop_up_message_box import makeMessageBox
-from Common.classes.equation import Equation, EquationDict
 from Common.graphics_objects import NAMES
 from Common.qt_resources import OK
 from Common.record_definitions import Interface
@@ -64,7 +63,6 @@ from Common.resource_initialisation import ONTOLOGY_VERSION
 from Common.resource_initialisation import VARIABLE_EQUATIONS_VERSION
 from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
 from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
 from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
 
 # RULE: we constrain interface networks to only exist to the CENTER_NETWORK
@@ -395,13 +393,12 @@ class ProMoExchangeBoard():
                 def_network = self.indices[i]["network"][0]
                 self.indices[i]["network"] = self.heirs_network_dictionary[def_network]
 
-
         self.indexEquations()
         self.list_equation_png_files = self.__load_equation_png_files_for_ids(self.equation_dictionary.keys())
         self.list_variable_png_files = self.__load_variable_png_files()
         # Add PNG paths directly to variable records
         self.__add_png_paths_to_variables()
-        
+
         # Load equation icons as QIcon objects for use in dialogs
         self.equation_icons = self.load_equation_icons()
         # Load variable icons as QIcon objects for use in dialogs
@@ -427,10 +424,8 @@ class ProMoExchangeBoard():
                           eq_data.get("modified", "2024-01-01 00:00:00")
                           )
             equation_class_list.append(eq)
-        
+
         return equation_class_list
-
-
 
     def indexEquations(self):
         self.equation_dictionary = self.makeEquationDictionary()
@@ -603,8 +598,6 @@ class ProMoExchangeBoard():
         for nw in arcObjects_on_networks:
             list_arc_objects_on_networks[nw] = sorted(arcObjects_on_networks[nw])
 
-
-
         # TODO: make all entity types
         token_combinations = {}
         for nw in self.tokens_on_networks:
@@ -624,10 +617,9 @@ class ProMoExchangeBoard():
             node_entity_types_in_internetworks[nw] = []
             for node_object in nodeObjects_on_networks[nw]:
                 for token_combination in token_combinations[nw]:
-                    node_entity_types_in_internetworks[nw].append("_".join(token_combination)+"|"+node_object)
+                    node_entity_types_in_internetworks[nw].append("_".join(token_combination) + "|" + node_object)
 
         pass
-
 
         list_network_node_objects = sorted(set_node_objects_on_networks)
         list_network_node_objects_with_token = sorted(
@@ -880,8 +872,8 @@ class ProMoExchangeBoard():
                             index = self.ontology_tree[nw]["behaviour"][component].index(
                                     "state")
                             variable_types_on_networks_per_component[nw][component] = \
-                            self.ontology_tree[nw]["behaviour"][component][
-                                :index]
+                                self.ontology_tree[nw]["behaviour"][component][
+                                    :index]
                         except:
                             pass
                     elif component == "graph":
@@ -1145,7 +1137,7 @@ class ProMoExchangeBoard():
             for eq_ID in self.variables[var_ID]["equations"]:
                 equation_dictionary[eq_ID] = self.variables[var_ID]["equations"][eq_ID]
                 equation_dictionary[eq_ID]["lhs"] = self.variables[var_ID]["compiled_lhs"]
-        
+
         # Second pass: add PNG files to the completed dictionary
         equation_png_files = self.__load_equation_png_files_for_ids(equation_dictionary.keys())
         for eq_id in equation_dictionary:
@@ -1196,8 +1188,6 @@ class ProMoExchangeBoard():
         self.variables[ID] = {}
         for i in args:
             self.variables[ID][i] = args[i]
-
-
 
     def writeVariables(self, variables, indices, ProMoIRI):
         """
@@ -1336,12 +1326,12 @@ class ProMoExchangeBoard():
         """Load equation PNG files as QIcon objects for use in dialogs"""
         from PyQt5 import QtGui, QtCore
         equation_icons = {}
-        
+
         # print(f"Debug: Loading {len(self.list_equation_png_files)} equation icons in exchange_board...")
-        
+
         # Direct pixel mapping from PNG to icon, then apply simple scaling
         scale_factor = 0.5  # Scale down to 50% of original size
-        
+
         for eq_id, png_path in self.list_equation_png_files.items():
             try:
                 # Load PNG as QIcon in the main GUI context
@@ -1350,34 +1340,34 @@ class ProMoExchangeBoard():
                     # Get original dimensions
                     original_width = pixmap.width()
                     original_height = pixmap.height()
-                    
+
                     # Direct pixel mapping: use PNG dimensions as-is, then apply simple scaling
                     new_width = int(original_width * scale_factor)
                     new_height = int(original_height * scale_factor)
-                    
+
                     # Create canvas exactly at the scaled dimensions
                     canvas_width = new_width
                     canvas_height = new_height
-                    
+
                     # Create canvas with light background for better contrast
                     canvas = QtGui.QPixmap(canvas_width, canvas_height)
                     canvas.fill(QtGui.QColor(248, 248, 248))  # Very light gray background
-                    
+
                     # Paint the scaled equation centered on the canvas
                     painter = QtGui.QPainter(canvas)
                     painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
                     painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
                     painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
-                    
+
                     # Paint the scaled equation filling the entire canvas (no centering needed)
                     scaled_pixmap = pixmap.scaled(
-                        new_width, new_height, 
-                        QtCore.Qt.KeepAspectRatio, 
-                        QtCore.Qt.SmoothTransformation
-                    )
+                            new_width, new_height,
+                            QtCore.Qt.KeepAspectRatio,
+                            QtCore.Qt.SmoothTransformation
+                            )
                     painter.drawPixmap(0, 0, scaled_pixmap)
                     painter.end()
-                    
+
                     icon = QtGui.QIcon(canvas)
                     if not icon.isNull():
                         equation_icons[eq_id] = icon
@@ -1386,10 +1376,10 @@ class ProMoExchangeBoard():
                         print(f"⚠ Equation icon is null for {eq_id}")
                 else:
                     print(f"⚠ Equation pixmap is null for {eq_id}")
-                    
+
             except Exception as e:
                 print(f"✗ Error loading equation icon for {eq_id}: {e}")
-        
+
         print(f"Debug: Successfully loaded {len(equation_icons)} equation icons")
         return equation_icons
 
@@ -1397,12 +1387,12 @@ class ProMoExchangeBoard():
         """Load variable PNG files as QIcon objects for use in dialogs"""
         from PyQt5 import QtGui, QtCore
         variable_icons = {}
-        
+
         # print(f"Debug: Loading {len(self.list_variable_png_files)} variable icons in exchange_board...")
-        
+
         # Direct pixel mapping from PNG to icon, then apply simple scaling
         scale_factor = 0.5  # Scale down to 50% of original size
-        
+
         for var_id, png_path in self.list_variable_png_files.items():
             try:
                 # Load PNG as QIcon in the main GUI context
@@ -1411,32 +1401,32 @@ class ProMoExchangeBoard():
                     # Get original dimensions
                     original_width = pixmap.width()
                     original_height = pixmap.height()
-                    
+
                     # Direct pixel mapping: use PNG dimensions as-is, then apply simple scaling
                     new_width = int(original_width * scale_factor)
                     new_height = int(original_height * scale_factor)
-                    
+
                     # Create canvas exactly at the scaled dimensions
                     canvas_width = new_width
                     canvas_height = new_height
-                    
+
                     # Create canvas with transparent background
                     canvas = QtGui.QPixmap(canvas_width, canvas_height)
                     canvas.fill(QtCore.Qt.transparent)
-                    
+
                     # Paint the scaled variable filling the entire canvas (no centering needed)
                     scaled_pixmap = pixmap.scaled(
-                        new_width, new_height,
-                        QtCore.Qt.KeepAspectRatio,
-                        QtCore.Qt.SmoothTransformation
-                    )
+                            new_width, new_height,
+                            QtCore.Qt.KeepAspectRatio,
+                            QtCore.Qt.SmoothTransformation
+                            )
                     painter = QtGui.QPainter(canvas)
                     painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
                     painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
                     painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
                     painter.drawPixmap(0, 0, scaled_pixmap)
                     painter.end()
-                    
+
                     icon = QtGui.QIcon(canvas)
                     if not icon.isNull():
                         variable_icons[var_id] = icon
@@ -1445,10 +1435,10 @@ class ProMoExchangeBoard():
                         print(f"⚠ Variable icon is null for {var_id}")
                 else:
                     print(f"⚠ Variable pixmap is null for {var_id}")
-                    
+
             except Exception as e:
                 print(f"✗ Error loading variable icon for {var_id}: {e}")
-        
+
         print(f"Debug: Successfully loaded {len(variable_icons)} variable icons")
         return variable_icons
 

@@ -1,10 +1,10 @@
 gui_automaton = {
-        "start"              : {
+        "start"                   : {
                 "buttons": {
-                        "save"  : False,
-                        "exit"  : True,
-                        "tree"  : True,
-                        "LED"   : True,
+                        "save": False,
+                        "exit": True,
+                        "tree": True,
+                        "LED" : True,
                         },
                 "lists"  : {
                         "list_equations"  : False,
@@ -15,12 +15,12 @@ gui_automaton = {
                         "list_pending"    : False,
                         }
                 },
-        "make_tree"          : {
+        "make_tree"               : {
                 "buttons": {
-                        "save"  : False,
-                        "exit"  : True,
-                        "tree"  : True,
-                        "LED"   : True,
+                        "save": False,
+                        "exit": True,
+                        "tree": True,
+                        "LED" : True,
                         },
                 "lists"  : {
                         "list_equations"  : False,
@@ -31,12 +31,12 @@ gui_automaton = {
                         "list_pending"    : False,
                         }
                 },
-        "selected_entity_type": {
+        "selected_entity_type"    : {
                 "buttons": {
-                        "save"  : False,
-                        "exit"  : True,
-                        "tree"  : True,
-                        "LED"   : True,
+                        "save": False,
+                        "exit": True,
+                        "tree": True,
+                        "LED" : True,
                         },
                 "lists"  : {
                         "list_equations"  : False,
@@ -47,12 +47,12 @@ gui_automaton = {
                         "list_pending"    : False,
                         }
                 },
-        "selected_instance"  : {
+        "selected_instance"       : {
                 "buttons": {
-                        "save"  : False,
-                        "exit"  : True,
-                        "tree"  : True,
-                        "LED"   : True,
+                        "save": False,
+                        "exit": True,
+                        "tree": True,
+                        "LED" : True,
                         },
                 "lists"  : {
                         "list_equations"  : False,
@@ -65,10 +65,10 @@ gui_automaton = {
                 },
         "entity_creation_complete": {
                 "buttons": {
-                        "save"  : False,
-                        "exit"  : True,
-                        "tree"  : True,
-                        "LED"   : True,
+                        "save": False,
+                        "exit": True,
+                        "tree": True,
+                        "LED" : True,
                         },
                 "lists"  : {
                         "list_equations"  : False,
@@ -79,12 +79,12 @@ gui_automaton = {
                         "list_pending"    : False,
                         }
                 },
-        "error": {
+        "error"                   : {
                 "buttons": {
-                        "save"  : False,
-                        "exit"  : True,
-                        "tree"  : True,
-                        "LED"   : True,
+                        "save": False,
+                        "exit": True,
+                        "tree": True,
+                        "LED" : True,
                         },
                 "lists"  : {
                         "list_equations"  : False,
@@ -98,11 +98,11 @@ gui_automaton = {
         }
 
 action_automaton = {
-        "start"                      : [],
-        "make_tree"                  : [],
-        "selected_entity_type"       : [],
-        "selected_instance"         : [],
-        "failed"                     : [],
-        "entity_creation_complete"   : [],
-        "error"                      : [],
+        "start"                   : [],
+        "make_tree"               : [],
+        "selected_entity_type"    : [],
+        "selected_instance"       : [],
+        "failed"                  : [],
+        "entity_creation_complete": [],
+        "error"                   : [],
         }

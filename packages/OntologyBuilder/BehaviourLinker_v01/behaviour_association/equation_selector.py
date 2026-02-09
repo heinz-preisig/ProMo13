@@ -16,7 +16,6 @@ import sys
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
-from PyQt5.uic import loadUi
 
 from Common.exchange_board import ProMoExchangeBoard
 from Common.pop_up_message_box import makeMessageBox
@@ -29,77 +28,75 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
     Dialog for selecting equations that define a selected variable.
     Supports multiple equations and initialization options.
     """
-    
+
     def __init__(self, variable_data, ontology_container, parent=None):
         super().__init__(parent)
-        
+
         # Setup the UI from the compiled .ui file
         self.setupUi(self)
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
-        
+
         self.variable_data = variable_data
         self.ontology_container = ontology_container
         self.selected_equation = None
         self.use_initialization = False
-        
+
         # Setup additional UI elements and connections
         self.setup_additional_ui()
         self.load_equations()
-    
+
     def setup_additional_ui(self):
         """Setup additional UI elements and connections not in the UI file"""
         # Set window title
         self.setWindowTitle("Select Equation for Variable Definition")
         self.setModal(True)
-        
+
         # Fix typo in UI file - equiation_list should be equation_list
         self.equation_list = self.equiation_list  # Map the typo to correct name
-        
+
         # Setup equation list with enhanced display
         UISettings.configure_list_widget(self.equation_list, 'equation_selection')
         self.equation_list.setViewMode(QtWidgets.QListWidget.ListMode)
-        
+
         # Connect signals
         self.equation_list.itemSelectionChanged.connect(self.on_equation_selection_changed)
         self.equation_radio.toggled.connect(self.on_method_changed)
         self.instationate_radio.toggled.connect(self.on_method_changed)
         self.pushAccept.clicked.connect(self.accept_selection)
         self.pushCancel.clicked.connect(self.reject)
-        
+
         # Setup window controls
         self.setup_window_controls()
-        
+
         # Set initial state
         self.equation_radio.setChecked(True)
         self.on_method_changed()
-        
+
         # Apply styles
         # self.apply_styles()
-    
+
     def setup_window_controls(self):
         """Setup window control buttons"""
         # Load icons for window controls if available
 
-            # Try to load standard window control icons
+        # Try to load standard window control icons
         from Common.resources_icons import roundButton
 
         roundButton(self.pushAccept, "accept", tooltip="accept")
         roundButton(self.pushCancel, "cancel", tooltip="cancel")
 
-    
-
     def load_equations(self):
         """Load available equations for the selected variable from the ontology container"""
         try:
             self.equation_list.clear()
-            
+
             # Display variable info
             var_label = self.variable_data.get('label', 'Unknown Variable')
             var_id = self.variable_data.get('id', 'Unknown ID')
-            
+
             self.variable_symbol.setText(f"Variable: {var_label}")
             self.variable_ID.setText(f"ID: {var_id}")
-            
+
             # Get equations from variable data first (to get the list of equation IDs)
             variable_equations = self.variable_data.get('equations', {})
             print(f"Debug: Variable ID: {var_id}")
@@ -107,7 +104,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
             print(f"Debug: Variable network: {self.variable_data.get('network', 'Unknown')}")
             print(f"Debug: Variable equations: {list(variable_equations.keys())}")
             print(f"Debug: Number of equations: {len(variable_equations)}")
-            
+
             if not variable_equations:
                 # No equations available
                 item = QtWidgets.QListWidgetItem("No equations available for this variable")
@@ -117,44 +114,45 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                 self.instationate_radio.setChecked(True)
                 self.on_method_changed()
                 return
-            
+
             # Get full equation data from ontology container's equation dictionary
             equation_dictionary = getattr(self.ontology_container, 'equation_dictionary', {})
             print(f"Debug: Equation dictionary has {len(equation_dictionary)} equations")
-            
+
             # Add each equation to the list
             for eq_id in variable_equations:
                 print(f"Debug: Processing equation {eq_id}")
-                
+
                 # Get equation data from ontology container (has PNG file info)
                 eq_data = equation_dictionary.get(eq_id, {})
-                
+
                 # Fall back to variable data if not found in dictionary
                 if not eq_data:
                     eq_data = variable_equations[eq_id]
                     print(f"Debug: Using variable data fallback for {eq_id}")
                 else:
                     print(f"Debug: Found {eq_id} in equation dictionary")
-                
+
                 eq_label = eq_data.get('label', f'Equation_{eq_id}')
                 eq_expression = eq_data.get('expression', 'No expression')
                 # Try to get latex expression from variable data if not in equation dictionary
                 if 'expression' not in eq_data and 'rhs' in variable_equations[eq_id]:
                     rhs_data = variable_equations[eq_id]['rhs']
                     eq_expression = rhs_data.get('latex', 'No expression')
-                
+
                 png_file = eq_data.get('png_file')
-                
+
                 print(f"Debug: {eq_id} -> Label: {eq_label}, Expression: {eq_expression}, PNG: {png_file}")
-                
+
                 item = QtWidgets.QListWidgetItem()
                 item.setData(QtCore.Qt.UserRole, eq_id)
-                
+
                 # Add LaTeX PNG image if available
                 png_loaded = False
-                
+
                 # First, try to use preloaded icon from ontology container
-                if hasattr(self.ontology_container, 'equation_icons') and eq_id in self.ontology_container.equation_icons:
+                if hasattr(self.ontology_container,
+                           'equation_icons') and eq_id in self.ontology_container.equation_icons:
                     preloaded_icon = self.ontology_container.equation_icons[eq_id]
                     if not preloaded_icon.isNull():
                         item.setIcon(preloaded_icon)
@@ -165,7 +163,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                         print(f"⚠ Preloaded icon from ontology container is null for {eq_id}")
                 else:
                     print(f"⚠ No preloaded icon found in ontology container for {eq_id}")
-                
+
                 # Fallback: try to load PNG if no preloaded icon available
                 if not png_loaded and png_file and os.path.exists(png_file):
                     try:
@@ -188,7 +186,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                         error_msg = str(e)
                         print(f"✗ Unexpected error loading PNG icon for {eq_id}: {error_msg}")
                         print(f"✗ Exception type: {type(e).__name__}")
-                
+
                 # Set text based on whether PNG was successfully loaded
                 if not png_loaded:
                     item_text = f"{eq_label}\n{eq_expression}"
@@ -196,26 +194,26 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                     print(f"⚠ Showing LaTeX text for {eq_id} due to PNG loading failure")
                 else:
                     print(f"✓ Showing PNG icon for {eq_id}")
-                
+
                 self.equation_list.addItem(item)
                 print(f"Debug: Added item for {eq_id} to list")
-            
+
             print(f"Debug: Total items in equation list: {self.equation_list.count()}")
-            
+
         except Exception as e:
             print(f"Debug: Exception in load_equations: {e}")
             makeMessageBox(f"Error loading equations: {str(e)}")
-    
+
     def on_method_changed(self):
         """Handle definition method change"""
         use_equation = self.equation_radio.isChecked()
-        
+
         # Show/hide equation group based on selection
         self.equation_group.setVisible(use_equation)
-        
+
         # Update accept button state
         self.update_accept_button_state()
-    
+
     def on_equation_selection_changed(self):
         """Handle equation selection change"""
         current_item = self.equation_list.currentItem()
@@ -225,9 +223,9 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                 self.selected_equation = eq_id
             else:
                 self.selected_equation = None
-        
+
         self.update_accept_button_state()
-    
+
     def update_accept_button_state(self):
         """Update the accept button enabled state"""
         if self.equation_radio.isChecked():
@@ -236,7 +234,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
         else:
             # For initialization marking, always enabled
             self.pushAccept.setEnabled(True)
-    
+
     def accept_selection(self):
         """Accept the current selection"""
         if self.equation_radio.isChecked():
@@ -244,18 +242,15 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
         else:
             self.use_initialization = True
             # No initialization value needed - just marking for initialization
-        
+
         self.accept()
-    
+
     def get_selection(self):
         """Get the selection result"""
         return {
-            'equation_id': self.selected_equation,
-            'use_initialization': self.use_initialization
-        }
-
-
-
+                'equation_id'       : self.selected_equation,
+                'use_initialization': self.use_initialization
+                }
 
 
 def preload_equation_icons(variable_data, ontology_container):
@@ -273,18 +268,18 @@ def preload_equation_icons(variable_data, ontology_container):
         # Use exchange board to load all equation icons
         exchange_board = ProMoExchangeBoard(ontology_container)
         preloaded_icons = exchange_board.load_equation_icons()
-        
+
         # Filter icons to only include equations for this variable
         variable_equations = variable_data.get('equations', {})
         filtered_icons = {}
-        
+
         for eq_id in variable_equations:
             if eq_id in preloaded_icons:
                 filtered_icons[eq_id] = preloaded_icons[eq_id]
-        
+
         print(f"Debug: Preloaded {len(filtered_icons)} equation icons for variable")
         return filtered_icons
-        
+
     except Exception as e:
         print(f"Debug: Error preloading equation icons: {e}")
         return {}
@@ -305,10 +300,10 @@ def select_equation_for_variable(variable_data, ontology_container):
     app = QtWidgets.QApplication.instance()
     if app is None:
         app = QtWidgets.QApplication(sys.argv)
-    
+
     dialog = EquationSelectorDialog(variable_data, ontology_container)
-    
+
     if dialog.exec_() == QtWidgets.QDialog.Accepted:
         return dialog.get_selection()
-    
+
     return None

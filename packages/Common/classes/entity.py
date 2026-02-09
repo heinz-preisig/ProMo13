@@ -62,25 +62,25 @@ class Entity():
         self.output_vars = output_vars if output_vars is not None else []
         self.all_equations = all_equations
         self.is_reservoir = False
-        
+
         if entity_name == "Topology" or ">>>" in entity_name:
             self.entity_type = "interface"
             return
-            
+
         try:
             # Simple split into exactly 4 parts
             self.network, self.category, self.entity_type, self.name = entity_name.split('.', 3)
-            
+
             # Set index set based on category
             self.index_set = f"{self.category.capitalize()}_{self.entity_type[:4].lower()}"
-            
+
             # Check if this is a reservoir (special case with | in entity_type)
             if '|' in self.entity_type:
                 type_parts = self.entity_type.split('|')
                 if len(type_parts) >= 3:
                     mechanism, nature = type_parts[1], type_parts[2]
                     self.is_reservoir = f"{mechanism}|{nature}" == "constant|infinity"
-                    
+
         except ValueError:
             # If split fails, set defaults
             self.entity_type = "unknown"
@@ -352,7 +352,7 @@ class Entity():
                     else:
                         # Fallback: not an integrator
                         is_integrator = False
-                    
+
                     if is_integrator:
                         new_integrators[key] = values[0]
             for key in new_integrators:

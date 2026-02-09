@@ -175,12 +175,11 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                             # print(net, "--", entity_net,"--",  net == entity_net)
                             # print(category, "--",entity_cat, "--", category ==  entity_cat)
                             # print(entity_type,"--", entity_type_name, entity_type == entity_type_name)
-                                
-                            if (entity_net == net and
-                                entity_cat == category and
-                                entity_type_name == entity_type):
-                                entities_for_type.append((entity_name, entity_obj))
 
+                            if (entity_net == net and
+                                    entity_cat == category and
+                                    entity_type_name == entity_type):
+                                entities_for_type.append((entity_name, entity_obj))
 
                     # Sort entities by name
                     entities_for_type.sort(key=lambda x: x[0])
@@ -189,7 +188,8 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                     if entities_for_type:
                         for entity_name, entity_obj in entities_for_type:
                             entity_item = QtGui.QStandardItem(entity_name)
-                            entity_item.setData(('entity', net, category, entity_type, entity_name), QtCore.Qt.UserRole + 1)
+                            entity_item.setData(('entity', net, category, entity_type, entity_name),
+                                                QtCore.Qt.UserRole + 1)
                             entity_item.setData(entity_name, QtCore.Qt.UserRole + 2)
                             entity_item.setData(entity_obj, QtCore.Qt.UserRole + 3)  # Store entity object
                             entity_item.setForeground(ENTITY_COLOR)
@@ -232,7 +232,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 # full_path = ".".join(path)
                 if len(path) == 3:
                     network, category, entity_type = path
-                    event ="selected_entity_type"
+                    event = "selected_entity_type"
                 elif len(path) == 4:
                     network, category, entity_type, name = path
                     event = "selected_instance"
@@ -240,26 +240,26 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                     makeMessageBox("please select an entity type or an instance", buttons=["OK"])
                     event = "failed"
 
-
                 # print(f"Clicked on: {text}")
                 # print(f"Item type data: {item_data}")
                 # print(f"Full path: {full_path}")
                 # print(f"Row in parent: {index.row()}")
-                message = {"event": event,
-                           "data":{
-                                   "network"    : network,
-                                   "category"   : category,
-                                   "entity type": entity_type,
-                                   "name"       : name
-                                   }
-                }
+                message = {
+                        "event": event,
+                        "data" : {
+                                "network"    : network,
+                                "category"   : category,
+                                "entity type": entity_type,
+                                "name"       : name
+                                }
+                        }
                 # print("network:", network, "   category:", category, "   entity type:", entity_type)
                 # print(message)
                 self.send_message(message)
+
     # ===============================================================
 
-
-    #============== buttons =========================================
+    # ============== buttons =========================================
     def on_pushNew_pressed(self):
         self.send_message({"event": "new"})
 
@@ -392,9 +392,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                         # "new"   : self.ui.pushNew,
                         # "edit"  : self.ui.pushEdit,
                         # "delete": self.ui.pushDelete,
-                        "save"  : self.ui.pushSave,
-                        "exit"  : self.ui.pushExit,
-                        "tree"  : self.ui.tree_entities,
+                        "save": self.ui.pushSave,
+                        "exit": self.ui.pushExit,
+                        "tree": self.ui.tree_entities,
                         },
                 "indicator": {
                         "LED": self.ui.LED,
@@ -407,7 +407,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 #         "list_instantiate": self.ui.list_instantiate,
                 #         "list_pending"    : self.ui.list_pending,
                 #         },
-                "tree" : self.ui.tree_entities,
+                "tree"     : self.ui.tree_entities,
                 }
 
     # enable moving the window --https://www.youtube.com/watch?v=R4jfg9mP_zo&t=152s

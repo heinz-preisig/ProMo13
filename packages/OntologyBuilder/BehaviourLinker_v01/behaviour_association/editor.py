@@ -17,11 +17,9 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from PyQt5 import QtCore
-from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 from Common.common_resources import indexList
-from Common.exchange_board import ProMoExchangeBoard
 from Common.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import select_equation_for_variable
 from OntologyBuilder.BehaviourLinker_v01.variable_classification_rules import VariableClassificationRules
@@ -211,10 +209,10 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
             if self.ontology_container is None:
                 self.preloaded_variable_icons = {}
                 return
-                
+
             # Use the existing ontology container to load all variable icons
             self.preloaded_variable_icons = self.ontology_container.load_variable_icons()
-            
+
         except Exception as e:
             self.preloaded_variable_icons = {}
 
