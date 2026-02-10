@@ -31,6 +31,8 @@ class Equation():
       modified: str,
   ) -> None:
 
+
+
     self.eq_id = eq_id
     self.img_path = img_path
     self.type = type
@@ -46,6 +48,17 @@ class Equation():
     # TODO: Probably throw an exception if "global_ID" is not found
     self.terms = self.lhs.get("global_ID").split()
     self.terms.extend(self.rhs.get("global_ID").split())
+
+    self.__makeOperatorList()
+
+  def __makeOperatorList(self):
+
+    from OntologyBuilder.OntologyEquationEditor.resources import CODE
+    self.operators = {}
+    for o in CODE["global_ID"]["operator"]:
+      self.operators[o] = CODE["global_ID"]["operator"][o].replace(" ","")
+    pass
+
 
   def get_main_var_id(self):
     return self.terms[0]
@@ -118,10 +131,9 @@ class Equation():
     # return []
 
   def is_instantiation_eq(self) -> bool:
-    """Checks if this equation is used for instantiation with `Value`.
+    """Checks if this equation is used for instantiation.
 
-    Specifically it checks when the `Initialize` operator (O_11) and the
-    `Value` variable (V_1) are in the rhs of the equation.
+    Specifically it checks when the `Instantiate` operator (O_10) is in the rhs of the equation.
 
     Returns:
         Bool: **True** is the equation is used to instantiate a variable
@@ -129,17 +141,34 @@ class Equation():
     """
     # TODO Find a way that is independent from hard coded identifiers.
     # Probably from variable classes or tags
-    if "O_11" in self.rhs and "V_1" in self.rhs:
-      return True
+    try:
+        instantiate_operator = getattr(self, 'operators', {}).get("Instantiate")
+        if instantiate_operator and hasattr(self, 'rhs'):
+            rhs_content = self.rhs
+            
+            # Check different ways the RHS might be structured
+            if isinstance(rhs_content, dict):
+                for key, value in rhs_content.items():
+                    if instantiate_operator in str(value):
+                        return True
+            elif isinstance(rhs_content, str):
+                if instantiate_operator in rhs_content:
+                    return True
+            else:
+                if instantiate_operator in str(rhs_content):
+                    return True
+                    
+    except (AttributeError, KeyError):
+        pass
     return False
 
   def parse_integrator(self):
     # NOTE: fixed HAP 2006-02-10
 
-    from OntologyBuilder.OntologyEquationEditor.resources import CODE
-    operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
+    # from OntologyBuilder.OntologyEquationEditor.resources import CODE
+    # operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
     components = self.rhs.get("global_ID").split()
-    if components[0] != operator_integrator:
+    if components[0] != self.operators["Integral"]:
       return None
 
     return {
@@ -153,10 +182,10 @@ class Equation():
 
   def is_integrator(self):
     # TODO: Check for a better way to check this
-    from OntologyBuilder.OntologyEquationEditor.resources import CODE
-    operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
+    # from OntologyBuilder.OntologyEquationEditor.resources import CODE
+    # operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
     components = self.rhs.get("global_ID").split()
-    if components[0] == operator_integrator:
+    if components[0] == self.operators["Integral"]:
       return True
 
     return False

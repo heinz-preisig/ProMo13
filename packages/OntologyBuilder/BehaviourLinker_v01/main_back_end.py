@@ -27,7 +27,7 @@ class BehaviourLinerBackEnd(QObject):
         super().__init__()
 
     def process_main_frontend_message(self, message):
-        print(">>got message: ", message)
+        # print(">>got message: ", message)
         event = message.get("event")
 
         # action
@@ -61,6 +61,9 @@ class BehaviourLinerBackEnd(QObject):
         elif message.get("event") == "entity_data_ready":
             # Handle new entity data with equation selection
             self.process_entity_data(message.get("entity_data"))
+        elif message.get("event") == "populate_entity_lists":
+            # Handle populate_entity_lists from backend
+            self.send_message_to_entity_frontend("populate_entity_lists", message.get("lists_data"))
         elif message.get("event") == "entity_created_successfully":
             # Handle successful entity creation
             print("Entity created successfully")
@@ -81,19 +84,20 @@ class BehaviourLinerBackEnd(QObject):
             root_variable = entity_data.get('root_variable')
             definition_method = entity_data.get('definition_method')
 
-            print(f"Processing entity for variable: {root_variable}")
-            print(f"Definition method: {definition_method}")
+            # print(f"Processing entity for variable: {root_variable}")
+            # print(f"Definition method: {definition_method}")
 
             if definition_method == 'initialization':
                 print(f"Variable will be marked for initialization")
             else:
                 equation_id = entity_data.get('equation_id')
-                print(f"Variable will be defined by equation: {equation_id}")
+                # print(f"Variable will be defined by equation: {equation_id}")
 
             # Get the Entity object if available
             entity = entity_data.get('entity_object')
             if entity:
-                print(f"Found Entity object: {entity.entity_name}")
+                entity_name = getattr(entity, 'entity_name', 'Unknown Entity')
+                print(f"Found Entity object: {entity_name}")
                 print(f"Entity var_eq_forest: {entity.var_eq_forest}")
                 print(f"Entity output_vars: {entity.output_vars}")
                 print(f"Entity input_vars: {entity.input_vars}")
@@ -119,12 +123,18 @@ class BehaviourLinerBackEnd(QObject):
     def update_entity_editor_frontend(self, entity):
         """Update the entity editor frontend with Entity object information"""
         try:
+            # Check if entity is None
+            if entity is None:
+                print("Cannot update entity editor frontend - Entity object is None")
+                return
+            
             # Get the entity editor frontend instance
             if hasattr(self, 'entity_editor_frontend') and self.entity_editor_frontend:
                 # Update the frontend with the Entity object
                 self.entity_editor_frontend.set_entity_object(entity)
 
-                print(f"Updated entity editor frontend with Entity: {entity.entity_name}")
+                entity_name = getattr(entity, 'entity_name', 'Unknown Entity')
+                print(f"Updated entity editor frontend with Entity: {entity_name}")
             else:
                 print("Entity editor frontend not available")
 
@@ -134,6 +144,15 @@ class BehaviourLinerBackEnd(QObject):
     def add_entity_to_all_entities(self, entity):
         """Add or update an entity in all_entities and save to file"""
         try:
+            # Check if entity is None or doesn't have entity_name
+            if entity is None:
+                print("Cannot add entity to all_entities - Entity object is None")
+                return
+            
+            if not hasattr(entity, 'entity_name'):
+                print("Cannot add entity to all_entities - Entity object missing entity_name attribute")
+                return
+            
             # Check if entity already exists
             entity_name = entity.entity_name
             if entity_name in self.all_entities:
@@ -362,6 +381,10 @@ class BehaviourLinerBackEnd(QObject):
         # Give the backend a reference to the frontend for updates
         self.entity_back_end.set_entity_frontend(self.entity_front_end)
 
+        # IMPORTANT: Set the selected entity type in the backend so it knows the mode
+        if hasattr(self, 'entity_type') and self.entity_type:
+            self.entity_back_end.set_selected_entity_type_or_entity(self.entity_type)
+
         # Give the main backend a reference to the entity frontend
         self.entity_editor_frontend = self.entity_front_end
 
@@ -398,8 +421,9 @@ class BehaviourLinerBackEnd(QObject):
 
             print(f"Generating entity for: {network}.{category}.{entity_type}")
 
-            # Get all variables that belong to this entity type
-            entity_variables = self.get_variables_for_entity_type(network, category, entity_type)
+            # For create mode, start with empty variables - user will add them
+            # Don't populate with all available variables from ontology
+            entity_variables = []  # Empty list for create mode
 
             # Create initial entity data structure
             entity_data = {
@@ -407,9 +431,9 @@ class BehaviourLinerBackEnd(QObject):
                     'network'              : network,
                     'category'             : category,
                     'entity_type'          : entity_type,
-                    'variables'            : entity_variables,
+                    'variables'            : entity_variables,  # Empty for create mode
                     'defined_variables'    : [],  # Will be populated as user defines them
-                    'not_defined_variables': [],  # entity_variables.copy(),  # Initially all are undefined
+                    'not_defined_variables': [],  # Empty for create mode
                     'equations'            : [],
                     'inputs'               : [],
                     'outputs'              : [],
@@ -420,7 +444,7 @@ class BehaviourLinerBackEnd(QObject):
             if hasattr(self, 'entity_front_end'):
                 self.entity_front_end.populate_entity_structure(entity_data)
 
-            # print(f"Generated entity structure with {len(entity_variables)} variables")
+            print(f"Generated empty entity structure for create mode")
 
         except Exception as e:
             print(f"Error generating entity from class definition: {e}")
@@ -453,7 +477,7 @@ class BehaviourLinerBackEnd(QObject):
                             'equations': list(var_data.get('equations', {}).keys())
                             })
 
-            print(f"Found {len(variables)} variables for entity type {network}.{category}.{entity_type}")
+            # print(f"Found {len(variables)} variables for entity type {network}.{category}.{entity_type}")
             return variables
 
         except Exception as e:

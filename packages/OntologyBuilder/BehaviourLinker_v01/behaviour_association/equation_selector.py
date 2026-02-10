@@ -99,11 +99,11 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
 
             # Get equations from variable data first (to get the list of equation IDs)
             variable_equations = self.variable_data.get('equations', {})
-            print(f"Debug: Variable ID: {var_id}")
-            print(f"Debug: Variable label: {var_label}")
-            print(f"Debug: Variable network: {self.variable_data.get('network', 'Unknown')}")
-            print(f"Debug: Variable equations: {list(variable_equations.keys())}")
-            print(f"Debug: Number of equations: {len(variable_equations)}")
+            # print(f"Debug: Variable ID: {var_id}")
+            # print(f"Debug: Variable label: {var_label}")
+            # print(f"Debug: Variable network: {self.variable_data.get('network', 'Unknown')}")
+            # print(f"Debug: Variable equations: {list(variable_equations.keys())}")
+            # print(f"Debug: Number of equations: {len(variable_equations)}")
 
             if not variable_equations:
                 # No equations available
@@ -117,11 +117,11 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
 
             # Get full equation data from ontology container's equation dictionary
             equation_dictionary = getattr(self.ontology_container, 'equation_dictionary', {})
-            print(f"Debug: Equation dictionary has {len(equation_dictionary)} equations")
+            # print(f"Debug: Equation dictionary has {len(equation_dictionary)} equations")
 
             # Add each equation to the list
             for eq_id in variable_equations:
-                print(f"Debug: Processing equation {eq_id}")
+                # print(f"Debug: Processing equation {eq_id}")
 
                 # Get equation data from ontology container (has PNG file info)
                 eq_data = equation_dictionary.get(eq_id, {})
@@ -129,7 +129,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                 # Fall back to variable data if not found in dictionary
                 if not eq_data:
                     eq_data = variable_equations[eq_id]
-                    print(f"Debug: Using variable data fallback for {eq_id}")
+                    # print(f"Debug: Using variable data fallback for {eq_id}")
                 else:
                     print(f"Debug: Found {eq_id} in equation dictionary")
 
@@ -142,7 +142,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
 
                 png_file = eq_data.get('png_file')
 
-                print(f"Debug: {eq_id} -> Label: {eq_label}, Expression: {eq_expression}, PNG: {png_file}")
+                # print(f"Debug: {eq_id} -> Label: {eq_label}, Expression: {eq_expression}, PNG: {png_file}")
 
                 item = QtWidgets.QListWidgetItem()
                 item.setData(QtCore.Qt.UserRole, eq_id)
@@ -158,7 +158,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                         item.setIcon(preloaded_icon)
                         item.setText(eq_label)  # Show only label when PNG works
                         png_loaded = True
-                        print(f"✓ Used preloaded icon from ontology container for {eq_id}")
+                        # print(f"✓ Used preloaded icon from ontology container for {eq_id}")
                     else:
                         print(f"⚠ Preloaded icon from ontology container is null for {eq_id}")
                 else:
@@ -176,7 +176,7 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                                 item.setIcon(icon_direct)
                                 item.setText(eq_label)
                                 png_loaded = True
-                                print(f"✓ Loaded PNG icon (direct) for {eq_id}")
+                                # print(f"✓ Loaded PNG icon (direct) for {eq_id}")
                             else:
                                 print(f"⚠ Direct PNG loading failed for {eq_id}")
                     except TypeError as e:
@@ -196,12 +196,12 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                     print(f"✓ Showing PNG icon for {eq_id}")
 
                 self.equation_list.addItem(item)
-                print(f"Debug: Added item for {eq_id} to list")
+                # print(f"Debug: Added item for {eq_id} to list")
 
-            print(f"Debug: Total items in equation list: {self.equation_list.count()}")
+            # print(f"Debug: Total items in equation list: {self.equation_list.count()}")
 
         except Exception as e:
-            print(f"Debug: Exception in load_equations: {e}")
+            # print(f"Debug: Exception in load_equations: {e}")
             makeMessageBox(f"Error loading equations: {str(e)}")
 
     def on_method_changed(self):
@@ -277,7 +277,7 @@ def preload_equation_icons(variable_data, ontology_container):
             if eq_id in preloaded_icons:
                 filtered_icons[eq_id] = preloaded_icons[eq_id]
 
-        print(f"Debug: Preloaded {len(filtered_icons)} equation icons for variable")
+        # print(f"Debug: Preloaded {len(filtered_icons)} equation icons for variable")
         return filtered_icons
 
     except Exception as e:
@@ -296,7 +296,7 @@ def select_equation_for_variable(variable_data, ontology_container):
     Returns:
         Dictionary with selection results or None if cancelled
     """
-    print(f"Debug: select_equation_for_variable called")
+    # print(f"Debug: select_equation_for_variable called")
     app = QtWidgets.QApplication.instance()
     if app is None:
         app = QtWidgets.QApplication(sys.argv)

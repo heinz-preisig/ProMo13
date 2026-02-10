@@ -247,7 +247,11 @@ class EntityEditorBackEnd(QObject):
 
                 # Also send update to frontend for immediate display refresh
                 if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                    self.entity_frontend.update_entity_from_backend(entity_data)
+                    if 'entity_object' in entity_data and entity_data['entity_object']:
+                        self.entity_frontend.update_entity_from_backend_entity(entity)
+                    else:
+                        # No Entity object yet - generate lists from entity_data
+                        self.generate_lists_from_entity_data(entity_data)
 
             else:
                 print("No behavior association assignments received")
@@ -319,6 +323,84 @@ class EntityEditorBackEnd(QObject):
 
         print(f"Extracted var_eq_assignments: {var_eq_assignments}")
         return var_eq_assignments
+
+    def handle_state_variable_selection_entity_based(self, assignments, entity_data):
+        """Simplified state variable selection using Entity class only"""
+        try:
+            print(f"Backend handling state variable selection (Entity-based): {assignments}")
+            
+            # Import Entity class
+            from Common.classes.entity import Entity
+            
+            # Get all equations from ontology container
+            all_equations = {}
+            if hasattr(self.ontology_container, 'list_equation_classes'):
+                for eq_obj in self.ontology_container.list_equation_classes:
+                    all_equations[eq_obj.eq_id] = eq_obj
+            else:
+                all_equations = getattr(self.ontology_container, 'equation_dictionary', {})
+            
+            # Extract the selected variable and equation
+            root_variable = assignments.get('root_variable')
+            root_equation = assignments.get('root_equation')
+            
+            if root_variable and root_equation:
+                # Update the mode to edit
+                self.mode = "edit"
+                print(f"Mode changed to: {self.mode}")
+                
+                # Notify frontend of mode change
+                if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                    self.entity_frontend.set_mode("edit")
+                
+                # Always work with Entity objects - no more entity_data complexity
+                entity = None
+                
+                # Check if frontend already has an Entity object
+                if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                    if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
+                        entity = self.entity_frontend.current_entity
+                        print(f"Using existing Entity object: {entity.entity_name}")
+                
+                # Create new Entity if none exists
+                if entity is None:
+                    entity_name = entity_data.get('entity_id', 'new_entity').split('.')[-1]
+                    entity = Entity(
+                        entity_name=entity_name,
+                        all_equations=all_equations
+                    )
+                    print(f"Created new Entity object: {entity_name}")
+                    
+                    # Store Entity object in both places
+                    entity_data['entity_object'] = entity
+                    if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                        self.entity_frontend.current_entity = entity
+                
+                # Add variable and equation to Entity using its built-in method
+                entity.add_variable_equation(root_variable, root_equation, assignments)
+                
+                print(f"Entity object updated with variable {root_variable}")
+                entity.printMe()
+                
+                # Send Entity object to frontend for display
+                if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                    self.entity_frontend.update_entity_from_backend_entity(entity)
+                
+                # Send entity data back to main backend for processing
+                self.message.emit({
+                        "event"      : "entity_data_ready",
+                        "entity_data": {
+                            "entity_object": entity,
+                            "entity_id": entity_data.get("entity_id", entity.entity_name)
+                        }
+                        })
+            
+        except Exception as e:
+            print(f"Error handling state variable selection (Entity-based): {e}")
+            self.message.emit({
+                    "event": "error",
+                    "error": f"Error handling state variable selection: {str(e)}"
+                    })
 
     def handle_state_variable_selection(self, assignments, entity_data):
         """Handle state variable selection in create mode"""
@@ -515,7 +597,11 @@ class EntityEditorBackEnd(QObject):
 
                 # Also send update to frontend for immediate display refresh
                 if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                    self.entity_frontend.update_entity_from_backend(entity_data)
+                    if 'entity_object' in entity_data and entity_data['entity_object']:
+                        self.entity_frontend.update_entity_from_backend_entity(entity)
+                    else:
+                        # No Entity object yet - generate lists from entity_data
+                        self.generate_lists_from_entity_data(entity_data)
 
             else:
                 print("No valid state variable in selection")
@@ -578,7 +664,7 @@ class EntityEditorBackEnd(QObject):
 
                     # Also send update to frontend for immediate display refresh
                     if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                        self.entity_frontend.update_entity_from_backend(entity_data)
+                        self.entity_frontend.update_entity_from_backend_entity(entity)
                 else:
                     print("No entity object found in entity_data - cannot add variable")
             else:

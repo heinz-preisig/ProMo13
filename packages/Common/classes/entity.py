@@ -217,6 +217,71 @@ class Entity():
 
         return sorted(list(pending_vars))
 
+    def get_all_variables(self):
+        """Get all variables included in the entity (all variables in the entity)"""
+        return self.get_variables()
+
+    def get_variables_to_be_instantiated(self):
+        """Get variables that need to be instantiated.
+        
+        These are variables that either:
+        1. Have been marked to be instantiated in the equation interface (init_vars)
+        2. Have an RHS that contains the instantiate operator
+        """
+        print(f"=== DEBUG: get_variables_to_be_instantiated ===")
+        
+        # Start with explicitly marked initialization variables
+        instantiation_vars = set(self.init_vars)
+        print(f"init_vars: {self.init_vars}")
+        print(f"Initial instantiation_vars: {instantiation_vars}")
+        
+        # Check for variables with equations that have instantiate operator
+        # Get all variables in the entity
+        all_vars = self.get_variables()
+        print(f"All variables in entity: {all_vars}")
+        
+        for var_id in all_vars:
+            print(f"  Checking variable: {var_id}")
+            # Find the defining equation for this variable
+            defining_eqs = self.get_eq_for_var(var_id)
+            print(f"    Defining equations: {defining_eqs}")
+            
+            if defining_eqs:
+                for eq_id in defining_eqs:
+                    print(f"    Checking equation {eq_id}")
+                    if eq_id in self.all_equations:
+                        equation = self.all_equations[eq_id]
+                        is_instantiation = equation.is_instantiation_eq()
+                        print(f"      Is instantiation equation: {is_instantiation}")
+                        if is_instantiation:
+                            instantiation_vars.add(var_id)
+                            print(f"      Added {var_id} to instantiation list")
+                    else:
+                        print(f"      Equation {eq_id} not found in all_equations")
+            else:
+                print(f"    No defining equation found for {var_id}")
+                # Search for instantiation equations in the global equation set
+                print(f"    Searching for instantiation equations for {var_id} in global equations...")
+                for eq_id, equation in self.all_equations.items():
+                    # Check if this equation defines the variable (variable appears as LHS)
+                    if hasattr(equation, 'lhs') and var_id in str(equation.lhs):
+                        print(f"      Found equation {eq_id} that defines {var_id}")
+                        is_instantiation = equation.is_instantiation_eq()
+                        print(f"      Is instantiation equation: {is_instantiation}")
+                        if is_instantiation:
+                            instantiation_vars.add(var_id)
+                            print(f"      Added {var_id} to instantiation list based on global equation")
+                            break
+        
+        result = sorted(list(instantiation_vars))
+        print(f"Final result: {result}")
+        print(f"=== END DEBUG ===")
+        return result
+
+    def get_not_defined_variables(self):
+        """Get variables that are not yet defined (need instantiation)"""
+        return self.get_pending_vars()
+
     def get_var_status(self, var_id):
         return [
                 self.get_eq_for_var(var_id),
@@ -465,6 +530,17 @@ class Entity():
                 if not_in_forest:
                     # Adding the variable to the tree
                     curr_tree[child_var_id] = []
+                    
+                    # Check if this dependent variable has an instantiation equation
+                    # If so, add it to init_vars so it will be included in variables to be instantiated
+                    for eq_id, equation in self.all_equations.items():
+                        if hasattr(equation, 'lhs') and child_var_id in str(equation.lhs):
+                            if hasattr(equation, 'is_instantiation_eq') and equation.is_instantiation_eq():
+                                # Use a temporary set to track instantiation variables
+                                if not hasattr(self, '_temp_instantiation_vars'):
+                                    self._temp_instantiation_vars = set()
+                                self._temp_instantiation_vars.add(child_var_id)
+                                break
 
                     # If there are equations assigned to this variable then a new
                     # entry is added to the queue.
@@ -510,6 +586,20 @@ class Entity():
                 for element_id in deleted_ids
                 if "E_" in element_id
                 ]
+
+        # Convert temporary instantiation variables to final init_vars list
+        if hasattr(self, '_temp_instantiation_vars'):
+            # Ensure init_vars exists as a list
+            if not hasattr(self, 'init_vars'):
+                self.init_vars = []
+            
+            # Add new instantiation variables to init_vars
+            current_init_vars = set(self.init_vars)
+            current_init_vars.update(self._temp_instantiation_vars)
+            self.init_vars = sorted(list(current_init_vars))
+            
+            # Clean up temporary set
+            delattr(self, '_temp_instantiation_vars')
 
         return [added_vars, added_eqs, deleted_vars, deleted_eqs]
 

@@ -1380,7 +1380,7 @@ class ProMoExchangeBoard():
             except Exception as e:
                 print(f"✗ Error loading equation icon for {eq_id}: {e}")
 
-        print(f"Debug: Successfully loaded {len(equation_icons)} equation icons")
+        # print(f"Debug: Successfully loaded {len(equation_icons)} equation icons")
         return equation_icons
 
     def load_variable_icons(self):
@@ -1439,7 +1439,7 @@ class ProMoExchangeBoard():
             except Exception as e:
                 print(f"✗ Error loading variable icon for {var_id}: {e}")
 
-        print(f"Debug: Successfully loaded {len(variable_icons)} variable icons")
+        # print(f"Debug: Successfully loaded {len(variable_icons)} variable icons")
         return variable_icons
 
     def __add_png_paths_to_variables(self):

@@ -21,7 +21,7 @@ class VariableClassificationRules:
         """
         network = entity_type_info.get('network', 'unknown')
         category = entity_type_info.get('category', 'unknown')
-        entity_type = entity_type_info.get('entity type', 'unknown')
+        entity_type = entity_type_info.get('entity_type', 'unknown')
         
         # Physical systems rules
         if network == 'physical' or network == 'macroscopic' or network == 'microscopic':

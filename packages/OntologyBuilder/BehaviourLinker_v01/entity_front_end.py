@@ -87,7 +87,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         "LED": self.ui.LED,
                         },
                 "lists"    : {
-                        "list_defined_variables"    : self.ui.list_defined_variables,
+                        "list_defined_variables"    : self.ui.list_not_defined_variables,
                         "list_not_defined_variables": self.ui.list_not_defined_variables,
                         "list_equations"            : self.ui.list_equations,
                         "list_integrators"          : self.ui.list_integrators,
@@ -216,7 +216,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Initially, defined variables list is empty
                 defined = entity_data.get('defined_variables', [])
                 for var_info in defined:
-                    self.add_variable_to_list(self.ui.list_defined_variables, var_info)
+                    self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
 
                 # Populate equations list (initially empty)
                 equations = entity_data.get('equations', [])
@@ -256,12 +256,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 empty_model = QStandardItemModel()
                 list_widget.setModel(empty_model)
 
-        safe_clear_list(self.ui.list_defined_variables)
         safe_clear_list(self.ui.list_not_defined_variables)
         safe_clear_list(self.ui.list_inputs)
         safe_clear_list(self.ui.list_outputs)
         safe_clear_list(self.ui.list_equations)
         safe_clear_list(self.ui.list_integrators)
+        safe_clear_list(self.ui.list_instantiate)
+        safe_clear_list(self.ui.list_included_variables)
 
     def add_to_list(self, list_widget, text, icon=None, context='entity_lists'):
         """Add an item to a list widget with optional icon"""
@@ -358,6 +359,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.refresh_list_widget_settings(self.ui.list_instantiate, 'entity_variables')
             self.refresh_list_widget_settings(self.ui.list_equations, 'entity_equations')
             self.refresh_list_widget_settings(self.ui.list_integrators, 'entity_variables')
+            self.refresh_list_widget_settings(self.ui.list_included_variables, 'entity_variables')
 
             # Get ontology container for variable information
             ontology_container = getattr(self, 'ontology_container', None)
@@ -394,10 +396,26 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                 }
                         self.add_variable_to_list(self.ui.list_inputs, var_info)
 
-            # Populate initialization variables list
-            if hasattr(entity, 'init_vars') and entity.init_vars:
-                print(f"Populating initialization variables: {entity.init_vars}")
-                for var_id in entity.init_vars:
+            # Populate included variables list (all variables in the entity)
+            if hasattr(entity, 'get_all_variables'):
+                all_variables = entity.get_all_variables()
+                print(f"Populating all included variables: {all_variables}")
+                for var_id in all_variables:
+                    if var_id in variables:
+                        var_data = variables[var_id]
+                        var_info = {
+                                'id'     : var_id,
+                                'label'  : var_data.get('label', var_id),
+                                'network': var_data.get('network', 'unknown')
+                                }
+                        self.add_variable_to_list(self.ui.list_included_variables, var_info)
+
+            # Populate variables to be instantiated list
+            if hasattr(entity, 'get_variables_to_be_instantiated'):
+                vars_to_instantiate = entity.get_variables_to_be_instantiated()
+                print(f"Populating variables to be instantiated: {vars_to_instantiate}")
+                
+                for var_id in vars_to_instantiate:
                     if var_id in variables:
                         var_data = variables[var_id]
                         var_info = {
@@ -480,6 +498,16 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     defined_vars.update(entity.input_vars)
                 if hasattr(entity, 'init_vars'):
                     defined_vars.update(entity.init_vars)
+                
+                # Check if any undefined variables have instantiation equations
+                # If so, they should be considered as init_vars (to be instantiated)
+                if hasattr(entity, 'all_equations'):
+                    for var_id in variables_in_forest - defined_vars:
+                        for eq_id, equation in entity.all_equations.items():
+                            if hasattr(equation, 'lhs') and var_id in str(equation.lhs):
+                                if hasattr(equation, 'is_instantiation_eq') and equation.is_instantiation_eq():
+                                    defined_vars.add(var_id)
+                                    break
 
                 # Undefined variables = variables in forest - defined variables
                 undefined_vars = variables_in_forest - defined_vars
@@ -487,6 +515,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 print(f"Variables in forest: {sorted(variables_in_forest)}")
                 print(f"Defined variables: {sorted(defined_vars)}")
                 print(f"Undefined variables: {sorted(undefined_vars)}")
+
+                # Update entity.init_vars as a list (convert from set)
+                init_vars_from_defined = defined_vars - set(entity.output_vars if hasattr(entity, 'output_vars') else []) - set(entity.input_vars if hasattr(entity, 'input_vars') else [])
+                entity.init_vars = sorted(list(init_vars_from_defined))
 
                 # Populate undefined variables list
                 for var_id in sorted(undefined_vars):
@@ -690,7 +722,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     # Mark as changed
                     self.markChanged()
 
-                # Send the selection to backend for processing
+                # Send to backend for processing
                 message = {
                         "event"      : "state_variable_selected",
                         "assignments": assignments,
@@ -750,7 +782,28 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Error handling new variable addition: {e}")
             makeMessageBox(f"Error handling new variable addition: {str(e)}")
 
-    def update_entity_from_backend(self, entity_data):
+    def update_entity_from_backend_entity(self, entity):
+        """Update display when backend sends Entity object - Entity-only approach"""
+        try:
+            print(f"Updating entity display from Entity object: {entity.entity_name}")
+            
+            # Store current entity
+            self.current_entity = entity
+            
+            # Use Entity methods directly for all lists
+            self.populate_lists_from_entity(entity)
+                
+        except Exception as e:
+            print(f"Error updating entity display: {e}")
+            makeMessageBox(f"Error updating entity display: {str(e)}")
+
+    def update_entity_from_backend_new(self, entity_data):
+        """Deprecated - redirect to Entity-only approach"""
+        # Extract Entity object from entity_data
+        if 'entity_object' in entity_data and entity_data['entity_object']:
+            self.update_entity_from_backend_entity(entity_data['entity_object'])
+        else:
+            print("No Entity object in entity_data - cannot update display")
         """Update entity display when backend sends updated entity data"""
         try:
             print(f"=== UPDATE_ENTITY_FROM_BACKEND CALLED ===")
@@ -787,7 +840,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Populate defined variables
             defined_vars = entity_data.get('defined_variables', [])
             for var_info in defined_vars:
-                self.add_variable_to_list(self.ui.list_defined_variables, var_info)
+                self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
 
             # Populate not defined variables
             not_defined_vars = entity_data.get('not_defined_variables', [])
