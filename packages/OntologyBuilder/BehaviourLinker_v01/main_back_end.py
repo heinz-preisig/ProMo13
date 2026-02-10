@@ -35,12 +35,12 @@ class BehaviourLinerBackEnd(QObject):
             pass
         elif event == "selected_entity_type":
             self.entity_type = message.get("data", None)
-            print(" got a selected entity type", self.entity_type)
+            # print(" got a selected entity type", self.entity_type)
             # Automatically launch entity editor for entity type selection (create mode)
             self.launch_entity_editor(mode="create")
         elif event == "selected_instance":
             self.entity_type = message.get("data", None)
-            print(" got a selected entity instance", self.entity_type)
+            # print(" got a selected entity instance", self.entity_type)
             # Automatically launch entity editor for instance selection (edit mode)
             self.launch_entity_editor(mode="edit")
 
@@ -369,11 +369,11 @@ class BehaviourLinerBackEnd(QObject):
         if mode == "edit" and self.entity_type and self.entity_type.get('name'):
             # Edit mode - load existing entity data
             entity_name = self.entity_type.get('name')
-            print(f"Loading existing entity for editing: {entity_name}")
+            # print(f"Loading existing entity for editing: {entity_name}")
             self.load_existing_entity_data(entity_name)
         else:
             # Create mode - prepare for new entity creation
-            print("Preparing for new entity creation")
+            # print("Preparing for new entity creation")
             # Generate entity structure from class definition
             self.generate_entity_from_class_definition()
 

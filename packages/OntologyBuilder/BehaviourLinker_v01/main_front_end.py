@@ -67,11 +67,11 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.changed = False
 
     def send_message(self, message):
-        print("sending message", message)
+        # print("sending message", message)
         self.message.emit(message)
 
     def process_main_backend_message(self, message):
-        print("front  end got message", message)
+        # print("front  end got message", message)
         event = message.get("event")
 
         # update interface

@@ -134,11 +134,12 @@ class Equation():
     return False
 
   def parse_integrator(self):
-    # print(self.eq_id)
+    # NOTE: fixed HAP 2006-02-10
+
+    from OntologyBuilder.OntologyEquationEditor.resources import CODE
+    operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
     components = self.rhs.get("global_ID").split()
-    # print(components)
-    # TODO: Find a better way of checking this
-    if components[0] != "O_8":
+    if components[0] != operator_integrator:
       return None
 
     return {
@@ -152,8 +153,10 @@ class Equation():
 
   def is_integrator(self):
     # TODO: Check for a better way to check this
+    from OntologyBuilder.OntologyEquationEditor.resources import CODE
+    operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
     components = self.rhs.get("global_ID").split()
-    if components[0] == "O_8":
+    if components[0] == operator_integrator:
       return True
 
     return False

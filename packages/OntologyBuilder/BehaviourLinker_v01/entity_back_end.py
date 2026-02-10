@@ -41,7 +41,7 @@ class EntityEditorBackEnd(QObject):
     def set_entity_frontend(self, entity_frontend):
         """Set the entity frontend reference for direct updates"""
         self.entity_frontend = entity_frontend
-        print("EntityEditorBackEnd: Entity frontend reference set")
+        # print("EntityEditorBackEnd: Entity frontend reference set")
 
     def process_entity_front_message(self, message):
         """Process messages from the entity editor frontend"""
