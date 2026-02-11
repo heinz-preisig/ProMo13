@@ -14,6 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_entity_changes(object):
     def setupUi(self, entity_changes):
         entity_changes.setObjectName("entity_changes")
+        entity_changes.setWindowModality(QtCore.Qt.WindowModal)
         entity_changes.resize(1188, 845)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)

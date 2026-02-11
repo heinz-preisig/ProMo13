@@ -6,6 +6,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from Common.classes.entity import Entity
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
+from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import select_equation_for_variable
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -52,6 +53,114 @@ class EntityEditorBackEnd(QObject):
             self.launch_behavior_association_editor()
         elif event == "add_variable":
             self.launch_behavior_association_editor()
+        elif event == "def_variable":
+            self.launch_equation_association_editor(message.get("var_id"))
+        elif event == "save_entity":
+            # Handle entity save from Accept button
+            entity = message.get('entity')
+            if entity:
+                print(f"Saving entity: {entity.entity_name}")
+                
+                # Add entity to the entities collection
+                if hasattr(self, 'all_entities') and entity not in self.all_entities:
+                    self.all_entities[entity.entity_name] = entity
+                    print(f"Added entity to collection: {entity.entity_name}")
+                
+                # Mark frontend as saved
+                if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                    self.entity_frontend.markSaved()
+                
+                # Send success message back to frontend
+                self.message.emit({
+                    "event": "entity_saved",
+                    "entity_name": entity.entity_name,
+                    "message": f"Entity '{entity.entity_name}' saved successfully"
+                })
+            else:
+                print("No entity provided for saving")
+                self.message.emit({
+                    "event": "error",
+                    "error": "No entity to save"
+                })
+
+    def launch_equation_association_editor(self, var_id):
+        """Launch the equation association editor and handle its response"""
+        try:
+            entity_data = self.entity_frontend.current_entity_data
+            entity_type_info = {
+                    'network'    : entity_data.get('network', 'unknown'),
+                    'category'   : entity_data.get('category', 'unknown'),
+                    'entity_type': entity_data.get('entity_type', 'unknown')
+                    }
+            
+            # Get variable data from ontology container
+            if var_id in self.ontology_container.variables:
+                variable_data = self.ontology_container.variables[var_id]
+                
+                # Launch equation selector for this specific variable
+                assignments = select_equation_for_variable(variable_data, self.ontology_container)
+                
+                if assignments:
+                    print(f"Received equation association for {var_id}: {assignments}")
+                    
+                    # For direct equation selection, create a simple assignment structure
+                    # that handle_behavior_association can understand
+                    equation_id = assignments.get('equation_id')
+                    use_initialization = assignments.get('use_initialization', False)
+                    
+                    if use_initialization:
+                        # For instantiation, don't include equation in tree/nodes
+                        simple_assignments = {
+                            'root_variable': var_id,
+                            'root_equation': None,
+                            'use_initialization': True,
+                            'tree': {},  # Empty tree for instantiation
+                            'nodes': {},  # Empty nodes for instantiation
+                            'IDs': {}
+                        }
+                    else:
+                        # For equation assignment, include equation in tree structure
+                        simple_assignments = {
+                            'root_variable': var_id,
+                            'root_equation': equation_id,
+                            'use_initialization': False,
+                            'tree': {0: {'children': [1], 'parent': None}, 1: {'children': [], 'parent': 0}},
+                            'nodes': {0: var_id, 1: equation_id},
+                            'IDs': {var_id: 0, equation_id: 1}
+                        }
+                    
+                    # Process the assignments using the same logic as handle_behavior_association
+                    self.handle_behavior_association(simple_assignments)
+                    
+                    # Update frontend to show the changes
+                    if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                        if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
+                            print(f"Found current_entity: {self.entity_frontend.current_entity}")
+                            self.entity_frontend.update_entity_from_backend_entity(self.entity_frontend.current_entity)
+                        else:
+                            print("No current_entity found - using entity_data approach")
+                            # No Entity object yet - refresh from entity data
+                            self.generate_lists_from_entity_data(self.entity_frontend.current_entity_data)
+                else:
+                    print(f"No equation association defined for {var_id}")
+                    self.message.emit({
+                            "event"  : "info",
+                            "message": f"Equation association cancelled for {var_id}"
+                            })
+            else:
+                print(f"Variable {var_id} not found in ontology container")
+                self.message.emit({
+                        "event": "error",
+                        "error": f"Variable {var_id} not found"
+                        })
+                
+        except Exception as e:
+            print(f"Error launching equation association editor: {e}")
+            self.message.emit({
+                    "event": "error",
+                    "error": f"Error launching equation association editor: {str(e)}"
+                    })
+
 
     def launch_behavior_association_editor(self):
         """Launch the behavior association editor and handle its response"""
@@ -127,12 +236,37 @@ class EntityEditorBackEnd(QObject):
                     if var_eq_assignments:
                         # Set the root variable as output variable if not already set
                         root_variable = assignments.get('root_variable')
-                        if root_variable and root_variable not in entity.output_vars:
-                            entity.set_output_var(root_variable, True)
+                        use_initialization = assignments.get('use_initialization', False)
+                        
+                        if use_initialization:
+                            # Add to initialization variables
+                            if root_variable and root_variable not in entity.init_vars:
+                                entity.set_init_var(root_variable, True)
+                                print(f"Added {root_variable} to init_vars for instantiation")
+                        else:
+                            # Add to output variables and create equation relationship
+                            if root_variable and root_variable not in entity.output_vars:
+                                entity.set_output_var(root_variable, True)
+                                print(f"Added {root_variable} to output_vars with equation")
 
                         # Generate the variable-equation forest using Entity's method
                         entity.generate_var_eq_forest(var_eq_assignments)
                         entity.update_var_eq_tree()
+                    else:
+                        # Handle instantiation case with no equation assignments
+                        root_variable = assignments.get('root_variable')
+                        use_initialization = assignments.get('use_initialization', False)
+                        
+                        if use_initialization and root_variable:
+                            # Add to initialization variables directly
+                            if root_variable not in entity.init_vars:
+                                entity.set_init_var(root_variable, True)
+                                print(f"Added {root_variable} to init_vars for instantiation (no assignments)")
+                                # Also remove from output_vars if it was there (to avoid conflicts)
+                                if root_variable in entity.output_vars:
+                                    entity.output_vars.remove(root_variable)
+                                    print(f"Removed {root_variable} from output_vars (now instantiation)")
+                            print(f"Entity init_vars after adding: {entity.init_vars}")
 
                         print(f"=== AFTER FOREST GENERATION ===")
                         print(f"Entity var_eq_forest: {entity.var_eq_forest}")
@@ -235,6 +369,9 @@ class EntityEditorBackEnd(QObject):
                                 'init_vars'    : entity.init_vars,
                                 'integrators'  : entity.integrators
                                 })
+                        
+                        # IMPORTANT: Store the Entity object in the frontend for future updates
+                        self.entity_frontend.current_entity = entity
 
                 # Send back to main backend for processing
                 print(f"Entity data ready: {entity_data}")
@@ -244,6 +381,9 @@ class EntityEditorBackEnd(QObject):
                         "event"      : "entity_data_ready",
                         "entity_data": entity_data
                         })
+                self.entity_frontend.markChanged()
+
+
 
                 # Also send update to frontend for immediate display refresh
                 if hasattr(self, 'entity_frontend') and self.entity_frontend:

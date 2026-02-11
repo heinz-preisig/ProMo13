@@ -43,6 +43,17 @@ class BehaviourLinerBackEnd(QObject):
             # print(" got a selected entity instance", self.entity_type)
             # Automatically launch entity editor for instance selection (edit mode)
             self.launch_entity_editor(mode="edit")
+        elif event == "entity_saved":
+            # Handle entity saved confirmation
+            entity_name = message.get('entity_name')
+            save_message = message.get('message')
+            print(f"Entity saved confirmation: {entity_name}")
+            
+            # Forward to main frontend
+            self.send_message_to_main_frontend("entity_saved", {
+                'entity_name': entity_name,
+                'message': save_message
+            })
 
         self.send_message_to_main_frontend(event)
 

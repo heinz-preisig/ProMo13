@@ -66,11 +66,22 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ui.gridLayout.addWidget(self.status_label, 7, 0, 1, 3)
 
         self.interfaceComponents()
+        
+        # Connect list widget click handlers
+        self.ui.list_not_defined_variables.clicked.connect(self.on_list_not_defined_variables_clicked)
+        
+        # Connect button handlers
+        self.ui.pushAccept.clicked.connect(self.on_pushAccept_pressed)
+        self.ui.pushCancle.clicked.connect(self.on_pushCancle_pressed)
+        self.ui.pushAddStateVariable.clicked.connect(self.on_pushAddStateVariable_pressed)
+        self.ui.pushAddVariable.clicked.connect(self.on_pushAddVariable_pressed)
+        
         self.mode = "load"
         self.ontology_container = None
         self.selected_entity_type = None
         self.current_entity_data = None
-        self.changed = False
+        global changed
+        changed = False
 
     def interfaceComponents(self):
         self.gui_objects = {
@@ -78,7 +89,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         "accept"            : self.ui.pushAccept,
                         "add_state_variable": self.ui.pushAddStateVariable,
                         "add_variable"      : self.ui.pushAddVariable,
-                        "candle"            : self.ui.pushCancle,
+                        "cancel"            : self.ui.pushCancle,
                         "delete_entity"     : self.ui.pushDeleteEntity,
                         "delete_variable"   : self.ui.pushDeleteVariable,
                         "edit_variable"     : self.ui.pushEditVariable,
@@ -97,11 +108,39 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         # "list_pending"    : self.ui.list_pending,
                         },
                 }
-        pass
+        # pass  # OBSOLETE: Empty statement - can be removed
 
     def set_ontology_container(self, ontology_container):
         """Set the ontology container for behavior association"""
         self.ontology_container = ontology_container
+
+    def update_accept_button_visibility(self):
+        """Update Accept button visibility based on entity content"""
+        has_content = False
+        
+        # Check if entity has content (variables, equations, etc.)
+        if hasattr(self, 'current_entity') and self.current_entity:
+            # Check if entity has any defined variables or equations
+            if (hasattr(self.current_entity, 'output_vars') and self.current_entity.output_vars) or \
+               (hasattr(self.current_entity, 'input_vars') and self.current_entity.input_vars) or \
+               (hasattr(self.current_entity, 'init_vars') and self.current_entity.init_vars) or \
+               (hasattr(self.current_entity, 'var_eq_forest') and self.current_entity.var_eq_forest):
+                has_content = True
+        elif hasattr(self, 'current_entity_data') and self.current_entity_data:
+            # Check entity_data for content
+            if (self.current_entity_data.get('defined_variables') or 
+                self.current_entity_data.get('output_vars') or
+                self.current_entity_data.get('input_vars') or
+                self.current_entity_data.get('init_vars')):
+                has_content = True
+        
+        # Show Accept button if entity has content
+        if has_content:
+            self.gui_objects["buttons"]["accept"].show()
+            print("Showing Accept button - entity has content")
+        else:
+            self.gui_objects["buttons"]["accept"].hide()
+            print("Hiding Accept button - entity is empty")
 
     def set_mode(self, mode):
         """Set the current mode (create, edit, load) and configure UI accordingly"""
@@ -161,31 +200,32 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.ui.pushDeleteEntity.hide()
             self.ui.pushAccept.hide()
 
-    def set_selected_entity_type(self, entity_type_data):  # TODO: we may not need this one.
-        """Set the selected entity type from the main tree"""
-        self.selected_entity_type = entity_type_data
-        print(f"EntityEditorFrontEnd received selected entity type: {self.selected_entity_type}")
-
-        # Update the UI to show the selected entity type
-        if self.selected_entity_type:
-            network = self.selected_entity_type.get("network")
-            category = self.selected_entity_type.get("category")
-            entity_type = self.selected_entity_type.get("entity type")
-            name = self.selected_entity_type.get("name")  # This will be None for entity types, filled for instances
-
-            if name:
-                # An entity instance was selected - we're in edit mode
-                selection_text = f"Editing: {network}.{category}.{entity_type}.{name}"
-                self.status_label.setText(selection_text)
-                self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
-                self.set_mode("edit")
-                self.load_entity_data_for_editing()
-            else:
-                # An entity type was selected - we're in create mode
-                selection_text = f"Creating: {network}.{category}.{entity_type}"
-                self.status_label.setText(selection_text)
-                self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
-                self.set_mode("create")
+    # OBSOLETE: TODO: we may not need this one.
+    # def set_selected_entity_type(self, entity_type_data):  # TODO: we may not need this one.
+    #     """Set the selected entity type from the main tree"""
+    #     self.selected_entity_type = entity_type_data
+    #     print(f"EntityEditorFrontEnd received selected entity type: {self.selected_entity_type}")
+    # 
+    #     # Update the UI to show the selected entity type
+    #     if self.selected_entity_type:
+    #         network = self.selected_entity_type.get("network")
+    #         category = self.selected_entity_type.get("category")
+    #         entity_type = self.selected_entity_type.get("entity type")
+    #         name = self.selected_entity_type.get("name")  # This will be None for entity types, filled for instances
+    # 
+    #         if name:
+    #             # An entity instance was selected - we're in edit mode
+    #             selection_text = f"Editing: {network}.{category}.{entity_type}.{name}"
+    #             self.status_label.setText(selection_text)
+    #             self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
+    #             self.set_mode("edit")
+    #             self.load_entity_data_for_editing()
+    #         else:
+    #             # An entity type was selected - we're in create mode
+    #             selection_text = f"Creating: {network}.{category}.{entity_type}"
+    #             self.status_label.setText(selection_text)
+    #             self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
+    #             self.set_mode("create")
 
     def populate_entity_structure(self, entity_data):
         """Populate entity editor with the complete entity structure from class definition"""
@@ -234,14 +274,15 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Error populating entity structure: {e}")
             makeMessageBox(f"Error populating entity structure: {str(e)}")
 
-    def populate_with_entity_data(self, entity_data):
-        """Populate entity editor lists with variable and equation information"""
-        print(f"=== POPULATE_WITH_ENTITY_DATA CALLED (OLD METHOD) ===")
-        print(f"This method should NOT be called anymore! Data: {entity_data}")
-
-        # This method is deprecated - we should use update_entity_from_backend instead
-        # But let's keep it for backward compatibility and redirect
-        self.update_entity_from_backend(entity_data)
+    # OBSOLETE: Deprecated method - should not be called anymore
+    # def populate_with_entity_data(self, entity_data):
+    #     """Populate entity editor lists with variable and equation information"""
+    #     print(f"=== POPULATE_WITH_ENTITY_DATA CALLED (OLD METHOD) ===")
+    #     print(f"This method should NOT be called anymore! Data: {entity_data}")
+    # 
+    #     # This method is deprecated - we should use update_entity_from_backend instead
+    #     # But let's keep it for backward compatibility and redirect
+    #     self.update_entity_from_backend(entity_data)
 
     def clear_all_lists(self):
         """Clear all list widgets"""
@@ -264,8 +305,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         safe_clear_list(self.ui.list_instantiate)
         safe_clear_list(self.ui.list_included_variables)
 
-    def add_to_list(self, list_widget, text, icon=None, context='entity_lists'):
-        """Add an item to a list widget with optional icon"""
+    def add_to_list(self, list_widget, text, icon=None, context='entity_lists', data=None):
+        """Add an item to a list widget with optional icon and data"""
         model = list_widget.model()
         if model is None:
             # Create a new standard item model
@@ -279,6 +320,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         item = QStandardItem(text)
         if icon is not None:
             item.setIcon(icon)
+        
+        # Add data to item if provided
+        if data is not None:
+            item.setData(data, QtCore.Qt.UserRole)
+            
         model.appendRow(item)
 
     def refresh_list_widget_settings(self, list_widget, context):
@@ -321,7 +367,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Fallback to generic variable icon if no ontology_container
                 icon = getIcon("dependent_variable")
 
-        self.add_to_list(list_widget, var_text, icon, context='entity_variables')
+        self.add_to_list(list_widget, var_text, icon, context='entity_variables', data=var_info)
 
     # def add_port_to_list(self, list_widget, port_info, port_type="input"):
     #     """Add a port (input/output) to list with appropriate icon"""
@@ -475,9 +521,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
                     self.add_to_list(self.ui.list_equations, eq_text, icon, context='entity_equations')
 
-            # Populate undefined variables list (variables in var_eq_forest but not in defined lists)
+            # Populate undefined variables list
             if hasattr(entity, 'var_eq_forest') and entity.var_eq_forest:
                 print(f"Populating undefined variables from var_eq_forest")
+                print(f"Entity var_eq_forest: {entity.var_eq_forest}")
 
                 # Collect all variables that appear in the var_eq_forest
                 variables_in_forest = set()
@@ -517,8 +564,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 print(f"Undefined variables: {sorted(undefined_vars)}")
 
                 # Update entity.init_vars as a list (convert from set)
+                # But preserve any manually set init_vars from backend
+                current_init_vars = set(entity.init_vars) if hasattr(entity, 'init_vars') else set()
                 init_vars_from_defined = defined_vars - set(entity.output_vars if hasattr(entity, 'output_vars') else []) - set(entity.input_vars if hasattr(entity, 'input_vars') else [])
-                entity.init_vars = sorted(list(init_vars_from_defined))
+                # Combine: keep manually set init_vars + calculated ones
+                final_init_vars = current_init_vars.union(init_vars_from_defined)
+                entity.init_vars = sorted(list(final_init_vars))
 
                 # Populate undefined variables list
                 for var_id in sorted(undefined_vars):
@@ -580,24 +631,97 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         message = {"event": "add_variable"}
         self.message.emit(message)
         """Handle add variable button based on current state (create or edit)"""
-        # if not hasattr(self, 'ontology_container'):
-        #     makeMessageBox("Ontology container not set")
-        #     return
-        #
-        # # Check current state/mode
-        # if hasattr(self, 'mode'):
-        #     if self.mode == "create":
-        #         # In create state: select from list of state variables
-        #         self.launch_state_variable_selector()
-        #     elif self.mode == "edit":
-        #         # In edit state: add new variable to existing entity definition
-        #         self.launch_new_variable_selector()
-        #     else:
-        #         # Default behavior for other modes
-        #         self.launch_behavior_association_editor()
-        # else:
-        #     # Fallback to original behavior if mode is not set
-        #     self.launch_behavior_association_editor()
+        self.ui.list_not_defined_variables
+
+    def on_pushAccept_pressed(self):
+        """Handle Accept button - save entity and close"""
+        try:
+            print("Accept button pressed - saving entity")
+            
+            # Mark entity as saved
+            self.markSaved()
+            
+            # Send save message to backend
+            if hasattr(self, 'current_entity') and self.current_entity:
+                message = {
+                    "event": "save_entity",
+                    "entity": self.current_entity
+                }
+                self.message.emit(message)
+                print(f"Sent save_entity message: {message}")
+            else:
+                print("No entity to save")
+                
+        except Exception as e:
+            print(f"Error in accept handler: {e}")
+            makeMessageBox(f"Error saving entity: {str(e)}")
+
+    def on_pushCancle_pressed(self):
+        """Handle Cancel button - close without saving"""
+        global changed
+        try:
+            # print("Cancel button pressed - closing without saving")
+            # print(f"Current changed state: {self.changed}")
+            
+            # Check if there are unsaved changes
+            if changed:
+                print("Showing save changes dialog...")
+                dialog = makeMessageBox(message="save changes", buttons=["YES", "NO"])
+                print(f"Dialog result: {dialog}")
+                if dialog == "YES":
+                    # User wants to save before canceling
+                    self.on_pushAccept_pressed()
+                    return
+                elif dialog == "NO":
+                    # User wants to discard changes
+                    pass
+            else:
+                print("No unsaved changes detected")
+
+            # Close the window
+            self.closeMe()
+                
+        except Exception as e:
+            print(f"Error in cancel handler: {e}")
+            makeMessageBox(f"Error canceling: {str(e)}")
+
+    def on_list_not_defined_variables_clicked(self, index):
+        """Handle click on not defined variables list"""
+
+        print(">>>>>>>>>>>>>>>>>>>>>>>")
+        print(f"Clicked index: {index}")
+        
+        # Get the model and item from the index
+        model = self.ui.list_not_defined_variables.model()
+        if model and index.isValid():
+            item = model.itemFromIndex(index)
+            if item:
+                # Get the text and data from the clicked item
+                item_text = item.text()
+                item_data = item.data(QtCore.Qt.UserRole)
+                
+                print(f"Item text: {item_text}")
+                print(f"Item data: {item_data}")
+                
+                # Extract variable ID from the item text
+                # Format is typically: "label (ID: var_id, Network: network)"
+                # import re
+                # match = re.search(r'ID: ([^)]+)', item_text)
+                # if match:
+                #     var_id = match.group(1)
+                #     print(f"Extracted variable ID: {var_id}")
+                #     # Now you can use var_id for further processing
+                # else:
+                #     print(f"Could not extract variable ID from: {item_text}")
+                var_id = item_data.get('id')
+                var_label = item_data.get('label')
+                var_network = item_data.get('network')
+                print(f"Variable ID: {var_id}")
+                print(f"Variable Label: {var_label}")
+                print(f"Variable Network: {var_network}")
+                message = {"event": "def_variable", "var_id": var_id, "var_label": var_label, "var_network": var_network}
+                self.message.emit(message)
+
 
     def launch_state_variable_selector(self):
         """Launch state variable selector for create mode"""
@@ -686,6 +810,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 self.status_label.setText(f"State variable selected: {root_variable}. Now in edit mode.")
                 self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
 
+
                 # Update the entity data with the selected state variable
                 if hasattr(self, 'current_entity_data') and self.current_entity_data:
                     # Move the selected variable from not_defined to defined
@@ -719,8 +844,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     # Update the UI lists with the new data
                     self.populate_from_entity_data_fallback(self.current_entity_data)
 
-                    # Mark as changed
-                    self.markChanged()
 
                 # Send to backend for processing
                 message = {
@@ -765,8 +888,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     self.status_label.setText(f"New variable '{var_info['label']}' added to entity")
                     self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; margin: 5px; }")
 
-                    # Mark as changed
-                    self.markChanged()
 
                 # Send the addition to backend for processing
                 message = {
@@ -785,13 +906,21 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def update_entity_from_backend_entity(self, entity):
         """Update display when backend sends Entity object - Entity-only approach"""
         try:
-            print(f"Updating entity display from Entity object: {entity.entity_name}")
+            print(f"=== UPDATE_ENTITY_FROM_BACKEND_ENTITY CALLED ===")
+            print(f"Entity object: {entity}")
+            print(f"Entity var_eq_forest: {getattr(entity, 'var_eq_forest', 'None')}")
+            print(f"Entity output_vars: {getattr(entity, 'output_vars', 'None')}")
+            print(f"Entity input_vars: {getattr(entity, 'input_vars', 'None')}")
+            print(f"Entity init_vars: {getattr(entity, 'init_vars', 'None')}")
             
             # Store current entity
             self.current_entity = entity
             
             # Use Entity methods directly for all lists
             self.populate_lists_from_entity(entity)
+            
+            # Update Accept button visibility based on entity content
+            self.update_accept_button_visibility()
                 
         except Exception as e:
             print(f"Error updating entity display: {e}")
@@ -989,12 +1118,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
     def closeMe(self):
 
-        if self.changed:
-            dialog = makeMessageBox(message="save changes", buttons=["YES", "NO"])
+        if changed:
+            dialog = makeMessageBox(message="loose changes", buttons=["YES", "NO"])
             if dialog == "YES":
-                self.on_pushOntologySave_pressed()
+                return
             elif dialog == "NO":
-                pass
+                pass  # OBSOLETE: Empty else clause - can be removed
         else:
-            pass
-        sys.exit()
+            pass  # OBSOLETE: Empty else clause - can be removed
+        self.close()
