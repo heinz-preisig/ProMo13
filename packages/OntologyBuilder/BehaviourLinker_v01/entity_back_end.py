@@ -232,6 +232,18 @@ class EntityEditorBackEnd(QObject):
                     print(f"Updating existing entity: {existing_entity.entity_id}")
                     entity = existing_entity
 
+                    # Update the entity's equation dictionary with current available equations
+                    if hasattr(self.ontology_container, 'list_equation_classes'):
+                        current_equations = {}
+                        for eq_obj in self.ontology_container.list_equation_classes:
+                            current_equations[eq_obj.eq_id] = eq_obj
+                        
+                        # Preserve existing equations and add current ones
+                        if hasattr(entity, 'all_equations'):
+                            entity.all_equations.update(current_equations)
+                        else:
+                            entity.all_equations = current_equations
+
                     # Set up variable-equation relationships using the existing Entity
                     var_eq_assignments = self.extract_var_eq_assignments(assignments)
 

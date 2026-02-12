@@ -10,6 +10,7 @@ from Common.common_resources import getOntologyName
 from Common.exchange_board import ProMoExchangeBoard
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
+from Common.ui_get_string_impl import UI_GetString
 from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBackEnd
 from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
@@ -206,6 +207,9 @@ class BehaviourLinerBackEnd(QObject):
             # Save all_entities to file
             self.save_entities_to_file()
             print(f"Saved entities to file")
+            
+            # Update the main frontend tree to show the new entity
+            self.update_main_frontend_tree()
 
         except Exception as e:
             print(f"Error adding entity to all_entities: {e}")
@@ -221,7 +225,7 @@ class BehaviourLinerBackEnd(QObject):
             # Convert Entity objects to serializable format
             entities_data = {}
             for entity_id, entity_obj in self.all_entities.items():
-                entities_data[entity_id] = entity_obj.to_dict()
+                entities_data[entity_id] = entity_obj.convert_to_dict()
 
             # Save to file
             with open(path, 'w', encoding='utf-8') as file:
@@ -431,9 +435,28 @@ class BehaviourLinerBackEnd(QObject):
         # Set editor mode based on selection type
         if mode == "edit" and self.entity_type and self.entity_type.get('name'):
             # Edit mode - load existing entity data
+            entity_network = self.entity_type.get("network")
+            entity_category = self.entity_type.get("category")
+            entity_type = self.entity_type.get("entity type")
             entity_name = self.entity_type.get('name')
+            entity_id = f"{entity_network}.{entity_category}.{entity_type}.{entity_name}"
             # print(f"Loading existing entity for editing: {entity_name}")
-            self.load_existing_entity_data(entity_name)
+            entity = self.all_entities[entity_id]
+            pass
+            # Load the entity into the editor
+            self.entity_front_end.set_entity_object(entity)
+            self.entity_front_end.set_mode("edit")
+
+            # Also populate current_entity_data for behavior association editor
+            entity_data = {
+                    'network'      : entity_network,
+                    'category'     : entity_category,
+                    'entity_type'  : entity_type,
+                    'entity_name'  : entity_name,
+                    'entity_id'    : entity_id,
+                    'entity_object': entity
+                    }
+            self.entity_front_end.current_entity_data = entity_data
         else:
             # Create mode - prepare for new entity creation
             # print("Preparing for new entity creation")
@@ -460,6 +483,12 @@ class BehaviourLinerBackEnd(QObject):
             entity_type = self.entity_type.get('entity type')
 
             print(f"Generating entity for: {network}.{category}.{entity_type}")
+            # TODO: build limiting list to avoid duplication
+            task = UI_GetString("provide a name for the entity")
+            task.exec_()
+            entity_name = task.text
+            if not entity_name:
+                pass
 
             # For create mode, start with empty variables - user will add them
             # Don't populate with all available variables from ontology
@@ -467,7 +496,7 @@ class BehaviourLinerBackEnd(QObject):
 
             # Create initial entity data structure
             entity_data = {
-                    'entity_id'            : f"{network}.{category}.{entity_type}.new_entity",
+                    'entity_id'            : f"{network}.{category}.{entity_type}.{entity_name}",
                     'network'              : network,
                     'category'             : category,
                     'entity_type'          : entity_type,

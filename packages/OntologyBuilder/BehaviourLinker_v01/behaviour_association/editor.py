@@ -16,14 +16,14 @@ import sys
 # Add the packages directory to Python path to resolve Common imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from Common.common_resources import indexList
 from Common.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import select_equation_for_variable
 from OntologyBuilder.BehaviourLinker_v01.variable_classification_rules import VariableClassificationRules
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
+from OntologyBuilder.BehaviourLinker_v01.UIs.variable_selection import Ui_Dialog
 
 # Import the required classes from CAM10 resources
 # These will need to be adapted for CAM12
@@ -135,7 +135,7 @@ class Selector(QtCore.QObject):
         return self.label_indices[ID]
 
 
-class BehaviorAssociationEditor(QtWidgets.QMainWindow):
+class BehaviorAssociationEditor(QtWidgets.QDialog):
     """
     Simplified BehaviorAssociation editor for CAM12/ProMo
     Integrates with the existing EntityEditorFrontEnd
@@ -148,7 +148,21 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
 
     def __init__(self, ontology_container, entity_type_info=None, variable_class_mode='state', parent=None):
         super().__init__(parent)
-        self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
+        
+        # Set frameless window flags BEFORE UI setup with aggressive top-most behavior
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Tool)
+        
+        # Also set window attributes for frameless
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground, False)
+        self.setAttribute(QtCore.Qt.WA_NoSystemBackground, False)
+
+        # Setup UI using the UI file
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+        
+        # Ensure the UI respects frameless window
+        self.ui.listVariables.setFocus()
+
 
         self.ontology_container = ontology_container
         self.ontology_name = ontology_container.ontology_name
@@ -159,54 +173,85 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         self.preloaded_variable_icons = {}
         self._preload_variable_icons()
 
-        # Setup basic UI
-        self.setWindowTitle("Behavior Association Editor")
-        self.setGeometry(100, 100, 800, 600)
-
-        # Create central widget and layout
-        central_widget = QtWidgets.QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QtWidgets.QVBoxLayout(central_widget)
-
-        # Add title based on variable class mode
+        # Set window title based on variable class mode
         if variable_class_mode == 'state':
-            title_text = "Select State Variable to Start Entity Definition"
+            self.setWindowTitle("Select State Variable to Start Entity Definition")
         else:
-            title_text = "Select Variable to Add to Entity Definition"
+            self.setWindowTitle("Select Variable to Add to Entity Definition")
         
-        title = QtWidgets.QLabel(title_text)
-        title.setStyleSheet("font-size: 14px; font-weight: bold; margin: 10px;")
-        layout.addWidget(title)
-
-        # Variable selection area with enhanced display for LaTeX images
-        self.variable_list = QtWidgets.QListWidget()
-        UISettings.configure_list_widget(self.variable_list, 'variable_selection')
-
-        layout.addWidget(self.variable_list)
-
-        # Buttons
-        button_layout = QtWidgets.QHBoxLayout()
-
-        self.select_button = QtWidgets.QPushButton("Select & Build Tree")
-        self.select_button.clicked.connect(self.select_variable_and_build_tree)
-        button_layout.addWidget(self.select_button)
-
-        self.cancel_button = QtWidgets.QPushButton("Cancel")
-        self.cancel_button.clicked.connect(self.cancel_and_close)
-        button_layout.addWidget(self.cancel_button)
-
-        layout.addLayout(button_layout)
-
-        # Status label (instead of statusbar since this is embedded in a dialog)
-        self.status_label = QtWidgets.QLabel("Ready")
+        # Configure the variable list using UISettings
+        UISettings.configure_list_widget(self.ui.listVariables, 'variable_selection')
+        
+        # Additional QListView-specific configuration for icon display
+        self.ui.listVariables.setIconSize(QtCore.QSize(32, 32))  # Set icon size
+        self.ui.listVariables.setUniformItemSizes(True)  # Ensure uniform item sizes
+        self.ui.listVariables.setViewMode(QtWidgets.QListView.ListMode)  # Ensure list mode
+        
+        # Enable size adjustment to fit content
+        self.ui.listVariables.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.ui.listVariables.setMinimumHeight(200)  # Set minimum height
+        self.ui.listVariables.setMinimumWidth(400)  # Set minimum width
+        
+        # Connect signals
+        self.ui.pushCancel.clicked.connect(self.cancel_and_close)
+        
+        # Store reference for easier access
+        self.variable_list = self.ui.listVariables
+        self.cancel_button = self.ui.pushCancel
+        
+        # Use status label from UI file - it's already positioned correctly
+        self.status_label = self.ui.statusLabel
         self.status_label.setStyleSheet("QLabel { color: gray; font-style: italic; margin: 5px; }")
-        layout.addWidget(self.status_label)
+        self.status_label.setText("Ready")
+        
+        # Connect double-click for direct variable selection
+        self.ui.listVariables.doubleClicked.connect(self.on_variable_double_clicked)
+        
+        # Connect single-click for variable selection (highlighting)
+        self.ui.listVariables.clicked.connect(self.on_variable_clicked)
 
         # Load variables
         self.load_variables()
 
         # Store results
         self.entity_assignments = None
+
+    def on_variable_clicked(self, index):
+        """Handle single-click on variable - just highlight and show info"""
+        try:
+            # Get the selected item
+            item = self.ui.listVariables.model().itemFromIndex(index)
+            if item:
+                # Get variable data from the item
+                var_id = item.data(QtCore.Qt.UserRole)
+                if var_id:
+                    print(f"Variable clicked: {var_id}")
+                    self.status_label.setText(f"Selected: {var_id} (double-click to select equation)")
+                else:
+                    self.status_label.setText("No variable data found")
+        except Exception as e:
+            print(f"Error handling variable click: {e}")
+            self.status_label.setText(f"Error: {str(e)}")
+
+    def on_variable_double_clicked(self, index):
+        """Handle double-click on variable - go directly to equation selection"""
+        try:
+            # Get the selected item
+            item = self.ui.listVariables.model().itemFromIndex(index)
+            if item:
+                # Get variable data from the item
+                var_id = item.data(QtCore.Qt.UserRole)
+                if var_id:
+                    print(f"Variable double-clicked: {var_id}")
+                    self.status_label.setText(f"Selected variable: {var_id}")
+                    
+                    # Directly proceed to equation selection for this variable
+                    self.select_variable_and_build_tree()
+                else:
+                    self.status_label.setText("No variable data found")
+        except Exception as e:
+            print(f"Error handling variable double-click: {e}")
+            self.status_label.setText(f"Error: {str(e)}")
 
     def _preload_variable_icons(self):
         """Preload variable PNG icons using exchange board for consistency"""
@@ -218,9 +263,30 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
 
             # Use the existing ontology container to load all variable icons
             self.preloaded_variable_icons = self.ontology_container.load_variable_icons()
+            print(f"Preloaded {len(self.preloaded_variable_icons)} variable icons")
+            if self.preloaded_variable_icons:
+                print(f"Sample icon keys: {list(self.preloaded_variable_icons.keys())[:3]}")
 
         except Exception as e:
             self.preloaded_variable_icons = {}
+            print(f"Error preloading icons: {e}")
+
+    def mousePressEvent(self, event):
+        """Make frameless window draggable"""
+        if event.button() == QtCore.Qt.LeftButton:
+            self.drag_pos = event.globalPos() - self.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        """Handle window dragging"""
+        if event.buttons() == QtCore.Qt.LeftButton and hasattr(self, 'drag_pos'):
+            self.move(event.globalPos() - self.drag_pos)
+            event.accept()
+
+    def mouseReleaseEvent(self, event):
+        """Clean up drag position"""
+        if hasattr(self, 'drag_pos'):
+            delattr(self, 'drag_pos')
 
     def cancel_and_close(self):
         """Handle cancellation and emit cancelled signal"""
@@ -238,7 +304,10 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
         """Load available variables from the ontology container with filtering based on entity type rules"""
         try:
             variables = self.ontology_container.variables
-            self.variable_list.clear()
+            
+            # Clear the list using QListView model (QListView doesn't have clear() method)
+            model = QtGui.QStandardItemModel()
+            self.variable_list.setModel(model)
 
             # print(f"Debug: Loading {len(variables)} variables from ontology")
 
@@ -273,17 +342,69 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
                 # Create list item with text
                 item_text = f"{label}\n(ID: {var_id}, Type: {var_type}, Network: {network})"
                 item_text = f"     {var_id} -- {var_type} in {network}"
-                item = QtWidgets.QListWidgetItem(item_text)
-                item.setData(QtCore.Qt.UserRole, var_id)
+                item = QtGui.QStandardItem(item_text)
+                item.setData(var_id, QtCore.Qt.UserRole)
 
                 # Add icon using preloaded variable icons from exchange board
                 if var_id in self.preloaded_variable_icons:
                     item.setIcon(self.preloaded_variable_icons[var_id])
+                    print(f"Added icon for variable {var_id}")
+                else:
+                    print(f"No icon found for variable {var_id}")
 
-                self.variable_list.addItem(item)
+                # Add item to model
+                model.appendRow(item)
+
+            # Adjust size to fit content after loading
+            self.adjust_list_view_size()
+
+            self.status_label.setText(f"Loaded {len(filtered_variables)} variables")
+            print(f"Successfully loaded {len(filtered_variables)} variables")
 
         except Exception as e:
-            makeMessageBox(f"Error loading variables: {str(e)}")
+            error_msg = f"Error loading variables: {str(e)}"
+            print(error_msg)
+            self.status_label.setText(error_msg)
+            makeMessageBox(error_msg)
+
+    def adjust_list_view_size(self):
+        """Adjust QListView size based on content"""
+        try:
+            model = self.ui.listVariables.model()
+            if not model:
+                return
+            
+            # Calculate optimal height based on number of items
+            item_count = model.rowCount()
+            if item_count == 0:
+                return
+            
+            # Get font metrics for height calculation
+            font_metrics = QtGui.QFontMetrics(self.ui.listVariables.font())
+            item_height = max(32, font_metrics.height() + 8)  # Icon height or text height + padding
+            
+            # Calculate total height with some padding
+            total_height = item_height * item_count + 20  # 20px padding
+            
+            # Calculate width based on content
+            max_width = 400
+            for row in range(item_count):
+                item = model.item(row)
+                if item:
+                    text_width = font_metrics.width(item.text()) + 50  # 50px for icon + padding
+                    max_width = max(max_width, text_width)
+            
+            # Set the size (but respect reasonable limits)
+            max_height = min(total_height, 400)  # Max 400px height
+            max_width = min(max_width, 600)  # Max 600px width
+            
+            self.ui.listVariables.setMinimumHeight(min(200, max_height))
+            self.ui.listVariables.setMinimumWidth(min(400, max_width))
+            
+            print(f"Adjusted QListView size to: {max_width}x{max_height} for {item_count} items")
+            
+        except Exception as e:
+            print(f"Error adjusting list view size: {e}")
 
     def _filter_variables_by_rules(self, variables):
         """Filter variables based on entity type rules and variable class mode"""
@@ -328,27 +449,25 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
 
         return filtered_variables
 
-    # def on_list_pending_variables_clicked(self, index):
-    #     """Handle click on pending variables list - go directly to equation selection"""
-    #
-    #     print(">>>>>>>>>>>>>>>>>>>>>>>")
-    #     print(f"Clicked index: {index}")
-    #     self.
-    #
-    #     # Get the model and item from the index
-    #     model = self.ui.list_not_defined_variables.model()
-    #     if model and index.isValid():
-    #         item = model.itemFromIndex(index)
-    #         self.va
-
     def select_variable_and_build_tree(self):
         """Select the current variable and build the behavior tree"""
-        current_item = self.variable_list.currentItem()
-        if not current_item:
+        selection_model = self.variable_list.selectionModel()
+        selected_indexes = selection_model.selectedIndexes()
+        
+        if not selected_indexes:
             makeMessageBox("Please select a variable first")
             return
 
-        var_id = current_item.data(QtCore.Qt.UserRole)
+        # Get the selected index and item
+        selected_index = selected_indexes[0]
+        model = self.variable_list.model()
+        item = model.itemFromIndex(selected_index)
+        
+        if not item:
+            makeMessageBox("No item found for selection")
+            return
+
+        var_id = item.data(QtCore.Qt.UserRole)
         var_data = self.ontology_container.variables[var_id]
 
         # print(f"Debug: Selected variable - ID: {var_id}")
@@ -449,35 +568,32 @@ def launch_behavior_association_editor(ontology_container, entity_type_info=None
         app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
     editor = BehaviorAssociationEditor(ontology_container, entity_type_info, variable_class_mode)
-
-    # Create a modal dialog to wait for result
-    dialog = QtWidgets.QDialog()
-    dialog.setLayout(QtWidgets.QVBoxLayout())
-    dialog.layout().addWidget(editor)
-
+    
     assignments = None
 
     def on_behavior_defined(result):
         nonlocal assignments
         assignments = result
-        dialog.accept()
+        editor.accept()
 
     def on_cancelled():
-        # Handle cancellation explicitly
+        nonlocal assignments
         assignments = None
-        dialog.reject()
+        editor.reject()
 
-    # Connect both signals
+    # Connect the signals to handle results
     editor.behavior_defined.connect(on_behavior_defined)
     editor.cancelled.connect(on_cancelled)
-
-    # Set dialog properties
-    dialog.setWindowTitle("Behavior Association Editor")
-    dialog.setModal(True)
-    dialog.resize(800, 600)
-
-    # Execute dialog and return result
-    if dialog.exec_() == QtWidgets.QDialog.Accepted:
-        return assignments
-    else:
-        return None
+    
+    # Aggressively bring frameless dialog to front
+    editor.show()
+    editor.raise_()
+    editor.activateWindow()
+    
+    # Force the window to come to front
+    QtWidgets.QApplication.processEvents()
+    
+    # Execute the dialog and get the result
+    result = editor.exec_()
+    
+    return assignments
