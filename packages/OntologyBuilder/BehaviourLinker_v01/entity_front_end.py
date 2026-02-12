@@ -68,7 +68,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.interfaceComponents()
         
         # Connect list widget click handlers
-        self.ui.list_not_defined_variables.clicked.connect(self.on_list_not_defined_variables_clicked)
+        self.ui.list_not_defined_variables.clicked.connect(self.on_list_pending_variables_clicked)
         
         # Connect button handlers
         self.ui.pushAccept.clicked.connect(self.on_pushAccept_pressed)
@@ -99,7 +99,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         },
                 "lists"    : {
                         "list_defined_variables"    : self.ui.list_not_defined_variables,
-                        "list_not_defined_variables": self.ui.list_not_defined_variables,
+                        "list_pending_variables": self.ui.list_not_defined_variables,
                         "list_equations"            : self.ui.list_equations,
                         "list_integrators"          : self.ui.list_integrators,
                         "list_input"                : self.ui.list_inputs,
@@ -248,9 +248,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Clear all lists first
                 self.clear_all_lists()
 
-                # Populate not defined variables list (all variables initially)
-                not_defined = entity_data.get('not_defined_variables', [])
-                for var_info in not_defined:
+                # Populate pending variables list (all variables initially)
+                pending = entity_data.get('pending_variables', [])
+                for var_info in pending:
                     self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
 
                 # Initially, defined variables list is empty
@@ -379,7 +379,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def set_entity_object(self, entity):
         """Set the Entity object and update the UI"""
         self.current_entity = entity
-        print(f"EntityEditorFrontEnd received Entity object: {entity.entity_name}")
+        print(f"EntityEditorFrontEnd received Entity object: {entity.entity_id}")
 
         # Update the lists with Entity information
         self.populate_lists_from_entity(entity)
@@ -389,7 +389,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         try:
             print(f"=== POPULATE_LISTS_FROM_ENTITY CALLED ===")
             print(f"Entity object: {entity}")
-            print(f"Entity name: {entity.entity_name}")
+            print(f"Entity name: {entity.entity_id}")
             print(f"Entity output_vars: {getattr(entity, 'output_vars', 'None')}")
             print(f"Entity input_vars: {getattr(entity, 'input_vars', 'None')}")
             print(f"Entity init_vars: {getattr(entity, 'init_vars', 'None')}")
@@ -521,58 +521,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
                     self.add_to_list(self.ui.list_equations, eq_text, icon, context='entity_equations')
 
-            # Populate undefined variables list
-            if hasattr(entity, 'var_eq_forest') and entity.var_eq_forest:
-                print(f"Populating undefined variables from var_eq_forest")
-                print(f"Entity var_eq_forest: {entity.var_eq_forest}")
-
-                # Collect all variables that appear in the var_eq_forest
-                variables_in_forest = set()
-                for tree in entity.var_eq_forest:
-                    for key, values in tree.items():
-                        if key.startswith('V_'):  # It's a variable
-                            variables_in_forest.add(key)
-                        elif values:  # It's an equation with connected variables
-                            for var_id in values:
-                                if var_id.startswith('V_'):  # It's a variable
-                                    variables_in_forest.add(var_id)
-
-                # Variables that are in the forest but not explicitly defined
-                defined_vars = set()
-                if hasattr(entity, 'output_vars'):
-                    defined_vars.update(entity.output_vars)
-                if hasattr(entity, 'input_vars'):
-                    defined_vars.update(entity.input_vars)
-                if hasattr(entity, 'init_vars'):
-                    defined_vars.update(entity.init_vars)
+            # Populate pending variables using Entity method
+            if hasattr(entity, 'get_pending_vars'):
+                pending_vars = entity.get_pending_vars()
+                print(f"Populating pending variables from Entity method: {pending_vars}")
                 
-                # Check if any undefined variables have instantiation equations
-                # If so, they should be considered as init_vars (to be instantiated)
-                if hasattr(entity, 'all_equations'):
-                    for var_id in variables_in_forest - defined_vars:
-                        for eq_id, equation in entity.all_equations.items():
-                            if hasattr(equation, 'lhs') and var_id in str(equation.lhs):
-                                if hasattr(equation, 'is_instantiation_eq') and equation.is_instantiation_eq():
-                                    defined_vars.add(var_id)
-                                    break
-
-                # Undefined variables = variables in forest - defined variables
-                undefined_vars = variables_in_forest - defined_vars
-
-                print(f"Variables in forest: {sorted(variables_in_forest)}")
-                print(f"Defined variables: {sorted(defined_vars)}")
-                print(f"Undefined variables: {sorted(undefined_vars)}")
-
-                # Update entity.init_vars as a list (convert from set)
-                # But preserve any manually set init_vars from backend
-                current_init_vars = set(entity.init_vars) if hasattr(entity, 'init_vars') else set()
-                init_vars_from_defined = defined_vars - set(entity.output_vars if hasattr(entity, 'output_vars') else []) - set(entity.input_vars if hasattr(entity, 'input_vars') else [])
-                # Combine: keep manually set init_vars + calculated ones
-                final_init_vars = current_init_vars.union(init_vars_from_defined)
-                entity.init_vars = sorted(list(final_init_vars))
-
-                # Populate undefined variables list
-                for var_id in sorted(undefined_vars):
+                for var_id in pending_vars:
                     if var_id in variables:
                         var_data = variables[var_id]
                         var_info = {
@@ -582,7 +536,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                 }
                         self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
 
-            print(f"Successfully populated lists for entity: {entity.entity_name}")
+            print(f"Successfully populated lists for entity: {entity.entity_id}")
 
         except Exception as e:
             print(f"Error populating lists from Entity: {e}")
@@ -613,7 +567,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Repopulate the lists
                 self.populate_lists_from_entity(entity)
 
-                print(f"Successfully updated entity: {entity.entity_name}")
+                print(f"Successfully updated entity: {entity.entity_id}")
             else:
                 print("No current entity to update")
 
@@ -628,9 +582,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.message.emit(message)
 
     def on_pushAddVariable_pressed(self):
+        """Handle add variable button - opens equation selection for any selected variable"""
         message = {"event": "add_variable"}
         self.message.emit(message)
-        """Handle add variable button based on current state (create or edit)"""
         self.ui.list_not_defined_variables
 
     def on_pushAccept_pressed(self):
@@ -649,6 +603,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 }
                 self.message.emit(message)
                 print(f"Sent save_entity message: {message}")
+                self.close()
             else:
                 print("No entity to save")
                 
@@ -685,9 +640,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Error in cancel handler: {e}")
             makeMessageBox(f"Error canceling: {str(e)}")
 
-    def on_list_not_defined_variables_clicked(self, index):
-        """Handle click on not defined variables list"""
-
+    def on_list_pending_variables_clicked(self, index):
+        """Handle click on pending variables list - go directly to equation selection"""
+        
         print(">>>>>>>>>>>>>>>>>>>>>>>")
         print(f"Clicked index: {index}")
         
@@ -705,21 +660,20 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 
                 # Extract variable ID from the item text
                 # Format is typically: "label (ID: var_id, Network: network)"
-                # import re
-                # match = re.search(r'ID: ([^)]+)', item_text)
-                # if match:
-                #     var_id = match.group(1)
-                #     print(f"Extracted variable ID: {var_id}")
-                #     # Now you can use var_id for further processing
-                # else:
-                #     print(f"Could not extract variable ID from: {item_text}")
                 var_id = item_data.get('id')
                 var_label = item_data.get('label')
                 var_network = item_data.get('network')
                 print(f"Variable ID: {var_id}")
                 print(f"Variable Label: {var_label}")
                 print(f"Variable Network: {var_network}")
-                message = {"event": "def_variable", "var_id": var_id, "var_label": var_label, "var_network": var_network}
+                
+                # Go directly to equation association editor for this variable
+                message = {
+                    "event": "def_variable", 
+                    "var_id": var_id, 
+                    "var_label": var_label, 
+                    "var_network": var_network
+                }
                 self.message.emit(message)
 
 
@@ -810,46 +764,27 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 self.status_label.setText(f"State variable selected: {root_variable}. Now in edit mode.")
                 self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
 
+                # Note: All variable list management is handled by Entity class in back end
+                # Front end only triggers backend processing and displays Entity results
 
-                # Update the entity data with the selected state variable
-                if hasattr(self, 'current_entity_data') and self.current_entity_data:
-                    # Move the selected variable from not_defined to defined
-                    not_defined_vars = self.current_entity_data.get('not_defined_variables', [])
-                    defined_vars = self.current_entity_data.get('defined_variables', [])
+                # Send to backend for processing - use Entity object data if available
+                entity_data = self.current_entity_data.copy() if self.current_entity_data else {}
+                if hasattr(self, 'current_entity') and self.current_entity:
+                    # Update entity_data with current Entity object state
+                    entity_data.update({
+                        'entity_object': self.current_entity,
+                        'entity_id': getattr(self.current_entity, 'entity_id', ''),
+                        'var_eq_forest': getattr(self.current_entity, 'var_eq_forest', []),
+                        'output_vars': getattr(self.current_entity, 'output_vars', []),
+                        'input_vars': getattr(self.current_entity, 'input_vars', []),
+                        'init_vars': getattr(self.current_entity, 'init_vars', []),
+                        'integrators': getattr(self.current_entity, 'integrators', {})
+                    })
 
-                    # Find and move the selected variable
-                    for i, var_info in enumerate(not_defined_vars):
-                        if var_info['id'] == root_variable:
-                            var_to_move = not_defined_vars.pop(i)
-                            defined_vars.append(var_to_move)
-                            break
-
-                    # Update current entity data
-                    self.current_entity_data['not_defined_variables'] = not_defined_vars
-                    self.current_entity_data['defined_variables'] = defined_vars
-
-                    # Add equation information if present
-                    root_equation = assignments.get('root_equation')
-                    if root_equation:
-                        equations = self.current_entity_data.get('equations', [])
-                        equations.append(root_equation)
-                        self.current_entity_data['equations'] = equations
-
-                    # Add integrator information if using initialization
-                    if assignments.get('use_initialization', False):
-                        integrators = self.current_entity_data.get('integrators', [])
-                        integrators.append({root_variable: 'initialization'})
-                        self.current_entity_data['integrators'] = integrators
-
-                    # Update the UI lists with the new data
-                    self.populate_from_entity_data_fallback(self.current_entity_data)
-
-
-                # Send to backend for processing
                 message = {
                         "event"      : "state_variable_selected",
                         "assignments": assignments,
-                        "entity_data": self.current_entity_data
+                        "entity_data": entity_data
                         }
                 self.message.emit(message)
             else:
@@ -867,33 +802,31 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Extract the new variable information
             root_variable = assignments.get('root_variable')
             if root_variable:
-                # Add the new variable to the current entity
-                if hasattr(self, 'current_entity_data') and self.current_entity_data:
-                    # Add to defined variables list
-                    defined_vars = self.current_entity_data.get('defined_variables', [])
-
-                    # Create variable info for the new variable
-                    var_info = {
-                            'id'     : root_variable,
-                            'label'  : assignments.get('variable_label', root_variable),
-                            'network': assignments.get('network', 'unknown')
-                            }
-
-                    defined_vars.append(var_info)
-
-                    # Update current entity data
-                    self.current_entity_data['defined_variables'] = defined_vars
-
+                # Note: Variable list management is handled by Entity class in back end
+                # Front end only triggers backend processing and displays results
+                if hasattr(self, 'current_entity') and self.current_entity:
                     # Update status
-                    self.status_label.setText(f"New variable '{var_info['label']}' added to entity")
+                    self.status_label.setText(f"New variable '{assignments.get('variable_label', root_variable)}' added to entity")
                     self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; margin: 5px; }")
 
+                # Send to backend for processing - use Entity object data if available
+                entity_data = self.current_entity_data.copy() if self.current_entity_data else {}
+                if hasattr(self, 'current_entity') and self.current_entity:
+                    # Update entity_data with current Entity object state
+                    entity_data.update({
+                        'entity_object': self.current_entity,
+                        'entity_id': getattr(self.current_entity, 'entity_id', ''),
+                        'var_eq_forest': getattr(self.current_entity, 'var_eq_forest', []),
+                        'output_vars': getattr(self.current_entity, 'output_vars', []),
+                        'input_vars': getattr(self.current_entity, 'input_vars', []),
+                        'init_vars': getattr(self.current_entity, 'init_vars', []),
+                        'integrators': getattr(self.current_entity, 'integrators', {})
+                    })
 
-                # Send the addition to backend for processing
                 message = {
                         "event"      : "new_variable_added",
                         "assignments": assignments,
-                        "entity_data": self.current_entity_data
+                        "entity_data": entity_data
                         }
                 self.message.emit(message)
             else:
@@ -948,11 +881,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             else:
                 print("No entity_object found - using fallback method")
                 # Fallback to current_entity_data if no entity object
-                if hasattr(self, 'current_entity_data') and self.current_entity_data:
-                    # Update current_entity_data with new information
-                    self.current_entity_data.update(entity_data)
-                    # Try to create a basic display from the data
-                    self.populate_from_entity_data_fallback(self.current_entity_data)
+                self.populate_from_entity_data_fallback(entity_data)
 
             print("Entity display updated successfully")
 
@@ -961,140 +890,28 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             makeMessageBox(f"Error updating entity display: {str(e)}")
 
     def populate_from_entity_data_fallback(self, entity_data):
-        """Fallback method to populate lists when no Entity object is available"""
+        """Fallback method to populate lists when no Entity object is available - all list management should be done by Entity class"""
         try:
             # Clear all lists
             self.clear_all_lists()
+            
+            # Show status message - all list management should be done by Entity class
+            self.status_label.setText("No Entity object available - pending variable management must be done by Entity class")
+            self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
 
-            # Populate defined variables
-            defined_vars = entity_data.get('defined_variables', [])
-            for var_info in defined_vars:
-                self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
+            # Note: All list management should be done by Entity class methods
+            # Manual list population removed from fallback method
 
-            # Populate not defined variables
-            not_defined_vars = entity_data.get('not_defined_variables', [])
-            for var_info in not_defined_vars:
-                self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
+            # All remaining manual list management removed - Entity class should handle all lists
 
-            # Populate equations if available
-            equations = entity_data.get('equations', [])
-            for eq_info in equations:
-                self.add_to_list(self.ui.list_equations, str(eq_info), getIcon("equation"))
-
-            # Populate integrators from entity_data (not just from entity object)
-            integrators = entity_data.get('integrators', [])
-            for integrator_info in integrators:
-                if isinstance(integrator_info, dict):
-                    # Handle dict format: {var_id: eq_id}
-                    for var_id, eq_id in integrator_info.items():
-                        if hasattr(self, 'ontology_container') and self.ontology_container:
-                            variables = self.ontology_container.variables
-                            if var_id in variables:
-                                var_data = variables[var_id]
-                                var_info = {
-                                        'id'     : var_id,
-                                        'label'  : var_data.get('label', var_id),
-                                        'network': var_data.get('network', 'unknown')
-                                        }
-                                # Add integrator info to the text
-                                var_info['label'] = f"{var_info['label']} -> {eq_id}"
-                                self.add_variable_to_list(self.ui.list_integrators, var_info)
-
-            # Try to populate other lists if entity object has the data
+            # If Entity object is available, use the proper Entity-based method
             if hasattr(self, 'current_entity') and self.current_entity:
                 entity = self.current_entity
+                self.populate_lists_from_entity(entity)  # Use Entity methods for all list management
+        except:
+            print("error in populate_from_entity_data_fallback ")
 
-                # Populate outputs
-                if hasattr(entity, 'output_vars') and entity.output_vars:
-                    ontology_container = getattr(self, 'ontology_container', None)
-                    if ontology_container and hasattr(ontology_container, 'variables'):
-                        variables = ontology_container.variables
-                        for var_id in entity.output_vars:
-                            if var_id in variables:
-                                var_data = variables[var_id]
-                                var_info = {
-                                        'id'     : var_id,
-                                        'label'  : var_data.get('label', var_id),
-                                        'network': var_data.get('network', 'unknown')
-                                        }
-                                self.add_variable_to_list(self.ui.list_outputs, var_info)
-
-                # Populate inputs
-                if hasattr(entity, 'input_vars') and entity.input_vars:
-                    ontology_container = getattr(self, 'ontology_container', None)
-                    if ontology_container and hasattr(ontology_container, 'variables'):
-                        variables = ontology_container.variables
-                        for var_id in entity.input_vars:
-                            if var_id in variables:
-                                var_data = variables[var_id]
-                                var_info = {
-                                        'id'     : var_id,
-                                        'label'  : var_data.get('label', var_id),
-                                        'network': var_data.get('network', 'unknown')
-                                        }
-                                self.add_variable_to_list(self.ui.list_inputs, var_info)
-
-                # Populate initialization variables
-                if hasattr(entity, 'init_vars') and entity.init_vars:
-                    ontology_container = getattr(self, 'ontology_container', None)
-                    if ontology_container and hasattr(ontology_container, 'variables'):
-                        variables = ontology_container.variables
-                        for var_id in entity.init_vars:
-                            if var_id in variables:
-                                var_data = variables[var_id]
-                                var_info = {
-                                        'id'     : var_id,
-                                        'label'  : var_data.get('label', var_id),
-                                        'network': var_data.get('network', 'unknown')
-                                        }
-                                self.add_variable_to_list(self.ui.list_instantiate, var_info)
-
-                # Populate integrators - THIS IS THE KEY FIX
-                if hasattr(entity, 'integrators') and entity.integrators:
-                    print(f"Populating integrators in fallback: {entity.integrators}")
-                    ontology_container = getattr(self, 'ontology_container', None)
-                    if ontology_container and hasattr(ontology_container, 'variables'):
-                        variables = ontology_container.variables
-                        for var_id, eq_id in entity.integrators.items():
-                            if var_id in variables:
-                                var_data = variables[var_id]
-                                var_info = {
-                                        'id'     : var_id,
-                                        'label'  : var_data.get('label', var_id),
-                                        'network': var_data.get('network', 'unknown')
-                                        }
-                                # Add integrator info to the text
-                                var_info['label'] = f"{var_info['label']} -> {eq_id}"
-                                self.add_variable_to_list(self.ui.list_integrators, var_info)
-
-                # Populate equations from var_eq_forest
-                if hasattr(entity, 'var_eq_forest') and entity.var_eq_forest:
-                    print(f"Populating equations from var_eq_forest in fallback: {entity.var_eq_forest}")
-                    equations_in_forest = set()
-                    for tree in entity.var_eq_forest:
-                        for key, values in tree.items():
-                            if key.startswith('E_'):  # It's an equation
-                                equations_in_forest.add(key)
-                            elif values:  # It's a variable with equations
-                                for eq_id in values:
-                                    equations_in_forest.add(eq_id)
-
-                    # Add equations to list
-                    for eq_id in equations_in_forest:
-                        eq_text = f"Equation {eq_id}"
-                        ontology_container = getattr(self, 'ontology_container', None)
-                        icon = None
-                        if ontology_container and hasattr(ontology_container,
-                                                          'equation_icons') and eq_id in ontology_container.equation_icons:
-                            icon = ontology_container.equation_icons[eq_id]
-
-                        self.add_to_list(self.ui.list_equations, eq_text, icon, context='entity_equations')
-
-        except Exception as e:
-            print(f"Error in fallback population: {e}")
-            makeMessageBox(f"Error populating entity lists: {str(e)}")
-
-    # ======================= window controls ==========================
+        # ======================= window controls ==========================
 
     def mousePressEvent(self, event, QMouseEvent=None):
         self.dragPos = event.globalPos()

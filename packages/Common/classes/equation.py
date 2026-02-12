@@ -1,6 +1,5 @@
 """Contains the equation class."""
-from typing import TypedDict, List, Optional, Dict, Tuple
-from typing_extensions import Self
+from typing import TypedDict, List, Optional, Dict, Tuple, Self
 from datetime import datetime
 
 
@@ -141,26 +140,30 @@ class Equation():
     """
     # TODO Find a way that is independent from hard coded identifiers.
     # Probably from variable classes or tags
-    try:
-        instantiate_operator = getattr(self, 'operators', {}).get("Instantiate")
-        if instantiate_operator and hasattr(self, 'rhs'):
-            rhs_content = self.rhs
-            
-            # Check different ways the RHS might be structured
-            if isinstance(rhs_content, dict):
-                for key, value in rhs_content.items():
-                    if instantiate_operator in str(value):
-                        return True
-            elif isinstance(rhs_content, str):
-                if instantiate_operator in rhs_content:
-                    return True
-            else:
-                if instantiate_operator in str(rhs_content):
-                    return True
+    # try:
+    instantiate_operator = getattr(self, 'operators', {}).get("Instantiate")
+    if instantiate_operator and hasattr(self, 'rhs'):
+        rhs_content = self.rhs["global_ID"]
+        if instantiate_operator in rhs_content:
+          return True
+        else:
+          return False
+
+            # # Check different ways the RHS might be structured
+            # if isinstance(rhs_content, dict):
+            #     for key, value in rhs_content.items():
+            #         if instantiate_operator in str(value):
+            #             return True
+            # elif isinstance(rhs_content, str):
+            #     if instantiate_operator in rhs_content:
+            #         return True
+            # else:
+            #     if instantiate_operator in str(rhs_content):
+            #         return True
                     
-    except (AttributeError, KeyError):
-        pass
-    return False
+    # except (AttributeError, KeyError):
+    #     pass
+    # return False
 
   def parse_integrator(self):
     # NOTE: fixed HAP 2006-02-10

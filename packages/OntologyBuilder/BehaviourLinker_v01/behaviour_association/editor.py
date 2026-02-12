@@ -328,6 +328,19 @@ class BehaviorAssociationEditor(QtWidgets.QMainWindow):
 
         return filtered_variables
 
+    # def on_list_pending_variables_clicked(self, index):
+    #     """Handle click on pending variables list - go directly to equation selection"""
+    #
+    #     print(">>>>>>>>>>>>>>>>>>>>>>>")
+    #     print(f"Clicked index: {index}")
+    #     self.
+    #
+    #     # Get the model and item from the index
+    #     model = self.ui.list_not_defined_variables.model()
+    #     if model and index.isValid():
+    #         item = model.itemFromIndex(index)
+    #         self.va
+
     def select_variable_and_build_tree(self):
         """Select the current variable and build the behavior tree"""
         current_item = self.variable_list.currentItem()

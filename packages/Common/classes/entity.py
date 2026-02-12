@@ -10,7 +10,7 @@ from typing import Optional
 from typing import Tuple
 from typing import TypedDict
 
-from typing_extensions import Self
+from typing import Self
 
 from Common.classes import equation
 
@@ -33,7 +33,7 @@ class Entity():
 
     def __init__(
             self,
-            entity_name: str,
+            entity_id: str,
             all_equations: Dict[str, equation.Equation],
             index_set: Optional[str] = None,
             integrators: Optional[Dict[str, str]] = None,
@@ -45,7 +45,7 @@ class Entity():
         # """Initializes the entity.
 
         # Args:
-        #     entity_name (str): Name of the entity.
+        #     entity_id (str): Full ID of the entity (network.category.type.name).
         #     var_eq_tree (Optional[EntityDict], optional): List of trees that
         #       link variables and equations used in the Entity.
         #       Defaults to None.
@@ -53,7 +53,7 @@ class Entity():
         #       that require initialization. Defaults to None.
         # """
         # TODO: Add modification date field.
-        self.entity_name = entity_name
+        self.entity_id = entity_id
         self.index_set = index_set
         self.integrators = integrators if integrators is not None else {}
         self.var_eq_forest = var_eq_forest if var_eq_forest is not None else [{}]
@@ -63,13 +63,13 @@ class Entity():
         self.all_equations = all_equations
         self.is_reservoir = False
 
-        if entity_name == "Topology" or ">>>" in entity_name:
+        if entity_id == "Topology" or ">>>" in entity_id:
             self.entity_type = "interface"
             return
 
         try:
             # Simple split into exactly 4 parts
-            self.network, self.category, self.entity_type, self.name = entity_name.split('.', 3)
+            self.network, self.category, self.entity_type, self.name = entity_id.split('.', 3)
 
             # Set index set based on category
             self.index_set = f"{self.category.capitalize()}_{self.entity_type[:4].lower()}"
@@ -106,26 +106,26 @@ class Entity():
         """
         import copy
         variant = copy.deepcopy(self)
-        variant.entity_name = new_name
+        variant.entity_id = new_name
 
         # Add variant relationship metadata
         if not hasattr(variant, 'variant_of'):
-            variant.variant_of = self.entity_name
+            variant.variant_of = self.entity_id
 
         return variant
 
-    def create_new_instance(self, entity_name, entity_type=None):
+    def create_new_instance(self, entity_id, entity_type=None):
         """Create a completely new instance with default values.
 
         Args:
-            entity_name: Name for the new instance
+            entity_id: Full ID for the new instance
             entity_type: Optional type for the new instance
 
         Returns:
             Entity: A new entity instance
         """
         new_entity = Entity(
-                entity_name=entity_name,
+                entity_id=entity_id,
                 all_equations={},  # Will be populated by the caller
                 index_set=self.index_set if hasattr(self, 'index_set') else "",
                 )
@@ -800,42 +800,42 @@ class Entity():
         return list(all_equations)
 
     def get_entity_name(self):
-        return self.entity_name
+        return self.entity_id
 
     def contains_var(self, var_id: str) -> bool:
         return var_id in self.get_variables()
 
     def is_interface_ent(self) -> bool:
         # TODO: Check if we should add a new field (entity type) instead.
-        return ">>>" in self.entity_name
+        return ">>>" in self.entity_id
 
     def get_type(self) -> Optional[str]:
-        if self.entity_name == "Topology":
+        if self.entity_id == "Topology":
             return None
 
         if self.is_interface_ent():
             return "interface"
 
-        _, ent_type, _, _ = self.entity_name.split(".")
+        _, ent_type, _, _ = self.entity_id.split(".")
         return ent_type
 
     def get_network(self) -> Optional[List[str]]:
-        if self.entity_name == "Topology":
+        if self.entity_id == "Topology":
             return None
 
-        if ">>>" in self.entity_name:
-            return [self.entity_name.split(" ")[0], self.entity_name.split(" ")[2]]
+        if ">>>" in self.entity_id:
+            return [self.entity_id.split(" ")[0], self.entity_id.split(" ")[2]]
 
-        return [self.entity_name.split(".")[0]]
+        return [self.entity_id.split(".")[0]]
 
     def get_tokens(self) -> Optional[List[str]]:
-        if self.entity_name == "Topology":
+        if self.entity_id == "Topology":
             return None
 
-        if ">>>" in self.entity_name:
+        if ">>>" in self.entity_id:
             return None
 
-        str1 = self.entity_name.split(".")[2]
+        str1 = self.entity_id.split(".")[2]
         token_str = str1.split("|")[0]
         tokens = token_str.split("_")
         return tokens
@@ -843,7 +843,7 @@ class Entity():
     def printMe(self):
         dictionary = self.convert_to_dict()
         print("\n===================")
-        print("\nEntity name: ", self.entity_name)
+        print("\nEntity name: ", self.entity_id)
         for key, value in dictionary.items():
             print(key, value)
         print("\n===================")

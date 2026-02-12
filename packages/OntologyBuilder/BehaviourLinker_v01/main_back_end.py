@@ -16,8 +16,8 @@ from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-root = os.path.abspath(os.path.join("."))
-sys.path.extend([root, os.path.join(root, "resources")])
+root = os.path.abspath(os.path.join("..", ".."))  # Go up two levels to project root
+sys.path.extend([root, os.path.join(root, "packages")])  # Add packages directory to path
 
 
 class BehaviourLinerBackEnd(QObject):
@@ -70,8 +70,12 @@ class BehaviourLinerBackEnd(QObject):
             # Handle behavior association from BehaviorAssociation editor (legacy)
             self.handle_behavior_association(message.get("assignments"))
         elif message.get("event") == "entity_data_ready":
-            # Handle new entity data with equation selection
-            self.process_entity_data(message.get("entity_data"))
+            # Handle new entity with Entity object
+            entity = message.get("entity_object")
+            if entity:
+                self.process_entity_object(entity)
+            else:
+                print("No Entity object found in entity_data_ready message")
         elif message.get("event") == "populate_entity_lists":
             # Handle populate_entity_lists from backend
             self.send_message_to_entity_frontend("populate_entity_lists", message.get("lists_data"))
@@ -84,6 +88,31 @@ class BehaviourLinerBackEnd(QObject):
             error_msg = message.get("error", "Unknown error")
             print(f"Entity editor error: {error_msg}")
             self.send_message_to_main_frontend("error", {"error": error_msg})
+
+    def process_entity_object(self, entity):
+        """Process Entity object directly - no data duplication needed"""
+        try:
+            if not entity:
+                print("No Entity object provided")
+                return
+
+            # Use the Entity object directly - no more data extraction needed
+            entity_id = getattr(entity, 'entity_id', 'Unknown Entity')
+            print(f"Processing Entity object: {entity_id}")
+            print(f"Entity var_eq_forest: {entity.var_eq_forest}")
+            print(f"Entity output_vars: {entity.output_vars}")
+            print(f"Entity input_vars: {entity.input_vars}")
+            print(f"Entity init_vars: {entity.init_vars}")
+
+            # Add the entity to all_entities
+            self.add_entity_to_all_entities(entity)
+
+            # Update the entity editor frontend with the Entity information
+            self.update_entity_editor_frontend(entity)
+
+        except Exception as e:
+            print(f"Error processing Entity object: {e}")
+            self.send_message_to_main_frontend("error", {"error": str(e)})
 
     def process_entity_data(self, entity_data):
         """Process the entity data with equation selection and update frontend"""
@@ -98,16 +127,16 @@ class BehaviourLinerBackEnd(QObject):
             # print(f"Processing entity for variable: {root_variable}")
             # print(f"Definition method: {definition_method}")
 
-            if definition_method == 'initialization':
-                print(f"Variable will be marked for initialization")
-            else:
-                equation_id = entity_data.get('equation_id')
-                # print(f"Variable will be defined by equation: {equation_id}")
+            # if definition_method == 'initialization':
+            #     print(f"Variable will be marked for initialization")
+            # else:
+            #     equation_id = entity_data.get('equation_id')
+            #     # print(f"Variable will be defined by equation: {equation_id}")
 
             # Get the Entity object if available
             entity = entity_data.get('entity_object')
             if entity:
-                entity_name = getattr(entity, 'entity_name', 'Unknown Entity')
+                entity_name = getattr(entity, 'entity_id', 'Unknown Entity')
                 print(f"Found Entity object: {entity_name}")
                 print(f"Entity var_eq_forest: {entity.var_eq_forest}")
                 print(f"Entity output_vars: {entity.output_vars}")
@@ -144,7 +173,7 @@ class BehaviourLinerBackEnd(QObject):
                 # Update the frontend with the Entity object
                 self.entity_editor_frontend.set_entity_object(entity)
 
-                entity_name = getattr(entity, 'entity_name', 'Unknown Entity')
+                entity_name = getattr(entity, 'entity_id', 'Unknown Entity')
                 print(f"Updated entity editor frontend with Entity: {entity_name}")
             else:
                 print("Entity editor frontend not available")
@@ -160,19 +189,19 @@ class BehaviourLinerBackEnd(QObject):
                 print("Cannot add entity to all_entities - Entity object is None")
                 return
             
-            if not hasattr(entity, 'entity_name'):
+            if not hasattr(entity, 'entity_id'):
                 print("Cannot add entity to all_entities - Entity object missing entity_name attribute")
                 return
             
             # Check if entity already exists
-            entity_name = entity.entity_name
-            if entity_name in self.all_entities:
-                print(f"Updating existing entity {entity_name} in all_entities")
+            entity_id = entity.entity_id
+            if entity_id in self.all_entities:
+                print(f"Updating existing entity {entity_id} in all_entities")
             else:
-                print(f"Adding new entity {entity_name} to all_entities")
+                print(f"Adding new entity {entity_id} to all_entities")
 
             # Add/update the entity in the all_entities dictionary
-            self.all_entities[entity_name] = entity
+            self.all_entities[entity_id] = entity
 
             # Save all_entities to file
             self.save_entities_to_file()
