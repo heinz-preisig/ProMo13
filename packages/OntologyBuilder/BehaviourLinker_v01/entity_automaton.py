@@ -12,10 +12,10 @@ gui_automaton = {
         "edit"  : {
                 "accept"            : True,
                 "add_state_variable": True,
-                "add_variable"      : False,
+                "add_variable"      : True,
                 "cancel"            : True,
                 "delete_entity"     : False,
-                "delete_variable"   : False,
+                "delete_variable"   : True,
                 "edit_variable"     : False,
                 },
         }

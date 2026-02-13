@@ -14,6 +14,9 @@ root = os.path.abspath(os.path.join("."))
 sys.path.extend([root, os.path.join(root, "resources")])
 
 
+# Import the enhanced variable deletion function
+from OntologyBuilder.BehaviourLinker_v01.variable_deletion import handle_variable_deletion_with_dependencies
+
 class EntityEditorBackEnd(QObject):
     message = pyqtSignal(dict)
 
@@ -55,6 +58,8 @@ class EntityEditorBackEnd(QObject):
             self.launch_behavior_association_editor()
         elif event == "def_variable":
             self.launch_equation_association_editor(message.get("var_id"))
+        elif event == "delete_variable":
+            self.handle_variable_deletion(message.get("var_id"))
         elif event == "save_entity":
             # Handle entity save from Accept button
             entity = message.get('entity')
@@ -235,7 +240,7 @@ class EntityEditorBackEnd(QObject):
                     # Update the entity's equation dictionary with current available equations
                     if hasattr(self.ontology_container, 'list_equation_classes'):
                         current_equations = {}
-                        for eq_obj in self.ontology_container.list_equation_classes:
+                        for eq_obj in self.ontology_container.equation_entity_dict:
                             current_equations[eq_obj.eq_id] = eq_obj
                         
                         # Preserve existing equations and add current ones
@@ -323,8 +328,8 @@ class EntityEditorBackEnd(QObject):
                     all_equations = {}
                     if hasattr(self.ontology_container, 'list_equation_classes'):
                         print(
-                            f"Using list_equation_classes with {len(self.ontology_container.list_equation_classes)} equations")
-                        for eq_obj in self.ontology_container.list_equation_classes:
+                            f"Using list_equation_classes with {len(self.ontology_container.equation_entity_dict)} equations")
+                        for eq_obj in self.ontology_container.equation_entity_dict:
                             all_equations[eq_obj.eq_id] = eq_obj
                             # Debug: Check if E_93 has is_integrator method
                             # if eq_obj.eq_id == 'E_93':
@@ -335,6 +340,12 @@ class EntityEditorBackEnd(QObject):
                     else:
                         print("list_equation_classes not found, falling back to equation_dictionary")
                         all_equations = getattr(self.ontology_container, 'equation_dictionary', {})
+                    print(f"DEBUG: ontology_container equation_dictionary keys: {list(all_equations.keys())}")
+                    print(f"DEBUG: ontology_container type: {type(self.ontology_container)}")
+                    if hasattr(self.ontology_container, 'equations'):
+                        print(f"DEBUG: ontology_container.equations keys: {list(self.ontology_container.equations.keys())}")
+                    if hasattr(self.ontology_container, 'all_equations'):
+                        print(f"DEBUG: ontology_container.all_equations keys: {list(self.ontology_container.all_equations.keys())}")
 
                     # Create entity with empty forest (like in the old implementation)
                     entity = Entity(
@@ -470,7 +481,7 @@ class EntityEditorBackEnd(QObject):
             # Get all equations from ontology container
             all_equations = {}
             if hasattr(self.ontology_container, 'list_equation_classes'):
-                for eq_obj in self.ontology_container.list_equation_classes:
+                for eq_obj in self.ontology_container.equation_entity_dict:
                     all_equations[eq_obj.eq_id] = eq_obj
             else:
                 all_equations = getattr(self.ontology_container, 'equation_dictionary', {})
@@ -609,8 +620,8 @@ class EntityEditorBackEnd(QObject):
                     all_equations = {}
                     if hasattr(self.ontology_container, 'list_equation_classes'):
                         print(
-                            f"Using list_equation_classes with {len(self.ontology_container.list_equation_classes)} equations")
-                        for eq_obj in self.ontology_container.list_equation_classes:
+                            f"Using list_equation_classes with {len(self.ontology_container.equation_entity_dict)} equations")
+                        for eq_obj in self.ontology_container.equation_entity_dict:
                             all_equations[eq_obj.eq_id] = eq_obj
                             # Debug: Check if E_93 has is_integrator method
                             if eq_obj.eq_id == 'E_93':
@@ -773,3 +784,97 @@ class EntityEditorBackEnd(QObject):
                     "event": "error",
                     "error": f"Error handling new variable addition: {str(e)}"
                     })
+
+    def handle_variable_deletion(self, var_id):
+        """Handle deletion of a variable from the entity using enhanced dependency analysis"""
+        try:
+            if not var_id:
+                print("No variable ID provided for deletion")
+                self.message.emit({
+                        "event": "error",
+                        "error": "No variable selected for deletion"
+                        })
+                return
+
+            print(f"Handling deletion of variable: {var_id}")
+
+            # Check if we have an entity object
+            if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
+                    entity = self.entity_frontend.current_entity
+                    print(f"Found entity: {entity.entity_id}")
+
+                    # Check if variable exists in entity
+                    all_variables = entity.get_all_variables()
+                    print(f"All variables in entity: {all_variables}")
+                    if var_id not in all_variables:
+                        print(f"Variable {var_id} not found in entity")
+                        self.message.emit({
+                                "event": "error",
+                                "error": f"Variable {var_id} not found in entity"
+                                })
+                        return
+
+                    # Ensure forest structure exists before deletion
+                    if not hasattr(entity, 'var_eq_forest') or not entity.var_eq_forest:
+                        print("Generating forest structure before deletion...")
+                        entity.generate_var_eq_forest({})
+                        print(f"Generated forest: {entity.var_eq_forest}")
+                    
+                    # Use the enhanced variable deletion with dependency analysis
+                    success, message, dependent_equations, orphaned_variables = handle_variable_deletion_with_dependencies(entity, var_id)
+
+                    if success:
+                        print(f"Variable deletion succeeded: {message}")
+                        
+                        # Mark entity as changed and update frontend
+                        self.entity_frontend.markChanged()
+                        
+                        # Force complete UI refresh
+                        print("Refreshing UI after deletion...")
+                        self.entity_frontend.populate_lists_from_entity(entity)
+                        
+                        # Send detailed success message
+                        full_message = f"Successfully deleted variable {var_id}"
+                        if dependent_equations:
+                            full_message += f"\nRemoved equations: {sorted(list(dependent_equations))}"
+                        if orphaned_variables:
+                            full_message += f"\nRemoved orphaned variables: {sorted(list(orphaned_variables))}"
+                        
+                        # Show remaining counts
+                        remaining_vars = entity.get_all_variables()
+                        remaining_eqs = list(entity.all_equations.keys())
+                        full_message += f"\nRemaining variables: {len(remaining_vars)}"
+                        full_message += f"\nRemaining equations: {len(remaining_eqs)}"
+                        
+                        self.message.emit({
+                                "event"  : "info",
+                                "message": full_message
+                                })
+                        
+                        print(f"DELETION COMPLETED:")
+                        print(f"  Deleted variable: {var_id}")
+                        print(f"  Dependent equations: {dependent_equations}")
+                        print(f"  Orphaned variables: {orphaned_variables}")
+                        print(f"  Remaining variables: {remaining_vars}")
+                        print(f"  Remaining equations: {remaining_eqs}")
+
+                else:
+                    print("No entity object found - cannot delete variable")
+                    self.message.emit({
+                        "event": "error",
+                        "error": "No entity available for variable deletion"
+                    })
+            else:
+                print("No entity frontend available")
+                self.message.emit({
+                    "event": "error",
+                    "error": "Entity editor not available"
+                })
+
+        except Exception as e:
+            print(f"Error handling variable deletion: {e}")
+            self.message.emit({
+                "event": "error",
+                "error": f"Error deleting variable: {str(e)}"
+                })

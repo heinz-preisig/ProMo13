@@ -403,13 +403,13 @@ class ProMoExchangeBoard():
         self.equation_icons = self.load_equation_icons()
         # Load variable icons as QIcon objects for use in dialogs
         self.variable_icons = self.load_variable_icons()
-        self.list_equation_classes = self.__makeEquationClassesDictionary()
+        self.equation_entity_dict = self.__makeEquationClassesDictionary()
 
         pass
 
     def __makeEquationClassesDictionary(self):
 
-        equation_class_list = []
+        equation_class_dict = {}
         for eq_id in self.equation_dictionary:
             eq_data = self.equation_dictionary[eq_id]
 
@@ -423,9 +423,9 @@ class ProMoExchangeBoard():
                           eq_data.get("created", "2024-01-01 00:00:00"),
                           eq_data.get("modified", "2024-01-01 00:00:00")
                           )
-            equation_class_list.append(eq)
+            equation_class_dict[eq_id] = eq
 
-        return equation_class_list
+        return equation_class_dict
 
     def indexEquations(self):
         self.equation_dictionary = self.makeEquationDictionary()

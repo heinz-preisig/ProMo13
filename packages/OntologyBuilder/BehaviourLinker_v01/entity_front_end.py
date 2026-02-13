@@ -75,6 +75,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ui.pushCancle.clicked.connect(self.on_pushCancle_pressed)
         self.ui.pushAddStateVariable.clicked.connect(self.on_pushAddStateVariable_pressed)
         self.ui.pushAddVariable.clicked.connect(self.on_pushAddVariable_pressed)
+        self.ui.pushDeleteVariable.clicked.connect(self.on_pushDeleteVariable_pressed)
         
         self.mode = "load"
         self.ontology_container = None
@@ -586,6 +587,95 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         message = {"event": "add_variable"}
         self.message.emit(message)
         self.ui.list_not_defined_variables
+
+    def on_pushDeleteVariable_pressed(self):
+        """Handle delete variable button - deletes selected variable from entity"""
+        try:
+            # Get the currently selected variable from any of the lists
+            selected_var_id = self.get_selected_variable_id()
+            
+            if not selected_var_id:
+                print("No variable selected for deletion")
+                from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
+                makeMessageBox("Please select a variable to delete")
+                return
+            
+            print(f"Delete button pressed for variable: {selected_var_id}")
+            
+            # Confirm deletion
+            from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
+            result = makeMessageBox(f"Delete variable {selected_var_id} from entity?", buttons=["YES", "NO"])
+            
+            if result == "YES":
+                # Send delete message to backend
+                message = {
+                    "event": "delete_variable",
+                    "var_id": selected_var_id
+                }
+                self.message.emit(message)
+                print(f"Sent delete_variable message: {message}")
+            else:
+                print("Variable deletion cancelled")
+                
+        except Exception as e:
+            print(f"Error in delete variable handler: {e}")
+            from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
+            makeMessageBox(f"Error deleting variable: {str(e)}")
+
+    def get_selected_variable_id(self):
+        """Get the ID of the currently selected variable from any list"""
+        try:
+            # Check all relevant lists for selected items
+            lists_to_check = [
+                self.ui.list_outputs,
+                self.ui.list_inputs, 
+                self.ui.list_instantiate,
+                self.ui.list_integrators,
+                self.ui.list_included_variables
+            ]
+            
+            for list_widget in lists_to_check:
+                print(f"Checking list: {list_widget.objectName()}")
+                
+                # QListView uses selectionModel() instead of selectedItems()
+                selection_model = list_widget.selectionModel()
+                if selection_model:
+                    selected_indexes = selection_model.selectedIndexes()
+                    print(f"Selected indexes count: {len(selected_indexes)}")
+                    
+                    if selected_indexes:
+                        # Get the first selected index
+                        selected_index = selected_indexes[0]
+                        model = list_widget.model()
+                        
+                        if model:
+                            item = model.itemFromIndex(selected_index)
+                            if item:
+                                print(f"Selected item text: {item.text()}")
+                                
+                                item_data = item.data(QtCore.Qt.UserRole)
+                                print(f"Item data: {item_data}")
+                                
+                                if item_data and 'id' in item_data:
+                                    print(f"Found ID in data: {item_data['id']}")
+                                    return item_data['id']
+                                
+                                # Try to extract ID from text if no data
+                                item_text = item.text()
+                                import re
+                                match = re.search(r'ID:\s*(\w+)', item_text)
+                                if match:
+                                    print(f"Found ID in text: {match.group(1)}")
+                                    return match.group(1)
+                else:
+                    print(f"List {list_widget.objectName()} has no selection model")
+            
+            print("No selected variable found")
+            return None
+            
+        except Exception as e:
+            print(f"Error getting selected variable ID: {e}")
+            return None
 
     def on_pushAccept_pressed(self):
         """Handle Accept button - save entity and close"""
