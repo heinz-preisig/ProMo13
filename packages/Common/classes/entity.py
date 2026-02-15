@@ -477,7 +477,21 @@ class Entity():
         print(f"Processing cleaned forest: {cleaned_forest}")
         print(f"Original all_equations keys: {list(original_all_equations.keys())}")
         
+        # First pass: collect all variables mentioned in equations
+        variables_mentioned_in_equations = set()
         for tree in cleaned_forest:
+            for key, values in tree.items():
+                if key.startswith('E_') and values:
+                    for var_id in values:
+                        if var_id.startswith('V_'):
+                            variables_mentioned_in_equations.add(var_id)
+        
+        print(f"Variables mentioned in equations: {variables_mentioned_in_equations}")
+        
+        # Second pass: process forest items and rebuild complete structure
+        rebuilt_forest = []
+        for tree in cleaned_forest:
+            rebuilt_tree = {}
             for key, values in tree.items():
                 print(f"Processing forest item: {key} -> {values}")
                 if key.startswith('V_'):
@@ -492,6 +506,9 @@ class Entity():
                     elif key in original_init_vars:
                         self.init_vars.append(key)
                         print(f"    Added to init_vars: {key}")
+                    
+                    # Add variable to rebuilt tree
+                    rebuilt_tree[key] = values
                         
                 elif key.startswith('E_'):
                     remaining_equations.add(key)
@@ -503,16 +520,41 @@ class Entity():
                     else:
                         print(f"    WARNING: Equation {key} not found in original_all_equations!")
                         print(f"    Available equations: {list(original_all_equations.keys())}")
+                    
+                    # Add equation to rebuilt tree
+                    rebuilt_tree[key] = values
+            
+            # Add missing variables that are mentioned in equations but not as keys
+            for var_id in variables_mentioned_in_equations:
+                if var_id not in rebuilt_tree:
+                    print(f"Adding missing variable to forest: {var_id}")
+                    rebuilt_tree[var_id] = []
+                    remaining_variables.add(var_id)
+                    
+                    # Determine variable type from original classification
+                    if var_id in original_output_vars:
+                        self.output_vars.append(var_id)
+                        print(f"    Added to output_vars: {var_id}")
+                    elif var_id in original_input_vars:
+                        self.input_vars.append(var_id)
+                        print(f"    Added to input_vars: {var_id}")
+                    elif var_id in original_init_vars:
+                        self.init_vars.append(var_id)
+                        print(f"    Added to init_vars: {var_id}")
+            
+            if rebuilt_tree:  # Only add non-empty trees
+                rebuilt_forest.append(rebuilt_tree)
         
-        print(f"Remaining equations: {remaining_equations}")
-        print(f"Restored all_equations: {list(self.all_equations.keys())}")
+        # Update the forest with the rebuilt structure
+        self.var_eq_forest = rebuilt_forest
+        print(f"Rebuilt forest: {self.var_eq_forest}")
         
         # Rebuild integrators from remaining components
-        print(f"Rebuilding integrators from cleaned forest...")
-        print(f"Cleaned forest: {cleaned_forest}")
+        print(f"Rebuilding integrators from rebuilt forest...")
+        print(f"Rebuilt forest: {self.var_eq_forest}")
         print(f"Available equations: {list(self.all_equations.keys())}")
         
-        for tree in cleaned_forest:
+        for tree in self.var_eq_forest:
             for key, values in tree.items():
                 if key.startswith('E_') and values and key in self.all_equations:
                     equation = self.all_equations[key]
