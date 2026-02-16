@@ -184,7 +184,17 @@ class EntityEditorBackEnd(QObject):
             print(f"Debug: Launching behavior association editor with entity type: {entity_type_info}")
 
             # Launch the BehaviorAssociation editor with entity type info
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info)
+            current_entity = None
+            if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
+                    current_entity = self.entity_frontend.current_entity
+                    print(f"Debug: Found current_entity in frontend: {current_entity}")
+                else:
+                    print("Debug: No current_entity in frontend")
+            else:
+                print("Debug: No entity_frontend available")
+            
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'state', current_entity)
             print(f"Debug: Received assignments: {assignments}")
             if assignments:
                 # Process the assignments directly

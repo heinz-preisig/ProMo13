@@ -874,7 +874,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Create mode: Launching state variable selector for entity type: {entity_type_info}")
 
             # Launch the BehaviorAssociation editor in state variable selection mode
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info)
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'state', self.current_entity)
 
             if assignments:
                 # Process the state variable selection
@@ -907,7 +907,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             print(f"Edit mode: Launching new variable selector for entity: {entity_type_info}")
 
             # Launch the BehaviorAssociation editor in new variable addition mode
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info)
+            print(f"Debug: About to launch editor with current_entity: {self.current_entity}")
+            print(f"Debug: hasattr current_entity: {hasattr(self, 'current_entity')}")
+            if hasattr(self, 'current_entity') and self.current_entity:
+                print(f"Debug: current_entity.get_all_variables(): {self.current_entity.get_all_variables()}")
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'all', self.current_entity)
 
             if assignments:
                 # Process the new variable addition

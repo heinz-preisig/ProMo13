@@ -146,7 +146,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
     # Add signal for cancellation
     cancelled = QtCore.pyqtSignal()
 
-    def __init__(self, ontology_container, entity_type_info=None, variable_class_mode='state', parent=None):
+    def __init__(self, ontology_container, entity_type_info=None, variable_class_mode='state', current_entity=None, parent=None):
         super().__init__(parent)
         
         # Set frameless window flags BEFORE UI setup with aggressive top-most behavior
@@ -168,6 +168,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         self.ontology_name = ontology_container.ontology_name
         self.entity_type_info = entity_type_info or {}  # Store entity type info for rules
         self.variable_class_mode = variable_class_mode  # Store variable class mode
+        self.current_entity = current_entity  # Store current entity for filtering
 
         # Preload variable icons for better performance
         self.preloaded_variable_icons = {}
@@ -407,10 +408,42 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             print(f"Error adjusting list view size: {e}")
 
     def _filter_variables_by_rules(self, variables):
-        """Filter variables based on entity type rules and variable class mode"""
+        """Filter variables based on entity type rules and exclude already included variables"""
+        print(f"Debug: _filter_variables_by_rules called with {len(variables)} variables")
+        
         if not self.entity_type_info:
             # No entity type info, return all variables
             return variables
+
+        # First, get variables already included in current entity
+        already_included = set()
+        entity_to_use = self.current_entity
+        
+        # Fallback: try to get entity from ontology_container if current_entity is None
+        if entity_to_use is None and hasattr(self.ontology_container, 'current_entity'):
+            entity_to_use = self.ontology_container.current_entity
+            print(f"Debug: Using fallback entity from ontology_container: {entity_to_use}")
+        
+        if entity_to_use and hasattr(entity_to_use, 'get_all_variables'):
+            try:
+                already_included = set(entity_to_use.get_all_variables())
+                print(f"Debug: Using entity: {entity_to_use}")
+                print(f"Debug: Entity type: {type(entity_to_use)}")
+                print(f"Debug: Already included variables: {already_included}")
+                print(f"Debug: Entity attributes - output_vars: {getattr(entity_to_use, 'output_vars', 'None')}")
+                print(f"Debug: Entity attributes - input_vars: {getattr(entity_to_use, 'input_vars', 'None')}")
+                print(f"Debug: Entity attributes - init_vars: {getattr(entity_to_use, 'init_vars', 'None')}")
+            except Exception as e:
+                print(f"Debug: Error getting included variables: {e}")
+        else:
+            print(f"Debug: No entity available for filtering")
+            print(f"Debug: self.current_entity = {self.current_entity}")
+            print(f"Debug: hasattr(self.current_entity, 'get_all_variables') = {hasattr(self.current_entity, 'get_all_variables') if self.current_entity else 'N/A'}")
+            print(f"Debug: hasattr(ontology_container, 'current_entity') = {hasattr(self.ontology_container, 'current_entity') if self.ontology_container else 'N/A'}")
+            if hasattr(self.ontology_container, 'current_entity'):
+                print(f"Debug: ontology_container.current_entity = {self.ontology_container.current_entity}")
+            else:
+                print(f"Debug: ontology_container has no current_entity attribute")
 
         # Get classification rules
         classification = VariableClassificationRules.classify_variables(variables, self.entity_type_info)
@@ -446,6 +479,19 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             # Default to state mode for unknown modes
             filtered_variables = classification['allowed_root']
             # print(f"Debug: Default mode - showing {len(filtered_variables)} root variables")
+
+        # Additional filtering: exclude variables already in the entity
+        if already_included:
+            final_filtered = []
+            for var in filtered_variables:
+                if var['id'] not in already_included:
+                    final_filtered.append(var)
+                else:
+                    print(f"Debug: Excluding already included variable: {var['id']}")
+            
+            print(f"Debug: Filtered from {len(filtered_variables)} to {len(final_filtered)} variables (excluded {len(filtered_variables) - len(final_filtered)} already included)")
+            print(f"Debug: Final filtered variables: {[v['id'] for v in final_filtered]}")
+            filtered_variables = final_filtered
 
         return filtered_variables
 
@@ -547,7 +593,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         return self.entity_assignments
 
 
-def launch_behavior_association_editor(ontology_container, entity_type_info=None, variable_class_mode='state'):
+def launch_behavior_association_editor(ontology_container, entity_type_info=None, variable_class_mode='state', current_entity=None):
     """
     Launch the BehaviorAssociation editor
     
@@ -555,6 +601,7 @@ def launch_behavior_association_editor(ontology_container, entity_type_info=None
         ontology_container: The ontology container with variables and equations
         entity_type_info: Dictionary containing network, category, entity_type for rule-based filtering
         variable_class_mode: 'state' for state variables only, 'all' for all applicable variables
+        current_entity: The current entity object to filter out already included variables
         
     Returns:
         The entity assignments if defined, None otherwise
@@ -567,7 +614,7 @@ def launch_behavior_association_editor(ontology_container, entity_type_info=None
         # This helps with PNG loading in dialogs
         app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
-    editor = BehaviorAssociationEditor(ontology_container, entity_type_info, variable_class_mode)
+    editor = BehaviorAssociationEditor(ontology_container, entity_type_info, variable_class_mode, current_entity)
     
     assignments = None
 
