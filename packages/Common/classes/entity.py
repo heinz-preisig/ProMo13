@@ -63,6 +63,7 @@ class Entity():
         self.all_equations = all_equations
         self.is_reservoir = False
 
+        self.all_included_variables = []
         if entity_id == "Topology" or ">>>" in entity_id:
             self.entity_type = "interface"
             return
@@ -142,10 +143,39 @@ class Entity():
         return bool(self.integrators)
 
     def integrators_info(self):
-        return list(self.integrators.items())
+        """Get integrator variable-equation pairs from forest."""
+        forest_data = self._get_all_variables_from_forest()
+        
+        # Build mapping of variable -> equation for integrators
+        integrator_pairs = []
+        for equation in forest_data['all_equations']:
+            if (hasattr(self, 'all_equations') and 
+                equation in self.all_equations and 
+                self.all_equations[equation].is_integrator()):
+                var_id = self.all_equations[equation].lhs["global_ID"]
+                integrator_pairs.append((var_id, equation))
+        
+        return integrator_pairs
+    
+    def get_integrator_vars(self):
+        """Get integrator variables from forest."""
+        forest_data = self._get_all_variables_from_forest()
+        return sorted(list(forest_data['integrators']))
 
     def get_integrators_eq(self):
-        return sorted(list(self.integrators.values()))
+        """Get integrator equations from forest."""
+        forest_data = self._get_all_variables_from_forest()
+        
+        # Build mapping of variable -> equation for integrators
+        integrator_eqs = {}
+        for equation in forest_data['all_equations']:
+            if (hasattr(self, 'all_equations') and 
+                equation in self.all_equations and 
+                self.all_equations[equation].is_integrator()):
+                var_id = self.all_equations[equation].lhs["global_ID"]
+                integrator_eqs[var_id] = equation
+        
+        return sorted(list(integrator_eqs.values()))
 
     def get_equations(self):
         # TODO: Check if something breaks after returning all equations
@@ -160,25 +190,65 @@ class Entity():
 
         return sorted(equations)
 
-    def get_variables(self):
-        variables = list(self.integrators.keys())
-        print(f"Variables from integrators: {variables}")
-
-        forest_vars = []
-        for tree in self.var_eq_forest:
-            tree_vars = [key for key in tree if "V_" in key]
-            forest_vars.extend(tree_vars)
-            print(f"Variables from tree {tree}: {tree_vars}")
+    def _get_all_variables_from_forest(self):
+        """Helper method to get all variables and their categorization from forest."""
+        all_variables = set()
+        all_equations = set()
+        equation_defined_vars = set()
+        integrators = set()
         
-        variables.extend(forest_vars)
-        unique_vars = sorted(list(set(variables)))
-        print(f"Final get_variables() result: {unique_vars}")
-        return unique_vars
+        if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+            for tree in self.var_eq_forest:
+                for key, values in tree.items():
+                    if key.startswith('V_'):
+                        all_variables.add(key)
+                        # Variables with values are defined by equations
+                        if values:
+                            equation_defined_vars.add(key)
+                    
+                    if key.startswith('E_'):
+                        all_equations.add(key)
+                        # Find integrator equations
+                        if (hasattr(self, 'all_equations') and 
+                            key in self.all_equations and 
+                            self.all_equations[key].is_integrator()):
+                            var_id = self.all_equations[key].lhs["global_ID"]
+                            integrators.add(var_id)
+        
+        return {
+            'all_variables': all_variables,
+            'all_equations': all_equations,
+            'equation_defined_vars': equation_defined_vars,
+            'integrators': integrators
+        }
+    
+    def get_variables(self):
+        """Get all variables included in the entity."""
+        forest_data = self._get_all_variables_from_forest()
+        
+        # Combine variables from forest, integrators, and init variables
+        all_vars = set(forest_data['all_variables'])
+        all_vars.update(forest_data['integrators'])
+        # Include init variables that might not be in forest (for instantiation)
+        all_vars.update(set(getattr(self, 'init_vars', [])))
+        
+        return sorted(list(all_vars))
 
     def get_input_vars(self):
-        return sorted(self.input_vars)
+        """Get input variables (variables not defined by equations)."""
+        forest_data = self._get_all_variables_from_forest()
+        
+        # Input variables are those not defined by equations and not in init_vars
+        input_vars = (forest_data['all_variables'] - 
+                     forest_data['equation_defined_vars'] - 
+                     set(getattr(self, 'init_vars', [])))
+        
+        return sorted(list(input_vars))
 
     def set_input_var(self, var_id, is_input):
+        """Legacy method for backward compatibility. Consider using forest-based approach."""
+        if not hasattr(self, 'input_vars'):
+            self.input_vars = []
         if is_input:
             if var_id not in self.input_vars:
                 self.input_vars.append(var_id)
@@ -186,10 +256,76 @@ class Entity():
             if var_id in self.input_vars:
                 self.input_vars.remove(var_id)
 
-    def get_output_vars(self):
-        return sorted(self.output_vars)
+    def get_output_vars(self, all_variables=None):
+        """Get output variables (variables defined by equations).
+        
+        Args:
+            all_variables: Optional Dict[str, Variable] to filter out transport variables.
+                          If provided, variables with type 'transport' will be excluded.
+        
+        Returns:
+            List of variable IDs that are output variables (excluding transport variables if all_variables provided)
+        """
+        return self.get_equation_defined_vars(all_variables)
+
+    def get_transport_vars(self, all_variables):
+        """Get all transport variables in the entity.
+        
+        Args:
+            all_variables: Dict[str, Variable] containing variable information
+        
+        Returns:
+            List of variable IDs that have type 'transport'
+        """
+        transport_vars = set()
+        
+        # Get all variables in the entity
+        entity_var_ids = set(self.get_variables())
+        
+        # Filter for transport variables
+        for var_id in entity_var_ids:
+            if var_id in all_variables:
+                var_obj = all_variables[var_id]
+                if hasattr(var_obj, 'type') and var_obj.type == 'transport':
+                    transport_vars.add(var_id)
+        
+        return sorted(list(transport_vars))
+
+    def get_equation_defined_vars(self, all_variables=None):
+        """Get variables that are defined by equations.
+        
+        This is the explicit method for accessing equation-defined variables.
+        Returns variables that have defining equations in the var_eq_forest.
+        
+        Args:
+            all_variables: Optional Dict[str, Variable] to filter out transport variables.
+                          If provided, variables with type 'transport' will be excluded.
+        
+        Returns:
+            List of variable IDs defined by equations (excluding transport variables if all_variables provided)
+        """
+        forest_data = self._get_all_variables_from_forest()
+        equation_defined_vars = set(forest_data['equation_defined_vars'])
+        
+        # Filter out transport variables if all_variables is provided
+        if all_variables is not None:
+            non_transport_vars = set()
+            for var_id in equation_defined_vars:
+                if var_id in all_variables:
+                    var_obj = all_variables[var_id]
+                    if hasattr(var_obj, 'type') and var_obj.type != 'transport':
+                        non_transport_vars.add(var_id)
+                else:
+                    # If variable not found in all_variables, include it (fallback behavior)
+                    non_transport_vars.add(var_id)
+            equation_defined_vars = non_transport_vars
+        
+        return sorted(list(equation_defined_vars))
 
     def set_output_var(self, var_id, is_output):
+        """Legacy method for backward compatibility. Consider using forest-based approach."""
+        if not hasattr(self, 'output_vars'):
+            self.output_vars = []
         if is_output:
             if var_id not in self.output_vars:
                 self.output_vars.append(var_id)
@@ -198,9 +334,14 @@ class Entity():
                 self.output_vars.remove(var_id)
 
     def get_init_vars(self):
-        return sorted(self.init_vars)
+        """Get initialization variables."""
+        # Init vars are still stored as an attribute since they're user-defined
+        return sorted(getattr(self, 'init_vars', []))
 
     def set_init_var(self, var_id, is_init):
+        """Set a variable as initialization variable."""
+        if not hasattr(self, 'init_vars'):
+            self.init_vars = []
         if is_init:
             if var_id not in self.init_vars:
                 self.init_vars.append(var_id)
@@ -209,15 +350,19 @@ class Entity():
                 self.init_vars.remove(var_id)
 
     def get_pending_vars(self):
-        no_eq_vars = set()
-        for tree in self.var_eq_forest:
-            for key, value in tree.items():
-                if "V_" in key and not value:
-                    no_eq_vars.add(key)
-
-        pending_vars = no_eq_vars - \
-                       (set(self.input_vars) | set(self.init_vars))
-
+        """Get variables that are not yet defined (need instantiation)."""
+        forest_data = self._get_all_variables_from_forest()
+        
+        # Variables without defining equations
+        no_eq_vars = forest_data['all_variables'] - forest_data['equation_defined_vars']
+        
+        # Input variables are those not defined by equations and not in init_vars
+        input_vars = no_eq_vars - set(getattr(self, 'init_vars', []))
+        
+        # Pending variables are those that need to be defined (excluding inputs and init vars)
+        # In the new dynamic system, pending vars are empty since all undefined vars are inputs
+        pending_vars = no_eq_vars - input_vars - set(getattr(self, 'init_vars', []))
+        
         return sorted(list(pending_vars))
 
     def get_all_variables(self):
@@ -257,14 +402,11 @@ class Entity():
                         equation = self.all_equations[eq_id]
                         print(f"      Equation type: {type(equation)}")
                         print(f"      Equation content: {equation}")
-                        if hasattr(equation, 'is_instantiation_eq'):
-                            is_instantiation = equation.is_instantiation_eq()
-                            print(f"      Is instantiation equation: {is_instantiation}")
-                            if is_instantiation:
-                                instantiation_vars.add(var_id)
-                                print(f"      Added {var_id} to instantiation list")
-                        else:
-                            print(f"      ERROR: Equation {eq_id} is {type(equation)} and has no is_instantiation_eq method!")
+                        is_instantiation = equation.is_instantiation_eq()
+                        print(f"      Is instantiation equation: {is_instantiation}")
+                        if is_instantiation:
+                            instantiation_vars.add(var_id)
+                            print(f"      Added {var_id} to instantiation list")
                     else:
                         print(f"      Equation {eq_id} not found in all_equations")
             else:
@@ -273,18 +415,15 @@ class Entity():
                 print(f"    Searching for instantiation equations for {var_id} in global equations...")
                 for eq_id, equation in self.all_equations.items():
                     # Check if this equation defines the variable (variable appears as LHS)
-                    if hasattr(equation, 'lhs') and var_id in str(equation.lhs):
+                    if var_id in str(equation.lhs):
                         print(f"      Found equation {eq_id} that defines {var_id}")
                         print(f"      Equation type: {type(equation)}")
-                        if hasattr(equation, 'is_instantiation_eq'):
-                            is_instantiation = equation.is_instantiation_eq()
-                            print(f"      Is instantiation equation: {is_instantiation}")
-                            if is_instantiation:
-                                instantiation_vars.add(var_id)
-                                print(f"      Added {var_id} to instantiation list based on global equation")
-                                break
-                        else:
-                            print(f"      ERROR: Equation {eq_id} is {type(equation)} and has no is_instantiation_eq method!")
+                        is_instantiation = equation.is_instantiation_eq()
+                        print(f"      Is instantiation equation: {is_instantiation}")
+                        if is_instantiation:
+                            instantiation_vars.add(var_id)
+                            print(f"      Added {var_id} to instantiation list based on global equation")
+                            break
         
         result = sorted(list(instantiation_vars))
         print(f"Final result: {result}")
@@ -414,29 +553,13 @@ class Entity():
         self.init_vars = list(
                 set(self.init_vars).intersection(all_vars)
                 )
-        self.integrators = {}
-        for tree in self.var_eq_forest:
-            new_integrators = {}
-            for key, values in tree.items():
-                if "V_" in key and values:
-                    # Handle both Equation objects and dictionary representations
-                    equation = self.all_equations[values[0]]
-                    if hasattr(equation, 'is_integrator'):
-                        # Equation object with method
-                        is_integrator = equation.is_integrator()
-                    elif isinstance(equation, dict) and equation.get('type') == 'integrator':
-                        # Dictionary with type field
-                        is_integrator = True
-                    else:
-                        # Fallback: not an integrator
-                        is_integrator = False
-
-                    if is_integrator:
-                        new_integrators[key] = values[0]
-            for key in new_integrators:
-                del tree[key]
-
-            self.integrators.update(new_integrators)
+        # Update stored integrators using dynamic method for consistency
+        # This maintains backward compatibility while avoiding duplicate logic
+        integrator_info = self.integrators_info()
+        self.integrators = {var_id: eq_id for var_id, eq_id in integrator_info}
+        
+        # Use the comprehensive list building method to ensure consistency
+        self.build_variable_lists_from_forest()
 
     def rebuild_from_components(self, deleted_var_id, dependent_equations, orphaned_variables, cleaned_forest):
         """Rebuild entity from scratch after variable deletion.
@@ -561,17 +684,8 @@ class Entity():
                     print(f"Checking equation {key}: {equation}")
                     
                     # Check if this is an integrator equation
-                    is_integrator = False
-                    if hasattr(equation, 'is_integrator'):
-                        is_integrator = equation.is_integrator()
-                        print(f"  Equation.is_integrator(): {is_integrator}")
-                    elif isinstance(equation, dict):
-                        # Fallback for dictionary equations (shouldn't happen with real equations)
-                        is_algebraic = equation.get('type') == 'algebraic'
-                        print(f"  Equation type 'algebraic': {is_algebraic}")
-                        is_integrator = is_algebraic
-                    else:
-                        print(f"  Unknown equation type: {type(equation)}")
+                    is_integrator = equation.is_integrator()
+                    print(f"  Equation.is_integrator(): {is_integrator}")
                     
                     print(f"  Is integrator: {is_integrator}")
                     
@@ -595,86 +709,31 @@ class Entity():
         print(f"  all_equations count: {len(self.all_equations)}")
         print(f"  var_eq_forest: {self.var_eq_forest}")
         print(f"=== END ENTITY REBUILD ===")
+        
+        # Ensure lists are consistent with the rebuilt forest
+        self.build_variable_lists_from_forest()
 
     def build_variable_lists_from_forest(self):
-        """Build all variable lists (output, input, init, all_variables) from the current var_eq_forest.
+        """Legacy method - now uses dynamic computation from forest.
         
-        This method ensures that all variable lists are consistent with the current forest structure
-        and integrators. This should be called after any modification to the forest.
+        All variable lists are now computed dynamically using the getter methods.
+        This method is kept for backward compatibility but no longer stores cached lists.
         """
-        print(f"=== BUILDING VARIABLE LISTS FROM FOREST ===")
-        print(f"Current var_eq_forest: {getattr(self, 'var_eq_forest', 'None')}")
-        print(f"Current integrators: {getattr(self, 'integrators', 'None')}")
-        print(f"Current output_vars: {getattr(self, 'output_vars', 'None')}")
-        print(f"Current input_vars: {getattr(self, 'input_vars', 'None')}")
-        print(f"Current init_vars: {getattr(self, 'init_vars', 'None')}")
+        print(f"=== BUILDING VARIABLE LISTS FROM FOREST (LEGACY) ===")
+        print(f"All variable lists are now computed dynamically.")
+        print(f"Use get_variables(), get_input_vars(), get_output_vars(), etc. directly.")
         
-        # Collect all variables from forest
-        all_variables = set()
-        equation_defined_vars = set()
+        # Initialize init_vars if not present (only user-defined variables need storage)
+        if not hasattr(self, 'init_vars') or not self.init_vars:
+            self.init_vars = []
         
-        if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
-            for tree in self.var_eq_forest:
-                print(f"Processing tree: {tree}")
-                for key, values in tree.items():
-                    if key.startswith('V_'):
-                        all_variables.add(key)
-                        print(f"  Found variable: {key}, values: {values}")
-                        if values:  # Variable has defining equations
-                            equation_defined_vars.add(key)
-                    elif key.startswith('E_') and values:
-                        # Variables used by this equation
-                        for var in values:
-                            if var.startswith('V_'):
-                                all_variables.add(var)
-                                print(f"  Found variable used by equation {key}: {var}")
-        
-        print(f"All variables found in forest: {all_variables}")
-        print(f"Variables defined by equations: {equation_defined_vars}")
-        
-        # Rebuild integrators from forest
-        self.integrators = {}
-        if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
-            for tree in self.var_eq_forest:
-                for key, values in tree.items():
-                    if key.startswith('E_') and values and key in getattr(self, 'all_equations', {}):
-                        equation = self.all_equations[key]
-                        
-                        # Check if this is an integrator equation
-                        is_integrator = False
-                        if hasattr(equation, 'is_integrator'):
-                            is_integrator = equation.is_integrator()
-                        elif isinstance(equation, dict):
-                            is_integrator = equation.get('type') == 'integrator'
-                        
-                        # If it's an integrator, find the variable it defines
-                        if is_integrator:
-                            for var in values:
-                                if var.startswith('V_') and var in all_variables:
-                                    self.integrators[var] = key
-                                    print(f"  Rebuilt integrator: {var} -> {key}")
-                                    break
-        
-        # Categorize variables based on their current state and integrator status
-        integrator_vars = set(self.integrators.keys())
-        
-        # Update variable lists based on current forest and integrator status
-        # Keep variables that are still in the forest
-        self.output_vars = [var for var in self.output_vars if var in all_variables]
-        self.input_vars = [var for var in self.input_vars if var in all_variables]
-        self.init_vars = [var for var in self.init_vars if var in all_variables]
-        
-        # Ensure integrator variables are in output_vars (they're typically outputs)
-        for var in integrator_vars:
-            if var not in self.output_vars and var in all_variables:
-                self.output_vars.append(var)
-                print(f"  Added integrator variable {var} to output_vars")
-        
-        print(f"Final variable lists:")
-        print(f"  output_vars: {self.output_vars}")
-        print(f"  input_vars: {self.input_vars}")
-        print(f"  init_vars: {self.init_vars}")
-        print(f"  integrators: {self.integrators}")
+        # Show current dynamic values for verification
+        print(f"Current dynamic values:")
+        print(f"  all_variables: {self.get_variables()}")
+        print(f"  output_vars: {self.get_output_vars()}")
+        print(f"  input_vars: {self.get_input_vars()}")
+        print(f"  init_vars: {self.get_init_vars()}")
+        print(f"  integrators: {self.get_integrator_vars()}")
         print(f"=== END BUILDING VARIABLE LISTS ===")
 
     def delete_variable_with_dependencies(self, var_id):
@@ -861,17 +920,9 @@ class Entity():
 
             # pp(self.all_equations)
 
-            # Handle both Equation objects and dictionary representations
+            # Get incidence list from Equation object
             equation = self.all_equations[eq_id]
-            if hasattr(equation, 'get_incidence_list'):
-                # Equation object with method
-                incidence_list = equation.get_incidence_list(var_id)
-            elif isinstance(equation, dict) and 'incidence_list' in equation:
-                # Dictionary with incidence_list key
-                incidence_list = equation['incidence_list']
-            else:
-                # Fallback: empty incidence list
-                incidence_list = []
+            incidence_list = equation.get_incidence_list(var_id)
 
             # Adding the equation to the tree
             curr_tree[eq_id] = [
@@ -895,8 +946,8 @@ class Entity():
                     # Check if this dependent variable has an instantiation equation
                     # If so, add it to init_vars so it will be included in variables to be instantiated
                     for eq_id, equation in self.all_equations.items():
-                        if hasattr(equation, 'lhs') and child_var_id in str(equation.lhs):
-                            if hasattr(equation, 'is_instantiation_eq') and equation.is_instantiation_eq():
+                        if child_var_id in str(equation.lhs):
+                            if equation.is_instantiation_eq():
                                 # Use a temporary set to track instantiation variables
                                 if not hasattr(self, '_temp_instantiation_vars'):
                                     self._temp_instantiation_vars = set()

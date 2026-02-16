@@ -18,40 +18,6 @@ from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-def convert_dict_to_equation(eq_id: str, eq_dict: dict) -> Equation:
-    """Convert dictionary equation to proper Equation object."""
-    print(f"DEBUG: Converting equation {eq_id}: {eq_dict}")
-    
-    # Extract required fields with defaults
-    try:
-        equation = Equation(
-            eq_id=eq_id,
-            img_path=eq_dict.get('img_path', ''),
-            type=eq_dict.get('type', 'algebraic'),
-            lhs=eq_dict.get('lhs', {'global_ID': ''}),
-            rhs=eq_dict.get('rhs', {'global_ID': ''}),
-            network=eq_dict.get('network', ''),
-            doc=eq_dict.get('doc', ''),
-            created=eq_dict.get('created', '2024-01-01 00:00:00'),
-            modified=eq_dict.get('modified', '2024-01-01 00:00:00')
-        )
-        print(f"DEBUG: Successfully converted {eq_id} to Equation object")
-        return equation
-    except Exception as e:
-        print(f"ERROR: Failed to convert equation {eq_id}: {e}")
-        # Return a minimal equation object as fallback
-        return Equation(
-            eq_id=eq_id,
-            img_path='',
-            type='algebraic',
-            lhs={'global_ID': ''},
-            rhs={'global_ID': ''},
-            network='',
-            doc='',
-            created='2024-01-01 00:00:00',
-            modified='2024-01-01 00:00:00'
-        )
-
 root = os.path.abspath(os.path.join("..", ".."))  # Go up two levels to project root
 sys.path.extend([root, os.path.join(root, "packages")])  # Add packages directory to path
 
@@ -427,33 +393,16 @@ class BehaviourLinerBackEnd(QObject):
                 print(ent_name + " not found.")
                 continue
 
-            # Load global equations from ontology container
+            # Use equation_entity_dict from exchange board
             all_equations = {}
             if hasattr(self, 'ontology_container') and self.ontology_container:
-                if hasattr(self.ontology_container, 'equations'):
-                    raw_equations = self.ontology_container.equations
-                    print(f"Found {len(raw_equations)} raw equations in ontology_container.equations")
-                    # Convert dictionary equations to proper Equation objects
-                    for eq_id, eq_dict in raw_equations.items():
-                        if isinstance(eq_dict, dict):
-                            all_equations[eq_id] = convert_dict_to_equation(eq_id, eq_dict)
-                        else:
-                            all_equations[eq_id] = eq_dict  # Already an Equation object
-                    print(f"Converted {len(all_equations)} equations to Equation objects")
-                elif hasattr(self.ontology_container, 'equation_dictionary'):
-                    raw_equations = self.ontology_container.equation_dictionary
-                    print(f"Found {len(raw_equations)} raw equations in ontology_container.equation_dictionary")
-                    # Convert dictionary equations to proper Equation objects
-                    for eq_id, eq_dict in raw_equations.items():
-                        if isinstance(eq_dict, dict):
-                            all_equations[eq_id] = convert_dict_to_equation(eq_id, eq_dict)
-                        else:
-                            all_equations[eq_id] = eq_dict  # Already an Equation object
-                    print(f"Converted {len(all_equations)} equations to Equation objects")
+                if hasattr(self.ontology_container, 'equation_entity_dict'):
+                    all_equations = self.ontology_container.equation_entity_dict
+                    print(f"Using equation_entity_dict from exchange board: {len(all_equations)} equations")
                 else:
-                    print("WARNING: No equations found in ontology_container")
-            else:
-                print("WARNING: No ontology_container available")
+                    print("ERROR: equation_entity_dict not found in ontology_container")
+                    # Return empty entity if no equations available
+                    continue
             
             new_entity = Entity(
                     ent_name,

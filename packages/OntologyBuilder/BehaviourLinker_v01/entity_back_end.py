@@ -145,9 +145,8 @@ class EntityEditorBackEnd(QObject):
                             print(f"Found current_entity: {self.entity_frontend.current_entity}")
                             self.entity_frontend.update_entity_from_backend_entity(self.entity_frontend.current_entity)
                         else:
-                            print("No current_entity found - using entity_data approach")
-                            # No Entity object yet - refresh from entity data
-                            self.generate_lists_from_entity_data(self.entity_frontend.current_entity_data)
+                            print("No current_entity found - entity_data approach not needed")
+                            # Lists are managed by Entity class - no manual generation needed
                 else:
                     print(f"No equation association defined for {var_id}")
                     self.message.emit({
@@ -186,7 +185,7 @@ class EntityEditorBackEnd(QObject):
 
             # Launch the BehaviorAssociation editor with entity type info
             assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info)
-
+            print(f"Debug: Received assignments: {assignments}")
             if assignments:
                 # Process the assignments directly
                 self.handle_behavior_association(assignments)
@@ -213,7 +212,7 @@ class EntityEditorBackEnd(QObject):
                 # Extract key information
                 root_variable = assignments.get('root_variable')
                 root_equation = assignments.get('root_equation')
-                use_initialization = assignments.get('use_initialization', False)
+                use_initialization = assignments.get('use_initialization', False)  # Note: initialisation handling
 
                 # Check if we already have an entity object from previous operations #TODO: check if this is necessary
                 existing_entity = None
@@ -234,20 +233,17 @@ class EntityEditorBackEnd(QObject):
 
                 if existing_entity:
                     # Update existing entity instead of creating new one
-                    print(f"Updating existing entity: {existing_entity.entity_id}")
+                    # print(f"Updating existing entity: {existing_entity.entity_id}")
                     entity = existing_entity
-
-                    # Update the entity's equation dictionary with current available equations
-                    if hasattr(self.ontology_container, 'list_equation_classes'):
-                        current_equations = {}
-                        for eq_obj in self.ontology_container.equation_entity_dict:
-                            current_equations[eq_obj.eq_id] = eq_obj
-                        
-                        # Preserve existing equations and add current ones
-                        if hasattr(entity, 'all_equations'):
-                            entity.all_equations.update(current_equations)
-                        else:
-                            entity.all_equations = current_equations
+                    #
+                    # # Update the entity's equation dictionary with current available equations # Note: are these not all equations?
+                    # current_equations = getattr(self.ontology_container, 'equation_entity_dict', {})
+                    #
+                    # # Preserve existing equations and add current ones
+                    # if hasattr(entity, 'all_equations'):
+                    #     entity.all_equations.update(current_equations)
+                    # else:
+                    #     entity.all_equations = current_equations
 
                     # Set up variable-equation relationships using the existing Entity
                     var_eq_assignments = self.extract_var_eq_assignments(assignments)
@@ -255,12 +251,16 @@ class EntityEditorBackEnd(QObject):
                     if var_eq_assignments:
                         # Set the root variable as output variable if not already set
                         root_variable = assignments.get('root_variable')
-                        use_initialization = assignments.get('use_initialization', False)
+                        # use_initialization = assignments.get('use_initialization', False)
                         
                         if use_initialization:
                             # Add to initialization variables using Entity method
                             entity.set_init_var(root_variable, True)
                             print(f"Added {root_variable} to init_vars for instantiation")
+                            
+                            # Immediately refresh GUI to show the new instantiation variable
+                            if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                                self.entity_frontend.populate_lists_from_entity(entity)
                         else:
                             # Add to output variables and create equation relationship using Entity method
                             entity.set_output_var(root_variable, True)
@@ -281,6 +281,10 @@ class EntityEditorBackEnd(QObject):
                             # Also remove from output_vars if it was there (to avoid conflicts)
                             entity.set_output_var(root_variable, False)
                             print(f"Removed {root_variable} from output_vars (now instantiation)")
+                            
+                            # Immediately refresh GUI to show the new instantiation variable
+                            if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                                self.entity_frontend.populate_lists_from_entity(entity)
                         print(f"Entity init_vars after adding: {entity.init_vars}")
 
                         print(f"=== AFTER FOREST GENERATION ===")
@@ -290,18 +294,18 @@ class EntityEditorBackEnd(QObject):
                         print(f"Entity input_vars: {entity.input_vars}")
                         print(f"Entity init_vars: {entity.init_vars}")
 
-                        # Check if E_93 is in the forest and if it should be an integrator
-                        has_e93 = False
-                        for tree in entity.var_eq_forest:
-                            for key, values in tree.items():
-                                if key == 'E_93':
-                                    has_e93 = True
-                                    print(f"Found E_93 in forest with values: {values}")
-                                elif values and 'E_93' in values:
-                                    has_e93 = True
-                                    print(f"Found E_93 in values: {values}")
-
-                        print(f"E_93 found in forest: {has_e93}")
+                        # # Check if E_93 is in the forest and if it should be an integrator
+                        # has_e93 = False
+                        # for tree in entity.var_eq_forest:
+                        #     for key, values in tree.items():
+                        #         if key == 'E_93':
+                        #             has_e93 = True
+                        #             print(f"Found E_93 in forest with values: {values}")
+                        #         elif values and 'E_93' in values:
+                        #             has_e93 = True
+                        #             print(f"Found E_93 in values: {values}")
+                        #
+                        # print(f"E_93 found in forest: {has_e93}")
 
                         # Note: Integrators are properly handled by Entity.update_var_eq_tree()
                         # based on equation objects' is_integrator() method
@@ -324,28 +328,9 @@ class EntityEditorBackEnd(QObject):
                     entity_name = entity_id.split(".")[
                         -1]  # f"{self.selected_entity_type.get('network', 'unknown')}.{self.selected_entity_type.get('category', 'unknown')}.{self.selected_entity_type.get('entity type', 'unknown')}.new_entity"
 
-                    # Get equations from ontology container - use list_equation_classes for actual Equation objects
-                    all_equations = {}
-                    if hasattr(self.ontology_container, 'list_equation_classes'):
-                        print(
-                            f"Using list_equation_classes with {len(self.ontology_container.equation_entity_dict)} equations")
-                        for eq_obj in self.ontology_container.equation_entity_dict:
-                            all_equations[eq_obj.eq_id] = eq_obj
-                            # Debug: Check if E_93 has is_integrator method
-                            # if eq_obj.eq_id == 'E_93':
-                            #     print(
-                            #         f"E_93 object: type={type(eq_obj)}, has_is_integrator={hasattr(eq_obj, 'is_integrator')}")
-                            #     if hasattr(eq_obj, 'is_integrator'):
-                            #         print(f"E_93.is_integrator(): {eq_obj.is_integrator()}")
-                    else:
-                        print("list_equation_classes not found, falling back to equation_dictionary")
-                        all_equations = getattr(self.ontology_container, 'equation_dictionary', {})
-                    print(f"DEBUG: ontology_container equation_dictionary keys: {list(all_equations.keys())}")
-                    print(f"DEBUG: ontology_container type: {type(self.ontology_container)}")
-                    if hasattr(self.ontology_container, 'equations'):
-                        print(f"DEBUG: ontology_container.equations keys: {list(self.ontology_container.equations.keys())}")
-                    if hasattr(self.ontology_container, 'all_equations'):
-                        print(f"DEBUG: ontology_container.all_equations keys: {list(self.ontology_container.all_equations.keys())}")
+                    # Get equations from ontology container - use equation_entity_dict directly
+                    all_equations = getattr(self.ontology_container, 'equation_entity_dict', {})
+                    print(f"Using equation_entity_dict with {len(all_equations)} equations")
 
                     # Create entity with empty forest (like in the old implementation)
                     entity = Entity(
@@ -370,14 +355,9 @@ class EntityEditorBackEnd(QObject):
                         entity.generate_var_eq_forest(var_eq_assignments)
                         entity.update_var_eq_tree()
 
-                        # Update entity_data with the actual Entity object information
+                        # Update entity_data with the Entity object - lists are managed internally
                         entity_data.update({
                                 'entity_object': entity,  # Send the actual Entity object
-                                'var_eq_forest': entity.var_eq_forest,
-                                'output_vars'  : entity.output_vars,
-                                'input_vars'   : entity.input_vars,
-                                'init_vars'    : entity.init_vars,
-                                'integrators'  : entity.integrators
                                 })
                         
                         # IMPORTANT: Store the Entity object in the frontend for future updates
@@ -396,8 +376,8 @@ class EntityEditorBackEnd(QObject):
                     if 'entity_object' in entity_data and entity_data['entity_object']:
                         self.entity_frontend.update_entity_from_backend_entity(entity)
                     else:
-                        # No Entity object yet - generate lists from entity_data
-                        self.generate_lists_from_entity_data(entity_data)
+                        # No Entity object yet - lists will be generated when Entity is created
+                        print("No Entity object yet - lists will be generated when Entity is created")
 
             else:
                 print("No behavior association assignments received")
@@ -479,12 +459,7 @@ class EntityEditorBackEnd(QObject):
             from Common.classes.entity import Entity
             
             # Get all equations from ontology container
-            all_equations = {}
-            if hasattr(self.ontology_container, 'list_equation_classes'):
-                for eq_obj in self.ontology_container.equation_entity_dict:
-                    all_equations[eq_obj.eq_id] = eq_obj
-            else:
-                all_equations = getattr(self.ontology_container, 'equation_dictionary', {})
+            all_equations = getattr(self.ontology_container, 'equation_entity_dict', {})
             
             # Extract the selected variable and equation
             root_variable = assignments.get('root_variable')
@@ -572,6 +547,10 @@ class EntityEditorBackEnd(QObject):
 
                     # Add state variable to initialization list using Entity method
                     entity.set_init_var(root_variable, True)
+                    
+                    # Immediately refresh GUI to show the new instantiation variable
+                    if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                        self.entity_frontend.populate_lists_from_entity(entity)
 
                     # Update entity_data with the existing Entity object information
                     entity_data.update({
@@ -681,21 +660,12 @@ class EntityEditorBackEnd(QObject):
                                 'network': var_data.get('network', 'unknown')
                                 }
 
-                    # For original Entity class, use manually populated lists
-                    entity_equations = [root_equation] if root_equation else []
-
-                    print(f"DEBUG: Using manual equation list: {entity_equations}")
+                    # Entity class manages its own lists - no manual population needed
+                    print(f"DEBUG: Entity {entity.entity_id} manages its own variable lists")
 
                     entity_data.update({
                             'entity_object'    : entity,
-                            'var_eq_forest'    : entity.var_eq_forest,
-                            'output_vars'      : entity.output_vars,
-                            'input_vars'       : entity.input_vars,
-                            'init_vars'        : entity.init_vars,
-                            'integrators'      : entity.integrators,
-                            'defined_variables': [var_info] if var_info else [],
-                            # Add selected variable to defined list
-                            'equations'        : entity_equations  # Add equations from manual list
+                            # All list data is managed by the Entity object
                             })
 
                 # Update entity locally - don't send to main backend yet
@@ -711,8 +681,8 @@ class EntityEditorBackEnd(QObject):
                     if 'entity_object' in entity_data and entity_data['entity_object']:
                         self.entity_frontend.update_entity_from_backend_entity(entity)
                     else:
-                        # No Entity object yet - generate lists from entity_data
-                        self.generate_lists_from_entity_data(entity_data)
+                        # No Entity object yet - lists will be generated when Entity is created
+                        print("No Entity object yet - lists will be generated when Entity is created")
 
             else:
                 print("No valid state variable in selection")
@@ -744,6 +714,11 @@ class EntityEditorBackEnd(QObject):
                     if definition_method == 'initialization':
                         # Add to initialization variables using Entity method
                         entity.set_init_var(root_variable, True)
+                        print(f"Added {root_variable} to init_vars for instantiation")
+                        
+                        # Immediately refresh GUI to show the new instantiation variable
+                        if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                            self.entity_frontend.populate_lists_from_entity(entity)
                     else:
                         # Add to output variables and create equation relationship using Entity method
                         entity.set_output_var(root_variable, True)

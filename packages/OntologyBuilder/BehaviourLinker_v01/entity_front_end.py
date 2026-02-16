@@ -586,7 +586,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         """Handle add variable button - opens equation selection for any selected variable"""
         message = {"event": "add_variable"}
         self.message.emit(message)
-        self.ui.list_not_defined_variables
+        # self.ui.list_not_defined_variables
 
     def on_pushDeleteVariable_pressed(self):
         """Handle delete variable button - deletes selected variable from entity"""
