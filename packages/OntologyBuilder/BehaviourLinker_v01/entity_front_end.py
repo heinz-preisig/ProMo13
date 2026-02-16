@@ -69,6 +69,15 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         
         # Connect list widget click handlers
         self.ui.list_not_defined_variables.clicked.connect(self.on_list_pending_variables_clicked)
+        self.ui.list_outputs.clicked.connect(self.on_list_item_clicked)
+        self.ui.list_inputs.clicked.connect(self.on_list_item_clicked)
+        self.ui.list_instantiate.clicked.connect(self.on_list_item_clicked)
+        self.ui.list_integrators.clicked.connect(self.on_list_item_clicked)
+        self.ui.list_included_variables.clicked.connect(self.on_list_item_clicked)
+        
+        # Connect selection change handlers for proper delete button management
+        # Defer this until lists are properly initialized
+        self._setup_selection_handlers()
         
         # Connect button handlers
         self.ui.pushAccept.clicked.connect(self.on_pushAccept_pressed)
@@ -83,6 +92,32 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.current_entity_data = None
         global changed
         changed = False
+
+    def _setup_selection_handlers(self):
+        """Safely setup selection change handlers for all lists"""
+        try:
+            lists_to_setup = [
+                self.ui.list_outputs,
+                self.ui.list_inputs,
+                self.ui.list_instantiate,
+                self.ui.list_integrators,
+                self.ui.list_included_variables,
+                self.ui.list_not_defined_variables
+            ]
+            
+            for list_widget in lists_to_setup:
+                try:
+                    selection_model = list_widget.selectionModel()
+                    if selection_model is not None:
+                        selection_model.selectionChanged.connect(self.on_list_selection_changed)
+                        print(f"Connected selection handler for {list_widget.objectName()}")
+                    else:
+                        print(f"Warning: No selection model for {list_widget.objectName()}")
+                except Exception as e:
+                    print(f"Error setting up selection handler for {list_widget.objectName()}: {e}")
+                    
+        except Exception as e:
+            print(f"Error in _setup_selection_handlers: {e}")
 
     def interfaceComponents(self):
         self.gui_objects = {
@@ -148,23 +183,44 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.mode = mode
         print(f"EntityEditorFrontEnd mode set to: {mode}")
 
-        # Configure button visibility based on mode
-        for button_name in gui_automaton[mode]:
-            self.gui_objects["buttons"][button_name].setVisible(gui_automaton[mode][button_name])
+        # Configure button visibility based on mode using automaton
+        if mode in gui_automaton:
+            self.__setInterface(mode)
 
         # Update status label based on mode
         if mode == "create":
             self.status_label.setText("Create mode - Select state variable to begin")
             self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
-        elif mode == "edit":
-            self.status_label.setText("Edit mode - Add variables to entity")
+        elif mode == "edit_no_selection":
+            self.status_label.setText("Edit mode - Select a variable to delete")
             self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
+        elif mode == "edit_with_selection":
+            self.status_label.setText("Edit mode - Variable selected, delete enabled")
+            self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; margin: 5px; }")
         elif mode == "load":
             self.status_label.setText("Ready")
             self.status_label.setStyleSheet("QLabel { color: gray; font-style: italic; margin: 5px; }")
 
+    def update_mode_based_on_selection(self):
+        """Update mode based on whether a variable is selected"""
+        has_selection = self.get_selected_variable_id() is not None
+        
+        if self.mode == "edit_no_selection" and has_selection:
+            # Switch to mode with delete enabled
+            self.set_mode("edit_with_selection")
+        elif self.mode == "edit_with_selection" and not has_selection:
+            # Switch to mode with delete disabled
+            self.set_mode("edit_no_selection")
+        elif self.mode in ["create", "load"]:
+            # Don't interfere with create/load modes
+            pass
+
+    def __setInterface(self, mode):
+        for button_name in gui_automaton[mode]:
+            self.gui_objects["buttons"][button_name].setVisible(gui_automaton[mode][button_name])
+
     def configure_buttons_for_mode(self, mode):
-        """Configure button visibility based on the current mode"""
+        """Configure button visibility and state based on the current mode"""
         if mode == "create":
             # In create mode: only show add state variable and cancel buttons
             self.ui.pushAddStateVariable.show()
@@ -188,6 +244,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Hide create-specific buttons
             self.ui.pushAddStateVariable.hide()
             self.ui.pushDeleteEntity.hide()
+            
+            # Initially disable delete button until a variable is selected
+            self.ui.pushDeleteVariable.setEnabled(False)
 
         elif mode == "load":
             # In load mode: show minimal buttons until selection is made
@@ -538,6 +597,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
 
             print(f"Successfully populated lists for entity: {entity.entity_id}")
+            
+            # Setup selection handlers now that lists are populated
+            self._setup_selection_handlers()
+            
+            # Update mode based on selection after populating lists
+            self.update_mode_based_on_selection()
 
         except Exception as e:
             print(f"Error populating lists from Entity: {e}")
@@ -676,6 +741,29 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         except Exception as e:
             print(f"Error getting selected variable ID: {e}")
             return None
+
+    def on_list_item_clicked(self, index):
+        """Handle item click in any variable list"""
+        try:
+            list_widget = self.sender()
+            print(f"Item clicked in list: {list_widget.objectName()}")
+            
+            # Update mode based on selection
+            self.update_mode_based_on_selection()
+            
+        except Exception as e:
+            print(f"Error handling list item click: {e}")
+
+    def on_list_selection_changed(self, selected, deselected):
+        """Handle selection change in any variable list"""
+        try:
+            print("Selection changed in variable list")
+            
+            # Update mode based on selection
+            self.update_mode_based_on_selection()
+            
+        except Exception as e:
+            print(f"Error handling selection change: {e}")
 
     def on_pushAccept_pressed(self):
         """Handle Accept button - save entity and close"""
@@ -848,9 +936,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Extract the selected variable
             root_variable = assignments.get('root_variable')
             if root_variable:
-                # Move to edit mode after state selection
-                self.mode = "edit"
-                self.configure_buttons_for_mode("edit")  # Update button visibility
+                # Move to edit mode after state selection (start with no selection)
+                self.set_mode("edit_no_selection")
                 self.status_label.setText(f"State variable selected: {root_variable}. Now in edit mode.")
                 self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
 
@@ -938,6 +1025,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             
             # Store current entity
             self.current_entity = entity
+            
+            # Set mode to edit when working with existing entity
+            if self.mode not in ["edit_no_selection", "edit_with_selection"]:
+                print("Switching to edit mode for existing entity")
+                self.set_mode("edit_no_selection")  # Start with no selection
             
             # Use Entity methods directly for all lists
             self.populate_lists_from_entity(entity)
