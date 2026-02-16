@@ -1391,7 +1391,7 @@ class ProMoExchangeBoard():
         # print(f"Debug: Loading {len(self.list_variable_png_files)} variable icons in exchange_board...")
 
         # Direct pixel mapping from PNG to icon, then apply simple scaling
-        scale_factor = 0.5  # Scale down to 50% of original size
+        scale_factor = 1.0  # No scaling - use original size since we're making lines wider instead
 
         for var_id, png_path in self.list_variable_png_files.items():
             try:
@@ -1414,7 +1414,7 @@ class ProMoExchangeBoard():
                     canvas = QtGui.QPixmap(canvas_width, canvas_height)
                     canvas.fill(QtCore.Qt.transparent)
 
-                    # Paint the scaled variable filling the entire canvas (no centering needed)
+                    # Paint the scaled variable and center it in the canvas
                     scaled_pixmap = pixmap.scaled(
                             new_width, new_height,
                             QtCore.Qt.KeepAspectRatio,
@@ -1424,7 +1424,11 @@ class ProMoExchangeBoard():
                     painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
                     painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
                     painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
-                    painter.drawPixmap(0, 0, scaled_pixmap)
+                    
+                    # Center the scaled pixmap in the canvas
+                    x_offset = (canvas_width - scaled_pixmap.width()) // 2
+                    y_offset = (canvas_height - scaled_pixmap.height()) // 2
+                    painter.drawPixmap(x_offset, y_offset, scaled_pixmap)
                     painter.end()
 
                     icon = QtGui.QIcon(canvas)

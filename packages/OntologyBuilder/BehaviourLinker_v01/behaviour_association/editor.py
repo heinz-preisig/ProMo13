@@ -409,8 +409,6 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
 
     def _filter_variables_by_rules(self, variables):
         """Filter variables based on entity type rules and exclude already included variables"""
-        print(f"Debug: _filter_variables_by_rules called with {len(variables)} variables")
-        
         if not self.entity_type_info:
             # No entity type info, return all variables
             return variables
@@ -422,28 +420,12 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         # Fallback: try to get entity from ontology_container if current_entity is None
         if entity_to_use is None and hasattr(self.ontology_container, 'current_entity'):
             entity_to_use = self.ontology_container.current_entity
-            print(f"Debug: Using fallback entity from ontology_container: {entity_to_use}")
         
         if entity_to_use and hasattr(entity_to_use, 'get_all_variables'):
             try:
                 already_included = set(entity_to_use.get_all_variables())
-                print(f"Debug: Using entity: {entity_to_use}")
-                print(f"Debug: Entity type: {type(entity_to_use)}")
-                print(f"Debug: Already included variables: {already_included}")
-                print(f"Debug: Entity attributes - output_vars: {getattr(entity_to_use, 'output_vars', 'None')}")
-                print(f"Debug: Entity attributes - input_vars: {getattr(entity_to_use, 'input_vars', 'None')}")
-                print(f"Debug: Entity attributes - init_vars: {getattr(entity_to_use, 'init_vars', 'None')}")
             except Exception as e:
-                print(f"Debug: Error getting included variables: {e}")
-        else:
-            print(f"Debug: No entity available for filtering")
-            print(f"Debug: self.current_entity = {self.current_entity}")
-            print(f"Debug: hasattr(self.current_entity, 'get_all_variables') = {hasattr(self.current_entity, 'get_all_variables') if self.current_entity else 'N/A'}")
-            print(f"Debug: hasattr(ontology_container, 'current_entity') = {hasattr(self.ontology_container, 'current_entity') if self.ontology_container else 'N/A'}")
-            if hasattr(self.ontology_container, 'current_entity'):
-                print(f"Debug: ontology_container.current_entity = {self.ontology_container.current_entity}")
-            else:
-                print(f"Debug: ontology_container has no current_entity attribute")
+                print(f"Error getting included variables: {e}")
 
         # Get classification rules
         classification = VariableClassificationRules.classify_variables(variables, self.entity_type_info)
@@ -486,11 +468,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             for var in filtered_variables:
                 if var['id'] not in already_included:
                     final_filtered.append(var)
-                else:
-                    print(f"Debug: Excluding already included variable: {var['id']}")
             
-            print(f"Debug: Filtered from {len(filtered_variables)} to {len(final_filtered)} variables (excluded {len(filtered_variables) - len(final_filtered)} already included)")
-            print(f"Debug: Final filtered variables: {[v['id'] for v in final_filtered]}")
             filtered_variables = final_filtered
 
         return filtered_variables

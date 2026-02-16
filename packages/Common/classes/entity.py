@@ -345,23 +345,62 @@ class Entity():
         if is_init:
             if var_id not in self.init_vars:
                 self.init_vars.append(var_id)
+                # Also add to tree structure
+                self._add_variable_to_tree(var_id)
         else:
             if var_id in self.init_vars:
                 self.init_vars.remove(var_id)
+                # Also remove from tree structure
+                self._remove_variable_from_tree(var_id)
+
+    def _remove_variable_from_tree(self, var_id):
+        """Remove a variable from the tree structure."""
+        if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+            for tree in self.var_eq_forest:
+                if var_id in tree:
+                    del tree[var_id]
+                    print(f"Removed {var_id} from tree")
+                    break
+
+    def _add_variable_to_tree(self, var_id):
+        """Add a variable to the tree structure."""
+        if not hasattr(self, 'var_eq_forest'):
+            self.var_eq_forest = []
+        
+        # Handle empty forest case
+        if not self.var_eq_forest:
+            self.var_eq_forest = [{}]
+        
+        # Find first non-empty tree or use first tree
+        target_tree = None
+        for tree in self.var_eq_forest:
+            if tree:  # Non-empty tree
+                target_tree = tree
+                break
+        if target_tree is None:
+            # All trees are empty, use first one
+            target_tree = self.var_eq_forest[0]
+        
+        # Add variable to tree
+        target_tree[var_id] = []
+        print(f"Added {var_id} to tree with empty dependencies")
 
     def get_pending_vars(self):
         """Get variables that are not yet defined (need instantiation)."""
         forest_data = self._get_all_variables_from_forest()
         
         # Variables without defining equations
-        no_eq_vars = forest_data['all_variables'] - forest_data['equation_defined_vars']
+        all_included_vars = self.get_all_included_variables()
+        equation_defined_variables = self.get_equation_defined_vars()
+        init_vars = self.get_init_vars()
+        pending_vars = set(all_included_vars) - set(equation_defined_variables) - set(init_vars)
         
-        # Input variables are those not defined by equations and not in init_vars
-        input_vars = no_eq_vars - set(getattr(self, 'init_vars', []))
-        
-        # Pending variables are those that need to be defined (excluding inputs and init vars)
-        # In the new dynamic system, pending vars are empty since all undefined vars are inputs
-        pending_vars = no_eq_vars - input_vars - set(getattr(self, 'init_vars', []))
+        # # Input variables are those not defined by equations and not in init_vars
+        # input_vars = no_eq_vars - set(getattr(self, 'init_vars', []))
+        #
+        # # Pending variables are those that need to be defined (excluding inputs and init vars)
+        # # In the new dynamic system, pending vars are empty since all undefined vars are inputs
+        # pending_vars = no_eq_vars - input_vars - set(getattr(self, 'init_vars', []))
         
         return sorted(list(pending_vars))
 
@@ -369,6 +408,12 @@ class Entity():
         """Get all variables included in the entity (all variables in the entity)"""
         # Use the forest-based approach to ensure consistency
         return self.get_variables()
+
+    def get_all_included_variables(self):
+        """Get all variables included in the entity (all variables in the entity)"""
+        # Use the forest-based approach to ensure consistency
+        vars = self._get_all_variables_from_forest()
+        return vars['all_variables']
 
     def get_variables_to_be_instantiated(self):
         """Get variables that need to be instantiated.
@@ -738,53 +783,234 @@ class Entity():
 
     def delete_variable_with_dependencies(self, var_id):
         """Delete a variable and all its dependencies from the entity.
-        This is a simplified method that:
-        1. Removes variable from stored lists (init_vars, input_vars, output_vars)
-        2. Removes variable from var_eq_forest directly
-        3. Updates integrators if needed
-        4. Calls update_var_eq_tree() to maintain consistency
-        Args:            var_id: The variable ID to delete
-        Returns:            tuple: (success, message, dependent_equations, orphaned_variables)        """
+        
+        This method performs recursive dependency analysis in both directions:
+        1. Find equations that depend on the deleted variable
+        2. Find all variables that appear in those equations (LHS and RHS)
+        3. Recursively find equations that depend on those variables
+        4. Continue until no more dependencies are found
+        5. Remove all discovered variables and equations
+        
+        Args:
+            var_id: The variable ID to delete
+            
+        Returns:
+            tuple: (success, message, dependent_equations, orphaned_variables)
+        """
         try:
-            print(f"=== SIMPLIFIED VARIABLE DELETION: {var_id} ===")
+            print(f"=== RECURSIVE VARIABLE DELETION: {var_id} ===")
             
-            # === STEP 1: Remove from stored lists ===
-            if hasattr(self, 'init_vars'):
-                self.init_vars = [v for v in self.init_vars if v != var_id]
-                print(f"Removed {var_id} from init_vars: {self.init_vars}")
-            
-            if hasattr(self, 'input_vars'):
-                self.input_vars = [v for v in self.input_vars if v != var_id]
-                print(f"Removed {var_id} from input_vars: {self.input_vars}")
-            
-            if hasattr(self, 'output_vars'):
-                self.output_vars = [v for v in self.output_vars if v != var_id]
-                print(f"Removed {var_id} from output_vars: {self.output_vars}")
-            
-            # === STEP 2: Remove from var_eq_forest ===
+            # Print tree BEFORE deletion
+            print(f"=== TREE BEFORE DELETION ===")
+            before = self.all_included_variables
+            print(f"Before deletion: {before}")
+
             if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
-                # Remove variable from all trees in forest
-                for tree in self.var_eq_forest:
-                    if var_id in tree:
-                        del tree[var_id]
-                        print(f"Removed {var_id} from forest tree")
+                for i, tree in enumerate(self.var_eq_forest):
+                    print(f"Tree {i}:")
+                    for key, values in tree.items():
+                        print(f"  {key} -> {values}")
+            else:
+                print("No var_eq_forest found")
+            print(f"=== END TREE BEFORE ===")
+            
+            dependent_equations = set()
+            orphaned_variables = set()
+            variables_to_delete = {var_id}  # Start with the original variable
+            equations_to_delete = set()
+            
+            # === RECURSIVE DEPENDENCY ANALYSIS ===
+            changed = True
+            iteration = 0
+            
+            while changed and iteration < 10:  # Prevent infinite loops
+                changed = False
+                iteration += 1
+                print(f"  Iteration {iteration}: vars_to_delete={variables_to_delete}, equations_to_delete={equations_to_delete}")
                 
-                # Remove variable from equation definitions (if it's used as LHS)
+                # Find equations that depend on current variables to delete
+                current_equations = set()
+                if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+                    print(f"    Analyzing forest for equations containing {variables_to_delete}...")
+                    for tree_idx, tree in enumerate(self.var_eq_forest):
+                        print(f"      Tree {tree_idx}:")
+                        for var_key, var_values in tree.items():
+                            if var_key.startswith('V_') and var_key in variables_to_delete:
+                                # This variable depends on these equations
+                                for eq in var_values:
+                                    if eq.startswith('E_'):
+                                        current_equations.add(eq)
+                                        print(f"        Found {var_key} depends on {eq}: {var_values}")
+                
+                # Also find equations that contain variables to delete
+                if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+                    print(f"    Analyzing forest for equations that contain {variables_to_delete}...")
+                    for tree_idx, tree in enumerate(self.var_eq_forest):
+                        print(f"      Tree {tree_idx}:")
+                        for eq_key, eq_values in tree.items():
+                            if eq_key.startswith('E_'):
+                                # Check if any variable to delete appears in this equation
+                                vars_in_eq = [var for var in eq_values if var in variables_to_delete]
+                                if vars_in_eq:
+                                    current_equations.add(eq_key)
+                                    print(f"        Found {eq_key} contains {vars_in_eq}: {eq_values}")
+                
+                if current_equations - equations_to_delete:
+                    new_eqs = current_equations - equations_to_delete
+                    equations_to_delete.update(new_eqs)
+                    changed = True
+                    print(f"    Found new equations to delete: {new_eqs}")
+                
+                # Find all variables that appear in equations to delete
+                current_variables = set()
+                if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+                    print(f"    Analyzing forest for variables in equations {equations_to_delete}...")
+                    for tree_idx, tree in enumerate(self.var_eq_forest):
+                        print(f"      Tree {tree_idx}:")
+                        for eq_key, eq_values in tree.items():
+                            if eq_key in equations_to_delete:
+                                # Add all variables from this equation (both LHS and RHS)
+                                vars_in_eq = [var for var in eq_values if var.startswith('V_')]
+                                for var in vars_in_eq:
+                                    current_variables.add(var)
+                                print(f"        Found variables in {eq_key}: {vars_in_eq}")
+                
+                # Find variables that depend on equations to delete (reverse dependency)
+                if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+                    print(f"    Analyzing forest for variables that depend on equations {equations_to_delete}...")
+                    for tree_idx, tree in enumerate(self.var_eq_forest):
+                        print(f"      Tree {tree_idx}:")
+                        for var_key, var_values in tree.items():
+                            if var_key.startswith('V_'):
+                                # Check if this variable depends on any equation to delete
+                                eq_dependencies = [eq for eq in var_values if eq in equations_to_delete]
+                                if eq_dependencies:
+                                    current_variables.add(var_key)
+                                    print(f"        Found {var_key} depends on {eq_dependencies}: {var_values}")
+                
+                if current_variables - variables_to_delete:
+                    new_vars = current_variables - variables_to_delete
+                    variables_to_delete.update(new_vars)
+                    changed = True
+                    print(f"    Found new variables to delete: {new_vars}")
+            
+            print(f"Final sets after {iteration} iterations:")
+            print(f"  Variables to delete: {variables_to_delete}")
+            print(f"  Equations to delete: {equations_to_delete}")
+            
+            # Ensure we always have at least the original variable
+            if var_id not in variables_to_delete:
+                variables_to_delete.add(var_id)
+                print(f"  Added original variable {var_id} to deletion set")
+            
+            # === STEP 1: Remove all variables to delete ===
+            print(f"Removing {len(variables_to_delete)} variables from tree...")
+            if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+                for tree in self.var_eq_forest:
+                    # Remove variables from tree
+                    variables_to_remove = [var for var in tree.keys() if var in variables_to_delete]
+                    for var in variables_to_remove:
+                        del tree[var]
+                        print(f"  Removed variable {var} from tree")
+            
+            # === STEP 2: Remove all equations to delete ===
+            print(f"Removing {len(equations_to_delete)} equations from tree...")
+            if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+                for tree in self.var_eq_forest:
+                    equations_to_remove = [eq for eq in tree.keys() if eq in equations_to_delete]
+                    for eq in equations_to_remove:
+                        del tree[eq]
+                        print(f"  Removed equation {eq} from tree")
+            
+            # === STEP 3: Clean up any remaining references ===
+            # Remove deleted variables from any remaining equation definitions
+            if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
                 for tree in self.var_eq_forest:
                     for key, values in tree.items():
-                        if key.startswith('E_') and values and var_id in values:
-                            tree[key] = [v for v in values if v != var_id]
-                            print(f"Removed {var_id} from equation {key} definition: {tree[key]}")
+                        if key.startswith('E_') and values:
+                            # Filter out any deleted variables
+                            filtered_values = [v for v in values if v not in variables_to_delete]
+                            if len(filtered_values) != len(values):
+                                tree[key] = filtered_values
+                                print(f"  Cleaned equation {key}: removed {len(values) - len(filtered_values)} deleted variables")
             
-            # === STEP 3: Update integrators ===
-            if hasattr(self, 'integrators') and var_id in self.integrators:
-                del self.integrators[var_id]
-                print(f"Removed {var_id} from integrators: {self.integrators}")
+            # === STEP 4: Update integrators ===
+            if hasattr(self, 'integrators'):
+                integrators_to_remove = variables_to_delete.intersection(self.integrators.keys())
+                for var in integrators_to_remove:
+                    del self.integrators[var]
+                    print(f"  Removed {var} from integrators")
             
-            # === STEP 4: Update consistency ===
+            # === STEP 4.5: Remove deleted variables from all lists ===
+            # Always remove deleted variables from lists, not just when tree is empty
+            if hasattr(self, 'init_vars'):
+                init_vars_to_remove = variables_to_delete.intersection(self.init_vars)
+                for var in init_vars_to_remove:
+                    self.init_vars.remove(var)
+                    print(f"  Removed {var} from init_vars")
+            if hasattr(self, 'input_vars'):
+                input_vars_to_remove = variables_to_delete.intersection(self.input_vars)
+                for var in input_vars_to_remove:
+                    self.input_vars.remove(var)
+                    print(f"  Removed {var} from input_vars")
+            if hasattr(self, 'output_vars'):
+                output_vars_to_remove = variables_to_delete.intersection(self.output_vars)
+                for var in output_vars_to_remove:
+                    self.output_vars.remove(var)
+                    print(f"  Removed {var} from output_vars")
+            
+            # === STEP 5: Update consistency ===
             self.update_var_eq_tree()
             
-            return True, f"Variable {var_id} deleted successfully", set(), set()
+            # === STEP 5.5: Clear variable lists if tree is empty ===
+            if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+                tree_is_empty = all(len(tree) == 0 for tree in self.var_eq_forest)
+                if tree_is_empty:
+                    print("  Tree is empty - clearing all variable lists")
+                    if hasattr(self, 'init_vars'):
+                        self.init_vars = []
+                    if hasattr(self, 'input_vars'):
+                        self.input_vars = []
+                    if hasattr(self, 'output_vars'):
+                        self.output_vars = []
+                    if hasattr(self, 'integrators'):
+                        self.integrators = {}
+            
+            # === STEP 6: Force regeneration of all lists from tree ===
+            print("Regenerating lists from tree...")
+            # The lists will be regenerated by the existing dynamic methods when get_all_variables() is called
+            
+            # Print tree AFTER deletion
+            print(f"=== TREE AFTER DELETION ===")
+            if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+                for i, tree in enumerate(self.var_eq_forest):
+                    print(f"Tree {i}:")
+                    for key, values in tree.items():
+                        print(f"  {key} -> {values}")
+            else:
+                print("No var_eq_forest found after deletion")
+            print(f"=== END TREE AFTER ===")
+            after = self.all_included_variables
+            print(f"After deletion: {after}")
+            
+            # === STEP 6: Build summary message ===
+            orphaned_variables = variables_to_delete - {var_id}  # All other variables are "orphaned"
+            dependent_equations = equations_to_delete
+            
+            message = f"Deleted variable {var_id}"
+            if dependent_equations:
+                message += f" and {len(dependent_equations)} dependent equation(s)"
+            if orphaned_variables:
+                message += f" and {len(orphaned_variables)} additional variable(s)"
+            
+            print(f"Recursive deletion complete: {message}")
+            print(f"  - Original variable: {var_id}")
+            print(f"  - Additional variables: {orphaned_variables}")
+            print(f"  - Dependent equations: {dependent_equations}")
+            print(f"  - Total iterations: {iteration}")
+            
+            return True, message, dependent_equations, orphaned_variables
+            
         except Exception as e:
             print(f"Error in delete_variable_with_dependencies: {e}")
             return False, f"Error deleting variable: {str(e)}", set(), set()

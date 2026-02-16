@@ -56,6 +56,11 @@ class EntityEditorBackEnd(QObject):
             self.launch_behavior_association_editor()
         elif event == "add_variable":
             self.launch_behavior_association_editor()
+        elif event == "new_variable_added":
+            # Handle new variable addition from frontend
+            assignments = message.get("assignments")
+            if assignments:
+                self.handle_behavior_association(assignments)
         elif event == "def_variable":
             self.launch_equation_association_editor(message.get("var_id"))
         elif event == "delete_variable":
@@ -181,21 +186,13 @@ class EntityEditorBackEnd(QObject):
                     'entity_type': entity_data.get('entity_type', 'unknown')
                     }
 
-            print(f"Debug: Launching behavior association editor with entity type: {entity_type_info}")
-
             # Launch the BehaviorAssociation editor with entity type info
             current_entity = None
             if hasattr(self, 'entity_frontend') and self.entity_frontend:
                 if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
                     current_entity = self.entity_frontend.current_entity
-                    print(f"Debug: Found current_entity in frontend: {current_entity}")
-                else:
-                    print("Debug: No current_entity in frontend")
-            else:
-                print("Debug: No entity_frontend available")
             
             assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'state', current_entity)
-            print(f"Debug: Received assignments: {assignments}")
             if assignments:
                 # Process the assignments directly
                 self.handle_behavior_association(assignments)
@@ -807,10 +804,22 @@ class EntityEditorBackEnd(QObject):
                         print(f"Generated forest: {entity.var_eq_forest}")
                     
                     # Use the enhanced variable deletion with dependency analysis
+                    print(f"Calling handle_variable_deletion_with_dependencies for {var_id}...")
                     success, message, dependent_equations, orphaned_variables = handle_variable_deletion_with_dependencies(entity, var_id)
+                    print(f"Deletion result: success={success}, message={message}")
+                    print(f"  dependent_equations: {dependent_equations}")
+                    print(f"  orphaned_variables: {orphaned_variables}")
 
                     if success:
                         print(f"Variable deletion succeeded: {message}")
+                        
+                        # Verify entity state after deletion
+                        print(f"Entity state after deletion:")
+                        print(f"  All variables: {entity.get_all_variables()}")
+                        print(f"  Output vars: {entity.get_output_vars()}")
+                        print(f"  Input vars: {entity.get_input_vars()}")
+                        print(f"  Init vars: {entity.get_init_vars()}")
+                        print(f"  Forest: {getattr(entity, 'var_eq_forest', 'None')}")
                         
                         # Mark entity as changed and update frontend
                         self.entity_frontend.markChanged()
@@ -818,6 +827,19 @@ class EntityEditorBackEnd(QObject):
                         # Force complete UI refresh
                         print("Refreshing UI after deletion...")
                         self.entity_frontend.populate_lists_from_entity(entity)
+                        
+                        # Additional aggressive refresh - force model updates
+                        print("Performing aggressive UI refresh...")
+                        self.entity_frontend.clear_all_lists()
+                        self.entity_frontend.populate_lists_from_entity(entity)
+                        
+                        # Force UI update
+                        self.entity_frontend.ui.list_outputs.update()
+                        self.entity_frontend.ui.list_inputs.update()
+                        self.entity_frontend.ui.list_instantiate.update()
+                        self.entity_frontend.ui.list_integrators.update()
+                        self.entity_frontend.ui.list_included_variables.update()
+                        self.entity_frontend.ui.list_not_defined_variables.update()
                         
                         # Send detailed success message
                         full_message = f"Successfully deleted variable {var_id}"

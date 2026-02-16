@@ -531,6 +531,21 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                 }
                         self.add_variable_to_list(self.ui.list_instantiate, var_info)
 
+            # # Populate not defined variables list
+            # if hasattr(entity, 'get_not_defined_variables'):
+            #     not_defined_vars = entity.get_not_defined_variables()
+            #     print(f"Populating not defined variables: {not_defined_vars}")
+            #
+            #     for var_id in not_defined_vars:
+            #         if var_id in variables:
+            #             var_data = variables[var_id]
+            #             var_info = {
+            #                     'id'     : var_id,
+            #                     'label'  : var_data.get('label', var_id),
+            #                     'network': var_data.get('network', 'unknown')
+            #                     }
+            #             self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
+
             # Populate integrators list
             if hasattr(entity, 'integrators') and entity.integrators:
                 print(f"=== POPULATING INTEGRATORS ===")
@@ -904,13 +919,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                                                  'unknown') if self.selected_entity_type else 'unknown'
                     }
 
-            print(f"Edit mode: Launching new variable selector for entity: {entity_type_info}")
-
             # Launch the BehaviorAssociation editor in new variable addition mode
-            print(f"Debug: About to launch editor with current_entity: {self.current_entity}")
-            print(f"Debug: hasattr current_entity: {hasattr(self, 'current_entity')}")
-            if hasattr(self, 'current_entity') and self.current_entity:
-                print(f"Debug: current_entity.get_all_variables(): {self.current_entity.get_all_variables()}")
             assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'all', self.current_entity)
 
             if assignments:
