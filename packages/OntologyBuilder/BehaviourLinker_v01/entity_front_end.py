@@ -112,7 +112,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     selection_model = list_widget.selectionModel()
                     if selection_model is not None:
                         selection_model.selectionChanged.connect(self.on_list_selection_changed)
-                        print(f"Connected selection handler for {list_widget.objectName()}")
+                        # Connected selection handler
                     else:
                         # No selection model needed for this list
                         pass
@@ -665,12 +665,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             selected_var_id = self.get_selected_variable_id()
             
             if not selected_var_id:
-                print("No variable selected for deletion")
+                # No variable selected
                 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
                 makeMessageBox("Please select a variable to delete")
                 return
             
-            print(f"Delete button pressed for variable: {selected_var_id}")
+            # Delete button pressed
             
             # Confirm deletion
             from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
@@ -705,13 +705,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             ]
             
             for list_widget in lists_to_check:
-                print(f"Checking list: {list_widget.objectName()}")
+                # Checking list
                 
                 # QListView uses selectionModel() instead of selectedItems()
                 selection_model = list_widget.selectionModel()
                 if selection_model:
                     selected_indexes = selection_model.selectedIndexes()
-                    print(f"Selected indexes count: {len(selected_indexes)}")
+                    # Found selected indexes
                     
                     if selected_indexes:
                         # Get the first selected index
@@ -721,10 +721,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         if model:
                             item = model.itemFromIndex(selected_index)
                             if item:
-                                print(f"Selected item text: {item.text()}")
+                                # Selected item
                                 
                                 item_data = item.data(QtCore.Qt.UserRole)
-                                print(f"Item data: {item_data}")
+                                # Got item data
                                 
                                 if item_data and 'id' in item_data:
                                     print(f"Found ID in data: {item_data['id']}")
@@ -738,9 +738,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                     print(f"Found ID in text: {match.group(1)}")
                                     return match.group(1)
                 else:
-                    print(f"List {list_widget.objectName()} has no selection model")
+                    # No selection model
+                    pass
             
-            print("No selected variable found")
+            # No selected variable found
             return None
             
         except Exception as e:
@@ -868,7 +869,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Process the state variable selection
                 self.handle_state_variable_selection(assignments)
             else:
-                print("No state variable selected")
+                # No state variable selected
+                pass
 
         except Exception as e:
             print(f"Error launching state variable selector: {e}")
@@ -917,7 +919,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def handle_state_variable_selection(self, assignments):
         """Handle state variable selection in create mode"""
         try:
-            print(f"State variable selected: {assignments}")
+            # State variable selected
 
             # Extract the selected variable
             root_variable = assignments.get('root_variable')

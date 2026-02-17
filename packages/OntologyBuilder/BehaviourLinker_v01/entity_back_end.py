@@ -268,7 +268,6 @@ class EntityEditorBackEnd(QObject):
                         if use_initialization:
                             # Add to initialization variables using Entity method
                             entity.set_init_var(root_variable, True)
-                            print(f"Added {root_variable} to init_vars for instantiation")
                             
                             # Immediately refresh GUI to show the new instantiation variable
                             if hasattr(self, 'entity_frontend') and self.entity_frontend:
@@ -276,7 +275,6 @@ class EntityEditorBackEnd(QObject):
                         else:
                             # Add to output variables and create equation relationship using Entity method
                             entity.set_output_var(root_variable, True)
-                            print(f"Added {root_variable} to output_vars with equation")
 
                         # Generate the variable-equation forest using Entity's method
                         entity.generate_var_eq_forest(var_eq_assignments)
@@ -289,19 +287,13 @@ class EntityEditorBackEnd(QObject):
                         if use_initialization and root_variable:
                             # Add to initialization variables using Entity method
                             entity.set_init_var(root_variable, True)
-                            print(f"Added {root_variable} to init_vars for instantiation (no assignments)")
                             # Also remove from output_vars if it was there (to avoid conflicts)
                             entity.set_output_var(root_variable, False)
-                            print(f"Removed {root_variable} from output_vars (now instantiation)")
                             
                             # Immediately refresh GUI to show the new instantiation variable
                             if hasattr(self, 'entity_frontend') and self.entity_frontend:
                                 self.entity_frontend.populate_lists_from_entity(entity)
-                        print(f"Entity init_vars after adding: {entity.init_vars}")
-
-                        # Cleaned up - no more verbose debug output
-                        print(f"Entity input_vars: {entity.input_vars}")
-                        print(f"Entity init_vars: {entity.init_vars}")
+                        # Entity updated successfully
 
                         # # Check if E_93 is in the forest and if it should be an integrator
                         # has_e93 = False
@@ -624,7 +616,6 @@ class EntityEditorBackEnd(QObject):
                     if root_equation and not assignments.get('use_initialization', False):
                         # Add the equation to the forest
                         var_eq_forest[0][root_equation] = [root_variable]
-                        print(f"Added equation {root_equation} with variable {root_variable} to var_eq_forest")
 
                     # Prepare add_var_eq_info for sophisticated Entity class
                     add_var_eq_info = {}
@@ -718,7 +709,6 @@ class EntityEditorBackEnd(QObject):
                     if definition_method == 'initialization':
                         # Add to initialization variables using Entity method
                         entity.set_init_var(root_variable, True)
-                        print(f"Added {root_variable} to init_vars for instantiation")
                         
                         # Immediately refresh GUI to show the new instantiation variable
                         if hasattr(self, 'entity_frontend') and self.entity_frontend:

@@ -31,6 +31,10 @@ from OntologyBuilder.BehaviourLinker_v01.UIs.main import Ui_MainWindow
 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
 
 
+# Global variable to track if changes have been made
+changed = False
+
+
 # from OntologyBuilder.BehaviourLinker_v01.main_back_end import BackEnd
 
 
@@ -67,8 +71,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
         # Add statusbar since the UI doesn't have one but this is a QMainWindow
         self.statusBar().showMessage("Ready")
-
-        self.changed = False
 
     def send_message(self, message):
         # print("sending message", message)
@@ -131,13 +133,13 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
         # Extract networks from node_entity_types data
         networks = set(node_entity_types.keys())
-        # print(f"Extracted networks: {networks}")
+        # Extract networks from node_entity_types data
 
         network_items = {}
 
         # Build tree structure
         for net in sorted(networks):
-            # print(f"Building network: {net}")
+            # Building network
             # Create network item
             net_item = QtGui.QStandardItem(net)
             net_item.setData(('network', net), QtCore.Qt.UserRole + 1)
@@ -145,7 +147,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             net_item.setForeground(NETWORK_COLOR)
             tree_model.appendRow(net_item)
             network_items[net] = net_item
-            # print(f"Added network item: {net}")
+            # Added network item
 
             # Create categories (node, arc)
             for category in ['node', 'arc']:
@@ -211,8 +213,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                     #     placeholder_item.setForeground(ENTITY_COLOR)
                     #     type_item.appendRow(placeholder_item)
 
-        # print(f"Tree built with {len(networks)} networks and colored structure")
-        # print(f"Tree model has {tree_model.rowCount()} top-level items")
+        # Tree built successfully
 
         # Make sure the tree view is properly configured
         self.ui.tree_entities.expandAll()
@@ -264,8 +265,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                                 "name"       : name
                                 }
                         }
-                # print("network:", network, "   category:", category, "   entity type:", entity_type)
-                # print(message)
+                # Sending entity selection
                 self.send_message(message)
 
     # ===============================================================
@@ -387,7 +387,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             makeMessageBox(f"Error saving: {str(e)}", buttons=["OK"])
 
     def on_pushExit_pressed(self):
-        print("exit pressed")
         self.closeMe()
 
     # ================ tree =========================================
@@ -555,13 +554,18 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.statusBar().showMessage("up to date")
 
     def closeMe(self):
-
-        if self.changed:
-            dialog = makeMessageBox(message="save changes", buttons=["YES", "NO"])
+        global changed
+        if changed:
+            dialog = makeMessageBox(
+                message="You have unsaved changes. Do you want to save before exiting?", 
+                buttons=["YES", "NO", "cancel"]
+            )
             if dialog == "YES":
-                self.on_pushOntologySave_pressed()
+                self.on_pushSave_pressed()
+                sys.exit()
             elif dialog == "NO":
-                pass
+                sys.exit()
+            elif dialog == "cancel":
+                return  # Don't exit
         else:
-            pass
-        sys.exit()
+            sys.exit()

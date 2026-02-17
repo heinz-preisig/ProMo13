@@ -61,7 +61,7 @@ class BehaviourLinerBackEnd(QObject):
             # Handle entity saved confirmation
             entity_name = message.get('entity_name')
             save_message = message.get('message')
-            print(f"Entity saved confirmation: {entity_name}")
+            # Entity saved confirmation
             
             # Forward to main frontend
             self.send_message_to_main_frontend("entity_saved", {
@@ -81,19 +81,10 @@ class BehaviourLinerBackEnd(QObject):
             
             entity_id = f"{network}.{category}.{entity_type}.{name}"
             
-            # Confirm deletion
-            choice = makeMessageBox(
-                message=f"Are you sure you want to delete entity '{name}'?\n\nThis action cannot be undone.",
-                buttons=["YES", "NO"]
-            )
-            
-            if choice != "YES":
-                return
-            
             # Remove from all_entities if it exists
             if entity_id in self.all_entities:
                 del self.all_entities[entity_id]
-                print(f"Deleted entity: {entity_id}")
+                # Entity deleted
                 
                 # Convert entities to dictionary format for Exchange Board
                 entities_data = {}
@@ -115,7 +106,7 @@ class BehaviourLinerBackEnd(QObject):
                     'entity_name': name
                 })
             else:
-                print(f"Entity not found for deletion: {entity_id}")
+                # Entity not found
                 makeMessageBox(f"Entity '{name}' not found", buttons=["OK"])
                 
         except Exception as e:
@@ -169,25 +160,27 @@ class BehaviourLinerBackEnd(QObject):
             if entity:
                 self.process_entity_object(entity)
             else:
-                print("No Entity object found in entity_data_ready message")
+                # No Entity object found
+                pass
         elif message.get("event") == "populate_entity_lists":
             # Handle populate_entity_lists from backend
             self.send_message_to_entity_frontend("populate_entity_lists", message.get("lists_data"))
         elif message.get("event") == "entity_created_successfully":
             # Handle successful entity creation
-            print("Entity created successfully")
+            # Entity created successfully
             self.send_message_to_main_frontend("entity_creation_complete")
         elif message.get("event") == "save_entity":
             # Handle entity save - mark main interface as changed
             entity = message.get("entity")
             if entity:
-                print(f"Entity saved: {entity.entity_id}")
+                # Entity saved
                 # Add/update entity in all_entities
                 self.add_entity_to_all_entities(entity)
                 # Mark main interface as changed
                 self.mark_changed()
             else:
-                print("No entity provided in save_entity message")
+                # No entity provided
+                pass
         elif message.get("event") == "error":
             # Handle errors from entity editor
             error_msg = message.get("error", "Unknown error")
@@ -198,16 +191,12 @@ class BehaviourLinerBackEnd(QObject):
         """Process Entity object directly - no data duplication needed"""
         try:
             if not entity:
-                print("No Entity object provided")
+            # No Entity object provided
                 return
 
             # Use the Entity object directly - no more data extraction needed
             entity_id = getattr(entity, 'entity_id', 'Unknown Entity')
-            print(f"Processing Entity object: {entity_id}")
-            print(f"Entity var_eq_forest: {entity.var_eq_forest}")
-            print(f"Entity output_vars: {entity.output_vars}")
-            print(f"Entity input_vars: {entity.input_vars}")
-            print(f"Entity init_vars: {entity.init_vars}")
+            # Processing Entity object
 
             # Add the entity to all_entities
             self.add_entity_to_all_entities(entity)
@@ -226,7 +215,7 @@ class BehaviourLinerBackEnd(QObject):
         """Process the entity data with equation selection and update frontend"""
         try:
             if not entity_data:
-                print("No entity data provided")
+                # No entity data provided
                 return
 
             root_variable = entity_data.get('root_variable')
@@ -245,11 +234,7 @@ class BehaviourLinerBackEnd(QObject):
             entity = entity_data.get('entity_object')
             if entity:
                 entity_name = getattr(entity, 'entity_id', 'Unknown Entity')
-                print(f"Found Entity object: {entity_name}")
-                print(f"Entity var_eq_forest: {entity.var_eq_forest}")
-                print(f"Entity output_vars: {entity.output_vars}")
-                print(f"Entity input_vars: {entity.input_vars}")
-                print(f"Entity init_vars: {entity.init_vars}")
+                # Found Entity object
 
                 # Add the entity to all_entities and save it
                 self.add_entity_to_all_entities(entity)
@@ -260,9 +245,10 @@ class BehaviourLinerBackEnd(QObject):
                 # Update the main frontend tree to show the new entity
                 # self.update_main_frontend_tree()
             else:
-                print("No Entity object found in entity_data")
+                # No Entity object found
+                pass
 
-            print("Entity data processed successfully")
+            # Entity data processed successfully
 
         except Exception as e:
             print(f"Error processing entity data: {e}")
@@ -273,7 +259,7 @@ class BehaviourLinerBackEnd(QObject):
         try:
             # Check if entity is None
             if entity is None:
-                print("Cannot update entity editor frontend - Entity object is None")
+                # Cannot update - Entity object is None
                 return
             
             # Get the entity editor frontend instance
@@ -282,9 +268,10 @@ class BehaviourLinerBackEnd(QObject):
                 self.entity_editor_frontend.set_entity_object(entity)
 
                 entity_name = getattr(entity, 'entity_id', 'Unknown Entity')
-                print(f"Updated entity editor frontend with Entity: {entity_name}")
+                # Updated entity editor frontend
             else:
-                print("Entity editor frontend not available")
+                # Entity editor frontend not available
+                pass
 
         except Exception as e:
             print(f"Error updating entity editor frontend: {e}")
@@ -294,19 +281,21 @@ class BehaviourLinerBackEnd(QObject):
         try:
             # Check if entity is None or doesn't have entity_name
             if entity is None:
-                print("Cannot add entity to all_entities - Entity object is None")
+                # Cannot add - Entity object is None
                 return
             
             if not hasattr(entity, 'entity_id'):
-                print("Cannot add entity to all_entities - Entity object missing entity_name attribute")
+                # Cannot add - missing entity_id
                 return
             
             # Check if entity already exists
             entity_id = entity.entity_id
             if entity_id in self.all_entities:
-                print(f"Updating existing entity {entity_id} in all_entities")
+                # Updating existing entity
+                pass
             else:
-                print(f"Adding new entity {entity_id} to all_entities")
+                # Adding new entity
+                pass
 
             # Add/update the entity in the all_entities dictionary
             self.all_entities[entity_id] = entity
