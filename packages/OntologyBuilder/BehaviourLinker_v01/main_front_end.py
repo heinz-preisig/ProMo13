@@ -34,7 +34,6 @@ from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import mak
 # Error logging utility
 def log_error(method_name: str, error: Exception, context: str = ""):
     """Log error with method name and context for debugging"""
-    import traceback
     error_msg = f"ERROR in {method_name}"
     if context:
         error_msg += f" ({context})"
@@ -75,7 +74,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
         self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
         self.interfaceComponents()
-        
+
         # Connect button signals explicitly
         self.ui.pushDelete.clicked.connect(self.on_pushDelete_pressed)
         self.ui.pushEdit.clicked.connect(self.on_pushEdit_pressed)
@@ -187,7 +186,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                                 print(">>>>>>>>>>>> unpacking of entity_id failed", parts)
                                 pass
 
-
                             if (entity_net == net and
                                     entity_cat == category and
                                     entity_type_name == entity_type):
@@ -267,39 +265,39 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             if not index.isValid():
                 makeMessageBox("Please select an entity instance to edit", buttons=["OK"])
                 return
-            
+
             # Get the item from the index
             item = self.ui.tree_entities.model().itemFromIndex(index)
             if item is None:
                 makeMessageBox("Please select an entity instance to edit", buttons=["OK"])
                 return
-            
+
             # Get full path to determine if it's an entity instance
             path = []
             current = item
             while current is not None:
                 path.insert(0, current.text())
                 current = current.parent()
-            
+
             # Only allow editing of entity instances (path length = 4)
             if len(path) != 4:
                 makeMessageBox("Please select an entity instance to edit (not entity type)", buttons=["OK"])
                 return
-            
+
             network, category, entity_type, name = path
-            
+
             # Send edit message to backend
             message = {
-                "event": "selected_instance",
-                "data": {
-                    "network": network,
-                    "category": category,
-                    "entity type": entity_type,
-                    "name": name
-                }
-            }
+                    "event": "selected_instance",
+                    "data" : {
+                            "network"    : network,
+                            "category"   : category,
+                            "entity type": entity_type,
+                            "name"       : name
+                            }
+                    }
             self.send_message(message)
-            
+
         except Exception as e:
             log_error("on_pushEdit_pressed", e, "editing entity")
             makeMessageBox(f"Error editing entity: {str(e)}", buttons=["OK"])
@@ -312,48 +310,48 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             if not index.isValid():
                 makeMessageBox("Please select an entity instance to delete", buttons=["OK"])
                 return
-            
+
             # Get the item from the index
             item = self.ui.tree_entities.model().itemFromIndex(index)
             if item is None:
                 makeMessageBox("Please select an entity instance to delete", buttons=["OK"])
                 return
-            
+
             # Get full path to determine if it's an entity instance
             path = []
             current = item
             while current is not None:
                 path.insert(0, current.text())
                 current = current.parent()
-            
+
             # Only allow deletion of entity instances (path length = 4)
             if len(path) != 4:
                 makeMessageBox("Please select an entity instance to delete (not entity type)", buttons=["OK"])
                 return
-            
+
             network, category, entity_type, name = path
-            
+
             # Confirm deletion
             choice = makeMessageBox(
-                message=f"Delete entity instance '{name}'?\n\nThis action cannot be undone.",
-                buttons=["YES", "NO"]
-            )
-            
+                    message=f"Delete entity instance '{name}'?\n\nThis action cannot be undone.",
+                    buttons=["YES", "NO"]
+                    )
+
             if choice != "YES":
                 return
-            
+
             # Send delete message to backend
             message = {
-                "event": "delete_instance",
-                "data": {
-                    "network": network,
-                    "category": category,
-                    "entity type": entity_type,
-                    "name": name
-                }
-            }
+                    "event": "delete_instance",
+                    "data" : {
+                            "network"    : network,
+                            "category"   : category,
+                            "entity type": entity_type,
+                            "name"       : name
+                            }
+                    }
             self.send_message(message)
-            
+
         except Exception as e:
             log_error("on_pushDelete_pressed", e, "deleting entity")
             makeMessageBox(f"Error deleting entity: {str(e)}", buttons=["OK"])
@@ -363,17 +361,16 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         try:
             # Mark as saved - green LED and hide save button
             self.markSaved()
-            
+
             # Send save confirmation to backend
             self.send_message({"event": "save"})
-            
+
         except Exception as e:
             log_error("on_pushSave_pressed", e, "saving changes")
             makeMessageBox(f"Error saving: {str(e)}", buttons=["OK"])
 
     def on_pushExit_pressed(self):
         self.closeMe()
-
 
     # ======================= window controls ==========================
     def interfaceComponents(self):
@@ -388,9 +385,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                         # "new"   : self.ui.pushNew,
                         "edit"  : self.ui.pushEdit,
                         "delete": self.ui.pushDelete,
-                        "save": self.ui.pushSave,
-                        "exit": self.ui.pushExit,
-                        "tree": self.ui.tree_entities,
+                        "save"  : self.ui.pushSave,
+                        "exit"  : self.ui.pushExit,
+                        "tree"  : self.ui.tree_entities,
                         },
                 "indicator": {
                         "LED": self.ui.LED,
@@ -432,9 +429,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         global changed
         if changed:
             dialog = makeMessageBox(
-                message="You have unsaved changes. Do you want to save before exiting?", 
-                buttons=["YES", "NO", "cancel"]
-            )
+                    message="You have unsaved changes. Do you want to save before exiting?",
+                    buttons=["YES", "NO", "cancel"]
+                    )
             if dialog == "YES":
                 self.on_pushSave_pressed()
                 sys.exit()

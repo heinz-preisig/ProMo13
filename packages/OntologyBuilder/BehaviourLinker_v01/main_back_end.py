@@ -6,22 +6,20 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 
 from Common.classes.entity import Entity
-from Common.classes.equation import Equation
 from Common.common_resources import getOntologyName
 from Common.exchange_board import ProMoExchangeBoard
+from Common.pop_up_message_box import makeMessageBox
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.ui_get_string_impl import UI_GetString
 from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBackEnd
 from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
-from Common.pop_up_message_box import makeMessageBox
 
 
 # Error logging utility
 def log_error(method_name: str, error: Exception, context: str = ""):
     """Log error with method name and context for debugging"""
-    import traceback
     error_msg = f"ERROR in {method_name}"
     if context:
         error_msg += f" ({context})"
@@ -71,12 +69,12 @@ class BehaviourLinerBackEnd(QObject):
             entity_name = message.get('entity_name')
             save_message = message.get('message')
             # Entity saved confirmation
-            
+
             # Forward to main frontend
             self.send_message_to_main_frontend("entity_saved", {
-                'entity_name': entity_name,
-                'message': save_message
-            })
+                    'entity_name': entity_name,
+                    'message'    : save_message
+                    })
 
         self.send_message_to_main_frontend(event)
 
@@ -87,37 +85,37 @@ class BehaviourLinerBackEnd(QObject):
             category = entity_data.get("category")
             entity_type = entity_data.get("entity type")
             name = entity_data.get("name")
-            
+
             entity_id = f"{network}.{category}.{entity_type}.{name}"
-            
+
             # Remove from all_entities if it exists
             if entity_id in self.all_entities:
                 del self.all_entities[entity_id]
                 # Entity deleted
-                
+
                 # Convert entities to dictionary format for Exchange Board
                 entities_data = {}
                 for entity_id, entity_obj in self.all_entities.items():
                     entities_data[entity_id] = entity_obj.convert_to_dict()
-                
+
                 # Save using Exchange Board method (updates equation_entity_dict automatically)
                 self.ontology_container.save_entities(entities_data)
-                
+
                 # Update the main frontend tree to reflect the deletion
                 self.update_main_frontend_tree()
-                
+
                 # Mark as changed and show save button
                 self.mark_changed()
-                
+
                 # Send confirmation message
                 self.send_message_to_main_frontend("entity_deleted", {
-                    'entity_id': entity_id,
-                    'entity_name': name
-                })
+                        'entity_id'  : entity_id,
+                        'entity_name': name
+                        })
             else:
                 # Entity not found
                 makeMessageBox(f"Entity '{name}' not found", buttons=["OK"])
-                
+
         except Exception as e:
             log_error("delete_entity_instance", e, f"deleting entity '{name}'")
             makeMessageBox(f"Error deleting entity: {str(e)}", buttons=["OK"])
@@ -135,19 +133,19 @@ class BehaviourLinerBackEnd(QObject):
         try:
             # Prepare data for tree update
             node_entity_types = {}
-            
+
             # Extract entity types from ontology
             if hasattr(self.ontology_container, 'node_entity_types'):
                 node_entity_types = self.ontology_container.node_entity_types
-            
+
             data = {
-                "node_entity_types": node_entity_types,
-                "all_entities": self.all_entities
-            }
-            
+                    "node_entity_types": node_entity_types,
+                    "all_entities"     : self.all_entities
+                    }
+
             # Send tree update to frontend
             self.send_message_to_main_frontend("make_tree", data)
-            
+
         except Exception as e:
             log_error("update_main_frontend_tree", e, "updating frontend tree")
 
@@ -200,7 +198,7 @@ class BehaviourLinerBackEnd(QObject):
         """Process Entity object directly - no data duplication needed"""
         try:
             if not entity:
-            # No Entity object provided
+                # No Entity object provided
                 return
 
             # Use the Entity object directly - no more data extraction needed
@@ -209,7 +207,7 @@ class BehaviourLinerBackEnd(QObject):
 
             # Add the entity to all_entities
             self.add_entity_to_all_entities(entity)
-            
+
             # Mark main interface as changed when entity is processed
             self.mark_changed()
 
@@ -259,7 +257,7 @@ class BehaviourLinerBackEnd(QObject):
             if entity is None:
                 # Cannot update - Entity object is None
                 return
-            
+
             # Get the entity editor frontend instance
             if hasattr(self, 'entity_editor_frontend') and self.entity_editor_frontend:
                 # Update the frontend with the Entity object
@@ -281,11 +279,11 @@ class BehaviourLinerBackEnd(QObject):
             if entity is None:
                 # Cannot add - Entity object is None
                 return
-            
+
             if not hasattr(entity, 'entity_id'):
                 # Cannot add - missing entity_id
                 return
-            
+
             # Check if entity already exists
             entity_id = entity.entity_id
             if entity_id in self.all_entities:
@@ -305,7 +303,7 @@ class BehaviourLinerBackEnd(QObject):
 
             # Save using Exchange Board method (updates equation_entity_dict automatically)
             self.ontology_container.save_entities(entities_data)
-            
+
             # Update the main frontend tree to show the new entity
             self.update_main_frontend_tree()
 
@@ -473,7 +471,7 @@ class BehaviourLinerBackEnd(QObject):
                     log_error("load_entity", Exception("equation_entity_dict not found"), "loading entity - no equations available")
                     # Return empty entity if no equations available
                     continue
-            
+
             new_entity = Entity(
                     ent_name,
                     all_equations,  # Now with real global equations!

@@ -8,6 +8,7 @@ This module provides intelligent variable deletion that:
 3. Maintains entity structure integrity
 """
 
+
 def handle_variable_deletion_with_dependencies(entity, var_id):
     """
     Enhanced variable deletion with comprehensive dependency analysis.
@@ -25,14 +26,14 @@ def handle_variable_deletion_with_dependencies(entity, var_id):
     """
     try:
         print(f"=== ENHANCED VARIABLE DELETION: {var_id} ===")
-        
+
         # Delegate to Entity's own comprehensive deletion method
         if hasattr(entity, 'delete_variable_with_dependencies'):
             success, message, dependent_equations, orphaned_variables = entity.delete_variable_with_dependencies(var_id)
             return success, message, dependent_equations, orphaned_variables
         else:
             return False, "Entity does not support variable deletion", set(), set()
-            
+
     except Exception as e:
         print(f"Error in handle_variable_deletion_with_dependencies: {e}")
         return False, f"Error deleting variable: {str(e)}", set(), set()
