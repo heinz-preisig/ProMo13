@@ -17,6 +17,18 @@ from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFro
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 from Common.pop_up_message_box import makeMessageBox
 
+
+# Error logging utility
+def log_error(method_name: str, error: Exception, context: str = ""):
+    """Log error with method name and context for debugging"""
+    import traceback
+    error_msg = f"ERROR in {method_name}"
+    if context:
+        error_msg += f" ({context})"
+    error_msg += f": {str(error)}"
+    print(error_msg)  # Keep console output for debugging
+
+
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 root = os.path.abspath(os.path.join("..", ".."))  # Go up two levels to project root
@@ -30,7 +42,6 @@ class BehaviourLinerBackEnd(QObject):
         super().__init__()
 
     def process_main_frontend_message(self, message):
-        # print(">>got message: ", message)
         event = message.get("event")
 
         # action
@@ -38,12 +49,10 @@ class BehaviourLinerBackEnd(QObject):
             pass
         elif event == "selected_entity_type":
             self.entity_type = message.get("data", None)
-            # print(" got a selected entity type", self.entity_type)
             # Automatically launch entity editor for entity type selection (create mode)
             self.launch_entity_editor(mode="create")
         elif event == "selected_instance":
             self.entity_type = message.get("data", None)
-            # print(" got a selected entity instance", self.entity_type)
             # Automatically launch entity editor for instance selection (edit mode)
             self.launch_entity_editor(mode="edit")
         elif event == "edit":
@@ -110,7 +119,7 @@ class BehaviourLinerBackEnd(QObject):
                 makeMessageBox(f"Entity '{name}' not found", buttons=["OK"])
                 
         except Exception as e:
-            print(f"Error deleting entity instance: {e}")
+            log_error("delete_entity_instance", e, f"deleting entity '{name}'")
             makeMessageBox(f"Error deleting entity: {str(e)}", buttons=["OK"])
 
     def mark_changed(self):
@@ -119,7 +128,7 @@ class BehaviourLinerBackEnd(QObject):
             # Send message to frontend to mark as changed
             self.send_message_to_main_frontend("mark_changed", {})
         except Exception as e:
-            print(f"Error marking changed state: {e}")
+            log_error("mark_changed", e, "marking interface as changed")
 
     def update_main_frontend_tree(self):
         """Update the main frontend tree with current entities"""
@@ -140,7 +149,7 @@ class BehaviourLinerBackEnd(QObject):
             self.send_message_to_main_frontend("make_tree", data)
             
         except Exception as e:
-            print(f"Error updating main frontend tree: {e}")
+            log_error("update_main_frontend_tree", e, "updating frontend tree")
 
     def send_message_to_main_frontend(self, event, data=None):
         message = {"event": event, "interface": gui_automaton[event], "data": data}
@@ -184,7 +193,7 @@ class BehaviourLinerBackEnd(QObject):
         elif message.get("event") == "error":
             # Handle errors from entity editor
             error_msg = message.get("error", "Unknown error")
-            print(f"Entity editor error: {error_msg}")
+            log_error("handle_entity_editor_message", Exception(error_msg), "processing entity editor error")
             self.send_message_to_main_frontend("error", {"error": error_msg})
 
     def process_entity_object(self, entity):
@@ -208,7 +217,6 @@ class BehaviourLinerBackEnd(QObject):
             self.update_entity_editor_frontend(entity)
 
         except Exception as e:
-            print(f"Error processing Entity object: {e}")
             self.send_message_to_main_frontend("error", {"error": str(e)})
 
     def process_entity_data(self, entity_data):
@@ -220,15 +228,6 @@ class BehaviourLinerBackEnd(QObject):
 
             root_variable = entity_data.get('root_variable')
             definition_method = entity_data.get('definition_method')
-
-            # print(f"Processing entity for variable: {root_variable}")
-            # print(f"Definition method: {definition_method}")
-
-            # if definition_method == 'initialization':
-            #     print(f"Variable will be marked for initialization")
-            # else:
-            #     equation_id = entity_data.get('equation_id')
-            #     # print(f"Variable will be defined by equation: {equation_id}")
 
             # Get the Entity object if available
             entity = entity_data.get('entity_object')
@@ -251,7 +250,6 @@ class BehaviourLinerBackEnd(QObject):
             # Entity data processed successfully
 
         except Exception as e:
-            print(f"Error processing entity data: {e}")
             self.send_message_to_main_frontend("error", {"error": str(e)})
 
     def update_entity_editor_frontend(self, entity):
@@ -274,7 +272,7 @@ class BehaviourLinerBackEnd(QObject):
                 pass
 
         except Exception as e:
-            print(f"Error updating entity editor frontend: {e}")
+            log_error("update_entity_editor_frontend", e, f"updating frontend for {getattr(entity, 'entity_id', 'unknown entity')}")
 
     def add_entity_to_all_entities(self, entity):
         """Add or update an entity in all_entities and save to file"""
@@ -307,13 +305,12 @@ class BehaviourLinerBackEnd(QObject):
 
             # Save using Exchange Board method (updates equation_entity_dict automatically)
             self.ontology_container.save_entities(entities_data)
-            print(f"Saved entities to Exchange Board")
             
             # Update the main frontend tree to show the new entity
             self.update_main_frontend_tree()
 
         except Exception as e:
-            print(f"Error adding entity to all_entities: {e}")
+            print(f">>>>>>>>>>>>>>> Error adding entity to all_entities: {e}")
 
     def update_main_frontend_tree(self):
         """Update the main frontend tree with updated all_entities"""
@@ -323,13 +320,12 @@ class BehaviourLinerBackEnd(QObject):
                     "node_entity_types": self.node_entity_types,
                     "all_entities"     : self.all_entities
                     })
-            print(f"Updated main frontend tree with {len(self.all_entities)} entities")
 
         except Exception as e:
-            print(f"Error updating main frontend tree: {e}")
+            log_error("update_main_frontend_tree", e, "updating frontend tree with entities")
 
         except Exception as e:
-            print(f"Error updating entity editor frontend: {e}")
+            log_error("update_main_frontend_tree", e, "updating entity editor frontend")
 
     def send_message_to_entity_frontend(self, event, data=None):
         """Send a message to the entity editor frontend"""
@@ -347,7 +343,6 @@ class BehaviourLinerBackEnd(QObject):
         """Handle the behavior association assignments from the editor"""
         try:
             if assignments:
-                print(f"Received behavior association: {assignments}")
 
                 # Here you can process the assignments as needed
                 # For example, save them to the entity file or update the entity data
@@ -359,10 +354,10 @@ class BehaviourLinerBackEnd(QObject):
                         "assignments": assignments
                         })
             else:
-                print("No behavior association assignments received")
+                log_error("handle_behavior_association", Exception("No assignments"), "no behavior association assignments received")
 
         except Exception as e:
-            print(f"Error handling behavior association: {e}")
+            log_error("handle_behavior_association", e, "processing behavior association assignments")
             self.send_message_to_main_frontend({
                     "event" : "behavior_association_processed",
                     "status": "error",
@@ -456,8 +451,6 @@ class BehaviourLinerBackEnd(QObject):
                 encoding="utf-8",
                 ) as file:
             data = json.load(file)
-        # from pprint import pprint as pp
-        # pp(data)
         if not data:
             return {}
 
@@ -468,7 +461,7 @@ class BehaviourLinerBackEnd(QObject):
         entities = {}
         for ent_name in entity_names:
             if ent_name not in data:
-                print(ent_name + " not found.")
+                log_error("load_entity", Exception(f"Entity '{ent_name}' not found"), "loading entity from file")
                 continue
 
             # Use equation_entity_dict from exchange board
@@ -476,9 +469,8 @@ class BehaviourLinerBackEnd(QObject):
             if hasattr(self, 'ontology_container') and self.ontology_container:
                 if hasattr(self.ontology_container, 'equation_entity_dict'):
                     all_equations = self.ontology_container.equation_entity_dict
-                    # print(f"Using equation_entity_dict from exchange board: {len(all_equations)} equations")
                 else:
-                    print("ERROR: equation_entity_dict not found in ontology_container")
+                    log_error("load_entity", Exception("equation_entity_dict not found"), "loading entity - no equations available")
                     # Return empty entity if no equations available
                     continue
             
@@ -529,7 +521,6 @@ class BehaviourLinerBackEnd(QObject):
             entity_type = self.entity_type.get("entity type")
             entity_name = self.entity_type.get('name')
             entity_id = f"{entity_network}.{entity_category}.{entity_type}.{entity_name}"
-            # print(f"Loading existing entity for editing: {entity_name}")
             entity = self.all_entities[entity_id]
             pass
             # Load the entity into the editor
@@ -548,7 +539,6 @@ class BehaviourLinerBackEnd(QObject):
             self.entity_front_end.current_entity_data = entity_data
         else:
             # Create mode - prepare for new entity creation
-            # print("Preparing for new entity creation")
             # Generate entity structure from class definition
             self.generate_entity_from_class_definition()
 
@@ -563,7 +553,7 @@ class BehaviourLinerBackEnd(QObject):
         """Generate entity structure from class definition"""
         try:
             if not hasattr(self, 'entity_type') or not self.entity_type:
-                print("No entity type selected for generation")
+                log_error("generate_entity_from_class_definition", Exception("No entity type selected"), "generating entity from class definition")
                 return
 
             # Extract entity type information
@@ -571,7 +561,6 @@ class BehaviourLinerBackEnd(QObject):
             category = self.entity_type.get('category')
             entity_type = self.entity_type.get('entity type')
 
-            print(f"Generating entity for: {network}.{category}.{entity_type}")
             # TODO: build limiting list to avoid duplication
             task = UI_GetString("provide a name for the entity")
             task.exec_()
@@ -602,10 +591,9 @@ class BehaviourLinerBackEnd(QObject):
             if hasattr(self, 'entity_front_end'):
                 self.entity_front_end.populate_entity_structure(entity_data)
 
-            print(f"Generated empty entity structure for create mode")
 
         except Exception as e:
-            print(f"Error generating entity from class definition: {e}")
+            log_error("generate_entity_from_class_definition", e, "generating entity structure")
             self.send_message_to_main_frontend("error", {"error": str(e)})
 
     def get_variables_for_entity_type(self, network, category, entity_type):
@@ -635,9 +623,8 @@ class BehaviourLinerBackEnd(QObject):
                             'equations': list(var_data.get('equations', {}).keys())
                             })
 
-            # print(f"Found {len(variables)} variables for entity type {network}.{category}.{entity_type}")
             return variables
 
         except Exception as e:
-            print(f"Error getting variables for entity type: {e}")
+            log_error("get_variables_for_entity_type", e, f"getting variables for {network}.{category}.{entity_type}")
             return []

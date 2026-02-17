@@ -34,6 +34,18 @@ from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import mak
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 
 
+# Error logging utility
+def log_error(method_name: str, error: Exception, context: str = ""):
+    """Log error with method name and context for debugging"""
+    import traceback
+    error_msg = f"ERROR in {method_name}"
+    if context:
+        error_msg += f" ({context})"
+    error_msg += f": {str(error)}"
+    print(error_msg)  # Keep console output for debugging
+    # Could also write to a log file here if needed
+
+
 class EntityEditorFrontEnd(QtWidgets.QDialog):
     """
      make new and edit entity instances
@@ -117,10 +129,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         # No selection model needed for this list
                         pass
                 except Exception as e:
-                    print(f"Error setting up selection handler for {list_widget.objectName()}: {e}")
+                    log_error("_setup_selection_handlers", e, f"setting up {list_widget.objectName()}")
                     
         except Exception as e:
-            print(f"Error in _setup_selection_handlers: {e}")
+            log_error("_setup_selection_handlers", e, "main setup loop")
 
     def interfaceComponents(self):
         self.gui_objects = {
@@ -176,15 +188,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         # Show Accept button if entity has content
         if has_content:
             self.gui_objects["buttons"]["accept"].show()
-            print("Showing Accept button - entity has content")
         else:
             self.gui_objects["buttons"]["accept"].hide()
-            print("Hiding Accept button - entity is empty")
 
     def set_mode(self, mode):
         """Set the current mode (create, edit, load) and configure UI accordingly"""
         self.mode = mode
-        print(f"EntityEditorFrontEnd mode set to: {mode}")
 
         # Configure button visibility based on mode using automaton
         if mode in gui_automaton:
@@ -298,13 +307,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
             # Check if we have an entity_object in the data
             if 'entity_object' in entity_data:
-                print("Found entity_object in populate_entity_structure - using complete entity display")
                 entity = entity_data['entity_object']
                 self.current_entity = entity
                 # Use the complete entity population method
                 self.populate_lists_from_entity(entity)
             else:
-                print("No entity_object found - using basic structure display")
                 # Clear all lists first
                 self.clear_all_lists()
 
@@ -331,7 +338,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Entity structure populated
 
         except Exception as e:
-            print(f"Error populating entity structure: {e}")
+            log_error("populate_entity_structure", e, "populating entity data")
             makeMessageBox(f"Error populating entity structure: {str(e)}")
 
     # OBSOLETE: Deprecated method - should not be called anymore
@@ -400,8 +407,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 model.clear()
 
         UISettings.configure_list_widget(list_widget, context)
-        print(
-            f"Refreshed list widget with context '{context}': {list_widget.iconSize().width()}x{list_widget.iconSize().height()}")
 
     def add_variable_to_list(self, list_widget, var_info, icon=None):
         """Add a variable to list with formatted text and optional icon"""
@@ -462,7 +467,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Get ontology container for variable information
             ontology_container = getattr(self, 'ontology_container', None)
             if not ontology_container:
-                print("Warning: No ontology container available for variable information")
                 return
 
             variables = ontology_container.variables
@@ -481,7 +485,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
             # Populate input variables list
             if hasattr(entity, 'input_vars') and entity.input_vars:
-                print(f"Populating input variables: {entity.input_vars}")
                 for var_id in entity.input_vars:
                     if var_id in variables:
                         var_data = variables[var_id]
@@ -495,7 +498,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Populate included variables list (all variables in the entity)
             if hasattr(entity, 'get_all_variables'):
                 all_variables = entity.get_all_variables()
-                print(f"Populating all included variables: {all_variables}")
                 for var_id in all_variables:
                     if var_id in variables:
                         var_data = variables[var_id]
@@ -509,7 +511,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Populate variables to be instantiated list
             if hasattr(entity, 'get_variables_to_be_instantiated'):
                 vars_to_instantiate = entity.get_variables_to_be_instantiated()
-                print(f"Populating variables to be instantiated: {vars_to_instantiate}")
                 
                 for var_id in vars_to_instantiate:
                     if var_id in variables:
@@ -538,11 +539,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
             # Populate integrators list
             if hasattr(entity, 'integrators') and entity.integrators:
-                print(f"=== POPULATING INTEGRATORS ===")
-                print(f"Entity integrators: {entity.integrators}")
-                print(f"Type of integrators: {type(entity.integrators)}")
                 for var_id, eq_id in entity.integrators.items():
-                    print(f"Processing integrator: {var_id} -> {eq_id}")
                     if var_id in variables:
                         var_data = variables[var_id]
                         var_info = {
@@ -552,21 +549,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                 }
                         # Add integrator info to the text
                         var_info['label'] = f"{var_info['label']} -> {eq_id}"
-                        print(f"Adding integrator to list: {var_info['label']}")
                         self.add_variable_to_list(self.ui.list_integrators, var_info)
-                    else:
-                        print(f"Variable {var_id} not found in ontology variables")
-            else:
-                print("=== NO INTEGRATORS FOUND ===")
-                print(f"Has integrators attribute: {hasattr(entity, 'integrators')}")
-                if hasattr(entity, 'integrators'):
-                    print(f"Integrators value: {entity.integrators}")
-                    print(f"Integrators type: {type(entity.integrators)}")
-                    print(f"Integrators truthiness: {bool(entity.integrators)}")
 
             # Populate equations list from var_eq_forest
             if hasattr(entity, 'var_eq_forest') and entity.var_eq_forest:
-                print(f"Populating equations from var_eq_forest: {entity.var_eq_forest}")
                 equations_in_forest = set()
                 for tree in entity.var_eq_forest:
                     for key, values in tree.items():
@@ -589,7 +575,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Populate pending variables using Entity method
             if hasattr(entity, 'get_pending_vars'):
                 pending_vars = entity.get_pending_vars()
-                print(f"Populating pending variables from Entity method: {pending_vars}")
                 
                 for var_id in pending_vars:
                     if var_id in variables:
@@ -601,8 +586,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                 }
                         self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
 
-            print(f"Successfully populated lists for entity: {entity.entity_id}")
-            
             # Setup selection handlers now that lists are populated
             self._setup_selection_handlers()
             
@@ -610,14 +593,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.update_mode_based_on_selection()
 
         except Exception as e:
-            print(f"Error populating lists from Entity: {e}")
+            log_error("populate_lists_from_entity", e, f"populating lists for {getattr(entity, 'entity_id', 'unknown entity')}")
             makeMessageBox(f"Error updating entity lists: {str(e)}")
 
     def process_entity_update(self, data):
         """Process entity update message from backend"""
         try:
-            print(f"EntityEditorFrontEnd processing entity update: {data}")
-
             # If we have a current entity object, update it
             if hasattr(self, 'current_entity') and self.current_entity:
                 # Update the current entity with new data
@@ -637,13 +618,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
                 # Repopulate the lists
                 self.populate_lists_from_entity(entity)
-
-                print(f"Successfully updated entity: {entity.entity_id}")
             else:
-                print("No current entity to update")
+                pass
 
         except Exception as e:
-            print(f"Error processing entity update: {e}")
+            log_error("process_entity_update", e, "processing entity update message")
             makeMessageBox(f"Error updating entity: {str(e)}")
 
     def on_pushAddStateVariable_pressed(self):
@@ -683,12 +662,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     "var_id": selected_var_id
                 }
                 self.message.emit(message)
-                print(f"Sent delete_variable message: {message}")
             else:
-                print("Variable deletion cancelled")
+                pass
                 
         except Exception as e:
-            print(f"Error in delete variable handler: {e}")
+            log_error("on_pushDeleteVariable_pressed", e, f"deleting variable {selected_var_id}")
             from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
             makeMessageBox(f"Error deleting variable: {str(e)}")
 
@@ -727,7 +705,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                 # Got item data
                                 
                                 if item_data and 'id' in item_data:
-                                    print(f"Found ID in data: {item_data['id']}")
                                     return item_data['id']
                                 
                                 # Try to extract ID from text if no data
@@ -735,7 +712,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                 import re
                                 match = re.search(r'ID:\s*(\w+)', item_text)
                                 if match:
-                                    print(f"Found ID in text: {match.group(1)}")
                                     return match.group(1)
                 else:
                     # No selection model
@@ -745,31 +721,28 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             return None
             
         except Exception as e:
-            print(f"Error getting selected variable ID: {e}")
+            log_error("get_selected_variable_id", e, "getting selected variable")
             return None
 
     def on_list_item_clicked(self, index):
         """Handle item click in any variable list"""
         try:
             list_widget = self.sender()
-            print(f"Item clicked in list: {list_widget.objectName()}")
             
             # Update mode based on selection
             self.update_mode_based_on_selection()
             
         except Exception as e:
-            print(f"Error handling list item click: {e}")
+            pass
 
     def on_list_selection_changed(self, selected, deselected):
         """Handle selection change in any variable list"""
         try:
-            print("Selection changed in variable list")
-            
             # Update mode based on selection
             self.update_mode_based_on_selection()
             
         except Exception as e:
-            print(f"Error handling selection change: {e}")
+            pass
 
     def on_pushAccept_pressed(self):
         """Handle Accept button - save entity and close"""
@@ -786,10 +759,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 self.message.emit(message)
                 self.close()
             else:
-                print("No entity to save")
+                pass
                 
         except Exception as e:
-            print(f"Error in accept handler: {e}")
+            log_error("on_pushAccept_pressed", e, "saving entity")
             makeMessageBox(f"Error saving entity: {str(e)}")
 
     def on_pushCancle_pressed(self):
@@ -804,14 +777,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.closeMe()
                 
         except Exception as e:
-            print(f"Error in cancel handler: {e}")
+            log_error("on_pushCancle_pressed", e, "canceling entity edit")
             makeMessageBox(f"Error canceling: {str(e)}")
 
     def on_list_pending_variables_clicked(self, index):
         """Handle click on pending variables list - go directly to equation selection"""
-        
-        print(">>>>>>>>>>>>>>>>>>>>>>>")
-        print(f"Clicked index: {index}")
         
         # Get the model and item from the index
         model = self.ui.list_not_defined_variables.model()
@@ -822,17 +792,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 item_text = item.text()
                 item_data = item.data(QtCore.Qt.UserRole)
                 
-                print(f"Item text: {item_text}")
-                print(f"Item data: {item_data}")
-                
                 # Extract variable ID from the item text
                 # Format is typically: "label (ID: var_id, Network: network)"
                 var_id = item_data.get('id')
                 var_label = item_data.get('label')
                 var_network = item_data.get('network')
-                print(f"Variable ID: {var_id}")
-                print(f"Variable Label: {var_label}")
-                print(f"Variable Network: {var_network}")
                 
                 # Go directly to equation association editor for this variable
                 message = {
@@ -860,8 +824,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                                                  'unknown') if self.selected_entity_type else 'unknown'
                     }
 
-            print(f"Create mode: Launching state variable selector for entity type: {entity_type_info}")
-
             # Launch the BehaviorAssociation editor in state variable selection mode
             assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'state', self.current_entity)
 
@@ -873,7 +835,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 pass
 
         except Exception as e:
-            print(f"Error launching state variable selector: {e}")
+            log_error("launch_state_variable_selector", e, "launching state variable selector")
             makeMessageBox(f"Error launching state variable selector: {str(e)}")
 
     def launch_new_variable_selector(self):
@@ -901,10 +863,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Process the new variable addition
                 self.handle_new_variable_addition(assignments)
             else:
-                print("No new variable added")
+                pass
 
         except Exception as e:
-            print(f"Error launching new variable selector: {e}")
+            log_error("launch_new_variable_selector", e, "launching new variable selector")
             makeMessageBox(f"Error launching new variable selector: {str(e)}")
 
     def launch_behavior_association_editor(self):
@@ -956,14 +918,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 makeMessageBox("No valid state variable selected")
 
         except Exception as e:
-            print(f"Error handling state variable selection: {e}")
+            log_error("handle_state_variable_selection", e, "handling state variable selection")
             makeMessageBox(f"Error handling state variable selection: {str(e)}")
 
     def handle_new_variable_addition(self, assignments):
         """Handle new variable addition in edit mode"""
         try:
-            print(f"New variable added: {assignments}")
-
             # Extract the new variable information
             root_variable = assignments.get('root_variable')
             if root_variable:
@@ -998,25 +958,17 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 makeMessageBox("No valid new variable provided")
 
         except Exception as e:
-            print(f"Error handling new variable addition: {e}")
+            log_error("handle_new_variable_addition", e, "handling new variable addition")
             makeMessageBox(f"Error handling new variable addition: {str(e)}")
 
     def update_entity_from_backend_entity(self, entity):
         """Update display when backend sends Entity object - Entity-only approach"""
         try:
-            print(f"=== UPDATE_ENTITY_FROM_BACKEND_ENTITY CALLED ===")
-            print(f"Entity object: {entity}")
-            print(f"Entity var_eq_forest: {getattr(entity, 'var_eq_forest', 'None')}")
-            print(f"Entity output_vars: {getattr(entity, 'output_vars', 'None')}")
-            print(f"Entity input_vars: {getattr(entity, 'input_vars', 'None')}")
-            print(f"Entity init_vars: {getattr(entity, 'init_vars', 'None')}")
-            
             # Store current entity
             self.current_entity = entity
             
             # Set mode to edit when working with existing entity
             if self.mode not in ["edit_no_selection", "edit_with_selection"]:
-                print("Switching to edit mode for existing entity")
                 self.set_mode("edit_no_selection")  # Start with no selection
             
             # Use Entity methods directly for all lists
@@ -1026,7 +978,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.update_accept_button_visibility()
                 
         except Exception as e:
-            print(f"Error updating entity display: {e}")
+            log_error("update_entity_from_backend_entity", e, f"updating display for {getattr(entity, 'entity_id', 'unknown entity')}")
             makeMessageBox(f"Error updating entity display: {str(e)}")
 
     def update_entity_from_backend_new(self, entity_data):
@@ -1035,28 +987,20 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         if 'entity_object' in entity_data and entity_data['entity_object']:
             self.update_entity_from_backend_entity(entity_data['entity_object'])
         else:
-            print("No Entity object in entity_data - cannot update display")
+            pass
         """Update entity display when backend sends updated entity data"""
         try:
-            print(f"=== UPDATE_ENTITY_FROM_BACKEND CALLED ===")
-            print(f"Updating entity display from backend: {entity_data}")
-
             # Check if we have an entity object in the data
             if 'entity_object' in entity_data:
-                print("Found entity_object in data - using populate_lists_from_entity")
                 entity = entity_data['entity_object']
                 self.current_entity = entity
                 # Use the complete entity population method
                 self.populate_lists_from_entity(entity)
             else:
-                print("No entity_object found - using fallback method")
                 # Fallback to current_entity_data if no entity object
                 self.populate_from_entity_data_fallback(entity_data)
 
-            print("Entity display updated successfully")
-
         except Exception as e:
-            print(f"Error updating entity display: {e}")
             makeMessageBox(f"Error updating entity display: {str(e)}")
 
     def populate_from_entity_data_fallback(self, entity_data):
@@ -1079,7 +1023,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 entity = self.current_entity
                 self.populate_lists_from_entity(entity)  # Use Entity methods for all list management
         except:
-            print("error in populate_from_entity_data_fallback ")
+            pass
 
         # ======================= window controls ==========================
 

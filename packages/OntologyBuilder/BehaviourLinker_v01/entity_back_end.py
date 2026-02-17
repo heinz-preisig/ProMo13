@@ -17,6 +17,18 @@ sys.path.extend([root, os.path.join(root, "resources")])
 # Import the enhanced variable deletion function
 from OntologyBuilder.BehaviourLinker_v01.variable_deletion import handle_variable_deletion_with_dependencies
 
+
+# Error logging utility
+def log_error(method_name: str, error: Exception, context: str = ""):
+    """Log error with method name and context for debugging"""
+    import traceback
+    error_msg = f"ERROR in {method_name}"
+    if context:
+        error_msg += f" ({context})"
+    error_msg += f": {str(error)}"
+    print(error_msg)  # Keep console output for debugging
+
+
 class EntityEditorBackEnd(QObject):
     message = pyqtSignal(dict)
 
@@ -27,20 +39,22 @@ class EntityEditorBackEnd(QObject):
 
     def set_selected_entity_type_or_entity(self, entity_type_data):
         """Set the selected entity type from the main tree"""
-        self.selected_entity_type = entity_type_data
-        print(f"EntityEditorBackEnd received selected entity type: {self.selected_entity_type}")
+        try:
+            self.selected_entity_type = entity_type_data
 
-        # Determine if we're in create or edit mode
-        if self.selected_entity_type and self.selected_entity_type.get("name"):
-            self.mode = "edit"
-            entity_name = self.selected_entity_type.get("name")
-            print(f"EntityEditorBackEnd in EDIT mode for entity: {entity_name}")
-            # Notify frontend of mode change
-            self.entity_frontend.set_mode("edit")
-        else:
-            self.mode = "create"
-            # Notify frontend of mode change
-            self.entity_frontend.set_mode("create")
+            # Determine if we're in create or edit mode
+            if self.selected_entity_type and self.selected_entity_type.get("name"):
+                self.mode = "edit"
+                entity_name = self.selected_entity_type.get("name")
+                # Notify frontend of mode change
+                self.entity_frontend.set_mode("edit")
+            else:
+                self.mode = "create"
+                # Notify frontend of mode change
+                self.entity_frontend.set_mode("create")
+
+        except Exception as e:
+            log_error("set_selected_entity_type_or_entity", e, "setting selected entity type")
 
     def set_entity_frontend(self, entity_frontend):
         """Set the entity frontend reference for direct updates"""
@@ -147,26 +161,24 @@ class EntityEditorBackEnd(QObject):
                     # Update frontend to show the changes
                     if hasattr(self, 'entity_frontend') and self.entity_frontend:
                         if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
-                            print(f"Found current_entity: {self.entity_frontend.current_entity}")
                             self.entity_frontend.update_entity_from_backend_entity(self.entity_frontend.current_entity)
                         else:
-                            print("No current_entity found - entity_data approach not needed")
                             # Lists are managed by Entity class - no manual generation needed
+                            pass
                 else:
-                    print(f"No equation association defined for {var_id}")
                     self.message.emit({
                             "event"  : "info",
                             "message": f"Equation association cancelled for {var_id}"
                             })
             else:
-                print(f"Variable {var_id} not found in ontology container")
+                log_error("process_entity_front_message", Exception(f"Variable {var_id} not found"), "def_variable event")
                 self.message.emit({
                         "event": "error",
                         "error": f"Variable {var_id} not found"
                         })
                 
         except Exception as e:
-            print(f"Error launching equation association editor: {e}")
+            log_error("process_entity_front_message", e, "launching equation association editor")
             self.message.emit({
                     "event": "error",
                     "error": f"Error launching equation association editor: {str(e)}"
@@ -201,7 +213,6 @@ class EntityEditorBackEnd(QObject):
                 # Process the assignments directly
                 self.handle_behavior_association(assignments)
             else:
-                print("No behavior association defined - user cancelled")
                 # Don't mark as changed when user cancels
                 self.message.emit({
                         "event"  : "info",
@@ -209,7 +220,7 @@ class EntityEditorBackEnd(QObject):
                         })
 
         except Exception as e:
-            print(f"Error launching BehaviorAssociation editor: {e}")
+            log_error("launch_behavior_association_editor", e, f"launching editor in {mode} mode")
             self.message.emit({
                     "event": "error",
                     "error": f"Error launching BehaviorAssociation editor: {str(e)}"
@@ -219,8 +230,6 @@ class EntityEditorBackEnd(QObject):
         """Handle the behavior association assignments from the editor"""
         try:
             if assignments:
-                print(f"Received behavior association: {assignments}")
-
                 # Extract key information
                 root_variable = assignments.get('root_variable')
                 root_equation = assignments.get('root_equation')
@@ -378,13 +387,13 @@ class EntityEditorBackEnd(QObject):
                         self.entity_frontend.update_entity_from_backend_entity(entity)
                     else:
                         # No Entity object yet - lists will be generated when Entity is created
-                        print("No Entity object yet - lists will be generated when Entity is created")
+                        pass
 
             else:
-                print("No behavior association assignments received")
+                log_error("handle_behavior_association", Exception("No assignments"), "no behavior association assignments received")
 
         except Exception as e:
-            print(f"Error handling behavior association: {e}")
+            log_error("handle_behavior_association", e, "processing behavior association assignments")
             self.message.emit({
                     "event": "error",
                     "error": str(e)
@@ -393,8 +402,6 @@ class EntityEditorBackEnd(QObject):
     def handle_entity_creation(self, entity_data):
         """Handle the final entity creation"""
         try:
-            print(f"Creating entity with data: {entity_data}")
-
             # Here you would typically:
             # 1. Validate the entity data
             # 2. Create the Entity object
@@ -407,7 +414,7 @@ class EntityEditorBackEnd(QObject):
                     })
 
         except Exception as e:
-            print(f"Error creating entity: {e}")
+            log_error("handle_entity_creation", e, "creating entity")
             self.message.emit({
                     "event": "error",
                     "error": str(e)
@@ -510,7 +517,7 @@ class EntityEditorBackEnd(QObject):
                 self.entity_frontend.markChanged()
             
         except Exception as e:
-            print(f"Error handling state variable selection (Entity-based): {e}")
+            log_error("handle_state_variable_selection", e, "handling state variable selection (Entity-based)")
             self.message.emit({
                     "event": "error",
                     "error": f"Error handling state variable selection: {str(e)}"
@@ -519,14 +526,11 @@ class EntityEditorBackEnd(QObject):
     def handle_state_variable_selection(self, assignments, entity_data):
         """Handle state variable selection in create mode"""
         try:
-            print(f"Backend handling state variable selection: {assignments}")
-
             # Extract the selected state variable
             root_variable = assignments.get('root_variable')
             if root_variable:
                 # Update the mode to edit
                 self.mode = "edit"
-                print(f"Mode changed to: {self.mode}")
 
                 # Notify frontend of mode change
                 if hasattr(self, 'entity_frontend') and self.entity_frontend:
@@ -677,13 +681,13 @@ class EntityEditorBackEnd(QObject):
                         self.entity_frontend.update_entity_from_backend_entity(entity)
                     else:
                         # No Entity object yet - lists will be generated when Entity is created
-                        print("No Entity object yet - lists will be generated when Entity is created")
+                        pass
 
             else:
-                print("No valid state variable in selection")
+                log_error("handle_state_variable_selection", Exception("No valid state variable"), "no valid state variable in selection")
 
         except Exception as e:
-            print(f"Error handling state variable selection: {e}")
+            log_error("handle_state_variable_selection", e, "handling state variable selection")
             self.message.emit({
                     "event": "error",
                     "error": f"Error handling state variable selection: {str(e)}"
@@ -692,15 +696,12 @@ class EntityEditorBackEnd(QObject):
     def handle_new_variable_addition(self, assignments, entity_data):
         """Handle new variable addition in edit mode"""
         try:
-            print(f"Backend handling new variable addition: {assignments}")
-
             # Extract the new variable information
             root_variable = assignments.get('root_variable')
             if root_variable:
                 # Check if we have an existing entity object
                 if 'entity_object' in entity_data:
                     entity = entity_data['entity_object']
-                    print(f"Updating existing entity with new variable: {root_variable}")
 
                     # Determine the type of variable based on assignments
                     definition_method = assignments.get('definition_method', 'initialization')
@@ -733,7 +734,7 @@ class EntityEditorBackEnd(QObject):
                             })
 
                     # Update entity locally - don't send to main backend yet
-                    print(f"New variable addition processed, entity data: {entity_data}")
+                    # New variable addition processed, entity data: {entity_data}
                     entity.printMe()
                     
                     # Mark entity as changed but don't send to main backend yet
@@ -743,12 +744,12 @@ class EntityEditorBackEnd(QObject):
                     if hasattr(self, 'entity_frontend') and self.entity_frontend:
                         self.entity_frontend.update_entity_from_backend_entity(entity)
                 else:
-                    print("No entity object found in entity_data - cannot add variable")
+                    log_error("handle_new_variable_addition", Exception("No entity object"), "no entity object found in entity_data")
             else:
-                print("No valid new variable in addition")
+                log_error("handle_new_variable_addition", Exception("No valid variable"), "no valid new variable in addition")
 
         except Exception as e:
-            print(f"Error handling new variable addition: {e}")
+            log_error("handle_new_variable_addition", e, "handling new variable addition")
             self.message.emit({
                     "event": "error",
                     "error": f"Error handling new variable addition: {str(e)}"
@@ -758,26 +759,22 @@ class EntityEditorBackEnd(QObject):
         """Handle deletion of a variable from the entity using enhanced dependency analysis"""
         try:
             if not var_id:
-                print("No variable ID provided for deletion")
+                log_error("handle_variable_deletion", Exception("No variable ID"), "no variable ID provided for deletion")
                 self.message.emit({
                         "event": "error",
                         "error": "No variable selected for deletion"
                         })
                 return
 
-            print(f"Handling deletion of variable: {var_id}")
-
             # Check if we have an entity object
             if hasattr(self, 'entity_frontend') and self.entity_frontend:
                 if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
                     entity = self.entity_frontend.current_entity
-                    print(f"Found entity: {entity.entity_id}")
 
                     # Check if variable exists in entity
                     all_variables = entity.get_all_variables()
-                    print(f"All variables in entity: {all_variables}")
                     if var_id not in all_variables:
-                        print(f"Variable {var_id} not found in entity")
+                        log_error("handle_variable_deletion", Exception(f"Variable {var_id} not found"), f"variable {var_id} not found in entity")
                         self.message.emit({
                                 "event": "error",
                                 "error": f"Variable {var_id} not found in entity"
@@ -860,14 +857,14 @@ class EntityEditorBackEnd(QObject):
                         "error": "No entity available for variable deletion"
                     })
             else:
-                print("No entity frontend available")
+                log_error("handle_variable_deletion", Exception("No entity frontend"), "no entity frontend available")
                 self.message.emit({
                     "event": "error",
                     "error": "Entity editor not available"
                 })
 
         except Exception as e:
-            print(f"Error handling variable deletion: {e}")
+            log_error("handle_variable_deletion", e, f"deleting variable {var_id}")
             self.message.emit({
                 "event": "error",
                 "error": f"Error deleting variable: {str(e)}"

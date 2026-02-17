@@ -31,6 +31,17 @@ from OntologyBuilder.BehaviourLinker_v01.UIs.main import Ui_MainWindow
 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
 
 
+# Error logging utility
+def log_error(method_name: str, error: Exception, context: str = ""):
+    """Log error with method name and context for debugging"""
+    import traceback
+    error_msg = f"ERROR in {method_name}"
+    if context:
+        error_msg += f" ({context})"
+    error_msg += f": {str(error)}"
+    print(error_msg)  # Keep console output for debugging
+
+
 # Global variable to track if changes have been made
 changed = False
 
@@ -99,14 +110,8 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
     def __gui_view(self, gui):
         pass
         buttons = self.gui_objects["buttons"]
-        # lists = self.gui_objects["lists"]
         for button in buttons:
-            # print("obj", button)
             buttons[button].setVisible(gui["buttons"][button])
-        # for list in lists:
-        #     if gui["lists"][list]:
-        #        lists[list].reset()
-
         pass
 
     def __make_tree(self, data):
@@ -180,13 +185,8 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                             else:
                                 # makeMessageBox("id failed ?", buttons=["OK"])
                                 print(">>>>>>>>>>>> unpacking of entity_id failed", parts)
-
                                 pass
 
-                            # print("\n ------------------", entity_name)
-                            # print(net, "--", entity_net,"--",  net == entity_net)
-                            # print(category, "--",entity_cat, "--", category ==  entity_cat)
-                            # print(entity_type,"--", entity_type_name, entity_type == entity_type_name)
 
                             if (entity_net == net and
                                     entity_cat == category and
@@ -206,12 +206,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                             entity_item.setData(entity_obj, QtCore.Qt.UserRole + 3)  # Store entity object
                             entity_item.setForeground(ENTITY_COLOR)
                             type_item.appendRow(entity_item)
-                    # else:
-                    #     # Add placeholder for entities (currently no entities loaded)
-                    #     placeholder_item = QtGui.QStandardItem("(no entities)")
-                    #     placeholder_item.setData(('placeholder', net, category, entity_type), QtCore.Qt.UserRole + 1)
-                    #     placeholder_item.setForeground(ENTITY_COLOR)
-                    #     type_item.appendRow(placeholder_item)
 
         # Tree built successfully
 
@@ -230,17 +224,12 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             entity_type = None
             name = None
             if item is not None:
-                # Get the display text
-                # text = item.text()
-                # Get the item's data (type information)
-                # item_data = item.data(QtCore.Qt.UserRole + 1)
                 # Get the full path
                 path = []
                 current = item
                 while current is not None:
                     path.insert(0, current.text())
                     current = current.parent()
-                # full_path = ".".join(path)
                 if len(path) == 3:
                     network, category, entity_type = path
                     event = "selected_entity_type"
@@ -252,10 +241,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                     makeMessageBox("please select an entity type or an instance", buttons=["OK"])
                     event = "failed"
 
-                # print(f"Clicked on: {text}")
-                # print(f"Item type data: {item_data}")
-                # print(f"Full path: {full_path}")
-                # print(f"Row in parent: {index.row()}")
                 message = {
                         "event": event,
                         "data" : {
@@ -316,7 +301,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             self.send_message(message)
             
         except Exception as e:
-            print(f"Error in edit button handler: {e}")
+            log_error("on_pushEdit_pressed", e, "editing entity")
             makeMessageBox(f"Error editing entity: {str(e)}", buttons=["OK"])
 
     def on_pushDelete_pressed(self):
@@ -370,7 +355,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             self.send_message(message)
             
         except Exception as e:
-            print(f"Error in delete button handler: {e}")
+            log_error("on_pushDelete_pressed", e, "deleting entity")
             makeMessageBox(f"Error deleting entity: {str(e)}", buttons=["OK"])
 
     def on_pushSave_pressed(self):
@@ -383,114 +368,12 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
             self.send_message({"event": "save"})
             
         except Exception as e:
-            print(f"Error in save button handler: {e}")
+            log_error("on_pushSave_pressed", e, "saving changes")
             makeMessageBox(f"Error saving: {str(e)}", buttons=["OK"])
 
     def on_pushExit_pressed(self):
         self.closeMe()
 
-    # ================ tree =========================================
-    # def on_
-    # ================ Window control ===============================
-
-    # def _update_tree_model(self) -> None:
-    #     """Update the tree model with the current state of entities."""
-    #     # print("\n=== _update_tree_model called ===")
-    #     # print(f"Current entities: {list(self.all_entities.keys())}")
-    #
-    #     # Define colors
-    #     NETWORK_COLOR = QtGui.QColor(255, 0, 0)  # Red for networks
-    #     CATEGORY_COLOR = QtGui.QColor(0, 0, 255)  # Blue for node/arc
-    #     TYPE_COLOR = QtGui.QColor(0, 128, 0)  # Green for entity types
-    #     ENTITY_COLOR = QtGui.QColor(0, 0, 0)  # Black for instantiated entities
-    #
-    #     self.entity_tree_model = self.ui.tree_entities
-    #
-    #     network_items = {}
-    #     category_items = {}
-    #     type_items = {}
-    #
-    #     self.entity_tree_model.clear()
-    #     networks = set()
-    #
-    #     # Add networks from both entities and generated types
-    #     # for entity_id in self.all_entities:
-    #     #   parts = entity_id.split('.')
-    #     #   if len(parts) >= 2:
-    #     #     networks.add(parts[0])
-    #     # networks.update(self.all_entity_types.keys())
-    #
-    #     for net in sorted(self.inter_networks):
-    #         net_item = QtGui.QStandardItem(net)
-    #         net_item.setData(('network', net), QtCore.Qt.UserRole + 1)
-    #         net_item.setData(net, QtCore.Qt.UserRole + 2)
-    #         net_item.setForeground(NETWORK_COLOR)
-    #         self.entity_tree_model.appendRow(net_item)
-    #         network_items[net] = net_item
-    #
-    #         for category in ['node', 'arc']:
-    #
-    #             category_key = f"{net}.{category}"
-    #             cat_item = QtGui.QStandardItem(category)
-    #             cat_item.setData(('category', net, category), QtCore.Qt.UserRole + 1)
-    #             cat_item.setData(category_key, QtCore.Qt.UserRole + 2)
-    #             cat_item.setForeground(CATEGORY_COLOR)
-    #             # network_items[net].appendRow(cat_item)
-    #
-    #             net_item.appendRow(cat_item)
-    #
-    #             # Get all generated types for this network and category
-    #             generated_types = set()
-    #             if (net in self.all_entity_types and
-    #                     category in self.all_entity_types[net]):
-    #                 generated_types = set(self.all_entity_types[net][category])
-    #
-    #             # Create a dictionary to store type items
-    #             type_items = {}
-    #
-    #             # First, create items for all generated types
-    #             for entity_type in sorted(generated_types):
-    #                 type_item = QtGui.QStandardItem(entity_type)
-    #                 type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
-    #                 type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
-    #                 type_item.setForeground(TYPE_COLOR)
-    #                 cat_item.appendRow(type_item)
-    #                 type_items[entity_type] = type_item
-    #
-    #             # Then add all entities under their types
-    #             for entity_id, entity_obj in self.all_entities.items():
-    #                 if not entity_id.startswith(f"{net}.{category}."):
-    #                     continue
-    #
-    #                 try:
-    #                     [network, category, entity_type, entity_name] = entity_id.split('.')
-    #
-    #                     # Note: here one can adsjust the entity show name
-    #                     display_name = entity_name
-    #
-    #                     # Create the item
-    #                     item = QtGui.QStandardItem(display_name)
-    #                     item.setData(entity_id, QtCore.Qt.UserRole + 1)  # entity_id for quick access
-    #                     item.setData(display_name, QtCore.Qt.UserRole + 2)  # display text
-    #                     item.setData(entity_obj, QtCore.Qt.UserRole + 3)  # entity object
-    #                     item.setForeground(ENTITY_COLOR)
-    #
-    #                     # Ensure the type item exists
-    #                     if entity_type not in type_items:
-    #                         type_item = QtGui.QStandardItem(entity_type)
-    #                         type_item.setData(('entity_type', net, category, entity_type), QtCore.Qt.UserRole + 1)
-    #                         type_item.setData(entity_type, QtCore.Qt.UserRole + 2)
-    #
-    #                         cat_item.appendRow(type_item)
-    #                         type_items[entity_type] = type_item
-    #
-    #                     # Add the entity to its type
-    #                     type_items[entity_type].appendRow(item)
-    #
-    #                 except Exception as e:
-    #                     print(f"Error processing entity here {entity_id}: {e}")
-    #
-    #     self.tree_changed.emit()
 
     # ======================= window controls ==========================
     def interfaceComponents(self):
@@ -512,14 +395,6 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 "indicator": {
                         "LED": self.ui.LED,
                         },
-                # "lists"    : {
-                #         "list_equations"  : self.ui.list_equations,
-                #         "list_integrators": self.ui.list_integrators,
-                #         "list_input"      : self.ui.list_input,
-                #         "list_output"     : self.ui.list_output,
-                #         "list_instantiate": self.ui.list_instantiate,
-                #         "list_pending"    : self.ui.list_pending,
-                #         },
                 "tree"     : self.ui.tree_entities,
                 }
 

@@ -25,6 +25,17 @@ from OntologyBuilder.BehaviourLinker_v01.variable_classification_rules import Va
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 from OntologyBuilder.BehaviourLinker_v01.UIs.variable_selection import Ui_Dialog
 
+
+# Error logging utility
+def log_error(method_name: str, error: Exception, context: str = ""):
+    """Log error with method name and context for debugging"""
+    import traceback
+    error_msg = f"ERROR in {method_name}"
+    if context:
+        error_msg += f" ({context})"
+    error_msg += f": {str(error)}"
+    print(error_msg)  # Keep console output for debugging
+
 # Import the required classes from CAM10 resources
 # These will need to be adapted for CAM12
 try:
@@ -40,33 +51,6 @@ except ImportError:
     pass
 
 
-# Fallback functions for CAM12 - these will need to be implemented
-def AnalyseBiPartiteGraph(*args, **kwargs):
-    raise NotImplementedError("AnalyseBiPartiteGraph needs to be adapted for CAM12")
-
-
-def isVariableInExpression(*args, **kwargs):
-    raise NotImplementedError("isVariableInExpression needs to be adapted for CAM12")
-
-
-def makeLatexDoc(*args, **kwargs):
-    raise NotImplementedError("makeLatexDoc needs to be adapted for CAM12")
-
-
-def renderExpressionFromGlobalIDToInternal(*args, **kwargs):
-    raise NotImplementedError("renderExpressionFromGlobalIDToInternal needs to be adapted for CAM12")
-
-
-def showPDF(*args, **kwargs):
-    raise NotImplementedError("showPDF needs to be adapted for CAM12")
-
-
-def findDependentVariables(*args, **kwargs):
-    raise NotImplementedError("findDependentVariables needs to be adapted for CAM12")
-
-
-def makeIncidenceDictionaries(*args, **kwargs):
-    raise NotImplementedError("makeIncidenceDictionaries needs to be adapted for CAM12")
 
 
 base_variant = "base"  # RULE: nomenclature for base case
@@ -228,12 +212,10 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 # Get variable data from the item
                 var_id = item.data(QtCore.Qt.UserRole)
                 if var_id:
-                    print(f"Variable clicked: {var_id}")
                     self.status_label.setText(f"Selected: {var_id} (double-click to select equation)")
                 else:
                     self.status_label.setText("No variable data found")
         except Exception as e:
-            print(f"Error handling variable click: {e}")
             self.status_label.setText(f"Error: {str(e)}")
 
     def on_variable_double_clicked(self, index):
@@ -245,7 +227,6 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 # Get variable data from the item
                 var_id = item.data(QtCore.Qt.UserRole)
                 if var_id:
-                    print(f"Variable double-clicked: {var_id}")
                     self.status_label.setText(f"Selected variable: {var_id}")
                     
                     # Directly proceed to equation selection for this variable
@@ -253,7 +234,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 else:
                     self.status_label.setText("No variable data found")
         except Exception as e:
-            print(f"Error handling variable double-click: {e}")
+            log_error("on_listVariables_doubleClicked", e, "handling variable double-click")
             self.status_label.setText(f"Error: {str(e)}")
 
     def _preload_variable_icons(self):
@@ -266,13 +247,10 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
 
             # Use the existing ontology container to load all variable icons
             self.preloaded_variable_icons = self.ontology_container.load_variable_icons()
-            print(f"Preloaded {len(self.preloaded_variable_icons)} variable icons")
-            if self.preloaded_variable_icons:
-                print(f"Sample icon keys: {list(self.preloaded_variable_icons.keys())[:3]}")
 
         except Exception as e:
             self.preloaded_variable_icons = {}
-            print(f"Error preloading icons: {e}")
+            log_error("_preload_variable_icons", e, "preloading variable icons")
 
     def mousePressEvent(self, event):
         """Make frameless window draggable"""
@@ -309,7 +287,6 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             model = QtGui.QStandardItemModel()
             self.variable_list.setModel(model)
 
-            # print(f"Debug: Loading {len(variables)} variables from ontology")
 
             # Convert variables to list format for rule processing
             variable_list = []
@@ -329,7 +306,6 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             # Apply filtering rules based on entity type
             filtered_variables = self._filter_variables_by_rules(variable_list)
 
-            # print(f"Debug: Filtered to {len(filtered_variables)} variables based on entity type rules")
 
             # Load filtered variables into the list
             for var_info in filtered_variables:
@@ -348,9 +324,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 # Add icon using preloaded variable icons from exchange board
                 if var_id in self.preloaded_variable_icons:
                     item.setIcon(self.preloaded_variable_icons[var_id])
-                    print(f"Added icon for variable {var_id}")
                 else:
-                    print(f"No icon found for variable {var_id}")
+                    log_error("load_variables", Exception(f"No icon for variable {var_id}"), f"no icon found for variable {var_id}")
 
                 # Add item to model
                 model.appendRow(item)
@@ -359,11 +334,10 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             self.adjust_list_view_size()
 
             self.status_label.setText(f"Loaded {len(filtered_variables)} variables")
-            print(f"Successfully loaded {len(filtered_variables)} variables")
 
         except Exception as e:
             error_msg = f"Error loading variables: {str(e)}"
-            print(error_msg)
+            log_error("load_variables", e, "loading variables")
             self.status_label.setText(error_msg)
             makeMessageBox(error_msg)
 
@@ -400,11 +374,10 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             
             self.ui.listVariables.setMinimumHeight(min(200, max_height))
             self.ui.listVariables.setMinimumWidth(min(400, max_width))
-            
-            print(f"Adjusted QListView size to: {max_width}x{max_height} for {item_count} items")
+
             
         except Exception as e:
-            print(f"Error adjusting list view size: {e}")
+            log_error("adjust_list_view_size", e, "adjusting list view size")
 
     def _get_definable_variables(self, variables, already_included):
         """
@@ -505,7 +478,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                             required_vars.add(term)
                             
         except Exception as e:
-            print(f"Error extracting required variables from equation: {e}")
+            log_error("_get_equation_required_variables", e, f"extracting required variables from equation {eq_id}")
             
         return required_vars
 
@@ -527,22 +500,15 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             try:
                 already_included = set(entity_to_use.get_all_variables())
             except Exception as e:
-                print(f"Error getting included variables: {e}")
+                log_error("_filter_variables_by_rules", e, "getting included variables from entity")
 
         # Get classification rules
         classification = VariableClassificationRules.classify_variables(variables, self.entity_type_info)
-
-        # print(f"Debug: Variable class mode: {self.variable_class_mode}")
-        # print(f"Debug: Entity type rules:")
-        # print(f"  - Allowed root types: {[v['type'] for v in classification['allowed_root']]}")
-        # print(f"  - Input types: {[v['type'] for v in classification['inputs']]}")
-        # print(f"  - Output types: {[v['type'] for v in classification['outputs']]}")
 
         # Filter based on variable class mode
         if self.variable_class_mode == 'state':
             # State variable mode: only show allowed root variables (typically state variables)
             filtered_variables = classification['allowed_root']
-            # print(f"Debug: State mode - showing {len(filtered_variables)} root variables")
         elif self.variable_class_mode == 'all':
             # All variables mode: show all variables applicable to the network
             # Combine all classifications but remove duplicates
@@ -557,16 +523,13 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 if var['id'] not in seen_ids:
                     seen_ids.add(var['id'])
                     filtered_variables.append(var)
-            
-            # print(f"Debug: All mode - showing {len(filtered_variables)} applicable variables")
+
         elif self.variable_class_mode == 'definable':
             # Definable variables mode: only show variables that can be defined from already included variables
             filtered_variables = self._get_definable_variables(variables, already_included)
-            # print(f"Debug: Definable mode - showing {len(filtered_variables)} definable variables")
         else:
             # Default to state mode for unknown modes
             filtered_variables = classification['allowed_root']
-            # print(f"Debug: Default mode - showing {len(filtered_variables)} root variables")
 
         # Additional filtering: exclude variables already in the entity
         if already_included:
@@ -600,12 +563,6 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         var_id = item.data(QtCore.Qt.UserRole)
         var_data = self.ontology_container.variables[var_id]
 
-        # print(f"Debug: Selected variable - ID: {var_id}")
-        # print(f"Debug: Selected variable - Label: {var_data.get('label')}")
-        # print(f"Debug: Selected variable - Network: {var_data.get('network')}")
-        # print(f"Debug: Selected variable - Equations: {list(var_data.get('equations', {}).keys())}")
-        # print(f"Debug: Selected variable - Number of equations: {len(var_data.get('equations', {}))}")
-
         try:
             # First, let the user select the equation or initialization method
             equation_selection = select_equation_for_variable(var_data, self.ontology_container)
@@ -618,7 +575,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             self.build_behavior_tree(var_id, var_data, equation_selection)
 
         except Exception as e:
-            print(f"Debug: Error in select_variable_and_build_tree: {e}")
+            log_error("select_variable_and_build_tree", e, "building behavior tree")
             makeMessageBox(f"Error building behavior tree: {str(e)}")
 
     def build_behavior_tree(self, var_id, var_data, equation_selection):
@@ -656,12 +613,10 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             if equation_selection.get('use_initialization', False):
                 var_label = var_data.get('label', var_id)
                 self.status_label.setText(f"Variable '{var_label}' marked for initialization")
-                # print(f"Debug: Variable {var_label} marked for initialization")
             else:
                 eq_id = equation_selection.get('equation_id', 'unknown')
                 var_label = var_data.get('label', var_id)
                 self.status_label.setText(f"Variable '{var_label}' defined with equation {eq_id}")
-                # print(f"Debug: Variable {var_label} defined with equation {eq_id}")
 
             # Emit signal with the assignments
             self.behavior_defined.emit(self.entity_assignments)
