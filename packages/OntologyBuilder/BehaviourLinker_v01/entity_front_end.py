@@ -48,6 +48,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ui.setupUi(self)
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
 
+
+
         roundButton(self.ui.pushAddVariable, "new", tooltip="new variable")
         roundButton(self.ui.pushAddStateVariable, "dependent_variable", tooltip="add state variable")
         roundButton(self.ui.pushEditVariable, "edit", tooltip="edit variable")
@@ -805,28 +807,14 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             makeMessageBox(f"Error saving entity: {str(e)}")
 
     def on_pushCancle_pressed(self):
-        """Handle Cancel button - close without saving"""
+        """Handle Cancel button - close without saving, discarding all changes"""
         global changed
         try:
-            # print("Cancel button pressed - closing without saving")
-            # print(f"Current changed state: {self.changed}")
+            # Reset the changed flag without prompting
+            changed = False
+            self.markSaved()  # Update UI to show saved state
             
-            # Check if there are unsaved changes
-            if changed:
-                print("Showing save changes dialog...")
-                dialog = makeMessageBox(message="save changes", buttons=["YES", "NO"])
-                print(f"Dialog result: {dialog}")
-                if dialog == "YES":
-                    # User wants to save before canceling
-                    self.on_pushAccept_pressed()
-                    return
-                elif dialog == "NO":
-                    # User wants to discard changes
-                    pass
-            else:
-                print("No unsaved changes detected")
-
-            # Close the window
+            # Close the window immediately
             self.closeMe()
                 
         except Exception as e:

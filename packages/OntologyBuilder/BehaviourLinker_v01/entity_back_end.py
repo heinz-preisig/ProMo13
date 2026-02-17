@@ -53,9 +53,9 @@ class EntityEditorBackEnd(QObject):
         # entity_data = self.entity_frontend.current_entity_data
 
         if event == "add_state_variable":
-            self.launch_behavior_association_editor()
+            self.launch_behavior_association_editor(mode='state')
         elif event == "add_variable":
-            self.launch_behavior_association_editor()
+            self.launch_behavior_association_editor(mode='definable')
         elif event == "new_variable_added":
             # Handle new variable addition from frontend
             assignments = message.get("assignments")
@@ -173,8 +173,12 @@ class EntityEditorBackEnd(QObject):
                     })
 
 
-    def launch_behavior_association_editor(self):
-        """Launch the behavior association editor and handle its response"""
+    def launch_behavior_association_editor(self, mode='state'):
+        """Launch the behavior association editor and handle its response
+        
+        Args:
+            mode: 'state' for state variables only, 'definable' for variables definable from existing ones
+        """
         try:
             # from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
 
@@ -192,12 +196,13 @@ class EntityEditorBackEnd(QObject):
                 if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
                     current_entity = self.entity_frontend.current_entity
             
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'state', current_entity)
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, mode, current_entity)
             if assignments:
                 # Process the assignments directly
                 self.handle_behavior_association(assignments)
             else:
-                print("No behavior association defined")
+                print("No behavior association defined - user cancelled")
+                # Don't mark as changed when user cancels
                 self.message.emit({
                         "event"  : "info",
                         "message": "Behavior association cancelled"

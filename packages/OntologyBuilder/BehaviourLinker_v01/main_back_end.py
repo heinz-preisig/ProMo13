@@ -15,6 +15,7 @@ from Common.ui_get_string_impl import UI_GetString
 from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBackEnd
 from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
+from Common.pop_up_message_box import makeMessageBox
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -45,6 +46,17 @@ class BehaviourLinerBackEnd(QObject):
             # print(" got a selected entity instance", self.entity_type)
             # Automatically launch entity editor for instance selection (edit mode)
             self.launch_entity_editor(mode="edit")
+        elif event == "edit":
+            # Entity instance selected - just update GUI to show edit/delete buttons
+            self.entity_type = message.get("data", None)
+            # Don't launch editor, just update GUI state
+        elif event == "delete_instance":
+            entity_data = message.get("data", None)
+            if entity_data:
+                self.delete_entity_instance(entity_data)
+        elif event == "save":
+            # Handle save event - mark as saved
+            self.send_message_to_main_frontend("saved", {})
         elif event == "entity_saved":
             # Handle entity saved confirmation
             entity_name = message.get('entity_name')
@@ -58,6 +70,86 @@ class BehaviourLinerBackEnd(QObject):
             })
 
         self.send_message_to_main_frontend(event)
+
+    def delete_entity_instance(self, entity_data):
+        """Delete an entity instance from all_entities and update tree"""
+        try:
+            network = entity_data.get("network")
+            category = entity_data.get("category")
+            entity_type = entity_data.get("entity type")
+            name = entity_data.get("name")
+            
+            entity_id = f"{network}.{category}.{entity_type}.{name}"
+            
+            # Confirm deletion
+            choice = makeMessageBox(
+                message=f"Are you sure you want to delete entity '{name}'?\n\nThis action cannot be undone.",
+                buttons=["YES", "NO"]
+            )
+            
+            if choice != "YES":
+                return
+            
+            # Remove from all_entities if it exists
+            if entity_id in self.all_entities:
+                del self.all_entities[entity_id]
+                print(f"Deleted entity: {entity_id}")
+                
+                # Convert entities to dictionary format for Exchange Board
+                entities_data = {}
+                for entity_id, entity_obj in self.all_entities.items():
+                    entities_data[entity_id] = entity_obj.convert_to_dict()
+                
+                # Save using Exchange Board method (updates equation_entity_dict automatically)
+                self.ontology_container.save_entities(entities_data)
+                
+                # Update the main frontend tree to reflect the deletion
+                self.update_main_frontend_tree()
+                
+                # Mark as changed and show save button
+                self.mark_changed()
+                
+                # Send confirmation message
+                self.send_message_to_main_frontend("entity_deleted", {
+                    'entity_id': entity_id,
+                    'entity_name': name
+                })
+            else:
+                print(f"Entity not found for deletion: {entity_id}")
+                makeMessageBox(f"Entity '{name}' not found", buttons=["OK"])
+                
+        except Exception as e:
+            print(f"Error deleting entity instance: {e}")
+            makeMessageBox(f"Error deleting entity: {str(e)}", buttons=["OK"])
+
+    def mark_changed(self):
+        """Mark the frontend as changed (red LED, show save button)"""
+        try:
+            # Send message to frontend to mark as changed
+            self.send_message_to_main_frontend("mark_changed", {})
+        except Exception as e:
+            print(f"Error marking changed state: {e}")
+
+    def update_main_frontend_tree(self):
+        """Update the main frontend tree with current entities"""
+        try:
+            # Prepare data for tree update
+            node_entity_types = {}
+            
+            # Extract entity types from ontology
+            if hasattr(self.ontology_container, 'node_entity_types'):
+                node_entity_types = self.ontology_container.node_entity_types
+            
+            data = {
+                "node_entity_types": node_entity_types,
+                "all_entities": self.all_entities
+            }
+            
+            # Send tree update to frontend
+            self.send_message_to_main_frontend("make_tree", data)
+            
+        except Exception as e:
+            print(f"Error updating main frontend tree: {e}")
 
     def send_message_to_main_frontend(self, event, data=None):
         message = {"event": event, "interface": gui_automaton[event], "data": data}
@@ -205,37 +297,20 @@ class BehaviourLinerBackEnd(QObject):
             # Add/update the entity in the all_entities dictionary
             self.all_entities[entity_id] = entity
 
-            # Save all_entities to file
-            self.save_entities_to_file()
-            print(f"Saved entities to file")
+            # Convert entities to dictionary format for Exchange Board
+            entities_data = {}
+            for entity_id, entity_obj in self.all_entities.items():
+                entities_data[entity_id] = entity_obj.convert_to_dict()
+
+            # Save using Exchange Board method (updates equation_entity_dict automatically)
+            self.ontology_container.save_entities(entities_data)
+            print(f"Saved entities to Exchange Board")
             
             # Update the main frontend tree to show the new entity
             self.update_main_frontend_tree()
 
         except Exception as e:
             print(f"Error adding entity to all_entities: {e}")
-
-    def save_entities_to_file(self):
-        """Save all_entities to the entity file"""
-        try:
-            path = (
-                    FILES["variable_assignment_to_entity_object"]
-                    % self.ontology_name
-            )
-
-            # Convert Entity objects to serializable format
-            entities_data = {}
-            for entity_id, entity_obj in self.all_entities.items():
-                entities_data[entity_id] = entity_obj.convert_to_dict()
-
-            # Save to file
-            with open(path, 'w', encoding='utf-8') as file:
-                json.dump(entities_data, file, indent=4)
-
-            print(f"Saved {len(entities_data)} entities to {path}")
-
-        except Exception as e:
-            print(f"Error saving entities to file: {e}")
 
     def update_main_frontend_tree(self):
         """Update the main frontend tree with updated all_entities"""
@@ -398,7 +473,7 @@ class BehaviourLinerBackEnd(QObject):
             if hasattr(self, 'ontology_container') and self.ontology_container:
                 if hasattr(self.ontology_container, 'equation_entity_dict'):
                     all_equations = self.ontology_container.equation_entity_dict
-                    print(f"Using equation_entity_dict from exchange board: {len(all_equations)} equations")
+                    # print(f"Using equation_entity_dict from exchange board: {len(all_equations)} equations")
                 else:
                     print("ERROR: equation_entity_dict not found in ontology_container")
                     # Return empty entity if no equations available

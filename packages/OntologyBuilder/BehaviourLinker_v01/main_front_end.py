@@ -49,8 +49,8 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint)
 
         # roundButton(self.ui.pushNew, "new", tooltip="new instance")
-        # roundButton(self.ui.pushEdit, "edit", tooltip="edit instance")
-        # roundButton(self.ui.pushDelete, "delete", tooltip="delete instance")
+        roundButton(self.ui.pushEdit, "edit", tooltip="edit instance")
+        roundButton(self.ui.pushDelete, "delete", tooltip="delete instance")
         roundButton(self.ui.pushSave, "save", tooltip="save data")
         roundButton(self.ui.pushExit, "off", tooltip="exit task")
 
@@ -60,6 +60,10 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
         self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
         self.interfaceComponents()
+        
+        # Connect button signals explicitly
+        self.ui.pushDelete.clicked.connect(self.on_pushDelete_pressed)
+        self.ui.pushEdit.clicked.connect(self.on_pushEdit_pressed)
 
         # Add statusbar since the UI doesn't have one but this is a QMainWindow
         self.statusBar().showMessage("Ready")
@@ -82,6 +86,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         if event == "make_tree":
             data = message.get("data")
             self.__make_tree(data)
+        elif event == "mark_changed":
+            # Mark as changed - red LED and show save button
+            self.markChanged()
 
     # ================== interface handling =========================
     def __gui_view(self, gui):
@@ -235,7 +242,8 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                     event = "selected_entity_type"
                 elif len(path) == 4:
                     network, category, entity_type, name = path
-                    event = "selected_instance"
+                    # For instances, just select them and show edit/delete buttons
+                    event = "edit"
                 else:
                     makeMessageBox("please select an entity type or an instance", buttons=["OK"])
                     event = "failed"
@@ -264,13 +272,116 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.send_message({"event": "new"})
 
     def on_pushEdit_pressed(self):
-        print("edit pressed")
+        """Handle Edit button - open selected entity instance in edit mode"""
+        try:
+            # Get currently selected item in tree
+            index = self.ui.tree_entities.currentIndex()
+            if not index.isValid():
+                makeMessageBox("Please select an entity instance to edit", buttons=["OK"])
+                return
+            
+            # Get the item from the index
+            item = self.ui.tree_entities.model().itemFromIndex(index)
+            if item is None:
+                makeMessageBox("Please select an entity instance to edit", buttons=["OK"])
+                return
+            
+            # Get full path to determine if it's an entity instance
+            path = []
+            current = item
+            while current is not None:
+                path.insert(0, current.text())
+                current = current.parent()
+            
+            # Only allow editing of entity instances (path length = 4)
+            if len(path) != 4:
+                makeMessageBox("Please select an entity instance to edit (not entity type)", buttons=["OK"])
+                return
+            
+            network, category, entity_type, name = path
+            
+            # Send edit message to backend
+            message = {
+                "event": "selected_instance",
+                "data": {
+                    "network": network,
+                    "category": category,
+                    "entity type": entity_type,
+                    "name": name
+                }
+            }
+            self.send_message(message)
+            
+        except Exception as e:
+            print(f"Error in edit button handler: {e}")
+            makeMessageBox(f"Error editing entity: {str(e)}", buttons=["OK"])
 
     def on_pushDelete_pressed(self):
-        print("delete pressed")
+        """Handle Delete button - delete currently selected entity instance"""
+        try:
+            # Get currently selected item in tree
+            index = self.ui.tree_entities.currentIndex()
+            if not index.isValid():
+                makeMessageBox("Please select an entity instance to delete", buttons=["OK"])
+                return
+            
+            # Get the item from the index
+            item = self.ui.tree_entities.model().itemFromIndex(index)
+            if item is None:
+                makeMessageBox("Please select an entity instance to delete", buttons=["OK"])
+                return
+            
+            # Get full path to determine if it's an entity instance
+            path = []
+            current = item
+            while current is not None:
+                path.insert(0, current.text())
+                current = current.parent()
+            
+            # Only allow deletion of entity instances (path length = 4)
+            if len(path) != 4:
+                makeMessageBox("Please select an entity instance to delete (not entity type)", buttons=["OK"])
+                return
+            
+            network, category, entity_type, name = path
+            
+            # Confirm deletion
+            choice = makeMessageBox(
+                message=f"Delete entity instance '{name}'?\n\nThis action cannot be undone.",
+                buttons=["YES", "NO"]
+            )
+            
+            if choice != "YES":
+                return
+            
+            # Send delete message to backend
+            message = {
+                "event": "delete_instance",
+                "data": {
+                    "network": network,
+                    "category": category,
+                    "entity type": entity_type,
+                    "name": name
+                }
+            }
+            self.send_message(message)
+            
+        except Exception as e:
+            print(f"Error in delete button handler: {e}")
+            makeMessageBox(f"Error deleting entity: {str(e)}", buttons=["OK"])
 
     def on_pushSave_pressed(self):
-        print("save pressed")
+        """Handle Save button - mark as saved and update LED"""
+        try:
+            # Mark as saved - green LED and hide save button
+            self.markSaved()
+            
+            # Send save confirmation to backend
+            self.send_message({"event": "save"})
+            
+        except Exception as e:
+            print(f"Error in save button handler: {e}")
+            makeMessageBox(f"Error saving: {str(e)}", buttons=["OK"])
 
     def on_pushExit_pressed(self):
         print("exit pressed")
@@ -390,8 +501,8 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.gui_objects = {
                 "buttons"  : {
                         # "new"   : self.ui.pushNew,
-                        # "edit"  : self.ui.pushEdit,
-                        # "delete": self.ui.pushDelete,
+                        "edit"  : self.ui.pushEdit,
+                        "delete": self.ui.pushDelete,
                         "save": self.ui.pushSave,
                         "exit": self.ui.pushExit,
                         "tree": self.ui.tree_entities,
@@ -432,13 +543,13 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         global changed
         changed = True
         self.signalButton.changeIcon("LED_red")
-        self.ui.statusbar.showMessage("modified")
+        self.statusBar().showMessage("modified")
 
     def markSaved(self):
         global changed
         changed = False
         self.signalButton.changeIcon("LED_green")
-        self.ui.statusbar.showMessage("up to date")
+        self.statusBar().showMessage("up to date")
 
     def closeMe(self):
 

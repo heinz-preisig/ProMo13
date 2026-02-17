@@ -26,6 +26,7 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 import itertools
+import json
 import os as OS
 from collections import OrderedDict
 from copy import copy
@@ -426,6 +427,24 @@ class ProMoExchangeBoard():
             equation_class_dict[eq_id] = eq
 
         return equation_class_dict
+
+    def save_entities(self, entities_dict):
+        """Save entities to file and update equation_entity_dict"""
+        try:
+            path = FILES["variable_assignment_to_entity_object"] % self.ontology_name
+            
+            # Save entities to file
+            with open(path, 'w', encoding='utf-8') as file:
+                json.dump(entities_dict, file, indent=4)
+            
+            print(f"Saved {len(entities_dict)} entities to {path}")
+            
+            # Update equation_entity_dict
+            self.equation_entity_dict = self.__makeEquationClassesDictionary()
+            print(f"Updated equation_entity_dict with {len(self.equation_entity_dict)} equations")
+            
+        except Exception as e:
+            print(f"Error saving entities: {e}")
 
     def indexEquations(self):
         self.equation_dictionary = self.makeEquationDictionary()

@@ -149,8 +149,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
     def __init__(self, ontology_container, entity_type_info=None, variable_class_mode='state', current_entity=None, parent=None):
         super().__init__(parent)
         
-        # Set frameless window flags BEFORE UI setup with aggressive top-most behavior
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Tool)
+        # Use normal dialog window to avoid cancel/close issues
+        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Dialog)
         
         # Also set window attributes for frameless
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground, False)
@@ -177,6 +177,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         # Set window title based on variable class mode
         if variable_class_mode == 'state':
             self.setWindowTitle("Select State Variable to Start Entity Definition")
+        elif variable_class_mode == 'definable':
+            self.setWindowTitle("Add Variable (Only definable from existing variables)")
         else:
             self.setWindowTitle("Select Variable to Add to Entity Definition")
         
@@ -292,14 +294,11 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
     def cancel_and_close(self):
         """Handle cancellation and emit cancelled signal"""
         self.cancelled.emit()
-        self.close()
+        self.reject()
 
     def closeEvent(self, event):
-        """Handle close event to ensure cancellation is handled"""
-        # If no assignments were made, this is a cancellation
-        if self.entity_assignments is None:
-            self.cancelled.emit()
-        super().closeEvent(event)
+        """Handle close event"""
+        event.accept()
 
     def load_variables(self):
         """Load available variables from the ontology container with filtering based on entity type rules"""
@@ -407,6 +406,109 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         except Exception as e:
             print(f"Error adjusting list view size: {e}")
 
+    def _get_definable_variables(self, variables, already_included):
+        """
+        Find variables that can be defined by equations using only already included variables.
+        
+        This implements the generic rule: variables can only be added if they can be 
+        computed from the existing variable set.
+        
+        Args:
+            variables (list): All available variables from ontology
+            already_included (set): Variables already included in the entity
+            
+        Returns:
+            list: Variables that can be defined from already included variables
+        """
+        if not already_included:
+            # No variables included yet, return empty list (no variables can be defined)
+            return []
+        
+        definable_variables = []
+        
+        # Get all equations from ontology container
+        if not hasattr(self.ontology_container, 'equation_dictionary'):
+            return definable_variables
+            
+        equation_dict = self.ontology_container.equation_dictionary
+        
+        # Create variable lookup for faster access
+        var_lookup = {var['id']: var for var in variables}
+        
+        # For each variable, check if it can be defined from already included variables
+        for var_info in variables:
+            var_id = var_info['id']
+            
+            # Skip if variable already included
+            if var_id in already_included:
+                continue
+            
+            # Check if this variable has defining equations
+            if var_id not in self.ontology_container.variables:
+                continue
+                
+            var_equations = self.ontology_container.variables[var_id].get('equations', {})
+            
+            # Check each equation that defines this variable
+            for eq_id in var_equations:
+                if eq_id not in equation_dict:
+                    continue
+                    
+                equation = equation_dict[eq_id]
+                
+                # Get variables required by this equation (RHS variables)
+                required_vars = self._get_equation_required_variables(equation)
+                
+                # Check if all required variables are already included
+                if required_vars.issubset(already_included):
+                    # This variable can be defined by this equation
+                    definable_variables.append(var_info)
+                    break  # Found at least one defining equation, no need to check others
+        
+        return definable_variables
+    
+    def _get_equation_required_variables(self, equation):
+        """
+        Extract the variables required by an equation (variables on RHS).
+        
+        Args:
+            equation: Equation object or dictionary
+            
+        Returns:
+            set: Set of variable IDs required by this equation
+        """
+        required_vars = set()
+        
+        try:
+            # Handle different equation formats
+            if hasattr(equation, 'rhs') and hasattr(equation.rhs, 'get'):
+                # Equation object with rhs dict
+                rhs_content = equation.rhs.get('global_ID', '')
+                # Split by whitespace and filter for variable IDs (starting with V_)
+                terms = rhs_content.split()
+                for term in terms:
+                    if term.startswith('V_'):
+                        required_vars.add(term)
+                        
+            elif isinstance(equation, dict) and 'rhs' in equation:
+                # Equation dictionary
+                rhs = equation['rhs']
+                if isinstance(rhs, dict) and 'global_ID' in rhs:
+                    terms = rhs['global_ID'].split()
+                    for term in terms:
+                        if term.startswith('V_'):
+                            required_vars.add(term)
+                elif isinstance(rhs, str):
+                    terms = rhs.split()
+                    for term in terms:
+                        if term.startswith('V_'):
+                            required_vars.add(term)
+                            
+        except Exception as e:
+            print(f"Error extracting required variables from equation: {e}")
+            
+        return required_vars
+
     def _filter_variables_by_rules(self, variables):
         """Filter variables based on entity type rules and exclude already included variables"""
         if not self.entity_type_info:
@@ -457,6 +559,10 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                     filtered_variables.append(var)
             
             # print(f"Debug: All mode - showing {len(filtered_variables)} applicable variables")
+        elif self.variable_class_mode == 'definable':
+            # Definable variables mode: only show variables that can be defined from already included variables
+            filtered_variables = self._get_definable_variables(variables, already_included)
+            # print(f"Debug: Definable mode - showing {len(filtered_variables)} definable variables")
         else:
             # Default to state mode for unknown modes
             filtered_variables = classification['allowed_root']
@@ -560,8 +666,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             # Emit signal with the assignments
             self.behavior_defined.emit(self.entity_assignments)
 
-            # Close the editor
-            self.close()
+            # Close the editor with accept
+            self.accept()
 
         except Exception as e:
             makeMessageBox(f"Error building tree: {str(e)}")
@@ -604,21 +710,21 @@ def launch_behavior_association_editor(ontology_container, entity_type_info=None
     def on_cancelled():
         nonlocal assignments
         assignments = None
-        editor.reject()
+        # Don't call reject here - let the cancel button handle it
+        # This prevents double handling and prompts
 
     # Connect the signals to handle results
     editor.behavior_defined.connect(on_behavior_defined)
     editor.cancelled.connect(on_cancelled)
     
-    # Aggressively bring frameless dialog to front
-    editor.show()
-    editor.raise_()
-    editor.activateWindow()
-    
-    # Force the window to come to front
-    QtWidgets.QApplication.processEvents()
+    # Set modal explicitly to ensure proper dialog behavior
+    editor.setModal(True)
     
     # Execute the dialog and get the result
     result = editor.exec_()
+    
+    # If dialog was rejected (cancelled), ensure assignments is None
+    if result == QtWidgets.QDialog.Rejected:
+        assignments = None
     
     return assignments
