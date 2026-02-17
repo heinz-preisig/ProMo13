@@ -299,10 +299,7 @@ class EntityEditorBackEnd(QObject):
                                 self.entity_frontend.populate_lists_from_entity(entity)
                         print(f"Entity init_vars after adding: {entity.init_vars}")
 
-                        print(f"=== AFTER FOREST GENERATION ===")
-                        print(f"Entity var_eq_forest: {entity.var_eq_forest}")
-                        print(f"Entity integrators: {entity.integrators}")
-                        print(f"Entity output_vars: {entity.output_vars}")
+                        # Cleaned up - no more verbose debug output
                         print(f"Entity input_vars: {entity.input_vars}")
                         print(f"Entity init_vars: {entity.init_vars}")
 
@@ -432,9 +429,7 @@ class EntityEditorBackEnd(QObject):
         nodes = assignments.get('nodes', {})
         tree = assignments.get('tree', {})
 
-        print(f"=== EXTRACTING VAR_EQ_ASSIGNMENTS ===")
-        print(f"Nodes: {nodes}")
-        print(f"Tree: {tree}")
+        # Extract var_eq_assignments from behavior assignments
 
         # Extract variable -> equation relationships
         # nodes: {node_id: var_id/equation_id}, tree: {tree_node_id: tree_data}
@@ -574,10 +569,7 @@ class EntityEditorBackEnd(QObject):
                             'integrators'  : entity.integrators
                             })
 
-                    print(f"=== AFTER STATE VARIABLE ADDITION ===")
-                    print(f"Entity var_eq_forest: {entity.var_eq_forest}")
-                    print(f"Entity integrators: {entity.integrators}")
-                    print(f"Entity output_vars: {entity.output_vars}")
+                    # State variable added successfully
                     print(f"Entity input_vars: {entity.input_vars}")
                     print(f"Entity init_vars: {entity.init_vars}")
 
@@ -673,7 +665,7 @@ class EntityEditorBackEnd(QObject):
                                 }
 
                     # Entity class manages its own lists - no manual population needed
-                    print(f"DEBUG: Entity {entity.entity_id} manages its own variable lists")
+                    # Entity class manages its own variable lists
 
                     entity_data.update({
                             'entity_object'    : entity,

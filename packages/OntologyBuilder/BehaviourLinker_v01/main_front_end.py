@@ -89,6 +89,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         elif event == "mark_changed":
             # Mark as changed - red LED and show save button
             self.markChanged()
+        elif event == "save":
+            # Handle save event - mark as saved (green LED, hide save button)
+            self.markSaved()
 
     # ================== interface handling =========================
     def __gui_view(self, gui):

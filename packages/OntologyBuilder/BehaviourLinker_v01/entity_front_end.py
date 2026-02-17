@@ -114,7 +114,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         selection_model.selectionChanged.connect(self.on_list_selection_changed)
                         print(f"Connected selection handler for {list_widget.objectName()}")
                     else:
-                        print(f"Warning: No selection model for {list_widget.objectName()}")
+                        # No selection model needed for this list
+                        pass
                 except Exception as e:
                     print(f"Error setting up selection handler for {list_widget.objectName()}: {e}")
                     
@@ -292,9 +293,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def populate_entity_structure(self, entity_data):
         """Populate entity editor with the complete entity structure from class definition"""
         try:
-            print(f"=== POPULATE_ENTITY_STRUCTURE CALLED ===")
-            print(f"Entity data: {entity_data}")
-
             # Store entity data for later use
             self.current_entity_data = entity_data
 
@@ -330,7 +328,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 self.status_label.setText(f"Creating entity: {entity_name}")
                 self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
 
-            print(f"Entity structure populated successfully")
+            # Entity structure populated
 
         except Exception as e:
             print(f"Error populating entity structure: {e}")
@@ -441,7 +439,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def set_entity_object(self, entity):
         """Set the Entity object and update the UI"""
         self.current_entity = entity
-        print(f"EntityEditorFrontEnd received Entity object: {entity.entity_id}")
 
         # Update the lists with Entity information
         self.populate_lists_from_entity(entity)
@@ -449,14 +446,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def populate_lists_from_entity(self, entity):
         """Populate the list widgets with data from the Entity object"""
         try:
-            print(f"=== POPULATE_LISTS_FROM_ENTITY CALLED ===")
-            print(f"Entity object: {entity}")
-            print(f"Entity name: {entity.entity_id}")
-            print(f"Entity output_vars: {getattr(entity, 'output_vars', 'None')}")
-            print(f"Entity input_vars: {getattr(entity, 'input_vars', 'None')}")
-            print(f"Entity init_vars: {getattr(entity, 'init_vars', 'None')}")
-            print(f"Entity integrators: {getattr(entity, 'integrators', 'None')}")
-            print(f"Entity var_eq_forest: {getattr(entity, 'var_eq_forest', 'None')}")
+            # Get ontology container for variable data
 
             # Clear existing lists and refresh their settings
             self.clear_all_lists()
@@ -476,11 +466,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 return
 
             variables = ontology_container.variables
-            print(f"Available variables in ontology: {list(variables.keys())[:10]}...")  # Show first 10
 
             # Populate output variables list
             if hasattr(entity, 'output_vars') and entity.output_vars:
-                print(f"Populating output variables: {entity.output_vars}")
                 for var_id in entity.output_vars:
                     if var_id in variables:
                         var_data = variables[var_id]
@@ -785,8 +773,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def on_pushAccept_pressed(self):
         """Handle Accept button - save entity and close"""
         try:
-            print("Accept button pressed - saving entity")
-            
             # Mark entity as saved
             self.markSaved()
             
@@ -797,7 +783,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     "entity": self.current_entity
                 }
                 self.message.emit(message)
-                print(f"Sent save_entity message: {message}")
                 self.close()
             else:
                 print("No entity to save")

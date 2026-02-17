@@ -143,6 +143,24 @@ gui_automaton = {
                         "list_pending"    : False,
                         }
                 },
+        "save"                  : {
+                "buttons": {
+                        "edit": False,
+                        "delete": False,
+                        "save": False,
+                        "exit": True,
+                        "tree": True,
+                        "LED" : True,
+                        },
+                "lists"  : {
+                        "list_equations"  : False,
+                        "list_integrators": False,
+                        "list_input"      : False,
+                        "list_output"     : False,
+                        "list_instantiate": False,
+                        "list_pending"    : False,
+                        }
+                },
         "saved"                  : {
                 "buttons": {
                         "edit": False,
@@ -230,5 +248,6 @@ action_automaton = {
         "delete"                 : [],
         "delete_instance"         : [],
         "mark_changed"            : [],
+        "save"                   : [],
         "saved"                  : [],
         }

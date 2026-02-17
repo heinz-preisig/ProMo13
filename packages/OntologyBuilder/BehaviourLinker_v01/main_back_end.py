@@ -177,6 +177,17 @@ class BehaviourLinerBackEnd(QObject):
             # Handle successful entity creation
             print("Entity created successfully")
             self.send_message_to_main_frontend("entity_creation_complete")
+        elif message.get("event") == "save_entity":
+            # Handle entity save - mark main interface as changed
+            entity = message.get("entity")
+            if entity:
+                print(f"Entity saved: {entity.entity_id}")
+                # Add/update entity in all_entities
+                self.add_entity_to_all_entities(entity)
+                # Mark main interface as changed
+                self.mark_changed()
+            else:
+                print("No entity provided in save_entity message")
         elif message.get("event") == "error":
             # Handle errors from entity editor
             error_msg = message.get("error", "Unknown error")
@@ -200,6 +211,9 @@ class BehaviourLinerBackEnd(QObject):
 
             # Add the entity to all_entities
             self.add_entity_to_all_entities(entity)
+            
+            # Mark main interface as changed when entity is processed
+            self.mark_changed()
 
             # Update the entity editor frontend with the Entity information
             self.update_entity_editor_frontend(entity)
