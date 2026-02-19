@@ -77,10 +77,15 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.interfaceComponents()
 
         # Connect list widget click handlers
-        self.ui.list_not_defined_variables.clicked.connect(self.on_list_pending_variables_clicked)
-        self.ui.list_outputs.clicked.connect(self.on_list_item_clicked)
-        self.ui.list_inputs.clicked.connect(self.on_list_item_clicked)
-        self.ui.list_instantiate.clicked.connect(self.on_list_item_clicked)
+        self.ui.list_not_defined_variables.doubleClicked.connect(self.on_list_pending_variables_double_clicked)
+        self.ui.list_not_defined_variables.clicked.connect(self.on_list_pending_variables_single_clicked)
+        
+        # Connect single-click handlers for other lists to open classification selector
+        self.ui.list_inputs.clicked.connect(self.on_list_pending_variables_single_clicked)
+        self.ui.list_outputs.clicked.connect(self.on_list_pending_variables_single_clicked)
+        self.ui.list_instantiate.clicked.connect(self.on_list_pending_variables_single_clicked)
+        
+        # Connect other lists only for delete button management (not inputs/outputs/instantiate since they use classification selector)
         self.ui.list_integrators.clicked.connect(self.on_list_item_clicked)
         self.ui.list_included_variables.clicked.connect(self.on_list_item_clicked)
 
@@ -100,6 +105,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.selected_entity_type = None
         self.current_entity_data = None
         global changed
+        
+        # Setup click timer for double-click detection
+        from PyQt5.QtCore import QTimer
+        self.click_timer = QTimer()
+        self.click_timer.setSingleShot(True)
+        self.click_timer.timeout.connect(self.handle_single_click)
+        self.pending_click_data = None
         changed = False
 
     def _setup_selection_handlers(self):
@@ -208,7 +220,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.status_label.setText("Ready")
             self.status_label.setStyleSheet("QLabel { color: gray; font-style: italic; margin: 5px; }")
 
-    def update_mode_based_on_selection(self):
+    def _update_mode_based_on_selection(self):
         """Update mode based on whether a variable is selected"""
         has_selection = self.get_selected_variable_id() is not None
 
@@ -467,125 +479,116 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             variables = ontology_container.variables
 
             # Populate output variables list
-            if hasattr(entity, 'output_vars') and entity.output_vars:
-                for var_id in entity.output_vars:
-                    if var_id in variables:
-                        var_data = variables[var_id]
-                        var_info = {
-                                'id'     : var_id,
-                                'label'  : var_data.get('label', var_id),
-                                'network': var_data.get('network', 'unknown')
-                                }
-                        self.add_variable_to_list(self.ui.list_outputs, var_info)
+            output_vars = entity.get_output_vars()
+            for var_id in output_vars:
+                if var_id in variables:
+                    var_data = variables[var_id]
+                    var_info = {
+                            'id'     : var_id,
+                            'label'  : var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                            }
+                    self.add_variable_to_list(self.ui.list_outputs, var_info)
 
             # Populate input variables list
-            if hasattr(entity, 'input_vars') and entity.input_vars:
-                for var_id in entity.input_vars:
-                    if var_id in variables:
-                        var_data = variables[var_id]
-                        var_info = {
-                                'id'     : var_id,
-                                'label'  : var_data.get('label', var_id),
-                                'network': var_data.get('network', 'unknown')
-                                }
-                        self.add_variable_to_list(self.ui.list_inputs, var_info)
+            # if hasattr(entity, 'input_vars') and entity.input_vars:
+            input_vars = entity.get_input_vars()
+            for var_id in input_vars:
+                if var_id in variables:
+                    var_data = variables[var_id]
+                    var_info = {
+                            'id'     : var_id,
+                            'label'  : var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                            }
+                    self.add_variable_to_list(self.ui.list_inputs, var_info)
 
             # Populate included variables list (all variables in the entity)
-            if hasattr(entity, 'get_all_variables'):
-                all_variables = entity.get_all_variables()
-                for var_id in all_variables:
-                    if var_id in variables:
-                        var_data = variables[var_id]
-                        var_info = {
-                                'id'     : var_id,
-                                'label'  : var_data.get('label', var_id),
-                                'network': var_data.get('network', 'unknown')
-                                }
-                        self.add_variable_to_list(self.ui.list_included_variables, var_info)
+            # if hasattr(entity, 'get_all_variables'):
+            all_included_vars = entity.get_entity_variables()
+            # all_variables = entity.get_all_variables()
+            for var_id in all_included_vars:
+                if var_id in variables:
+                    var_data = variables[var_id]
+                    var_info = {
+                            'id'     : var_id,
+                            'label'  : var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                            }
+                    self.add_variable_to_list(self.ui.list_included_variables, var_info)
 
             # Populate variables to be instantiated list
-            if hasattr(entity, 'get_variables_to_be_instantiated'):
-                vars_to_instantiate = entity.get_variables_to_be_instantiated()
+            # if hasattr(entity, 'get_variables_to_be_instantiated'):
+            vars_to_instantiate = entity.get_variables_to_be_instantiated()
+            for var_id in vars_to_instantiate:
+                if var_id in variables:
+                    var_data = variables[var_id]
+                    var_info = {
+                            'id'     : var_id,
+                            'label'  : var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                            }
+                    self.add_variable_to_list(self.ui.list_instantiate, var_info)
 
-                for var_id in vars_to_instantiate:
-                    if var_id in variables:
-                        var_data = variables[var_id]
-                        var_info = {
-                                'id'     : var_id,
-                                'label'  : var_data.get('label', var_id),
-                                'network': var_data.get('network', 'unknown')
-                                }
-                        self.add_variable_to_list(self.ui.list_instantiate, var_info)
+            # if hasattr(entity, 'integrators') and entity.integrators:
+            for var_id in entity.get_integrator_vars():
+                if var_id in variables:
+                    var_data = variables[var_id]
+                    var_info = {
+                            'id'     : var_id,
+                            'label'  : var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                            }
+                    # Add integrator info to the text
+                    # var_info['label'] = f"{var_info['label']} -> {eq_id}"
+                    self.add_variable_to_list(self.ui.list_integrators, var_info)
 
-            # # Populate not defined variables list
-            # if hasattr(entity, 'get_not_defined_variables'):
-            #     not_defined_vars = entity.get_not_defined_variables()
-            #     print(f"Populating not defined variables: {not_defined_vars}")
+            equations = entity.get_equations()
+            for eq_id in equations:
+                eq_text = f"{eq_id}"
+                icon = ontology_container.equation_icons[eq_id]
+                self.add_to_list(self.ui.list_equations, eq_text, icon, context='entity_equations')
+
+            # # Populate equations list from var_eq_forest
+            # if hasattr(entity, 'var_eq_forest') and entity.var_eq_forest:
+            #     equations_in_forest = set()
+            #     for tree in entity.var_eq_forest:
+            #         for key, values in tree.items():
+            #             if key.startswith('E_'):  # It's an equation
+            #                 equations_in_forest.add(key)
+            #             elif values:  # It's a variable with equations
+            #                 for eq_id in values:
+            #                     equations_in_forest.add(eq_id)
             #
-            #     for var_id in not_defined_vars:
-            #         if var_id in variables:
-            #             var_data = variables[var_id]
-            #             var_info = {
-            #                     'id'     : var_id,
-            #                     'label'  : var_data.get('label', var_id),
-            #                     'network': var_data.get('network', 'unknown')
-            #                     }
-            #             self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
-
-            # Populate integrators list
-            if hasattr(entity, 'integrators') and entity.integrators:
-                for var_id, eq_id in entity.integrators.items():
-                    if var_id in variables:
-                        var_data = variables[var_id]
-                        var_info = {
-                                'id'     : var_id,
-                                'label'  : var_data.get('label', var_id),
-                                'network': var_data.get('network', 'unknown')
-                                }
-                        # Add integrator info to the text
-                        var_info['label'] = f"{var_info['label']} -> {eq_id}"
-                        self.add_variable_to_list(self.ui.list_integrators, var_info)
-
-            # Populate equations list from var_eq_forest
-            if hasattr(entity, 'var_eq_forest') and entity.var_eq_forest:
-                equations_in_forest = set()
-                for tree in entity.var_eq_forest:
-                    for key, values in tree.items():
-                        if key.startswith('E_'):  # It's an equation
-                            equations_in_forest.add(key)
-                        elif values:  # It's a variable with equations
-                            for eq_id in values:
-                                equations_in_forest.add(eq_id)
-
-                # Add equations to list
-                for eq_id in equations_in_forest:
-                    eq_text = f"Equation {eq_id}"
-                    # Try to get equation icon from ontology_container (which IS the exchange_board)
-                    icon = None
-                    if hasattr(ontology_container, 'equation_icons') and eq_id in ontology_container.equation_icons:
-                        icon = ontology_container.equation_icons[eq_id]
-
-                    self.add_to_list(self.ui.list_equations, eq_text, icon, context='entity_equations')
+            #     # Add equations to list
+            #     for eq_id in equations_in_forest:
+            #         eq_text = f"Equation {eq_id}"
+            #         # Try to get equation icon from ontology_container (which IS the exchange_board)
+            #         icon = None
+            #         if hasattr(ontology_container, 'equation_icons') and eq_id in ontology_container.equation_icons:
+            #             icon = ontology_container.equation_icons[eq_id]
+            #
+            #         self.add_to_list(self.ui.list_equations, eq_text, icon, context='entity_equations')
 
             # Populate pending variables using Entity method
-            if hasattr(entity, 'get_pending_vars'):
-                pending_vars = entity.get_pending_vars()
+            # if hasattr(entity, 'get_pending_vars'):
+            pending_vars = entity.get_pending_vars()
 
-                for var_id in pending_vars:
-                    if var_id in variables:
-                        var_data = variables[var_id]
-                        var_info = {
-                                'id'     : var_id,
-                                'label'  : var_data.get('label', var_id),
-                                'network': var_data.get('network', 'unknown')
-                                }
-                        self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
+            for var_id in pending_vars:
+                if var_id in variables:
+                    var_data = variables[var_id]
+                    var_info = {
+                            'id'     : var_id,
+                            'label'  : var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                            }
+                    self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
 
             # Setup selection handlers now that lists are populated
             self._setup_selection_handlers()
 
             # Update mode based on selection after populating lists
-            self.update_mode_based_on_selection()
+            self._update_mode_based_on_selection()
 
         except Exception as e:
             log_error("populate_lists_from_entity", e, f"populating lists for {getattr(entity, 'entity_id', 'unknown entity')}")
@@ -725,7 +728,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             list_widget = self.sender()
 
             # Update mode based on selection
-            self.update_mode_based_on_selection()
+            self._update_mode_based_on_selection()
 
         except Exception as e:
             pass
@@ -734,7 +737,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         """Handle selection change in any variable list"""
         try:
             # Update mode based on selection
-            self.update_mode_based_on_selection()
+            self._update_mode_based_on_selection()
 
         except Exception as e:
             pass
@@ -775,9 +778,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             log_error("on_pushCancle_pressed", e, "canceling entity edit")
             makeMessageBox(f"Error canceling: {str(e)}")
 
-    def on_list_pending_variables_clicked(self, index):
-        """Handle click on pending variables list - go directly to equation selection"""
-
+    def on_list_pending_variables_double_clicked(self, index):
+        """Handle double-click on pending variables list - go directly to equation selection"""
+        
+        # Stop the single-click timer to prevent classification dialog from showing
+        self.click_timer.stop()
+        self.pending_click_data = None
+        
         # Get the model and item from the index
         model = self.ui.list_not_defined_variables.model()
         if model and index.isValid():
@@ -786,13 +793,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Get the text and data from the clicked item
                 item_text = item.text()
                 item_data = item.data(QtCore.Qt.UserRole)
-
+                
                 # Extract variable ID from the item text
                 # Format is typically: "label (ID: var_id, Network: network)"
                 var_id = item_data.get('id')
                 var_label = item_data.get('label')
                 var_network = item_data.get('network')
-
+                
                 # Go directly to equation association editor for this variable
                 message = {
                         "event"      : "def_variable",
@@ -801,6 +808,108 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         "var_network": var_network
                         }
                 self.message.emit(message)
+
+    def on_list_pending_variables_single_clicked(self, index):
+        """Handle single click on pending variables list - store for potential double-click"""
+        
+        # Get the model and item from the index
+        model = self.ui.list_not_defined_variables.model()
+        if model and index.isValid():
+            item = model.itemFromIndex(index)
+            if item:
+                # Get the text and data from the clicked item
+                item_text = item.text()
+                item_data = item.data(QtCore.Qt.UserRole)
+                
+                # Extract variable information
+                var_id = item_data.get('id')
+                var_label = item_data.get('label')
+                var_network = item_data.get('network')
+                
+                # Store click data for potential double-click handling
+                self.pending_click_data = {
+                    'type': 'pending_variables',
+                    'index': index,
+                    'var_id': var_id,
+                    'var_label': var_label,
+                    'var_network': var_network
+                    }
+                
+                # Start timer to wait for potential double-click
+                self.click_timer.start(250)  # 250ms delay for double-click detection
+        else:
+            # Clear pending click data if invalid click
+            self.pending_click_data = None
+
+    def handle_single_click(self):
+        """Handle single click after timer expires (if no double-click occurred)"""
+        if self.pending_click_data:
+            click_data = self.pending_click_data
+            self.pending_click_data = None
+            
+            # Extract variable information from stored click data
+            var_id = click_data.get('var_id')
+            var_label = click_data.get('var_label')
+            var_network = click_data.get('var_network')
+            
+            if var_id:
+                # Open class selector dialog for variable classification
+                from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QRadioButton, QPushButton, QDialogButtonBox
+                from PyQt5.QtCore import Qt
+                from OntologyBuilder.BehaviourLinker_v01.UIs.class_selector import Ui_Dialog
+                
+                # Create dialog
+                dialog = QDialog()
+                dialog.setWindowTitle("Variable Classification")
+                dialog.resize(200, 150)
+                
+                # Setup UI
+                ui = Ui_Dialog()
+                ui.setupUi(dialog)
+                
+                # Set default selection based on current entity state
+                if hasattr(self, 'current_entity') and self.current_entity:
+                    if var_id in getattr(self.current_entity, 'input_vars', []):
+                        ui.select_input.setChecked(True)
+                    elif var_id in getattr(self.current_entity, 'output_vars', []):
+                        ui.select_output.setChecked(True)
+                    else:
+                        ui.select_none.setChecked(True)
+                
+                # Connect radio buttons to close dialog when selected
+                def on_radio_selected():
+                    dialog.accept()
+                
+                ui.select_input.toggled.connect(on_radio_selected)
+                ui.select_output.toggled.connect(on_radio_selected)
+                ui.select_none.toggled.connect(on_radio_selected)
+                
+                # Show dialog and get result
+                if dialog.exec_() == QDialog.Accepted:
+                    classification = None
+                    if ui.select_input.isChecked():
+                        classification = "input"
+                    elif ui.select_output.isChecked():
+                        classification = "output"
+                    
+                    if classification and hasattr(self, 'current_entity') and self.current_entity:
+                        # Move variable to selected classification
+                        if classification == "input":
+                            self.current_entity.set_input_var(var_id, True)
+                            if var_id in self.current_entity.output_vars:
+                                self.current_entity.set_output_var(var_id, False)
+                        elif classification == "output":
+                            self.current_entity.set_output_var(var_id, True)
+                            if var_id in self.current_entity.input_vars:
+                                self.current_entity.set_input_var(var_id, False)
+                        
+                        # Refresh UI to show the change
+                        self.populate_lists_from_entity(self.current_entity)
+                        self.ui.list_
+                        
+                        # Show success message
+                        from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
+                        makeMessageBox(f"Variable {var_label} moved to {classification} list", "Success")
 
     def launch_state_variable_selector(self):
         """Launch state variable selector for create mode"""

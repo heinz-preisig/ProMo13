@@ -219,7 +219,7 @@ class Entity():
             'integrators': integrators
         }
     
-    def get_variables(self):
+    def get_entity_variables(self):
         """Get all variables included in the entity."""
         forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
         
@@ -233,15 +233,15 @@ class Entity():
 
     def get_input_vars(self):
         """Get input variables (variables not defined by equations)."""
-
-        forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+        #  todo: implement
+        # forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+        #
+        # # Input variables are those not defined by equations and not in init_vars
+        # input_vars = (forest_data['all_variables'] -
+        #              forest_data['equation_defined_vars'] -
+        #              set(getattr(self, 'init_vars', [])))
         
-        # Input variables are those not defined by equations and not in init_vars
-        input_vars = (forest_data['all_variables'] - 
-                     forest_data['equation_defined_vars'] - 
-                     set(getattr(self, 'init_vars', [])))
-        
-        return sorted(list(input_vars))
+        return sorted(list(self.input_vars))
 
     def set_input_var(self, var_id, is_input):
         """Legacy method for backward compatibility. Consider using forest-based approach."""
@@ -254,7 +254,7 @@ class Entity():
             if var_id in self.input_vars:
                 self.input_vars.remove(var_id)
 
-    def get_output_vars(self, all_variables=None):
+    def get_output_vars(self, all_variables=None): #todo: needs to filled in
         """Get output variables (variables defined by equations).
         
         Args:
@@ -266,28 +266,28 @@ class Entity():
         """
         return self.get_equation_defined_vars(all_variables)
 
-    def get_transport_vars(self, all_variables):
-        """Get all transport variables in the entity.
-        
-        Args:
-            all_variables: Dict[str, Variable] containing variable information
-        
-        Returns:
-            List of variable IDs that have type 'transport'
-        """
-        transport_vars = set()
-        
-        # Get all variables in the entity
-        entity_var_ids = set(self.get_variables())
-        
-        # Filter for transport variables
-        for var_id in entity_var_ids:
-            if var_id in all_variables:
-                var_obj = all_variables[var_id]
-                if hasattr(var_obj, 'type') and var_obj.type == 'transport':
-                    transport_vars.add(var_id)
-        
-        return sorted(list(transport_vars))
+    # def get_transport_vars(self, all_variables):
+    #     """Get all transport variables in the entity.
+    #
+    #     Args:
+    #         all_variables: Dict[str, Variable] containing variable information
+    #
+    #     Returns:
+    #         List of variable IDs that have type 'transport'
+    #     """
+    #     transport_vars = set()
+    #
+    #     # Get all variables in the entity
+    #     entity_var_ids = set(self.get_variables())
+    #
+    #     # Filter for transport variables
+    #     for var_id in entity_var_ids:
+    #         if var_id in all_variables:
+    #             var_obj = all_variables[var_id]
+    #             if hasattr(var_obj, 'type') and var_obj.type == 'transport':
+    #                 transport_vars.add(var_id)
+    #
+    #     return sorted(list(transport_vars))
 
     def get_equation_defined_vars(self, all_variables=None):
         """Get variables that are defined by equations.
@@ -305,18 +305,19 @@ class Entity():
         forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
         equation_defined_vars = set(forest_data['equation_defined_vars'])
         
-        # Filter out transport variables if all_variables is provided
-        if all_variables is not None:
-            non_transport_vars = set()
-            for var_id in equation_defined_vars:
-                if var_id in all_variables:
-                    var_obj = all_variables[var_id]
-                    if hasattr(var_obj, 'type') and var_obj.type != 'transport':
-                        non_transport_vars.add(var_id)
-                else:
-                    # If variable not found in all_variables, include it (fallback behavior)
-                    non_transport_vars.add(var_id)
-            equation_defined_vars = non_transport_vars
+        # # Filter out transport variables if all_variables is provided 
+        # #NOTE: Not used because the node is not alllowed to have transport variagles
+        # if all_variables is not None:
+        #     non_transport_vars = set()
+        #     for var_id in equation_defined_vars:
+        #         if var_id in all_variables:
+        #             var_obj = all_variables[var_id]
+        #             if hasattr(var_obj, 'type') and var_obj.type != 'transport':
+        #                 non_transport_vars.add(var_id)
+        #         else:
+        #             # If variable not found in all_variables, include it (fallback behavior)
+        #             non_transport_vars.add(var_id)
+        #     equation_defined_vars = non_transport_vars
         
         return sorted(list(equation_defined_vars))
 
@@ -388,7 +389,7 @@ class Entity():
         forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
         
         # Variables without defining equations
-        all_included_vars = self.get_all_included_variables()
+        all_included_vars = self.get_entity_variables()
         equation_defined_variables = self.get_equation_defined_vars()
         init_vars = self.get_init_vars()
         pending_vars = set(all_included_vars) - set(equation_defined_variables) - set(init_vars)
@@ -402,16 +403,16 @@ class Entity():
         
         return sorted(list(pending_vars))
 
-    def get_all_variables(self):
-        """Get all variables included in the entity (all variables in the entity)"""
-        # Use the forest-based approach to ensure consistency
-        return self.get_variables()
+    # def get_all_variables(self):
+    #     """Get all variables included in the entity (all variables in the entity)"""
+    #     # Use the forest-based approach to ensure consistency
+    #     return self.get_variables()
 
-    def get_all_included_variables(self):
-        """Get all variables included in the entity (all variables in the entity)"""
-        # Use the forest-based approach to ensure consistency
-        vars = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-        return vars['all_variables']
+    # def get_all_included_variables(self):
+    #     """Get all variables included in the entity (all variables in the entity)"""
+    #     # Use the forest-based approach to ensure consistency
+    #     vars = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+    #     return vars['all_variables']
 
     def get_variables_to_be_instantiated(self):
         """Get variables that need to be instantiated.
@@ -429,7 +430,7 @@ class Entity():
         
         # Check for variables with equations that have instantiate operator
         # Get all variables in the entity
-        all_vars = self.get_variables()
+        all_vars = self.get_entity_variables()
         print(f"All variables in entity: {all_vars}")
         
         for var_id in all_vars:
@@ -477,29 +478,29 @@ class Entity():
         """Get variables that are not yet defined (need instantiation)"""
         return self.get_pending_vars()
 
-    def get_var_status(self, var_id):
-        return [
-                self.get_eq_for_var(var_id),
-                self.is_input(var_id),
-                self.is_output(var_id),
-                self.is_init(var_id)
-                ]
+    # def get_var_status(self, var_id):
+    #     return [
+    #             self.get_eq_for_var(var_id),
+    #             self.is_input(var_id),
+    #             self.is_output(var_id),
+    #             self.is_init(var_id)
+    #             ]
 
     def is_init(self, var_id):
         return var_id in self.init_vars
 
-    def is_var_top_level(self, var_id):
-        if var_id not in self.output_vars:
-            return False
-
-        self.output_vars.remove(var_id)
-        deleted_vars = self.generate_var_eq_forest({})[2]
-        self.output_vars.append(var_id)
-
-        if var_id in deleted_vars:
-            return True
-        else:
-            return False
+    # def is_var_top_level(self, var_id):
+    #     if var_id not in self.output_vars:
+    #         return False
+    #
+    #     self.output_vars.remove(var_id)
+    #     deleted_vars = self.generate_var_eq_forest({})[2]
+    #     self.output_vars.append(var_id)
+    #
+    #     if var_id in deleted_vars:
+    #         return True
+    #     else:
+    #         return False
 
     # @classmethod
     # def from_root(
@@ -584,7 +585,7 @@ class Entity():
 
         # Removing all variables that are not in the entity from the lists
         # input, output and init
-        all_vars = set(self.get_variables())
+        all_vars = set(self.get_entity_variables())
         self.input_vars = list(
                 set(self.input_vars).intersection(all_vars)
                 )
@@ -604,157 +605,157 @@ class Entity():
         # Use the comprehensive list building method to ensure consistency
         self.build_variable_lists_from_forest()
 
-    def rebuild_from_components(self, deleted_var_id, dependent_equations, orphaned_variables, cleaned_forest):
-        """Rebuild entity from scratch after variable deletion.
-        
-        This method creates a clean entity structure from the remaining components,
-        avoiding all the patching and workarounds needed for incremental updates.
-        
-        Args:
-            deleted_var_id: The variable ID that was deleted
-            dependent_equations: Set of equation IDs that were deleted
-            orphaned_variables: Set of variable IDs that were orphaned/deleted
-            cleaned_forest: The cleaned var_eq_forest structure
-        """
-        print(f"=== REBUILDING ENTITY FROM SCRATCH ===")
-        print(f"Deleted variable: {deleted_var_id}")
-        print(f"Deleted equations: {dependent_equations}")
-        print(f"Deleted variables: {orphaned_variables}")
-        print(f"Cleaned forest: {cleaned_forest}")
-        
-        # Save original state for type determination
-        original_output_vars = set(self.output_vars)
-        original_input_vars = set(self.input_vars)
-        original_init_vars = set(self.init_vars)
-        original_all_equations = getattr(self, 'all_equations', {}).copy()
-        
-        # Clear everything completely
-        self.output_vars = []
-        self.input_vars = []
-        self.init_vars = []
-        self.integrators = {}
-        self.all_equations = {}
-        self.var_eq_forest = cleaned_forest
-        
-        # Rebuild from clean forest
-        remaining_variables = set()
-        remaining_equations = set()
-        
-        print(f"Processing cleaned forest: {cleaned_forest}")
-        print(f"Original all_equations keys: {list(original_all_equations.keys())}")
-        
-        # First pass: collect all variables mentioned in equations
-        variables_mentioned_in_equations = set()
-        for tree in cleaned_forest:
-            for key, values in tree.items():
-                if key.startswith('E_') and values:
-                    for var_id in values:
-                        if var_id.startswith('V_'):
-                            variables_mentioned_in_equations.add(var_id)
-        
-        print(f"Variables mentioned in equations: {variables_mentioned_in_equations}")
-        
-        # Second pass: process forest items and rebuild complete structure
-        rebuilt_forest = []
-        for tree in cleaned_forest:
-            rebuilt_tree = {}
-            for key, values in tree.items():
-                print(f"Processing forest item: {key} -> {values}")
-                if key.startswith('V_'):
-                    remaining_variables.add(key)
-                    # Determine variable type from original classification
-                    if key in original_output_vars:
-                        self.output_vars.append(key)
-                        print(f"    Added to output_vars: {key}")
-                    elif key in original_input_vars:
-                        self.input_vars.append(key)
-                        print(f"    Added to input_vars: {key}")
-                    elif key in original_init_vars:
-                        self.init_vars.append(key)
-                        print(f"    Added to init_vars: {key}")
-                    
-                    # Add variable to rebuilt tree
-                    rebuilt_tree[key] = values
-                        
-                elif key.startswith('E_'):
-                    remaining_equations.add(key)
-                    print(f"    Found equation: {key}")
-                    # Restore original equation object if available
-                    if key in original_all_equations:
-                        self.all_equations[key] = original_all_equations[key]
-                        print(f"    Restored equation {key}: {original_all_equations[key]}")
-                    else:
-                        print(f"    WARNING: Equation {key} not found in original_all_equations!")
-                        print(f"    Available equations: {list(original_all_equations.keys())}")
-                    
-                    # Add equation to rebuilt tree
-                    rebuilt_tree[key] = values
-            
-            # Add missing variables that are mentioned in equations but not as keys
-            for var_id in variables_mentioned_in_equations:
-                if var_id not in rebuilt_tree:
-                    print(f"Adding missing variable to forest: {var_id}")
-                    rebuilt_tree[var_id] = []
-                    remaining_variables.add(var_id)
-                    
-                    # Determine variable type from original classification
-                    if var_id in original_output_vars:
-                        self.output_vars.append(var_id)
-                        print(f"    Added to output_vars: {var_id}")
-                    elif var_id in original_input_vars:
-                        self.input_vars.append(var_id)
-                        print(f"    Added to input_vars: {var_id}")
-                    elif var_id in original_init_vars:
-                        self.init_vars.append(var_id)
-                        print(f"    Added to init_vars: {var_id}")
-            
-            if rebuilt_tree:  # Only add non-empty trees
-                rebuilt_forest.append(rebuilt_tree)
-        
-        # Update the forest with the rebuilt structure
-        self.var_eq_forest = rebuilt_forest
-        print(f"Rebuilt forest: {self.var_eq_forest}")
-        
-        # Rebuild integrators from remaining components
-        print(f"Rebuilding integrators from rebuilt forest...")
-        print(f"Rebuilt forest: {self.var_eq_forest}")
-        print(f"Available equations: {list(self.all_equations.keys())}")
-        
-        for tree in self.var_eq_forest:
-            for key, values in tree.items():
-                if key.startswith('E_') and values and key in self.all_equations:
-                    equation = self.all_equations[key]
-                    print(f"Checking equation {key}: {equation}")
-                    
-                    # Check if this is an integrator equation
-                    is_integrator = equation.is_integrator()
-                    print(f"  Equation.is_integrator(): {is_integrator}")
-                    
-                    print(f"  Is integrator: {is_integrator}")
-                    
-                    # If it's an integrator, find the variable it defines
-                    if is_integrator:
-                        print(f"  Equation {key} is an integrator, looking for variables...")
-                        for var in values:
-                            print(f"    Checking variable {var}: starts with V_? {var.startswith('V_')}, in remaining_variables? {var in remaining_variables}")
-                            if var.startswith('V_') and var in remaining_variables:
-                                self.integrators[var] = key
-                                print(f"  Rebuilt integrator: {var} -> {key}")
-                                break
-                        else:
-                            print(f"  No suitable variable found in values: {values}")
-        
-        print(f"Entity rebuilt successfully:")
-        print(f"  output_vars: {self.output_vars}")
-        print(f"  input_vars: {self.input_vars}")
-        print(f"  init_vars: {self.init_vars}")
-        print(f"  integrators: {self.integrators}")
-        print(f"  all_equations count: {len(self.all_equations)}")
-        print(f"  var_eq_forest: {self.var_eq_forest}")
-        print(f"=== END ENTITY REBUILD ===")
-        
-        # Ensure lists are consistent with the rebuilt forest
-        self.build_variable_lists_from_forest()
+    # def rebuild_from_components(self, deleted_var_id, dependent_equations, orphaned_variables, cleaned_forest):
+    #     """Rebuild entity from scratch after variable deletion.
+    #
+    #     This method creates a clean entity structure from the remaining components,
+    #     avoiding all the patching and workarounds needed for incremental updates.
+    #
+    #     Args:
+    #         deleted_var_id: The variable ID that was deleted
+    #         dependent_equations: Set of equation IDs that were deleted
+    #         orphaned_variables: Set of variable IDs that were orphaned/deleted
+    #         cleaned_forest: The cleaned var_eq_forest structure
+    #     """
+    #     print(f"=== REBUILDING ENTITY FROM SCRATCH ===")
+    #     print(f"Deleted variable: {deleted_var_id}")
+    #     print(f"Deleted equations: {dependent_equations}")
+    #     print(f"Deleted variables: {orphaned_variables}")
+    #     print(f"Cleaned forest: {cleaned_forest}")
+    #
+    #     # Save original state for type determination
+    #     original_output_vars = set(self.output_vars)
+    #     original_input_vars = set(self.input_vars)
+    #     original_init_vars = set(self.init_vars)
+    #     original_all_equations = getattr(self, 'all_equations', {}).copy()
+    #
+    #     # Clear everything completely
+    #     self.output_vars = []
+    #     self.input_vars = []
+    #     self.init_vars = []
+    #     self.integrators = {}
+    #     self.all_equations = {}
+    #     self.var_eq_forest = cleaned_forest
+    #
+    #     # Rebuild from clean forest
+    #     remaining_variables = set()
+    #     remaining_equations = set()
+    #
+    #     print(f"Processing cleaned forest: {cleaned_forest}")
+    #     print(f"Original all_equations keys: {list(original_all_equations.keys())}")
+    #
+    #     # First pass: collect all variables mentioned in equations
+    #     variables_mentioned_in_equations = set()
+    #     for tree in cleaned_forest:
+    #         for key, values in tree.items():
+    #             if key.startswith('E_') and values:
+    #                 for var_id in values:
+    #                     if var_id.startswith('V_'):
+    #                         variables_mentioned_in_equations.add(var_id)
+    #
+    #     print(f"Variables mentioned in equations: {variables_mentioned_in_equations}")
+    #
+    #     # Second pass: process forest items and rebuild complete structure
+    #     rebuilt_forest = []
+    #     for tree in cleaned_forest:
+    #         rebuilt_tree = {}
+    #         for key, values in tree.items():
+    #             print(f"Processing forest item: {key} -> {values}")
+    #             if key.startswith('V_'):
+    #                 remaining_variables.add(key)
+    #                 # Determine variable type from original classification
+    #                 if key in original_output_vars:
+    #                     self.output_vars.append(key)
+    #                     print(f"    Added to output_vars: {key}")
+    #                 elif key in original_input_vars:
+    #                     self.input_vars.append(key)
+    #                     print(f"    Added to input_vars: {key}")
+    #                 elif key in original_init_vars:
+    #                     self.init_vars.append(key)
+    #                     print(f"    Added to init_vars: {key}")
+    #
+    #                 # Add variable to rebuilt tree
+    #                 rebuilt_tree[key] = values
+    #
+    #             elif key.startswith('E_'):
+    #                 remaining_equations.add(key)
+    #                 print(f"    Found equation: {key}")
+    #                 # Restore original equation object if available
+    #                 if key in original_all_equations:
+    #                     self.all_equations[key] = original_all_equations[key]
+    #                     print(f"    Restored equation {key}: {original_all_equations[key]}")
+    #                 else:
+    #                     print(f"    WARNING: Equation {key} not found in original_all_equations!")
+    #                     print(f"    Available equations: {list(original_all_equations.keys())}")
+    #
+    #                 # Add equation to rebuilt tree
+    #                 rebuilt_tree[key] = values
+    #
+    #         # Add missing variables that are mentioned in equations but not as keys
+    #         for var_id in variables_mentioned_in_equations:
+    #             if var_id not in rebuilt_tree:
+    #                 print(f"Adding missing variable to forest: {var_id}")
+    #                 rebuilt_tree[var_id] = []
+    #                 remaining_variables.add(var_id)
+    #
+    #                 # Determine variable type from original classification
+    #                 if var_id in original_output_vars:
+    #                     self.output_vars.append(var_id)
+    #                     print(f"    Added to output_vars: {var_id}")
+    #                 elif var_id in original_input_vars:
+    #                     self.input_vars.append(var_id)
+    #                     print(f"    Added to input_vars: {var_id}")
+    #                 elif var_id in original_init_vars:
+    #                     self.init_vars.append(var_id)
+    #                     print(f"    Added to init_vars: {var_id}")
+    #
+    #         if rebuilt_tree:  # Only add non-empty trees
+    #             rebuilt_forest.append(rebuilt_tree)
+    #
+    #     # Update the forest with the rebuilt structure
+    #     self.var_eq_forest = rebuilt_forest
+    #     print(f"Rebuilt forest: {self.var_eq_forest}")
+    #
+    #     # Rebuild integrators from remaining components
+    #     print(f"Rebuilding integrators from rebuilt forest...")
+    #     print(f"Rebuilt forest: {self.var_eq_forest}")
+    #     print(f"Available equations: {list(self.all_equations.keys())}")
+    #
+    #     for tree in self.var_eq_forest:
+    #         for key, values in tree.items():
+    #             if key.startswith('E_') and values and key in self.all_equations:
+    #                 equation = self.all_equations[key]
+    #                 print(f"Checking equation {key}: {equation}")
+    #
+    #                 # Check if this is an integrator equation
+    #                 is_integrator = equation.is_integrator()
+    #                 print(f"  Equation.is_integrator(): {is_integrator}")
+    #
+    #                 print(f"  Is integrator: {is_integrator}")
+    #
+    #                 # If it's an integrator, find the variable it defines
+    #                 if is_integrator:
+    #                     print(f"  Equation {key} is an integrator, looking for variables...")
+    #                     for var in values:
+    #                         print(f"    Checking variable {var}: starts with V_? {var.startswith('V_')}, in remaining_variables? {var in remaining_variables}")
+    #                         if var.startswith('V_') and var in remaining_variables:
+    #                             self.integrators[var] = key
+    #                             print(f"  Rebuilt integrator: {var} -> {key}")
+    #                             break
+    #                     else:
+    #                         print(f"  No suitable variable found in values: {values}")
+    #
+    #     print(f"Entity rebuilt successfully:")
+    #     print(f"  output_vars: {self.output_vars}")
+    #     print(f"  input_vars: {self.input_vars}")
+    #     print(f"  init_vars: {self.init_vars}")
+    #     print(f"  integrators: {self.integrators}")
+    #     print(f"  all_equations count: {len(self.all_equations)}")
+    #     print(f"  var_eq_forest: {self.var_eq_forest}")
+    #     print(f"=== END ENTITY REBUILD ===")
+    #
+    #     # Ensure lists are consistent with the rebuilt forest
+    #     self.build_variable_lists_from_forest()
 
     def build_variable_lists_from_forest(self):
         """Legacy method - now uses dynamic computation from forest.
@@ -772,7 +773,7 @@ class Entity():
         
         # Show current dynamic values for verification
         print(f"Current dynamic values:")
-        print(f"  all_variables: {self.get_variables()}")
+        print(f"  all_variables: {self.get_entity_variables()}")
         print(f"  output_vars: {self.get_output_vars()}")
         print(f"  input_vars: {self.get_input_vars()}")
         print(f"  init_vars: {self.get_init_vars()}")
@@ -1020,101 +1021,101 @@ class Entity():
             print(f"Error in delete_variable_with_dependencies: {e}")
             return False, f"Error deleting variable: {str(e)}", set(), set()
 
-    def list_all_variables_for_selection(self):
-        """List all variables in the entity organized by category for selection.
-        
-        This method displays all variables grouped into:
-        - All variables
-        - Input variables 
-        - Output variables
-        - Initialization variables
-        - Integrator variables
-        
-        Returns:
-            dict: Dictionary with variable categories as keys and lists of variable IDs as values
-        """
-        all_vars = self.get_variables()
-        input_vars = self.get_input_vars()
-        output_vars = self.get_output_vars()
-        init_vars = self.get_init_vars()
-        integrator_vars = self.get_integrator_vars()
-        
-        print("=== AVAILABLE VARIABLES FOR SELECTION ===")
-        print(f"ALL VARIABLES ({len(all_vars)}):")
-        for i, var in enumerate(all_vars, 1):
-            print(f"  {i:2d}. {var}")
-        
-        print(f"\nINPUT VARIABLES ({len(input_vars)}):")
-        for i, var in enumerate(input_vars, 1):
-            print(f"  {i:2d}. {var}")
-        
-        print(f"\nOUTPUT VARIABLES ({len(output_vars)}):")
-        for i, var in enumerate(output_vars, 1):
-            print(f"  {i:2d}. {var}")
-        
-        print(f"\nINITIALIZATION VARIABLES ({len(init_vars)}):")
-        for i, var in enumerate(init_vars, 1):
-            print(f"  {i:2d}. {var}")
-        
-        print(f"\nINTEGRATOR VARIABLES ({len(integrator_vars)}):")
-        for i, var in enumerate(integrator_vars, 1):
-            print(f"  {i:2d}. {var}")
-        
-        print("=== END VARIABLE LIST ===")
-        
-        return {
-            'all_variables': all_vars,
-            'input_variables': input_vars,
-            'output_variables': output_vars,
-            'init_variables': init_vars,
-            'integrator_variables': integrator_vars
-        }
+    # def list_all_variables_for_selection(self):
+    #     """List all variables in the entity organized by category for selection.
+    #
+    #     This method displays all variables grouped into:
+    #     - All variables
+    #     - Input variables
+    #     - Output variables
+    #     - Initialization variables
+    #     - Integrator variables
+    #
+    #     Returns:
+    #         dict: Dictionary with variable categories as keys and lists of variable IDs as values
+    #     """
+    #     all_vars = self.get_entity_variables()
+    #     input_vars = self.get_input_vars()
+    #     output_vars = self.get_output_vars()
+    #     init_vars = self.get_init_vars()
+    #     integrator_vars = self.get_integrator_vars()
+    #
+    #     print("=== AVAILABLE VARIABLES FOR SELECTION ===")
+    #     print(f"ALL VARIABLES ({len(all_vars)}):")
+    #     for i, var in enumerate(all_vars, 1):
+    #         print(f"  {i:2d}. {var}")
+    #
+    #     print(f"\nINPUT VARIABLES ({len(input_vars)}):")
+    #     for i, var in enumerate(input_vars, 1):
+    #         print(f"  {i:2d}. {var}")
+    #
+    #     print(f"\nOUTPUT VARIABLES ({len(output_vars)}):")
+    #     for i, var in enumerate(output_vars, 1):
+    #         print(f"  {i:2d}. {var}")
+    #
+    #     print(f"\nINITIALIZATION VARIABLES ({len(init_vars)}):")
+    #     for i, var in enumerate(init_vars, 1):
+    #         print(f"  {i:2d}. {var}")
+    #
+    #     print(f"\nINTEGRATOR VARIABLES ({len(integrator_vars)}):")
+    #     for i, var in enumerate(integrator_vars, 1):
+    #         print(f"  {i:2d}. {var}")
+    #
+    #     print("=== END VARIABLE LIST ===")
+    #
+    #     return {
+    #         'all_variables': all_vars,
+    #         'input_variables': input_vars,
+    #         'output_variables': output_vars,
+    #         'init_variables': init_vars,
+    #         'integrator_variables': integrator_vars
+    #     }
 
-    def select_and_delete_variable(self):
-        """Interactive method to select a variable from available lists and delete it.
-        
-        This method:
-        1. Lists all available variables by category
-        2. Prompts for variable selection
-        3. Deletes the selected variable with all dependencies
-        
-        Returns:
-            tuple: (success, message, dependent_equations, orphaned_variables)
-        """
-        # First, list all available variables
-        variables = self.list_all_variables_for_selection()
-        
-        # Get all unique variables for selection
-        all_unique_vars = sorted(set(variables['all_variables']))
-        
-        if not all_unique_vars:
-            return False, "No variables available for deletion", set(), set()
-        
-        print(f"\nSelect a variable to delete (1-{len(all_unique_vars)}):")
-        try:
-            selection = input("Enter the number of the variable to delete: ").strip()
-            if not selection.isdigit():
-                return False, "Invalid selection: please enter a number", set(), set()
-            
-            index = int(selection) - 1
-            if index < 0 or index >= len(all_unique_vars):
-                return False, f"Invalid selection: please enter a number between 1 and {len(all_unique_vars)}", set(), set()
-            
-            selected_var = all_unique_vars[index]
-            print(f"\nSelected variable: {selected_var}")
-            
-            # Confirm deletion
-            confirm = input(f"Are you sure you want to delete '{selected_var}'? (y/N): ").strip().lower()
-            if confirm != 'y':
-                return False, "Deletion cancelled by user", set(), set()
-            
-            # Delete the variable
-            return self.delete_variable_with_dependencies(selected_var)
-            
-        except KeyboardInterrupt:
-            return False, "Deletion cancelled by user", set(), set()
-        except Exception as e:
-            return False, f"Error during selection: {str(e)}", set(), set()
+    # def select_and_delete_variable(self):
+    #     """Interactive method to select a variable from available lists and delete it.
+    #
+    #     This method:
+    #     1. Lists all available variables by category
+    #     2. Prompts for variable selection
+    #     3. Deletes the selected variable with all dependencies
+    #
+    #     Returns:
+    #         tuple: (success, message, dependent_equations, orphaned_variables)
+    #     """
+    #     # First, list all available variables
+    #     variables = self.list_all_variables_for_selection()
+    #
+    #     # Get all unique variables for selection
+    #     all_unique_vars = sorted(set(variables['all_variables']))
+    #
+    #     if not all_unique_vars:
+    #         return False, "No variables available for deletion", set(), set()
+    #
+    #     print(f"\nSelect a variable to delete (1-{len(all_unique_vars)}):")
+    #     try:
+    #         selection = input("Enter the number of the variable to delete: ").strip()
+    #         if not selection.isdigit():
+    #             return False, "Invalid selection: please enter a number", set(), set()
+    #
+    #         index = int(selection) - 1
+    #         if index < 0 or index >= len(all_unique_vars):
+    #             return False, f"Invalid selection: please enter a number between 1 and {len(all_unique_vars)}", set(), set()
+    #
+    #         selected_var = all_unique_vars[index]
+    #         print(f"\nSelected variable: {selected_var}")
+    #
+    #         # Confirm deletion
+    #         confirm = input(f"Are you sure you want to delete '{selected_var}'? (y/N): ").strip().lower()
+    #         if confirm != 'y':
+    #             return False, "Deletion cancelled by user", set(), set()
+    #
+    #         # Delete the variable
+    #         return self.delete_variable_with_dependencies(selected_var)
+    #
+    #     except KeyboardInterrupt:
+    #         return False, "Deletion cancelled by user", set(), set()
+    #     except Exception as e:
+    #         return False, f"Error during selection: {str(e)}", set(), set()
 
     def generate_var_eq_forest(
             self,
@@ -1365,128 +1366,128 @@ class Entity():
 
         return None
 
-    def start_merging_process(self, parents: List[Self]):
-        """Starts the merging process.
+    # def start_merging_process(self, parents: List[Self]):
+    #     """Starts the merging process.
+    #
+    #     Args:
+    #       parents (List[Self]): Entities to me merged.
+    #
+    #     Returns:
+    #       bool: **True** if the merge is complete. **False** otherwise.
+    #     """
+    #     self.output_vars = self._merging_variables(parents, "get_output_vars")
+    #     self.input_vars = self._merging_variables(parents, "get_input_vars")
+    #     self.init_vars = self._merging_variables(parents, "get_init_vars")
+    #
+    #     all_vars = self._merging_variables(parents, "get_variables")
+    #     self.merged_vars = {}
+    #     self.merge_conflicts = {}
+    #     self.undo_merging = {}
+    #     for var_id in all_vars:
+    #         assigned_eqs = self._find_all_equations(var_id, parents)
+    #         number_of_equations = len(assigned_eqs)
+    #         if number_of_equations <= 1:
+    #             self.merged_vars[var_id] = assigned_eqs
+    #         else:
+    #             self.merge_conflicts[var_id] = assigned_eqs
+    #
+    #     self.generate_var_eq_forest(self.merged_vars)
+    #     temp_input = self.input_vars
+    #     temp_init = self.init_vars
+    #     self.update_var_eq_tree()
+    #     self.init_vars = temp_init
+    #     self.input_vars = temp_input
+    #
+    #     if not self.merge_conflicts:
+    #         self._finish_merge()
+    #         return True
+    #
+    #     return False
 
-        Args:
-          parents (List[Self]): Entities to me merged.
+    # def get_conflict(self):
+    #     for var_id, assigned_equations in self.merge_conflicts.items():
+    #         if self.get_eq_for_var(var_id) is not None:
+    #             return (var_id, assigned_equations)
+    #
+    #     self._finish_merge()
+    #     return None
 
-        Returns:
-          bool: **True** if the merge is complete. **False** otherwise.
-        """
-        self.output_vars = self._merging_variables(parents, "get_output_vars")
-        self.input_vars = self._merging_variables(parents, "get_input_vars")
-        self.init_vars = self._merging_variables(parents, "get_init_vars")
+    # def solve_conflict(self, var_id, eq_id):
+    #     self.undo_merging[var_id] = self.merge_conflicts.pop(var_id)
+    #     self.merged_vars.update({var_id: [eq_id]})
+    #
+    #     self.generate_var_eq_forest(self.merged_vars)
+    #     temp_input = self.input_vars
+    #     temp_init = self.init_vars
+    #     self.update_var_eq_tree()
+    #     self.init_vars = temp_init
+    #     self.input_vars = temp_input
 
-        all_vars = self._merging_variables(parents, "get_variables")
-        self.merged_vars = {}
-        self.merge_conflicts = {}
-        self.undo_merging = {}
-        for var_id in all_vars:
-            assigned_eqs = self._find_all_equations(var_id, parents)
-            number_of_equations = len(assigned_eqs)
-            if number_of_equations <= 1:
-                self.merged_vars[var_id] = assigned_eqs
-            else:
-                self.merge_conflicts[var_id] = assigned_eqs
+    # def undo_merging_step(self):
+    #     if not self.undo_merging:
+    #         return None
+    #
+    #     last_var_id = self.undo_merging.keys()[-1]
+    #     self.merge_conflicts[last_var_id] = self.undo_merging.pop(last_var_id)
+    #     del self.merged_vars[last_var_id]
+    #
+    #     self.generate_var_eq_forest(self.merged_vars)
+    #     temp_input = self.input_vars
+    #     temp_init = self.init_vars
+    #     self.update_var_eq_tree()
+    #     self.init_vars = temp_init
+    #     self.input_vars = temp_input
+    #
+    #     return (last_var_id, self.merge_conflicts[last_var_id])
 
-        self.generate_var_eq_forest(self.merged_vars)
-        temp_input = self.input_vars
-        temp_init = self.init_vars
-        self.update_var_eq_tree()
-        self.init_vars = temp_init
-        self.input_vars = temp_input
-
-        if not self.merge_conflicts:
-            self._finish_merge()
-            return True
-
-        return False
-
-    def get_conflict(self):
-        for var_id, assigned_equations in self.merge_conflicts.items():
-            if self.get_eq_for_var(var_id) is not None:
-                return (var_id, assigned_equations)
-
-        self._finish_merge()
-        return None
-
-    def solve_conflict(self, var_id, eq_id):
-        self.undo_merging[var_id] = self.merge_conflicts.pop(var_id)
-        self.merged_vars.update({var_id: [eq_id]})
-
-        self.generate_var_eq_forest(self.merged_vars)
-        temp_input = self.input_vars
-        temp_init = self.init_vars
-        self.update_var_eq_tree()
-        self.init_vars = temp_init
-        self.input_vars = temp_input
-
-    def undo_merging_step(self):
-        if not self.undo_merging:
-            return None
-
-        last_var_id = self.undo_merging.keys()[-1]
-        self.merge_conflicts[last_var_id] = self.undo_merging.pop(last_var_id)
-        del self.merged_vars[last_var_id]
-
-        self.generate_var_eq_forest(self.merged_vars)
-        temp_input = self.input_vars
-        temp_init = self.init_vars
-        self.update_var_eq_tree()
-        self.init_vars = temp_init
-        self.input_vars = temp_input
-
-        return (last_var_id, self.merge_conflicts[last_var_id])
-
-    def is_undo_merge_possible(self):
-        return bool(self.undo_merging)
-
-    def _finish_merge(self):
-        self.merged_vars = {}
-        self.merge_conflicts = {}
-        self.undo_merging = {}
-
-        self.input_vars = [
-                var_id
-                for var_id in self.input_vars
-                if self.get_eq_for_var(var_id) is not None
-                ]
-
-        self.init_vars = [
-                var_id
-                for var_id in self.init_vars
-                if self.get_eq_for_var(var_id) is not None
-                ]
-
-    def _merging_variables(
-            self,
-            parents: List[List[str]],
-            method: Callable[[], List[str]]
-            ) -> List[str]:
-
-        merge_set = {
-                var_id
-                for ent in parents
-                for var_id in getattr(ent, method)()
-                }
-        return list(merge_set)
+    # def is_undo_merge_possible(self):
+    #     return bool(self.undo_merging)
+    #
+    # def _finish_merge(self):
+    #     self.merged_vars = {}
+    #     self.merge_conflicts = {}
+    #     self.undo_merging = {}
+    #
+    #     self.input_vars = [
+    #             var_id
+    #             for var_id in self.input_vars
+    #             if self.get_eq_for_var(var_id) is not None
+    #             ]
+    #
+    #     self.init_vars = [
+    #             var_id
+    #             for var_id in self.init_vars
+    #             if self.get_eq_for_var(var_id) is not None
+    #             ]
+    #
+    # def _merging_variables(
+    #         self,
+    #         parents: List[List[str]],
+    #         method: Callable[[], List[str]]
+    #         ) -> List[str]:
+    #
+    #     merge_set = {
+    #             var_id
+    #             for ent in parents
+    #             for var_id in getattr(ent, method)()
+    #             }
+    #     return list(merge_set)
 
     # TODO: Check for possible duplication
-    def _find_all_equations(self, var_id: str, parents: List[Self]) -> List[str]:
-        equation_lists = [ent.get_eq_for_var(var_id) for ent in parents]
-        all_equations = set()
-        for eq_list in equation_lists:
-            if eq_list is not None:
-                all_equations.update(eq_list)
-
-        return list(all_equations)
+    # def _find_all_equations(self, var_id: str, parents: List[Self]) -> List[str]:
+    #     equation_lists = [ent.get_eq_for_var(var_id) for ent in parents]
+    #     all_equations = set()
+    #     for eq_list in equation_lists:
+    #         if eq_list is not None:
+    #             all_equations.update(eq_list)
+    #
+    #     return list(all_equations)
 
     def get_entity_name(self):
         return self.entity_id
 
     def contains_var(self, var_id: str) -> bool:
-        return var_id in self.get_variables()
+        return var_id in self.get_entity_variables()
 
     def is_interface_ent(self) -> bool:
         # TODO: Check if we should add a new field (entity type) instead.

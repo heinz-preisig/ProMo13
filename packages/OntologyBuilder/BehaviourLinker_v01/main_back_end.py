@@ -5,7 +5,7 @@ import sys
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 
-from Common.classes.entity import Entity
+from Common.classes.entity_v1 import Entity
 from Common.common_resources import getOntologyName
 from Common.exchange_board import ProMoExchangeBoard
 from Common.pop_up_message_box import makeMessageBox

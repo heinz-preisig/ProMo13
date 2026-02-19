@@ -4,7 +4,7 @@ import sys
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
 
-from Common.classes.entity import Entity
+from Common.classes.entity_v1 import Entity
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import select_equation_for_variable
 
@@ -400,7 +400,7 @@ class EntityEditorBackEnd(QObject):
         """Simplified state variable selection using Entity class only"""
         try:
             # Import Entity class
-            from Common.classes.entity import Entity
+            from Common.classes.entity_v1 import Entity
 
             # Get all equations from ontology container
             all_equations = getattr(self.ontology_container, 'equation_entity_dict', {})
@@ -651,7 +651,7 @@ class EntityEditorBackEnd(QObject):
                     entity = self.entity_frontend.current_entity
 
                     # Check if variable exists in entity
-                    all_variables = entity.get_all_variables()
+                    all_variables = entity.get_entity_variables()
                     if var_id not in all_variables:
                         log_error("handle_variable_deletion", Exception(f"Variable {var_id} not found"), f"variable {var_id} not found in entity")
                         self.message.emit({
@@ -695,7 +695,7 @@ class EntityEditorBackEnd(QObject):
                             full_message += f"\nRemoved orphaned variables: {sorted(list(orphaned_variables))}"
 
                         # Show remaining counts
-                        remaining_vars = entity.get_all_variables()
+                        remaining_vars = entity.get_entity_variables()
                         remaining_eqs = list(entity.all_equations.keys())
                         full_message += f"\nRemaining variables: {len(remaining_vars)}"
                         full_message += f"\nRemaining equations: {len(remaining_eqs)}"

@@ -14,6 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
+        Dialog.setWindowModality(QtCore.Qt.WindowModal)
         Dialog.resize(518, 573)
         self.info_group = QtWidgets.QGroupBox(Dialog)
         self.info_group.setGeometry(QtCore.QRect(10, 120, 181, 131))

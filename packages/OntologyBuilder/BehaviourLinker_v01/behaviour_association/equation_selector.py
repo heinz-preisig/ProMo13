@@ -276,7 +276,7 @@ def preload_equation_icons(variable_data, ontology_container):
         return {}
 
 
-def select_equation_for_variable(variable_data, ontology_container):
+def select_equation_for_variable(variable_data, ontology_container, parent=None):
     """
     Launch the equation selector dialog for a variable.
     
@@ -291,7 +291,13 @@ def select_equation_for_variable(variable_data, ontology_container):
     if app is None:
         app = QtWidgets.QApplication(sys.argv)
 
-    dialog = EquationSelectorDialog(variable_data, ontology_container)
+    dialog = EquationSelectorDialog(variable_data, ontology_container, parent)
+    
+    # Make dialog modal to block other windows
+    if parent:
+        dialog.setWindowModality(QtCore.Qt.WindowModal)
+    else:
+        dialog.setWindowModality(QtCore.Qt.ApplicationModal)
 
     if dialog.exec_() == QtWidgets.QDialog.Accepted:
         return dialog.get_selection()

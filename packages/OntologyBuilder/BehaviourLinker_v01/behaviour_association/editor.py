@@ -498,7 +498,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         
         if entity_to_use and hasattr(entity_to_use, 'get_all_variables'):
             try:
-                already_included = set(entity_to_use.get_all_variables())
+                already_included = set(entity_to_use.get_entity_variables())
             except Exception as e:
                 log_error("_filter_variables_by_rules", e, "getting included variables from entity")
 
