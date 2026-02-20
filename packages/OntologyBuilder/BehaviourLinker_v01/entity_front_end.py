@@ -458,6 +458,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def populate_lists_from_entity(self, entity):
         """Populate the list widgets with data from the Entity object"""
         try:
+            # Check if this is the first time lists are being calculated
+            is_first_time = not hasattr(entity, 'classifications_initialized') or not entity.classifications_initialized
+            
             # Get ontology container for variable data
 
             # Clear existing lists and refresh their settings
@@ -477,6 +480,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 return
 
             variables = ontology_container.variables
+
+            # Build local variable classifications if this is the first time
+            if is_first_time:
+                entity.build_local_variable_classifications(variables)
 
             # Populate output variables list
             output_vars = entity.get_output_vars()
@@ -812,8 +819,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def on_list_pending_variables_single_clicked(self, index):
         """Handle single click on pending variables list - store for potential double-click"""
         
+        # Get the sender widget to determine which list was clicked
+        sender = self.sender()
+        if not sender:
+            return
+            
         # Get the model and item from the index
-        model = self.ui.list_not_defined_variables.model()
+        model = sender.model()
         if model and index.isValid():
             item = model.itemFromIndex(index)
             if item:
@@ -826,13 +838,18 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 var_label = item_data.get('label')
                 var_network = item_data.get('network')
                 
+                # Determine which list was clicked
+                list_name = sender.objectName() if hasattr(sender, 'objectName') else 'unknown'
+                
                 # Store click data for potential double-click handling
                 self.pending_click_data = {
-                    'type': 'pending_variables',
+                    'type': 'classification',
                     'index': index,
                     'var_id': var_id,
                     'var_label': var_label,
-                    'var_network': var_network
+                    'var_network': var_network,
+                    'sender': sender,
+                    'list_name': list_name
                     }
                 
                 # Start timer to wait for potential double-click
@@ -851,65 +868,69 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             var_id = click_data.get('var_id')
             var_label = click_data.get('var_label')
             var_network = click_data.get('var_network')
+            list_name = click_data.get('list_name', 'unknown')
             
+            # Handle different behavior based on which list was clicked
             if var_id:
-                # Open class selector dialog for variable classification
-                from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QRadioButton, QPushButton, QDialogButtonBox
-                from PyQt5.QtCore import Qt
-                from OntologyBuilder.BehaviourLinker_v01.UIs.class_selector import Ui_Dialog
-                
-                # Create dialog
-                dialog = QDialog()
-                dialog.setWindowTitle("Variable Classification")
-                dialog.resize(200, 150)
-                
-                # Setup UI
-                ui = Ui_Dialog()
-                ui.setupUi(dialog)
-                
-                # Set default selection based on current entity state
-                if hasattr(self, 'current_entity') and self.current_entity:
-                    if var_id in getattr(self.current_entity, 'input_vars', []):
-                        ui.select_input.setChecked(True)
-                    elif var_id in getattr(self.current_entity, 'output_vars', []):
-                        ui.select_output.setChecked(True)
-                    else:
-                        ui.select_none.setChecked(True)
-                
-                # Connect radio buttons to close dialog when selected
-                def on_radio_selected():
-                    dialog.accept()
-                
-                ui.select_input.toggled.connect(on_radio_selected)
-                ui.select_output.toggled.connect(on_radio_selected)
-                ui.select_none.toggled.connect(on_radio_selected)
-                
-                # Show dialog and get result
-                if dialog.exec_() == QDialog.Accepted:
-                    classification = None
-                    if ui.select_input.isChecked():
-                        classification = "input"
-                    elif ui.select_output.isChecked():
-                        classification = "output"
+                if list_name in ['list_inputs', 'list_outputs', 'list_instantiate', 'list_not_defined_variables']:
+                    # Show classification dialog for these lists
+                    from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QRadioButton, QPushButton, QDialogButtonBox
+                    from PyQt5.QtCore import Qt
+                    from OntologyBuilder.BehaviourLinker_v01.UIs.class_selector import Ui_Dialog
                     
-                    if classification and hasattr(self, 'current_entity') and self.current_entity:
-                        # Move variable to selected classification
-                        if classification == "input":
-                            self.current_entity.set_input_var(var_id, True)
-                            if var_id in self.current_entity.output_vars:
-                                self.current_entity.set_output_var(var_id, False)
-                        elif classification == "output":
-                            self.current_entity.set_output_var(var_id, True)
-                            if var_id in self.current_entity.input_vars:
-                                self.current_entity.set_input_var(var_id, False)
+                    # Create dialog
+                    dialog = QDialog()
+                    dialog.setWindowTitle("Variable Classification")
+                    dialog.resize(200, 150)
+                    
+                    # Setup UI
+                    ui = Ui_Dialog()
+                    ui.setupUi(dialog)
+                    
+                    # Set default selection based on current entity state
+                    if hasattr(self, 'current_entity') and self.current_entity:
+                        if var_id in getattr(self.current_entity, 'input_vars', []):
+                            ui.select_input.setChecked(True)
+                        elif var_id in getattr(self.current_entity, 'output_vars', []):
+                            ui.select_output.setChecked(True)
+                        else:
+                            ui.select_none.setChecked(True)
+                    
+                    # Connect radio buttons to close dialog when selected
+                    def on_radio_selected():
+                        dialog.accept()
+                    
+                    ui.select_input.toggled.connect(on_radio_selected)
+                    ui.select_output.toggled.connect(on_radio_selected)
+                    ui.select_none.toggled.connect(on_radio_selected)
+                    
+                    # Show dialog and get result
+                    if dialog.exec_() == QDialog.Accepted:
+                        classification = None
+                        if ui.select_input.isChecked():
+                            classification = "input"
+                        elif ui.select_output.isChecked():
+                            classification = "output"
                         
-                        # Refresh UI to show the change
+                        # if classification and hasattr(self, 'current_entity') and self.current_entity:
+                        #     # Move variable to selected classification
+                        #     if classification == "input":
+                        #         self.current_entity.set_input_var(var_id, True)
+                        #         if var_id in self.current_entity.output_vars:
+                        #             self.current_entity.set_output_var(var_id, False)
+                        #     elif classification == "output":
+                        #         self.current_entity.set_output_var(var_id, True)
+                        #         if var_id in self.current_entity.input_vars:
+                        #             self.current_entity.set_input_var(var_id, False)
+                            
+                            # Refresh UI to show the change
+                        self.current_entity.change_classification(var_id, classification)
                         self.populate_lists_from_entity(self.current_entity)
-                        self.ui.list_
-                        
-                        # Show success message
-                        from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
-                        makeMessageBox(f"Variable {var_label} moved to {classification} list", "Success")
+
+                            
+                            # Show success message
+                            # from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
+                            # makeMessageBox(f"Variable {var_label} moved to {classification} list", "Success")
 
     def launch_state_variable_selector(self):
         """Launch state variable selector for create mode"""

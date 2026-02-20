@@ -1,7 +1,4 @@
 """Contains the entity class."""
-# TODO Extend with an explanation of what an entity is.
-# TODO Update the docstrings.
-# TODO: Refactor this class!!
 import collections
 from typing import Callable
 from typing import Dict
@@ -28,9 +25,6 @@ class EntityDict(TypedDict):
 class Entity():
     """Models an entity."""
 
-    # TODO Add an explanation of what is an entity.
-    # TODO: PRobably add fields for network, type, etc
-
     def __init__(
             self,
             entity_id: str,
@@ -42,17 +36,6 @@ class Entity():
             input_vars: Optional[List[str]] = None,
             output_vars: Optional[List[str]] = None,
             ) -> None:
-        # """Initializes the entity.
-
-        # Args:
-        #     entity_id (str): Full ID of the entity (network.category.type.name).
-        #     var_eq_tree (Optional[EntityDict], optional): List of trees that
-        #       link variables and equations used in the Entity.
-        #       Defaults to None.
-        #     init_vars (Optional[List[str]], optional): Ids of the variables
-        #       that require initialization. Defaults to None.
-        # """
-        # TODO: Add modification date field.
         self.entity_id = entity_id
         self.index_set = index_set
         self.integrators = integrators if integrators is not None else {}
@@ -62,6 +45,10 @@ class Entity():
         self.output_vars = output_vars if output_vars is not None else []
         self.all_equations = all_equations
         self.is_reservoir = False
+
+        # Initialize local variable classifications tracking
+        self.local_variable_classifications = {}  # {var_id: {'classification': 'input'/'output'/'none', 'original_list': 'list_name'}}
+        self.classifications_initialized = False
 
         self.all_included_variables = []
         if entity_id == "Topology" or ">>>" in entity_id:
@@ -175,8 +162,6 @@ class Entity():
         return sorted(list(integrator_eqs.values()))
 
     def get_equations(self):
-        # TODO: Check if something breaks after returning all equations
-        # including the integrators.
         equations = []
         for tree in self.var_eq_forest:
             equations.extend([
@@ -231,16 +216,65 @@ class Entity():
         
         return sorted(list(all_vars))
 
+    def change_classification(self, var_id, classification):
+        print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classification}")
+        self.local_variable_classifications[var_id]["classification"] = classification
+
+        pass
+
+    def build_local_variable_classifications(self, variables=None):
+        """Build local dictionary tracking variable classifications on first-time calculation"""
+        try:
+            # Clear existing classifications
+            self.local_variable_classifications.clear()
+            
+            # Use provided variables dict or get from ontology if available
+            if variables is None and hasattr(self, 'all_equations'):
+                # Try to get variables from equations or other source
+                variables = {}
+            
+            # Classify variables based on their current entity membership
+            for var_id in self.output_vars:
+                self.local_variable_classifications[var_id] = {
+                    'classification': 'output',
+                    'original_list': 'list_outputs'
+                }
+            
+            for var_id in self.input_vars:
+                self.local_variable_classifications[var_id] = {
+                    'classification': 'input', 
+                    'original_list': 'list_inputs'
+                }
+            
+            for var_id in self.get_variables_to_be_instantiated():
+                self.local_variable_classifications[var_id] = {
+                    'classification': 'instantiate',
+                    'original_list': 'list_instantiate'
+                }
+            
+            for var_id in self.get_pending_vars():
+                self.local_variable_classifications[var_id] = {
+                    'classification': 'pending',
+                    'original_list': 'list_not_defined_variables'
+                }
+            
+            for var_id in self.get_integrator_vars():
+                self.local_variable_classifications[var_id] = {
+                    'classification': 'integrator',
+                    'original_list': 'list_integrators'
+                }
+            
+            # Mark that classifications have been initialized
+            self.classifications_initialized = True
+            
+            print(f"Entity {self.entity_id}: Built local variable classifications: {len(self.local_variable_classifications)} variables tracked")
+            
+        except Exception as e:
+            print(f"Error building local variable classifications for entity {self.entity_id}: {str(e)}")
+            self.classifications_initialized = False
+
     def get_input_vars(self):
         """Get input variables (variables not defined by equations)."""
-        #  todo: implement
-        # forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-        #
-        # # Input variables are those not defined by equations and not in init_vars
-        # input_vars = (forest_data['all_variables'] -
-        #              forest_data['equation_defined_vars'] -
-        #              set(getattr(self, 'init_vars', [])))
-        
         return sorted(list(self.input_vars))
 
     def set_input_var(self, var_id, is_input):
@@ -254,7 +288,7 @@ class Entity():
             if var_id in self.input_vars:
                 self.input_vars.remove(var_id)
 
-    def get_output_vars(self, all_variables=None): #todo: needs to filled in
+    def get_output_vars(self, all_variables=None):
         """Get output variables (variables defined by equations).
         
         Args:
@@ -305,7 +339,7 @@ class Entity():
         forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
         equation_defined_vars = set(forest_data['equation_defined_vars'])
         
-        # # Filter out transport variables if all_variables is provided 
+        # # Filter out transport variables if all_variables is provided
         # #NOTE: Not used because the node is not alllowed to have transport variagles
         # if all_variables is not None:
         #     non_transport_vars = set()
@@ -318,7 +352,7 @@ class Entity():
         #             # If variable not found in all_variables, include it (fallback behavior)
         #             non_transport_vars.add(var_id)
         #     equation_defined_vars = non_transport_vars
-        
+
         return sorted(list(equation_defined_vars))
 
     def set_output_var(self, var_id, is_output):
@@ -394,25 +428,7 @@ class Entity():
         init_vars = self.get_init_vars()
         pending_vars = set(all_included_vars) - set(equation_defined_variables) - set(init_vars)
         
-        # # Input variables are those not defined by equations and not in init_vars
-        # input_vars = no_eq_vars - set(getattr(self, 'init_vars', []))
-        #
-        # # Pending variables are those that need to be defined (excluding inputs and init vars)
-        # # In the new dynamic system, pending vars are empty since all undefined vars are inputs
-        # pending_vars = no_eq_vars - input_vars - set(getattr(self, 'init_vars', []))
-        
         return sorted(list(pending_vars))
-
-    # def get_all_variables(self):
-    #     """Get all variables included in the entity (all variables in the entity)"""
-    #     # Use the forest-based approach to ensure consistency
-    #     return self.get_variables()
-
-    # def get_all_included_variables(self):
-    #     """Get all variables included in the entity (all variables in the entity)"""
-    #     # Use the forest-based approach to ensure consistency
-    #     vars = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-    #     return vars['all_variables']
 
     def get_variables_to_be_instantiated(self):
         """Get variables that need to be instantiated.
@@ -421,70 +437,30 @@ class Entity():
         1. Have been marked to be instantiated in the equation interface (init_vars)
         2. Have an RHS that contains the instantiate operator
         """
-        print(f"=== DEBUG: get_variables_to_be_instantiated ===")
-        
         # Start with explicitly marked initialization variables
         instantiation_vars = set(self.init_vars)
-        print(f"init_vars: {self.init_vars}")
-        print(f"Initial instantiation_vars: {instantiation_vars}")
         
         # Check for variables with equations that have instantiate operator
         # Get all variables in the entity
         all_vars = self.get_entity_variables()
-        print(f"All variables in entity: {all_vars}")
         
         for var_id in all_vars:
-            print(f"  Checking variable: {var_id}")
             # Find the defining equation for this variable
             defining_eqs = self.get_eq_for_var(var_id)
-            print(f"    Defining equations: {defining_eqs}")
             
             if defining_eqs:
                 for eq_id in defining_eqs:
-                    print(f"    Checking equation {eq_id}")
                     if eq_id in self.all_equations:
                         equation = self.all_equations[eq_id]
-                        print(f"      Equation type: {type(equation)}")
-                        print(f"      Equation content: {equation}")
                         is_instantiation = equation.is_instantiation_eq()
-                        print(f"      Is instantiation equation: {is_instantiation}")
                         if is_instantiation:
                             instantiation_vars.add(var_id)
-                            print(f"      Added {var_id} to instantiation list")
-                    else:
-                        print(f"      Equation {eq_id} not found in all_equations")
-            else:
-                print(f"    No defining equation found for {var_id}")
-                # Search for instantiation equations in the global equation set
-                print(f"    Searching for instantiation equations for {var_id} in global equations...")
-                for eq_id, equation in self.all_equations.items():
-                    # Check if this equation defines the variable (variable appears as LHS)
-                    if var_id in str(equation.lhs):
-                        print(f"      Found equation {eq_id} that defines {var_id}")
-                        print(f"      Equation type: {type(equation)}")
-                        is_instantiation = equation.is_instantiation_eq()
-                        print(f"      Is instantiation equation: {is_instantiation}")
-                        if is_instantiation:
-                            instantiation_vars.add(var_id)
-                            print(f"      Added {var_id} to instantiation list based on global equation")
-                            break
         
-        result = sorted(list(instantiation_vars))
-        print(f"Final result: {result}")
-        print(f"=== END DEBUG ===")
-        return result
+        return sorted(list(instantiation_vars))
 
     def get_not_defined_variables(self):
         """Get variables that are not yet defined (need instantiation)"""
         return self.get_pending_vars()
-
-    # def get_var_status(self, var_id):
-    #     return [
-    #             self.get_eq_for_var(var_id),
-    #             self.is_input(var_id),
-    #             self.is_output(var_id),
-    #             self.is_init(var_id)
-    #             ]
 
     def is_init(self, var_id):
         return var_id in self.init_vars
@@ -589,8 +565,6 @@ class Entity():
         self.input_vars = list(
                 set(self.input_vars).intersection(all_vars)
                 )
-        # TODO: Verify if this is needed. In principle all output vars should
-        # remain.
         self.output_vars = list(
                 set(self.output_vars).intersection(all_vars)
                 )
@@ -1143,8 +1117,6 @@ class Entity():
         # The original `var_eq_info` is the nodes of the tree representing
         # variables. If the `var_eq_forest` has not been constructed then
         # `var_eq_info` is an empty dict.
-        # TODO Copy only the variable nodes if there are problems with big
-        # trees.
         var_eq_info = {}
         for var_id, eq_id in self.integrators.items():
             var_eq_info[var_id] = [eq_id]
@@ -1153,7 +1125,6 @@ class Entity():
             var_eq_info.update(tree)
 
         # Updating `var_eq_info` with the data in `add_var_eq_info`.
-        # TODO: Change to var_eq_info.update(add_var_eq_info)
         for var_id, equation_ids in add_var_eq_info.items():
             var_eq_info[var_id] = equation_ids
 
@@ -1347,8 +1318,6 @@ class Entity():
         return False
 
     def get_eq_for_var(self, var_id: str) -> Optional[List[str]]:
-        # TODO: Check that the change from returning a str -> List[str] is
-        # not affecting anything else.
         if var_id in self.integrators:
             return [self.integrators[var_id]]
 
@@ -1359,7 +1328,6 @@ class Entity():
         return None
 
     def get_variables_from_equation(self, equation_id: str) -> List[str]:
-        # TODO: Merge with get_eq_for_var
         for tree in self.var_eq_forest:
             if equation_id in tree:
                 return tree[equation_id]
@@ -1490,7 +1458,6 @@ class Entity():
         return var_id in self.get_entity_variables()
 
     def is_interface_ent(self) -> bool:
-        # TODO: Check if we should add a new field (entity type) instead.
         return ">>>" in self.entity_id
 
     def get_type(self) -> Optional[str]:

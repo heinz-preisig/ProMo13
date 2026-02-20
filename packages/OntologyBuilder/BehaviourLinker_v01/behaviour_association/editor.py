@@ -379,66 +379,43 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         except Exception as e:
             log_error("adjust_list_view_size", e, "adjusting list view size")
 
-    def _get_definable_variables(self, variables, already_included):
+    def _get_definable_variables_graph_based(self, variables, already_included, already_defined):
         """
         Find variables that can be defined by equations using only already included variables.
         
-        This implements the generic rule: variables can only be added if they can be 
-        computed from the existing variable set.
+        Uses entity's own equations and dependencies lists for direct dependency analysis.
+        No UI dependencies - pure input → output function.
         
         Args:
             variables (list): All available variables from ontology
-            already_included (set): Variables already included in the entity
+            already_included (set): Variables already included in entity
+            already_defined (set): Variables already defined in entity
             
         Returns:
             list: Variables that can be defined from already included variables
         """
-        if not already_included:
-            # No variables included yet, return empty list (no variables can be defined)
-            return []
-        
         definable_variables = []
         
-        # Get all equations from ontology container
-        if not hasattr(self.ontology_container, 'equation_dictionary'):
-            return definable_variables
+        # Build dependency graph from dependencies lists
+        newly_definable = set()
+
+        equations = self.current_entity.all_equations
+        for eq_id, equation in equations.items():
+            dependencies_set = set(equation.get_dependencies_list())
+            lhs = equation.lhs["global_ID"]
             
-        equation_dict = self.ontology_container.equation_dictionary
+            # If all required variables are available and LHS not already defined
+            if dependencies_set.issubset(already_included) and (lhs not in already_included) and (lhs not in already_defined):
+                newly_definable.add(lhs)
         
-        # Create variable lookup for faster access
-        var_lookup = {var['id']: var for var in variables}
-        
-        # For each variable, check if it can be defined from already included variables
+        # Convert definable variable IDs to variable info objects
         for var_info in variables:
-            var_id = var_info['id']
-            
-            # Skip if variable already included
-            if var_id in already_included:
-                continue
-            
-            # Check if this variable has defining equations
-            if var_id not in self.ontology_container.variables:
-                continue
-                
-            var_equations = self.ontology_container.variables[var_id].get('equations', {})
-            
-            # Check each equation that defines this variable
-            for eq_id in var_equations:
-                if eq_id not in equation_dict:
-                    continue
-                    
-                equation = equation_dict[eq_id]
-                
-                # Get variables required by this equation (RHS variables)
-                required_vars = self._get_equation_required_variables(equation)
-                
-                # Check if all required variables are already included
-                if required_vars.issubset(already_included):
-                    # This variable can be defined by this equation
-                    definable_variables.append(var_info)
-                    break  # Found at least one defining equation, no need to check others
+            if var_info['id'] in newly_definable:
+                definable_variables.append(var_info)
         
         return definable_variables
+
+
     
     def _get_equation_required_variables(self, equation):
         """
@@ -453,7 +430,20 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         required_vars = set()
         
         try:
-            # Handle different equation formats
+            # Try to use the proper variable extraction method if available
+            try:
+                from OntologyBuilder.OntologyEquationEditor.variable_framework import findDependentVariables
+                if hasattr(equation, 'getIncidenceList'):
+                    # Use the proper method to get dependent variables
+                    dependent_vars = findDependentVariables(equation)
+                    for var in dependent_vars:
+                        if var.startswith('V_'):
+                            required_vars.add(var)
+                    return required_vars
+            except ImportError:
+                pass  # Fallback to manual parsing if import fails
+            
+            # Handle different equation formats (fallback)
             if hasattr(equation, 'rhs') and hasattr(equation.rhs, 'get'):
                 # Equation object with rhs dict
                 rhs_content = equation.rhs.get('global_ID', '')
@@ -478,7 +468,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                             required_vars.add(term)
                             
         except Exception as e:
-            log_error("_get_equation_required_variables", e, f"extracting required variables from equation {eq_id}")
+            log_error("_get_equation_required_variables", e, f"extracting required variables from equation")
             
         return required_vars
 
@@ -488,21 +478,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             # No entity type info, return all variables
             return variables
 
-        # First, get variables already included in current entity
-        already_included = set()
-        entity_to_use = self.current_entity
-        
-        # Fallback: try to get entity from ontology_container if current_entity is None
-        if entity_to_use is None and hasattr(self.ontology_container, 'current_entity'):
-            entity_to_use = self.ontology_container.current_entity
-        
-        if entity_to_use and hasattr(entity_to_use, 'get_all_variables'):
-            try:
-                already_included = set(entity_to_use.get_entity_variables())
-            except Exception as e:
-                log_error("_filter_variables_by_rules", e, "getting included variables from entity")
-
-        # Get classification rules
+        # First, get variables already defined in current entity
+        # Use current entity's actual state, not recompute
         classification = VariableClassificationRules.classify_variables(variables, self.entity_type_info)
 
         # Filter based on variable class mode
@@ -526,19 +503,18 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
 
         elif self.variable_class_mode == 'definable':
             # Definable variables mode: only show variables that can be defined from already included variables
-            filtered_variables = self._get_definable_variables(variables, already_included)
+            already_included = set(self.current_entity.get_entity_variables())
+            entity = self.current_entity
+            inputs = entity.get_input_vars()
+            outputs = entity.get_output_vars()
+            instances = entity.get_variables_to_be_instantiated()
+            equation_defined = entity.get_equation_defined_vars()
+            already_defined_variables = set(inputs + outputs + instances + equation_defined)
+            
+            filtered_variables = self._get_definable_variables_graph_based(variables, already_included, already_defined_variables)
         else:
             # Default to state mode for unknown modes
             filtered_variables = classification['allowed_root']
-
-        # Additional filtering: exclude variables already in the entity
-        if already_included:
-            final_filtered = []
-            for var in filtered_variables:
-                if var['id'] not in already_included:
-                    final_filtered.append(var)
-            
-            filtered_variables = final_filtered
 
         return filtered_variables
 
