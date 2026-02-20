@@ -218,7 +218,58 @@ class Entity():
 
     def change_classification(self, var_id, classification):
         print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classification}")
-        self.local_variable_classifications[var_id]["classification"] = classification
+        if var_id not in self.local_variable_classifications:
+            # New variable - initialize classification
+            self.local_variable_classifications[var_id] = {
+                'classification': classification,
+                'original_list': f'list_{classification}'
+            }
+        else:
+            # Existing variable - update classification
+            old_classification = self.local_variable_classifications[var_id]["classification"]
+            self.local_variable_classifications[var_id]["classification"] = classification
+            
+            # Update raw entity lists by moving variable between them
+            if old_classification != classification:
+                self._move_variable_between_lists(var_id, old_classification, classification)
+        
+    def _move_variable_between_lists(self, var_id, old_classification, new_classification):
+        """Move variable from one raw list to another when classification changes."""
+        print(f"DEBUG: Moving {var_id} from {old_classification} to {new_classification}")
+        print(f"DEBUG: Before - init_vars: {self.init_vars}, input_vars: {self.input_vars}")
+        
+        # Remove from old list
+        if old_classification == "input":
+            if var_id in self.input_vars:
+                self.input_vars.remove(var_id)
+                print(f"DEBUG: Removed {var_id} from input_vars")
+        elif old_classification == "output":
+            if var_id in self.output_vars:
+                self.output_vars.remove(var_id)
+                print(f"DEBUG: Removed {var_id} from output_vars")
+        elif old_classification == "instantiate":
+            if var_id in self.init_vars:
+                self.init_vars.remove(var_id)
+                print(f"DEBUG: Removed {var_id} from init_vars")
+        elif old_classification == "pending":
+            # Can't move from pending - it's computed
+            pass
+        
+        # Add to new list
+        if new_classification == "input":
+            if var_id not in self.input_vars:
+                self.input_vars.append(var_id)
+                print(f"DEBUG: Added {var_id} to input_vars")
+        elif new_classification == "output":
+            if var_id not in self.output_vars:
+                self.output_vars.append(var_id)
+                print(f"DEBUG: Added {var_id} to output_vars")
+        elif new_classification == "instantiate":
+            if var_id not in self.init_vars:
+                self.init_vars.append(var_id)
+                print(f"DEBUG: Added {var_id} to init_vars")
+        
+        print(f"DEBUG: After - init_vars: {self.init_vars}, input_vars: {self.input_vars}")
 
         pass
 
@@ -277,6 +328,19 @@ class Entity():
         """Get input variables (variables not defined by equations)."""
         return sorted(list(self.input_vars))
 
+    def get_output_vars(self, all_variables=None):
+        """
+        Get output variables (variables defined by equations or explicitly marked as outputs).
+        
+        Args:
+            all_variables: Optional Dict[str, Variable] to filter out transport variables.
+                          If provided, variables with type 'transport' will be excluded.
+        
+        Returns:
+            List of variable IDs that are output variables (excluding transport variables if all_variables provided)
+        """
+        return sorted(list(self.output_vars))
+
     def set_input_var(self, var_id, is_input):
         """Legacy method for backward compatibility. Consider using forest-based approach."""
         if not hasattr(self, 'input_vars'):
@@ -288,17 +352,41 @@ class Entity():
             if var_id in self.input_vars:
                 self.input_vars.remove(var_id)
 
-    def get_output_vars(self, all_variables=None):
-        """Get output variables (variables defined by equations).
+    def get_pending_vars(self):
+        """Get variables that are not yet defined (need instantiation)."""
+        # Compute directly from current entity state to avoid recursion
+        all_included_vars = self.get_entity_variables()
+        equation_defined_variables = self.get_equation_defined_vars()
+        init_vars = self.get_init_vars()
         
-        Args:
-            all_variables: Optional Dict[str, Variable] to filter out transport variables.
-                          If provided, variables with type 'transport' will be excluded.
+        # Variables that are not in any of the main lists (input, output, instantiate)
+        # These are the truly "pending" variables
+        main_list_vars = set(self.input_vars) | set(self.output_vars) | set(init_vars)
+        pending_vars = set(all_included_vars) - set(equation_defined_variables) - main_list_vars
         
-        Returns:
-            List of variable IDs that are output variables (excluding transport variables if all_variables provided)
-        """
-        return self.get_equation_defined_vars(all_variables)
+        return sorted(list(pending_vars))
+
+    def get_variables_to_be_instantiated(self):
+        """Get variables that need to be instantiated."""
+        # Compute directly from current entity state to avoid recursion
+        instantiation_vars = set(self.init_vars)
+        all_vars = self.get_entity_variables()
+        
+        for var_id in all_vars:
+            defining_eqs = self.get_eq_for_var(var_id)
+            if defining_eqs:
+                for eq_id in defining_eqs:
+                    if eq_id in self.all_equations:
+                        equation = self.all_equations[eq_id]
+                        is_instantiation = equation.is_instantiation_eq()
+                        if is_instantiation:
+                            instantiation_vars.add(var_id)
+        
+        # Exclude variables that are already in input or output lists (mutual exclusivity)
+        main_list_vars = set(self.input_vars) | set(self.output_vars)
+        instantiation_vars = instantiation_vars - main_list_vars
+        
+        return sorted(list(instantiation_vars))
 
     # def get_transport_vars(self, all_variables):
     #     """Get all transport variables in the entity.
@@ -418,45 +506,47 @@ class Entity():
         target_tree[var_id] = []
         print(f"Added {var_id} to tree with empty dependencies")
 
-    def get_pending_vars(self):
-        """Get variables that are not yet defined (need instantiation)."""
-        forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-        
-        # Variables without defining equations
-        all_included_vars = self.get_entity_variables()
-        equation_defined_variables = self.get_equation_defined_vars()
-        init_vars = self.get_init_vars()
-        pending_vars = set(all_included_vars) - set(equation_defined_variables) - set(init_vars)
-        
-        return sorted(list(pending_vars))
+    # OLD IMPLEMENTATION - replaced by unified _get_fixed_lists approach
+    # def get_pending_vars(self):
+    #     """Get variables that are not yet defined (need instantiation)."""
+    #     forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+    #     
+    #     # Variables without defining equations
+    #     all_included_vars = self.get_entity_variables()
+    #     equation_defined_variables = self.get_equation_defined_vars()
+    #     init_vars = self.get_init_vars()
+    #     pending_vars = set(all_included_vars) - set(equation_defined_variables) - set(init_vars)
+    #     
+    #     return sorted(list(pending_vars))
 
-    def get_variables_to_be_instantiated(self):
-        """Get variables that need to be instantiated.
-        
-        These are variables that either:
-        1. Have been marked to be instantiated in the equation interface (init_vars)
-        2. Have an RHS that contains the instantiate operator
-        """
-        # Start with explicitly marked initialization variables
-        instantiation_vars = set(self.init_vars)
-        
-        # Check for variables with equations that have instantiate operator
-        # Get all variables in the entity
-        all_vars = self.get_entity_variables()
-        
-        for var_id in all_vars:
-            # Find the defining equation for this variable
-            defining_eqs = self.get_eq_for_var(var_id)
-            
-            if defining_eqs:
-                for eq_id in defining_eqs:
-                    if eq_id in self.all_equations:
-                        equation = self.all_equations[eq_id]
-                        is_instantiation = equation.is_instantiation_eq()
-                        if is_instantiation:
-                            instantiation_vars.add(var_id)
-        
-        return sorted(list(instantiation_vars))
+    # OLD IMPLEMENTATION - replaced by unified _get_fixed_lists approach
+    # def get_variables_to_be_instantiated(self):
+    #     """Get variables that need to be instantiated.
+    #     
+    #     These are variables that either:
+    #     1. Have been marked to be instantiated in the equation interface (init_vars)
+    #     2. Have an RHS that contains the instantiate operator
+    #     """
+    #     # Start with explicitly marked initialization variables
+    #     instantiation_vars = set(self.init_vars)
+    #     
+    #     # Check for variables with equations that have instantiate operator
+    #     # Get all variables in the entity
+    #     all_vars = self.get_entity_variables()
+    #     
+    #     for var_id in all_vars:
+    #         # Find the defining equation for this variable
+    #         defining_eqs = self.get_eq_for_var(var_id)
+    #         
+    #         if defining_eqs:
+    #             for eq_id in defining_eqs:
+    #                 if eq_id in self.all_equations:
+    #                     equation = self.all_equations[eq_id]
+    #                     is_instantiation = equation.is_instantiation_eq()
+    #                     if is_instantiation:
+    #                         instantiation_vars.add(var_id)
+    #     
+    #     return sorted(list(instantiation_vars))
 
     def get_not_defined_variables(self):
         """Get variables that are not yet defined (need instantiation)"""
