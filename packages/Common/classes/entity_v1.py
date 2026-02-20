@@ -1383,8 +1383,9 @@ class Entity():
             EntityDict: Dictionary containing the information of the
              Entity.
         """
-        # self._gen_init_vars()
-
+        # Apply manual classifications to raw lists before saving
+        self._sync_raw_lists_with_classifications()
+        
         entity_dict = {}
         entity_dict["index_set"] = self.index_set
         entity_dict["integrators"] = self.integrators
@@ -1394,6 +1395,27 @@ class Entity():
         entity_dict["output_vars"] = self.output_vars
 
         return entity_dict
+
+    def _sync_raw_lists_with_classifications(self):
+        """Sync raw lists with current manual classifications before saving."""
+        # Rebuild raw lists based on classifications
+        new_input_vars = []
+        new_output_vars = []
+        new_init_vars = []
+        
+        for var_id, info in self.local_variable_classifications.items():
+            classification = info['classification']
+            if classification == 'input':
+                new_input_vars.append(var_id)
+            elif classification == 'output':
+                new_output_vars.append(var_id)
+            elif classification == 'instantiate':
+                new_init_vars.append(var_id)
+        
+        # Update raw lists with manual classifications
+        self.input_vars = new_input_vars
+        self.output_vars = new_output_vars
+        self.init_vars = new_init_vars
 
     def is_input(self, var_id: str) -> bool:
         if var_id in self.input_vars:
