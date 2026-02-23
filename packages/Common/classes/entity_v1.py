@@ -216,22 +216,62 @@ class Entity():
         
         return sorted(list(all_vars))
 
+    def _apply_manual_classifications(self, base_list, target_classification):
+        """Apply manual classifications to a base list.
+        
+        This method combines the raw base list with manual classification overrides
+        to produce the final list that should be displayed in the GUI.
+        
+        Args:
+            base_list: The raw list (input_vars, output_vars, init_vars, etc.)
+            target_classification: The classification to apply ("input", "output", "instantiate", "pending")
+            
+        Returns:
+            List with manual classifications applied
+        """
+        if not hasattr(self, 'local_variable_classifications'):
+            return base_list
+            
+        result = set(base_list)
+        
+        # Add variables that have manual classification matching target
+        for var_id, classification_info in self.local_variable_classifications.items():
+            if classification_info['classification'] == target_classification:
+                result.add(var_id)
+        
+        # Remove variables that have different manual classifications
+        for var_id in base_list:
+            if var_id in self.local_variable_classifications:
+                if self.local_variable_classifications[var_id]['classification'] != target_classification:
+                    result.discard(var_id)
+        
+        return sorted(list(result))
+
     def change_classification(self, var_id, classification):
+        """Change the classification of a variable.
+        
+        This method updates the manual classification system without modifying raw lists.
+        The raw lists remain unchanged and manual classifications are applied
+        when the GUI requests variable lists.
+        
+        Args:
+            var_id: The variable ID to change classification for
+            classification: The new classification ("input", "output", "instantiate", "pending")
+        """
         print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classification}")
+        
+        # Update manual classification system
         if var_id not in self.local_variable_classifications:
-            # New variable - initialize classification
             self.local_variable_classifications[var_id] = {
                 'classification': classification,
                 'original_list': f'list_{classification}'
             }
         else:
-            # Existing variable - update classification
             old_classification = self.local_variable_classifications[var_id]["classification"]
             self.local_variable_classifications[var_id]["classification"] = classification
-            
-            # Update raw entity lists by moving variable between them
-            if old_classification != classification:
-                self._move_variable_between_lists(var_id, old_classification, classification)
+            # NOTE: We do NOT modify raw lists here
+            # Raw lists are only modified when variables are actually added/removed
+            # Manual classifications are applied when GUI requests lists
         
     def _move_variable_between_lists(self, var_id, old_classification, new_classification):
         """Move variable from one raw list to another when classification changes."""
@@ -326,7 +366,8 @@ class Entity():
 
     def get_input_vars(self):
         """Get input variables (variables not defined by equations)."""
-        return sorted(list(self.input_vars))
+        base_list = sorted(list(self.input_vars))
+        return self._apply_manual_classifications(base_list, "input")
 
     def get_output_vars(self, all_variables=None):
         """
@@ -339,7 +380,15 @@ class Entity():
         Returns:
             List of variable IDs that are output variables (excluding transport variables if all_variables provided)
         """
-        return sorted(list(self.output_vars))
+        base_list = sorted(list(self.output_vars))
+        result = self._apply_manual_classifications(base_list, "output")
+        
+        # Filter out transport variables if all_variables is provided
+        if all_variables is not None:
+            result = [var_id for var_id in result 
+                     if var_id in all_variables and all_variables[var_id].type != 'transport']
+        
+        return result
 
     def set_input_var(self, var_id, is_input):
         """Legacy method for backward compatibility. Consider using forest-based approach."""
@@ -364,7 +413,8 @@ class Entity():
         main_list_vars = set(self.input_vars) | set(self.output_vars) | set(init_vars)
         pending_vars = set(all_included_vars) - set(equation_defined_variables) - main_list_vars
         
-        return sorted(list(pending_vars))
+        # Apply manual classifications for pending
+        return self._apply_manual_classifications(sorted(list(pending_vars)), "pending")
 
     def get_variables_to_be_instantiated(self):
         """Get variables that need to be instantiated."""
@@ -386,7 +436,8 @@ class Entity():
         main_list_vars = set(self.input_vars) | set(self.output_vars)
         instantiation_vars = instantiation_vars - main_list_vars
         
-        return sorted(list(instantiation_vars))
+        # Apply manual classifications for instantiate
+        return self._apply_manual_classifications(sorted(list(instantiation_vars)), "instantiate")
 
     # def get_transport_vars(self, all_variables):
     #     """Get all transport variables in the entity.
