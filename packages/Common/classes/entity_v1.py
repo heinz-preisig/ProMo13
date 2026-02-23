@@ -1,13 +1,10 @@
 """Contains the entity class."""
 import collections
-from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import TypedDict
-
-from typing import Self
 
 from Common.classes import equation
 
@@ -79,7 +76,6 @@ class Entity():
         self.merged_vars = {}
         self.undo_merging = {}
 
-
     def create_variant(self, new_name):
         """Create a variant of this entity with the given name.
 
@@ -128,37 +124,37 @@ class Entity():
 
     def integrators_info(self):
         """Get integrator variable-equation pairs from forest."""
-        forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-        
+        forest_data = self.forest_data  # _get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+
         # Build mapping of variable -> equation for integrators
         integrator_pairs = []
         for equation in forest_data['all_equations']:
-            if (hasattr(self, 'all_equations') and 
-                equation in self.all_equations and 
-                self.all_equations[equation].is_integrator()):
+            if (hasattr(self, 'all_equations') and
+                    equation in self.all_equations and
+                    self.all_equations[equation].is_integrator()):
                 var_id = self.all_equations[equation].lhs["global_ID"]
                 integrator_pairs.append((var_id, equation))
-        
+
         return integrator_pairs
-    
+
     def get_integrator_vars(self):
         """Get integrator variables from forest."""
-        forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+        forest_data = self.forest_data  # _get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
         return sorted(list(forest_data['integrators']))
 
     def get_integrators_eq(self):
         """Get integrator equations from forest."""
-        forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-        
+        forest_data = self.forest_data()
+
         # Build mapping of variable -> equation for integrators
         integrator_eqs = {}
         for equation in forest_data['all_equations']:
-            if (hasattr(self, 'all_equations') and 
-                equation in self.all_equations and 
-                self.all_equations[equation].is_integrator()):
+            if (hasattr(self, 'all_equations') and
+                    equation in self.all_equations and
+                    self.all_equations[equation].is_integrator()):
                 var_id = self.all_equations[equation].lhs["global_ID"]
                 integrator_eqs[var_id] = equation
-        
+
         return sorted(list(integrator_eqs.values()))
 
     def get_equations(self):
@@ -178,7 +174,7 @@ class Entity():
         all_equations = set()
         equation_defined_vars = set()
         integrators = set()
-        
+
         if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
             for tree in self.var_eq_forest:
                 for key, values in tree.items():
@@ -187,33 +183,39 @@ class Entity():
                         # Variables with values are defined by equations
                         if values:
                             equation_defined_vars.add(key)
-                    
+
                     if key.startswith('E_'):
                         all_equations.add(key)
                         # Find integrator equations
-                        if (hasattr(self, 'all_equations') and 
-                            key in self.all_equations and 
-                            self.all_equations[key].is_integrator()):
+                        if (hasattr(self, 'all_equations') and
+                                key in self.all_equations and
+                                self.all_equations[key].is_integrator()):
                             var_id = self.all_equations[key].lhs["global_ID"]
                             integrators.add(var_id)
-        
+
+        init_vars = self.get_init_vars()
+        pending_vars = self._get_raw_pending_vars(all_variables, equation_defined_vars, init_vars)
+        print("================ variable lists =================")
+        print(f"all variables           :{all_variables}")
+        print(f"all equations           :{all_equations}")
+        print(f"equation defined vars   :{equation_defined_vars}")
+        print(f"integrators             :{integrators}")
+        print(f"pending variables       :{pending_vars}")
+        print("================ variable lists =================")
         return {
-            'all_variables': all_variables,
-            'all_equations': all_equations,
-            'equation_defined_vars': equation_defined_vars,
-            'integrators': integrators
-        }
-    
+                'all_variables'        : all_variables,
+                'all_equations'        : all_equations,
+                'equation_defined_vars': equation_defined_vars,
+                'integrators'          : integrators,
+                "pending_variables"    : pending_vars,
+                }
+
     def get_entity_variables(self):
         """Get all variables included in the entity."""
-        forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-        
-        # Combine variables from forest, integrators, and init variables
-        all_vars = set(forest_data['all_variables'])
-        all_vars.update(forest_data['integrators'])
-        # Include init variables that might not be in forest (for instantiation)
-        all_vars.update(set(getattr(self, 'init_vars', [])))
-        
+        # Use stored lists directly - no tree calculation needed
+        all_vars = set(self.input_vars) | set(self.output_vars) | set(self.init_vars)
+        all_vars.update(self.integrators.keys())
+
         return sorted(list(all_vars))
 
     def _apply_manual_classifications(self, base_list, target_classification):
@@ -231,20 +233,20 @@ class Entity():
         """
         if not hasattr(self, 'local_variable_classifications'):
             return base_list
-            
+
         result = set(base_list)
-        
+
         # Add variables that have manual classification matching target
         for var_id, classification_info in self.local_variable_classifications.items():
             if classification_info['classification'] == target_classification:
                 result.add(var_id)
-        
+
         # Remove variables that have different manual classifications
         for var_id in base_list:
             if var_id in self.local_variable_classifications:
                 if self.local_variable_classifications[var_id]['classification'] != target_classification:
                     result.discard(var_id)
-        
+
         return sorted(list(result))
 
     def change_classification(self, var_id, classification):
@@ -259,25 +261,25 @@ class Entity():
             classification: The new classification ("input", "output", "instantiate", "pending")
         """
         print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classification}")
-        
+
         # Update manual classification system
         if var_id not in self.local_variable_classifications:
             self.local_variable_classifications[var_id] = {
-                'classification': classification,
-                'original_list': f'list_{classification}'
-            }
+                    'classification': classification,
+                    'original_list' : f'list_{classification}'
+                    }
         else:
             old_classification = self.local_variable_classifications[var_id]["classification"]
             self.local_variable_classifications[var_id]["classification"] = classification
             # NOTE: We do NOT modify raw lists here
             # Raw lists are only modified when variables are actually added/removed
             # Manual classifications are applied when GUI requests lists
-        
+
     def _move_variable_between_lists(self, var_id, old_classification, new_classification):
         """Move variable from one raw list to another when classification changes."""
         print(f"DEBUG: Moving {var_id} from {old_classification} to {new_classification}")
         print(f"DEBUG: Before - init_vars: {self.init_vars}, input_vars: {self.input_vars}")
-        
+
         # Remove from old list
         if old_classification == "input":
             if var_id in self.input_vars:
@@ -294,7 +296,7 @@ class Entity():
         elif old_classification == "pending":
             # Can't move from pending - it's computed
             pass
-        
+
         # Add to new list
         if new_classification == "input":
             if var_id not in self.input_vars:
@@ -308,7 +310,7 @@ class Entity():
             if var_id not in self.init_vars:
                 self.init_vars.append(var_id)
                 print(f"DEBUG: Added {var_id} to init_vars")
-        
+
         print(f"DEBUG: After - init_vars: {self.init_vars}, input_vars: {self.input_vars}")
 
         pass
@@ -318,54 +320,56 @@ class Entity():
         try:
             # Clear existing classifications
             self.local_variable_classifications.clear()
-            
+
             # Use provided variables dict or get from ontology if available
             if variables is None and hasattr(self, 'all_equations'):
                 # Try to get variables from equations or other source
                 variables = {}
-            
+
             # Classify variables based on their current entity membership
             for var_id in self.output_vars:
                 self.local_variable_classifications[var_id] = {
-                    'classification': 'output',
-                    'original_list': 'list_outputs'
-                }
-            
+                        'classification': 'output',
+                        'original_list' : 'list_outputs'
+                        }
+
             for var_id in self.input_vars:
                 self.local_variable_classifications[var_id] = {
-                    'classification': 'input', 
-                    'original_list': 'list_inputs'
-                }
-            
+                        'classification': 'input',
+                        'original_list' : 'list_inputs'
+                        }
+
             for var_id in self.get_variables_to_be_instantiated():
                 self.local_variable_classifications[var_id] = {
-                    'classification': 'instantiate',
-                    'original_list': 'list_instantiate'
-                }
-            
+                        'classification': 'instantiate',
+                        'original_list' : 'list_instantiate'
+                        }
+
             for var_id in self.get_pending_vars():
                 self.local_variable_classifications[var_id] = {
-                    'classification': 'pending',
-                    'original_list': 'list_not_defined_variables'
-                }
-            
+                        'classification': 'pending',
+                        'original_list' : 'list_not_defined_variables'
+                        }
+
             for var_id in self.get_integrator_vars():
                 self.local_variable_classifications[var_id] = {
-                    'classification': 'integrator',
-                    'original_list': 'list_integrators'
-                }
-            
+                        'classification': 'integrator',
+                        'original_list' : 'list_integrators'
+                        }
+
             # Mark that classifications have been initialized
             self.classifications_initialized = True
-            
-            print(f"Entity {self.entity_id}: Built local variable classifications: {len(self.local_variable_classifications)} variables tracked")
-            
+
+            print(
+                f"Entity {self.entity_id}: Built local variable classifications: {len(self.local_variable_classifications)} variables tracked")
+
         except Exception as e:
             print(f"Error building local variable classifications for entity {self.entity_id}: {str(e)}")
             self.classifications_initialized = False
 
     def get_input_vars(self):
         """Get input variables (variables not defined by equations)."""
+        # Use stored list directly - no tree calculation needed
         base_list = sorted(list(self.input_vars))
         return self._apply_manual_classifications(base_list, "input")
 
@@ -380,14 +384,15 @@ class Entity():
         Returns:
             List of variable IDs that are output variables (excluding transport variables if all_variables provided)
         """
+        # Use stored list directly - no tree calculation needed
         base_list = sorted(list(self.output_vars))
         result = self._apply_manual_classifications(base_list, "output")
-        
+
         # Filter out transport variables if all_variables is provided
         if all_variables is not None:
-            result = [var_id for var_id in result 
-                     if var_id in all_variables and all_variables[var_id].type != 'transport']
-        
+            result = [var_id for var_id in result
+                      if var_id in all_variables and all_variables[var_id].type != 'transport']
+
         return result
 
     def set_input_var(self, var_id, is_input):
@@ -404,24 +409,28 @@ class Entity():
     def get_pending_vars(self):
         """Get variables that are not yet defined (need instantiation)."""
         # Compute directly from current entity state to avoid recursion
-        all_included_vars = self.get_entity_variables()
-        equation_defined_variables = self.get_equation_defined_vars()
-        init_vars = self.get_init_vars()
-        
+        pending_vars = self.pending_vars #_get_raw_pending_vars(self.get_entity_variables(), self.get_equation_defined_vars(), self.get_init_vars())
+
+        # Apply manual classifications for pending
+        return self._apply_manual_classifications(sorted(list(pending_vars)), "pending")
+
+    def _get_raw_pending_vars(self, all_included_vars,equation_defined_variables, init_vars) -> set[str]:
+        # all_included_vars = self.get_entity_variables()
+        # equation_defined_variables = self.get_equation_defined_vars()
+        # init_vars = self.get_init_vars()
+
         # Variables that are not in any of the main lists (input, output, instantiate)
         # These are the truly "pending" variables
         main_list_vars = set(self.input_vars) | set(self.output_vars) | set(init_vars)
         pending_vars = set(all_included_vars) - set(equation_defined_variables) - main_list_vars
-        
-        # Apply manual classifications for pending
-        return self._apply_manual_classifications(sorted(list(pending_vars)), "pending")
+        return pending_vars
 
     def get_variables_to_be_instantiated(self):
         """Get variables that need to be instantiated."""
         # Compute directly from current entity state to avoid recursion
         instantiation_vars = set(self.init_vars)
         all_vars = self.get_entity_variables()
-        
+
         for var_id in all_vars:
             defining_eqs = self.get_eq_for_var(var_id)
             if defining_eqs:
@@ -431,11 +440,11 @@ class Entity():
                         is_instantiation = equation.is_instantiation_eq()
                         if is_instantiation:
                             instantiation_vars.add(var_id)
-        
+
         # Exclude variables that are already in input or output lists (mutual exclusivity)
         main_list_vars = set(self.input_vars) | set(self.output_vars)
         instantiation_vars = instantiation_vars - main_list_vars
-        
+
         # Apply manual classifications for instantiate
         return self._apply_manual_classifications(sorted(list(instantiation_vars)), "instantiate")
 
@@ -475,9 +484,10 @@ class Entity():
         Returns:
             List of variable IDs defined by equations (excluding transport variables if all_variables provided)
         """
-        forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-        equation_defined_vars = set(forest_data['equation_defined_vars'])
-        
+        # Use stored lists directly - no tree calculation needed
+        equation_defined_vars = set(self.output_vars)
+        equation_defined_vars.update(self.integrators.keys())
+
         # # Filter out transport variables if all_variables is provided
         # #NOTE: Not used because the node is not alllowed to have transport variagles
         # if all_variables is not None:
@@ -538,11 +548,11 @@ class Entity():
         """Add a variable to the tree structure."""
         if not hasattr(self, 'var_eq_forest'):
             self.var_eq_forest = []
-        
+
         # Handle empty forest case
         if not self.var_eq_forest:
             self.var_eq_forest = [{}]
-        
+
         # Find first non-empty tree or use first tree
         target_tree = None
         for tree in self.var_eq_forest:
@@ -552,7 +562,7 @@ class Entity():
         if target_tree is None:
             # All trees are empty, use first one
             target_tree = self.var_eq_forest[0]
-        
+
         # Add variable to tree
         target_tree[var_id] = []
         print(f"Added {var_id} to tree with empty dependencies")
@@ -714,11 +724,14 @@ class Entity():
                 )
         # Update stored integrators using dynamic method for consistency
         # This maintains backward compatibility while avoiding duplicate logic
+
+        self.forest_data = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
         integrator_info = self.integrators_info()
         self.integrators = {var_id: eq_id for var_id, eq_id in integrator_info}
-        
+        self.pending_vars = self.forest_data['pending_variables']
+
         # Use the comprehensive list building method to ensure consistency
-        self.build_variable_lists_from_forest()
+        # self.build_variable_lists_from_forest()
 
     # def rebuild_from_components(self, deleted_var_id, dependent_equations, orphaned_variables, cleaned_forest):
     #     """Rebuild entity from scratch after variable deletion.
@@ -881,11 +894,11 @@ class Entity():
         print(f"=== BUILDING VARIABLE LISTS FROM FOREST (LEGACY) ===")
         print(f"All variable lists are now computed dynamically.")
         print(f"Use get_variables(), get_input_vars(), get_output_vars(), etc. directly.")
-        
+
         # Initialize init_vars if not present (only user-defined variables need storage)
         if not hasattr(self, 'init_vars') or not self.init_vars:
             self.init_vars = []
-        
+
         # Show current dynamic values for verification
         print(f"Current dynamic values:")
         print(f"  all_variables: {self.get_entity_variables()}")
@@ -913,7 +926,7 @@ class Entity():
         """
         try:
             print(f"=== RECURSIVE VARIABLE DELETION: {var_id} ===")
-            
+
             # Print tree BEFORE deletion
             print(f"=== TREE BEFORE DELETION ===")
             before = self.all_included_variables
@@ -927,12 +940,12 @@ class Entity():
             else:
                 print("No var_eq_forest found")
             print(f"=== END TREE BEFORE ===")
-            
+
             dependent_equations = set()
             orphaned_variables = set()
             variables_to_delete = {var_id}  # Start with the original variable
             equations_to_delete = set()
-            
+
             # === RECURSIVE DEPENDENCY ANALYSIS ===
             # First, find which tree contains the variable to delete
             target_tree_idx = None
@@ -942,25 +955,26 @@ class Entity():
                         target_tree_idx = tree_idx
                         print(f"    Found {var_id} in tree {tree_idx}")
                         break
-            
+
             if target_tree_idx is None:
                 print(f"    Variable {var_id} not found in any tree")
                 return False, f"Variable {var_id} not found in any tree", set(), set()
-            
+
             changed = True
             iteration = 0
-            
+
             while changed and iteration < 10:  # Prevent infinite loops
                 changed = False
                 iteration += 1
-                print(f"  Iteration {iteration}: vars_to_delete={variables_to_delete}, equations_to_delete={equations_to_delete}")
-                
+                print(
+                    f"  Iteration {iteration}: vars_to_delete={variables_to_delete}, equations_to_delete={equations_to_delete}")
+
                 # Only search within the target tree, not across all trees
                 current_equations = set()
                 if hasattr(self, 'var_eq_forest') and self.var_eq_forest and target_tree_idx is not None:
                     tree = self.var_eq_forest[target_tree_idx]
                     print(f"    Analyzing tree {target_tree_idx} for equations containing {variables_to_delete}...")
-                    
+
                     # Find equations that depend on current variables to delete
                     for var_key, var_values in tree.items():
                         if var_key.startswith('V_') and var_key in variables_to_delete:
@@ -969,7 +983,7 @@ class Entity():
                                 if eq.startswith('E_'):
                                     current_equations.add(eq)
                                     print(f"        Found {var_key} depends on {eq}: {var_values}")
-                    
+
                     # Also find equations that contain variables to delete
                     for eq_key, eq_values in tree.items():
                         if eq_key.startswith('E_'):
@@ -978,19 +992,19 @@ class Entity():
                             if vars_in_eq:
                                 current_equations.add(eq_key)
                                 print(f"        Found {eq_key} contains {vars_in_eq}: {eq_values}")
-                
+
                 if current_equations - equations_to_delete:
                     new_eqs = current_equations - equations_to_delete
                     equations_to_delete.update(new_eqs)
                     changed = True
                     print(f"    Found new equations to delete: {new_eqs}")
-                
+
                 # Find all variables that appear in equations to delete (within target tree only)
                 current_variables = set()
                 if hasattr(self, 'var_eq_forest') and self.var_eq_forest and target_tree_idx is not None:
                     tree = self.var_eq_forest[target_tree_idx]
                     print(f"    Analyzing tree {target_tree_idx} for variables in equations {equations_to_delete}...")
-                    
+
                     # Find variables that appear in equations to delete
                     for eq_key, eq_values in tree.items():
                         if eq_key in equations_to_delete:
@@ -999,7 +1013,7 @@ class Entity():
                             for var in vars_in_eq:
                                 current_variables.add(var)
                             print(f"        Found variables in {eq_key}: {vars_in_eq}")
-                    
+
                     # Find variables that depend on equations to delete (reverse dependency)
                     for var_key, var_values in tree.items():
                         if var_key.startswith('V_'):
@@ -1008,22 +1022,22 @@ class Entity():
                             if eq_dependencies:
                                 current_variables.add(var_key)
                                 print(f"        Found {var_key} depends on {eq_dependencies}: {var_values}")
-                
+
                 if current_variables - variables_to_delete:
                     new_vars = current_variables - variables_to_delete
                     variables_to_delete.update(new_vars)
                     changed = True
                     print(f"    Found new variables to delete: {new_vars}")
-            
+
             print(f"Final sets after {iteration} iterations:")
             print(f"  Variables to delete: {variables_to_delete}")
             print(f"  Equations to delete: {equations_to_delete}")
-            
+
             # Ensure we always have at least the original variable
             if var_id not in variables_to_delete:
                 variables_to_delete.add(var_id)
                 print(f"  Added original variable {var_id} to deletion set")
-            
+
             # === STEP 1: Remove all variables to delete (only from target tree) ===
             print(f"Removing {len(variables_to_delete)} variables from tree {target_tree_idx}...")
             if hasattr(self, 'var_eq_forest') and self.var_eq_forest and target_tree_idx is not None:
@@ -1033,7 +1047,7 @@ class Entity():
                 for var in variables_to_remove:
                     del tree[var]
                     print(f"  Removed variable {var} from tree {target_tree_idx}")
-            
+
             # === STEP 2: Remove all equations to delete (only from target tree) ===
             print(f"Removing {len(equations_to_delete)} equations from tree {target_tree_idx}...")
             if hasattr(self, 'var_eq_forest') and self.var_eq_forest and target_tree_idx is not None:
@@ -1042,7 +1056,7 @@ class Entity():
                 for eq in equations_to_remove:
                     del tree[eq]
                     print(f"  Removed equation {eq} from tree {target_tree_idx}")
-            
+
             # === STEP 3: Clean up any remaining references (only in target tree) ===
             # Remove deleted variables from any remaining equation definitions in target tree
             if hasattr(self, 'var_eq_forest') and self.var_eq_forest and target_tree_idx is not None:
@@ -1053,15 +1067,16 @@ class Entity():
                         filtered_values = [v for v in values if v not in variables_to_delete]
                         if len(filtered_values) != len(values):
                             tree[key] = filtered_values
-                            print(f"  Cleaned equation {key}: removed {len(values) - len(filtered_values)} deleted variables")
-            
+                            print(
+                                f"  Cleaned equation {key}: removed {len(values) - len(filtered_values)} deleted variables")
+
             # === STEP 4: Update integrators ===
             if hasattr(self, 'integrators'):
                 integrators_to_remove = variables_to_delete.intersection(self.integrators.keys())
                 for var in integrators_to_remove:
                     del self.integrators[var]
                     print(f"  Removed {var} from integrators")
-            
+
             # === STEP 4.5: Remove deleted variables from all lists ===
             # Always remove deleted variables from lists, not just when tree is empty
             if hasattr(self, 'init_vars'):
@@ -1079,10 +1094,10 @@ class Entity():
                 for var in output_vars_to_remove:
                     self.output_vars.remove(var)
                     print(f"  Removed {var} from output_vars")
-            
+
             # === STEP 5: Update consistency ===
             self.update_var_eq_tree()
-            
+
             # === STEP 5.5: Clear variable lists if tree is empty ===
             if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
                 tree_is_empty = all(len(tree) == 0 for tree in self.var_eq_forest)
@@ -1096,11 +1111,11 @@ class Entity():
                         self.output_vars = []
                     if hasattr(self, 'integrators'):
                         self.integrators = {}
-            
+
             # === STEP 6: Force regeneration of all lists from tree ===
             print("Regenerating lists from tree...")
             # The lists will be regenerated by the existing dynamic methods when get_all_variables() is called
-            
+
             # Print tree AFTER deletion
             print(f"=== TREE AFTER DELETION ===")
             if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
@@ -1113,25 +1128,25 @@ class Entity():
             print(f"=== END TREE AFTER ===")
             after = self.all_included_variables
             print(f"After deletion: {after}")
-            
+
             # === STEP 6: Build summary message ===
             orphaned_variables = variables_to_delete - {var_id}  # All other variables are "orphaned"
             dependent_equations = equations_to_delete
-            
+
             message = f"Deleted variable {var_id}"
             if dependent_equations:
                 message += f" and {len(dependent_equations)} dependent equation(s)"
             if orphaned_variables:
                 message += f" and {len(orphaned_variables)} additional variable(s)"
-            
+
             print(f"Recursive deletion complete: {message}")
             print(f"  - Original variable: {var_id}")
             print(f"  - Additional variables: {orphaned_variables}")
             print(f"  - Dependent equations: {dependent_equations}")
             print(f"  - Total iterations: {iteration}")
-            
+
             return True, message, dependent_equations, orphaned_variables
-            
+
         except Exception as e:
             print(f"Error in delete_variable_with_dependencies: {e}")
             return False, f"Error deleting variable: {str(e)}", set(), set()
@@ -1326,7 +1341,7 @@ class Entity():
                 if not_in_forest:
                     # Adding the variable to the tree
                     curr_tree[child_var_id] = []
-                    
+
                     # Check if this dependent variable has an instantiation equation
                     # If so, add it to init_vars so it will be included in variables to be instantiated
                     for eq_id, equation in self.all_equations.items():
@@ -1388,12 +1403,12 @@ class Entity():
             # Ensure init_vars exists as a list
             if not hasattr(self, 'init_vars'):
                 self.init_vars = []
-            
+
             # Add new instantiation variables to init_vars
             current_init_vars = set(self.init_vars)
             current_init_vars.update(self._temp_instantiation_vars)
             self.init_vars = sorted(list(current_init_vars))
-            
+
             # Clean up temporary set
             delattr(self, '_temp_instantiation_vars')
 
@@ -1436,7 +1451,7 @@ class Entity():
         """
         # Apply manual classifications to raw lists before saving
         self._sync_raw_lists_with_classifications()
-        
+
         entity_dict = {}
         entity_dict["index_set"] = self.index_set
         entity_dict["integrators"] = self.integrators
@@ -1453,7 +1468,7 @@ class Entity():
         new_input_vars = []
         new_output_vars = []
         new_init_vars = []
-        
+
         for var_id, info in self.local_variable_classifications.items():
             classification = info['classification']
             if classification == 'input':
@@ -1462,7 +1477,7 @@ class Entity():
                 new_output_vars.append(var_id)
             elif classification == 'instantiate':
                 new_init_vars.append(var_id)
-        
+
         # Update raw lists with manual classifications
         self.input_vars = new_input_vars
         self.output_vars = new_output_vars
