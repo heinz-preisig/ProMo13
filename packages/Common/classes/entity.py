@@ -381,7 +381,7 @@ class Entity():
         
         # Add variable to tree
         target_tree[var_id] = []
-        print(f"Added {var_id} to tree with empty dependencies")
+        print(f"Added {var_id} to tree with empty dependencies")  #todo: check what's going on
 
     def get_pending_vars(self):
         """Get variables that are not yet defined (need instantiation)."""

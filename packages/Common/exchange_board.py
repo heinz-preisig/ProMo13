@@ -35,8 +35,8 @@ from pathlib import Path
 from PyQt5 import QtWidgets
 
 from Common.classes.equation import Equation
-from Common.classes.io import load_entities_from_file
-from Common.classes.io import load_var_idx_eq_from_file
+from Common.classes.io import load_entities_from_file    #todo: eliminate
+from Common.classes.io import load_var_idx_eq_from_file  #todo: eliminate
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import M_None
 from Common.common_resources import PROMO_IRI_PREFIX

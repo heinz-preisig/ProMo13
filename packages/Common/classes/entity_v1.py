@@ -527,6 +527,7 @@ class Entity():
         if is_init:
             if var_id not in self.init_vars:
                 self.init_vars.append(var_id)
+                self.change_classification(var_id,"instantiate")
                 # Also add to tree structure
                 self._add_variable_to_tree(var_id)
         else:
@@ -565,7 +566,7 @@ class Entity():
 
         # Add variable to tree
         target_tree[var_id] = []
-        print(f"Added {var_id} to tree with empty dependencies")
+        print(f"Added {var_id} to tree with empty dependencies in _add_variable_to_tree") # todo: check what's going on
 
     # OLD IMPLEMENTATION - replaced by unified _get_fixed_lists approach
     # def get_pending_vars(self):
