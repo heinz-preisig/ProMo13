@@ -216,6 +216,7 @@ class EntityEditorBackEnd(QObject):
                 if hasattr(self, 'entity_frontend') and self.entity_frontend:
                     if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
                         existing_entity = self.entity_frontend.current_entity
+                        existing_entity.change_classification(root_variable,"none") # Note: here was the problem
 
                 # Create entity data structure
                 entity_data = {
@@ -307,7 +308,7 @@ class EntityEditorBackEnd(QObject):
 
                         # Generate the variable-equation forest using Entity's method
                         entity.generate_var_eq_forest(var_eq_assignments)
-                        entity.update_var_eq_tree()
+                        entity.update_var_eq_tree()     # Note: update on creation
 
                         # Update entity_data with the Entity object - lists are managed internally
                         entity_data.update({

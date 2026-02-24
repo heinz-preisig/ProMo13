@@ -422,7 +422,7 @@ class Entity():
         # Variables that are not in any of the main lists (input, output, instantiate)
         # These are the truly "pending" variables
         main_list_vars = set(self.input_vars) | set(self.output_vars) | set(init_vars)
-        pending_vars = set(all_included_vars) - set(equation_defined_variables) - main_list_vars
+        pending_vars = set(all_included_vars) - set(equation_defined_variables) -  set(self.input_vars)
         return pending_vars
 
     def get_variables_to_be_instantiated(self):
