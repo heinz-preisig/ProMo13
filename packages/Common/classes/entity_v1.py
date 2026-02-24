@@ -116,7 +116,12 @@ class Entity():
 
     def get_integrator_vars(self):
         """Get integrator variables from forest."""
-        forest_data = self.forest_data  # _get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+        if hasattr(self, 'forest_data') and self.var_eq_forest:
+            forest_data = self.forest_data  #
+        else:
+            forest_data  = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+            self.forest_data = forest_data
+
         return sorted(list(forest_data['integrators']))
 
     def get_integrators_eq(self):
@@ -189,9 +194,13 @@ class Entity():
 
     def get_entity_variables(self):
         """Get all variables included in the entity."""
-        # Use stored lists directly - no tree calculation needed
-        all_vars = set(self.input_vars) | set(self.output_vars) | set(self.init_vars)
+        # Get variables from explicit lists first
+        all_vars = set(self.input_vars) | set(self.output_vars) | set(self.init_vars) | set(self.get_equation_defined_vars())
         all_vars.update(self.integrators.keys())
+        
+        # Add equation-defined variables from forest (this catches variables like V_154 that have equations but aren't yet classified)
+        equation_defined_from_forest = set(self.get_equation_defined_vars())
+        all_vars.update(equation_defined_from_forest)
 
         return sorted(list(all_vars))
 
@@ -208,6 +217,7 @@ class Entity():
         Returns:
             List with manual classifications applied
         """
+        # print(">>>>>>>>>>>>> fixing list")
         if not hasattr(self, 'local_variable_classifications'):
             return base_list
 
@@ -237,7 +247,7 @@ class Entity():
             var_id: The variable ID to change classification for
             classification: The new classification ("input", "output", "instantiate", "pending")
         """
-        print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classification}")
+        # print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classification}")
 
         # Update manual classification system
         if var_id not in self.local_variable_classifications:
@@ -337,8 +347,8 @@ class Entity():
             # Mark that classifications have been initialized
             self.classifications_initialized = True
 
-            print(
-                f"Entity {self.entity_id}: Built local variable classifications: {len(self.local_variable_classifications)} variables tracked")
+            # print(
+            #     f"Entity {self.entity_id}: Built local variable classifications: {len(self.local_variable_classifications)} variables tracked")
 
         except Exception as e:
             print(f"Error building local variable classifications for entity {self.entity_id}: {str(e)}")
@@ -386,7 +396,11 @@ class Entity():
     def get_pending_vars(self):
         """Get variables that are not yet defined (need instantiation)."""
         # Compute directly from current entity state to avoid recursion
-        pending_vars = self.pending_vars #_get_raw_pending_vars(self.get_entity_variables(), self.get_equation_defined_vars(), self.get_init_vars())
+        try:
+            pending_vars = self.pending_vars
+        except:
+            # a = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
+            pending_vars = self._get_raw_pending_vars(self.get_entity_variables(), self.get_equation_defined_vars(), self.get_init_vars())
 
         # Apply manual classifications for pending
         return self._apply_manual_classifications(sorted(list(pending_vars)), "pending")
@@ -429,8 +443,8 @@ class Entity():
     def get_equation_defined_vars(self, all_variables=None):
         """Get variables that are defined by equations.
         
-        This is the explicit method for accessing equation-defined variables.
-        Returns variables that have defining equations in the var_eq_forest.
+        This method extracts variables that have defining equations in var_eq_forest,
+        providing a comprehensive view of equation-defined variables.
         
         Args:
             all_variables: Optional Dict[str, Variable] to filter out transport variables.
@@ -439,23 +453,27 @@ class Entity():
         Returns:
             List of variable IDs defined by equations (excluding transport variables if all_variables provided)
         """
-        # Use stored lists directly - no tree calculation needed
-        equation_defined_vars = set(self.output_vars)
-        equation_defined_vars.update(self.integrators.keys())
-
-        # # Filter out transport variables if all_variables is provided
-        # #NOTE: Not used because the node is not alllowed to have transport variagles
-        # if all_variables is not None:
-        #     non_transport_vars = set()
-        #     for var_id in equation_defined_vars:
-        #         if var_id in all_variables:
-        #             var_obj = all_variables[var_id]
-        #             if hasattr(var_obj, 'type') and var_obj.type != 'transport':
-        #                 non_transport_vars.add(var_id)
-        #         else:
-        #             # If variable not found in all_variables, include it (fallback behavior)
-        #             non_transport_vars.add(var_id)
-        #     equation_defined_vars = non_transport_vars
+        # Get equation-defined variables from forest (comprehensive approach)
+        equation_defined_vars = set()
+        
+        if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+            for tree in self.var_eq_forest:
+                for key, values in tree.items():
+                    if key.startswith('V_') and values:  # Variable with equations
+                        equation_defined_vars.add(key)
+        
+        # Filter out transport variables if all_variables is provided
+        if all_variables is not None:
+            non_transport_vars = set()
+            for var_id in equation_defined_vars:
+                if var_id in all_variables:
+                    var_obj = all_variables[var_id]
+                    if hasattr(var_obj, 'type') and var_obj.type != 'transport':
+                        non_transport_vars.add(var_id)
+                else:
+                    # If variable not found in all_variables, include it (fallback behavior)
+                    non_transport_vars.add(var_id)
+            equation_defined_vars = non_transport_vars
 
         return sorted(list(equation_defined_vars))
 
@@ -654,7 +672,7 @@ class Entity():
 
             # Print tree BEFORE deletion
             print(f"=== TREE BEFORE DELETION ===")
-            before = self.all_included_variables
+            before = self.get_entity_variables()
             print(f"Before deletion: {before}")
 
             if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
@@ -851,7 +869,7 @@ class Entity():
             else:
                 print("No var_eq_forest found after deletion")
             print(f"=== END TREE AFTER ===")
-            after = self.all_included_variables
+            after = self.get_entity_variables()
             print(f"After deletion: {after}")
 
             # === STEP 6: Build summary message ===

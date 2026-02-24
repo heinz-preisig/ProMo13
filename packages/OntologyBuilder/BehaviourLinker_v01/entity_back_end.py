@@ -663,7 +663,7 @@ class EntityEditorBackEnd(QObject):
 
                     # Ensure forest structure exists before deletion
                     if not hasattr(entity, 'var_eq_forest') or not entity.var_eq_forest:
-                        entity.generate_var_eq_forest({})
+                        entity.var_eq_forest = [{}]  # Initialize with empty forest
 
                     # Use the enhanced variable deletion with dependency analysis
                     success, message, dependent_equations, orphaned_variables = handle_variable_deletion_with_dependencies(entity, var_id)
