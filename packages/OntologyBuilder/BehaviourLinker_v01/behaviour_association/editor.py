@@ -170,7 +170,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         UISettings.configure_list_widget(self.ui.listVariables, 'variable_selection')
         
         # Additional QListView-specific configuration for icon display
-        self.ui.listVariables.setIconSize(QtCore.QSize(32, 32))  # Set icon size
+        # Note: Icon size is already set by UISettings.configure_list_widget() above
         self.ui.listVariables.setUniformItemSizes(True)  # Ensure uniform item sizes
         self.ui.listVariables.setViewMode(QtWidgets.QListView.ListMode)  # Ensure list mode
         
@@ -353,9 +353,16 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             if item_count == 0:
                 return
             
+            # Get the actual icon size from UI settings or current widget
+            icon_size = self.ui.listVariables.iconSize()
+            icon_height = icon_size.height()
+            
             # Get font metrics for height calculation
             font_metrics = QtGui.QFontMetrics(self.ui.listVariables.font())
-            item_height = max(32, font_metrics.height() + 8)  # Icon height or text height + padding
+            text_height = font_metrics.height() + 8  # Text height + padding
+            
+            # Use the larger of icon height or text height
+            item_height = max(icon_height, text_height)
             
             # Calculate total height with some padding
             total_height = item_height * item_count + 20  # 20px padding
@@ -365,7 +372,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             for row in range(item_count):
                 item = model.item(row)
                 if item:
-                    text_width = font_metrics.width(item.text()) + 50  # 50px for icon + padding
+                    text_width = font_metrics.width(item.text()) + icon_size.width() + 20  # icon width + padding
                     max_width = max(max_width, text_width)
             
             # Set the size (but respect reasonable limits)
@@ -399,13 +406,23 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         # Build dependency graph from dependencies lists
         newly_definable = set()
 
+        # find set of constants
+        constant_vars = set()
+        for var in variables:
+            type = var["data"]["type"]
+            if type == "constant":
+                constant_vars.add(var["id"])
+
+            pass
+
         equations = self.current_entity.all_equations
         for eq_id, equation in equations.items():
             dependencies_set = set(equation.get_dependencies_list())
             lhs = equation.lhs["global_ID"]
+            reduced_dependencies_set = dependencies_set - ( dependencies_set and constant_vars)
             
             # If all required variables are available and LHS not already defined
-            if dependencies_set.issubset(already_included) and (lhs not in already_included) and (lhs not in already_defined):
+            if reduced_dependencies_set.issubset(already_included) and (lhs not in already_included) and (lhs not in already_defined):
                 newly_definable.add(lhs)
         
         # Convert definable variable IDs to variable info objects

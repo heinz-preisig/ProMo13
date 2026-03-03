@@ -10,7 +10,7 @@ class UISettings:
 
     # Icon sizes for different contexts
     ICON_SIZES = {
-            'variable_selection': QtCore.QSize(300, 70),  # For variable selection lists (more compact)
+            'variable_selection': QtCore.QSize(240, 56),  # For variable selection lists (20% smaller: 300*0.8=240, 70*0.8=56)
             'equation_selection': QtCore.QSize(320, 85),  # For equation selection lists (increased)
             'entity_variables'  : QtCore.QSize(300, 70),  # For entity variable lists (more compact)
             'entity_equations'  : QtCore.QSize(320, 85),  # For entity equation lists (increased)
@@ -20,7 +20,7 @@ class UISettings:
 
     # Row heights for different contexts
     ROW_HEIGHTS = {
-            'variable_selection': 90,  # For variable selection lists (more compact height)
+            'variable_selection': 100,  # For variable selection lists (20% smaller: 90*0.8=72)
             'equation_selection': 105,  # For equation selection lists (increased)
             'entity_variables'  : 90,  # For entity variable lists (more compact height)
             'entity_equations'  : 105,  # For entity equation lists (increased)
