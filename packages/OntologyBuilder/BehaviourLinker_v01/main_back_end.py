@@ -611,8 +611,11 @@ class BehaviourLinerBackEnd(QObject):
             category = self.entity_type.get('category')
             entity_type = self.entity_type.get('entity type')
 
-            # TODO: build limiting list to avoid duplication
-            task = UI_GetString("provide a name for the entity")
+            # Get existing entity names for this entity type to use as limiting list
+            existing_names = self.get_existing_entity_names_for_type(network, category, entity_type)
+
+            # Create name dialog with limiting list to prevent duplicates
+            task = UI_GetString("provide a name for the entity", limiting_list=existing_names)
             result = task.exec_()
             
             # Check if dialog was accepted (not rejected or closed)
@@ -659,6 +662,31 @@ class BehaviourLinerBackEnd(QObject):
             log_error("generate_entity_from_class_definition", e, "generating entity structure")
             self.send_message_to_main_frontend("error", {"error": str(e)})
             return False
+
+    def get_existing_entity_names_for_type(self, network, category, entity_type):
+        """Get all existing entity names for a specific entity type"""
+        try:
+            existing_names = []
+            
+            # Iterate through all entities to find matching ones
+            for entity_id, entity_obj in self.all_entities.items():
+                # Parse entity_id to extract components
+                if ">" not in entity_id:  # Skip arc entities which contain ">"
+                    parts = entity_id.split('.')
+                    if len(parts) == 4:
+                        entity_net, entity_cat, entity_type_name, entity_name = parts
+                        
+                        # Check if this entity matches the requested type
+                        if (entity_net == network and 
+                            entity_cat == category and 
+                            entity_type_name == entity_type):
+                            existing_names.append(entity_name)
+            
+            return existing_names
+            
+        except Exception as e:
+            log_error("get_existing_entity_names_for_type", e, f"getting existing names for {network}.{category}.{entity_type}")
+            return []
 
     def get_variables_for_entity_type(self, network, category, entity_type):
         """Get all variables that belong to a specific entity type"""
