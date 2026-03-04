@@ -327,6 +327,7 @@ class ProMoExchangeBoard():
         #
         # ............. coded list of coded arc types token|mechanism|nature
         self.arc_type_list = self.__makeArcTypesList()
+        self.arc_entity_types = self.__makeArcEntityTypes()
 
         self.object_key_list_networks, \
             self.object_key_list_intra, \
@@ -1002,7 +1003,7 @@ class ProMoExchangeBoard():
         return node_type_list
 
     def __makeArcTypesList(self):
-        arcs = self.__makeArcTypesInLeaveNetworksDictCoded()
+        arcs = self.__makeArcTypesInLeaveNetworksDictCoded(self.list_leave_networks)
         leave_nws = self.list_leave_networks
         all_arcs = []
         for nw in leave_nws:
@@ -1012,6 +1013,19 @@ class ProMoExchangeBoard():
             all_arcs.extend(arcs[cnw])
         return sorted(set(all_arcs))
 
+    def __makeArcEntityTypes(self):
+        arc_types = self.__makeArcTypesInLeaveNetworksDictCoded(self.list_inter_branches)
+        # Note: this is a fix to maintain compatibility with the automaton edidor
+        nws = self.list_inter_branches
+        arc_entity_types = {}
+        for nw in nws:
+            try:
+                arc_entity_types[nw] = arc_types[nw]
+            except:
+                pass
+        pass
+        return arc_entity_types
+
     # def __makeNodeTypesInNetworksDict(self):
     #   # RULE: this is a generation rule for graph objects nodes
     #   leave_nws = self.list_leave_networks
@@ -1020,13 +1034,13 @@ class ProMoExchangeBoard():
     #     nodetypes[nw] = list(self.ontology_tree[nw]["structure"]["node"].keys())
     #   return nodetypes
 
-    def __makeArcTypesInLeaveNetworksDictCoded(self):
+    def __makeArcTypesInLeaveNetworksDictCoded(self, networks):
         # RULE: this is a generation rule for graph objects arcs -- the term "transport" can be obtained from behaviour
         # Rule: continue -- arc self.ontology[nw]['behaviour']['arc'][0]  but may have to be more
         # RULE: continue -- current approach hard wired the term 'transport'
 
         arcs = {}
-        for nw in self.list_leave_networks:
+        for nw in networks: #self.list_leave_networks:
             arcs_in_network = []
             for token in self.ontology_tree[nw]["structure"]["arc"]:
                 for mechanism in self.ontology_tree[nw]["structure"]["arc"][token]:

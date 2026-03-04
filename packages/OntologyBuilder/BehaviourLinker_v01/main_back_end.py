@@ -134,13 +134,19 @@ class BehaviourLinerBackEnd(QObject):
         try:
             # Prepare data for tree update
             node_entity_types = {}
+            arc_entity_types = {}
 
             # Extract entity types from ontology
             if hasattr(self.ontology_container, 'node_entity_types'):
                 node_entity_types = self.ontology_container.node_entity_types
+            
+            # Extract arc entity types from ontology
+            if hasattr(self.ontology_container, 'arc_type_list'):
+                arc_entity_types = self.ontology_container.arc_type_list
 
             data = {
                     "node_entity_types": node_entity_types,
+                    "arc_entity_types"  : arc_entity_types,
                     "all_entities"     : self.all_entities
                     }
 
@@ -432,13 +438,14 @@ class BehaviourLinerBackEnd(QObject):
         self.initial_equation_list = sorted(self.ontology_container.equation_dictionary.keys())
         # all possible entity types
         self.node_entity_types = self.ontology_container.node_entity_types
-        self.arc_entity_types = self.ontology_container.list_arc_objects
+        self.arc_entity_types = self.ontology_container.arc_entity_types
 
         # load all instances
         self.all_entities = self.load_entities_from_file(self.ontology_name)
 
         self.send_message_to_main_frontend(event="make_tree", data={
                 "node_entity_types": self.node_entity_types,
+                "arc_entity_types" : self.arc_entity_types,
                 "all_entities"     : self.all_entities
                 })
         pass

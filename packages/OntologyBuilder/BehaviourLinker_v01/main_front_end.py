@@ -125,6 +125,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
         # Extract node_entity_types and all_entities from the new data structure
         node_entity_types = data.get("node_entity_types", {})
+        arc_entity_types = data.get("arc_entity_types", {})
         all_entities = data.get("all_entities", {})
 
         # Define colors (same as HAP version)
@@ -138,9 +139,10 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         self.ui.tree_entities.setModel(tree_model)
         # print("Created new tree model")
 
-        # Extract networks from node_entity_types data
+        # Extract networks from node_entity_types and arc_entity_types data
         networks = set(node_entity_types.keys())
-        # Extract networks from node_entity_types data
+        networks.update(arc_entity_types.keys())
+        # Extract networks from both entity types data
 
         network_items = {}
 
@@ -165,7 +167,12 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 net_item.appendRow(cat_item)
 
                 # Get entity types for this network from the data
-                entity_types = node_entity_types.get(net, [])
+                if category == 'node':
+                    entity_types = node_entity_types.get(net, [])
+                elif category == 'arc':
+                    entity_types = arc_entity_types.get(net, [])
+                else:
+                    entity_types = []
                 # print(f"Entity types for {net}.{category}: {entity_types}")
 
                 # Create type items
