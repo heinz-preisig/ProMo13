@@ -916,8 +916,11 @@ class Entity():
         #       tree.
         # """
         # TODO: Check if there is a simpler way to add only one equation.
-        # Creates a new forest
-        self.temp_var_eq_forest = []
+        # FIXED: Preserve existing forest and add new relationships instead of rebuilding from scratch
+        
+        # Create a copy of the existing forest to work with
+        import copy
+        self.temp_var_eq_forest = copy.deepcopy(self.var_eq_forest)
 
         # The original `var_eq_info` is the nodes of the tree representing
         # variables. If the `var_eq_forest` has not been constructed then
@@ -935,10 +938,20 @@ class Entity():
 
         # Adding the roots for all trees. The roots are always the
         # output variables.
+        # FIXED: Check if tree already exists before creating new one
         for var_id in self.output_vars:
-            self.temp_var_eq_forest.append({
-                    var_id: []
-                    })
+            # Find if this variable already has a tree in the preserved forest
+            tree_exists = False
+            for tree in self.temp_var_eq_forest:
+                if var_id in tree:
+                    tree_exists = True
+                    break
+            
+            # Only create new tree if variable doesn't already have one
+            if not tree_exists:
+                self.temp_var_eq_forest.append({
+                        var_id: []
+                        })
 
         # Initially only the root variables that have assigned equations
         # are added to the queue.

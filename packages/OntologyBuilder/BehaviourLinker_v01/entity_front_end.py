@@ -104,6 +104,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ontology_container = None
         self.selected_entity_type = None
         self.current_entity_data = None
+        
+        # Edit mode tracking variables
+        self.is_edit_mode = False
+        self.original_entity_id = None
+        self.original_entity = None
+        
         global changed
         
         # Setup click timer for double-click detection
@@ -771,7 +777,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             makeMessageBox(f"Error saving entity: {str(e)}")
 
     def on_pushCancle_pressed(self):
-        """Handle Cancel button - close without saving, discarding all changes"""
+        """Handle Cancel button - close without saving, discarding all changes
+        
+        In edit mode, this discards the copy and preserves the original entity unchanged.
+        In create mode, this discards the new entity being created.
+        """
         global changed
         try:
             # Reset the changed flag without prompting
@@ -779,6 +789,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.markSaved()  # Update UI to show saved state
 
             # Close the window immediately
+            # The copy (if in edit mode) or new entity (if in create mode) is discarded
             self.closeMe()
 
         except Exception as e:

@@ -162,10 +162,18 @@ class BehaviourLinerBackEnd(QObject):
             # Handle behavior association from BehaviorAssociation editor (legacy)
             self.handle_behavior_association(message.get("assignments"))
         elif message.get("event") == "entity_data_ready":
-            # Handle new entity with Entity object
+            # Handle new entity with Entity object or edited entity in edit mode
             entity = message.get("entity_object")
+            is_edit_mode = message.get("is_edit_mode", False)
+            original_entity_id = message.get("original_entity_id")
+            
             if entity:
-                self.process_entity_object(entity)
+                if is_edit_mode and original_entity_id:
+                    # Edit mode - replace the original entity with the edited copy
+                    self.replace_entity_in_all_entities(original_entity_id, entity)
+                else:
+                    # Create mode - add the new entity
+                    self.process_entity_object(entity)
             else:
                 # No Entity object found
                 pass
@@ -271,6 +279,36 @@ class BehaviourLinerBackEnd(QObject):
 
         except Exception as e:
             log_error("update_entity_editor_frontend", e, f"updating frontend for {getattr(entity, 'entity_id', 'unknown entity')}")
+
+    def replace_entity_in_all_entities(self, original_entity_id, edited_entity):
+        """Replace the original entity with the edited copy in all_entities"""
+        try:
+            if original_entity_id in self.all_entities:
+                # Replace the original entity with the edited copy
+                self.all_entities[original_entity_id] = edited_entity
+                
+                # Convert entities to dictionary format for Exchange Board
+                entities_data = {}
+                for entity_id, entity_obj in self.all_entities.items():
+                    entities_data[entity_id] = entity_obj.convert_to_dict()
+
+                # Save using Exchange Board method (updates equation_entity_dict automatically)
+                self.ontology_container.save_entities(entities_data)
+
+                # Update the main frontend tree to reflect the changes
+                self.update_main_frontend_tree()
+
+                # Mark as changed and show save button
+                self.mark_changed()
+
+                # Entity replaced successfully
+            else:
+                # Original entity not found
+                makeMessageBox(f"Original entity '{original_entity_id}' not found for replacement", buttons=["OK"])
+
+        except Exception as e:
+            log_error("replace_entity_in_all_entities", e, f"replacing entity '{original_entity_id}'")
+            makeMessageBox(f"Error replacing entity: {str(e)}", buttons=["OK"])
 
     def add_entity_to_all_entities(self, entity):
         """Add or update an entity in all_entities and save to file"""
@@ -513,16 +551,26 @@ class BehaviourLinerBackEnd(QObject):
 
         # Set editor mode based on selection type
         if mode == "edit" and self.entity_type and self.entity_type.get('name'):
-            # Edit mode - load existing entity data
+            # Edit mode - load existing entity data as a COPY to preserve original
+            import copy
+            
             entity_network = self.entity_type.get("network")
             entity_category = self.entity_type.get("category")
             entity_type = self.entity_type.get("entity type")
             entity_name = self.entity_type.get('name')
             entity_id = f"{entity_network}.{entity_category}.{entity_type}.{entity_name}"
-            entity = self.all_entities[entity_id]
-            pass
-            # Load the entity into the editor
-            self.entity_front_end.set_entity_object(entity)
+            
+            # Create a deep copy of the original entity for editing
+            original_entity = self.all_entities[entity_id]
+            entity_copy = copy.deepcopy(original_entity)
+            
+            # Store reference to original entity for save operations
+            self.entity_front_end.original_entity_id = entity_id
+            self.entity_front_end.original_entity = original_entity
+            self.entity_front_end.is_edit_mode = True
+            
+            # Load the COPY into the editor, not the original
+            self.entity_front_end.set_entity_object(entity_copy)
             self.entity_front_end.set_mode("edit")
 
             # Also populate current_entity_data for behavior association editor
@@ -532,7 +580,7 @@ class BehaviourLinerBackEnd(QObject):
                     'entity_type'  : entity_type,
                     'entity_name'  : entity_name,
                     'entity_id'    : entity_id,
-                    'entity_object': entity
+                    'entity_object': entity_copy  # Use the copy
                     }
             self.entity_front_end.current_entity_data = entity_data
         else:

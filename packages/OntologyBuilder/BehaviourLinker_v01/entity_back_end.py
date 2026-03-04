@@ -82,11 +82,22 @@ class EntityEditorBackEnd(QObject):
                 if hasattr(self, 'entity_frontend') and self.entity_frontend:
                     self.entity_frontend.markSaved()
 
-                # Send the completed entity to main backend for final processing
-                self.message.emit({
-                        "event"        : "entity_data_ready",
-                        "entity_object": entity  # Send only the Entity object
-                        })
+                # Check if we're in edit mode and need to replace the original entity
+                if (hasattr(self, 'entity_frontend') and self.entity_frontend and 
+                    hasattr(self.entity_frontend, 'is_edit_mode') and self.entity_frontend.is_edit_mode):
+                    # We're in edit mode - include information to replace the original entity
+                    self.message.emit({
+                            "event"           : "entity_data_ready",
+                            "entity_object"   : entity,  # Send the edited copy
+                            "original_entity_id": getattr(self.entity_frontend, 'original_entity_id', None),
+                            "is_edit_mode"    : True
+                            })
+                else:
+                    # We're in create mode - just send the new entity
+                    self.message.emit({
+                            "event"        : "entity_data_ready",
+                            "entity_object": entity  # Send only the Entity object
+                            })
 
             else:
                 self.message.emit({
@@ -253,6 +264,10 @@ class EntityEditorBackEnd(QObject):
                         # Generate the variable-equation forest using Entity's method
                         entity.generate_var_eq_forest(var_eq_assignments)
                         entity.update_var_eq_tree()
+                        
+                        # IMPORTANT: Refresh GUI to show the new equation in equations list
+                        if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                            self.entity_frontend.populate_lists_from_entity(entity)
                     else:
                         # Handle instantiation case with no equation assignments
                         root_variable = assignments.get('root_variable')
@@ -309,6 +324,10 @@ class EntityEditorBackEnd(QObject):
                         # Generate the variable-equation forest using Entity's method
                         entity.generate_var_eq_forest(var_eq_assignments)
                         entity.update_var_eq_tree()     # Note: update on creation
+                        
+                        # IMPORTANT: Refresh GUI to show the new equation in equations list
+                        if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                            self.entity_frontend.populate_lists_from_entity(entity)
 
                         # Update entity_data with the Entity object - lists are managed internally
                         entity_data.update({
@@ -605,6 +624,10 @@ class EntityEditorBackEnd(QObject):
                         if var_eq_assignments:
                             entity.generate_var_eq_forest(var_eq_assignments)
                             entity.update_var_eq_tree()
+                            
+                            # IMPORTANT: Refresh GUI to show the new equation in equations list
+                            if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                                self.entity_frontend.populate_lists_from_entity(entity)
 
                     # Update entity_data with the latest entity information
                     entity_data.update({
