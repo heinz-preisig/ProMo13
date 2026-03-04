@@ -4,6 +4,7 @@ import sys
 
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
+from PyQt5 import QtWidgets
 
 from Common.classes.entity_v1 import Entity
 from Common.common_resources import getOntologyName
@@ -586,7 +587,10 @@ class BehaviourLinerBackEnd(QObject):
         else:
             # Create mode - prepare for new entity creation
             # Generate entity structure from class definition
-            self.generate_entity_from_class_definition()
+            success = self.generate_entity_from_class_definition()
+            # Only show editor if entity creation was successful
+            if not success:
+                return  # Don't show editor if creation failed/cancelled
 
         # Connect entity editor communication
         self.entity_front_end.message.connect(self.entity_back_end.process_entity_front_message)
@@ -600,7 +604,7 @@ class BehaviourLinerBackEnd(QObject):
         try:
             if not hasattr(self, 'entity_type') or not self.entity_type:
                 log_error("generate_entity_from_class_definition", Exception("No entity type selected"), "generating entity from class definition")
-                return
+                return False
 
             # Extract entity type information
             network = self.entity_type.get('network')
@@ -609,10 +613,21 @@ class BehaviourLinerBackEnd(QObject):
 
             # TODO: build limiting list to avoid duplication
             task = UI_GetString("provide a name for the entity")
-            task.exec_()
+            result = task.exec_()
+            
+            # Check if dialog was accepted (not rejected or closed)
+            if result != QtWidgets.QDialog.Accepted:
+                # User cancelled the name dialog - close the entity editor and return failure
+                if hasattr(self, 'entity_front_end'):
+                    self.entity_front_end.close()
+                return False
+                
             entity_name = task.text
             if not entity_name:
-                pass
+                # User accepted but provided empty name - close the entity editor and return failure
+                if hasattr(self, 'entity_front_end'):
+                    self.entity_front_end.close()
+                return False
 
             # For create mode, start with empty variables - user will add them
             # Don't populate with all available variables from ontology
@@ -637,10 +652,13 @@ class BehaviourLinerBackEnd(QObject):
             if hasattr(self, 'entity_front_end'):
                 self.entity_front_end.populate_entity_structure(entity_data)
 
+            # Return success
+            return True
 
         except Exception as e:
             log_error("generate_entity_from_class_definition", e, "generating entity structure")
             self.send_message_to_main_frontend("error", {"error": str(e)})
+            return False
 
     def get_variables_for_entity_type(self, network, category, entity_type):
         """Get all variables that belong to a specific entity type"""

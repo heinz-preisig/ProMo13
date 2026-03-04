@@ -78,6 +78,9 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         # Connect button signals explicitly
         self.ui.pushDelete.clicked.connect(self.on_pushDelete_pressed)
         self.ui.pushEdit.clicked.connect(self.on_pushEdit_pressed)
+        
+        # Connect double-click signal for tree widget
+        self.ui.tree_entities.doubleClicked.connect(self.on_tree_entities_double_clicked)
 
         # Add statusbar since the UI doesn't have one but this is a QMainWindow
         self.statusBar().showMessage("Ready")
@@ -250,6 +253,45 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                         }
                 # Sending entity selection
                 self.send_message(message)
+
+    def on_tree_entities_double_clicked(self, index):
+        """Handle double-click on tree entities - directly open entity editor for entity instances"""
+        try:
+            if not index.isValid():
+                return
+
+            # Get the item from the index
+            item = self.ui.tree_entities.model().itemFromIndex(index)
+            if item is None:
+                return
+
+            # Get full path to determine if it's an entity instance
+            path = []
+            current = item
+            while current is not None:
+                path.insert(0, current.text())
+                current = current.parent()
+
+            # Only allow opening entity editor for entity instances (path length = 4)
+            if len(path) != 4:
+                return  # Silently ignore double-clicks on non-instances
+
+            network, category, entity_type, name = path
+
+            # Send selected_instance message to backend to launch entity editor
+            message = {
+                    "event": "selected_instance",
+                    "data" : {
+                            "network"    : network,
+                            "category"   : category,
+                            "entity type": entity_type,
+                            "name"       : name
+                            }
+                    }
+            self.send_message(message)
+
+        except Exception as e:
+            log_error("on_tree_entities_double_clicked", e, "handling double-click on tree entity")
 
     # ===============================================================
 
