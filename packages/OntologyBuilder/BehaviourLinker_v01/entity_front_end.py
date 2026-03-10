@@ -940,10 +940,16 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     
                     # Set default selection based on current entity state
                     if hasattr(self, 'current_entity') and self.current_entity:
-                        if var_id in getattr(self.current_entity, 'input_vars', []):
+                        # Check manual classifications first
+                        manual_classifications = getattr(self.current_entity, 'local_variable_classifications', {})
+                        current_classification = manual_classifications.get(var_id, {}).get('classification', 'none')
+                        
+                        if current_classification == "input":
                             ui.select_input.setChecked(True)
-                        elif var_id in getattr(self.current_entity, 'output_vars', []):
+                        elif current_classification == "output":
                             ui.select_output.setChecked(True)
+                        elif current_classification == "instantiate":
+                            ui.radioButton.setChecked(True)
                         else:
                             ui.select_none.setChecked(True)
                     
@@ -953,6 +959,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     
                     ui.select_input.toggled.connect(on_radio_selected)
                     ui.select_output.toggled.connect(on_radio_selected)
+                    ui.radioButton.toggled.connect(on_radio_selected)  # instantiate radio button
                     ui.select_none.toggled.connect(on_radio_selected)
                     
                     # Show dialog and get result
@@ -962,6 +969,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             classification = "input"
                         elif ui.select_output.isChecked():
                             classification = "output"
+                        elif ui.radioButton.isChecked():  # instantiate radio button
+                            classification = "instantiate"
                         
                         # if classification and hasattr(self, 'current_entity') and self.current_entity:
                         #     # Move variable to selected classification

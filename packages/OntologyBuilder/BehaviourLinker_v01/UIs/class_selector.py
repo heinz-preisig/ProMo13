@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(147, 142)
+        Dialog.resize(147, 193)
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(Dialog)
@@ -29,6 +29,9 @@ class Ui_Dialog(object):
         self.select_output = QtWidgets.QRadioButton(Dialog)
         self.select_output.setObjectName("select_output")
         self.verticalLayout.addWidget(self.select_output)
+        self.radioButton = QtWidgets.QRadioButton(Dialog)
+        self.radioButton.setObjectName("radioButton")
+        self.verticalLayout.addWidget(self.radioButton)
         self.select_none = QtWidgets.QRadioButton(Dialog)
         self.select_none.setObjectName("select_none")
         self.verticalLayout.addWidget(self.select_none)
@@ -42,4 +45,5 @@ class Ui_Dialog(object):
         self.label.setText(_translate("Dialog", "Classification"))
         self.select_input.setText(_translate("Dialog", "input"))
         self.select_output.setText(_translate("Dialog", "output"))
+        self.radioButton.setText(_translate("Dialog", "instantiate"))
         self.select_none.setText(_translate("Dialog", "none"))

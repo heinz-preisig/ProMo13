@@ -264,7 +264,7 @@ class UI_Equations(QtWidgets.QWidget):
 
     self.ui.labelLaTex.show()
     self.ui.lineEditLatex.show()
-    self.ui.lineEditLatex.setText(v.variable_aliases["latex"])
+    self.ui.lineEditLatex.setText(v.aliases["latex"])
 
     self.status_new_equation = True
     self.ui.lineDocumentation.show()
