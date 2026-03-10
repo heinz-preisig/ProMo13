@@ -67,11 +67,12 @@ class UI_GetString(QtWidgets.QDialog):
     self.text = None
 
     self.ui.pushAccept.clicked.connect(self.__accept)
-    self.ui.pushReject.clicked.connect(self.close)
+    self.ui.pushReject.clicked.connect(self.__reject)
     self.ui.lineEdit.textChanged.connect(self.__changedText)
 
     self.ui.pushReject.setFocus()
     self.ui.lineEdit.setPlaceholderText(placeholdertext)
+    self.ui.lineEdit.returnPressed.connect(self.__accept)
 
 
     if fokus:
@@ -96,6 +97,10 @@ class UI_GetString(QtWidgets.QDialog):
   def __accept(self):
     self.accepted.emit(self.ui.lineEdit.text())
     self.text = self.ui.lineEdit.text()
+    self.close()
+
+  def __reject(self):
+    self.text = None
     self.close()
 
   def getText(self):

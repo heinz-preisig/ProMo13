@@ -355,21 +355,7 @@ class BehaviourLinerBackEnd(QObject):
         except Exception as e:
             print(f">>>>>>>>>>>>>>> Error adding entity to all_entities: {e}")
 
-    def update_main_frontend_tree(self):
-        """Update the main frontend tree with updated all_entities"""
-        try:
-            # Send updated all_entities to main frontend
-            self.send_message_to_main_frontend(event="make_tree", data={
-                    "node_entity_types": self.node_entity_types,
-                    "all_entities"     : self.all_entities
-                    })
-
-        except Exception as e:
-            log_error("update_main_frontend_tree", e, "updating frontend tree with entities")
-
-        except Exception as e:
-            log_error("update_main_frontend_tree", e, "updating entity editor frontend")
-
+    
     def send_message_to_entity_frontend(self, event, data=None):
         """Send a message to the entity editor frontend"""
         message = {"event": event, "data": data}
@@ -626,7 +612,7 @@ class BehaviourLinerBackEnd(QObject):
             result = task.exec_()
             
             # Check if dialog was accepted (not rejected or closed)
-            if result != QtWidgets.QDialog.Accepted:
+            if not task.text:
                 # User cancelled the name dialog - close the entity editor and return failure
                 if hasattr(self, 'entity_front_end'):
                     self.entity_front_end.close()
