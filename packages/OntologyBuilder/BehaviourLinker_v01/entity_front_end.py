@@ -59,9 +59,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
         roundButton(self.ui.pushAddVariable, "new", tooltip="new variable")
         roundButton(self.ui.pushAddStateVariable, "dependent_variable", tooltip="add state variable")
+        roundButton(self.ui.pushAddTransport, "token_flow", tooltip="add transport variable")
         roundButton(self.ui.pushEditVariable, "edit", tooltip="edit variable")
         roundButton(self.ui.pushDeleteVariable, "delete", tooltip="delete variable")
-        roundButton(self.ui.pushDeleteEntity, "delete", tooltip="delete entity")
         roundButton(self.ui.pushAccept, "accept", tooltip="accept")
         roundButton(self.ui.pushCancle, "cancel", tooltip="cancel")
         #
@@ -97,6 +97,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ui.pushAccept.clicked.connect(self.on_pushAccept_pressed)
         self.ui.pushCancle.clicked.connect(self.on_pushCancle_pressed)
         self.ui.pushAddStateVariable.clicked.connect(self.on_pushAddStateVariable_pressed)
+        self.ui.pushAddTransport.clicked.connect(self.on_pushAddTransport_pressed)
         self.ui.pushAddVariable.clicked.connect(self.on_pushAddVariable_pressed)
         self.ui.pushDeleteVariable.clicked.connect(self.on_pushDeleteVariable_pressed)
 
@@ -152,9 +153,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 "buttons"  : {
                         "accept"            : self.ui.pushAccept,
                         "add_state_variable": self.ui.pushAddStateVariable,
+                        "add_transport"     : self.ui.pushAddTransport,
                         "add_variable"      : self.ui.pushAddVariable,
                         "cancel"            : self.ui.pushCancle,
-                        "delete_entity"     : self.ui.pushDeleteEntity,
                         "delete_variable"   : self.ui.pushDeleteVariable,
                         "edit_variable"     : self.ui.pushEditVariable,
                         },
@@ -204,8 +205,32 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         else:
             self.gui_objects["buttons"]["accept"].hide()
 
+    def set_selected_entity_type(self, entity_type_data):
+        """Set the selected entity type from the main tree"""
+        self.selected_entity_type = entity_type_data
+        print(f"EntityEditorFrontEnd received selected entity type: {self.selected_entity_type}")
+
     def set_mode(self, mode):
-        """Set the current mode (create, edit, load) and configure UI accordingly"""
+        """Set the current mode and configure UI accordingly"""
+        # Determine entity-type-specific mode if we have entity type info
+        if self.selected_entity_type:
+            category = self.selected_entity_type.get('category', '').lower()
+            
+            if category == 'node':
+                if mode == "create":
+                    mode = "create_node"
+                elif mode == "edit_no_selection":
+                    mode = "edit_no_selection_node"
+                elif mode == "edit_with_selection":
+                    mode = "edit_with_selection_node"
+            elif category == 'arc':
+                if mode == "create":
+                    mode = "create_arc"
+                elif mode == "edit_no_selection":
+                    mode = "edit_no_selection_arc"
+                elif mode == "edit_with_selection":
+                    mode = "edit_with_selection_arc"
+        
         self.mode = mode
 
         # Configure button visibility based on mode using automaton
@@ -213,13 +238,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.__setInterface(mode)
 
         # Update status label based on mode
-        if mode == "create":
+        if mode.startswith("create"):
             self.status_label.setText("Create mode - Select state variable to begin")
             self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
-        elif mode == "edit_no_selection":
+        elif mode.startswith("edit_no_selection"):
             self.status_label.setText("Edit mode - Select a variable to delete")
             self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
-        elif mode == "edit_with_selection":
+        elif mode.startswith("edit_with_selection"):
             self.status_label.setText("Edit mode - Variable selected, delete enabled")
             self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; margin: 5px; }")
         elif mode == "load":
@@ -230,12 +255,22 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         """Update mode based on whether a variable is selected"""
         has_selection = self.get_selected_variable_id() is not None
 
-        if self.mode == "edit_no_selection" and has_selection:
+        if self.mode.startswith("edit_no_selection") and has_selection:
             # Switch to mode with delete enabled
-            self.set_mode("edit_with_selection")
-        elif self.mode == "edit_with_selection" and not has_selection:
+            if "node" in self.mode:
+                self.set_mode("edit_with_selection_node")
+            elif "arc" in self.mode:
+                self.set_mode("edit_with_selection_arc")
+            else:
+                self.set_mode("edit_with_selection")
+        elif self.mode.startswith("edit_with_selection") and not has_selection:
             # Switch to mode with delete disabled
-            self.set_mode("edit_no_selection")
+            if "node" in self.mode:
+                self.set_mode("edit_no_selection_node")
+            elif "arc" in self.mode:
+                self.set_mode("edit_no_selection_arc")
+            else:
+                self.set_mode("edit_no_selection")
         elif self.mode in ["create", "load"]:
             # Don't interfere with create/load modes
             pass
@@ -640,6 +675,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         """Handle add state variable button for create mode"""
         # entity_id = self.current_entity_data["entity_id"]
         message = {"event": "add_state_variable"}  # , "entity_id": entity_id}
+        self.message.emit(message)
+
+    def on_pushAddTransport_pressed(self):
+        """Handle add transport variable button for arc entities"""
+        message = {"event": "add_transport"}
         self.message.emit(message)
 
     def on_pushAddVariable_pressed(self):

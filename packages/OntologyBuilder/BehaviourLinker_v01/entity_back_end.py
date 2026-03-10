@@ -39,16 +39,22 @@ class EntityEditorBackEnd(QObject):
         """Set the selected entity type from the main tree"""
         try:
             self.selected_entity_type = entity_type_data
+            
+            # Update frontend with entity type
+            if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                self.entity_frontend.set_selected_entity_type(entity_type_data)
 
             # Determine if we're in create or edit mode
             if self.selected_entity_type and self.selected_entity_type.get("name"):
                 self.mode = "edit"
                 # Notify frontend of mode change
-                self.entity_frontend.set_mode("edit")
+                if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                    self.entity_frontend.set_mode("edit_no_selection")
             else:
                 self.mode = "create"
                 # Notify frontend of mode change
-                self.entity_frontend.set_mode("create")
+                if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                    self.entity_frontend.set_mode("create")
 
         except Exception as e:
             log_error("set_selected_entity_type_or_entity", e, "setting selected entity type")
@@ -63,6 +69,8 @@ class EntityEditorBackEnd(QObject):
 
         if event == "add_state_variable":
             self.launch_behavior_association_editor(mode='state')
+        elif event == "add_transport":
+            self.launch_behavior_association_editor(mode='transport')
         elif event == "add_variable":
             self.launch_behavior_association_editor(mode='definable')
         elif event == "new_variable_added":

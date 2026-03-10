@@ -104,6 +104,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushAddTransport">
+       <property name="text">
+        <string>PushButton</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushEditVariable">
        <property name="text">
         <string>PushButton</string>
@@ -119,13 +126,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushAccept">
-       <property name="text">
-        <string>PushButton</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushDeleteEntity">
        <property name="text">
         <string>PushButton</string>
        </property>

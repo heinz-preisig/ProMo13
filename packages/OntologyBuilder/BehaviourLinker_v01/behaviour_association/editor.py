@@ -163,6 +163,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             self.setWindowTitle("Select State Variable to Start Entity Definition")
         elif variable_class_mode == 'definable':
             self.setWindowTitle("Add Variable (Only definable from existing variables)")
+        elif variable_class_mode == 'transport':
+            self.setWindowTitle("Add Variable (Select from transport variables)")
         else:
             self.setWindowTitle("Select Variable to Add to Entity Definition")
         
@@ -503,6 +505,9 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         if self.variable_class_mode == 'state':
             # State variable mode: only show allowed root variables (typically state variables)
             filtered_variables = classification['allowed_root']
+        elif self.variable_class_mode == 'transport':
+            # Transport mode: show only transport variables (for arcs)
+            filtered_variables = VariableClassificationRules.filter_variables_by_type(variables, ['transport'])
         elif self.variable_class_mode == 'all':
             # All variables mode: show all variables applicable to the network
             # Combine all classifications but remove duplicates

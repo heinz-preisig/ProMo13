@@ -141,8 +141,8 @@ class BehaviourLinerBackEnd(QObject):
                 node_entity_types = self.ontology_container.node_entity_types
             
             # Extract arc entity types from ontology
-            if hasattr(self.ontology_container, 'arc_type_list'):
-                arc_entity_types = self.ontology_container.arc_type_list
+            if hasattr(self.ontology_container, 'arc_entity_types'):
+                arc_entity_types = self.ontology_container.arc_entity_types
 
             data = {
                     "node_entity_types": node_entity_types,
