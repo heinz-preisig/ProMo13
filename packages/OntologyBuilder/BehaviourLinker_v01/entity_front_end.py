@@ -183,29 +183,22 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ontology_container = ontology_container
 
     def update_accept_button_visibility(self):
-        """Update Accept button visibility based on entity content"""
-        has_content = False
-
-        # Check if entity has content (variables, equations, etc.)
-        if hasattr(self, 'current_entity') and self.current_entity:
-            # Check if entity has any defined variables or equations
-            if (hasattr(self.current_entity, 'output_vars') and self.current_entity.output_vars) or \
-                    (hasattr(self.current_entity, 'input_vars') and self.current_entity.input_vars) or \
-                    (hasattr(self.current_entity, 'init_vars') and self.current_entity.init_vars) or \
-                    (hasattr(self.current_entity, 'var_eq_forest') and self.current_entity.var_eq_forest):
-                has_content = True
-        elif hasattr(self, 'current_entity_data') and self.current_entity_data:
-            # Check entity_data for content
-            if (self.current_entity_data.get('defined_variables') or
-                    self.current_entity_data.get('output_vars') or
-                    self.current_entity_data.get('input_vars') or
-                    self.current_entity_data.get('init_vars')):
-                has_content = True
-
-        # Show Accept button if entity has content
-        if has_content:
-            self.gui_objects["buttons"]["accept"].show()
+        """Update Accept button visibility based on current automaton mode"""
+        # Use automaton to determine visibility
+        if hasattr(self, 'mode') and self.mode:
+            # Get current mode's button configuration
+            button_config = gui_automaton.get(self.mode, {})
+            if button_config:
+                should_show = button_config.get("accept", False)
+                if should_show:
+                    self.gui_objects["buttons"]["accept"].show()
+                else:
+                    self.gui_objects["buttons"]["accept"].hide()
+            else:
+                # Default: hide accept button if mode not found
+                self.gui_objects["buttons"]["accept"].hide()
         else:
+            # No mode set: hide accept button
             self.gui_objects["buttons"]["accept"].hide()
 
     def set_selected_entity_type(self, entity_type_data):

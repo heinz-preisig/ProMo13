@@ -104,6 +104,13 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         elif event == "mark_changed":
             # Mark as changed - red LED and show save button
             self.markChanged()
+        elif event == "entity_deleted":
+            # Handle entity deletion - clear current entity and update UI
+            self.clear_all_lists()
+            self.current_entity = None
+            self.current_entity_data = None
+            self.set_mode("create")  # Reset to create mode
+            self.update_accept_button_visibility()
         elif event == "save":
             # Handle save event - mark as saved (green LED, hide save button)
             self.markSaved()
