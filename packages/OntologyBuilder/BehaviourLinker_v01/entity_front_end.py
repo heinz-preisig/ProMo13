@@ -64,6 +64,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         roundButton(self.ui.pushDeleteVariable, "delete", tooltip="delete variable")
         roundButton(self.ui.pushAccept, "accept", tooltip="accept")
         roundButton(self.ui.pushCancle, "cancel", tooltip="cancel")
+        roundButton(self.ui.pushAddIntensitity, "infinity", tooltip="secondary states -- intensities")
         #
         #
         self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
@@ -99,6 +100,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ui.pushAddStateVariable.clicked.connect(self.on_pushAddStateVariable_pressed)
         self.ui.pushAddTransport.clicked.connect(self.on_pushAddTransport_pressed)
         self.ui.pushAddVariable.clicked.connect(self.on_pushAddVariable_pressed)
+        self.ui.pushAddIntensitity.clicked.connect(self.on_pushAddIntensitity_pressed)
         self.ui.pushDeleteVariable.clicked.connect(self.on_pushDeleteVariable_pressed)
 
         self.mode = "load"
@@ -155,6 +157,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         "add_state_variable": self.ui.pushAddStateVariable,
                         "add_transport"     : self.ui.pushAddTransport,
                         "add_variable"      : self.ui.pushAddVariable,
+                        "add_intensity"     : self.ui.pushAddIntensitity,
                         "cancel"            : self.ui.pushCancle,
                         "delete_variable"   : self.ui.pushDeleteVariable,
                         "edit_variable"     : self.ui.pushEditVariable,
@@ -215,10 +218,17 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         # Determine entity-type-specific mode if we have entity type info
         if self.selected_entity_type:
             category = self.selected_entity_type.get('category', '').lower()
+            entity_type = self.selected_entity_type.get('entity type', '').lower()
+            
+            # Check if this is a reservoir entity (contains constant|infinity)
+            is_reservoir = 'constant|infinity' in entity_type
             
             if category == 'node':
                 if mode == "create":
-                    mode = "create_node"
+                    if is_reservoir:
+                        mode = "create_reservoir"  # Use special reservoir mode
+                    else:
+                        mode = "create_node"
                 elif mode == "edit_no_selection":
                     mode = "edit_no_selection_node"
                 elif mode == "edit_with_selection":
@@ -238,7 +248,16 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.__setInterface(mode)
 
         # Update status label based on mode
-        if mode.startswith("create"):
+        if mode == "create_reservoir":
+            self.status_label.setText("Reservoir creation mode - Use 'add intensity' for secondary states")
+            self.status_label.setStyleSheet("QLabel { color: purple; font-weight: bold; margin: 5px; }")
+        elif mode == "edit_reservoir":
+            self.status_label.setText("Reservoir edit mode - Use 'add intensity' to add more secondary states")
+            self.status_label.setStyleSheet("QLabel { color: purple; font-weight: bold; margin: 5px; }")
+        elif mode == "edit_with_selection_reservoir":
+            self.status_label.setText("Reservoir edit mode - Variable selected, delete enabled")
+            self.status_label.setStyleSheet("QLabel { color: purple; font-weight: bold; margin: 5px; }")
+        elif mode.startswith("create"):
             self.status_label.setText("Create mode - Select state variable to begin")
             self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
         elif mode.startswith("edit_no_selection"):
@@ -261,6 +280,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 self.set_mode("edit_with_selection_node")
             elif "arc" in self.mode:
                 self.set_mode("edit_with_selection_arc")
+            elif "reservoir" in self.mode:
+                self.set_mode("edit_with_selection_reservoir")  # Use proper reservoir selection mode
             else:
                 self.set_mode("edit_with_selection")
         elif self.mode.startswith("edit_with_selection") and not has_selection:
@@ -269,6 +290,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 self.set_mode("edit_no_selection_node")
             elif "arc" in self.mode:
                 self.set_mode("edit_no_selection_arc")
+            elif "reservoir" in self.mode:
+                self.set_mode("edit_reservoir")  # Return to reservoir edit mode when no selection
             else:
                 self.set_mode("edit_no_selection")
         elif self.mode in ["create", "load"]:
@@ -518,6 +541,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Get ontology container for variable information
             ontology_container = getattr(self, 'ontology_container', None)
             if not ontology_container:
+                print(f"DEBUG: No ontology container found")
                 return
 
             variables = ontology_container.variables
@@ -539,7 +563,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     self.add_variable_to_list(self.ui.list_outputs, var_info)
 
             # Populate input variables list
-            # if hasattr(entity, 'input_vars') and entity.input_vars:
             input_vars = entity.get_input_vars()
             for var_id in input_vars:
                 if var_id in variables:
@@ -550,6 +573,18 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'network': var_data.get('network', 'unknown')
                             }
                     self.add_variable_to_list(self.ui.list_inputs, var_info)
+
+            # Populate instantiate list
+            instantiate_vars = entity.get_variables_to_be_instantiated()
+            for var_id in instantiate_vars:
+                if var_id in variables:
+                    var_data = variables[var_id]
+                    var_info = {
+                            'id'     : var_id,
+                            'label'  : var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                            }
+                    self.add_variable_to_list(self.ui.list_instantiate, var_info)
 
             # Populate included variables list (all variables in the entity)
             # if hasattr(entity, 'get_all_variables'):
@@ -564,19 +599,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'network': var_data.get('network', 'unknown')
                             }
                     self.add_variable_to_list(self.ui.list_included_variables, var_info)
-
-            # Populate variables to be instantiated list
-            # if hasattr(entity, 'get_variables_to_be_instantiated'):
-            vars_to_instantiate = entity.get_variables_to_be_instantiated()
-            for var_id in vars_to_instantiate:
-                if var_id in variables:
-                    var_data = variables[var_id]
-                    var_info = {
-                            'id'     : var_id,
-                            'label'  : var_data.get('label', var_id),
-                            'network': var_data.get('network', 'unknown')
-                            }
-                    self.add_variable_to_list(self.ui.list_instantiate, var_info)
 
             # if hasattr(entity, 'integrators') and entity.integrators:
             for var_id in entity.get_integrator_vars():
@@ -688,6 +710,14 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.message.emit(message)
         # self.ui.list_not_defined_variables
 
+    def on_pushAddIntensitity_pressed(self):
+        """Handle add intensity button - used for reservoir creation (constant|infinity entities)"""
+        # Use same approach as other add buttons - launch behavior association editor
+        message = {"event": "add_intensity"}
+        self.message.emit(message)
+
+    
+    
     def on_pushDeleteVariable_pressed(self):
         """Handle delete variable button - deletes selected variable from entity"""
         try:
@@ -921,6 +951,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             var_network = click_data.get('var_network')
             list_name = click_data.get('list_name', 'unknown')
             
+            # Check if we're in reservoir editing mode
+            is_reservoir_mode = "constant|infinity" in self.current_entity_data["entity_type"]#'reservoir' in self.mode.lower()
+            
             # Handle different behavior based on which list was clicked
             if var_id:
                 if list_name in ['list_inputs', 'list_outputs', 'list_instantiate', 'list_not_defined_variables']:
@@ -931,7 +964,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     
                     # Create dialog
                     dialog = QDialog()
-                    dialog.setWindowTitle("Variable Classification")
+                    if is_reservoir_mode:
+                        dialog.setWindowTitle("Variable Classification (Reservoir Mode)")
+                    else:
+                        dialog.setWindowTitle("Variable Classification")
                     dialog.resize(200, 150)
                     
                     # Setup UI
@@ -942,7 +978,15 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     if hasattr(self, 'current_entity') and self.current_entity:
                         # Check manual classifications first
                         manual_classifications = getattr(self.current_entity, 'local_variable_classifications', {})
-                        current_classification = manual_classifications.get(var_id, {}).get('classification', 'none')
+                        current_classifications = manual_classifications.get(var_id, {}).get('classification', ['none'])
+                        
+                        # Handle both single string and list of classifications
+                        if isinstance(current_classifications, list):
+                            # Multiple classifications - check first one for default
+                            current_classification = current_classifications[0] if current_classifications else 'none'
+                        else:
+                            # Legacy single classification
+                            current_classification = current_classifications
                         
                         if current_classification == "input":
                             ui.select_input.setChecked(True)
@@ -952,10 +996,46 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             ui.radioButton.setChecked(True)
                         else:
                             ui.select_none.setChecked(True)
+                        
+                        # If multiple classifications, check all applicable boxes
+                        if isinstance(current_classifications, list):
+                            for classification in current_classifications:
+                                if classification == "input":
+                                    ui.select_input.setChecked(True)
+                                elif classification == "output":
+                                    ui.select_output.setChecked(True)
+                                elif classification == "instantiate":
+                                    ui.radioButton.setChecked(True)
+                    
+                    # Make radio buttons non-exclusive to allow multiple selections
+                    
+                    # Alternative: Convert to checkboxes for reliable multiple selection
+                    ui.select_input.setCheckable(True)
+                    ui.select_output.setCheckable(True) 
+                    ui.radioButton.setCheckable(True)
+                    ui.select_none.setCheckable(True)
+                    
+                    # Add instruction label for reservoir mode
+                    if is_reservoir_mode:
+                        ui.buttonGroup.setExclusive(False)
+                        instruction_label = QLabel("Reservoir mode: Multiple selections allowed")
+                        instruction_label.setStyleSheet("QLabel { color: blue; font-style: italic; }")
+                        ui.verticalLayout.insertWidget(1, instruction_label)  # Insert after main label
+                    
+                    # Add OK button to close dialog (since auto-close is disabled)
+                    ok_button = QPushButton("OK")
+                    ok_button.clicked.connect(dialog.accept)
+                    ui.verticalLayout.addWidget(ok_button)
+                    
+                    # Debug: Print initial state
+                    print(f"DEBUG: Reservoir mode: {is_reservoir_mode}")
+                    print(f"DEBUG: Button group exclusive property: {ui.buttonGroup.exclusive}")
+                    print(f"DEBUG: Button group set to non-exclusive: {not ui.buttonGroup.exclusive}")
                     
                     # Connect radio buttons to close dialog when selected
                     def on_radio_selected():
-                        dialog.accept()
+                        # dialog.accept()
+                        pass
                     
                     ui.select_input.toggled.connect(on_radio_selected)
                     ui.select_output.toggled.connect(on_radio_selected)
@@ -964,28 +1044,76 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     
                     # Show dialog and get result
                     if dialog.exec_() == QDialog.Accepted:
-                        classification = None
-                        if ui.select_input.isChecked():
-                            classification = "input"
-                        elif ui.select_output.isChecked():
-                            classification = "output"
-                        elif ui.radioButton.isChecked():  # instantiate radio button
-                            classification = "instantiate"
+                        # Debug: Print all button states
+                        print(f"DEBUG: mode: {self.mode} is reservoir mode {is_reservoir_mode}")
+                        print(f"DEBUG: Input checked: {ui.select_input.isChecked()}")
+                        print(f"DEBUG: Output checked: {ui.select_output.isChecked()}")
+                        print(f"DEBUG: Instantiate checked: {ui.radioButton.isChecked()}")
+                        print(f"DEBUG: None checked: {ui.select_none.isChecked()}")
                         
-                        # if classification and hasattr(self, 'current_entity') and self.current_entity:
-                        #     # Move variable to selected classification
-                        #     if classification == "input":
-                        #         self.current_entity.set_input_var(var_id, True)
-                        #         if var_id in self.current_entity.output_vars:
-                        #             self.current_entity.set_output_var(var_id, False)
-                        #     elif classification == "output":
-                        #         self.current_entity.set_output_var(var_id, True)
-                        #         if var_id in self.current_entity.input_vars:
-                        #             self.current_entity.set_input_var(var_id, False)
+                        # Collect all checked classifications (since buttons are now non-exclusive)
+                        classifications = []
+                        if ui.select_input.isChecked():
+                            classifications.append("input")
+                        if ui.select_output.isChecked():
+                            classifications.append("output")
+                        if ui.radioButton.isChecked():  # instantiate radio button
+                            classifications.append("instantiate")
+                        
+                        print(f"DEBUG: Collected classifications: {classifications}")
+                        
+                        # Handle multiple classifications
+                        if not classifications:
+                            print("DEBUG: No classifications selected")
+                            return
+                            
+                        print(f"DEBUG: Selected classifications: {classifications}")
+                        
+                        # Reservoir mode specific handling
+                        # if is_reservoir_mode:
+                        #     print(f"DEBUG: Reservoir mode - allowing multiple classifications")
+                        #     # In reservoir mode, we might want to handle multiple classifications differently
+                        #     # For now, we'll still use primary classification but log all of them
+                        #     if len(classifications) > 1:
+                        #         print(f"DEBUG: Multiple classifications in reservoir mode: {classifications}")
+                        #         # TODO: Implement reservoir-specific multiple classification logic
+                        #         # - Could create multiple variable instances
+                        #         # - Could apply all classifications to same variable
+                        #         # - Could ask user to resolve conflicts
+                        #
+                        # # For multiple classifications, we need to decide how to handle them
+                        # # Option 1: Use the first one (current behavior)
+                        # # Option 2: Apply all classifications (if supported)
+                        # # Option 3: Ask user to choose primary classification
+                        #
+                        # # For now, let's use the first one but log all of them
+                        # primary_classification = classifications[0]
+                        # print(f"DEBUG: Using primary classification: {primary_classification}")
+                        # print(f"DEBUG: All selected classifications would be: {classifications}")
+                        #
+                        # # TODO: Implement proper multiple classification handling
+                        # # For now, you could:
+                        # # 1. Create multiple variable entries
+                        # # 2. Ask user to choose primary classification
+                        # # 3. Apply business rules for multiple classifications
+                        #
+                        # Handle multiple classifications using the new list-based system
+                        if not classifications:
+                            print("DEBUG: No classifications selected")
+                            return
+                            
+                        print(f"DEBUG: Selected classifications: {classifications}")
+                        
+                        # Use the new list-based classification system
+                        # This allows a variable to belong to multiple lists simultaneously
+                        if hasattr(self, 'current_entity') and self.current_entity:
+                            # Update the classification using the new system
+                            self.current_entity.change_classification(var_id, classifications)
+                            print(f"DEBUG: Updated classification for {var_id} to {classifications}")
                             
                             # Refresh UI to show the change
-                        self.current_entity.change_classification(var_id, classification)
-                        self.populate_lists_from_entity(self.current_entity)
+                            self.populate_lists_from_entity(self.current_entity)
+                            print(f"DEBUG: Refreshed UI lists")
 
                             
                             # Show success message
@@ -1152,8 +1280,17 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.current_entity = entity
 
             # Set mode to edit when working with existing entity
-            if self.mode not in ["edit_no_selection", "edit_with_selection"]:
-                self.set_mode("edit_no_selection")  # Start with no selection
+            if self.mode not in ["edit_no_selection", "edit_with_selection", "edit_no_selection_node", "edit_with_selection_node", 
+                                 "edit_no_selection_arc", "edit_with_selection_arc", "edit_reservoir", "edit_with_selection_reservoir"]:
+                # Check if this is a reservoir entity
+                if hasattr(self, 'current_entity_data') and self.current_entity_data:
+                    entity_type = self.current_entity_data.get('entity_type', '')
+                    if 'constant|infinity' in entity_type:
+                        self.set_mode("edit_reservoir")  # Use reservoir-specific edit mode
+                    else:
+                        self.set_mode("edit_no_selection")  # Start with no selection
+                else:
+                    self.set_mode("edit_no_selection")  # Default to regular edit mode
 
             # Use Entity methods directly for all lists
             self.populate_lists_from_entity(entity)

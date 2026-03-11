@@ -165,6 +165,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             self.setWindowTitle("Add Variable (Only definable from existing variables)")
         elif variable_class_mode == 'transport':
             self.setWindowTitle("Add Variable (Select from transport variables)")
+        elif variable_class_mode == 'intensity':
+            self.setWindowTitle("Add Intensity Variable (Secondary state variables for reservoirs)")
         else:
             self.setWindowTitle("Select Variable to Add to Entity Definition")
         
@@ -491,7 +493,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             
         return required_vars
 
-    def _filter_variables_by_rules(self, variables):
+    def _filter_variables_by_rules(self, variables): #RULE: for filtering the variables
         """Filter variables based on entity type rules and exclude already included variables"""
         if not self.entity_type_info:
             # No entity type info, return all variables
@@ -508,6 +510,10 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         elif self.variable_class_mode == 'transport':
             # Transport mode: show only transport variables (for arcs)
             filtered_variables = VariableClassificationRules.filter_variables_by_type(variables, ['transport'])
+        elif self.variable_class_mode == 'intensity':
+            # Intensity mode: show secondary state variables suitable for reservoirs
+            # Filter for variables that can be used as intensity/secondary states
+            filtered_variables = VariableClassificationRules.filter_variables_by_type(variables, ['effort', 'secondaryState'])
         elif self.variable_class_mode == 'all':
             # All variables mode: show all variables applicable to the network
             # Combine all classifications but remove duplicates
@@ -637,7 +643,9 @@ def launch_behavior_association_editor(ontology_container, entity_type_info=None
     Args:
         ontology_container: The ontology container with variables and equations
         entity_type_info: Dictionary containing network, category, entity_type for rule-based filtering
-        variable_class_mode: 'state' for state variables only, 'all' for all applicable variables
+        variable_class_mode: 'state' for state variables only, 'all' for all applicable variables, 
+                           'definable' for variables definable from existing ones,
+                           'transport' for transport variables, 'intensity' for secondary state variables
         current_entity: The current entity object to filter out already included variables
         
     Returns:

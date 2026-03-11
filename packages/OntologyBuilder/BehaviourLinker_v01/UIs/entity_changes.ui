@@ -92,49 +92,56 @@
      <item>
       <widget class="QPushButton" name="pushAddVariable">
        <property name="text">
-        <string>PushButton</string>
+        <string>add var</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushAddStateVariable">
        <property name="text">
-        <string>PushButton</string>
+        <string>add state</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushAddTransport">
        <property name="text">
-        <string>PushButton</string>
+        <string>add transport</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushAddIntensitity">
+       <property name="text">
+        <string>add intensity</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushEditVariable">
        <property name="text">
-        <string>PushButton</string>
+        <string>edi var</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushDeleteVariable">
        <property name="text">
-        <string>PushButton</string>
+        <string>del var</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushAccept">
        <property name="text">
-        <string>PushButton</string>
+        <string>accept</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushCancle">
        <property name="text">
-        <string>PushButton</string>
+        <string>cancle</string>
        </property>
       </widget>
      </item>

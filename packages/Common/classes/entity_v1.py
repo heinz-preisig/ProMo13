@@ -1,5 +1,6 @@
 """Contains the entity class."""
 import collections
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -32,20 +33,21 @@ class Entity():
             init_vars: Optional[List[str]] = None,
             input_vars: Optional[List[str]] = None,
             output_vars: Optional[List[str]] = None,
+            local_variable_classifications: Optional[Dict[str, Dict[str, Any]]] = None,
             ) -> None:
         self.entity_id = entity_id
         self.index_set = index_set
         self.integrators = integrators if integrators is not None else {}
         self.var_eq_forest = var_eq_forest if var_eq_forest is not None else [{}]
         self.init_vars = init_vars if init_vars is not None else []
-        self.input_vars = input_vars if input_vars is not None else []
-        self.output_vars = output_vars if output_vars is not None else []
+        self.input_vars = set(input_vars) if input_vars is not None else set()
+        self.output_vars = set(output_vars) if output_vars is not None else set()
         self.all_equations = all_equations
         self.is_reservoir = False
 
         # Initialize local variable classifications tracking
-        self.local_variable_classifications = {}  # {var_id: {'classification': 'input'/'output'/'none', 'original_list': 'list_name'}}
-        self.classifications_initialized = False
+        self.local_variable_classifications = local_variable_classifications if local_variable_classifications is not None else {}
+        self.classifications_initialized = bool(self.local_variable_classifications)  # True if we have classifications
 
         self.all_included_variables = []
         if entity_id == "Topology" or ">>>" in entity_id:
@@ -225,18 +227,32 @@ class Entity():
 
         # Add variables that have manual classification matching target
         for var_id, classification_info in self.local_variable_classifications.items():
-            if classification_info['classification'] == target_classification:
-                result.add(var_id)
+            classifications = classification_info['classification']
+            # Handle both single string and list of classifications
+            if isinstance(classifications, list):
+                if target_classification in classifications:
+                    result.add(var_id)
+            else:
+                # Legacy single classification
+                if classifications == target_classification:
+                    result.add(var_id)
 
         # Remove variables that have different manual classifications
         for var_id in base_list:
             if var_id in self.local_variable_classifications:
-                if self.local_variable_classifications[var_id]['classification'] != target_classification:
-                    result.discard(var_id)
+                classifications = self.local_variable_classifications[var_id]['classification']
+                # Handle both single string and list of classifications
+                if isinstance(classifications, list):
+                    if target_classification not in classifications:
+                        result.discard(var_id)
+                else:
+                    # Legacy single classification
+                    if classifications != target_classification:
+                        result.discard(var_id)
 
         return sorted(list(result))
 
-    def change_classification(self, var_id, classification):
+    def change_classification(self, var_id, classifications):
         """Change the classification of a variable.
         
         This method updates the manual classification system without modifying raw lists.
@@ -245,19 +261,22 @@ class Entity():
         
         Args:
             var_id: The variable ID to change classification for
-            classification: The new classification ("input", "output", "instantiate", "pending")
+            classifications: List of new classifications (e.g., ["input", "output"])
         """
-        # print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classification}")
+        # print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classifications}")
 
         # Update manual classification system
         if var_id not in self.local_variable_classifications:
             self.local_variable_classifications[var_id] = {
-                    'classification': classification,
-                    'original_list' : f'list_{classification}'
+                    'classification': classifications,
+                    'original_list' : f'list_{classifications[0]}' if classifications else 'list_none'
                     }
         else:
-            old_classification = self.local_variable_classifications[var_id]["classification"]
-            self.local_variable_classifications[var_id]["classification"] = classification
+            old_classifications = self.local_variable_classifications[var_id]["classification"]
+            self.local_variable_classifications[var_id]["classification"] = classifications
+            # Update original_list to first classification if available
+            if classifications:
+                self.local_variable_classifications[var_id]["original_list"] = f'list_{classifications[0]}'
             # NOTE: We do NOT modify raw lists here
             # Raw lists are only modified when variables are actually added/removed
             # Manual classifications are applied when GUI requests lists
@@ -316,31 +335,31 @@ class Entity():
             # Classify variables based on their current entity membership
             for var_id in self.output_vars:
                 self.local_variable_classifications[var_id] = {
-                        'classification': 'output',
+                        'classification': ['output'],
                         'original_list' : 'list_outputs'
                         }
 
             for var_id in self.input_vars:
                 self.local_variable_classifications[var_id] = {
-                        'classification': 'input',
+                        'classification': ['input'],
                         'original_list' : 'list_inputs'
                         }
 
             for var_id in self.get_variables_to_be_instantiated():
                 self.local_variable_classifications[var_id] = {
-                        'classification': 'instantiate',
+                        'classification': ['instantiate'],
                         'original_list' : 'list_instantiate'
                         }
 
             for var_id in self.get_pending_vars():
                 self.local_variable_classifications[var_id] = {
-                        'classification': 'pending',
+                        'classification': ['pending'],
                         'original_list' : 'list_not_defined_variables'
                         }
 
             for var_id in self.get_integrator_vars():
                 self.local_variable_classifications[var_id] = {
-                        'classification': 'integrator',
+                        'classification': ['integrator'],
                         'original_list' : 'list_integrators'
                         }
 
@@ -385,13 +404,11 @@ class Entity():
     def set_input_var(self, var_id, is_input):
         """Legacy method for backward compatibility. Consider using forest-based approach."""
         if not hasattr(self, 'input_vars'):
-            self.input_vars = []
+            self.input_vars = set()
         if is_input:
-            if var_id not in self.input_vars:
-                self.input_vars.append(var_id)
+            self.input_vars.add(var_id)
         else:
-            if var_id in self.input_vars:
-                self.input_vars.remove(var_id)
+            self.input_vars.discard(var_id)
 
     def get_pending_vars(self):
         """Get variables that are not yet defined (need instantiation)."""
@@ -480,13 +497,11 @@ class Entity():
     def set_output_var(self, var_id, is_output):
         """Legacy method for backward compatibility. Consider using forest-based approach."""
         if not hasattr(self, 'output_vars'):
-            self.output_vars = []
+            self.output_vars = set()
         if is_output:
-            if var_id not in self.output_vars:
-                self.output_vars.append(var_id)
+            self.output_vars.add(var_id)
         else:
-            if var_id in self.output_vars:
-                self.output_vars.remove(var_id)
+            self.output_vars.discard(var_id)
 
     def get_init_vars(self):
         """Get initialization variables."""
@@ -562,12 +577,8 @@ class Entity():
         # Removing all variables that are not in the entity from the lists
         # input, output and init
         all_vars = set(self.get_entity_variables())
-        self.input_vars = list(
-                set(self.input_vars).intersection(all_vars)
-                )
-        self.output_vars = list(
-                set(self.output_vars).intersection(all_vars)
-                )
+        self.input_vars = self.input_vars.intersection(all_vars)
+        self.output_vars = self.output_vars.intersection(all_vars)
         self.init_vars = list(
                 set(self.init_vars).intersection(all_vars)
                 )
@@ -849,9 +860,9 @@ class Entity():
                     if hasattr(self, 'init_vars'):
                         self.init_vars = []
                     if hasattr(self, 'input_vars'):
-                        self.input_vars = []
+                        self.input_vars = set()
                     if hasattr(self, 'output_vars'):
-                        self.output_vars = []
+                        self.output_vars = set()
                     if hasattr(self, 'integrators'):
                         self.integrators = {}
 
@@ -1092,8 +1103,9 @@ class Entity():
         entity_dict["integrators"] = self.integrators
         entity_dict["var_eq_forest"] = self.var_eq_forest
         entity_dict["init_vars"] = self.init_vars
-        entity_dict["input_vars"] = self.input_vars
-        entity_dict["output_vars"] = self.output_vars
+        entity_dict["input_vars"] = list(self.input_vars)  # Convert set to list for JSON
+        entity_dict["output_vars"] = list(self.output_vars)  # Convert set to list for JSON
+        entity_dict["local_variable_classifications"] = self.local_variable_classifications  # Save classifications
 
         return entity_dict
 
@@ -1106,16 +1118,27 @@ class Entity():
 
         for var_id, info in self.local_variable_classifications.items():
             classification = info['classification']
-            if classification == 'input':
-                new_input_vars.append(var_id)
-            elif classification == 'output':
-                new_output_vars.append(var_id)
-            elif classification == 'instantiate':
-                new_init_vars.append(var_id)
+            # Handle both single string and list of classifications
+            if isinstance(classification, list):
+                # Multiple classifications
+                if 'input' in classification:
+                    new_input_vars.append(var_id)
+                if 'output' in classification:
+                    new_output_vars.append(var_id)
+                if 'instantiate' in classification:
+                    new_init_vars.append(var_id)
+            else:
+                # Legacy single classification
+                if classification == 'input':
+                    new_input_vars.append(var_id)
+                elif classification == 'output':
+                    new_output_vars.append(var_id)
+                elif classification == 'instantiate':
+                    new_init_vars.append(var_id)
 
         # Update raw lists with manual classifications
-        self.input_vars = new_input_vars
-        self.output_vars = new_output_vars
+        self.input_vars = set(new_input_vars)
+        self.output_vars = set(new_output_vars)
         self.init_vars = new_init_vars
 
     def is_input(self, var_id: str) -> bool:

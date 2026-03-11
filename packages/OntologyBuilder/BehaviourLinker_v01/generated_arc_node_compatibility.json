@@ -1,0 +1,216 @@
+{
+  "metadata": {
+    "generated_by": "DynamicArcOptionsGenerator",
+    "description": "Comprehensive arc-node compatibility mapping with physical domain information",
+    "total_arcs": 5,
+    "generation_timestamp": "1773221577.7553742"
+  },
+  "arc_options": {
+    "macroscopic.arc.mass|convection|lumped.convectiveMassFlow": {
+      "sources": [
+        "macroscopic.node.mass|constant|infinity.massSource",
+        "macroscopic.node.mass|dynamic|lumped.dynamicMass"
+      ],
+      "sinks": [
+        "macroscopic.node.mass|constant|infinity.massSource",
+        "macroscopic.node.mass|dynamic|lumped.dynamicMass"
+      ],
+      "physical_domain": {
+        "effort_variable": "pressure",
+        "token": "mass",
+        "transport_equation": "convection",
+        "flow_variable": "mass_flow_rate"
+      }
+    },
+    "macroscopic.arc.mass|diffusion|lumped.diffusionalMassTransfer": {
+      "sources": [
+        "macroscopic.node.mass|constant|infinity.massSource",
+        "macroscopic.node.mass|dynamic|lumped.dynamicMass"
+      ],
+      "sinks": [
+        "macroscopic.node.mass|constant|infinity.massSource",
+        "macroscopic.node.mass|dynamic|lumped.dynamicMass"
+      ],
+      "physical_domain": {
+        "effort_variable": "chemical_potential",
+        "token": "mass",
+        "transport_equation": "diffusion",
+        "flow_variable": "mass_flow_rate"
+      }
+    },
+    "macroscopic.arc.energy|conduction|lumped.heatConduction": {
+      "sources": [
+        "macroscopic.node.energy|constant|infinity.energySource",
+        "macroscopic.node.energy|dynamic|lumped.thermalMass"
+      ],
+      "sinks": [
+        "macroscopic.node.energy|constant|infinity.energySource",
+        "macroscopic.node.energy|dynamic|lumped.thermalMass"
+      ],
+      "physical_domain": {
+        "effort_variable": "temperature",
+        "token": "energy",
+        "transport_equation": "conduction",
+        "flow_variable": "heat_flow_rate"
+      }
+    },
+    "macroscopic.arc.energy|convection|lumped.convectiveHeatTransfer": {
+      "sources": [
+        "macroscopic.node.energy|constant|infinity.energySource",
+        "macroscopic.node.energy|dynamic|lumped.thermalMass"
+      ],
+      "sinks": [
+        "macroscopic.node.energy|constant|infinity.energySource",
+        "macroscopic.node.energy|dynamic|lumped.thermalMass"
+      ],
+      "physical_domain": {
+        "effort_variable": "temperature",
+        "token": "energy",
+        "transport_equation": "convection",
+        "flow_variable": "heat_flow_rate"
+      }
+    },
+    "macroscopic.arc.charge|conduction|lumped.electricalConduction": {
+      "sources": [
+        "macroscopic.node.charge|constant|infinity.chargeSource",
+        "macroscopic.node.charge|dynamic|lumped.electricalCapacitance"
+      ],
+      "sinks": [
+        "macroscopic.node.charge|constant|infinity.chargeSource",
+        "macroscopic.node.charge|dynamic|lumped.electricalCapacitance"
+      ],
+      "physical_domain": {
+        "effort_variable": "voltage",
+        "token": "charge",
+        "transport_equation": "conduction",
+        "flow_variable": "current"
+      }
+    }
+  },
+  "compatibility_summary": {
+    "total_arcs": 5,
+    "arcs_by_token": {
+      "mass": [
+        "macroscopic.arc.mass|convection|lumped.convectiveMassFlow",
+        "macroscopic.arc.mass|diffusion|lumped.diffusionalMassTransfer"
+      ],
+      "energy": [
+        "macroscopic.arc.energy|conduction|lumped.heatConduction",
+        "macroscopic.arc.energy|convection|lumped.convectiveHeatTransfer"
+      ],
+      "charge": [
+        "macroscopic.arc.charge|conduction|lumped.electricalConduction"
+      ]
+    },
+    "node_compatibility": {
+      "macroscopic.node.mass|constant|infinity.massSource": {
+        "can_be_source": [
+          "macroscopic.arc.mass|convection|lumped.convectiveMassFlow",
+          "macroscopic.arc.mass|diffusion|lumped.diffusionalMassTransfer"
+        ],
+        "can_be_sink": [
+          "macroscopic.arc.mass|convection|lumped.convectiveMassFlow",
+          "macroscopic.arc.mass|diffusion|lumped.diffusionalMassTransfer"
+        ]
+      },
+      "macroscopic.node.mass|dynamic|lumped.dynamicMass": {
+        "can_be_source": [
+          "macroscopic.arc.mass|convection|lumped.convectiveMassFlow",
+          "macroscopic.arc.mass|diffusion|lumped.diffusionalMassTransfer"
+        ],
+        "can_be_sink": [
+          "macroscopic.arc.mass|convection|lumped.convectiveMassFlow",
+          "macroscopic.arc.mass|diffusion|lumped.diffusionalMassTransfer"
+        ]
+      },
+      "macroscopic.node.energy|constant|infinity.energySource": {
+        "can_be_source": [
+          "macroscopic.arc.energy|conduction|lumped.heatConduction",
+          "macroscopic.arc.energy|convection|lumped.convectiveHeatTransfer"
+        ],
+        "can_be_sink": [
+          "macroscopic.arc.energy|conduction|lumped.heatConduction",
+          "macroscopic.arc.energy|convection|lumped.convectiveHeatTransfer"
+        ]
+      },
+      "macroscopic.node.energy|dynamic|lumped.thermalMass": {
+        "can_be_source": [
+          "macroscopic.arc.energy|conduction|lumped.heatConduction",
+          "macroscopic.arc.energy|convection|lumped.convectiveHeatTransfer"
+        ],
+        "can_be_sink": [
+          "macroscopic.arc.energy|conduction|lumped.heatConduction",
+          "macroscopic.arc.energy|convection|lumped.convectiveHeatTransfer"
+        ]
+      },
+      "macroscopic.node.charge|constant|infinity.chargeSource": {
+        "can_be_source": [
+          "macroscopic.arc.charge|conduction|lumped.electricalConduction"
+        ],
+        "can_be_sink": [
+          "macroscopic.arc.charge|conduction|lumped.electricalConduction"
+        ]
+      },
+      "macroscopic.node.charge|dynamic|lumped.electricalCapacitance": {
+        "can_be_source": [
+          "macroscopic.arc.charge|conduction|lumped.electricalConduction"
+        ],
+        "can_be_sink": [
+          "macroscopic.arc.charge|conduction|lumped.electricalConduction"
+        ]
+      }
+    },
+    "connection_statistics": {
+      "max_sources_per_arc": 2,
+      "max_sinks_per_arc": 2,
+      "total_possible_connections": 20
+    }
+  },
+  "physical_domains": {
+    "mass|convection": {
+      "token": "mass",
+      "transport_mechanism": "convection",
+      "effort_variable": "pressure",
+      "flow_variable": "mass_flow_rate",
+      "arcs": [
+        "macroscopic.arc.mass|convection|lumped.convectiveMassFlow"
+      ]
+    },
+    "mass|diffusion": {
+      "token": "mass",
+      "transport_mechanism": "diffusion",
+      "effort_variable": "chemical_potential",
+      "flow_variable": "mass_flow_rate",
+      "arcs": [
+        "macroscopic.arc.mass|diffusion|lumped.diffusionalMassTransfer"
+      ]
+    },
+    "energy|conduction": {
+      "token": "energy",
+      "transport_mechanism": "conduction",
+      "effort_variable": "temperature",
+      "flow_variable": "heat_flow_rate",
+      "arcs": [
+        "macroscopic.arc.energy|conduction|lumped.heatConduction"
+      ]
+    },
+    "energy|convection": {
+      "token": "energy",
+      "transport_mechanism": "convection",
+      "effort_variable": "temperature",
+      "flow_variable": "heat_flow_rate",
+      "arcs": [
+        "macroscopic.arc.energy|convection|lumped.convectiveHeatTransfer"
+      ]
+    },
+    "charge|conduction": {
+      "token": "charge",
+      "transport_mechanism": "conduction",
+      "effort_variable": "voltage",
+      "flow_variable": "current",
+      "arcs": [
+        "macroscopic.arc.charge|conduction|lumped.electricalConduction"
+      ]
+    }
+  }
+}

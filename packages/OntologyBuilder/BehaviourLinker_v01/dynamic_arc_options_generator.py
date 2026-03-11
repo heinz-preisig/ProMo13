@@ -308,16 +308,20 @@ class DynamicArcOptionsGenerator:
                 "sinks": []
             }
             
-            # Find compatible nodes based on token compatibility
-            arc_entity_data = self.entities[arc_entity_name]
-            arc_tokens = self._extract_entity_tokens(arc_entity_data)
+            # Extract token from arc entity name
+            arc_token = self.mapper._extract_token_mechanism(arc_entity_name)
+            if arc_token:
+                arc_token = arc_token.split('|')[0]  # Get just the token part
+            else:
+                continue  # Skip if no token found
             
+            # Find compatible nodes based on token compatibility
             for node_entity_name in node_entities:
                 node_entity_data = self.entities[node_entity_name]
-                node_tokens = self._extract_entity_tokens(node_entity_data)
+                node_tokens = self._extract_entity_tokens_from_name(node_entity_name)
                 
                 # Check token compatibility
-                if self._tokens_compatible(arc_tokens, node_tokens):
+                if self._tokens_compatible([arc_token], node_tokens):
                     arc_options[arc_entity_name]["sources"].append(node_entity_name)
                     arc_options[arc_entity_name]["sinks"].append(node_entity_name)
         
@@ -334,10 +338,45 @@ class DynamicArcOptionsGenerator:
         
         return False
     
+    def _extract_entity_tokens_from_name(self, entity_name: str) -> List[str]:
+        """Extract tokens from entity name (not entity data)"""
+        if ".node." in entity_name and "|" in entity_name:
+            parts = entity_name.split('.')
+            if len(parts) >= 3:
+                token_part = parts[2]
+                if '|' in token_part:
+                    return [token_part.split('|')[0]]
+        return []
+    
     def _extract_entity_tokens(self, entity_data: Dict[str, Any]) -> List[str]:
         """Extract tokens from entity data"""
-        # This would need to be implemented based on how tokens are stored
-        # For now, return empty list as placeholder
+        # Extract from entity name if available
+        if isinstance(entity_data, dict):
+            entity_name = entity_data.get('name', '')
+            # If entity_name is the full entity ID, extract token from it
+            if '.' in entity_name and '|' in entity_name:
+                parts = entity_name.split('.')
+                if len(parts) >= 2:
+                    token_part = parts[2]
+                    if '|' in token_part:
+                        return [token_part.split('|')[0]]
+            
+            # Try to infer token from variables
+            variables = entity_data.get('variables', {})
+            for var_name, var_data in variables.items():
+                if isinstance(var_data, dict):
+                    var_type = var_data.get('type', '').lower()
+                    if var_type == 'effort':
+                        # Infer token from effort variable name
+                        if 'pressure' in var_name.lower():
+                            return ['mass']
+                        elif 'temperature' in var_name.lower():
+                            return ['energy']
+                        elif 'voltage' in var_name.lower():
+                            return ['charge']
+                        elif 'velocity' in var_name.lower() or 'stress' in var_name.lower():
+                            return ['momentum']
+        
         return []
     
     def _tokens_compatible(self, arc_tokens: List[str], node_tokens: List[str]) -> bool:

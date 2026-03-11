@@ -73,6 +73,11 @@ class EntityEditorBackEnd(QObject):
             self.launch_behavior_association_editor(mode='transport')
         elif event == "add_variable":
             self.launch_behavior_association_editor(mode='definable')
+        elif event == "add_intensity":
+            self.launch_behavior_association_editor(mode='intensity')
+        elif event == "add_reservoir_variable":
+            # Handle reservoir variable addition
+            self.handle_reservoir_variable_addition(message)
         elif event == "new_variable_added":
             # Handle new variable addition from frontend
             assignments = message.get("assignments")
@@ -184,7 +189,8 @@ class EntityEditorBackEnd(QObject):
         """Launch the behavior association editor and handle its response
         
         Args:
-            mode: 'state' for state variables only, 'definable' for variables definable from existing ones
+            mode: 'state' for state variables only, 'definable' for variables definable from existing ones,
+                  'transport' for transport variables, 'intensity' for secondary state variables
         """
         try:
             # from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
@@ -664,6 +670,155 @@ class EntityEditorBackEnd(QObject):
             self.message.emit({
                     "event": "error",
                     "error": f"Error handling new variable addition: {str(e)}"
+                    })
+
+    def handle_reservoir_variable_addition(self, message):
+        """Handle addition of a reservoir variable (secondary state) to the entity"""
+        try:
+            variable_id = message.get("variable_id")
+            variable_label = message.get("variable_label")
+            variable_network = message.get("variable_network")
+            
+            if not variable_id:
+                log_error("handle_reservoir_variable_addition", Exception("No variable ID"), "no variable ID provided")
+                self.message.emit({
+                        "event": "error",
+                        "error": "No variable selected for reservoir addition"
+                        })
+                return
+            
+            # Check if we have an entity object
+            if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
+                    entity = self.entity_frontend.current_entity
+                    
+                    # Add reservoir variable to the entity
+                    # Handle both single type and multiple types
+                    if 'variable_types' in message:
+                        # Multiple types for reservoirs
+                        variable_types = message.get("variable_types", ["output"])
+                        for var_type in variable_types:
+                            if var_type == "instantiated":
+                                # Add as initialization variable
+                                entity.set_init_var(variable_id, True)
+                            elif var_type == "computed":
+                                # Add as computed variable (equation-defined)
+                                entity.add_variable_equation(variable_id, f"computed_{variable_id}", {})
+                            elif var_type == "output":
+                                # Add as output variable
+                                entity.set_output_var(variable_id, True)
+                    else:
+                        # Single type for non-reservoir entities
+                        variable_type = message.get("variable_type", "output")
+                        if variable_type == "instantiated":
+                            # Add as initialization variable
+                            entity.set_init_var(variable_id, True)
+                        elif variable_type == "computed":
+                            # Add as computed variable (equation-defined)
+                            entity.add_variable_equation(variable_id, f"computed_{variable_id}", {})
+                        elif variable_type == "output":
+                            # Add as output variable
+                            entity.set_output_var(variable_id, True)
+                    
+                    # Update the frontend to show the change
+                    self.entity_frontend.populate_lists_from_entity(entity)
+                    
+                    # Mark entity as changed
+                    self.entity_frontend.markChanged()
+                    
+                    # Send success message
+                    self.message.emit({
+                        "event": "success",
+                        "message": f"Reservoir variable '{variable_label}' added to entity"
+                        })
+                else:
+                    # No entity object - this means we're in create mode
+                    # Create a new entity with the selected reservoir variable
+                    self._create_entity_with_reservoir_variable(variable_id, variable_label, variable_network)
+            else:
+                # No frontend reference
+                log_error("handle_reservoir_variable_addition", Exception("No frontend reference"), "no entity frontend")
+                self.message.emit({
+                        "event": "error",
+                        "error": "Entity frontend not available"
+                        })
+                        
+        except Exception as e:
+            log_error("handle_reservoir_variable_addition", e, "handling reservoir variable addition")
+            self.message.emit({
+                    "event": "error",
+                    "error": f"Error adding reservoir variable: {str(e)}"
+                    })
+
+    def _create_entity_with_reservoir_variable(self, variable_id, variable_label, variable_network):
+        """Create a new entity with the selected reservoir variable"""
+        try:
+            # Create a new entity object
+            from Common.classes.entity_v1 import Entity
+            
+            # Get entity type information from selected entity type
+            if hasattr(self, 'selected_entity_type') and self.selected_entity_type:
+                entity_type = self.selected_entity_type.get('entity type', '')
+                network = self.selected_entity_type.get('network', 'macroscopic')
+                category = self.selected_entity_type.get('category', 'node')
+                
+                # Create entity ID from entity type info
+                entity_id = f"{network}.{category}.{entity_type}"
+            else:
+                entity_id = "macroscopic.node.mass|constant|infinity"
+            
+            # Create new entity
+            entity = Entity(entity_id, all_equations={})
+            
+            # Add the selected reservoir variable to the entity
+            # For create mode, we don't have variable_type info yet, default to output
+            variable_type = "output"
+            
+            if variable_type == "instantiated":
+                # Add as initialization variable
+                entity.set_init_var(variable_id, True)
+            elif variable_type == "computed":
+                # Add as computed variable (equation-defined)
+                entity.add_variable_equation(variable_id, f"computed_{variable_id}", {})
+            else:
+                # Add as output variable (default)
+                entity.set_output_var(variable_id, True)
+            
+            # Set this as the current entity in frontend
+            if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                self.entity_frontend.current_entity = entity
+                self.entity_frontend.current_entity_data = {
+                    'entity_object': entity,
+                    'entity_id': entity_id,
+                    'entity_name': entity_id
+                }
+                
+                # Update frontend to show the new entity with the reservoir variable
+                self.entity_frontend.populate_lists_from_entity(entity)
+                
+                # Switch to edit mode since we now have an entity
+                self.entity_frontend.set_mode("edit_reservoir")
+                
+                # Mark entity as changed
+                self.entity_frontend.markChanged()
+                
+                # Send success message
+                self.message.emit({
+                    "event": "success",
+                    "message": f"New entity created with reservoir variable '{variable_label}'"
+                    })
+            else:
+                log_error("_create_entity_with_reservoir_variable", Exception("No frontend reference"), "no entity frontend")
+                self.message.emit({
+                        "event": "error",
+                        "error": "Entity frontend not available for entity creation"
+                        })
+                        
+        except Exception as e:
+            log_error("_create_entity_with_reservoir_variable", e, "creating entity with reservoir variable")
+            self.message.emit({
+                    "event": "error",
+                    "error": f"Error creating entity with reservoir variable: {str(e)}"
                     })
 
     def handle_variable_deletion(self, var_id):

@@ -1,0 +1,163 @@
+{
+  "macroscopic.arc.mass|convection|lumped.convectiveMassFlow": {
+    "entity_type": "arc",
+    "name": "Convective Mass Flow",
+    "variables": {
+      "pressure": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "Pa"
+      },
+      "mass_flow_rate": {
+        "type": "flow", 
+        "classification": "flow",
+        "unit": "kg/s"
+      }
+    }
+  },
+  "macroscopic.arc.mass|diffusion|lumped.diffusionalMassTransfer": {
+    "entity_type": "arc",
+    "name": "Diffusional Mass Transfer",
+    "variables": {
+      "chemical_potential": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "J/mol"
+      },
+      "mass_flow_rate": {
+        "type": "flow",
+        "classification": "flow", 
+        "unit": "kg/s"
+      }
+    }
+  },
+  "macroscopic.arc.energy|conduction|lumped.heatConduction": {
+    "entity_type": "arc",
+    "name": "Heat Conduction",
+    "variables": {
+      "temperature": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "K"
+      },
+      "heat_flow_rate": {
+        "type": "flow",
+        "classification": "flow",
+        "unit": "W"
+      }
+    }
+  },
+  "macroscopic.arc.energy|convection|lumped.convectiveHeatTransfer": {
+    "entity_type": "arc",
+    "name": "Convective Heat Transfer",
+    "variables": {
+      "temperature": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "K"
+      },
+      "heat_flow_rate": {
+        "type": "flow",
+        "classification": "flow",
+        "unit": "W"
+      }
+    }
+  },
+  "macroscopic.arc.charge|conduction|lumped.electricalConduction": {
+    "entity_type": "arc",
+    "name": "Electrical Conduction",
+    "variables": {
+      "voltage": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "V"
+      },
+      "current": {
+        "type": "flow",
+        "classification": "flow",
+        "unit": "A"
+      }
+    }
+  },
+  "macroscopic.node.mass|constant|infinity.massSource": {
+    "entity_type": "node",
+    "name": "Mass Source",
+    "variables": {
+      "pressure": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "Pa"
+      }
+    }
+  },
+  "macroscopic.node.mass|dynamic|lumped.dynamicMass": {
+    "entity_type": "node",
+    "name": "Dynamic Mass",
+    "variables": {
+      "pressure": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "Pa"
+      },
+      "mass": {
+        "type": "state",
+        "classification": "state",
+        "unit": "kg"
+      }
+    }
+  },
+  "macroscopic.node.energy|constant|infinity.energySource": {
+    "entity_type": "node",
+    "name": "Energy Source",
+    "variables": {
+      "temperature": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "K"
+      }
+    }
+  },
+  "macroscopic.node.energy|dynamic|lumped.thermalMass": {
+    "entity_type": "node",
+    "name": "Thermal Mass",
+    "variables": {
+      "temperature": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "K"
+      },
+      "energy": {
+        "type": "state",
+        "classification": "state",
+        "unit": "J"
+      }
+    }
+  },
+  "macroscopic.node.charge|constant|infinity.chargeSource": {
+    "entity_type": "node",
+    "name": "Charge Source",
+    "variables": {
+      "voltage": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "V"
+      }
+    }
+  },
+  "macroscopic.node.charge|dynamic|lumped.electricalCapacitance": {
+    "entity_type": "node",
+    "name": "Electrical Capacitance",
+    "variables": {
+      "voltage": {
+        "type": "effort",
+        "classification": "effort",
+        "unit": "V"
+      },
+      "charge": {
+        "type": "state",
+        "classification": "state",
+        "unit": "C"
+      }
+    }
+  }
+}
