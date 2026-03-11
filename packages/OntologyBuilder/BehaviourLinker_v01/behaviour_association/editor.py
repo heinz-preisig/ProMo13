@@ -29,12 +29,12 @@ from OntologyBuilder.BehaviourLinker_v01.UIs.variable_selection import Ui_Dialog
 # Error logging utility
 def log_error(method_name: str, error: Exception, context: str = ""):
     """Log error with method name and context for debugging"""
-    import traceback
     error_msg = f"ERROR in {method_name}"
     if context:
         error_msg += f" ({context})"
     error_msg += f": {str(error)}"
     print(error_msg)  # Keep console output for debugging
+
 
 # Import the required classes from CAM10 resources
 # These will need to be adapted for CAM12
@@ -49,9 +49,6 @@ try:
 except ImportError:
     # Fallback for CAM12 - these will need to be implemented
     pass
-
-
-
 
 base_variant = "base"  # RULE: nomenclature for base case
 pixel_or_text = "text"  # NOTE: variable to set the mode
@@ -130,12 +127,13 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
     # Add signal for cancellation
     cancelled = QtCore.pyqtSignal()
 
-    def __init__(self, ontology_container, entity_type_info=None, variable_class_mode='state', current_entity=None, parent=None):
+    def __init__(self, ontology_container, entity_type_info=None, variable_class_mode='state', current_entity=None,
+                 parent=None):
         super().__init__(parent)
-        
+
         # Use normal dialog window to avoid cancel/close issues
         # self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Dialog)
-        
+
         # Also set window attributes for frameless
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground, False)
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground, False)
@@ -143,10 +141,9 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         # Setup UI using the UI file
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        
+
         # Ensure the UI respects frameless window
         self.ui.listVariables.setFocus()
-
 
         self.ontology_container = ontology_container
         self.ontology_name = ontology_container.ontology_name
@@ -169,35 +166,35 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             self.setWindowTitle("Add Intensity Variable (Secondary state variables for reservoirs)")
         else:
             self.setWindowTitle("Select Variable to Add to Entity Definition")
-        
+
         # Configure the variable list using UISettings
         UISettings.configure_list_widget(self.ui.listVariables, 'variable_selection')
-        
+
         # Additional QListView-specific configuration for icon display
         # Note: Icon size is already set by UISettings.configure_list_widget() above
         self.ui.listVariables.setUniformItemSizes(True)  # Ensure uniform item sizes
         self.ui.listVariables.setViewMode(QtWidgets.QListView.ListMode)  # Ensure list mode
-        
+
         # Enable size adjustment to fit content
         self.ui.listVariables.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.ui.listVariables.setMinimumHeight(200)  # Set minimum height
         self.ui.listVariables.setMinimumWidth(400)  # Set minimum width
-        
+
         # Connect signals
         self.ui.pushCancel.clicked.connect(self.cancel_and_close)
-        
+
         # Store reference for easier access
         self.variable_list = self.ui.listVariables
         self.cancel_button = self.ui.pushCancel
-        
+
         # Use status label from UI file - it's already positioned correctly
         self.status_label = self.ui.statusLabel
         self.status_label.setStyleSheet("QLabel { color: gray; font-style: italic; margin: 5px; }")
         self.status_label.setText("Ready")
-        
+
         # Connect double-click for direct variable selection
         self.ui.listVariables.doubleClicked.connect(self.on_variable_double_clicked)
-        
+
         # Connect single-click for variable selection (highlighting)
         self.ui.listVariables.clicked.connect(self.on_variable_clicked)
 
@@ -232,7 +229,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 var_id = item.data(QtCore.Qt.UserRole)
                 if var_id:
                     self.status_label.setText(f"Selected variable: {var_id}")
-                    
+
                     # Directly proceed to equation selection for this variable
                     self.select_variable_and_build_tree()
                 else:
@@ -286,11 +283,10 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         """Load available variables from the ontology container with filtering based on entity type rules"""
         try:
             variables = self.ontology_container.variables
-            
+
             # Clear the list using QListView model (QListView doesn't have clear() method)
             model = QtGui.QStandardItemModel()
             self.variable_list.setModel(model)
-
 
             # Convert variables to list format for rule processing
             variable_list = []
@@ -310,7 +306,6 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             # Apply filtering rules based on entity type
             filtered_variables = self._filter_variables_by_rules(variable_list)
 
-
             # Load filtered variables into the list
             for var_info in filtered_variables:
                 var_id = var_info['id']
@@ -329,7 +324,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 if var_id in self.preloaded_variable_icons:
                     item.setIcon(self.preloaded_variable_icons[var_id])
                 else:
-                    log_error("load_variables", Exception(f"No icon for variable {var_id}"), f"no icon found for variable {var_id}")
+                    log_error("load_variables", Exception(f"No icon for variable {var_id}"),
+                              f"no icon found for variable {var_id}")
 
                 # Add item to model
                 model.appendRow(item)
@@ -351,26 +347,26 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             model = self.ui.listVariables.model()
             if not model:
                 return
-            
+
             # Calculate optimal height based on number of items
             item_count = model.rowCount()
             if item_count == 0:
                 return
-            
+
             # Get the actual icon size from UI settings or current widget
             icon_size = self.ui.listVariables.iconSize()
             icon_height = icon_size.height()
-            
+
             # Get font metrics for height calculation
             font_metrics = QtGui.QFontMetrics(self.ui.listVariables.font())
             text_height = font_metrics.height() + 8  # Text height + padding
-            
+
             # Use the larger of icon height or text height
             item_height = max(icon_height, text_height)
-            
+
             # Calculate total height with some padding
             total_height = item_height * item_count + 20  # 20px padding
-            
+
             # Calculate width based on content
             max_width = 400
             for row in range(item_count):
@@ -378,15 +374,15 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 if item:
                     text_width = font_metrics.width(item.text()) + icon_size.width() + 20  # icon width + padding
                     max_width = max(max_width, text_width)
-            
+
             # Set the size (but respect reasonable limits)
             max_height = min(total_height, 400)  # Max 400px height
             max_width = min(max_width, 600)  # Max 600px width
-            
+
             self.ui.listVariables.setMinimumHeight(min(200, max_height))
             self.ui.listVariables.setMinimumWidth(min(400, max_width))
 
-            
+
         except Exception as e:
             log_error("adjust_list_view_size", e, "adjusting list view size")
 
@@ -406,7 +402,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             list: Variables that can be defined from already included variables
         """
         definable_variables = []
-        
+
         # Build dependency graph from dependencies lists
         newly_definable = set()
 
@@ -423,21 +419,20 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         for eq_id, equation in equations.items():
             dependencies_set = set(equation.get_dependencies_list())
             lhs = equation.lhs["global_ID"]
-            reduced_dependencies_set = dependencies_set - ( dependencies_set and constant_vars)
-            
+            reduced_dependencies_set = dependencies_set - (dependencies_set and constant_vars)
+
             # If all required variables are available and LHS not already defined
-            if reduced_dependencies_set.issubset(already_included) and (lhs not in already_included) and (lhs not in already_defined):
+            if reduced_dependencies_set.issubset(already_included) and (lhs not in already_included) and (
+                    lhs not in already_defined):
                 newly_definable.add(lhs)
-        
+
         # Convert definable variable IDs to variable info objects
         for var_info in variables:
             if var_info['id'] in newly_definable:
                 definable_variables.append(var_info)
-        
+
         return definable_variables
 
-
-    
     def _get_equation_required_variables(self, equation):
         """
         Extract the variables required by an equation (variables on RHS).
@@ -449,7 +444,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             set: Set of variable IDs required by this equation
         """
         required_vars = set()
-        
+
         try:
             # Try to use the proper variable extraction method if available
             try:
@@ -463,7 +458,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                     return required_vars
             except ImportError:
                 pass  # Fallback to manual parsing if import fails
-            
+
             # Handle different equation formats (fallback)
             if hasattr(equation, 'rhs') and hasattr(equation.rhs, 'get'):
                 # Equation object with rhs dict
@@ -473,7 +468,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                 for term in terms:
                     if term.startswith('V_'):
                         required_vars.add(term)
-                        
+
             elif isinstance(equation, dict) and 'rhs' in equation:
                 # Equation dictionary
                 rhs = equation['rhs']
@@ -487,13 +482,13 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
                     for term in terms:
                         if term.startswith('V_'):
                             required_vars.add(term)
-                            
+
         except Exception as e:
             log_error("_get_equation_required_variables", e, f"extracting required variables from equation")
-            
+
         return required_vars
 
-    def _filter_variables_by_rules(self, variables): #RULE: for filtering the variables
+    def _filter_variables_by_rules(self, variables):  # RULE: for filtering the variables
         """Filter variables based on entity type rules and exclude already included variables"""
         if not self.entity_type_info:
             # No entity type info, return all variables
@@ -513,14 +508,15 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         elif self.variable_class_mode == 'intensity':
             # Intensity mode: show secondary state variables suitable for reservoirs
             # Filter for variables that can be used as intensity/secondary states
-            filtered_variables = VariableClassificationRules.filter_variables_by_type(variables, ['effort', 'secondaryState'])
+            filtered_variables = VariableClassificationRules.filter_variables_by_type(variables,
+                                                                                      ['effort', 'secondaryState'])
         elif self.variable_class_mode == 'all':
             # All variables mode: show all variables applicable to the network
             # Combine all classifications but remove duplicates
-            all_variables = (classification['allowed_root'] + 
-                           classification['inputs'] + 
-                           classification['outputs'])
-            
+            all_variables = (classification['allowed_root'] +
+                             classification['inputs'] +
+                             classification['outputs'])
+
             # Remove duplicates while preserving order
             seen_ids = set()
             filtered_variables = []
@@ -538,8 +534,9 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             instances = entity.get_variables_to_be_instantiated()
             equation_defined = entity.get_equation_defined_vars()
             already_defined_variables = set(inputs + outputs + instances + equation_defined)
-            
-            filtered_variables = self._get_definable_variables_graph_based(variables, already_included, already_defined_variables)
+
+            filtered_variables = self._get_definable_variables_graph_based(variables, already_included,
+                                                                           already_defined_variables)
         else:
             # Default to state mode for unknown modes
             filtered_variables = classification['allowed_root']
@@ -550,7 +547,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         """Select the current variable and build the behavior tree"""
         selection_model = self.variable_list.selectionModel()
         selected_indexes = selection_model.selectedIndexes()
-        
+
         if not selected_indexes:
             makeMessageBox("Please select a variable first")
             return
@@ -559,7 +556,7 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         selected_index = selected_indexes[0]
         model = self.variable_list.model()
         item = model.itemFromIndex(selected_index)
-        
+
         if not item:
             makeMessageBox("No item found for selection")
             return
@@ -636,7 +633,8 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
         return self.entity_assignments
 
 
-def launch_behavior_association_editor(ontology_container, entity_type_info=None, variable_class_mode='state', current_entity=None):
+def launch_behavior_association_editor(ontology_container, entity_type_info=None, variable_class_mode='state',
+                                       current_entity=None):
     """
     Launch the BehaviorAssociation editor
     
@@ -660,7 +658,7 @@ def launch_behavior_association_editor(ontology_container, entity_type_info=None
         app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
     editor = BehaviorAssociationEditor(ontology_container, entity_type_info, variable_class_mode, current_entity)
-    
+
     assignments = None
 
     def on_behavior_defined(result):
@@ -677,15 +675,15 @@ def launch_behavior_association_editor(ontology_container, entity_type_info=None
     # Connect the signals to handle results
     editor.behavior_defined.connect(on_behavior_defined)
     editor.cancelled.connect(on_cancelled)
-    
+
     # Set modal explicitly to ensure proper dialog behavior
     editor.setModal(True)
-    
+
     # Execute the dialog and get the result
     result = editor.exec_()
-    
+
     # If dialog was rejected (cancelled), ensure assignments is None
     if result == QtWidgets.QDialog.Rejected:
         assignments = None
-    
+
     return assignments

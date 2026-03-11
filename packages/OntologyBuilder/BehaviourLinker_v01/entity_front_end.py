@@ -80,12 +80,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         # Connect list widget click handlers
         self.ui.list_not_defined_variables.doubleClicked.connect(self.on_list_pending_variables_double_clicked)
         self.ui.list_not_defined_variables.clicked.connect(self.on_list_pending_variables_single_clicked)
-        
+
         # Connect single-click handlers for other lists to open classification selector
         self.ui.list_inputs.clicked.connect(self.on_list_pending_variables_single_clicked)
         self.ui.list_outputs.clicked.connect(self.on_list_pending_variables_single_clicked)
         self.ui.list_instantiate.clicked.connect(self.on_list_pending_variables_single_clicked)
-        
+
         # Connect other lists only for delete button management (not inputs/outputs/instantiate since they use classification selector)
         self.ui.list_integrators.clicked.connect(self.on_list_item_clicked)
         self.ui.list_included_variables.clicked.connect(self.on_list_item_clicked)
@@ -107,14 +107,14 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.ontology_container = None
         self.selected_entity_type = None
         self.current_entity_data = None
-        
+
         # Edit mode tracking variables
         self.is_edit_mode = False
         self.original_entity_id = None
         self.original_entity = None
-        
+
         global changed
-        
+
         # Setup click timer for double-click detection
         from PyQt5.QtCore import QTimer
         self.click_timer = QTimer()
@@ -219,10 +219,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         if self.selected_entity_type:
             category = self.selected_entity_type.get('category', '').lower()
             entity_type = self.selected_entity_type.get('entity type', '').lower()
-            
+
             # Check if this is a reservoir entity (contains constant|infinity)
             is_reservoir = 'constant|infinity' in entity_type
-            
+
             if category == 'node':
                 if mode == "create":
                     if is_reservoir:
@@ -240,7 +240,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     mode = "edit_no_selection_arc"
                 elif mode == "edit_with_selection":
                     mode = "edit_with_selection_arc"
-        
+
         self.mode = mode
 
         # Configure button visibility based on mode using automaton
@@ -524,7 +524,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         try:
             # Check if this is the first time lists are being calculated
             is_first_time = not hasattr(entity, 'classifications_initialized') or not entity.classifications_initialized
-            
+
             # Get ontology container for variable data
 
             # Clear existing lists and refresh their settings
@@ -661,7 +661,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self._update_mode_based_on_selection()
 
         except Exception as e:
-            log_error("populate_lists_from_entity", e, f"populating lists for {getattr(entity, 'entity_id', 'unknown entity')}")
+            log_error("populate_lists_from_entity", e,
+                      f"populating lists for {getattr(entity, 'entity_id', 'unknown entity')}")
             makeMessageBox(f"Error updating entity lists: {str(e)}")
 
     def process_entity_update(self, data):
@@ -716,8 +717,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         message = {"event": "add_intensity"}
         self.message.emit(message)
 
-    
-    
     def on_pushDeleteVariable_pressed(self):
         """Handle delete variable button - deletes selected variable from entity"""
         try:
@@ -868,11 +867,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
     def on_list_pending_variables_double_clicked(self, index):
         """Handle double-click on pending variables list - go directly to equation selection"""
-        
+
         # Stop the single-click timer to prevent classification dialog from showing
         self.click_timer.stop()
         self.pending_click_data = None
-        
+
         # Get the model and item from the index
         model = self.ui.list_not_defined_variables.model()
         if model and index.isValid():
@@ -881,13 +880,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Get the text and data from the clicked item
                 item_text = item.text()
                 item_data = item.data(QtCore.Qt.UserRole)
-                
+
                 # Extract variable ID from the item text
                 # Format is typically: "label (ID: var_id, Network: network)"
                 var_id = item_data.get('id')
                 var_label = item_data.get('label')
                 var_network = item_data.get('network')
-                
+
                 # Go directly to equation association editor for this variable
                 message = {
                         "event"      : "def_variable",
@@ -899,12 +898,12 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
     def on_list_pending_variables_single_clicked(self, index):
         """Handle single click on pending variables list - store for potential double-click"""
-        
+
         # Get the sender widget to determine which list was clicked
         sender = self.sender()
         if not sender:
             return
-            
+
         # Get the model and item from the index
         model = sender.model()
         if model and index.isValid():
@@ -913,26 +912,26 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Get the text and data from the clicked item
                 item_text = item.text()
                 item_data = item.data(QtCore.Qt.UserRole)
-                
+
                 # Extract variable information
                 var_id = item_data.get('id')
                 var_label = item_data.get('label')
                 var_network = item_data.get('network')
-                
+
                 # Determine which list was clicked
                 list_name = sender.objectName() if hasattr(sender, 'objectName') else 'unknown'
-                
+
                 # Store click data for potential double-click handling
                 self.pending_click_data = {
-                    'type': 'classification',
-                    'index': index,
-                    'var_id': var_id,
-                    'var_label': var_label,
-                    'var_network': var_network,
-                    'sender': sender,
-                    'list_name': list_name
-                    }
-                
+                        'type'       : 'classification',
+                        'index'      : index,
+                        'var_id'     : var_id,
+                        'var_label'  : var_label,
+                        'var_network': var_network,
+                        'sender'     : sender,
+                        'list_name'  : list_name
+                        }
+
                 # Start timer to wait for potential double-click
                 self.click_timer.start(250)  # 250ms delay for double-click detection
         else:
@@ -944,24 +943,24 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         if self.pending_click_data:
             click_data = self.pending_click_data
             self.pending_click_data = None
-            
+
             # Extract variable information from stored click data
             var_id = click_data.get('var_id')
             var_label = click_data.get('var_label')
             var_network = click_data.get('var_network')
             list_name = click_data.get('list_name', 'unknown')
-            
+
             # Check if we're in reservoir editing mode
-            is_reservoir_mode = "constant|infinity" in self.current_entity_data["entity_type"]#'reservoir' in self.mode.lower()
-            
+            is_reservoir_mode = "constant|infinity" in self.current_entity_data[
+                "entity_type"]  # 'reservoir' in self.mode.lower()
+
             # Handle different behavior based on which list was clicked
             if var_id:
                 if list_name in ['list_inputs', 'list_outputs', 'list_instantiate', 'list_not_defined_variables']:
                     # Show classification dialog for these lists
-                    from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QRadioButton, QPushButton, QDialogButtonBox
-                    from PyQt5.QtCore import Qt
+                    from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
                     from OntologyBuilder.BehaviourLinker_v01.UIs.class_selector import Ui_Dialog
-                    
+
                     # Create dialog
                     dialog = QDialog()
                     if is_reservoir_mode:
@@ -969,17 +968,17 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     else:
                         dialog.setWindowTitle("Variable Classification")
                     dialog.resize(200, 150)
-                    
+
                     # Setup UI
                     ui = Ui_Dialog()
                     ui.setupUi(dialog)
-                    
+
                     # Set default selection based on current entity state
                     if hasattr(self, 'current_entity') and self.current_entity:
                         # Check manual classifications first
                         manual_classifications = getattr(self.current_entity, 'local_variable_classifications', {})
                         current_classifications = manual_classifications.get(var_id, {}).get('classification', ['none'])
-                        
+
                         # Handle both single string and list of classifications
                         if isinstance(current_classifications, list):
                             # Multiple classifications - check first one for default
@@ -987,7 +986,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         else:
                             # Legacy single classification
                             current_classification = current_classifications
-                        
+
                         if current_classification == "input":
                             ui.select_input.setChecked(True)
                         elif current_classification == "output":
@@ -996,7 +995,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             ui.radioButton.setChecked(True)
                         else:
                             ui.select_none.setChecked(True)
-                        
+
                         # If multiple classifications, check all applicable boxes
                         if isinstance(current_classifications, list):
                             for classification in current_classifications:
@@ -1006,42 +1005,42 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                                     ui.select_output.setChecked(True)
                                 elif classification == "instantiate":
                                     ui.radioButton.setChecked(True)
-                    
+
                     # Make radio buttons non-exclusive to allow multiple selections
-                    
+
                     # Alternative: Convert to checkboxes for reliable multiple selection
                     ui.select_input.setCheckable(True)
-                    ui.select_output.setCheckable(True) 
+                    ui.select_output.setCheckable(True)
                     ui.radioButton.setCheckable(True)
                     ui.select_none.setCheckable(True)
-                    
+
                     # Add instruction label for reservoir mode
                     if is_reservoir_mode:
                         ui.buttonGroup.setExclusive(False)
                         instruction_label = QLabel("Reservoir mode: Multiple selections allowed")
                         instruction_label.setStyleSheet("QLabel { color: blue; font-style: italic; }")
                         ui.verticalLayout.insertWidget(1, instruction_label)  # Insert after main label
-                    
+
                     # Add OK button to close dialog (since auto-close is disabled)
                     ok_button = QPushButton("OK")
                     ok_button.clicked.connect(dialog.accept)
                     ui.verticalLayout.addWidget(ok_button)
-                    
+
                     # Debug: Print initial state
                     print(f"DEBUG: Reservoir mode: {is_reservoir_mode}")
                     print(f"DEBUG: Button group exclusive property: {ui.buttonGroup.exclusive}")
                     print(f"DEBUG: Button group set to non-exclusive: {not ui.buttonGroup.exclusive}")
-                    
+
                     # Connect radio buttons to close dialog when selected
                     def on_radio_selected():
                         # dialog.accept()
                         pass
-                    
+
                     ui.select_input.toggled.connect(on_radio_selected)
                     ui.select_output.toggled.connect(on_radio_selected)
                     ui.radioButton.toggled.connect(on_radio_selected)  # instantiate radio button
                     ui.select_none.toggled.connect(on_radio_selected)
-                    
+
                     # Show dialog and get result
                     if dialog.exec_() == QDialog.Accepted:
                         # Debug: Print all button states
@@ -1050,7 +1049,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         print(f"DEBUG: Output checked: {ui.select_output.isChecked()}")
                         print(f"DEBUG: Instantiate checked: {ui.radioButton.isChecked()}")
                         print(f"DEBUG: None checked: {ui.select_none.isChecked()}")
-                        
+
                         # Collect all checked classifications (since buttons are now non-exclusive)
                         classifications = []
                         if ui.select_input.isChecked():
@@ -1059,16 +1058,16 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             classifications.append("output")
                         if ui.radioButton.isChecked():  # instantiate radio button
                             classifications.append("instantiate")
-                        
+
                         print(f"DEBUG: Collected classifications: {classifications}")
-                        
+
                         # Handle multiple classifications
                         if not classifications:
                             print("DEBUG: No classifications selected")
                             return
-                            
+
                         print(f"DEBUG: Selected classifications: {classifications}")
-                        
+
                         # Reservoir mode specific handling
                         # if is_reservoir_mode:
                         #     print(f"DEBUG: Reservoir mode - allowing multiple classifications")
@@ -1101,21 +1100,20 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         if not classifications:
                             print("DEBUG: No classifications selected")
                             return
-                            
+
                         print(f"DEBUG: Selected classifications: {classifications}")
-                        
+
                         # Use the new list-based classification system
                         # This allows a variable to belong to multiple lists simultaneously
                         if hasattr(self, 'current_entity') and self.current_entity:
                             # Update the classification using the new system
                             self.current_entity.change_classification(var_id, classifications)
                             print(f"DEBUG: Updated classification for {var_id} to {classifications}")
-                            
+
                             # Refresh UI to show the change
                             self.populate_lists_from_entity(self.current_entity)
                             print(f"DEBUG: Refreshed UI lists")
 
-                            
                             # Show success message
                             # from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
                             # makeMessageBox(f"Variable {var_label} moved to {classification} list", "Success")
@@ -1137,7 +1135,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     }
 
             # Launch the BehaviorAssociation editor in state variable selection mode
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'state', self.current_entity)
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'state',
+                                                             self.current_entity)
 
             if assignments:
                 # Process the state variable selection
@@ -1169,7 +1168,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     }
 
             # Launch the BehaviorAssociation editor in new variable addition mode
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'all', self.current_entity)
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, 'all',
+                                                             self.current_entity)
 
             if assignments:
                 # Process the new variable addition
@@ -1243,7 +1243,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 # Front end only triggers backend processing and displays results
                 if hasattr(self, 'current_entity') and self.current_entity:
                     # Update status
-                    self.status_label.setText(f"New variable '{assignments.get('variable_label', root_variable)}' added to entity")
+                    self.status_label.setText(
+                        f"New variable '{assignments.get('variable_label', root_variable)}' added to entity")
                     self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; margin: 5px; }")
 
                 # Send to backend for processing - use Entity object data if available
@@ -1280,8 +1281,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.current_entity = entity
 
             # Set mode to edit when working with existing entity
-            if self.mode not in ["edit_no_selection", "edit_with_selection", "edit_no_selection_node", "edit_with_selection_node", 
-                                 "edit_no_selection_arc", "edit_with_selection_arc", "edit_reservoir", "edit_with_selection_reservoir"]:
+            if self.mode not in ["edit_no_selection", "edit_with_selection", "edit_no_selection_node",
+                                 "edit_with_selection_node",
+                                 "edit_no_selection_arc", "edit_with_selection_arc", "edit_reservoir",
+                                 "edit_with_selection_reservoir"]:
                 # Check if this is a reservoir entity
                 if hasattr(self, 'current_entity_data') and self.current_entity_data:
                     entity_type = self.current_entity_data.get('entity_type', '')
@@ -1299,7 +1302,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.update_accept_button_visibility()
 
         except Exception as e:
-            log_error("update_entity_from_backend_entity", e, f"updating display for {getattr(entity, 'entity_id', 'unknown entity')}")
+            log_error("update_entity_from_backend_entity", e,
+                      f"updating display for {getattr(entity, 'entity_id', 'unknown entity')}")
             makeMessageBox(f"Error updating entity display: {str(e)}")
 
     def update_entity_from_backend_new(self, entity_data):
@@ -1331,7 +1335,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.clear_all_lists()
 
             # Show status message - all list management should be done by Entity class
-            self.status_label.setText("No Entity object available - pending variable management must be done by Entity class")
+            self.status_label.setText(
+                "No Entity object available - pending variable management must be done by Entity class")
             self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
 
             # Note: All list management should be done by Entity class methods

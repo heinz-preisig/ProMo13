@@ -26,7 +26,6 @@ from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 # Error logging utility
 def log_error(method_name: str, error: Exception, context: str = ""):
     """Log error with method name and context for debugging"""
-    import traceback
     error_msg = f"ERROR in {method_name}"
     if context:
         error_msg += f" ({context})"
@@ -160,16 +159,19 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                         item.setText(eq_label)  # Show only label when PNG works
                         png_loaded = True
                     else:
-                        log_error("load_equation_icons", Exception(f"Preloaded icon is null"), f"preloaded icon from ontology container is null for {eq_id}")
+                        log_error("load_equation_icons", Exception(f"Preloaded icon is null"),
+                                  f"preloaded icon from ontology container is null for {eq_id}")
                 else:
-                    log_error("load_equation_icons", Exception(f"No preloaded icon"), f"no preloaded icon found in ontology container for {eq_id}")
+                    log_error("load_equation_icons", Exception(f"No preloaded icon"),
+                              f"no preloaded icon found in ontology container for {eq_id}")
 
                 # Fallback: try to load PNG if no preloaded icon available
                 if not png_loaded and png_file and os.path.exists(png_file):
                     try:
                         app = QtWidgets.QApplication.instance()
                         if app is None:
-                            log_error("load_equation_icons", Exception(f"No QApplication instance"), f"skipping PNG for {eq_id}")
+                            log_error("load_equation_icons", Exception(f"No QApplication instance"),
+                                      f"skipping PNG for {eq_id}")
                         else:
                             icon_direct = QtGui.QIcon(png_file)
                             if not icon_direct.isNull():
@@ -177,12 +179,15 @@ class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):
                                 item.setText(eq_label)
                                 png_loaded = True
                             else:
-                                log_error("load_equation_icons", Exception(f"Direct PNG loading failed for {eq_id}"), f"PNG loading failed for {eq_id}")
+                                log_error("load_equation_icons", Exception(f"Direct PNG loading failed for {eq_id}"),
+                                          f"PNG loading failed for {eq_id}")
                     except TypeError as e:
-                        log_error("load_equation_icons", e, f"TypeError loading PNG icon for {eq_id} - Qt GUI initialization issue")
+                        log_error("load_equation_icons", e,
+                                  f"TypeError loading PNG icon for {eq_id} - Qt GUI initialization issue")
                     except Exception as e:
                         error_msg = str(e)
-                        log_error("load_equation_icons", e, f"Unexpected error loading PNG icon for {eq_id}: {error_msg}")
+                        log_error("load_equation_icons", e,
+                                  f"Unexpected error loading PNG icon for {eq_id}: {error_msg}")
 
                 # Set text based on whether PNG was successfully loaded
                 if not png_loaded:
@@ -292,7 +297,7 @@ def select_equation_for_variable(variable_data, ontology_container, parent=None)
         app = QtWidgets.QApplication(sys.argv)
 
     dialog = EquationSelectorDialog(variable_data, ontology_container, parent)
-    
+
     # Make dialog modal to block other windows
     if parent:
         dialog.setWindowModality(QtCore.Qt.WindowModal)

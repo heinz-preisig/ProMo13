@@ -9,9 +9,9 @@
 
 """
 
-
-from PyQt5 import QtGui, QtWidgets
 from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
 __project__ = "ProcessModeller  Suite"
 __author__ = "PREISIG, Heinz A"
@@ -24,6 +24,7 @@ __status__ = "beta"
 
 import os
 import sys
+
 root = os.path.abspath(os.path.join(".."))
 sys.path.extend([root,
                  os.path.join(root, 'packages'),
@@ -35,8 +36,6 @@ from OntologyBuilder.BehaviourLinker_v01.main_front_end import BehaviourLinkerFr
 from OntologyBuilder.BehaviourLinker_v01.main_back_end import BehaviourLinerBackEnd
 
 
-
-
 # fmt: on
 def main():
     icon_f = "task_entity_generation.svg"
@@ -44,7 +43,6 @@ def main():
     QtCore.pyqtRemoveInputHook()
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(icon))
-
 
     # Instantiate each once
     frontend = BehaviourLinkerFrontEnd()
@@ -65,8 +63,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-

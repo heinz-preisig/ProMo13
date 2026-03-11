@@ -78,7 +78,7 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
         # Connect button signals explicitly
         self.ui.pushDelete.clicked.connect(self.on_pushDelete_pressed)
         self.ui.pushEdit.clicked.connect(self.on_pushEdit_pressed)
-        
+
         # Connect double-click signal for tree widget
         self.ui.tree_entities.doubleClicked.connect(self.on_tree_entities_double_clicked)
 

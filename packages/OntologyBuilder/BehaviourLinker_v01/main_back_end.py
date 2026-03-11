@@ -4,7 +4,6 @@ import sys
 
 from PyQt5.QtCore import QObject
 from PyQt5.QtCore import pyqtSignal
-from PyQt5 import QtWidgets
 
 from Common.classes.entity_v1 import Entity
 from Common.common_resources import getOntologyName
@@ -139,14 +138,14 @@ class BehaviourLinerBackEnd(QObject):
             # Extract entity types from ontology
             if hasattr(self.ontology_container, 'node_entity_types'):
                 node_entity_types = self.ontology_container.node_entity_types
-            
+
             # Extract arc entity types from ontology
             if hasattr(self.ontology_container, 'arc_entity_types'):
                 arc_entity_types = self.ontology_container.arc_entity_types
 
             data = {
                     "node_entity_types": node_entity_types,
-                    "arc_entity_types"  : arc_entity_types,
+                    "arc_entity_types" : arc_entity_types,
                     "all_entities"     : self.all_entities
                     }
 
@@ -173,7 +172,7 @@ class BehaviourLinerBackEnd(QObject):
             entity = message.get("entity_object")
             is_edit_mode = message.get("is_edit_mode", False)
             original_entity_id = message.get("original_entity_id")
-            
+
             if entity:
                 if is_edit_mode and original_entity_id:
                     # Edit mode - replace the original entity with the edited copy
@@ -285,7 +284,8 @@ class BehaviourLinerBackEnd(QObject):
                 pass
 
         except Exception as e:
-            log_error("update_entity_editor_frontend", e, f"updating frontend for {getattr(entity, 'entity_id', 'unknown entity')}")
+            log_error("update_entity_editor_frontend", e,
+                      f"updating frontend for {getattr(entity, 'entity_id', 'unknown entity')}")
 
     def replace_entity_in_all_entities(self, original_entity_id, edited_entity):
         """Replace the original entity with the edited copy in all_entities"""
@@ -293,7 +293,7 @@ class BehaviourLinerBackEnd(QObject):
             if original_entity_id in self.all_entities:
                 # Replace the original entity with the edited copy
                 self.all_entities[original_entity_id] = edited_entity
-                
+
                 # Convert entities to dictionary format for Exchange Board
                 entities_data = {}
                 for entity_id, entity_obj in self.all_entities.items():
@@ -355,7 +355,6 @@ class BehaviourLinerBackEnd(QObject):
         except Exception as e:
             print(f">>>>>>>>>>>>>>> Error adding entity to all_entities: {e}")
 
-    
     def send_message_to_entity_frontend(self, event, data=None):
         """Send a message to the entity editor frontend"""
         message = {"event": event, "data": data}
@@ -383,7 +382,8 @@ class BehaviourLinerBackEnd(QObject):
                         "assignments": assignments
                         })
             else:
-                log_error("handle_behavior_association", Exception("No assignments"), "no behavior association assignments received")
+                log_error("handle_behavior_association", Exception("No assignments"),
+                          "no behavior association assignments received")
 
         except Exception as e:
             log_error("handle_behavior_association", e, "processing behavior association assignments")
@@ -500,7 +500,8 @@ class BehaviourLinerBackEnd(QObject):
                 if hasattr(self.ontology_container, 'equation_entity_dict'):
                     all_equations = self.ontology_container.equation_entity_dict
                 else:
-                    log_error("load_entity", Exception("equation_entity_dict not found"), "loading entity - no equations available")
+                    log_error("load_entity", Exception("equation_entity_dict not found"),
+                              "loading entity - no equations available")
                     # Return empty entity if no equations available
                     continue
 
@@ -548,22 +549,22 @@ class BehaviourLinerBackEnd(QObject):
         if mode == "edit" and self.entity_type and self.entity_type.get('name'):
             # Edit mode - load existing entity data as a COPY to preserve original
             import copy
-            
+
             entity_network = self.entity_type.get("network")
             entity_category = self.entity_type.get("category")
             entity_type = self.entity_type.get("entity type")
             entity_name = self.entity_type.get('name')
             entity_id = f"{entity_network}.{entity_category}.{entity_type}.{entity_name}"
-            
+
             # Create a deep copy of the original entity for editing
             original_entity = self.all_entities[entity_id]
             entity_copy = copy.deepcopy(original_entity)
-            
+
             # Store reference to original entity for save operations
             self.entity_front_end.original_entity_id = entity_id
             self.entity_front_end.original_entity = original_entity
             self.entity_front_end.is_edit_mode = True
-            
+
             # Load the COPY into the editor, not the original
             self.entity_front_end.set_entity_object(entity_copy)
             self.entity_front_end.set_mode("edit")
@@ -597,7 +598,8 @@ class BehaviourLinerBackEnd(QObject):
         """Generate entity structure from class definition"""
         try:
             if not hasattr(self, 'entity_type') or not self.entity_type:
-                log_error("generate_entity_from_class_definition", Exception("No entity type selected"), "generating entity from class definition")
+                log_error("generate_entity_from_class_definition", Exception("No entity type selected"),
+                          "generating entity from class definition")
                 return False
 
             # Extract entity type information
@@ -611,14 +613,14 @@ class BehaviourLinerBackEnd(QObject):
             # Create name dialog with limiting list to prevent duplicates
             task = UI_GetString("provide a name for the entity", limiting_list=existing_names)
             result = task.exec_()
-            
+
             # Check if dialog was accepted (not rejected or closed)
             if not task.text:
                 # User cancelled the name dialog - close the entity editor and return failure
                 if hasattr(self, 'entity_front_end'):
                     self.entity_front_end.close()
                 return False
-                
+
             entity_name = task.text
             if not entity_name:
                 # User accepted but provided empty name - close the entity editor and return failure
@@ -661,7 +663,7 @@ class BehaviourLinerBackEnd(QObject):
         """Get all existing entity names for a specific entity type"""
         try:
             existing_names = []
-            
+
             # Iterate through all entities to find matching ones
             for entity_id, entity_obj in self.all_entities.items():
                 # Parse entity_id to extract components
@@ -669,17 +671,18 @@ class BehaviourLinerBackEnd(QObject):
                     parts = entity_id.split('.')
                     if len(parts) == 4:
                         entity_net, entity_cat, entity_type_name, entity_name = parts
-                        
+
                         # Check if this entity matches the requested type
-                        if (entity_net == network and 
-                            entity_cat == category and 
-                            entity_type_name == entity_type):
+                        if (entity_net == network and
+                                entity_cat == category and
+                                entity_type_name == entity_type):
                             existing_names.append(entity_name)
-            
+
             return existing_names
-            
+
         except Exception as e:
-            log_error("get_existing_entity_names_for_type", e, f"getting existing names for {network}.{category}.{entity_type}")
+            log_error("get_existing_entity_names_for_type", e,
+                      f"getting existing names for {network}.{category}.{entity_type}")
             return []
 
     def get_variables_for_entity_type(self, network, category, entity_type):

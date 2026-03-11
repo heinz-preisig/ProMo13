@@ -10,7 +10,8 @@ class UISettings:
 
     # Icon sizes for different contexts
     ICON_SIZES = {
-            'variable_selection': QtCore.QSize(240, 56),  # For variable selection lists (20% smaller: 300*0.8=240, 70*0.8=56)
+            'variable_selection': QtCore.QSize(240, 56),
+            # For variable selection lists (20% smaller: 300*0.8=240, 70*0.8=56)
             'equation_selection': QtCore.QSize(320, 85),  # For equation selection lists (increased)
             'entity_variables'  : QtCore.QSize(300, 70),  # For entity variable lists (more compact)
             'entity_equations'  : QtCore.QSize(320, 85),  # For entity equation lists (increased)

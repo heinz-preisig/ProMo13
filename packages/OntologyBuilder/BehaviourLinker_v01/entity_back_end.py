@@ -39,7 +39,7 @@ class EntityEditorBackEnd(QObject):
         """Set the selected entity type from the main tree"""
         try:
             self.selected_entity_type = entity_type_data
-            
+
             # Update frontend with entity type
             if hasattr(self, 'entity_frontend') and self.entity_frontend:
                 self.entity_frontend.set_selected_entity_type(entity_type_data)
@@ -96,14 +96,14 @@ class EntityEditorBackEnd(QObject):
                     self.entity_frontend.markSaved()
 
                 # Check if we're in edit mode and need to replace the original entity
-                if (hasattr(self, 'entity_frontend') and self.entity_frontend and 
-                    hasattr(self.entity_frontend, 'is_edit_mode') and self.entity_frontend.is_edit_mode):
+                if (hasattr(self, 'entity_frontend') and self.entity_frontend and
+                        hasattr(self.entity_frontend, 'is_edit_mode') and self.entity_frontend.is_edit_mode):
                     # We're in edit mode - include information to replace the original entity
                     self.message.emit({
-                            "event"           : "entity_data_ready",
-                            "entity_object"   : entity,  # Send the edited copy
+                            "event"             : "entity_data_ready",
+                            "entity_object"     : entity,  # Send the edited copy
                             "original_entity_id": getattr(self.entity_frontend, 'original_entity_id', None),
-                            "is_edit_mode"    : True
+                            "is_edit_mode"      : True
                             })
                 else:
                     # We're in create mode - just send the new entity
@@ -151,7 +151,9 @@ class EntityEditorBackEnd(QObject):
                                 'root_variable'     : var_id,
                                 'root_equation'     : equation_id,
                                 'use_initialization': False,
-                                'tree'              : {0: {'children': [1], 'parent': None}, 1: {'children': [], 'parent': 0}},
+                                'tree'              : {
+                                        0: {'children': [1], 'parent': None}, 1: {'children': [], 'parent': 0}
+                                        },
                                 'nodes'             : {0: var_id, 1: equation_id},
                                 'IDs'               : {var_id: 0, equation_id: 1}
                                 }
@@ -172,7 +174,8 @@ class EntityEditorBackEnd(QObject):
                             "message": f"Equation association cancelled for {var_id}"
                             })
             else:
-                log_error("process_entity_front_message", Exception(f"Variable {var_id} not found"), "def_variable event")
+                log_error("process_entity_front_message", Exception(f"Variable {var_id} not found"),
+                          "def_variable event")
                 self.message.emit({
                         "event": "error",
                         "error": f"Variable {var_id} not found"
@@ -209,7 +212,8 @@ class EntityEditorBackEnd(QObject):
                 if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
                     current_entity = self.entity_frontend.current_entity
 
-            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, mode, current_entity)
+            assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, mode,
+                                                             current_entity)
             if assignments:
                 # Process the assignments directly
                 self.handle_behavior_association(assignments)
@@ -241,7 +245,7 @@ class EntityEditorBackEnd(QObject):
                 if hasattr(self, 'entity_frontend') and self.entity_frontend:
                     if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
                         existing_entity = self.entity_frontend.current_entity
-                        existing_entity.change_classification(root_variable,"none") # Note: here was the problem
+                        existing_entity.change_classification(root_variable, "none")  # Note: here was the problem
 
                 # Create entity data structure
                 entity_data = {
@@ -278,7 +282,7 @@ class EntityEditorBackEnd(QObject):
                         # Generate the variable-equation forest using Entity's method
                         entity.generate_var_eq_forest(var_eq_assignments)
                         entity.update_var_eq_tree()
-                        
+
                         # IMPORTANT: Refresh GUI to show the new equation in equations list
                         if hasattr(self, 'entity_frontend') and self.entity_frontend:
                             self.entity_frontend.populate_lists_from_entity(entity)
@@ -337,8 +341,8 @@ class EntityEditorBackEnd(QObject):
 
                         # Generate the variable-equation forest using Entity's method
                         entity.generate_var_eq_forest(var_eq_assignments)
-                        entity.update_var_eq_tree()     # Note: update on creation
-                        
+                        entity.update_var_eq_tree()  # Note: update on creation
+
                         # IMPORTANT: Refresh GUI to show the new equation in equations list
                         if hasattr(self, 'entity_frontend') and self.entity_frontend:
                             self.entity_frontend.populate_lists_from_entity(entity)
@@ -365,7 +369,8 @@ class EntityEditorBackEnd(QObject):
                         pass
 
             else:
-                log_error("handle_behavior_association", Exception("No assignments"), "no behavior association assignments received")
+                log_error("handle_behavior_association", Exception("No assignments"),
+                          "no behavior association assignments received")
 
         except Exception as e:
             log_error("handle_behavior_association", e, "processing behavior association assignments")
@@ -579,7 +584,6 @@ class EntityEditorBackEnd(QObject):
                             output_vars=[root_variable]  # Set as output since defined by equation
                             )
 
-
                     entity_data.update({
                             'entity_object': entity,
                             # All list data is managed by the Entity object
@@ -600,7 +604,8 @@ class EntityEditorBackEnd(QObject):
                         pass
 
             else:
-                log_error("handle_state_variable_selection", Exception("No valid state variable"), "no valid state variable in selection")
+                log_error("handle_state_variable_selection", Exception("No valid state variable"),
+                          "no valid state variable in selection")
 
         except Exception as e:
             log_error("handle_state_variable_selection", e, "handling state variable selection")
@@ -638,7 +643,7 @@ class EntityEditorBackEnd(QObject):
                         if var_eq_assignments:
                             entity.generate_var_eq_forest(var_eq_assignments)
                             entity.update_var_eq_tree()
-                            
+
                             # IMPORTANT: Refresh GUI to show the new equation in equations list
                             if hasattr(self, 'entity_frontend') and self.entity_frontend:
                                 self.entity_frontend.populate_lists_from_entity(entity)
@@ -661,9 +666,11 @@ class EntityEditorBackEnd(QObject):
                     if hasattr(self, 'entity_frontend') and self.entity_frontend:
                         self.entity_frontend.update_entity_from_backend_entity(entity)
                 else:
-                    log_error("handle_new_variable_addition", Exception("No entity object"), "no entity object found in entity_data")
+                    log_error("handle_new_variable_addition", Exception("No entity object"),
+                              "no entity object found in entity_data")
             else:
-                log_error("handle_new_variable_addition", Exception("No valid variable"), "no valid new variable in addition")
+                log_error("handle_new_variable_addition", Exception("No valid variable"),
+                          "no valid new variable in addition")
 
         except Exception as e:
             log_error("handle_new_variable_addition", e, "handling new variable addition")
@@ -678,7 +685,7 @@ class EntityEditorBackEnd(QObject):
             variable_id = message.get("variable_id")
             variable_label = message.get("variable_label")
             variable_network = message.get("variable_network")
-            
+
             if not variable_id:
                 log_error("handle_reservoir_variable_addition", Exception("No variable ID"), "no variable ID provided")
                 self.message.emit({
@@ -686,12 +693,12 @@ class EntityEditorBackEnd(QObject):
                         "error": "No variable selected for reservoir addition"
                         })
                 return
-            
+
             # Check if we have an entity object
             if hasattr(self, 'entity_frontend') and self.entity_frontend:
                 if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
                     entity = self.entity_frontend.current_entity
-                    
+
                     # Add reservoir variable to the entity
                     # Handle both single type and multiple types
                     if 'variable_types' in message:
@@ -719,30 +726,31 @@ class EntityEditorBackEnd(QObject):
                         elif variable_type == "output":
                             # Add as output variable
                             entity.set_output_var(variable_id, True)
-                    
+
                     # Update the frontend to show the change
                     self.entity_frontend.populate_lists_from_entity(entity)
-                    
+
                     # Mark entity as changed
                     self.entity_frontend.markChanged()
-                    
+
                     # Send success message
                     self.message.emit({
-                        "event": "success",
-                        "message": f"Reservoir variable '{variable_label}' added to entity"
-                        })
+                            "event"  : "success",
+                            "message": f"Reservoir variable '{variable_label}' added to entity"
+                            })
                 else:
                     # No entity object - this means we're in create mode
                     # Create a new entity with the selected reservoir variable
                     self._create_entity_with_reservoir_variable(variable_id, variable_label, variable_network)
             else:
                 # No frontend reference
-                log_error("handle_reservoir_variable_addition", Exception("No frontend reference"), "no entity frontend")
+                log_error("handle_reservoir_variable_addition", Exception("No frontend reference"),
+                          "no entity frontend")
                 self.message.emit({
                         "event": "error",
                         "error": "Entity frontend not available"
                         })
-                        
+
         except Exception as e:
             log_error("handle_reservoir_variable_addition", e, "handling reservoir variable addition")
             self.message.emit({
@@ -755,25 +763,25 @@ class EntityEditorBackEnd(QObject):
         try:
             # Create a new entity object
             from Common.classes.entity_v1 import Entity
-            
+
             # Get entity type information from selected entity type
             if hasattr(self, 'selected_entity_type') and self.selected_entity_type:
                 entity_type = self.selected_entity_type.get('entity type', '')
                 network = self.selected_entity_type.get('network', 'macroscopic')
                 category = self.selected_entity_type.get('category', 'node')
-                
+
                 # Create entity ID from entity type info
                 entity_id = f"{network}.{category}.{entity_type}"
             else:
                 entity_id = "macroscopic.node.mass|constant|infinity"
-            
+
             # Create new entity
             entity = Entity(entity_id, all_equations={})
-            
+
             # Add the selected reservoir variable to the entity
             # For create mode, we don't have variable_type info yet, default to output
             variable_type = "output"
-            
+
             if variable_type == "instantiated":
                 # Add as initialization variable
                 entity.set_init_var(variable_id, True)
@@ -783,37 +791,38 @@ class EntityEditorBackEnd(QObject):
             else:
                 # Add as output variable (default)
                 entity.set_output_var(variable_id, True)
-            
+
             # Set this as the current entity in frontend
             if hasattr(self, 'entity_frontend') and self.entity_frontend:
                 self.entity_frontend.current_entity = entity
                 self.entity_frontend.current_entity_data = {
-                    'entity_object': entity,
-                    'entity_id': entity_id,
-                    'entity_name': entity_id
-                }
-                
+                        'entity_object': entity,
+                        'entity_id'    : entity_id,
+                        'entity_name'  : entity_id
+                        }
+
                 # Update frontend to show the new entity with the reservoir variable
                 self.entity_frontend.populate_lists_from_entity(entity)
-                
+
                 # Switch to edit mode since we now have an entity
                 self.entity_frontend.set_mode("edit_reservoir")
-                
+
                 # Mark entity as changed
                 self.entity_frontend.markChanged()
-                
+
                 # Send success message
                 self.message.emit({
-                    "event": "success",
-                    "message": f"New entity created with reservoir variable '{variable_label}'"
-                    })
+                        "event"  : "success",
+                        "message": f"New entity created with reservoir variable '{variable_label}'"
+                        })
             else:
-                log_error("_create_entity_with_reservoir_variable", Exception("No frontend reference"), "no entity frontend")
+                log_error("_create_entity_with_reservoir_variable", Exception("No frontend reference"),
+                          "no entity frontend")
                 self.message.emit({
                         "event": "error",
                         "error": "Entity frontend not available for entity creation"
                         })
-                        
+
         except Exception as e:
             log_error("_create_entity_with_reservoir_variable", e, "creating entity with reservoir variable")
             self.message.emit({
@@ -825,7 +834,8 @@ class EntityEditorBackEnd(QObject):
         """Handle deletion of a variable from the entity using enhanced dependency analysis"""
         try:
             if not var_id:
-                log_error("handle_variable_deletion", Exception("No variable ID"), "no variable ID provided for deletion")
+                log_error("handle_variable_deletion", Exception("No variable ID"),
+                          "no variable ID provided for deletion")
                 self.message.emit({
                         "event": "error",
                         "error": "No variable selected for deletion"
@@ -840,7 +850,8 @@ class EntityEditorBackEnd(QObject):
                     # Check if variable exists in entity
                     all_variables = entity.get_entity_variables()
                     if var_id not in all_variables:
-                        log_error("handle_variable_deletion", Exception(f"Variable {var_id} not found"), f"variable {var_id} not found in entity")
+                        log_error("handle_variable_deletion", Exception(f"Variable {var_id} not found"),
+                                  f"variable {var_id} not found in entity")
                         self.message.emit({
                                 "event": "error",
                                 "error": f"Variable {var_id} not found in entity"
@@ -852,7 +863,8 @@ class EntityEditorBackEnd(QObject):
                         entity.var_eq_forest = [{}]  # Initialize with empty forest
 
                     # Use the enhanced variable deletion with dependency analysis
-                    success, message, dependent_equations, orphaned_variables = handle_variable_deletion_with_dependencies(entity, var_id)
+                    success, message, dependent_equations, orphaned_variables = handle_variable_deletion_with_dependencies(
+                        entity, var_id)
 
                     if success:
 

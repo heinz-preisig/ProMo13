@@ -69,55 +69,53 @@ ICONS["LED_red"] = "LED_red.svg"
 
 
 def getIcon(what):
-  try:
-    what in ICONS.keys()
-  except:
-    makeMessageBox("assertation error %s is not in the icon dictionary %s\n I exit" % what, ["OK"])
-    os.exit()
+    try:
+        what in ICONS.keys()
+    except:
+        makeMessageBox("assertation error %s is not in the icon dictionary %s\n I exit" % what, ["OK"])
+        os.exit()
 
-  # f_name = os.path.join(os.getcwd(), 'resources', "icons", ICONS[what])
-  f_name = os.path.join(DIRECTORIES["icon_location"], ICONS[what])
-  # print("debugging .....", f_name)
-  if os.path.exists(f_name):
-    # pm = QtGui.QPixmap(f_name)
-    icon = QtGui.QIcon(f_name)
+    # f_name = os.path.join(os.getcwd(), 'resources', "icons", ICONS[what])
+    f_name = os.path.join(DIRECTORIES["icon_location"], ICONS[what])
+    # print("debugging .....", f_name)
+    if os.path.exists(f_name):
+        # pm = QtGui.QPixmap(f_name)
+        icon = QtGui.QIcon(f_name)
 
-    return icon  # QtGui.QIcon(pm)
-  else:
-    makeMessageBox("no such file : %s" % f_name, ["OK"])
-    pass
+        return icon  # QtGui.QIcon(pm)
+    else:
+        makeMessageBox("no such file : %s" % f_name, ["OK"])
+        pass
+
 
 class roundButton:
 
+    def __init__(self, button, what, tooltip=None, mysize=None):
+        defaultsize = 52
+        if mysize:
+            size = mysize
+        else:
+            size = defaultsize
 
-  def __init__(self, button, what, tooltip=None, mysize=None):
-    defaultsize = 52
-    if mysize:
-      size=mysize
-    else:
-      size = defaultsize
+        BUTTON_ICON_SIZE = QtCore.QSize(size, size)
+        round = 'border-radius: %spx; ' % (size / 2)
+        BUTTON_ICON_STYLE_ROUND = 'background-color: white; '
+        BUTTON_ICON_STYLE_ROUND += 'border-style: outset; '
+        BUTTON_ICON_STYLE_ROUND += 'border-width: 2px; '
+        BUTTON_ICON_STYLE_ROUND += round
+        BUTTON_ICON_STYLE_ROUND += 'border-color: white;    '
+        BUTTON_ICON_STYLE_ROUND += 'font: bold 14px;   '
+        BUTTON_ICON_STYLE_ROUND += 'padding: 6px;'
 
-    BUTTON_ICON_SIZE = QtCore.QSize(size, size)
-    round = 'border-radius: %spx; ' % (size / 2)
-    BUTTON_ICON_STYLE_ROUND = 'background-color: white; '
-    BUTTON_ICON_STYLE_ROUND += 'border-style: outset; '
-    BUTTON_ICON_STYLE_ROUND += 'border-width: 2px; '
-    BUTTON_ICON_STYLE_ROUND += round
-    BUTTON_ICON_STYLE_ROUND += 'border-color: white;    '
-    BUTTON_ICON_STYLE_ROUND += 'font: bold 14px;   '
-    BUTTON_ICON_STYLE_ROUND += 'padding: 6px;'
+        button.setText("")
+        button.setFixedSize(size, size)
+        icon = getIcon(what)
+        button.setIcon(icon)  # getIcon(what))
+        button.setStyleSheet(BUTTON_ICON_STYLE_ROUND)
+        button.setIconSize(BUTTON_ICON_SIZE)
+        button.setToolTip(tooltip)
+        self.button = button
 
-    button.setText("")
-    button.setFixedSize(size,size)
-    icon = getIcon(what)
-    button.setIcon(icon) #getIcon(what))
-    button.setStyleSheet(BUTTON_ICON_STYLE_ROUND)
-    button.setIconSize(BUTTON_ICON_SIZE)
-    button.setToolTip(tooltip)
-    self.button = button
-
-
-
-  def changeIcon(self, what):
-    icon = getIcon(what)
-    self.button.setIcon(icon)
+    def changeIcon(self, what):
+        icon = getIcon(what)
+        self.button.setIcon(icon)

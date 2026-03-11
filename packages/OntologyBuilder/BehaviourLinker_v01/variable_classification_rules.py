@@ -135,7 +135,8 @@ class VariableClassificationRules:
         classification = {
                 'inputs'      : VariableClassificationRules.filter_variables_by_type(variables, rules['input_types']),
                 'outputs'     : VariableClassificationRules.filter_variables_by_type(variables, rules['output_types']),
-                'allowed_root': VariableClassificationRules.filter_variables_by_type(variables, rules['allowed_root_types'])
+                'allowed_root': VariableClassificationRules.filter_variables_by_type(variables,
+                                                                                     rules['allowed_root_types'])
                 }
 
         return classification
