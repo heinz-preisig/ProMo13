@@ -514,8 +514,10 @@ class BehaviourLinerBackEnd(QObject):
                     data[ent_name]["init_vars"],
                     data[ent_name]["input_vars"],
                     data[ent_name]["output_vars"],
-                    data[ent_name].get("local_variable_classifications", {}),  # Load classifications if available
                     )
+            
+            # Generate local variable classifications from the loaded data
+            new_entity.build_local_variable_classifications()
             # Convert base_ prefix to base# for internal consistency
             if "base_" in ent_name:
                 ent_name = ent_name.replace("base_", "base#")

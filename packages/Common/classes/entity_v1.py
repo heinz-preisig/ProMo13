@@ -33,7 +33,6 @@ class Entity():
             init_vars: Optional[List[str]] = None,
             input_vars: Optional[List[str]] = None,
             output_vars: Optional[List[str]] = None,
-            local_variable_classifications: Optional[Dict[str, Dict[str, Any]]] = None,
             ) -> None:
         self.entity_id = entity_id
         self.index_set = index_set
@@ -46,8 +45,8 @@ class Entity():
         self.is_reservoir = False
 
         # Initialize local variable classifications tracking
-        self.local_variable_classifications = local_variable_classifications if local_variable_classifications is not None else {}
-        self.classifications_initialized = bool(self.local_variable_classifications)  # True if we have classifications
+        self.local_variable_classifications = {}
+        self.classifications_initialized = False  # Will be generated when needed
 
         self.all_included_variables = []
         if entity_id == "Topology" or ">>>" in entity_id:
@@ -333,35 +332,47 @@ class Entity():
                 variables = {}
 
             # Classify variables based on their current entity membership
+            # Merge classifications for variables that appear in multiple lists
+            
             for var_id in self.output_vars:
-                self.local_variable_classifications[var_id] = {
-                        'classification': ['output'],
-                        'original_list' : 'list_outputs'
-                        }
+                if var_id not in self.local_variable_classifications:
+                    self.local_variable_classifications[var_id] = {
+                            'classification': [],
+                            'original_list' : 'list_outputs'
+                            }
+                self.local_variable_classifications[var_id]['classification'].append('output')
 
             for var_id in self.input_vars:
-                self.local_variable_classifications[var_id] = {
-                        'classification': ['input'],
-                        'original_list' : 'list_inputs'
-                        }
+                if var_id not in self.local_variable_classifications:
+                    self.local_variable_classifications[var_id] = {
+                            'classification': [],
+                            'original_list' : 'list_inputs'
+                            }
+                self.local_variable_classifications[var_id]['classification'].append('input')
 
-            for var_id in self.get_variables_to_be_instantiated():
-                self.local_variable_classifications[var_id] = {
-                        'classification': ['instantiate'],
-                        'original_list' : 'list_instantiate'
-                        }
+            for var_id in self.init_vars:
+                if var_id not in self.local_variable_classifications:
+                    self.local_variable_classifications[var_id] = {
+                            'classification': [],
+                            'original_list' : 'list_instantiate'
+                            }
+                self.local_variable_classifications[var_id]['classification'].append('instantiate')
 
             for var_id in self.get_pending_vars():
-                self.local_variable_classifications[var_id] = {
-                        'classification': ['pending'],
-                        'original_list' : 'list_not_defined_variables'
-                        }
+                if var_id not in self.local_variable_classifications:
+                    self.local_variable_classifications[var_id] = {
+                            'classification': [],
+                            'original_list' : 'list_not_defined_variables'
+                            }
+                self.local_variable_classifications[var_id]['classification'].append('pending')
 
             for var_id in self.get_integrator_vars():
-                self.local_variable_classifications[var_id] = {
-                        'classification': ['integrator'],
-                        'original_list' : 'list_integrators'
-                        }
+                if var_id not in self.local_variable_classifications:
+                    self.local_variable_classifications[var_id] = {
+                            'classification': [],
+                            'original_list' : 'list_integrators'
+                            }
+                self.local_variable_classifications[var_id]['classification'].append('integrator')
 
             # Mark that classifications have been initialized
             self.classifications_initialized = True
@@ -1105,7 +1116,6 @@ class Entity():
         entity_dict["init_vars"] = self.init_vars
         entity_dict["input_vars"] = list(self.input_vars)  # Convert set to list for JSON
         entity_dict["output_vars"] = list(self.output_vars)  # Convert set to list for JSON
-        entity_dict["local_variable_classifications"] = self.local_variable_classifications  # Save classifications
 
         return entity_dict
 
