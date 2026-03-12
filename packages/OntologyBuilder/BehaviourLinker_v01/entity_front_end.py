@@ -746,6 +746,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Populate pending variables using Entity method
             # if hasattr(entity, 'get_pending_vars'):
             pending_vars = entity.get_pending_vars()
+            print(f"=== FRONTEND DEBUG: pending_vars = {pending_vars} ===")
 
             for var_id in pending_vars:
                 if var_id in variables:
@@ -755,6 +756,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'label'  : var_data.get('label', var_id),
                             'network': var_data.get('network', 'unknown')
                             }
+                    print(f"=== FRONTEND DEBUG: Adding pending var {var_id} to list ===")
                     self.add_variable_to_list(self.ui.list_not_defined_variables, var_info)
 
             # Setup selection handlers now that lists are populated

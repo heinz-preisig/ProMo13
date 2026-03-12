@@ -207,7 +207,16 @@ class Entity():
         # Add equation-defined variables from forest (this catches variables like V_154 that have equations but aren't yet classified)
         equation_defined_from_forest = set(self.get_equation_defined_vars())
         all_vars.update(equation_defined_from_forest)
-
+        
+        # IMPORTANT: Also add ALL variables from var_eq_forest to catch unclassified variables
+        # This includes variables like V_196 that exist in the forest but aren't in any explicit list
+        if hasattr(self, 'var_eq_forest') and self.var_eq_forest:
+            for tree in self.var_eq_forest:
+                for key, values in tree.items():
+                    if key.startswith('V_'):  # Only add variables, not equations
+                        all_vars.add(key)
+        
+        print(f"=== ENTITY VARS DEBUG: final all_vars = {all_vars} ===")
         return sorted(list(all_vars))
 
     def _apply_manual_classifications(self, base_list, target_classification):
@@ -232,38 +241,43 @@ class Entity():
         # Get current entity variables to filter out deleted ones
         current_entity_vars = set(self.get_entity_variables())
 
-
-        # Add variables that have manual classification matching target
-        for var_id, classification_info in self.local_variable_classifications.items():
-            # Skip variables that no longer exist in the entity
-            if var_id not in current_entity_vars:
-
-                continue
-                
-            classifications = classification_info['classification']
-            # Handle both single string and list of classifications
-            if isinstance(classifications, list):
-                if target_classification in classifications:
-                    result.add(var_id)
-
-            else:
-                # Legacy single classification
-                if classifications == target_classification:
-                    result.add(var_id)
-
-
-        # Remove variables that have different manual classifications
-        for var_id in base_list:
-            if var_id in self.local_variable_classifications:
-                classifications = self.local_variable_classifications[var_id]['classification']
+        # Special case: For pending classification, don't remove variables that have no defining equations
+        if target_classification == "pending":
+            equation_defined_vars = set(self.get_equation_defined_vars())
+            # Variables without defining equations should always be pending, regardless of manual classification
+            truly_pending = set(base_list) - equation_defined_vars
+            result = truly_pending
+            print(f"=== PENDING DEBUG: truly_pending = {truly_pending} ===")
+        else:
+            # Add variables that have manual classification matching target
+            for var_id, classification_info in self.local_variable_classifications.items():
+                # Skip variables that no longer exist in the entity
+                if var_id not in current_entity_vars:
+                    continue
+                    
+                classifications = classification_info['classification']
                 # Handle both single string and list of classifications
                 if isinstance(classifications, list):
-                    if target_classification not in classifications:
-                        result.discard(var_id)
+                    if target_classification in classifications:
+                        result.add(var_id)
+
                 else:
                     # Legacy single classification
-                    if classifications != target_classification:
-                        result.discard(var_id)
+                    if classifications == target_classification:
+                        result.add(var_id)
+
+            # Remove variables that have different manual classifications
+            for var_id in base_list:
+                if var_id in self.local_variable_classifications:
+                    classifications = self.local_variable_classifications[var_id]['classification']
+                    # Handle both single string and list of classifications
+                    if isinstance(classifications, list):
+                        if target_classification not in classifications:
+                            result.discard(var_id)
+                    else:
+                        # Legacy single classification
+                        if classifications != target_classification:
+                            result.discard(var_id)
 
         # Final filter to ensure no deleted variables are included
         result = result.intersection(current_entity_vars)
@@ -443,12 +457,10 @@ class Entity():
 
     def get_pending_vars(self):
         """Get variables that are not yet defined (need instantiation)."""
-        # Compute directly from current entity state to avoid recursion
-        try:
-            pending_vars = self.pending_vars
-        except:
-            # a = self._get_all_vars_equs_vars_in_eqs_and_integrators_from_forest()
-            pending_vars = self._get_raw_pending_vars(self.get_entity_variables(), self.get_equation_defined_vars(), self.get_init_vars())
+        # Always compute fresh to avoid caching issues
+
+
+        pending_vars = self._get_raw_pending_vars(self.get_entity_variables(), self.get_equation_defined_vars(), self.get_init_vars())
 
         # Apply manual classifications for pending
         return self._apply_manual_classifications(sorted(list(pending_vars)), "pending")
@@ -458,10 +470,21 @@ class Entity():
         # equation_defined_variables = self.get_equation_defined_vars()
         # init_vars = self.get_init_vars()
 
-        # Variables that are not in any of the main lists (input, output, instantiate)
-        # These are the truly "pending" variables
-        main_list_vars = set(self.input_vars) | set(self.output_vars) | set(init_vars)
-        pending_vars = set(all_included_vars) - set(equation_defined_variables) -  set(self.input_vars)
+        # Variables that are not defined by any equation are pending
+        # This should be independent of their classification (input/output/instantiate)
+        # BUT: Variables that are instantiated (in init_vars) are already "defined" via instantiate operator
+        print(f"=== DEBUG PENDING VARS ===")
+        print(f"all_included_vars: {all_included_vars}")
+        print(f"equation_defined_variables: {equation_defined_variables}")
+        print(f"init_vars: {init_vars}")
+        
+        # Start with variables not defined by equations
+        not_equation_defined = set(all_included_vars) - set(equation_defined_variables)
+        # Then remove instantiated variables since they're already defined via instantiate operator
+        pending_vars = not_equation_defined - set(init_vars)
+        
+        print(f"computed pending_vars: {pending_vars}")
+        print(f"=== END DEBUG ===")
         return pending_vars
 
     def getLHS(self, equ_id):
@@ -567,28 +590,58 @@ class Entity():
             List of variable IDs defined by equations (excluding transport variables if all_variables provided)
         """
         # Get equation-defined variables from forest (comprehensive approach)
+
         equation_defined_vars = set()
+        equations = self.get_equations()
+        print(f"=== EQUATION DEBUG: get_equations() returns {equations} ===")
         
+        for eq in equations:
+            if eq in self.all_equations:
+                lhs_var = self.all_equations[eq].lhs["global_ID"]
+                equation_defined_vars.add(lhs_var)
+                print(f"=== EQUATION DEBUG: {eq} defines {lhs_var} ===")
+            else:
+                print(f"=== EQUATION DEBUG: {eq} not found in all_equations ===")
+
+        print(f"=== EQUATION DEBUG: final equation_defined_vars = {equation_defined_vars} ===")
+        
+        # Also check what's in the forest for comparison
+        forest_vars = set()
         if hasattr(self, 'var_eq_forest') and self.var_eq_forest is not None:
             for tree in self.var_eq_forest:
                 for key, values in tree.items():
                     if key.startswith('V_') and values:  # Variable with equations
-                        equation_defined_vars.add(key)
+                        forest_vars.add(key)
+        print(f"=== EQUATION DEBUG: forest equation-defined vars = {forest_vars} ===")
         
-        # Filter out transport variables if all_variables is provided
-        if all_variables is not None:
-            non_transport_vars = set()
-            for var_id in equation_defined_vars:
-                if var_id in all_variables:
-                    var_obj = all_variables[var_id]
-                    if hasattr(var_obj, 'type') and var_obj.type != 'transport':
-                        non_transport_vars.add(var_id)
-                else:
-                    # If variable not found in all_variables, include it (fallback behavior)
-                    non_transport_vars.add(var_id)
-            equation_defined_vars = non_transport_vars
-
+        pass
         return sorted(list(equation_defined_vars))
+
+
+
+
+        # equation_defined_vars = set()
+        #
+        # if hasattr(self, 'var_eq_forest') and self.var_eq_forest is not None:
+        #     for tree in self.var_eq_forest:
+        #         for key, values in tree.items():
+        #             if key.startswith('V_') and values:  # Variable with equations
+        #                 equation_defined_vars.add(key)
+        #
+        # # Filter out transport variables if all_variables is provided
+        # if all_variables is not None:
+        #     non_transport_vars = set()
+        #     for var_id in equation_defined_vars:
+        #         if var_id in all_variables:
+        #             var_obj = all_variables[var_id]
+        #             if hasattr(var_obj, 'type') and var_obj.type != 'transport':
+        #                 non_transport_vars.add(var_id)
+        #         else:
+        #             # If variable not found in all_variables, include it (fallback behavior)
+        #             non_transport_vars.add(var_id)
+        #     equation_defined_vars = non_transport_vars
+        #
+        # return sorted(list(equation_defined_vars))
 
     def set_output_var(self, var_id, is_output):
         """Legacy method for backward compatibility. Consider using forest-based approach."""
