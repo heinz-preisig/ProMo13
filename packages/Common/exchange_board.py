@@ -434,11 +434,31 @@ class ProMoExchangeBoard():
         try:
             path = FILES["variable_assignment_to_entity_object"] % self.ontology_name
             
+            # Clean up var_eq_forest data before saving to ensure proper format
+            cleaned_entities = {}
+            for entity_key, entity_data in entities_dict.items():
+                cleaned_data = entity_data.copy()
+                if 'var_eq_forest' in entity_data:
+                    cleaned_forest = []
+                    for tree in entity_data['var_eq_forest']:
+                        cleaned_tree = {}
+                        for key, values in tree.items():
+                            # Ensure values are lists without duplicates
+                            if isinstance(values, (list, set)):
+                                # Convert to set to remove duplicates, then to list
+                                cleaned_values = list(set(values))
+                                cleaned_tree[key] = cleaned_values
+                            else:
+                                cleaned_tree[key] = values
+                        cleaned_forest.append(cleaned_tree)
+                    cleaned_data['var_eq_forest'] = cleaned_forest
+                cleaned_entities[entity_key] = cleaned_data
+            
             # Save entities to file
             with open(path, 'w', encoding='utf-8') as file:
-                json.dump(entities_dict, file, indent=4)
+                json.dump(cleaned_entities, file, indent=4)
             
-            print(f"Saved {len(entities_dict)} entities to {path}")
+            print(f"Saved {len(cleaned_entities)} entities to {path}")
             
             # Update equation_entity_dict
             self.equation_entity_dict = self.__makeEquationClassesDictionary()
@@ -1319,6 +1339,25 @@ class ProMoExchangeBoard():
 
     def __load_variable_assignment_file(self, file_name):
         data = getData(file_name)
+        
+        # Clean up var_eq_forest data to handle JSON serialization issues
+        if data:
+            for entity_key, entity_data in data.items():
+                if 'var_eq_forest' in entity_data:
+                    cleaned_forest = []
+                    for tree in entity_data['var_eq_forest']:
+                        cleaned_tree = {}
+                        for key, values in tree.items():
+                            # Convert lists to sets to remove duplicates, then back to lists
+                            if isinstance(values, list):
+                                # Remove duplicates by converting to set and back
+                                cleaned_values = list(set(values))
+                                cleaned_tree[key] = cleaned_values
+                            else:
+                                cleaned_tree[key] = values
+                        cleaned_forest.append(cleaned_tree)
+                    entity_data['var_eq_forest'] = cleaned_forest
+        
         return data
 
     def __load_arc_options_to_file(self):
