@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 from Common.classes.entity_v1 import Entity
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import select_equation_for_variable
+from .state_manager import get_state_manager
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -34,6 +35,10 @@ class EntityEditorBackEnd(QObject):
         super().__init__()
         self.ontology_container = ontology_container
         self.selected_entity_type = None
+        
+        # Initialize state manager
+        self.state_manager = get_state_manager()
+        self.state_manager.set_backend(self)
 
     def set_selected_entity_type_or_entity(self, entity_type_data):
         """Set the selected entity type from the main tree"""
@@ -62,6 +67,8 @@ class EntityEditorBackEnd(QObject):
     def set_entity_frontend(self, entity_frontend):
         """Set the entity frontend reference for direct updates"""
         self.entity_frontend = entity_frontend
+        # Set frontend reference in state manager
+        self.state_manager.set_frontend(entity_frontend)
 
     def process_entity_front_message(self, message):
         """Process messages from the entity editor frontend"""
@@ -128,21 +135,73 @@ class EntityEditorBackEnd(QObject):
                 variable_data = self.ontology_container.variables[var_id]
 
                 # Launch equation selector for this specific variable
-                # DISABLED: EquationSelectorDialog causes SIGSEGV during cleanup
-
-
+                # RE-ENABLED: Use the working EquationSelectorDialog
+                from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import EquationSelectorDialog
+                from PyQt5 import QtWidgets
                 
-                # Show a simple message instead of opening the problematic dialog
-                self.message.emit({
-                    "event": "info",
-                    "message": f"Equation selector for {var_id} is disabled due to SIGSEGV crashes. The dialog works but causes crashes on cleanup."
-                })
+                # Create dialog (parent is None since we're in backend)
+                dialog = EquationSelectorDialog(variable_data, self.ontology_container, None)
+                result = dialog.exec_()
                 
-                # Return a mock assignment to simulate successful selection
-                assignments = {
-                    'equation_id': None,  # Initialization
-                    'use_initialization': True
-                }
+                if result == QtWidgets.QDialog.Accepted:
+                    # Get the selection and process it
+                    selection = dialog.get_selection()
+                    equation_id = selection.get('equation_id')
+                    use_initialization = selection.get('use_initialization', False)
+                    
+                    # Create the assignment structure (same as before)
+                    if use_initialization:
+                        # For initialization, don't include equation in tree/nodes
+                        print(f"=== EQUATION DIALOG DEBUG: Creating initialization assignment for {var_id} ===")
+                        assignments = {
+                            'root_variable'     : var_id,
+                            'root_equation'     : None,
+                            'use_initialization': True,
+                            'tree'              : {},  # Empty tree for initialization
+                            'nodes'             : {},  # Empty nodes for initialization
+                            'IDs'               : {}
+                        }
+                    else:
+                        # For equation assignment, include equation in tree structure
+                        print(f"=== EQUATION DIALOG DEBUG: Creating equation assignment for {var_id} with {equation_id} ===")
+                        assignments = {
+                            'root_variable'     : var_id,
+                            'root_equation'     : equation_id,
+                            'use_initialization': False,
+                            'tree'              : {
+                                0: {'children': [1], 'parent': None}, 
+                                1: {'children': [], 'parent': 0}
+                            },
+                            'nodes'             : {0: var_id, 1: equation_id},
+                            'IDs'               : {var_id: 0, equation_id: 1}
+                        }
+                    
+                    # Process the assignments using the same logic as handle_behavior_association
+                    self.handle_behavior_association(assignments)
+                    
+                    # IMPORTANT: Refresh UI to show the changes in lists
+                    try:
+                        entity = self.state_manager.get_current_entity()
+                        if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                            self.entity_frontend.populate_lists_from_entity(entity)
+                            print(f"=== EQUATION DIALOG DEBUG: Refreshed UI after equation assignment ===")
+                    except Exception as e:
+                        print(f"=== EQUATION DIALOG DEBUG: Error refreshing UI: {e} ===")
+                    
+                    # Show success message
+                    if equation_id:
+                        self.message.emit({
+                            "event": "info",
+                            "message": f"Equation {equation_id} assigned to variable {var_id}"
+                        })
+                    else:
+                        self.message.emit({
+                            "event": "info", 
+                            "message": f"Variable {var_id} marked for initialization"
+                        })
+                else:
+                    # User cancelled the dialog
+                    return
                 
 
 
@@ -201,16 +260,10 @@ class EntityEditorBackEnd(QObject):
                         
                         # Update frontend to show the changes
                         if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                            if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
-
-                                self.entity_frontend.update_entity_from_backend_entity(self.entity_frontend.current_entity)
-
-                                
-                                # Clear references to prevent SIGSEGV during cleanup
-
-                                self.entity_frontend = None
-
-                            else:
+                            try:
+                                current_entity = self.state_manager.get_current_entity()
+                                self.entity_frontend.update_entity_from_backend_entity(current_entity)
+                            except ValueError:
                                 pass  # No current entity to update
 
                         else:
@@ -271,9 +324,11 @@ class EntityEditorBackEnd(QObject):
 
             # Launch the BehaviorAssociation editor with entity type info
             current_entity = None
-            if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
-                    current_entity = self.entity_frontend.current_entity
+            try:
+                current_entity = self.state_manager.get_current_entity()
+            except ValueError:
+                # No current entity exists
+                pass
 
             assignments = launch_behavior_association_editor(self.ontology_container, entity_type_info, mode,
                                                              current_entity)
@@ -305,10 +360,20 @@ class EntityEditorBackEnd(QObject):
 
                 # Check if we already have an entity object from previous operations
                 existing_entity = None
-                if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                    if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
-                        existing_entity = self.entity_frontend.current_entity
-                        existing_entity.change_classification(root_variable, "none")  # Note: here was the problem
+                try:
+                    existing_entity = self.state_manager.get_current_entity()
+                except ValueError:
+                    # No current entity exists
+                    pass
+                
+                if existing_entity:
+                    # Set classification based on initialization setting
+                    if use_initialization:
+                        print(f"=== BEHAVIOR ASSOC DEBUG: Setting {root_variable} to instantiate ===")
+                        existing_entity.change_classification(root_variable, ["instantiate"])
+                    else:
+                        print(f"=== BEHAVIOR ASSOC DEBUG: Setting {root_variable} to none ===")
+                        existing_entity.change_classification(root_variable, "none")
 
                 # Create entity data structure
                 entity_data = {
@@ -384,14 +449,15 @@ class EntityEditorBackEnd(QObject):
                     all_equations = getattr(self.ontology_container, 'equation_entity_dict', {})
 
                     # Create entity with empty forest (like in the old implementation)
-                    entity = Entity(
-                            entity_id=entity_id,
-                            all_equations=all_equations,
-                            var_eq_forest=[{}],  # Initialize with empty forest
-                            init_vars=[],
-                            input_vars=[],
-                            output_vars=[],
-                            )
+                    # IMPORTANT: Use state manager for consistent Entity handling
+                    entity = self.state_manager.get_or_create_entity(
+                        entity_id=entity_id,
+                        all_equations=all_equations,
+                        var_eq_forest=[{}],  # Initialize with empty forest
+                        init_vars=[],
+                        input_vars=[],
+                        output_vars=[]
+                    )
 
                     # Set up variable-equation relationships using the Entity's built-in method
                     var_eq_assignments = self.extract_var_eq_assignments(assignments)
@@ -415,8 +481,8 @@ class EntityEditorBackEnd(QObject):
                                 'entity_object': entity,  # Send the actual Entity object
                                 })
 
-                        # IMPORTANT: Store the Entity object in the frontend for future updates
-                        self.entity_frontend.current_entity = entity
+                        # IMPORTANT: Store the Entity object in the state manager and frontend for future updates
+                        self.state_manager.update_entity_state(entity)
 
                 # Update entity locally - don't send to main backend yet
 
@@ -523,9 +589,10 @@ class EntityEditorBackEnd(QObject):
                 entity = None
 
                 # Check if frontend already has an Entity object
-                if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                    if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
-                        entity = self.entity_frontend.current_entity
+                try:
+                    entity = self.state_manager.get_current_entity()
+                except ValueError:
+                    entity = None
 
                 # Create new Entity if none exists
                 if entity is None:
@@ -535,10 +602,10 @@ class EntityEditorBackEnd(QObject):
                             all_equations=all_equations
                             )
 
-                    # Store Entity object in both places
+                    # Store Entity object in state manager and frontend
                     entity_data['entity_object'] = entity
                     if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                        self.entity_frontend.current_entity = entity
+                        self.state_manager.update_entity_state(entity)
 
                 # Add variable and equation to Entity using its built-in method
                 entity.add_variable_equation(root_variable, root_equation, assignments)
@@ -638,14 +705,15 @@ class EntityEditorBackEnd(QObject):
                     if root_equation and not assignments.get('use_initialization', False):
                         add_var_eq_info[root_variable] = [root_equation]
 
-                    entity = Entity(
-                            entity_id=entity_name,
-                            all_equations=all_equations,
-                            var_eq_forest=var_eq_forest,  # Use the populated forest
-                            init_vars=[root_variable],  # Add state variable to initialization list
-                            input_vars=[],
-                            output_vars=[root_variable]  # Set as output since defined by equation
-                            )
+                    # IMPORTANT: Use state manager for consistent Entity handling
+                    entity = self.state_manager.get_or_create_entity(
+                        entity_id=entity_name,
+                        all_equations=all_equations,
+                        var_eq_forest=var_eq_forest,  # Use the populated forest
+                        init_vars=[root_variable],  # Add state variable to initialization list
+                        input_vars=[],
+                        output_vars=[root_variable]  # Set as output since defined by equation
+                    )
 
                     entity_data.update({
                             'entity_object': entity,
@@ -758,39 +826,42 @@ class EntityEditorBackEnd(QObject):
                 return
 
             # Check if we have an entity object
-            if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
-                    entity = self.entity_frontend.current_entity
+            try:
+                entity = self.state_manager.get_current_entity()
+            except ValueError:
+                entity = None
 
-                    # Add reservoir variable to the entity
-                    # Handle both single type and multiple types
-                    if 'variable_types' in message:
-                        # Multiple types for reservoirs
-                        variable_types = message.get("variable_types", ["output"])
-                        for var_type in variable_types:
-                            if var_type == "instantiated":
-                                # Add as initialization variable
-                                entity.set_init_var(variable_id, True)
-                            elif var_type == "computed":
-                                # Add as computed variable (equation-defined)
-                                entity.add_variable_equation(variable_id, f"computed_{variable_id}", {})
-                            elif var_type == "output":
-                                # Add as output variable
-                                entity.set_output_var(variable_id, True)
-                    else:
-                        # Single type for non-reservoir entities
-                        variable_type = message.get("variable_type", "output")
-                        if variable_type == "instantiated":
+            # Add reservoir variable to the entity
+            if entity:
+                # Handle both single type and multiple types
+                if 'variable_types' in message:
+                    # Multiple types for reservoirs
+                    variable_types = message.get("variable_types", ["output"])
+                    for var_type in variable_types:
+                        if var_type == "instantiated":
                             # Add as initialization variable
                             entity.set_init_var(variable_id, True)
-                        elif variable_type == "computed":
+                        elif var_type == "computed":
                             # Add as computed variable (equation-defined)
                             entity.add_variable_equation(variable_id, f"computed_{variable_id}", {})
-                        elif variable_type == "output":
+                        elif var_type == "output":
                             # Add as output variable
                             entity.set_output_var(variable_id, True)
+                else:
+                    # Single type for non-reservoir entities
+                    variable_type = message.get("variable_type", "output")
+                    if variable_type == "instantiated":
+                        # Add as initialization variable
+                        entity.set_init_var(variable_id, True)
+                    elif variable_type == "computed":
+                        # Add as computed variable (equation-defined)
+                        entity.add_variable_equation(variable_id, f"computed_{variable_id}", {})
+                    elif variable_type == "output":
+                        # Add as output variable
+                        entity.set_output_var(variable_id, True)
 
                     # Update the frontend to show the change
+                if hasattr(self, 'entity_frontend') and self.entity_frontend:
                     self.entity_frontend.populate_lists_from_entity(entity)
 
                     # Mark entity as changed
@@ -801,18 +872,10 @@ class EntityEditorBackEnd(QObject):
                             "event"  : "success",
                             "message": f"Reservoir variable '{variable_label}' added to entity"
                             })
-                else:
-                    # No entity object - this means we're in create mode
-                    # Create a new entity with the selected reservoir variable
-                    self._create_entity_with_reservoir_variable(variable_id, variable_label, variable_network)
             else:
-                # No frontend reference
-                log_error("handle_reservoir_variable_addition", Exception("No frontend reference"),
-                          "no entity frontend")
-                self.message.emit({
-                        "event": "error",
-                        "error": "Entity frontend not available"
-                        })
+                # No entity object - this means we're in create mode
+                # Create a new entity with the selected reservoir variable
+                self._create_entity_with_reservoir_variable(variable_id, variable_label, variable_network)
 
         except Exception as e:
             log_error("handle_reservoir_variable_addition", e, "handling reservoir variable addition")
@@ -906,50 +969,50 @@ class EntityEditorBackEnd(QObject):
                 return
 
             # Check if we have an entity object
-            if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                if hasattr(self.entity_frontend, 'current_entity') and self.entity_frontend.current_entity:
-                    entity = self.entity_frontend.current_entity
+            try:
+                entity = self.state_manager.get_current_entity()
+            except ValueError:
+                entity = None
 
-                    # Check if variable exists in entity
-                    all_variables = entity.get_entity_variables()
-                    if var_id not in all_variables:
-                        log_error("handle_variable_deletion", Exception(f"Variable {var_id} not found"),
-                                  f"variable {var_id} not found in entity")
-                        self.message.emit({
-                                "event": "error",
-                                "error": f"Variable {var_id} not found in entity"
-                                })
-                        return
+            if entity:
+                # Check if variable exists in entity
+                all_variables = entity.get_entity_variables()
+                if var_id not in all_variables:
+                    log_error("handle_variable_deletion", Exception(f"Variable {var_id} not found"),
+                              f"variable {var_id} not found in entity")
+                    self.message.emit({
+                            "event": "error",
+                            "error": f"Variable {var_id} not found in entity"
+                            })
+                    return
 
-                    # Ensure forest structure exists before deletion
-                    if not hasattr(entity, 'var_eq_forest') or not entity.var_eq_forest:
-                        entity.var_eq_forest = [{}]  # Initialize with empty forest
+                # Ensure forest structure exists before deletion
+                if not hasattr(entity, 'var_eq_forest') or not entity.var_eq_forest:
+                    entity.var_eq_forest = [{}]  # Initialize with empty forest
 
-                    # Use new stack-based deletion method that follows proper dependency algorithm
-                    success, message, dependent_equations, orphaned_variables = entity.delete_variable_stack_based(var_id)
+                # Use new stack-based deletion method that follows proper dependency algorithm
+                success, message, dependent_equations, orphaned_variables = entity.delete_variable_stack_based(var_id)
                     
                     # Check if deletion was successful
-                    if success:
-
-                        
-                        # Rebuild entity state to ensure consistency
-                        entity.build_variable_lists_from_forest()
-
-                        
-                        # Mark entity as changed and update frontend
-                        self.entity_frontend.markChanged()
-                        
-                        # Force complete UI refresh
-                        self.entity_frontend.populate_lists_from_entity(entity)
+                if success:
+                    
+                    # Rebuild entity state to ensure consistency
+                    entity.build_variable_lists_from_forest()
+                    
+                    # Mark entity as changed and update frontend
+                    self.entity_frontend.markChanged()
+                    
+                    # Force complete UI refresh
+                    self.entity_frontend.populate_lists_from_entity(entity)
                         
                         # Send detailed success message
-                        full_message = f"Successfully deleted variable {var_id}"
-                        if dependent_equations and dependent_equations is not None:
-                            try:
-                                dep_eq_list = sorted(list(dependent_equations))
-                                full_message += f"\nRemoved equations: {dep_eq_list}"
-                            except (TypeError, AttributeError) as e:
-                                full_message += f"\nRemoved equations: {dependent_equations}"
+                    full_message = f"Successfully deleted variable {var_id}"
+                    if dependent_equations and dependent_equations is not None:
+                        try:
+                            dep_eq_list = sorted(list(dependent_equations))
+                            full_message += f"\nRemoved equations: {dep_eq_list}"
+                        except (TypeError, AttributeError) as e:
+                            full_message += f"\nRemoved equations: {dependent_equations}"
                         if orphaned_variables and orphaned_variables is not None:
                             try:
                                 orphan_var_list = sorted(list(orphaned_variables))

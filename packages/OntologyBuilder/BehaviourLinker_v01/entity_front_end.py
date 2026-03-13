@@ -79,6 +79,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
         # Connect list widget click handlers
         self.ui.list_not_defined_variables.doubleClicked.connect(self.on_list_pending_variables_double_clicked)
+        self.ui.list_not_defined_variables.clicked.connect(self.on_list_pending_variables_single_clicked)
 
         # Add left-click context menus for all lists
 
@@ -87,9 +88,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
             self.ui.list_equations.clicked.connect(self.on_left_click_context_menu)
         else:
-            self.ui.list_not_defined_variables.clicked.connect(self.on_left_click_context_menu)
+            # Don't connect list_not_defined_variables here - it's already connected above
             self.ui.list_inputs.clicked.connect(self.on_left_click_context_menu)
             self.ui.list_outputs.clicked.connect(self.on_left_click_context_menu)
+            print(f"=== CONNECTION DEBUG: Connected left-click handlers for inputs/outputs ===")
         self.ui.list_instantiate.clicked.connect(self.on_left_click_context_menu)
         self.ui.list_integrators.clicked.connect(self.on_left_click_context_menu)
         self.ui.list_included_variables.clicked.connect(self.on_left_click_context_menu)
@@ -123,7 +125,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         global changed
 
         # Setup click timer for double-click detection
-        # Remove click timer since single-click no longer triggers classification
+        from PyQt5.QtCore import QTimer
+        self.click_timer = QTimer()
+        self.click_timer.setSingleShot(True)
+        self.click_timer.timeout.connect(self.on_single_click_timeout)
         self.pending_click_data = None
         changed = False
 
@@ -155,7 +160,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             )
 
                 except Exception as e:
-                    log_error("_setup_right_click_context_menus", e, f"setting up {list_widget.objectName()} context menu")
+                    list_name = list_widget.objectName() if hasattr(list_widget, 'objectName') else 'unknown'
+                    log_error("_setup_right_click_context_menus", e, f"setting up {list_name} context menu")
 
         except Exception as e:
             log_error("_setup_right_click_context_menus", e, "main right-click context menu setup")
@@ -603,6 +609,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.refresh_list_widget_settings(self.ui.list_instantiate, 'entity_variables')
             self.refresh_list_widget_settings(self.ui.list_equations, 'entity_equations')
             self.refresh_list_widget_settings(self.ui.list_integrators, 'entity_variables')
+            
+            # IMPORTANT: Re-connect left-click handlers after refresh to ensure they work
+            self.ui.list_outputs.clicked.connect(self.on_left_click_context_menu)
+            self.ui.list_inputs.clicked.connect(self.on_left_click_context_menu)
+            self.ui.list_instantiate.clicked.connect(self.on_left_click_context_menu)
+            self.ui.list_integrators.clicked.connect(self.on_left_click_context_menu)
+            print(f"=== CONNECTION DEBUG: Re-connected left-click handlers after refresh ===")
             self.refresh_list_widget_settings(self.ui.list_included_variables, 'entity_variables')
 
             variables = self.ontology_container.variables
@@ -612,7 +625,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 entity.build_local_variable_classifications(variables)
 
             # Populate output variables list
-            output_vars = entity.get_output_vars()
+            output_vars = entity.get_output_vars(self.ontology_container)
+            print(f"=== POPULATE DEBUG: Output vars: {output_vars} ===")
             for var_id in output_vars:
                 if var_id in variables:
                     var_data = variables[var_id]
@@ -622,9 +636,11 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'network': var_data.get('network', 'unknown')
                             }
                     self.add_variable_to_list(self.ui.list_outputs, var_info)
+                    print(f"=== POPULATE DEBUG: Added output {var_id} ===")
 
             # Populate input variables list
             input_vars = entity.get_input_vars()
+            print(f"=== POPULATE DEBUG: Input vars: {input_vars} ===")
             for var_id in input_vars:
                 if var_id in variables:
                     var_data = variables[var_id]
@@ -634,6 +650,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'network': var_data.get('network', 'unknown')
                             }
                     self.add_variable_to_list(self.ui.list_inputs, var_info)
+                    print(f"=== POPULATE DEBUG: Added input {var_id} ===")
 
             # Populate instantiate list
             instantiate_vars = entity.get_variables_to_be_instantiated()
@@ -761,6 +778,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
             # Setup selection handlers now that lists are populated
             self._setup_selection_handlers()
+            
+            # DEBUG: Check list counts
+            print(f"=== POPULATE DEBUG: List counts - Inputs: {self.ui.list_inputs.model().rowCount()}, Outputs: {self.ui.list_outputs.model().rowCount()}, Integrators: {self.ui.list_integrators.model().rowCount()} ===")
 
             # Update mode based on selection after populating lists
             self._update_mode_based_on_selection()
@@ -1001,6 +1021,15 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             log_error("on_pushCancle_pressed", e, "canceling entity edit")
             makeMessageBox(f"Error canceling: {str(e)}")
 
+    def on_single_click_timeout(self):
+        """Handle single click timeout - show context menu"""
+        if self.pending_click_data:
+            index, sender = self.pending_click_data
+            self.pending_click_data = None
+            
+            # Show the context menu for single click using the sender widget
+            self.on_left_click_context_menu_for_widget(sender, index)
+
     def on_list_pending_variables_double_clicked(self, index):
         """Handle double-click on pending variables list - go directly to equation selection"""
 
@@ -1023,14 +1052,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 var_label = item_data.get('label')
                 var_network = item_data.get('network')
 
-                # Go directly to equation association editor for this variable
-                message = {
-                        "event"      : "def_variable",
-                        "var_id"     : var_id,
-                        "var_label"  : var_label,
-                        "var_network": var_network
-                        }
-                self.message.emit(message)
+                # Go directly to equation dialog for this variable (equation editor is disabled)
+                self.open_equation_dialog(var_id, var_label, var_network)
 
     def on_list_pending_variables_single_clicked(self, index):
         """Handle single click on pending variables list - store for potential double-click"""
@@ -1058,18 +1081,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 list_name = sender.objectName() if hasattr(sender, 'objectName') else 'unknown'
 
                 # Store click data for potential double-click handling
-                self.pending_click_data = {
-                        'type'       : 'classification',
-                        'index'      : index,
-                        'var_id'     : var_id,
-                        'var_label'  : var_label,
-                        'var_network': var_network,
-                        'sender'     : sender,
-                        'list_name'  : list_name
-                        }
-
-                # Start timer to wait for potential double-click
-                self.click_timer.start(250)  # 250ms delay for double-click detection
+                self.pending_click_data = (index, sender)
+                
+                # Start timer to detect single vs double click
+                self.click_timer.start(250)  # 250ms timeout
         else:
             # Clear pending click data if invalid click
             self.pending_click_data = None
@@ -1297,13 +1312,113 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if not sender:
                 return
 
+            list_name = sender.objectName() if hasattr(sender, 'objectName') else 'unknown'
+            print(f"=== LEFT-CLICK DEBUG: Clicked on {list_name} ===")
+
+            # Get the index and model
+            model = sender.model()
+            if not model or not index.isValid():
+                print(f"=== LEFT-CLICK DEBUG: No model or invalid index ===")
+                return
+
+            # Get variable information from model index data
+            item_data = model.data(index, QtCore.Qt.UserRole)
+            if not item_data:
+                print(f"=== LEFT-CLICK DEBUG: No item data ===")
+                return
+
+            var_id = item_data.get('id')
+            var_label = item_data.get('label', var_id)
+            var_network = item_data.get('network')
+
+            if not var_id:
+                print(f"=== LEFT-CLICK DEBUG: No var_id ===")
+                return
+
+            print(f"=== LEFT-CLICK DEBUG: Creating menu for {var_id} in {list_name} ===")
+
+            # Create context menu
+            context_menu = QMenu(sender)
+
+            # Add actions based on which list was clicked
+            if list_name == 'list_not_defined_variables':
+                # Pending variables: classification + equation dialog
+                classification_action = QAction("Classification", sender)
+                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
+                context_menu.addAction(classification_action)
+
+                equation_action = QAction("Equation Dialog", sender)
+                equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
+                context_menu.addAction(equation_action)
+
+            elif list_name == 'list_inputs':
+                # Inputs: classification only
+                classification_action = QAction("Classification", sender)
+                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
+                context_menu.addAction(classification_action)
+
+            elif list_name == 'list_outputs':
+                # Outputs: classification only
+                classification_action = QAction("Classification", sender)
+                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
+                context_menu.addAction(classification_action)
+
+            elif list_name == 'list_instantiate':
+                # Instantiate: classification only
+                classification_action = QAction("Classification", sender)
+                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
+                context_menu.addAction(classification_action)
+
+            elif list_name == 'list_integrators':
+                # Integrators: no context menu (read-only)
+                return  # Don't create any menu for integrators list
+
+            elif list_name == 'list_included_variables':
+                # Included: delete option
+                delete_action = QAction("Delete", sender)
+                delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
+                context_menu.addAction(delete_action)
+
+            if list_name == 'list_equations':
+                # Equations: No menu - equations list is read-only
+
+                return  # Don't create any menu for equations list
+
+            # Show context menu at clicked item position (more reliable than cursor)
+            # Get the visual rectangle of the clicked item
+            visual_rect = sender.visualRect(index)
+            if visual_rect.isValid():
+                # Position menu at the bottom-left of the item
+                item_pos = visual_rect.topLeft()
+                global_pos = sender.mapToGlobal(item_pos)
+
+                context_menu.exec_(global_pos)
+
+            else:
+                # Fallback to cursor position
+                cursor_pos = sender.cursor().pos()
+                global_pos = sender.mapToGlobal(cursor_pos)
+                context_menu.exec_(global_pos)
+
+        except Exception as e:
+            log_error("on_left_click_context_menu", e, "handling left-click context menu")
+
+    def on_left_click_context_menu_for_widget(self, sender, index):
+        """Handle left-click context menu for a specific widget and index"""
+        try:
+            from PyQt5.QtWidgets import QMenu, QAction
+            from PyQt5.QtCore import Qt
+
+            if not sender:
+                return
+
             # Get the index and model
             model = sender.model()
             if not model or not index.isValid():
                 return
 
             # Get variable information from model index data
-            item_data = model.data(index, Qt.UserRole)
+            item_data = model.data(index, QtCore.Qt.UserRole)
             if not item_data:
                 return
 
@@ -1348,44 +1463,24 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 context_menu.addAction(classification_action)
 
             elif list_name == 'list_integrators':
-                # Integrators: classification + equation dialog
-                classification_action = QAction("Classification", sender)
-                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
-                context_menu.addAction(classification_action)
+                # Integrators: no context menu (read-only)
+                return  # Don't create any menu for integrators list
 
+            elif list_name == 'list_included_variables':
+                # Included variables: equation dialog only
                 equation_action = QAction("Equation Dialog", sender)
                 equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
                 context_menu.addAction(equation_action)
 
-            elif list_name == 'list_included_variables':
-                # Included: delete option
-                delete_action = QAction("Delete", sender)
-                delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
-                context_menu.addAction(delete_action)
-
-            if list_name == 'list_equations':
-                # Equations: No menu - equations list is read-only
-
-                return  # Don't create any menu for equations list
-
-            # Show context menu at clicked item position (more reliable than cursor)
-            # Get the visual rectangle of the clicked item
+            # Show context menu at the item position
             visual_rect = sender.visualRect(index)
             if visual_rect.isValid():
-                # Position menu at the bottom-left of the item
                 item_pos = visual_rect.topLeft()
                 global_pos = sender.mapToGlobal(item_pos)
-
-                context_menu.exec_(global_pos)
-
-            else:
-                # Fallback to cursor position
-                cursor_pos = sender.cursor().pos()
-                global_pos = sender.mapToGlobal(cursor_pos)
                 context_menu.exec_(global_pos)
 
         except Exception as e:
-            log_error("on_left_click_context_menu", e, "handling left-click context menu")
+            log_error("on_left_click_context_menu_for_widget", e, "handling left-click context menu for widget")
 
     def on_context_menu_requested(self, pos, list_widget):
         """Handle right-click context menu on variable lists"""
@@ -1403,7 +1498,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 return
 
             # Get variable information from model index data
-            item_data = model.data(index, Qt.UserRole)
+            item_data = model.data(index, QtCore.Qt.UserRole)
             if not item_data:
                 return
 
@@ -1451,7 +1546,37 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             log_error("on_context_menu_requested", e, "handling context menu")
 
     def open_equation_dialog(self, var_id, var_label, var_network):
-        """Open equation selection dialog for a variable"""
+        """Open the original equation selection dialog for a variable"""
+        try:
+            # Get variable data from ontology container
+            if hasattr(self, 'ontology_container') and self.ontology_container:
+                if var_id in self.ontology_container.variables:
+                    # Send message to backend to launch equation selector
+                    message = {
+                        "event": "def_variable",
+                        "var_id": var_id,
+                        "var_label": var_label,
+                        "var_network": var_network
+                    }
+                    self.message.emit(message)
+                else:
+                    # Variable not found
+                    from PyQt5.QtWidgets import QMessageBox
+                    QMessageBox.warning(self, "Variable Not Found", 
+                                      f"Variable {var_id} not found in ontology container")
+            else:
+                # No ontology container
+                from PyQt5.QtWidgets import QMessageBox
+                QMessageBox.warning(self, "No Ontology", 
+                                  "No ontology container available for equation selection")
+                
+        except Exception as e:
+            # Fallback to simple dialog if original dialog fails
+            print(f"Original equation dialog failed, falling back to simple dialog: {e}")
+            self._open_simple_equation_dialog(var_id, var_label, var_network)
+
+    def _open_simple_equation_dialog(self, var_id, var_label, var_network):
+        """Fallback simple equation selection dialog"""
         try:
 
             
@@ -1474,18 +1599,18 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             
             # Get available equations from ontology container
             if hasattr(self, 'ontology_container') and self.ontology_container:
-                equations = getattr(self.ontology_container, 'all_equations', {})
+                equations = getattr(self.ontology_container, 'equation_dictionary', {})
 
                 
                 # Add "No equation (initialization)" option
                 no_eq_item = QListWidgetItem("No equation (initialization)")
-                no_eq_item.setData(Qt.UserRole, None)  # Store None for initialization
+                no_eq_item.setData(QtCore.Qt.UserRole, None)  # Store None for initialization
                 equation_list.addItem(no_eq_item)
                 
                 # Add available equations
                 for eq_id in sorted(equations.keys()):
                     item = QListWidgetItem(f"{eq_id}")
-                    item.setData(Qt.UserRole, eq_id)  # Store equation ID
+                    item.setData(QtCore.Qt.UserRole, eq_id)  # Store equation ID
                     equation_list.addItem(item)
 
             
@@ -1505,7 +1630,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             def on_ok():
                 selected_item = equation_list.currentItem()
                 if selected_item:
-                    equation_id = selected_item.data(Qt.UserRole)
+                    equation_id = selected_item.data(QtCore.Qt.UserRole)
 
                     
                     # Create assignment result
@@ -1540,6 +1665,19 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             
         except Exception as e:
             log_error("open_equation_dialog", e, f"opening equation dialog for {var_id}")
+
+    def launch_equation_editor(self, var_id, var_label, var_network):
+        """Launch the proper equation association editor for a variable"""
+        try:
+            message = {
+                "event": "def_variable",
+                "var_id": var_id,
+                "var_label": var_label,
+                "var_network": var_network
+            }
+            self.message.emit(message)
+        except Exception as e:
+            log_error("launch_equation_editor", e, "launching equation editor")
 
 
     # Single-click method removed - right-click now handles classification
@@ -1643,13 +1781,21 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         return
 
                     # Use the new list-based classification system
+                    print(f"=== FRONTEND DEBUG: About to call change_classification ===")
+                    print(f"=== FRONTEND DEBUG: hasattr(self, 'current_entity'): {hasattr(self, 'current_entity')} ===")
+                    print(f"=== FRONTEND DEBUG: self.current_entity: {self.current_entity} ===")
+                    print(f"=== FRONTEND DEBUG: var_id: {var_id}, classifications: {classifications} ===")
+                    
                     if hasattr(self, 'current_entity') and self.current_entity:
                         # Update the classification using the new system
+                        print(f"=== FRONTEND DEBUG: Calling change_classification ===")
                         self.current_entity.change_classification(var_id, classifications)
-
-
+                        print(f"=== FRONTEND DEBUG: change_classification completed ===")
+                        
                         # Refresh UI to show the change
                         self.populate_lists_from_entity(self.current_entity)
+                    else:
+                        print(f"=== FRONTEND DEBUG: SKIPPING change_classification - no current_entity ===")
 
 
         except Exception as e:
@@ -1840,6 +1986,17 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         try:
             # Store current entity
             self.current_entity = entity
+            
+            # Update current_entity_data to keep it in sync with the entity
+            if hasattr(entity, 'to_dict'):
+                self.current_entity_data = entity.to_dict()
+            else:
+                # Fallback: create basic entity data structure
+                self.current_entity_data = {
+                    'entity_object': entity,
+                    'entity_type': getattr(entity, 'entity_type', ''),
+                    'name': getattr(entity, 'name', ''),
+                }
 
             # Set mode to edit when working with existing entity
             if self.mode not in ["edit_no_selection", "edit_with_selection", "edit_no_selection_node",

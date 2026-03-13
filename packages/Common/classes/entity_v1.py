@@ -232,7 +232,6 @@ class Entity():
         Returns:
             List with manual classifications applied
         """
-        # print(">>>>>>>>>>>>> fixing list")
         if not hasattr(self, 'local_variable_classifications'):
             return base_list
 
@@ -247,7 +246,6 @@ class Entity():
             # Variables without defining equations should always be pending, regardless of manual classification
             truly_pending = set(base_list) - equation_defined_vars
             result = truly_pending
-            print(f"=== PENDING DEBUG: truly_pending = {truly_pending} ===")
         else:
             # Add variables that have manual classification matching target
             for var_id, classification_info in self.local_variable_classifications.items():
@@ -281,7 +279,6 @@ class Entity():
 
         # Final filter to ensure no deleted variables are included
         result = result.intersection(current_entity_vars)
-
         
         return sorted(list(result))
 
@@ -296,7 +293,7 @@ class Entity():
             var_id: The variable ID to change classification for
             classifications: List of new classifications (e.g., ["input", "output"])
         """
-        # print(f">>>>>>>>>>>>>>>>>>>>>>>>>>>move classification of variable {var_id} to {classifications}")
+        print(f"=== CLASSIFICATION DEBUG: change_classification called for {var_id} -> {classifications} ===")
 
         # Update manual classification system
         if var_id not in self.local_variable_classifications:
@@ -424,25 +421,24 @@ class Entity():
         base_list = sorted(list(self.input_vars))
         return self._apply_manual_classifications(base_list, "input")
 
-    def get_output_vars(self, all_variables=None):
+    def get_output_vars(self, exchange_board=None):
         """
         Get output variables (variables defined by equations or explicitly marked as outputs).
         
         Args:
-            all_variables: Optional Dict[str, Variable] to filter out transport variables.
+            exchange_board: Optional ProMoExchangeBoard to filter out transport variables.
                           If provided, variables with type 'transport' will be excluded.
         
         Returns:
-            List of variable IDs that are output variables (excluding transport variables if all_variables provided)
+            List of variable IDs that are output variables (excluding transport variables if exchange_board provided)
         """
         # Use stored list directly - no tree calculation needed
         base_list = sorted(list(self.output_vars))
         result = self._apply_manual_classifications(base_list, "output")
 
-        # Filter out transport variables if all_variables is provided
-        if all_variables is not None:
-            result = [var_id for var_id in result
-                      if var_id in all_variables and all_variables[var_id].type != 'transport']
+        # Filter out transport variables if exchange_board is provided
+        if exchange_board is not None:
+            result = exchange_board.get_output_variables_filtered(result, exclude_transport=True)
 
         return result
 
@@ -473,18 +469,19 @@ class Entity():
         # Variables that are not defined by any equation are pending
         # This should be independent of their classification (input/output/instantiate)
         # BUT: Variables that are instantiated (in init_vars) are already "defined" via instantiate operator
-        print(f"=== DEBUG PENDING VARS ===")
-        print(f"all_included_vars: {all_included_vars}")
-        print(f"equation_defined_variables: {equation_defined_variables}")
-        print(f"init_vars: {init_vars}")
+        # AND: Variables that are classified (input/output/instantiate) are not pending
         
         # Start with variables not defined by equations
         not_equation_defined = set(all_included_vars) - set(equation_defined_variables)
         # Then remove instantiated variables since they're already defined via instantiate operator
-        pending_vars = not_equation_defined - set(init_vars)
+        # AND remove classified variables since they're already classified
+        input_vars = set(self.get_input_vars())
+        output_vars = set(self.get_output_vars())
+        init_vars = set(self.get_init_vars())  # Fixed: was get_instantiate_vars()
+        instantiate_vars = set(self.get_instantiate_vars()) if hasattr(self, 'get_instantiate_vars') else set()
+        classified_vars = input_vars | output_vars | init_vars | instantiate_vars
         
-        print(f"computed pending_vars: {pending_vars}")
-        print(f"=== END DEBUG ===")
+        pending_vars = not_equation_defined - set(init_vars) - classified_vars
         return pending_vars
 
     def getLHS(self, equ_id):
@@ -562,7 +559,15 @@ class Entity():
 
         main_list_vars = set(self.input_vars) | set(self.output_vars)
 
-        instantiation_vars = instantiation_vars - main_list_vars
+        # Only exclude from instantiation_vars if they're NOT classified as instantiate
+        # Variables classified as instantiate should always be included
+        filtered_instantiation_vars = set()
+        for var_id in instantiation_vars:
+            var_classifications = self.local_variable_classifications.get(var_id, {}).get('classification', [])
+            if 'instantiate' not in var_classifications:
+                filtered_instantiation_vars.add(var_id)
+        
+        instantiation_vars = filtered_instantiation_vars
 
         
         # Remove any variables that are no longer in the entity (final check)
@@ -576,18 +581,18 @@ class Entity():
         return result
 
     
-    def get_equation_defined_vars(self, all_variables=None):
+    def get_equation_defined_vars(self, exchange_board=None):
         """Get variables that are defined by equations.
         
         This method extracts variables that have defining equations in var_eq_forest,
         providing a comprehensive view of equation-defined variables.
         
         Args:
-            all_variables: Optional Dict[str, Variable] to filter out transport variables.
+            exchange_board: Optional ProMoExchangeBoard to filter out transport variables.
                           If provided, variables with type 'transport' will be excluded.
         
         Returns:
-            List of variable IDs defined by equations (excluding transport variables if all_variables provided)
+            List of variable IDs defined by equations (excluding transport variables if exchange_board provided)
         """
         # Get equation-defined variables from forest (comprehensive approach)
 
@@ -613,6 +618,12 @@ class Entity():
                     if key.startswith('V_') and values:  # Variable with equations
                         forest_vars.add(key)
         print(f"=== EQUATION DEBUG: forest equation-defined vars = {forest_vars} ===")
+        
+        # Filter out transport variables if exchange_board is provided
+        if exchange_board is not None:
+            entity_var_ids = list(equation_defined_vars)
+            filtered_ids = exchange_board.get_output_variables_filtered(entity_var_ids, exclude_transport=True)
+            equation_defined_vars = set(filtered_ids)
         
         pass
         return sorted(list(equation_defined_vars))
@@ -655,7 +666,19 @@ class Entity():
     def get_init_vars(self):
         """Get initialization variables."""
         # Init vars are still stored as an attribute since they're user-defined
-        return sorted(getattr(self, 'init_vars', []))
+        raw_init_vars = sorted(getattr(self, 'init_vars', []))
+        
+        # DEBUG: Show manual classifications for instantiate
+        instantiate_classified = []
+        for var_id, data in self.local_variable_classifications.items():
+            if 'instantiate' in data.get('classification', []):
+                instantiate_classified.append(var_id)
+        
+        print(f"=== GET_INIT_VARS DEBUG: instantiate_classified: {instantiate_classified} ===")
+        
+        result = self._apply_manual_classifications(raw_init_vars, "instantiate")
+        
+        return result
 
     def set_init_var(self, var_id, is_init):
         """Set a variable as initialization variable."""

@@ -1,0 +1,101 @@
+"""
+State Manager for Entity Editor
+Ensures consistent Entity state across frontend and backend operations
+"""
+
+class EntityStateManager:
+    """Manages Entity state with proper lifecycle and validation"""
+    
+    def __init__(self):
+        self._current_entity = None
+        self._entity_frontend = None
+        self._entity_backend = None
+        
+    def set_frontend(self, frontend):
+        """Set frontend reference"""
+        self._entity_frontend = frontend
+        
+    def set_backend(self, backend):
+        """Set backend reference"""
+        self._entity_backend = backend
+        
+    def get_or_create_entity(self, entity_id=None, all_equations=None, var_eq_forest=None, 
+                           init_vars=None, input_vars=None, output_vars=None):
+        """
+        Get current entity or create new one if needed.
+        This is the SINGLE SOURCE OF TRUTH for Entity objects.
+        """
+        if self._current_entity is not None:
+            print(f"=== STATE DEBUG: Using existing Entity ID: {id(self._current_entity)} ===")
+            return self._current_entity
+            
+        # Create new entity only if none exists
+        if entity_id is None:
+            entity_id = "macroscopic.node.mass|constant|infinity"
+            
+        from Common.classes.entity_v1 import Entity
+        
+        self._current_entity = Entity(
+            entity_id=entity_id,
+            all_equations=all_equations or {},
+            var_eq_forest=var_eq_forest or [{}],
+            init_vars=init_vars or [],
+            input_vars=input_vars or [],
+            output_vars=output_vars or []
+        )
+        
+        print(f"=== STATE DEBUG: Created new Entity ID: {id(self._current_entity)} ===")
+        
+        # Update frontend reference
+        if self._entity_frontend:
+            self._entity_frontend.current_entity = self._current_entity
+            self._entity_frontend.current_entity_data = {
+                'entity_object': self._current_entity,
+                'entity_id': entity_id,
+                'entity_name': entity_id
+            }
+            
+        return self._current_entity
+        
+    def update_entity_state(self, entity):
+        """Update the current entity state"""
+        if entity != self._current_entity:
+            print(f"=== STATE DEBUG: Updating Entity state from {id(self._current_entity)} to {id(entity)} ===")
+            self._current_entity = entity
+            
+            # Update frontend reference
+            if self._entity_frontend:
+                self._entity_frontend.current_entity = entity
+                self._entity_frontend.current_entity_data = {
+                    'entity_object': entity,
+                    'entity_id': getattr(entity, 'entity_id', 'unknown'),
+                    'entity_name': getattr(entity, 'name', 'unknown')
+                }
+                
+                # IMPORTANT: Refresh UI lists to show updated classifications
+                try:
+                    self._entity_frontend.populate_lists_from_entity(entity)
+                    print(f"=== STATE DEBUG: Refreshed UI lists ===")
+                except Exception as e:
+                    print(f"=== STATE DEBUG: Error refreshing UI lists: {e} ===")
+    
+    def get_current_entity(self):
+        """Get current entity with validation"""
+        if self._current_entity is None:
+            raise ValueError("No current entity - state not initialized")
+        return self._current_entity
+    
+    def clear_state(self):
+        """Clear current entity state"""
+        print(f"=== STATE DEBUG: Clearing Entity state ===")
+        self._current_entity = None
+        if self._entity_frontend:
+            self._entity_frontend.current_entity = None
+            self._entity_frontend.current_entity_data = None
+
+# Global state manager instance
+_state_manager = EntityStateManager()
+
+def get_state_manager():
+    """Get the global state manager instance"""
+    return _state_manager

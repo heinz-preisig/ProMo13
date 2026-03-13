@@ -31,6 +31,7 @@ import os as OS
 from collections import OrderedDict
 from copy import copy
 from pathlib import Path
+from typing import List, Dict, Any, Union, Optional
 
 from PyQt5 import QtWidgets
 
@@ -1194,7 +1195,12 @@ class ProMoExchangeBoard():
         # Second pass: add PNG files to the completed dictionary
         equation_png_files = self.__load_equation_png_files_for_ids(equation_dictionary.keys())
         for eq_id in equation_dictionary:
-            equation_dictionary[eq_id]["png_file"] = equation_png_files.get(eq_id, None)
+            png_path = equation_png_files.get(eq_id, None)
+            # Only set if the path is valid and not empty
+            if png_path and png_path != 'None' and str(png_path).strip():
+                equation_dictionary[eq_id]["png_file"] = str(png_path)
+            else:
+                equation_dictionary[eq_id]["png_file"] = None
         return equation_dictionary
 
     def __makeEquationVariableDictionary(self):
@@ -1518,12 +1524,292 @@ class ProMoExchangeBoard():
         # print(f"Debug: Successfully loaded {len(variable_icons)} variable icons")
         return variable_icons
 
+    def filter_variables_by_type(
+        self, 
+        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]], 
+        allowed_types: List[str],
+        exclude_types: Optional[List[str]] = None
+    ) -> List[Union[Dict[str, Any], str]]:
+        """
+        Filter variables by allowed and excluded types.
+        
+        Args:
+            variables: List of variable dictionaries or dict of variable dictionaries
+            allowed_types: List of variable types to include
+            exclude_types: List of variable types to exclude (optional)
+            
+        Returns:
+            List of filtered variables (dicts if input was list, IDs if input was dict)
+        """
+        exclude_types = exclude_types or []
+        
+        if isinstance(variables, dict):
+            # Return list of variable IDs
+            filtered_ids = []
+            for var_id, var_data in variables.items():
+                var_type = var_data.get('type', 'unknown')
+                if var_type in allowed_types and var_type not in exclude_types:
+                    filtered_ids.append(var_id)
+            return filtered_ids
+        else:
+            # Return list of variable dictionaries
+            filtered = []
+            for var in variables:
+                var_type = var.get('type', 'unknown')
+                if var_type in allowed_types and var_type not in exclude_types:
+                    filtered.append(var)
+            return filtered
+    
+    def filter_transport_variables(
+        self, 
+        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]]
+    ) -> List[Union[Dict[str, Any], str]]:
+        """Filter out transport variables."""
+        return self.filter_variables_by_type(variables, [], ['transport'])
+    
+    def filter_only_transport(
+        self, 
+        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]]
+    ) -> List[Union[Dict[str, Any], str]]:
+        """Filter for only transport variables."""
+        return self.filter_variables_by_type(variables, ['transport'])
+    
+    def filter_variables_by_network(
+        self,
+        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]],
+        networks: List[str]
+    ) -> List[Union[Dict[str, Any], str]]:
+        """
+        Filter variables by network(s).
+        
+        Args:
+            variables: List of variable dictionaries or dict of variable dictionaries
+            networks: List of network names to include
+            
+        Returns:
+            List of filtered variables
+        """
+        if isinstance(variables, dict):
+            # Return list of variable IDs
+            filtered_ids = []
+            for var_id, var_data in variables.items():
+                var_network = var_data.get('network', '')
+                if var_network in networks:
+                    filtered_ids.append(var_id)
+            return filtered_ids
+        else:
+            # Return list of variable dictionaries
+            filtered = []
+            for var in variables:
+                var_network = var.get('network', '')
+                if var_network in networks:
+                    filtered.append(var)
+            return filtered
+    
+    def filter_variables_by_component(
+        self,
+        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]],
+        component: str
+    ) -> List[Union[Dict[str, Any], str]]:
+        """
+        Filter variables by component type using ontology rules.
+        
+        Args:
+            variables: List of variable dictionaries or dict of variable dictionaries
+            component: Component type ('node', 'arc', 'graph')
+            
+        Returns:
+            List of filtered variables
+        """
+        # Get variable types allowed for this component across all networks
+        allowed_var_types = set()
+        for network in self.variable_types_on_networks_per_component:
+            if component in self.variable_types_on_networks_per_component[network]:
+                allowed_var_types.update(self.variable_types_on_networks_per_component[network][component])
+        
+        if isinstance(variables, dict):
+            # Return list of variable IDs
+            filtered_ids = []
+            for var_id, var_data in variables.items():
+                var_type = var_data.get('type', '')
+                if var_type in allowed_var_types:
+                    filtered_ids.append(var_id)
+            return filtered_ids
+        else:
+            # Return list of variable dictionaries
+            filtered = []
+            for var in variables:
+                var_type = var.get('type', '')
+                if var_type in allowed_var_types:
+                    filtered.append(var)
+            return filtered
+    
+    def get_variables_for_interface(
+        self,
+        interface_network: str
+    ) -> List[str]:
+        """
+        Get variables applicable to a specific interface.
+        
+        Args:
+            interface_network: Interface network name
+            
+        Returns:
+            List of variable IDs for the interface
+        """
+        if interface_network in self.variable_types_on_interfaces:
+            interface_var_types = self.variable_types_on_interfaces[interface_network]
+            return self.filter_variables_by_type(self.variables, interface_var_types)
+        return []
+    
+    def get_variables_for_intraface(
+        self,
+        intraface_network: str
+    ) -> List[str]:
+        """
+        Get variables applicable to a specific intraface.
+        
+        Args:
+            intraface_network: Intraface network name
+            
+        Returns:
+            List of variable IDs for the intraface
+        """
+        if intraface_network in self.variable_types_on_intrafaces:
+            intraface_var_types = self.variable_types_on_intrafaces[intraface_network]
+            return self.filter_variables_by_type(self.variables, intraface_var_types)
+        return []
+    
+    # Convenience methods for Entity class compatibility
+    def get_output_variables_filtered(
+        self,
+        entity_variable_ids: List[str],
+        exclude_transport: bool = True
+    ) -> List[str]:
+        """
+        Entity-compatible method to get output variables with transport filtering.
+        
+        Args:
+            entity_variable_ids: List of variable IDs in the entity
+            exclude_transport: Whether to exclude transport variables
+            
+        Returns:
+            List of filtered variable IDs
+        """
+        if not exclude_transport:
+            return entity_variable_ids
+        
+        # Filter out transport variables using exchange board's variable data
+        filtered_vars = []
+        for var_id in entity_variable_ids:
+            if var_id in self.variables:
+                var_data = self.variables[var_id]
+                if var_data.get('type') != 'transport':
+                    filtered_vars.append(var_id)
+            else:
+                # Include variable if not found in exchange board (fallback)
+                filtered_vars.append(var_id)
+        
+        return filtered_vars
+    
+    def get_equation_defined_variables_filtered(
+        self,
+        equation_defined_var_ids: List[str],
+        exclude_transport: bool = True
+    ) -> List[str]:
+        """
+        Entity-compatible method to filter equation-defined variables.
+        
+        Args:
+            equation_defined_var_ids: List of equation-defined variable IDs
+            exclude_transport: Whether to exclude transport variables
+            
+        Returns:
+            List of filtered variable IDs
+        """
+        return self.get_output_variables_filtered(equation_defined_var_ids, exclude_transport)
+    
+    # Convenience methods for Behaviour Linker compatibility
+    def filter_variables_for_behaviour_linker(
+        self,
+        entity_type_info: Dict[str, Any],
+        variable_class_mode: str = 'state'
+    ) -> List[Dict[str, Any]]:
+        """
+        Behaviour Linker compatible filtering method.
+        
+        Args:
+            entity_type_info: Entity type information for classification rules
+            variable_class_mode: Classification mode ('state', 'transport', 'intensity', 'all')
+            
+        Returns:
+            List of filtered variable dictionaries
+        """
+        try:
+            # Import here to avoid circular dependencies
+            from packages.OntologyBuilder.BehaviourLinker_v01.variable_classification_rules import VariableClassificationRules
+            
+            # Convert variables to list of dictionaries for classification
+            var_list = []
+            for var_id, var_data in self.variables.items():
+                try:
+                    # Safely extract variable data
+                    var_dict = {
+                        'id': var_id,
+                        'type': var_data.get('type', ''),
+                        'label': var_data.get('label', ''),
+                        'network': var_data.get('network', ''),
+                        'png_file': var_data.get('png_file'),
+                        # Add other fields as needed
+                    }
+                    var_list.append(var_dict)
+                except Exception as e:
+                    print(f"Warning: Error processing variable {var_id} for filtering: {e}")
+                    continue
+            
+            # Apply classification rules
+            classification = VariableClassificationRules.classify_variables(var_list, entity_type_info)
+            
+            # Select appropriate classification based on mode
+            if variable_class_mode == 'state':
+                filtered_dicts = classification['allowed_root']
+            elif variable_class_mode == 'transport':
+                filtered_dicts = VariableClassificationRules.filter_variables_by_type(var_list, ['transport'])
+            elif variable_class_mode == 'intensity':
+                filtered_dicts = VariableClassificationRules.filter_variables_by_type(var_list, ['effort', 'secondaryState'])
+            elif variable_class_mode == 'all':
+                # Combine all classifications, remove duplicates
+                all_vars = (classification['allowed_root'] + 
+                           classification['inputs'] + 
+                           classification['outputs'])
+                seen_ids = set()
+                filtered_dicts = []
+                for var in all_vars:
+                    if var['id'] not in seen_ids:
+                        seen_ids.add(var['id'])
+                        filtered_dicts.append(var)
+            else:
+                # Default to state mode
+                filtered_dicts = classification['allowed_root']
+            
+            return filtered_dicts
+            
+        except Exception as e:
+            print(f"Error in filter_variables_for_behaviour_linker: {e}")
+            # Return empty list as fallback
+            return []
+
     def __add_png_paths_to_variables(self):
         """
         Add PNG file paths directly to variable records for easier access
         """
         for var_id in self.variables:
             if var_id in self.list_variable_png_files:
-                self.variables[var_id]["png_file"] = str(self.list_variable_png_files[var_id])
+                png_path = str(self.list_variable_png_files[var_id])
+                # Only set if the path is valid and not empty
+                if png_path and png_path != 'None' and png_path.strip():
+                    self.variables[var_id]["png_file"] = png_path
+                else:
+                    self.variables[var_id]["png_file"] = None
             else:
                 self.variables[var_id]["png_file"] = None

@@ -291,17 +291,38 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             # Convert variables to list format for rule processing
             variable_list = []
             for var_id, var_data in variables.items():
-                var_info = {
-                        'id'       : var_id,
-                        'label'    : var_data.get('label', f'Variable_{var_id}'),
-                        'type'     : var_data.get('type', 'unknown'),
-                        'network'  : var_data.get('network', 'unknown'),
-                        'category' : var_data.get('category', 'unknown'),
-                        'equations': list(var_data.get('equations', {}).keys()),
-                        'png_file' : var_data.get('png_file'),
-                        'data'     : var_data  # Store full data for later use
-                        }
-                variable_list.append(var_info)
+                try:
+                    # Safely get png_file - handle None or invalid values
+                    png_file = var_data.get('png_file')
+                    if png_file == 'None' or png_file is None or png_file == '':
+                        png_file = None
+                    
+                    # Safely get equations - handle None or invalid values
+                    equations_data = var_data.get('equations', {})
+                    if equations_data is None:
+                        equations_data = {}
+                    elif not isinstance(equations_data, dict):
+                        # If equations is not a dict, try to handle it gracefully
+                        equations_data = {}
+                    
+                    equations_list = list(equations_data.keys()) if equations_data else []
+                    
+                    var_info = {
+                            'id'       : var_id,
+                            'label'    : var_data.get('label', f'Variable_{var_id}'),
+                            'type'     : var_data.get('type', 'unknown'),
+                            'network'  : var_data.get('network', 'unknown'),
+                            'category' : var_data.get('category', 'unknown'),
+                            'equations': equations_list,
+                            'png_file' : png_file,
+                            'data'     : var_data  # Store full data for later use
+                            }
+                    variable_list.append(var_info)
+                    
+                except Exception as e:
+                    # Skip problematic variables but continue loading others
+                    print(f"Warning: Skipping variable {var_id} due to error: {e}")
+                    continue
 
             # Apply filtering rules based on entity type
             filtered_variables = self._filter_variables_by_rules(variable_list)
@@ -337,6 +358,9 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
 
         except Exception as e:
             error_msg = f"Error loading variables: {str(e)}"
+            print(f"DEBUG: Variable loading error details: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()  # Print full stack trace for debugging
             log_error("load_variables", e, "loading variables")
             self.status_label.setText(error_msg)
             makeMessageBox(error_msg)
@@ -494,6 +518,27 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             # No entity type info, return all variables
             return variables
 
+        # Use exchange board's unified filtering method
+        try:
+            filtered_variables = self.ontology_container.filter_variables_for_behaviour_linker(
+                self.entity_type_info, 
+                self.variable_class_mode
+            )
+            
+            # Remove already included variables if current_entity is available
+            if self.current_entity is not None:
+                already_included = set(self.current_entity.get_entity_variables())
+                filtered_variables = [var for var in filtered_variables if var['id'] not in already_included]
+            
+            return filtered_variables
+            
+        except Exception as e:
+            print(f"Error using exchange board filtering, falling back to original method: {e}")
+            # Fallback to original method if exchange board filtering fails
+            return self._filter_variables_by_rules_original(variables)
+    
+    def _filter_variables_by_rules_original(self, variables):  # Original method as fallback
+        """Original filtering method as fallback"""
         # First, get variables already defined in current entity
         # Use current entity's actual state, not recompute
         classification = VariableClassificationRules.classify_variables(variables, self.entity_type_info)
@@ -530,9 +575,9 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             already_included = set(self.current_entity.get_entity_variables())
             entity = self.current_entity
             inputs = entity.get_input_vars()
-            outputs = entity.get_output_vars()
+            outputs = entity.get_output_vars(self.ontology_container)
             instances = entity.get_variables_to_be_instantiated()
-            equation_defined = entity.get_equation_defined_vars()
+            equation_defined = entity.get_equation_defined_vars(self.ontology_container)
             already_defined_variables = set(inputs + outputs + instances + equation_defined)
 
             filtered_variables = self._get_definable_variables_graph_based(variables, already_included,

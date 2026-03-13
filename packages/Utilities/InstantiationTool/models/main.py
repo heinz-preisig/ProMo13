@@ -225,8 +225,24 @@ class MainModel(QtCore.QObject):
         self.variable_list.load_data(ids, paths)
 
     def _filter_variables(self) -> list[str]:
-        # TODO: Implement this
-        filtered_list = self._required_variables
+        """Filter variables using exchange board-like logic"""
+        # Basic filtering - remove transport variables if possible
+        filtered_list = []
+        
+        for var_id in self._required_variables:
+            if var_id in self._all_variables:
+                var_obj = self._all_variables[var_id]
+                # Check if variable has type attribute and filter out transport
+                if hasattr(var_obj, 'type') and var_obj.type == 'transport':
+                    continue  # Skip transport variables
+                # Check if variable has type key (for dict-like objects)
+                elif isinstance(var_obj, dict) and var_obj.get('type') == 'transport':
+                    continue  # Skip transport variables
+                filtered_list.append(var_id)
+            else:
+                # Include variable if not found (fallback behavior)
+                filtered_list.append(var_id)
+        
         return filtered_list
 
     def on_variables_selected(self, index: QtCore.QModelIndex) -> None:
