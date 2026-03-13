@@ -17,14 +17,7 @@ from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFro
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
 
-# Error logging utility
-def log_error(method_name: str, error: Exception, context: str = ""):
-    """Log error with method name and context for debugging"""
-    error_msg = f"ERROR in {method_name}"
-    if context:
-        error_msg += f" ({context})"
-    error_msg += f": {str(error)}"
-    print(error_msg)  # Keep console output for debugging
+from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
 
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

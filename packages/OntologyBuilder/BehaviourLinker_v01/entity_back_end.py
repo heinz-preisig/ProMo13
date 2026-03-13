@@ -6,7 +6,6 @@ from PyQt5.QtCore import pyqtSignal
 
 from Common.classes.entity_v1 import Entity
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
-from OntologyBuilder.BehaviourLinker_v01.behaviour_association.equation_selector import select_equation_for_variable
 from .state_manager import get_state_manager
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -14,18 +13,9 @@ from .state_manager import get_state_manager
 root = os.path.abspath(os.path.join("."))
 sys.path.extend([root, os.path.join(root, "resources")])
 
-# Import the enhanced variable deletion function
-from OntologyBuilder.BehaviourLinker_v01.variable_deletion import handle_variable_deletion_with_dependencies
 
 
-# Error logging utility
-def log_error(method_name: str, error: Exception, context: str = ""):
-    """Log error with method name and context for debugging"""
-    error_msg = f"ERROR in {method_name}"
-    if context:
-        error_msg += f" ({context})"
-    error_msg += f": {str(error)}"
-    print(error_msg)  # Keep console output for debugging
+from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
 
 
 class EntityEditorBackEnd(QObject):
@@ -205,90 +195,6 @@ class EntityEditorBackEnd(QObject):
                 
 
 
-                if assignments:
-                    # For direct equation selection, create a simple assignment structure
-                    # that handle_behavior_association can understand
-                    equation_id = assignments.get('equation_id')
-                    use_initialization = assignments.get('use_initialization', False)
-                    
-
-
-                    
-                    # Show success message with equation details
-                    if equation_id:
-                        self.message.emit({
-                            "event": "info",
-                            "message": f"Equation {equation_id} selected for variable {var_id} (post-processing disabled to prevent SIGSEGV)"
-                        })
-                    else:
-                        self.message.emit({
-                            "event": "info", 
-                            "message": f"Initialization selected for variable {var_id} (post-processing disabled to prevent SIGSEGV)"
-                        })
-
-                    # Create the simple_assignments structure that was removed
-                    if use_initialization:
-                        # For instantiation, don't include equation in tree/nodes
-                        simple_assignments = {
-                                'root_variable'     : var_id,
-                                'root_equation'     : None,
-                                'use_initialization': True,
-                                'tree'              : {},  # Empty tree for instantiation
-                                'nodes'             : {},  # Empty nodes for instantiation
-                                'IDs'               : {}
-                                }
-                    else:
-                        # For equation assignment, include equation in tree structure
-                        simple_assignments = {
-                                'root_variable'     : var_id,
-                                'root_equation'     : equation_id,
-                                'use_initialization': False,
-                                'tree'              : {
-                                        0: {'children': [1], 'parent': None}, 1: {'children': [], 'parent': 0}
-                                        },
-                                'nodes'             : {0: var_id, 1: equation_id},
-                                'IDs'               : {var_id: 0, equation_id: 1}
-                                }
-
-                    # Process the assignments using the same logic as handle_behavior_association
-                    # RE-ENABLED: Add comprehensive safety checks to prevent SIGSEGV crashes
-
-                    
-                    try:
-                        self.handle_behavior_association(simple_assignments)
-
-                        
-                        # Update frontend to show the changes
-                        if hasattr(self, 'entity_frontend') and self.entity_frontend:
-                            try:
-                                current_entity = self.state_manager.get_current_entity()
-                                self.entity_frontend.update_entity_from_backend_entity(current_entity)
-                            except ValueError:
-                                pass  # No current entity to update
-
-                        else:
-                            pass  # No entity_frontend available
-
-                        # Force garbage collection to prevent cleanup issues
-                        import gc
-                        gc.collect()
-
-                    except Exception as e:
-
-                        log_error("launch_equation_association_editor", e, f"post-processing assignments for {var_id}")
-                        
-                        # Show error message to user
-                        self.message.emit({
-                            "event": "error",
-                            "error": f"Equation association completed but post-processing failed: {str(e)}"
-                        })
-                    
-                    return
-                else:
-                    self.message.emit({
-                            "event"  : "info",
-                            "message": f"Equation association cancelled for {var_id}"
-                            })
             else:
                 log_error("process_entity_front_message", Exception(f"Variable {var_id} not found"),
                           "def_variable event")

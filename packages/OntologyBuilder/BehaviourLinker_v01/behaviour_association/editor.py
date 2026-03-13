@@ -26,14 +26,7 @@ from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 from OntologyBuilder.BehaviourLinker_v01.UIs.variable_selection import Ui_Dialog
 
 
-# Error logging utility
-def log_error(method_name: str, error: Exception, context: str = ""):
-    """Log error with method name and context for debugging"""
-    error_msg = f"ERROR in {method_name}"
-    if context:
-        error_msg += f" ({context})"
-    error_msg += f": {str(error)}"
-    print(error_msg)  # Keep console output for debugging
+from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
 
 
 # Import the required classes from CAM10 resources

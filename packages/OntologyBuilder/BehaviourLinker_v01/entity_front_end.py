@@ -32,15 +32,7 @@ from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import mak
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 
 
-# Error logging utility
-def log_error(method_name: str, error: Exception, context: str = ""):
-    """Log error with method name and context for debugging"""
-    error_msg = f"ERROR in {method_name}"
-    if context:
-        error_msg += f" ({context})"
-    error_msg += f": {str(error)}"
-    print(error_msg)  # Keep console output for debugging
-    # Could also write to a log file here if needed
+from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
 
 
 class EntityEditorFrontEnd(QtWidgets.QDialog):
@@ -249,7 +241,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         # "list_pending"    : self.ui.list_pending,
                         },
                 }
-        # pass  # OBSOLETE: Empty statement - can be removed
 
     def set_ontology_container(self, ontology_container):
         """Set the ontology container for behavior association"""
@@ -409,32 +400,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.ui.pushDeleteEntity.hide()
             self.ui.pushAccept.hide()
 
-    # OBSOLETE: TODO: we may not need this one.
-    # def set_selected_entity_type(self, entity_type_data):  # TODO: we may not need this one.
-    #     """Set the selected entity type from the main tree"""
-    #     self.selected_entity_type = entity_type_data
-    #     print(f"EntityEditorFrontEnd received selected entity type: {self.selected_entity_type}")
-    # 
-    #     # Update the UI to show the selected entity type
-    #     if self.selected_entity_type:
-    #         network = self.selected_entity_type.get("network")
-    #         category = self.selected_entity_type.get("category")
-    #         entity_type = self.selected_entity_type.get("entity type")
-    #         name = self.selected_entity_type.get("name")  # This will be None for entity types, filled for instances
-    # 
-    #         if name:
-    #             # An entity instance was selected - we're in edit mode
-    #             selection_text = f"Editing: {network}.{category}.{entity_type}.{name}"
-    #             self.status_label.setText(selection_text)
-    #             self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
-    #             self.set_mode("edit")
-    #             self.load_entity_data_for_editing()
-    #         else:
-    #             # An entity type was selected - we're in create mode
-    #             selection_text = f"Creating: {network}.{category}.{entity_type}"
-    #             self.status_label.setText(selection_text)
-    #             self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
-    #             self.set_mode("create")
 
     def populate_entity_structure(self, entity_data):
         """Populate entity editor with the complete entity structure from class definition"""
@@ -485,15 +450,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             log_error("populate_entity_structure", e, "populating entity data")
             makeMessageBox(f"Error populating entity structure: {str(e)}")
 
-    # OBSOLETE: Deprecated method - should not be called anymore
-    # def populate_with_entity_data(self, entity_data):
-    #     """Populate entity editor lists with variable and equation information"""
-    #     print(f"=== POPULATE_WITH_ENTITY_DATA CALLED (OLD METHOD) ===")
-    #     print(f"This method should NOT be called anymore! Data: {entity_data}")
-    # 
-    #     # This method is deprecated - we should use update_entity_from_backend instead
-    #     # But let's keep it for backward compatibility and redirect
-    #     self.update_entity_from_backend(entity_data)
 
     def clear_all_lists(self):
         """Clear all list widgets"""
@@ -1219,34 +1175,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
 
 
-                        # Reservoir mode specific handling
-                        # if is_reservoir_mode:
-
-                        #     # In reservoir mode, we might want to handle multiple classifications differently
-                        #     # For now, we'll still use primary classification but log all of them
-                        #     if len(classifications) > 1:
-
-                        #         # TODO: Implement reservoir-specific multiple classification logic
-                        #         # - Could create multiple variable instances
-                        #         # - Could apply all classifications to same variable
-                        #         # - Could ask user to resolve conflicts
-                        #
-                        # # For multiple classifications, we need to decide how to handle them
-                        # # Option 1: Use the first one (current behavior)
-                        # # Option 2: Apply all classifications (if supported)
-                        # # Option 3: Ask user to choose primary classification
-                        #
-                        # # For now, let's use the first one but log all of them
-                        # primary_classification = classifications[0]
-
-
-                        #
-                        # # TODO: Implement proper multiple classification handling
-                        # # For now, you could:
-                        # # 1. Create multiple variable entries
-                        # # 2. Ask user to choose primary classification
-                        # # 3. Apply business rules for multiple classifications
-                        #
                         # Handle multiple classifications using the new list-based system
                         if not classifications:
 
@@ -2024,28 +1952,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                       f"updating display for {getattr(entity, 'entity_id', 'unknown entity')}")
             makeMessageBox(f"Error updating entity display: {str(e)}")
 
-    def update_entity_from_backend_new(self, entity_data):
-        """Deprecated - redirect to Entity-only approach"""
-        # Extract Entity object from entity_data
-        if 'entity_object' in entity_data and entity_data['entity_object']:
-            self.update_entity_from_backend_entity(entity_data['entity_object'])
-        else:
-            pass
-        """Update entity display when backend sends updated entity data"""
-        try:
-            # Check if we have an entity object in the data
-            if 'entity_object' in entity_data:
-                entity = entity_data['entity_object']
-                self.current_entity = entity
-                # Use the complete entity population method
-                self.populate_lists_from_entity(entity)
-            else:
-                # Fallback to current_entity_data if no entity object
-                self.populate_from_entity_data_fallback(entity_data)
-
-        except Exception as e:
-            makeMessageBox(f"Error updating entity display: {str(e)}")
-
+    
     def populate_from_entity_data_fallback(self, entity_data):
         """Fallback method to populate lists when no Entity object is available - all list management should be done by Entity class"""
         try:
@@ -2098,7 +2005,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if dialog == "YES":
                 return
             elif dialog == "NO":
-                pass  # OBSOLETE: Empty else clause - can be removed
+                pass
         else:
-            pass  # OBSOLETE: Empty else clause - can be removed
+            pass
         self.close()
