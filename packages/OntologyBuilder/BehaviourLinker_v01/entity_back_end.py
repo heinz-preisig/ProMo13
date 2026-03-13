@@ -355,15 +355,18 @@ class EntityEditorBackEnd(QObject):
                     all_equations = getattr(self.ontology_container, 'equation_entity_dict', {})
 
                     # Create entity with empty forest (like in the old implementation)
-                    # IMPORTANT: Use state manager for consistent Entity handling
-                    entity = self.state_manager.get_or_create_entity(
-                        entity_id=entity_id,
-                        all_equations=all_equations,
-                        var_eq_forest=[{}],  # Initialize with empty forest
-                        init_vars=[],
-                        input_vars=[],
-                        output_vars=[]
-                    )
+                    # IMPORTANT: Use existing entity if available
+                    entity = self.state_manager.get_current_entity()
+                    if entity is None:
+                        # Only create new entity if none exists
+                        entity = self.state_manager.get_or_create_entity(
+                            entity_id=entity_id,
+                            all_equations=all_equations,
+                            var_eq_forest=[{}],  # Initialize with empty forest
+                            init_vars=[],
+                            input_vars=[],
+                            output_vars=[]
+                        )
 
                     # Set up variable-equation relationships using the Entity's built-in method
                     var_eq_assignments = self.extract_var_eq_assignments(assignments)
@@ -611,15 +614,19 @@ class EntityEditorBackEnd(QObject):
                     if root_equation and not assignments.get('use_initialization', False):
                         add_var_eq_info[root_variable] = [root_equation]
 
-                    # IMPORTANT: Use state manager for consistent Entity handling
-                    entity = self.state_manager.get_or_create_entity(
-                        entity_id=entity_name,
-                        all_equations=all_equations,
-                        var_eq_forest=var_eq_forest,  # Use the populated forest
-                        init_vars=[root_variable],  # Add state variable to initialization list
-                        input_vars=[],
-                        output_vars=[root_variable]  # Set as output since defined by equation
-                    )
+                    # IMPORTANT: Use existing entity instead of creating new one
+                    entity = self.state_manager.get_current_entity()
+                    
+                    if entity is None:
+                        # Only create new entity if none exists
+                        entity = self.state_manager.get_or_create_entity(
+                            entity_id=entity_name,
+                            all_equations=all_equations,
+                            var_eq_forest=var_eq_forest,  # Use the populated forest
+                            init_vars=[root_variable],  # Add state variable to initialization list
+                            input_vars=[],
+                            output_vars=[root_variable]  # Set as output since defined by equation
+                        )
 
                     entity_data.update({
                             'entity_object': entity,
