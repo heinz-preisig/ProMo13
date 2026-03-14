@@ -1374,10 +1374,14 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 return  # Don't create any menu for integrators list
 
             elif list_name == 'list_included_variables':
-                # Included: delete option
+                # Included: delete and classify options
                 delete_action = QAction("Delete", sender)
                 delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
                 context_menu.addAction(delete_action)
+                
+                classify_action = QAction("Classify", sender)
+                classify_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
+                context_menu.addAction(classify_action)
 
             if list_name == 'list_equations':
                 # Equations: No menu - equations list is read-only
@@ -1467,10 +1471,14 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 return  # Don't create any menu for integrators list
 
             elif list_name == 'list_included_variables':
-                # Included variables: equation dialog only
-                equation_action = QAction("Equation Dialog", sender)
-                equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
-                context_menu.addAction(equation_action)
+                # Included variables: delete and classify options
+                delete_action = QAction("Delete", sender)
+                delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
+                context_menu.addAction(delete_action)
+                
+                classify_action = QAction("Classify", sender)
+                classify_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
+                context_menu.addAction(classify_action)
 
             # Show context menu at the item position
             visual_rect = sender.visualRect(index)
@@ -1689,7 +1697,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 "entity_type"]  # 'reservoir' in self.mode.lower()
 
             # Show classification dialog
-            if var_id and list_name in ['list_inputs', 'list_outputs', 'list_instantiate', 'list_not_defined_variables']:
+            if var_id and list_name in ['list_inputs', 'list_outputs', 'list_instantiate', 'list_not_defined_variables', 'list_included_variables']:
                 from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
                 from OntologyBuilder.BehaviourLinker_v01.UIs.class_selector import Ui_Dialog
 
@@ -1756,9 +1764,16 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 ok_button.clicked.connect(dialog.accept)
                 ui.verticalLayout.addWidget(ok_button)
 
-                # Connect radio buttons to close dialog when selected
+                # Connect radio buttons to handle selection changes
                 def on_radio_selected():
-                    pass
+                    # If "none" is selected, uncheck all others
+                    if ui.select_none.isChecked():
+                        ui.select_input.setChecked(False)
+                        ui.select_output.setChecked(False)
+                        ui.radioButton.setChecked(False)
+                    # If any other option is selected, uncheck "none"
+                    else:
+                        ui.select_none.setChecked(False)
 
                 ui.select_input.toggled.connect(on_radio_selected)
                 ui.select_output.toggled.connect(on_radio_selected)
@@ -1778,7 +1793,23 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
                     # Handle multiple classifications
                     if not classifications:
-                        return
+                        # "None" selected - remove classification from local dictionary
+                        print(f"=== FRONTEND DEBUG: 'None' selected - removing classification for {var_id} ===")
+                        
+                        if hasattr(self, 'current_entity') and self.current_entity:
+                            # Remove the variable from local classifications entirely
+                            if hasattr(self.current_entity, 'local_variable_classifications'):
+                                if var_id in self.current_entity.local_variable_classifications:
+                                    del self.current_entity.local_variable_classifications[var_id]
+                                    print(f"=== FRONTEND DEBUG: Removed {var_id} from local classifications ===")
+                                
+                                # Refresh UI to show the change
+                                self.populate_lists_from_entity(self.current_entity)
+                                print(f"=== FRONTEND DEBUG: UI refreshed after removing classification ===")
+                            return
+                        else:
+                            print(f"=== FRONTEND DEBUG: SKIPPING removal - no current_entity ===")
+                            return
 
                     # Use the new list-based classification system
                     print(f"=== FRONTEND DEBUG: About to call change_classification ===")
