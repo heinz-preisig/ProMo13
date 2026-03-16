@@ -30,6 +30,10 @@ from OntologyBuilder.BehaviourLinker_v01.UIs.entity_changes import Ui_entity_cha
 from OntologyBuilder.BehaviourLinker_v01.entity_automaton import gui_automaton
 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
+from OntologyBuilder.BehaviourLinker_v01.classification_rules import (
+    setup_dialog_with_rules, 
+    validate_and_apply_classification
+)
 
 
 # Error logging utility
@@ -131,6 +135,80 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         self.click_timer.timeout.connect(self.on_single_click_timeout)
         self.pending_click_data = None
         changed = False
+
+    def show_clean_classification_dialog(self, list_name, var_id, is_reservoir_mode=False):
+        """Clean classification dialog using rules module"""
+        from PyQt5.QtWidgets import QDialog, QPushButton
+        from OntologyBuilder.BehaviourLinker_v01.UIs.class_selector import Ui_Dialog
+        
+        # Get variable information and domain
+        var_info = self._get_variable_info_for_classification(var_id)
+        current_classifications = self._get_current_classification_for_variable(var_id)
+        domain = self._get_entity_domain()
+        
+        # Create dialog
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Variable Classification")
+        dialog.resize(250, 150)
+        
+        # Setup UI
+        ui = Ui_Dialog()
+        ui.setupUi(dialog)
+        
+        # Setup dialog using rules module with domain
+        config = setup_dialog_with_rules(ui, list_name, var_info, current_classifications, domain)
+        
+        # Reservoir mode handling
+        if is_reservoir_mode:
+            from PyQt5.QtWidgets import QLabel
+            instruction_label = QLabel("Reservoir mode: Multiple selections allowed")
+            instruction_label.setStyleSheet("QLabel { color: blue; font-style: italic; }")
+            ui.verticalLayout.insertWidget(1, instruction_label)
+        
+        # Add OK button
+        ok_button = QPushButton("OK")
+        ok_button.clicked.connect(dialog.accept)
+        ui.verticalLayout.addWidget(ok_button)
+        
+        # Show dialog and handle result
+        if dialog.exec_() == QDialog.Accepted:
+            success = validate_and_apply_classification(
+                ui, list_name, var_id, self.current_entity, self, domain
+            )
+            
+            if success:
+                self.populate_lists_from_entity(self.current_entity)
+
+    def _get_variable_info_for_classification(self, var_id):
+        """Get variable information for classification"""
+        var_info = {'id': var_id, 'type': 'unknown', 'label': var_id}
+        if hasattr(self, 'ontology_container') and self.ontology_container:
+            variables = getattr(self.ontology_container, 'variables', {})
+            if var_id in variables:
+                var_data = variables[var_id]
+                var_info.update({
+                    'label': var_data.get('label', var_id),
+                    'type': var_data.get('type', 'unknown')
+                })
+        return var_info
+    
+    def _get_current_classification_for_variable(self, var_id):
+        """Get current classification for variable"""
+        if hasattr(self, 'current_entity') and self.current_entity:
+            manual_classifications = getattr(self.current_entity, 'local_variable_classifications', {})
+            var_class_info = manual_classifications.get(var_id, {})
+            current_classifications = var_class_info.get('classification', ['none'])
+            
+            if isinstance(current_classifications, list) and current_classifications:
+                return current_classifications
+            return current_classifications or ['none']
+        return ['none']
+
+    def _get_entity_domain(self):
+        """Get the domain branch for the current entity"""
+        if hasattr(self, 'selected_entity_type') and self.selected_entity_type:
+            return self.selected_entity_type.get('network', 'physical')
+        return 'physical'  # Default to physical
 
     def _setup_right_click_context_menus(self):
         """Setup right-click context menus for all variable lists"""
@@ -1108,167 +1186,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Handle different behavior based on which list was clicked
             if var_id:
                 if list_name in ['list_inputs', 'list_outputs', 'list_instantiate', 'list_not_defined_variables']:
-                    # Show classification dialog for these lists
-                    from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
-                    from OntologyBuilder.BehaviourLinker_v01.UIs.class_selector import Ui_Dialog
-
-                    # Create dialog
-                    dialog = QDialog()
-                    if is_reservoir_mode:
-                        dialog.setWindowTitle("Variable Classification (Reservoir Mode)")
-                    else:
-                        dialog.setWindowTitle("Variable Classification")
-                    dialog.resize(200, 150)
-
-                    # Setup UI
-                    ui = Ui_Dialog()
-                    ui.setupUi(dialog)
-
-                    # Set default selection based on current entity state
-                    if hasattr(self, 'current_entity') and self.current_entity:
-                        # Check manual classifications first
-                        manual_classifications = getattr(self.current_entity, 'local_variable_classifications', {})
-                        current_classifications = manual_classifications.get(var_id, {}).get('classification', ['none'])
-
-                        # Handle both single string and list of classifications
-                        if isinstance(current_classifications, list):
-                            # Multiple classifications - check first one for default
-                            current_classification = current_classifications[0] if current_classifications else 'none'
-                        else:
-                            # Legacy single classification
-                            current_classification = current_classifications
-
-                        if current_classification == "input":
-                            ui.select_input.setChecked(True)
-                        elif current_classification == "output":
-                            ui.select_output.setChecked(True)
-                        elif current_classification == "instantiate":
-                            ui.radioButton.setChecked(True)
-                        else:
-                            ui.select_none.setChecked(True)
-
-                        # If multiple classifications, check all applicable boxes
-                        if isinstance(current_classifications, list):
-                            for classification in current_classifications:
-                                if classification == "input":
-                                    ui.select_input.setChecked(True)
-                                elif classification == "output":
-                                    ui.select_output.setChecked(True)
-                                elif classification == "instantiate":
-                                    ui.radioButton.setChecked(True)
-
-                    # Make radio buttons non-exclusive to allow multiple selections
-
-                    # Alternative: Convert to checkboxes for reliable multiple selection
-                    ui.select_input.setCheckable(True)
-                    ui.select_output.setCheckable(True)
-                    ui.radioButton.setCheckable(True)
-                    ui.select_none.setCheckable(True)
-
-                    # Add instruction label for reservoir mode
-                    if is_reservoir_mode:
-                        ui.buttonGroup.setExclusive(False)
-                        instruction_label = QLabel("Reservoir mode: Multiple selections allowed")
-                        instruction_label.setStyleSheet("QLabel { color: blue; font-style: italic; }")
-                        ui.verticalLayout.insertWidget(1, instruction_label)  # Insert after main label
-
-                    # Add OK button to close dialog (since auto-close is disabled)
-                    ok_button = QPushButton("OK")
-                    ok_button.clicked.connect(dialog.accept)
-                    ui.verticalLayout.addWidget(ok_button)
-
-                    # Debug: Print initial state
-
-
-
-
-                    # Connect radio buttons to close dialog when selected
-                    def on_radio_selected():
-                        # dialog.accept()
-                        pass
-
-                    ui.select_input.toggled.connect(on_radio_selected)
-                    ui.select_output.toggled.connect(on_radio_selected)
-                    ui.radioButton.toggled.connect(on_radio_selected)  # instantiate radio button
-                    ui.select_none.toggled.connect(on_radio_selected)
-
-                    # Show dialog and get result
-                    if dialog.exec_() == QDialog.Accepted:
-                        # Debug: Print all button states
-
-
-
-
-
-
-                        # Collect all checked classifications (since buttons are now non-exclusive)
-                        classifications = []
-                        if ui.select_input.isChecked():
-                            classifications.append("input")
-                        if ui.select_output.isChecked():
-                            classifications.append("output")
-                        if ui.radioButton.isChecked():  # instantiate radio button
-                            classifications.append("instantiate")
-
-
-
-                        # Handle multiple classifications
-                        if not classifications:
-
-                            return
-
-
-
-                        # Reservoir mode specific handling
-                        # if is_reservoir_mode:
-
-                        #     # In reservoir mode, we might want to handle multiple classifications differently
-                        #     # For now, we'll still use primary classification but log all of them
-                        #     if len(classifications) > 1:
-
-                        #         # TODO: Implement reservoir-specific multiple classification logic
-                        #         # - Could create multiple variable instances
-                        #         # - Could apply all classifications to same variable
-                        #         # - Could ask user to resolve conflicts
-                        #
-                        # # For multiple classifications, we need to decide how to handle them
-                        # # Option 1: Use the first one (current behavior)
-                        # # Option 2: Apply all classifications (if supported)
-                        # # Option 3: Ask user to choose primary classification
-                        #
-                        # # For now, let's use the first one but log all of them
-                        # primary_classification = classifications[0]
-
-
-                        #
-                        # # TODO: Implement proper multiple classification handling
-                        # # For now, you could:
-                        # # 1. Create multiple variable entries
-                        # # 2. Ask user to choose primary classification
-                        # # 3. Apply business rules for multiple classifications
-                        #
-                        # Handle multiple classifications using the new list-based system
-                        if not classifications:
-
-                            return
-
-
-
-                        # Use the new list-based classification system
-                        # This allows a variable to belong to multiple lists simultaneously
-                        if hasattr(self, 'current_entity') and self.current_entity:
-                            # Update the classification using the new system
-                            self.current_entity.change_classification(var_id, classifications)
-
-
-                            # Refresh UI to show the change
-                            self.populate_lists_from_entity(self.current_entity)
-
-
-                            # Show success message
-                            # from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
-                            # makeMessageBox(f"Variable {var_label} moved to {classification} list", "Success")
-
+                    # Clean classification dialog with rules module
+                    self.show_clean_classification_dialog(list_name, var_id, is_reservoir_mode)
     def open_context_menu_directly(self, sender, index, var_id, var_label, var_network, list_name):
         """Open context menu directly (bypasses selection system)"""
         try:
