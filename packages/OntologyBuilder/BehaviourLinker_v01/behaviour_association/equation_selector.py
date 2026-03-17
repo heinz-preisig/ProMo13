@@ -23,14 +23,7 @@ from OntologyBuilder.BehaviourLinker_v01.UIs.equation_selector import Ui_Dialog
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 
 
-# Error logging utility
-def log_error(method_name: str, error: Exception, context: str = ""):
-    """Log error with method name and context for debugging"""
-    error_msg = f"ERROR in {method_name}"
-    if context:
-        error_msg += f" ({context})"
-    error_msg += f": {str(error)}"
-    print(error_msg)  # Keep console output for debugging
+from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
 
 
 class EquationSelectorDialog(QtWidgets.QDialog, Ui_Dialog):

@@ -36,15 +36,7 @@ from OntologyBuilder.BehaviourLinker_v01.classification_rules import (
 )
 
 
-# Error logging utility
-def log_error(method_name: str, error: Exception, context: str = ""):
-    """Log error with method name and context for debugging"""
-    error_msg = f"ERROR in {method_name}"
-    if context:
-        error_msg += f" ({context})"
-    error_msg += f": {str(error)}"
-    print(error_msg)  # Keep console output for debugging
-    # Could also write to a log file here if needed
+from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
 
 
 class EntityEditorFrontEnd(QtWidgets.QDialog):
@@ -327,7 +319,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         # "list_pending"    : self.ui.list_pending,
                         },
                 }
-        # pass  # OBSOLETE: Empty statement - can be removed
 
     def set_ontology_container(self, ontology_container):
         """Set the ontology container for behavior association"""
@@ -487,32 +478,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.ui.pushDeleteEntity.hide()
             self.ui.pushAccept.hide()
 
-    # OBSOLETE: TODO: we may not need this one.
-    # def set_selected_entity_type(self, entity_type_data):  # TODO: we may not need this one.
-    #     """Set the selected entity type from the main tree"""
-    #     self.selected_entity_type = entity_type_data
-    #     print(f"EntityEditorFrontEnd received selected entity type: {self.selected_entity_type}")
-    # 
-    #     # Update the UI to show the selected entity type
-    #     if self.selected_entity_type:
-    #         network = self.selected_entity_type.get("network")
-    #         category = self.selected_entity_type.get("category")
-    #         entity_type = self.selected_entity_type.get("entity type")
-    #         name = self.selected_entity_type.get("name")  # This will be None for entity types, filled for instances
-    # 
-    #         if name:
-    #             # An entity instance was selected - we're in edit mode
-    #             selection_text = f"Editing: {network}.{category}.{entity_type}.{name}"
-    #             self.status_label.setText(selection_text)
-    #             self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
-    #             self.set_mode("edit")
-    #             self.load_entity_data_for_editing()
-    #         else:
-    #             # An entity type was selected - we're in create mode
-    #             selection_text = f"Creating: {network}.{category}.{entity_type}"
-    #             self.status_label.setText(selection_text)
-    #             self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
-    #             self.set_mode("create")
 
     def populate_entity_structure(self, entity_data):
         """Populate entity editor with the complete entity structure from class definition"""
@@ -563,15 +528,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             log_error("populate_entity_structure", e, "populating entity data")
             makeMessageBox(f"Error populating entity structure: {str(e)}")
 
-    # OBSOLETE: Deprecated method - should not be called anymore
-    # def populate_with_entity_data(self, entity_data):
-    #     """Populate entity editor lists with variable and equation information"""
-    #     print(f"=== POPULATE_WITH_ENTITY_DATA CALLED (OLD METHOD) ===")
-    #     print(f"This method should NOT be called anymore! Data: {entity_data}")
-    # 
-    #     # This method is deprecated - we should use update_entity_from_backend instead
-    #     # But let's keep it for backward compatibility and redirect
-    #     self.update_entity_from_backend(entity_data)
 
     def clear_all_lists(self):
         """Clear all list widgets"""
@@ -1240,6 +1196,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 print(f"=== LEFT-CLICK DEBUG: No model or invalid index ===")
                 return
 
+            # IMPORTANT: Select the item in the list widget to ensure it's the current selection
+            sender.setCurrentIndex(index)
+            
             # Get variable information from model index data
             item_data = model.data(index, QtCore.Qt.UserRole)
             if not item_data:
@@ -1283,16 +1242,27 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 context_menu.addAction(classification_action)
 
             elif list_name == 'list_instantiate':
-                # Instantiate: classification only
+                # Instantiate: classification + equation dialog
                 classification_action = QAction("Classification", sender)
                 classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
                 context_menu.addAction(classification_action)
+                
+                context_menu.addSeparator()
+                equation_action = QAction("Equation Dialog", sender)
+                equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
+                context_menu.addAction(equation_action)
 
             elif list_name == 'list_integrators':
                 # Integrators: no context menu (read-only)
                 return  # Don't create any menu for integrators list
 
             elif list_name == 'list_included_variables':
+                # Included: classification + delete options
+                classification_action = QAction("Classification", sender)
+                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
+                context_menu.addAction(classification_action)
+                
+                context_menu.addSeparator()
                 # Included: delete and classify options
                 delete_action = QAction("Delete", sender)
                 delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
@@ -1345,6 +1315,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if not item_data:
                 return
 
+            # IMPORTANT: Select the item in the list widget to ensure it's current selection
+            sender.setCurrentIndex(index)
+            
             var_id = item_data.get('id')
             var_label = item_data.get('label', var_id)
             var_network = item_data.get('network')
@@ -1380,16 +1353,30 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 context_menu.addAction(classification_action)
 
             elif list_name == 'list_instantiate':
-                # Instantiate: classification only
+                # Instantiate: classification + equation dialog
                 classification_action = QAction("Classification", sender)
                 classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
                 context_menu.addAction(classification_action)
+                
+                context_menu.addSeparator()
+                equation_action = QAction("Equation Dialog", sender)
+                equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
+                context_menu.addAction(equation_action)
 
             elif list_name == 'list_integrators':
                 # Integrators: no context menu (read-only)
                 return  # Don't create any menu for integrators list
 
             elif list_name == 'list_included_variables':
+                # Included variables: classification + delete options
+                classification_action = QAction("Classification", sender)
+                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
+                context_menu.addAction(classification_action)
+                
+                context_menu.addSeparator()
+                delete_action = QAction("Delete", sender)
+                delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
+                context_menu.addAction(delete_action)
                 # Included variables: delete and classify options
                 delete_action = QAction("Delete", sender)
                 delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
@@ -1429,6 +1416,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if not item_data:
                 return
 
+            # IMPORTANT: Select the item in the list widget to ensure it's current selection
+            list_widget.setCurrentIndex(index)
+            
             var_id = item_data.get('id')
             var_label = item_data.get('label', var_id)
             var_network = item_data.get('network')
@@ -1457,6 +1447,13 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 classification_action = QAction("Change Classification", list_widget)
                 classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
                 context_menu.addAction(classification_action)
+                
+                # Add equation dialog for instantiate list
+                if list_name == 'list_instantiate':
+                    context_menu.addSeparator()
+                    equation_action = QAction("Equation Dialog", list_widget)
+                    equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
+                    context_menu.addAction(equation_action)
 
                 # Add separator and delete option
                 context_menu.addSeparator()
@@ -1974,28 +1971,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                       f"updating display for {getattr(entity, 'entity_id', 'unknown entity')}")
             makeMessageBox(f"Error updating entity display: {str(e)}")
 
-    def update_entity_from_backend_new(self, entity_data):
-        """Deprecated - redirect to Entity-only approach"""
-        # Extract Entity object from entity_data
-        if 'entity_object' in entity_data and entity_data['entity_object']:
-            self.update_entity_from_backend_entity(entity_data['entity_object'])
-        else:
-            pass
-        """Update entity display when backend sends updated entity data"""
-        try:
-            # Check if we have an entity object in the data
-            if 'entity_object' in entity_data:
-                entity = entity_data['entity_object']
-                self.current_entity = entity
-                # Use the complete entity population method
-                self.populate_lists_from_entity(entity)
-            else:
-                # Fallback to current_entity_data if no entity object
-                self.populate_from_entity_data_fallback(entity_data)
-
-        except Exception as e:
-            makeMessageBox(f"Error updating entity display: {str(e)}")
-
+    
     def populate_from_entity_data_fallback(self, entity_data):
         """Fallback method to populate lists when no Entity object is available - all list management should be done by Entity class"""
         try:
@@ -2048,7 +2024,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if dialog == "YES":
                 return
             elif dialog == "NO":
-                pass  # OBSOLETE: Empty else clause - can be removed
+                pass
         else:
-            pass  # OBSOLETE: Empty else clause - can be removed
+            pass
         self.close()

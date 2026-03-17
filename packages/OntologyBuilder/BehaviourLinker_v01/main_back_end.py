@@ -17,14 +17,7 @@ from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFro
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
 
-# Error logging utility
-def log_error(method_name: str, error: Exception, context: str = ""):
-    """Log error with method name and context for debugging"""
-    error_msg = f"ERROR in {method_name}"
-    if context:
-        error_msg += f" ({context})"
-    error_msg += f": {str(error)}"
-    print(error_msg)  # Keep console output for debugging
+from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
 
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -78,6 +71,16 @@ class BehaviourLinerBackEnd(QObject):
 
         self.send_message_to_main_frontend(event)
 
+    def _convert_and_save_entities(self):
+        """Convert all entities to dictionary format and save to ontology container"""
+        entities_data = {}
+        for entity_id, entity_obj in self.all_entities.items():
+            entities_data[entity_id] = entity_obj.convert_to_dict()
+        
+        # Save using Exchange Board method (updates equation_entity_dict automatically)
+        self.ontology_container.save_entities(entities_data)
+        return entities_data
+
     def delete_entity_instance(self, entity_data):
         """Delete an entity instance from all_entities and update tree"""
         try:
@@ -93,13 +96,8 @@ class BehaviourLinerBackEnd(QObject):
                 del self.all_entities[entity_id]
                 # Entity deleted
 
-                # Convert entities to dictionary format for Exchange Board
-                entities_data = {}
-                for entity_id, entity_obj in self.all_entities.items():
-                    entities_data[entity_id] = entity_obj.convert_to_dict()
-
-                # Save using Exchange Board method (updates equation_entity_dict automatically)
-                self.ontology_container.save_entities(entities_data)
+                # Convert entities to dictionary format and save using helper method
+                self._convert_and_save_entities()
 
                 # Update the main frontend tree to reflect the deletion
                 self.update_main_frontend_tree()
@@ -294,13 +292,8 @@ class BehaviourLinerBackEnd(QObject):
                 # Replace the original entity with the edited copy
                 self.all_entities[original_entity_id] = edited_entity
 
-                # Convert entities to dictionary format for Exchange Board
-                entities_data = {}
-                for entity_id, entity_obj in self.all_entities.items():
-                    entities_data[entity_id] = entity_obj.convert_to_dict()
-
-                # Save using Exchange Board method (updates equation_entity_dict automatically)
-                self.ontology_container.save_entities(entities_data)
+                # Convert entities to dictionary format and save using helper method
+                self._convert_and_save_entities()
 
                 # Update the main frontend tree to reflect the changes
                 self.update_main_frontend_tree()
@@ -341,13 +334,8 @@ class BehaviourLinerBackEnd(QObject):
             # Add/update the entity in the all_entities dictionary
             self.all_entities[entity_id] = entity
 
-            # Convert entities to dictionary format for Exchange Board
-            entities_data = {}
-            for entity_id, entity_obj in self.all_entities.items():
-                entities_data[entity_id] = entity_obj.convert_to_dict()
-
-            # Save using Exchange Board method (updates equation_entity_dict automatically)
-            self.ontology_container.save_entities(entities_data)
+            # Convert entities to dictionary format and save using helper method
+            self._convert_and_save_entities()
 
             # Update the main frontend tree to show the new entity
             self.update_main_frontend_tree()
