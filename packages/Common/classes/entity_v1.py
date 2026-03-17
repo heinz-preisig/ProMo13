@@ -608,16 +608,9 @@ class Entity():
                 lhs_var = equation_obj.lhs["global_ID"]
                 equation_defined_vars.add(lhs_var)
                 
-                # Add RHS variables (dependencies that the equation needs)
-                rhs_terms = equation_obj.rhs["global_ID"].split()
-                for term in rhs_terms:
-                    if term.startswith('V_'):  # Only add variable terms, not operators
-                        equation_defined_vars.add(term)
-                        
-                # Also use equation_obj.terms which contains both LHS and RHS
-                for term in equation_obj.terms:
-                    if term.startswith('V_'):  # Only add variable terms
-                        equation_defined_vars.add(term)
+                # NOTE: RHS variables are dependencies, NOT "defined" variables
+                # They should appear in the pending/not-defined list until satisfied
+                # So we do NOT add RHS variables to equation_defined_vars here
                         
         # Also check what's in the forest for comparison
         forest_vars = set()

@@ -264,13 +264,20 @@ class EntityEditorBackEnd(QObject):
                 root_equation = assignments.get('root_equation')
                 use_initialization = assignments.get('use_initialization', False)
 
-                # Check if we already have an entity object from previous operations
-                existing_entity = None
+                # Ensure we have an entity object - create one if needed
                 try:
                     existing_entity = self.state_manager.get_current_entity()
                 except ValueError:
-                    # No current entity exists
-                    pass
+                    # No current entity exists - create one first
+                    print(f"=== BEHAVIOR ASSOC DEBUG: Creating entity before processing assignments ===")
+                    
+                    # Get equations from ontology container
+                    all_equations = getattr(self.ontology_container, 'equation_entity_dict', {})
+                    
+                    existing_entity = self.state_manager.get_or_create_entity(
+                        entity_id="macroscopic.node.mass|constant|infinity",
+                        all_equations=all_equations
+                    )
                 
                 if existing_entity:
                     # Set classification based on initialization setting
@@ -812,7 +819,7 @@ class EntityEditorBackEnd(QObject):
                 # Create entity ID from entity type info
                 entity_id = f"{network}.{category}.{entity_type}"
             else:
-                entity_id = "macroscopic.node.mass|constant|infinity"
+                entity_id = "macroscopic.node.mass|constant|infinity.defaultEntity"
 
             # Create new entity
             entity = Entity(entity_id, all_equations={})

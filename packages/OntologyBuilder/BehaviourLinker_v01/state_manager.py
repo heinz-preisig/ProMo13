@@ -30,7 +30,7 @@ class EntityStateManager:
             
         # Create new entity only if none exists
         if entity_id is None:
-            entity_id = "macroscopic.node.mass|constant|infinity"
+            entity_id = "macroscopic.node.mass|constant|infinity.defaultEntity"
             
         from Common.classes.entity_v1 import Entity
         
