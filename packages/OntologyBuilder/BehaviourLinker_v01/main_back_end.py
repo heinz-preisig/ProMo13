@@ -13,7 +13,7 @@ from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.ui_get_string_impl import UI_GetString
 from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBackEnd
-from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd
+from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd  # Back to original
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
 
@@ -75,7 +75,10 @@ class BehaviourLinerBackEnd(QObject):
         """Convert all entities to dictionary format and save to ontology container"""
         entities_data = {}
         for entity_id, entity_obj in self.all_entities.items():
-            entities_data[entity_id] = entity_obj.convert_to_dict()
+            # Use the entity's actual ID, not the dictionary key
+            actual_entity_id = getattr(entity_obj, 'entity_id', entity_id)
+            entities_data[actual_entity_id] = entity_obj.convert_to_dict()
+            print(f"=== BACKEND DEBUG: Saving entity {actual_entity_id} (key was {entity_id}) ===")
         
         # Save using Exchange Board method (updates equation_entity_dict automatically)
         self.ontology_container.save_entities(entities_data)
@@ -332,7 +335,9 @@ class BehaviourLinerBackEnd(QObject):
                 pass
 
             # Add/update the entity in the all_entities dictionary
+            entity_id = getattr(entity, 'entity_id', entity_id)  # Use entity's actual ID
             self.all_entities[entity_id] = entity
+            print(f"=== BACKEND DEBUG: Added entity {entity_id} to all_entities ===")
 
             # Convert entities to dictionary format and save using helper method
             self._convert_and_save_entities()
@@ -517,7 +522,22 @@ class BehaviourLinerBackEnd(QObject):
     def launch_entity_editor(self, mode="create"):
         # Create entity components
         self.entity_back_end = EntityEditorBackEnd(self.ontology_container)
-        self.entity_front_end = EntityEditorFrontEnd()
+        self.entity_front_end = EntityEditorFrontEnd()  # Back to original
+
+        # Add IconHelper to original for better icon management
+        if hasattr(self.entity_front_end, 'ui') and hasattr(self.entity_front_end.ui, 'pushAddVariable'):
+            from .icon_helper import IconHelper
+            IconHelper.setup_round_button(self.entity_front_end.ui.pushAddVariable, "new", tooltip="new variable")
+            IconHelper.setup_round_button(self.entity_front_end.ui.pushAddStateVariable, "dependent_variable", tooltip="add state variable")
+            IconHelper.setup_round_button(self.entity_front_end.ui.pushAddTransport, "token_flow", tooltip="add transport variable")
+            IconHelper.setup_round_button(self.entity_front_end.ui.pushEditVariable, "edit", tooltip="edit variable")
+            IconHelper.setup_round_button(self.entity_front_end.ui.pushDeleteVariable, "delete", tooltip="delete variable")
+            IconHelper.setup_round_button(self.entity_front_end.ui.pushAccept, "accept", tooltip="accept")
+            IconHelper.setup_round_button(self.entity_front_end.ui.pushCancle, "cancel", tooltip="cancel")
+            IconHelper.setup_round_button(self.entity_front_end.ui.pushAddIntensitity, "infinity", tooltip="secondary states -- intensities")
+            
+            # Keep the LED button setup exactly like the original
+            self.signalButton = IconHelper.setup_round_button(self.entity_front_end.ui.LED, "LED_green", tooltip="status", mysize=20)
 
         # Pass ontology container to entity front end for behavior association
         self.entity_front_end.set_ontology_container(self.ontology_container)
