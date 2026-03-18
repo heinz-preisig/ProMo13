@@ -26,12 +26,11 @@ class EntityStateManager:
         This is the SINGLE SOURCE OF TRUTH for Entity objects.
         """
         if self._current_entity is not None:
-            print(f"=== STATE DEBUG: Using existing Entity ID: {id(self._current_entity)} ===")
             return self._current_entity
             
         # Create new entity only if none exists
         if entity_id is None:
-            entity_id = "macroscopic.node.mass|constant|infinity"
+            entity_id = "macroscopic.node.mass|constant|infinity.defaultEntity"
             
         from Common.classes.entity_v1 import Entity
         
@@ -43,8 +42,6 @@ class EntityStateManager:
             input_vars=input_vars or [],
             output_vars=output_vars or []
         )
-        
-        print(f"=== STATE DEBUG: Created new Entity ID: {id(self._current_entity)} ===")
         
         # Update frontend reference
         if self._entity_frontend:
@@ -60,7 +57,6 @@ class EntityStateManager:
     def update_entity_state(self, entity):
         """Update the current entity state"""
         if entity != self._current_entity:
-            print(f"=== STATE DEBUG: Updating Entity state from {id(self._current_entity)} to {id(entity)} ===")
             self._current_entity = entity
             
             # Update frontend reference
@@ -75,9 +71,8 @@ class EntityStateManager:
                 # IMPORTANT: Refresh UI lists to show updated classifications
                 try:
                     self._entity_frontend.populate_lists_from_entity(entity)
-                    print(f"=== STATE DEBUG: Refreshed UI lists ===")
                 except Exception as e:
-                    print(f"=== STATE DEBUG: Error refreshing UI lists: {e} ===")
+                    print(f"Error refreshing UI lists: {e}")
     
     def get_current_entity(self):
         """Get current entity with validation"""
@@ -87,7 +82,6 @@ class EntityStateManager:
     
     def clear_state(self):
         """Clear current entity state"""
-        print(f"=== STATE DEBUG: Clearing Entity state ===")
         self._current_entity = None
         if self._entity_frontend:
             self._entity_frontend.current_entity = None

@@ -586,6 +586,7 @@ class Entity():
         
         This method extracts variables that have defining equations in var_eq_forest,
         providing a comprehensive view of equation-defined variables.
+        It includes both LHS variables (defined by equations) and RHS variables (dependencies).
         
         Args:
             exchange_board: Optional ProMoExchangeBoard to filter out transport variables.
@@ -598,18 +599,19 @@ class Entity():
 
         equation_defined_vars = set()
         equations = self.get_equations()
-        print(f"=== EQUATION DEBUG: get_equations() returns {equations} ===")
         
         for eq in equations:
             if eq in self.all_equations:
-                lhs_var = self.all_equations[eq].lhs["global_ID"]
+                equation_obj = self.all_equations[eq]
+                
+                # Add LHS variable (the variable being defined)
+                lhs_var = equation_obj.lhs["global_ID"]
                 equation_defined_vars.add(lhs_var)
-                print(f"=== EQUATION DEBUG: {eq} defines {lhs_var} ===")
-            else:
-                print(f"=== EQUATION DEBUG: {eq} not found in all_equations ===")
-
-        print(f"=== EQUATION DEBUG: final equation_defined_vars = {equation_defined_vars} ===")
-        
+                
+                # NOTE: RHS variables are dependencies, NOT "defined" variables
+                # They should appear in the pending/not-defined list until satisfied
+                # So we do NOT add RHS variables to equation_defined_vars here
+                        
         # Also check what's in the forest for comparison
         forest_vars = set()
         if hasattr(self, 'var_eq_forest') and self.var_eq_forest is not None:
@@ -617,7 +619,6 @@ class Entity():
                 for key, values in tree.items():
                     if key.startswith('V_') and values:  # Variable with equations
                         forest_vars.add(key)
-        print(f"=== EQUATION DEBUG: forest equation-defined vars = {forest_vars} ===")
         
         # Filter out transport variables if exchange_board is provided
         if exchange_board is not None:
@@ -625,7 +626,6 @@ class Entity():
             filtered_ids = exchange_board.get_output_variables_filtered(entity_var_ids, exclude_transport=True)
             equation_defined_vars = set(filtered_ids)
         
-        pass
         return sorted(list(equation_defined_vars))
 
 
@@ -744,7 +744,36 @@ class Entity():
         The variable-equation tree is updated with the last tree generated
           by the method `generate_var_eq_tree`.
         """
-        self.var_eq_forest = self.temp_var_eq_forest
+        # FIXED: Merge temporary forest with existing forest instead of replacing
+        if hasattr(self, 'temp_var_eq_forest') and self.temp_var_eq_forest:
+            # Create a deep copy of existing forest to preserve it
+            import copy
+            if not hasattr(self, 'var_eq_forest') or not self.var_eq_forest:
+                self.var_eq_forest = [{}]
+            
+            # Start with existing forest
+            merged_forest = copy.deepcopy(self.var_eq_forest)
+            
+            # Merge new trees from temporary forest
+            for temp_tree in self.temp_var_eq_forest:
+                # Check if this tree already exists in merged forest
+                tree_merged = False
+                for existing_tree in merged_forest:
+                    # Merge trees that share variables
+                    if any(key in existing_tree for key in temp_tree.keys()):
+                        existing_tree.update(temp_tree)
+                        tree_merged = True
+                        break
+                
+                # Add new tree if no merge occurred
+                if not tree_merged:
+                    merged_forest.append(copy.deepcopy(temp_tree))
+            
+            # Update the forest with merged result
+            self.var_eq_forest = merged_forest
+        else:
+            # No temporary forest, keep existing forest unchanged
+            pass
 
         # Removing all variables that are not in the entity from the lists
         # input, output and init

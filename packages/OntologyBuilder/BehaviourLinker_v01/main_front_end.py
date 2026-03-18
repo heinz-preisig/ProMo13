@@ -497,3 +497,11 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                 return  # Don't exit
         else:
             sys.exit()
+    
+    def update_accept_button_visibility(self):
+        """Update Accept button visibility based on current automaton mode"""
+        # This method was missing - add a simple implementation
+        # The actual logic should be based on the automaton state
+        if hasattr(self, 'entity_editor_frontend') and self.entity_editor_frontend:
+            # Delegate to the entity editor if it exists
+            self.entity_editor_frontend.update_accept_button_visibility()

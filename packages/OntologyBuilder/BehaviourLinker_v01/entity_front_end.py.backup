@@ -36,7 +36,15 @@ from OntologyBuilder.BehaviourLinker_v01.classification_rules import (
 )
 
 
-from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
+# Error logging utility
+def log_error(method_name: str, error: Exception, context: str = ""):
+    """Log error with method name and context for debugging"""
+    error_msg = f"ERROR in {method_name}"
+    if context:
+        error_msg += f" ({context})"
+    error_msg += f": {str(error)}"
+    print(error_msg)  # Keep console output for debugging
+    # Could also write to a log file here if needed
 
 
 class EntityEditorFrontEnd(QtWidgets.QDialog):
@@ -319,6 +327,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                         # "list_pending"    : self.ui.list_pending,
                         },
                 }
+        # pass  # OBSOLETE: Empty statement - can be removed
 
     def set_ontology_container(self, ontology_container):
         """Set the ontology container for behavior association"""
@@ -478,6 +487,32 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.ui.pushDeleteEntity.hide()
             self.ui.pushAccept.hide()
 
+    # OBSOLETE: TODO: we may not need this one.
+    # def set_selected_entity_type(self, entity_type_data):  # TODO: we may not need this one.
+    #     """Set the selected entity type from the main tree"""
+    #     self.selected_entity_type = entity_type_data
+    #     print(f"EntityEditorFrontEnd received selected entity type: {self.selected_entity_type}")
+    # 
+    #     # Update the UI to show the selected entity type
+    #     if self.selected_entity_type:
+    #         network = self.selected_entity_type.get("network")
+    #         category = self.selected_entity_type.get("category")
+    #         entity_type = self.selected_entity_type.get("entity type")
+    #         name = self.selected_entity_type.get("name")  # This will be None for entity types, filled for instances
+    # 
+    #         if name:
+    #             # An entity instance was selected - we're in edit mode
+    #             selection_text = f"Editing: {network}.{category}.{entity_type}.{name}"
+    #             self.status_label.setText(selection_text)
+    #             self.status_label.setStyleSheet("QLabel { color: orange; font-weight: bold; margin: 5px; }")
+    #             self.set_mode("edit")
+    #             self.load_entity_data_for_editing()
+    #         else:
+    #             # An entity type was selected - we're in create mode
+    #             selection_text = f"Creating: {network}.{category}.{entity_type}"
+    #             self.status_label.setText(selection_text)
+    #             self.status_label.setStyleSheet("QLabel { color: blue; font-weight: bold; margin: 5px; }")
+    #             self.set_mode("create")
 
     def populate_entity_structure(self, entity_data):
         """Populate entity editor with the complete entity structure from class definition"""
@@ -528,6 +563,15 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             log_error("populate_entity_structure", e, "populating entity data")
             makeMessageBox(f"Error populating entity structure: {str(e)}")
 
+    # OBSOLETE: Deprecated method - should not be called anymore
+    # def populate_with_entity_data(self, entity_data):
+    #     """Populate entity editor lists with variable and equation information"""
+    #     print(f"=== POPULATE_WITH_ENTITY_DATA CALLED (OLD METHOD) ===")
+    #     print(f"This method should NOT be called anymore! Data: {entity_data}")
+    # 
+    #     # This method is deprecated - we should use update_entity_from_backend instead
+    #     # But let's keep it for backward compatibility and redirect
+    #     self.update_entity_from_backend(entity_data)
 
     def clear_all_lists(self):
         """Clear all list widgets"""
@@ -553,13 +597,16 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def add_to_list(self, list_widget, text, icon=None, context='entity_lists', data=None):
         """Add an item to a list widget with optional icon and data"""
         model = list_widget.model()
+        model_created = False
         if model is None:
             # Create a new standard item model
             model = QStandardItemModel()
             list_widget.setModel(model)
+            model_created = True
 
-        # Always configure list widget with latest settings (to handle size changes)
-        UISettings.configure_list_widget(list_widget, context)
+        # Only configure list widget when model is newly created (performance optimization)
+        if model_created:
+            UISettings.configure_list_widget(list_widget, context)
 
         # Create item with text and optional icon
         item = QStandardItem(text)
@@ -626,6 +673,194 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         # Update the lists with Entity information
         self.populate_lists_from_entity(entity)
 
+    def apply_manual_classification_change(self, var_id, var_info, new_classifications):
+        """Apply manual classification change following the proper architecture.
+        
+        This method updates the classification data structure and then triggers
+        a UI refresh through the normal get methods, maintaining the
+        raw lists + manual classifications principle.
+        """
+            # Update the classification data structure
+            if hasattr(self.current_entity, 'local_variable_classifications'):
+                if new_classifications:
+                    self.current_entity.local_variable_classifications[var_id] = {
+                        'classification': new_classifications,
+                        'original_list': f'list_{new_classifications[0]}' if new_classifications else 'list_none'
+                    }
+                else:
+                    # Remove classification entirely
+                    if var_id in self.current_entity.local_variable_classifications:
+                        del self.current_entity.local_variable_classifications[var_id]
+                        
+            # Trigger a targeted UI refresh for just the affected lists
+            # This uses the proper get methods that merge raw + manual
+            if 'input' in new_classifications:
+                self._refresh_single_list(self.ui.list_inputs)
+            if 'output' in new_classifications:
+                self._refresh_single_list(self.ui.list_outputs)
+            if 'instantiate' in new_classifications:
+                self._refresh_single_list(self.ui.list_instantiate)
+            if not new_classifications:
+                self._refresh_single_list(self.ui.list_not_defined_variables)
+                
+        except Exception as e:
+            print(f"Error in manual classification change: {e}")
+
+    def _refresh_single_list(self, list_widget):
+        """Refresh a single list widget using the proper get methods"""
+        try:
+            # Clear the list
+            if hasattr(list_widget, 'clear'):
+                list_widget.clear()
+            else:
+                model = list_widget.model()
+                if model:
+                    model.clear()
+            
+            # Repopulate using the appropriate get method
+            entity = self.current_entity
+            if not entity or not self.ontology_container:
+                return
+                
+            variables = self.ontology_container.variables
+            list_name = list_widget.objectName()
+            
+            if list_name == 'list_inputs':
+                var_list = entity.get_input_vars()
+                print(f"=== REFRESH DEBUG: get_input_vars() returned: {var_list} ===")
+                for var_id in var_list:
+                    if var_id in variables:
+                        var_data = variables[var_id]
+                        var_info = {
+                            'id': var_id,
+                            'label': var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                        }
+                        self.add_variable_to_list(list_widget, var_info)
+                        
+            elif list_name == 'list_outputs':
+                var_list = entity.get_output_vars(self.ontology_container)
+                for var_id in var_list:
+                    if var_id in variables:
+                        var_data = variables[var_id]
+                        var_info = {
+                            'id': var_id,
+                            'label': var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                        }
+                        self.add_variable_to_list(list_widget, var_info)
+                        
+            elif list_name == 'list_instantiate':
+                var_list = entity.get_variables_to_be_instantiated()
+                for var_id in var_list:
+                    if var_id in variables:
+                        var_data = variables[var_id]
+                        var_info = {
+                            'id': var_id,
+                            'label': var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                        }
+                        self.add_variable_to_list(list_widget, var_info)
+                        
+            elif list_name == 'list_not_defined_variables':
+                var_list = entity.get_pending_vars()
+                for var_id in var_list:
+                    if var_id in variables:
+                        var_data = variables[var_id]
+                        var_info = {
+                            'id': var_id,
+                            'label': var_data.get('label', var_id),
+                            'network': var_data.get('network', 'unknown')
+                        }
+                        self.add_variable_to_list(list_widget, var_info)
+                        
+        except Exception as e:
+            print(f"Error refreshing list {list_name}: {e}")
+
+    def _sync_missing_classifications(self, entity, variables):
+        """Sync missing classifications for variables that are in UI but not in classification data"""
+        if not hasattr(entity, 'local_variable_classifications'):
+            return
+            
+        # Get all variables that should have classifications based on entity data
+        init_vars = entity.get_init_vars()
+        input_vars = entity.get_input_vars()
+        output_vars = entity.get_output_vars(self.ontology_container)
+        
+        # Sync variables that are missing from classification data
+        for var_id in init_vars:
+            if var_id not in entity.local_variable_classifications:
+                entity.local_variable_classifications[var_id] = {
+                    'classification': ['instantiate'],
+                    'original_list': 'list_instantiate'
+                }
+                
+        for var_id in input_vars:
+            if var_id not in entity.local_variable_classifications:
+                entity.local_variable_classifications[var_id] = {
+                    'classification': ['input'],
+                    'original_list': 'list_inputs'
+                }
+                
+        for var_id in output_vars:
+            if var_id not in entity.local_variable_classifications:
+                entity.local_variable_classifications[var_id] = {
+                    'classification': ['output'],
+                    'original_list': 'list_outputs'
+                }
+
+    def remove_item_from_list(self, list_widget, var_id):
+        """Remove an item from list by variable ID"""
+        model = list_widget.model()
+        if model:
+            for row in range(model.rowCount()):
+                item = model.item(row)
+                if item:
+                    data = item.data(QtCore.Qt.UserRole)
+                    if data and data.get('id') == var_id:
+                        model.removeRow(row)
+                        break
+
+    def update_single_list(self, list_widget, var_list, variables, list_type='variable'):
+        """Update a single list widget with new data (incremental update)"""
+        # Clear just this list
+        if hasattr(list_widget, 'clear'):
+            list_widget.clear()
+        else:
+            model = list_widget.model()
+            if model:
+                model.clear()
+        
+        # Reconfigure if needed
+        if list_type == 'variable':
+            UISettings.configure_list_widget(list_widget, 'entity_variables')
+        elif list_type == 'equation':
+            UISettings.configure_list_widget(list_widget, 'entity_equations')
+        
+        # Populate with new data
+        for var_id in var_list:
+            if var_id in variables:
+                var_data = variables[var_id]
+                if list_type == 'equation':
+                    # Handle equations differently
+                    eq_text = f"{var_id}"
+                    icon = self.ontology_container.equation_icons.get(var_id)
+                    eq_data = {
+                        'id': var_id,
+                        'eq_id': var_id,
+                        'label': eq_text,
+                        'network': 'unknown'
+                    }
+                    self.add_to_list(list_widget, eq_text, icon, context='entity_equations', data=eq_data)
+                else:
+                    # Handle variables
+                    var_info = {
+                        'id': var_id,
+                        'label': var_data.get('label', var_id),
+                        'network': var_data.get('network', 'unknown')
+                    }
+                    self.add_variable_to_list(list_widget, var_info)
+
     def populate_lists_from_entity(self, entity):
         """Populate the list widgets with data from the Entity object"""
         try:
@@ -633,34 +868,45 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             is_first_time = not hasattr(entity, 'classifications_initialized') or not entity.classifications_initialized
 
             # Get ontology container for variable data
-
-            # Clear existing lists and refresh their settings
-            self.clear_all_lists()
-
-            # Refresh list widget settings with latest sizes
-            self.refresh_list_widget_settings(self.ui.list_outputs, 'entity_variables')
-            self.refresh_list_widget_settings(self.ui.list_inputs, 'entity_variables')
-            self.refresh_list_widget_settings(self.ui.list_instantiate, 'entity_variables')
-            self.refresh_list_widget_settings(self.ui.list_equations, 'entity_equations')
-            self.refresh_list_widget_settings(self.ui.list_integrators, 'entity_variables')
-            
-            # IMPORTANT: Re-connect left-click handlers after refresh to ensure they work
-            self.ui.list_outputs.clicked.connect(self.on_left_click_context_menu)
-            self.ui.list_inputs.clicked.connect(self.on_left_click_context_menu)
-            self.ui.list_instantiate.clicked.connect(self.on_left_click_context_menu)
-            self.ui.list_integrators.clicked.connect(self.on_left_click_context_menu)
-            print(f"=== CONNECTION DEBUG: Re-connected left-click handlers after refresh ===")
-            self.refresh_list_widget_settings(self.ui.list_included_variables, 'entity_variables')
-
             variables = self.ontology_container.variables
 
-            # Build local variable classifications if this is the first time
+            # Only clear and refresh settings if this is the first time or if forced
+            if is_first_time:
+                # Clear existing lists and refresh their settings
+                self.clear_all_lists()
+
+                # Refresh list widget settings with latest sizes
+                self.refresh_list_widget_settings(self.ui.list_outputs, 'entity_variables')
+                self.refresh_list_widget_settings(self.ui.list_inputs, 'entity_variables')
+                self.refresh_list_widget_settings(self.ui.list_instantiate, 'entity_variables')
+                self.refresh_list_widget_settings(self.ui.list_equations, 'entity_equations')
+                self.refresh_list_widget_settings(self.ui.list_integrators, 'entity_variables')
+                self.refresh_list_widget_settings(self.ui.list_not_defined_variables, 'entity_variables')
+                
+                # IMPORTANT: Re-connect left-click handlers after refresh to ensure they work
+                self.ui.list_outputs.clicked.connect(self.on_left_click_context_menu)
+                self.ui.list_inputs.clicked.connect(self.on_left_click_context_menu)
+                self.ui.list_instantiate.clicked.connect(self.on_left_click_context_menu)
+                self.ui.list_integrators.clicked.connect(self.on_left_click_context_menu)
+                self.refresh_list_widget_settings(self.ui.list_included_variables, 'entity_variables')
+            else:
+                # For subsequent updates, just clear the lists without full reconfiguring
+                self.clear_all_lists()
+                
+                # IMPORTANT: Always reconfigure equation list and not defined variables list to maintain icons and alignment
+                self.refresh_list_widget_settings(self.ui.list_equations, 'entity_equations')
+                self.refresh_list_widget_settings(self.ui.list_not_defined_variables, 'entity_variables')
+
+            # Build local variable classifications only if this is the first time
             if is_first_time:
                 entity.build_local_variable_classifications(variables)
+            else:
+                # For subsequent updates, sync any missing classifications
+                # This ensures variables that are in UI lists but not in classification data get synced
+                self._sync_missing_classifications(entity, variables)
 
             # Populate output variables list
             output_vars = entity.get_output_vars(self.ontology_container)
-            print(f"=== POPULATE DEBUG: Output vars: {output_vars} ===")
             for var_id in output_vars:
                 if var_id in variables:
                     var_data = variables[var_id]
@@ -670,11 +916,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'network': var_data.get('network', 'unknown')
                             }
                     self.add_variable_to_list(self.ui.list_outputs, var_info)
-                    print(f"=== POPULATE DEBUG: Added output {var_id} ===")
 
             # Populate input variables list
             input_vars = entity.get_input_vars()
-            print(f"=== POPULATE DEBUG: Input vars: {input_vars} ===")
             for var_id in input_vars:
                 if var_id in variables:
                     var_data = variables[var_id]
@@ -684,7 +928,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'network': var_data.get('network', 'unknown')
                             }
                     self.add_variable_to_list(self.ui.list_inputs, var_info)
-                    print(f"=== POPULATE DEBUG: Added input {var_id} ===")
 
             # Populate instantiate list
             instantiate_vars = entity.get_variables_to_be_instantiated()
@@ -795,7 +1038,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             #         self.add_to_list(self.ui.list_equations, eq_text, icon, context='entity_equations')
 
             # Populate pending variables using Entity method
-            # if hasattr(entity, 'get_pending_vars'):
             pending_vars = entity.get_pending_vars()
 
             for var_id in pending_vars:
@@ -811,9 +1053,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Setup selection handlers now that lists are populated
             self._setup_selection_handlers()
             
-            # DEBUG: Check list counts
-            print(f"=== POPULATE DEBUG: List counts - Inputs: {self.ui.list_inputs.model().rowCount()}, Outputs: {self.ui.list_outputs.model().rowCount()}, Integrators: {self.ui.list_integrators.model().rowCount()} ===")
-
             # Update mode based on selection after populating lists
             self._update_mode_based_on_selection()
 
@@ -1186,21 +1425,15 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 return
 
             list_name = sender.objectName() if hasattr(sender, 'objectName') else 'unknown'
-            print(f"=== LEFT-CLICK DEBUG: Clicked on {list_name} ===")
 
             # Get the index and model
             model = sender.model()
             if not model or not index.isValid():
-                print(f"=== LEFT-CLICK DEBUG: No model or invalid index ===")
                 return
 
-            # IMPORTANT: Select the item in the list widget to ensure it's the current selection
-            sender.setCurrentIndex(index)
-            
             # Get variable information from model index data
             item_data = model.data(index, QtCore.Qt.UserRole)
             if not item_data:
-                print(f"=== LEFT-CLICK DEBUG: No item data ===")
                 return
 
             var_id = item_data.get('id')
@@ -1208,10 +1441,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             var_network = item_data.get('network')
 
             if not var_id:
-                print(f"=== LEFT-CLICK DEBUG: No var_id ===")
                 return
-
-            print(f"=== LEFT-CLICK DEBUG: Creating menu for {var_id} in {list_name} ===")
 
             # Create context menu
             context_menu = QMenu(sender)
@@ -1240,27 +1470,16 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 context_menu.addAction(classification_action)
 
             elif list_name == 'list_instantiate':
-                # Instantiate: classification + equation dialog
+                # Instantiate: classification only
                 classification_action = QAction("Classification", sender)
                 classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
                 context_menu.addAction(classification_action)
-                
-                context_menu.addSeparator()
-                equation_action = QAction("Equation Dialog", sender)
-                equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
-                context_menu.addAction(equation_action)
 
             elif list_name == 'list_integrators':
                 # Integrators: no context menu (read-only)
                 return  # Don't create any menu for integrators list
 
             elif list_name == 'list_included_variables':
-                # Included: classification + delete options
-                classification_action = QAction("Classification", sender)
-                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
-                context_menu.addAction(classification_action)
-                
-                context_menu.addSeparator()
                 # Included: delete and classify options
                 delete_action = QAction("Delete", sender)
                 delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
@@ -1313,9 +1532,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if not item_data:
                 return
 
-            # IMPORTANT: Select the item in the list widget to ensure it's current selection
-            sender.setCurrentIndex(index)
-            
             var_id = item_data.get('id')
             var_label = item_data.get('label', var_id)
             var_network = item_data.get('network')
@@ -1351,30 +1567,16 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 context_menu.addAction(classification_action)
 
             elif list_name == 'list_instantiate':
-                # Instantiate: classification + equation dialog
+                # Instantiate: classification only
                 classification_action = QAction("Classification", sender)
                 classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
                 context_menu.addAction(classification_action)
-                
-                context_menu.addSeparator()
-                equation_action = QAction("Equation Dialog", sender)
-                equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
-                context_menu.addAction(equation_action)
 
             elif list_name == 'list_integrators':
                 # Integrators: no context menu (read-only)
                 return  # Don't create any menu for integrators list
 
             elif list_name == 'list_included_variables':
-                # Included variables: classification + delete options
-                classification_action = QAction("Classification", sender)
-                classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
-                context_menu.addAction(classification_action)
-                
-                context_menu.addSeparator()
-                delete_action = QAction("Delete", sender)
-                delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
-                context_menu.addAction(delete_action)
                 # Included variables: delete and classify options
                 delete_action = QAction("Delete", sender)
                 delete_action.triggered.connect(lambda: self.delete_variable_from_context(var_id, var_label))
@@ -1414,9 +1616,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if not item_data:
                 return
 
-            # IMPORTANT: Select the item in the list widget to ensure it's current selection
-            list_widget.setCurrentIndex(index)
-            
             var_id = item_data.get('id')
             var_label = item_data.get('label', var_id)
             var_network = item_data.get('network')
@@ -1445,13 +1644,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 classification_action = QAction("Change Classification", list_widget)
                 classification_action.triggered.connect(lambda: self.open_classification_dialog(var_id, var_label, list_name))
                 context_menu.addAction(classification_action)
-                
-                # Add equation dialog for instantiate list
-                if list_name == 'list_instantiate':
-                    context_menu.addSeparator()
-                    equation_action = QAction("Equation Dialog", list_widget)
-                    equation_action.triggered.connect(lambda: self.open_equation_dialog(var_id, var_label, var_network))
-                    context_menu.addAction(equation_action)
 
                 # Add separator and delete option
                 context_menu.addSeparator()
@@ -1708,39 +1900,37 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     # Handle multiple classifications
                     if not classifications:
                         # "None" selected - remove classification from local dictionary
-                        print(f"=== FRONTEND DEBUG: 'None' selected - removing classification for {var_id} ===")
-                        
                         if hasattr(self, 'current_entity') and self.current_entity:
+                            # Get old classifications before removing
+                            old_classifications = []
+                            if hasattr(self.current_entity, 'local_variable_classifications'):
+                                old_classifications = self.current_entity.local_variable_classifications.get(var_id, {}).get('classification', [])
+                            
                             # Remove the variable from local classifications entirely
                             if hasattr(self.current_entity, 'local_variable_classifications'):
                                 if var_id in self.current_entity.local_variable_classifications:
                                     del self.current_entity.local_variable_classifications[var_id]
-                                    print(f"=== FRONTEND DEBUG: Removed {var_id} from local classifications ===")
-                                
-                                # Refresh UI to show the change
-                                self.populate_lists_from_entity(self.current_entity)
-                                print(f"=== FRONTEND DEBUG: UI refreshed after removing classification ===")
+                                    
+                            # Use incremental update instead of full refresh
+                            self.apply_manual_classification_change(var_id, var_info, [])
                             return
                         else:
-                            print(f"=== FRONTEND DEBUG: SKIPPING removal - no current_entity ===")
                             return
 
                     # Use the new list-based classification system
-                    print(f"=== FRONTEND DEBUG: About to call change_classification ===")
-                    print(f"=== FRONTEND DEBUG: hasattr(self, 'current_entity'): {hasattr(self, 'current_entity')} ===")
-                    print(f"=== FRONTEND DEBUG: self.current_entity: {self.current_entity} ===")
-                    print(f"=== FRONTEND DEBUG: var_id: {var_id}, classifications: {classifications} ===")
-                    
                     if hasattr(self, 'current_entity') and self.current_entity:
-                        # Update the classification using the new system
-                        print(f"=== FRONTEND DEBUG: Calling change_classification ===")
-                        self.current_entity.change_classification(var_id, classifications)
-                        print(f"=== FRONTEND DEBUG: change_classification completed ===")
+                        # Get old classifications before updating
+                        old_classifications = []
+                        if hasattr(self.current_entity, 'local_variable_classifications'):
+                            old_classifications = self.current_entity.local_variable_classifications.get(var_id, {}).get('classification', [])
                         
-                        # Refresh UI to show the change
-                        self.populate_lists_from_entity(self.current_entity)
+                        # Update the classification using the new system
+                        self.current_entity.change_classification(var_id, classifications)
+                        
+                        # Use direct manual classification method instead of complex incremental update
+                        self.apply_manual_classification_change(var_id, var_info, classifications)
                     else:
-                        print(f"=== FRONTEND DEBUG: SKIPPING change_classification - no current_entity ===")
+                        return
 
 
         except Exception as e:
@@ -1750,7 +1940,8 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         """Open classification dialog for a variable (from context menu)"""
         try:
             # Call the direct handler instead of using the old click-based system
-            self.handle_classification_dialog(var_id, var_label, None, list_name)
+            var_info = self._get_variable_info_for_classification(var_id)
+            self.handle_classification_dialog(var_id, var_label, var_info.get('network'), list_name)
         except Exception as e:
             log_error("open_classification_dialog", e, f"opening classification dialog for {var_id}")
 
@@ -1969,7 +2160,28 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                       f"updating display for {getattr(entity, 'entity_id', 'unknown entity')}")
             makeMessageBox(f"Error updating entity display: {str(e)}")
 
-    
+    def update_entity_from_backend_new(self, entity_data):
+        """Deprecated - redirect to Entity-only approach"""
+        # Extract Entity object from entity_data
+        if 'entity_object' in entity_data and entity_data['entity_object']:
+            self.update_entity_from_backend_entity(entity_data['entity_object'])
+        else:
+            pass
+        """Update entity display when backend sends updated entity data"""
+        try:
+            # Check if we have an entity object in the data
+            if 'entity_object' in entity_data:
+                entity = entity_data['entity_object']
+                self.current_entity = entity
+                # Use the complete entity population method
+                self.populate_lists_from_entity(entity)
+            else:
+                # Fallback to current_entity_data if no entity object
+                self.populate_from_entity_data_fallback(entity_data)
+
+        except Exception as e:
+            makeMessageBox(f"Error updating entity display: {str(e)}")
+
     def populate_from_entity_data_fallback(self, entity_data):
         """Fallback method to populate lists when no Entity object is available - all list management should be done by Entity class"""
         try:
@@ -2022,7 +2234,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             if dialog == "YES":
                 return
             elif dialog == "NO":
-                pass
+                pass  # OBSOLETE: Empty else clause - can be removed
         else:
-            pass
+            pass  # OBSOLETE: Empty else clause - can be removed
         self.close()
