@@ -94,10 +94,14 @@ class EntityStateManager:
     
     def clear_state(self):
         """Clear current entity state"""
+        print(f"=== STATE MANAGER DEBUG: Clearing state ===")
         self._current_entity = None
+        
+        # Also clear frontend references to prevent stale data
         if self._entity_frontend:
             self._entity_frontend.current_entity = None
-            self._entity_frontend.current_entity_data = None
+            self._entity_frontend.current_entity_data = {}
+            print(f"=== STATE MANAGER DEBUG: Cleared frontend references ===")
 
 # Global state manager instance
 _state_manager = EntityStateManager()

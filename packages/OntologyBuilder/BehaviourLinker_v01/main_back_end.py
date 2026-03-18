@@ -13,7 +13,7 @@ from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.ui_get_string_impl import UI_GetString
 from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBackEnd
-from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd  # Back to original
+from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd  # Back to original - refactored version is incompatible
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
 
@@ -536,7 +536,12 @@ class BehaviourLinerBackEnd(QObject):
     def launch_entity_editor(self, mode="create"):
         # Create entity components
         self.entity_back_end = EntityEditorBackEnd(self.ontology_container)
-        self.entity_front_end = EntityEditorFrontEnd()  # Back to original
+        self.entity_front_end = EntityEditorFrontEnd()  # Back to original - refactored version is incompatible
+
+        # IMPORTANT: Clear state manager to prevent cross-contamination between sessions
+        self.entity_back_end.state_manager.clear_state()
+        self.entity_back_end.state_manager.set_frontend(self.entity_front_end)
+        self.entity_back_end.state_manager.set_backend(self.entity_back_end)
 
         # Add IconHelper to original for better icon management
         if hasattr(self.entity_front_end, 'ui') and hasattr(self.entity_front_end.ui, 'pushAddVariable'):
