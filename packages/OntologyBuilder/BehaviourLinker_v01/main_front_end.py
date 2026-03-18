@@ -125,15 +125,23 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
 
     def __make_tree(self, data):
         """Build the entity tree with colors similar to HAP version."""
-        # print(f"__make_tree called with data: {data}")
+        print(f"=== FRONTEND DEBUG: __make_tree called with data: {type(data)} ===")
         if not data:
-            print("No data received, returning")
+            print("=== FRONTEND DEBUG: No data received, returning ===")
             return
 
+        print(f"=== FRONTEND DEBUG: Data keys: {list(data.keys()) if isinstance(data, dict) else 'Not a dict'} ===")
+        
         # Extract node_entity_types and all_entities from the new data structure
         node_entity_types = data.get("node_entity_types", {})
         arc_entity_types = data.get("arc_entity_types", {})
         all_entities = data.get("all_entities", {})
+        
+        print(f"=== FRONTEND DEBUG: node_entity_types count: {len(node_entity_types)} ===")
+        print(f"=== FRONTEND DEBUG: arc_entity_types count: {len(arc_entity_types)} ===")
+        print(f"=== FRONTEND DEBUG: all_entities count: {len(all_entities)} ===")
+        for eid in all_entities:
+            print(f"=== FRONTEND DEBUG: Entity in all_entities: {eid} ===")
 
         # Define colors (same as HAP version)
         NETWORK_COLOR = QtGui.QColor(255, 0, 0)  # Red for networks
@@ -198,15 +206,15 @@ class BehaviourLinkerFrontEnd(QtWidgets.QMainWindow):
                             parts = entity_id.split('.')
                             if len(parts) == 4:
                                 entity_net, entity_cat, entity_type_name, entity_name = parts
+                                
+                                if (entity_net == net and
+                                        entity_cat == category and
+                                        entity_type_name == entity_type):
+                                    entities_for_type.append((entity_name, entity_obj))
                             else:
                                 # makeMessageBox("id failed ?", buttons=["OK"])
                                 print(">>>>>>>>>>>> unpacking of entity_id failed", parts)
                                 pass
-
-                            if (entity_net == net and
-                                    entity_cat == category and
-                                    entity_type_name == entity_type):
-                                entities_for_type.append((entity_name, entity_obj))
 
                     # Sort entities by name
                     entities_for_type.sort(key=lambda x: x[0])

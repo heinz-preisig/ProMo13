@@ -132,6 +132,11 @@ class BehaviourLinerBackEnd(QObject):
     def update_main_frontend_tree(self):
         """Update the main frontend tree with current entities"""
         try:
+            print(f"=== TREE DEBUG: Starting tree update ===")
+            print(f"=== TREE DEBUG: Total entities in all_entities: {len(self.all_entities)} ===")
+            for eid in self.all_entities:
+                print(f"=== TREE DEBUG: Entity in all_entities: {eid} ===")
+            
             # Prepare data for tree update
             node_entity_types = {}
             arc_entity_types = {}
@@ -139,10 +144,12 @@ class BehaviourLinerBackEnd(QObject):
             # Extract entity types from ontology
             if hasattr(self.ontology_container, 'node_entity_types'):
                 node_entity_types = self.ontology_container.node_entity_types
+                print(f"=== TREE DEBUG: Found {len(node_entity_types)} node entity types ===")
 
             # Extract arc entity types from ontology
             if hasattr(self.ontology_container, 'arc_entity_types'):
                 arc_entity_types = self.ontology_container.arc_entity_types
+                print(f"=== TREE DEBUG: Found {len(arc_entity_types)} arc entity types ===")
 
             data = {
                     "node_entity_types": node_entity_types,
@@ -150,8 +157,10 @@ class BehaviourLinerBackEnd(QObject):
                     "all_entities"     : self.all_entities
                     }
 
+            print(f"=== TREE DEBUG: Sending make_tree message to frontend ===")
             # Send tree update to frontend
             self.send_message_to_main_frontend("make_tree", data)
+            print(f"=== TREE DEBUG: Tree update message sent ===")
 
         except Exception as e:
             log_error("update_main_frontend_tree", e, "updating frontend tree")
@@ -338,6 +347,11 @@ class BehaviourLinerBackEnd(QObject):
             entity_id = getattr(entity, 'entity_id', entity_id)  # Use entity's actual ID
             self.all_entities[entity_id] = entity
             print(f"=== BACKEND DEBUG: Added entity {entity_id} to all_entities ===")
+            print(f"=== BACKEND DEBUG: Entity object type: {type(entity)} ===")
+            print(f"=== BACKEND DEBUG: Entity attribute check - hasattr(entity_id): {hasattr(entity, 'entity_id')} ===")
+            if hasattr(entity, 'entity_id'):
+                print(f"=== BACKEND DEBUG: Entity.entity_id: {getattr(entity, 'entity_id')} ===")
+            print(f"=== BACKEND DEBUG: Total entities in all_entities: {len(self.all_entities)} ===")
 
             # Convert entities to dictionary format and save using helper method
             self._convert_and_save_entities()
@@ -578,6 +592,9 @@ class BehaviourLinerBackEnd(QObject):
             # Load the COPY into the editor, not the original
             self.entity_front_end.set_entity_object(entity_copy)
             self.entity_front_end.set_mode("edit")
+            
+            # IMPORTANT: Update the state manager with the entity copy
+            self.entity_back_end.state_manager.update_entity_state(entity_copy)
 
             # Also populate current_entity_data for behavior association editor
             entity_data = {

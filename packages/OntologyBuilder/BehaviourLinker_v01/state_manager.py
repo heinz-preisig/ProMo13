@@ -25,15 +25,22 @@ class EntityStateManager:
         Get current entity or create new one if needed.
         This is the SINGLE SOURCE OF TRUTH for Entity objects.
         """
+        print(f"=== STATE MANAGER DEBUG: get_or_create_entity called ===")
+        print(f"=== STATE MANAGER DEBUG: entity_id parameter: {entity_id} ===")
+        print(f"=== STATE MANAGER DEBUG: current_entity is None: {self._current_entity is None} ===")
+        
         if self._current_entity is not None:
+            print(f"=== STATE MANAGER DEBUG: Returning existing entity ===")
             return self._current_entity
             
         # Create new entity only if none exists
         if entity_id is None:
             entity_id = "macroscopic.node.mass|constant|infinity.defaultEntity"
+            print(f"=== STATE MANAGER DEBUG: Using default entity_id: {entity_id} ===")
             
         from Common.classes.entity_v1 import Entity
         
+        print(f"=== STATE MANAGER DEBUG: Creating new Entity with entity_id: {entity_id} ===")
         self._current_entity = Entity(
             entity_id=entity_id,
             all_equations=all_equations or {},
@@ -42,6 +49,11 @@ class EntityStateManager:
             input_vars=input_vars or [],
             output_vars=output_vars or []
         )
+        
+        print(f"=== STATE MANAGER DEBUG: Created entity, checking entity_id attribute ===")
+        print(f"=== STATE MANAGER DEBUG: hasattr(entity_id): {hasattr(self._current_entity, 'entity_id')} ===")
+        if hasattr(self._current_entity, 'entity_id'):
+            print(f"=== STATE MANAGER DEBUG: Entity.entity_id after creation: {getattr(self._current_entity, 'entity_id')} ===")
         
         # Update frontend reference
         if self._entity_frontend:

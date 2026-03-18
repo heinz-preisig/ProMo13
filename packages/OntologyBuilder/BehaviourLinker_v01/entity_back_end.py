@@ -274,8 +274,18 @@ class EntityEditorBackEnd(QObject):
                     # Get equations from ontology container
                     all_equations = getattr(self.ontology_container, 'equation_entity_dict', {})
                     
+                    # IMPORTANT: Get the proper entity ID from frontend data instead of using hardcoded value
+                    proper_entity_id = None
+                    if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                        entity_data = getattr(self.entity_frontend, 'current_entity_data', {})
+                        proper_entity_id = entity_data.get('entity_id')
+                    
+                    # Fallback to default only if proper entity ID is not available
+                    entity_id_to_use = proper_entity_id if proper_entity_id else "macroscopic.node.mass|constant|infinity"
+                    print(f"=== BEHAVIOR ASSOC DEBUG: Using entity_id: {entity_id_to_use} ===")
+                    
                     existing_entity = self.state_manager.get_or_create_entity(
-                        entity_id="macroscopic.node.mass|constant|infinity",
+                        entity_id=entity_id_to_use,
                         all_equations=all_equations
                     )
                 
@@ -512,9 +522,10 @@ class EntityEditorBackEnd(QObject):
 
                 # Create new Entity if none exists
                 if entity is None:
-                    entity_name = entity_data.get('entity_id', 'new_entity').split('.')[-1]
+                    # IMPORTANT: Use the full entity_id, not just the name part
+                    full_entity_id = entity_data.get('entity_id', 'new_entity')
                     entity = Entity(
-                            entity_id=entity_name,
+                            entity_id=full_entity_id,  # Use full entity ID
                             all_equations=all_equations
                             )
 
@@ -597,7 +608,18 @@ class EntityEditorBackEnd(QObject):
                             })
 
                     # Create entity with proper parameters
-                    entity_name = f"{self.selected_entity_type.get('network', 'unknown')}.{self.selected_entity_type.get('category', 'unknown')}.{self.selected_entity_type.get('entity type', 'unknown')}.new_entity"
+                    # IMPORTANT: Get the proper entity ID from frontend data instead of hardcoding
+                    proper_entity_id = None
+                    if hasattr(self, 'entity_frontend') and self.entity_frontend:
+                        entity_data = getattr(self.entity_frontend, 'current_entity_data', {})
+                        proper_entity_id = entity_data.get('entity_id')
+                    
+                    # Fallback to constructed entity ID only if proper entity ID is not available
+                    if proper_entity_id:
+                        entity_name = proper_entity_id
+                    else:
+                        entity_name = f"{self.selected_entity_type.get('network', 'unknown')}.{self.selected_entity_type.get('category', 'unknown')}.{self.selected_entity_type.get('entity type', 'unknown')}.new_entity"
+                    print(f"=== STATE VARIABLE DEBUG: Using entity_id: {entity_name} ===")
 
                     # Get equations from ontology container - use list_equation_classes for actual Equation objects
                     all_equations = {}
