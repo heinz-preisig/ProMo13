@@ -542,12 +542,14 @@ class BehaviorAssociationEditor(QtWidgets.QDialog):
             filtered_variables = classification['allowed_root']
         elif self.variable_class_mode == 'transport':
             # Transport mode: show only transport variables (for arcs)
-            filtered_variables = VariableClassificationRules.filter_variables_by_type(variables, ['transport'])
+            domain = self.entity_type_info.get('network')
+            filtered_variables = VariableClassificationRules.filter_variables_by_type(variables, ['transport'], domain)
         elif self.variable_class_mode == 'intensity':
             # Intensity mode: show secondary state variables suitable for reservoirs
             # Filter for variables that can be used as intensity/secondary states
+            domain = self.entity_type_info.get('network')
             filtered_variables = VariableClassificationRules.filter_variables_by_type(variables,
-                                                                                      ['effort', 'secondaryState'])
+                                                                                      ['effort', 'secondaryState'], domain)
         elif self.variable_class_mode == 'all':
             # All variables mode: show all variables applicable to the network
             # Combine all classifications but remove duplicates

@@ -216,7 +216,7 @@ class Entity():
                     if key.startswith('V_'):  # Only add variables, not equations
                         all_vars.add(key)
         
-        print(f"=== ENTITY VARS DEBUG: final all_vars = {all_vars} ===")
+        # print(f"=== ENTITY VARS DEBUG: final all_vars = {all_vars} ===")
         return sorted(list(all_vars))
 
     def _apply_manual_classifications(self, base_list, target_classification):
@@ -674,7 +674,7 @@ class Entity():
             if 'instantiate' in data.get('classification', []):
                 instantiate_classified.append(var_id)
         
-        print(f"=== GET_INIT_VARS DEBUG: instantiate_classified: {instantiate_classified} ===")
+        # print(f"=== GET_INIT_VARS DEBUG: instantiate_classified: {instantiate_classified} ===")
         
         result = self._apply_manual_classifications(raw_init_vars, "instantiate")
         

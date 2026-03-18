@@ -132,10 +132,8 @@ class BehaviourLinerBackEnd(QObject):
     def update_main_frontend_tree(self):
         """Update the main frontend tree with current entities"""
         try:
-            print(f"=== TREE DEBUG: Starting tree update ===")
-            print(f"=== TREE DEBUG: Total entities in all_entities: {len(self.all_entities)} ===")
-            for eid in self.all_entities:
-                print(f"=== TREE DEBUG: Entity in all_entities: {eid} ===")
+            # for eid in self.all_entities:
+            #     print(f"=== TREE DEBUG: Entity in all_entities: {eid} ===")
             
             # Prepare data for tree update
             node_entity_types = {}
@@ -144,12 +142,12 @@ class BehaviourLinerBackEnd(QObject):
             # Extract entity types from ontology
             if hasattr(self.ontology_container, 'node_entity_types'):
                 node_entity_types = self.ontology_container.node_entity_types
-                print(f"=== TREE DEBUG: Found {len(node_entity_types)} node entity types ===")
+                # print(f"=== TREE DEBUG: Found {len(node_entity_types)} node entity types ===")
 
             # Extract arc entity types from ontology
             if hasattr(self.ontology_container, 'arc_entity_types'):
                 arc_entity_types = self.ontology_container.arc_entity_types
-                print(f"=== TREE DEBUG: Found {len(arc_entity_types)} arc entity types ===")
+                # print(f"=== TREE DEBUG: Found {len(arc_entity_types)} arc entity types ===")
 
             data = {
                     "node_entity_types": node_entity_types,
@@ -157,10 +155,10 @@ class BehaviourLinerBackEnd(QObject):
                     "all_entities"     : self.all_entities
                     }
 
-            print(f"=== TREE DEBUG: Sending make_tree message to frontend ===")
+            # print(f"=== TREE DEBUG: Sending make_tree message to frontend ===")
             # Send tree update to frontend
             self.send_message_to_main_frontend("make_tree", data)
-            print(f"=== TREE DEBUG: Tree update message sent ===")
+            # print(f"=== TREE DEBUG: Tree update message sent ===")
 
         except Exception as e:
             log_error("update_main_frontend_tree", e, "updating frontend tree")

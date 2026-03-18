@@ -87,7 +87,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Don't connect list_not_defined_variables here - it's already connected above
             self.ui.list_inputs.clicked.connect(self.on_left_click_context_menu)
             self.ui.list_outputs.clicked.connect(self.on_left_click_context_menu)
-            print(f"=== CONNECTION DEBUG: Connected left-click handlers for inputs/outputs ===")
         self.ui.list_instantiate.clicked.connect(self.on_left_click_context_menu)
         self.ui.list_integrators.clicked.connect(self.on_left_click_context_menu)
         self.ui.list_included_variables.clicked.connect(self.on_left_click_context_menu)
@@ -263,36 +262,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
         except Exception as e:
             log_error("_setup_selection_handlers", e, "main setup loop")
 
-    def _setup_context_menus(self):
-        """Setup right-click context menus for all variable lists"""
-        try:
-            from PyQt5 import QtWidgets
-            from PyQt5.QtCore import Qt
-
-            # All lists that should have context menus
-            lists_with_context_menu = [
-                    self.ui.list_outputs,
-                    self.ui.list_inputs,
-                    self.ui.list_instantiate,
-                    self.ui.list_integrators,
-                    self.ui.list_included_variables,
-                    self.ui.list_not_defined_variables
-                    ]
-
-            for list_widget in lists_with_context_menu:
-                try:
-                    # Enable custom context menu
-                    list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
-                    # Connect the context menu request signal
-                    list_widget.customContextMenuRequested.connect(
-                            lambda pos, widget=list_widget: self.on_context_menu_requested(pos, widget)
-                            )
-                except Exception as e:
-                    log_error("_setup_context_menus", e, f"setting up {list_widget.objectName()}")
-
-        except Exception as e:
-            log_error("_setup_context_menus", e, "main context menu setup")
-
+    
     def interfaceComponents(self):
         self.gui_objects = {
                 "buttons"  : {
@@ -346,7 +316,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def set_selected_entity_type(self, entity_type_data):
         """Set the selected entity type from the main tree"""
         self.selected_entity_type = entity_type_data
-        print(f"EntityEditorFrontEnd received selected entity type: {self.selected_entity_type}")
 
     def set_mode(self, mode):
         """Set the current mode and configure UI accordingly"""
@@ -612,13 +581,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
         self.add_to_list(list_widget, var_text, icon, context='entity_variables', data=var_info)
 
-    # def add_port_to_list(self, list_widget, port_info, port_type="input"):
-    #     """Add a port (input/output) to list with appropriate icon"""
-    #     port_text = f"{port_info['label']} (ID: {port_info['id']})"
-    #     # Use appropriate icon based on port type
-    #     icon = getIcon("port")  # Using port icon for both input and output
-    #     self.add_to_list(list_widget, port_text, icon)
-
     def set_entity_object(self, entity):
         """Set the Entity object and update the UI"""
         self.current_entity = entity
@@ -649,7 +611,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             self.ui.list_inputs.clicked.connect(self.on_left_click_context_menu)
             self.ui.list_instantiate.clicked.connect(self.on_left_click_context_menu)
             self.ui.list_integrators.clicked.connect(self.on_left_click_context_menu)
-            print(f"=== CONNECTION DEBUG: Re-connected left-click handlers after refresh ===")
             self.refresh_list_widget_settings(self.ui.list_included_variables, 'entity_variables')
 
             variables = self.ontology_container.variables
@@ -660,7 +621,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
 
             # Populate output variables list
             output_vars = entity.get_output_vars(self.ontology_container)
-            print(f"=== POPULATE DEBUG: Output vars: {output_vars} ===")
             for var_id in output_vars:
                 if var_id in variables:
                     var_data = variables[var_id]
@@ -670,11 +630,9 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'network': var_data.get('network', 'unknown')
                             }
                     self.add_variable_to_list(self.ui.list_outputs, var_info)
-                    print(f"=== POPULATE DEBUG: Added output {var_id} ===")
 
             # Populate input variables list
             input_vars = entity.get_input_vars()
-            print(f"=== POPULATE DEBUG: Input vars: {input_vars} ===")
             for var_id in input_vars:
                 if var_id in variables:
                     var_data = variables[var_id]
@@ -684,7 +642,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                             'network': var_data.get('network', 'unknown')
                             }
                     self.add_variable_to_list(self.ui.list_inputs, var_info)
-                    print(f"=== POPULATE DEBUG: Added input {var_id} ===")
 
             # Populate instantiate list
             instantiate_vars = entity.get_variables_to_be_instantiated()
@@ -811,9 +768,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Setup selection handlers now that lists are populated
             self._setup_selection_handlers()
             
-            # DEBUG: Check list counts
-            print(f"=== POPULATE DEBUG: List counts - Inputs: {self.ui.list_inputs.model().rowCount()}, Outputs: {self.ui.list_outputs.model().rowCount()}, Integrators: {self.ui.list_integrators.model().rowCount()} ===")
-
             # Update mode based on selection after populating lists
             self._update_mode_based_on_selection()
 
@@ -1006,6 +960,33 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
     def on_list_selection_changed(self, selected, deselected):
         """Handle selection change in any variable list"""
         try:
+            # Get the list widget that triggered this selection change
+            sender = self.sender()
+            if not sender:
+                return
+            
+            # Clear selections in all other lists to ensure only one list has selection at a time
+            all_lists = [
+                self.ui.list_outputs,
+                self.ui.list_inputs,
+                self.ui.list_instantiate,
+                self.ui.list_integrators,
+                self.ui.list_included_variables,
+                self.ui.list_not_defined_variables
+            ]
+            
+            # Add equations list if it exists
+            if hasattr(self.ui, 'list_equations'):
+                all_lists.append(self.ui.list_equations)
+            
+            # Clear selection in all lists except the sender
+            for list_widget in all_lists:
+                if list_widget != sender and list_widget != sender.parent():
+                    try:
+                        list_widget.clearSelection()
+                    except:
+                        pass  # Ignore errors for lists that might not exist
+            
             # Update mode based on selection
             self._update_mode_based_on_selection()
 
@@ -1186,12 +1167,10 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                 return
 
             list_name = sender.objectName() if hasattr(sender, 'objectName') else 'unknown'
-            print(f"=== LEFT-CLICK DEBUG: Clicked on {list_name} ===")
 
             # Get the index and model
             model = sender.model()
             if not model or not index.isValid():
-                print(f"=== LEFT-CLICK DEBUG: No model or invalid index ===")
                 return
 
             # IMPORTANT: Select the item in the list widget to ensure it's the current selection
@@ -1200,7 +1179,6 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             # Get variable information from model index data
             item_data = model.data(index, QtCore.Qt.UserRole)
             if not item_data:
-                print(f"=== LEFT-CLICK DEBUG: No item data ===")
                 return
 
             var_id = item_data.get('id')
@@ -1208,10 +1186,7 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
             var_network = item_data.get('network')
 
             if not var_id:
-                print(f"=== LEFT-CLICK DEBUG: No var_id ===")
                 return
-
-            print(f"=== LEFT-CLICK DEBUG: Creating menu for {var_id} in {list_name} ===")
 
             # Create context menu
             context_menu = QMenu(sender)
@@ -1708,39 +1683,29 @@ class EntityEditorFrontEnd(QtWidgets.QDialog):
                     # Handle multiple classifications
                     if not classifications:
                         # "None" selected - remove classification from local dictionary
-                        print(f"=== FRONTEND DEBUG: 'None' selected - removing classification for {var_id} ===")
                         
                         if hasattr(self, 'current_entity') and self.current_entity:
                             # Remove the variable from local classifications entirely
                             if hasattr(self.current_entity, 'local_variable_classifications'):
                                 if var_id in self.current_entity.local_variable_classifications:
                                     del self.current_entity.local_variable_classifications[var_id]
-                                    print(f"=== FRONTEND DEBUG: Removed {var_id} from local classifications ===")
                                 
                                 # Refresh UI to show the change
                                 self.populate_lists_from_entity(self.current_entity)
-                                print(f"=== FRONTEND DEBUG: UI refreshed after removing classification ===")
                             return
                         else:
-                            print(f"=== FRONTEND DEBUG: SKIPPING removal - no current_entity ===")
                             return
 
                     # Use the new list-based classification system
-                    print(f"=== FRONTEND DEBUG: About to call change_classification ===")
-                    print(f"=== FRONTEND DEBUG: hasattr(self, 'current_entity'): {hasattr(self, 'current_entity')} ===")
-                    print(f"=== FRONTEND DEBUG: self.current_entity: {self.current_entity} ===")
-                    print(f"=== FRONTEND DEBUG: var_id: {var_id}, classifications: {classifications} ===")
                     
                     if hasattr(self, 'current_entity') and self.current_entity:
                         # Update the classification using the new system
-                        print(f"=== FRONTEND DEBUG: Calling change_classification ===")
                         self.current_entity.change_classification(var_id, classifications)
-                        print(f"=== FRONTEND DEBUG: change_classification completed ===")
                         
                         # Refresh UI to show the change
                         self.populate_lists_from_entity(self.current_entity)
                     else:
-                        print(f"=== FRONTEND DEBUG: SKIPPING change_classification - no current_entity ===")
+                        return
 
 
         except Exception as e:

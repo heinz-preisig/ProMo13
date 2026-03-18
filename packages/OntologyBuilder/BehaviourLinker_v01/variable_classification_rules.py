@@ -67,28 +67,49 @@ class VariableClassificationRules:
     @staticmethod
     def _get_control_systems_rules(category):
         """Rules for control systems"""
-        return {
-                'allowed_root_types': ['signal'],
-                'input_types'       : ['signal'],
-                'output_types'      : ['signal']
+        if category == 'arc':
+            return {
+                'allowed_root_types': ['dataFlow'],
+                'input_types'       : ['input'],
+                'output_types'      : ['output']
+                }
+        else:
+            return {
+                'allowed_root_types': ['state', 'frame', 'constant', 'difState', 'algebraic'],
+                'input_types'       : ['input'],
+                'output_types'      : ['output']
                 }
 
     @staticmethod
     def _get_info_processing_rules(category):
         """Rules for info processing systems"""
-        return {
-                'allowed_root_types': ['signal'],
-                'input_types'       : ['signal'],
-                'output_types'      : ['signal']
+        if category == 'arc':
+            return {
+                'allowed_root_types': ['dataFlow'],
+                'input_types'       : ['input'],
+                'output_types'      : ['output']
+                }
+        else:
+            return {
+                'allowed_root_types': ['state', 'frame', 'constant', 'difState', 'algebraic'],
+                'input_types'       : ['input'],
+                'output_types'      : ['output']
                 }
 
     @staticmethod
     def _get_reactions_rules(category):
         """Rules for reaction systems"""
-        return {
-                'allowed_root_types': ['state', 'conversion'],
-                'input_types'       : ['conversion'],
-                'output_types'      : ['state', 'conversion']
+        if category == 'arc':
+            return {
+                'allowed_root_types': ['dataFlow'],
+                'input_types'       : ['input'],
+                'output_types'      : ['output']
+                }
+        else:
+            return {
+                'allowed_root_types': ['state', 'frame', 'constant', 'difState', 'algebraic'],
+                'input_types'       : ['input'],
+                'output_types'      : ['output']
                 }
 
     @staticmethod
@@ -101,21 +122,25 @@ class VariableClassificationRules:
                 }
 
     @staticmethod
-    def filter_variables_by_type(variables, allowed_types):
+    def filter_variables_by_type(variables, allowed_types, domain=None):
         """
-        Filter variables by their types
+        Filter variables by their types and optionally by domain
         
         Args:
             variables (list): List of variable dictionaries
             allowed_types (list): List of allowed variable types
+            domain (str, optional): Domain to filter by (e.g., 'control', 'physical')
             
         Returns:
             list: Filtered variables
         """
         filtered = []
         for var in variables:
+            # Check variable type
             if var.get('type') in allowed_types:
-                filtered.append(var)
+                # Check domain if specified
+                if domain is None or var.get('network') == domain:
+                    filtered.append(var)
         return filtered
 
     @staticmethod
@@ -131,12 +156,13 @@ class VariableClassificationRules:
             dict: Classification with keys 'inputs', 'outputs', 'allowed_root'
         """
         rules = VariableClassificationRules.get_variable_rules(entity_type_info)
+        domain = entity_type_info.get('network')
 
         classification = {
-                'inputs'      : VariableClassificationRules.filter_variables_by_type(variables, rules['input_types']),
-                'outputs'     : VariableClassificationRules.filter_variables_by_type(variables, rules['output_types']),
+                'inputs'      : VariableClassificationRules.filter_variables_by_type(variables, rules['input_types'], domain),
+                'outputs'     : VariableClassificationRules.filter_variables_by_type(variables, rules['output_types'], domain),
                 'allowed_root': VariableClassificationRules.filter_variables_by_type(variables,
-                                                                                     rules['allowed_root_types'])
+                                                                                     rules['allowed_root_types'], domain)
                 }
 
         return classification
