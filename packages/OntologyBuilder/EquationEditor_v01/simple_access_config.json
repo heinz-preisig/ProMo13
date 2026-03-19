@@ -1,0 +1,18 @@
+{
+  "access_matrix": {
+    "physical": {
+      "macroscopic": ["state", "observation", "algebraic"],
+      "control": ["observation", "secondaryState", "algebraic"]
+    },
+    "macroscopic": {
+      "physical": ["effort", "state"], 
+      "control": ["observation", "secondaryState", "algebraic"]
+    },
+    "control": {
+      "physical": ["effort", "state"],
+      "macroscopic": ["state", "observation", "algebraic"]
+    }
+  },
+  "root_access": ["constant", "frame", "network"],
+  "restricted_types": ["transport", "conversion", "internalTransport"]
+}
