@@ -245,24 +245,24 @@ class UiOntologyDesign(QMainWindow):
     if self.current_network:
       # self.ui.groupEdit.show()
       self.ui.combo_EditVariableTypes.show()
-      self.writeMessage("edit variables/equations")
+      self.writeMessage("edit variables/equations", append=False)
     else:
-      self.writeMessage("select variable type first")
+      self.writeMessage("select variable type first", append=False)
 
   def on_radioVariablesAliases_pressed(self):
     self.__checkRadios("variable_aliases")
     self.__hideTable()
-    self.writeMessage("edit variable alias table")
+    self.writeMessage("edit variable alias table", append=False)
     self.interface_control.aliases()
     if self.current_network:
       self.__setupVariablesAliasTable()
     else:
-      self.writeMessage("select variable type first")
+      self.writeMessage("select variable type first", append=False)
 
   def on_radioIndicesAliases_pressed(self):
     self.__checkRadios("indices_aliases")
     self.__hideTable()
-    self.writeMessage("edit alias table")
+    self.writeMessage("edit alias table", append=False)
     self.interface_control.aliases()
     self.__setupIndicesAliasTable()
 
@@ -335,7 +335,7 @@ class UiOntologyDesign(QMainWindow):
 
     self.__makeLatexDocument()
     self.ui.pushShowPDF.show()
-    self.writeMessage("finished latex document")
+    self.writeMessage("finished latex document", append=False)
 
     self.__makeOWLFile()
     self.writeMessage("finished owl document")
@@ -411,7 +411,7 @@ class UiOntologyDesign(QMainWindow):
 
   def on_treeWidget_clicked(self, index):  # state network_selected
     self.current_network = str(self.ui.treeWidget.currentItem().name)
-    self.writeMessage("current network selected: %s" % self.current_network)
+    self.writeMessage("current network selected: %s" % self.current_network, append=False)
     if self.ui.radioVariablesAliases.isChecked():
       self.on_radioVariablesAliases_pressed()
     elif self.ui.radioVariables.isChecked():
@@ -635,12 +635,18 @@ class UiOntologyDesign(QMainWindow):
     self.starttime = dateString()
     self.initial_variable_list = sorted(self.variables.keys())
     self.initial_equation_list = sorted(self.ontology_container.equation_dictionary.keys())
+    
+    # Reset changed state and turn LED green to indicate saved
+    self.changed = False
+    self.interface_control.do_change_LED(False)
+    self.writeMessage("wrote file")
+
 
   def updateLatexImages(self):
     (self.ontology_container.incidence_dictionary,
      self.ontology_container.inv_incidence_dictionary) = makeIncidenceDictionaries(
             self.ontology_container.variables)
-    self.writeMessage("generating images")
+    self.writeMessage("generating images", append=False)
     self.generateLatexImages(self.ontology_name, self.ontology_container)
     self.writeMessage("finished")
 
@@ -1097,7 +1103,7 @@ class UiOntologyDesign(QMainWindow):
       self.table_aliases_v.show()
       OK = True
     else:
-      self.writeMessage(" no variables in this network %s" % self.current_network)
+      self.writeMessage(" no variables in this network %s" % self.current_network, append=False)
       OK = False
     return OK
 
@@ -1110,7 +1116,16 @@ class UiOntologyDesign(QMainWindow):
   def writeMessage(self, message, append=True):
     if not append:
       self.ui.msgWindow.clear()
-    self.ui.msgWindow.setText(message)
+    # Make msgWindow read-only but scrollable
+    self.ui.msgWindow.setEnabled(True)
+    self.ui.msgWindow.setReadOnly(True)
+    self.ui.msgWindow.append(message)
+    # For QTextBrowser, use scrollToAnchor to go to bottom
+    self.ui.msgWindow.scrollToAnchor('bottom')
+    # Alternative: move cursor to ensure scrolling
+    cursor = self.ui.msgWindow.textCursor()
+    cursor.movePosition(cursor.End)
+    self.ui.msgWindow.setTextCursor(cursor)
     self.ui.msgWindow.update()
 
   def __checkRadios(self, active):
