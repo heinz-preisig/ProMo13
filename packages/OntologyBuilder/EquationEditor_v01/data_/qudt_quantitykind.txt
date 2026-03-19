@@ -1,0 +1,4 @@
+
+Temperature:dbpediaMatch,Temperature,http://qudt.org/schema/qudt/dbpediaMatch,http://dbpedia.org/resource/Temperature
+Temperature:plainTextDescription,Temperature,http://qudt.org/schema/qudt/plainTextDescription,Temperature is a physical property of matter that quantitatively expresses the common notions of hot and cold. Objects of low temperature are cold, while various degrees of higher temperatures are referred to as warm or hot. Heat spontaneously flows from bodies of a higher temperature to bodies of lower temperature, at a rate that increases with the temperature difference and the thermal conductivity.
+Temperature:rdf-schema#label,Temperature,http://www.w3.org/2000/01/rdf-schema#label,Temperature

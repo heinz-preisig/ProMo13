@@ -1,0 +1,96 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'ui_physunits.ui'
+#
+# Created by: PyQt5 UI code generator 5.14.1
+#
+# WARNING! All changes made in this file will be lost!
+
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+
+class Ui_PysUnitsDialog(object):
+    def setupUi(self, PysUnitsDialog):
+        PysUnitsDialog.setObjectName("PysUnitsDialog")
+        PysUnitsDialog.resize(650, 178)
+        self.layoutWidget = QtWidgets.QWidget(PysUnitsDialog)
+        self.layoutWidget.setGeometry(QtCore.QRect(20, 20, 611, 111))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.gridlayout = QtWidgets.QGridLayout(self.layoutWidget)
+        self.gridlayout.setContentsMargins(5, 5, 5, 5)
+        self.gridlayout.setSpacing(10)
+        self.gridlayout.setObjectName("gridlayout")
+        self.label_4 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_4.setObjectName("label_4")
+        self.gridlayout.addWidget(self.label_4, 0, 1, 1, 1)
+        self.spinBoxLength = QtWidgets.QSpinBox(self.layoutWidget)
+        self.spinBoxLength.setMinimum(-99)
+        self.spinBoxLength.setObjectName("spinBoxLength")
+        self.gridlayout.addWidget(self.spinBoxLength, 0, 2, 1, 1)
+        self.label_5 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_5.setObjectName("label_5")
+        self.gridlayout.addWidget(self.label_5, 0, 3, 1, 1)
+        self.spinBoxTemperature = QtWidgets.QSpinBox(self.layoutWidget)
+        self.spinBoxTemperature.setMinimum(-99)
+        self.spinBoxTemperature.setObjectName("spinBoxTemperature")
+        self.gridlayout.addWidget(self.spinBoxTemperature, 0, 4, 1, 1)
+        self.label_8 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_8.setObjectName("label_8")
+        self.gridlayout.addWidget(self.label_8, 0, 5, 1, 1)
+        self.spinBoxAmount = QtWidgets.QSpinBox(self.layoutWidget)
+        self.spinBoxAmount.setMinimum(-99)
+        self.spinBoxAmount.setObjectName("spinBoxAmount")
+        self.gridlayout.addWidget(self.spinBoxAmount, 1, 2, 1, 1)
+        self.label_6 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_6.setObjectName("label_6")
+        self.gridlayout.addWidget(self.label_6, 1, 3, 1, 1)
+        self.spinBoxCurrent = QtWidgets.QSpinBox(self.layoutWidget)
+        self.spinBoxCurrent.setMinimum(-99)
+        self.spinBoxCurrent.setObjectName("spinBoxCurrent")
+        self.gridlayout.addWidget(self.spinBoxCurrent, 1, 4, 1, 1)
+        self.label_9 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_9.setObjectName("label_9")
+        self.gridlayout.addWidget(self.label_9, 1, 5, 1, 1)
+        self.spinBoxMass = QtWidgets.QSpinBox(self.layoutWidget)
+        self.spinBoxMass.setMinimum(-99)
+        self.spinBoxMass.setObjectName("spinBoxMass")
+        self.gridlayout.addWidget(self.spinBoxMass, 2, 2, 1, 1)
+        self.label_7 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_7.setObjectName("label_7")
+        self.gridlayout.addWidget(self.label_7, 2, 3, 1, 1)
+        self.spinBoxLight = QtWidgets.QSpinBox(self.layoutWidget)
+        self.spinBoxLight.setMinimum(-99)
+        self.spinBoxLight.setObjectName("spinBoxLight")
+        self.gridlayout.addWidget(self.spinBoxLight, 2, 4, 1, 1)
+        self.label_10 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_10.setObjectName("label_10")
+        self.gridlayout.addWidget(self.label_10, 2, 5, 1, 1)
+        self.spinBoxTime = QtWidgets.QSpinBox(self.layoutWidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(5)
+        sizePolicy.setHeightForWidth(self.spinBoxTime.sizePolicy().hasHeightForWidth())
+        self.spinBoxTime.setSizePolicy(sizePolicy)
+        self.spinBoxTime.setAccessibleDescription("")
+        self.spinBoxTime.setMinimum(-99)
+        self.spinBoxTime.setObjectName("spinBoxTime")
+        self.gridlayout.addWidget(self.spinBoxTime, 0, 0, 1, 1)
+        self.pushOK = QtWidgets.QPushButton(PysUnitsDialog)
+        self.pushOK.setGeometry(QtCore.QRect(530, 140, 97, 27))
+        self.pushOK.setObjectName("pushOK")
+
+        self.retranslateUi(PysUnitsDialog)
+        QtCore.QMetaObject.connectSlotsByName(PysUnitsDialog)
+
+    def retranslateUi(self, PysUnitsDialog):
+        _translate = QtCore.QCoreApplication.translate
+        PysUnitsDialog.setWindowTitle(_translate("PysUnitsDialog", "Dialog"))
+        self.label_4.setText(_translate("PysUnitsDialog", "time [s]"))
+        self.label_5.setText(_translate("PysUnitsDialog", "length [m]"))
+        self.label_8.setText(_translate("PysUnitsDialog", "temperature [K]"))
+        self.label_6.setText(_translate("PysUnitsDialog", "amount [mol]"))
+        self.label_9.setText(_translate("PysUnitsDialog", "current [A]"))
+        self.label_7.setText(_translate("PysUnitsDialog", "mass [kg]"))
+        self.label_10.setText(_translate("PysUnitsDialog", "light [cd]"))
+        self.pushOK.setText(_translate("PysUnitsDialog", "OK"))

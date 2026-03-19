@@ -1,0 +1,27 @@
+
+
+{% raw %}
+\renewcommand{\arraystretch}{1.5}
+
+\begin{longtable}{|p{0.5cm}|p{3cm}|p{3cm}|p{7.5cm}|p{3.0cm}|p{0.3cm}p{0.3cm}p{0.3cm}p{0.3cm}p{0.3cm}p{0.3cm}p{0.3cm}p{0.3cm}|p{1cm}|}\hline
+ &var & \text{symbol} &documenation &type &t &l &n &m &T &I &L &0 &eqs \\\hline\hline
+\endhead
+\hline \multicolumn{4}{r}{\textit{Continued on next page}} \\
+\endfoot
+\hline
+\endlastfoot
+
+{% endraw %}
+
+{% for v in variables -%}
+  {{loop.index}} &
+  \hypertarget{"v:{{v}}"}{ $ {{variables[v].compiled["latex"]}} }$ &
+  \verb|{{variables[v].label}}|    &
+  {{ variables[v].doc }}              &
+  \begin{lay}{{ variables[v].variable_type }} \end{lay} &
+  {% for u in variables[v].units.asList() -%}
+    {{ u }} &
+  {% endfor -%}
+  {% for e in variables[v].equation_list -%}  \hyperlink{"e:{{e}}"}{ {{e}} }  {% endfor -%} \\
+{% endfor -%}
+\end{longtable}

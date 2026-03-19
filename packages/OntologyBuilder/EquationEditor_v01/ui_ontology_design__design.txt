@@ -1,0 +1,19 @@
+
+
+groupOntology
+	- combo_01_OntologySubject
+	- radioVariables
+	- radioAlias
+	- radioCompile
+
+groupFiles
+	- pushBack
+	- pushWrite
+
+groupVariables
+	- combo_03_ConnectionNetwork
+	- groupEdit
+		- combo_04_editVariableTypes
+	- groupNetwork
+		-combo_02_Network
+msgWindow

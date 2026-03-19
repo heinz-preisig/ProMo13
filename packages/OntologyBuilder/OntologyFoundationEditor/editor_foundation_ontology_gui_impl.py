@@ -245,6 +245,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
 
     self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
     self.__indexVariableClasses()
+    self.__loadUsageCache()  # Load usage information once at startup
     self.__ui_status("start")
     if self.new_variable_file:
       self.__ui_status("new_variable_file")
@@ -915,6 +916,99 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     return nodes
 
 
+  def __loadUsageCache(self):
+    """
+    Load and cache all ontology elements that are currently in use by variables.
+    This is called once when the editor starts to avoid repeated file reads.
+    Usage is organized by network for domain-specific checking, with detailed variable tracking.
+    """
+    self.used_elements = {}  # Cache of used elements by network: {network: {element: [variable_info]}}
+    
+    if not OS.path.exists(FILES["variables_file"] % self.ontology_name):
+      return  # No variable file exists, no elements are in use
+    
+    try:
+      variable_data = getData(FILES["variables_file"] % self.ontology_name)
+      if not variable_data or "variables" not in variable_data:
+        return  # No variables defined, no elements are in use
+      
+      variables = variable_data["variables"]
+      
+      # Collect all used ontology elements from all variables, organized by network
+      for var_key, var_data in variables.items():
+        if isinstance(var_data, dict):
+          # Get the network this variable belongs to
+          network = var_data.get("network", "root")
+          if network not in self.used_elements:
+            self.used_elements[network] = {}
+          
+          # Create variable info with name, label, and symbol
+          var_info = {
+            "id": var_key,
+            "name": var_data.get("label", var_key),  # Use label if available, otherwise ID
+            "symbol": var_data.get("symbol", "")  # Symbol if available
+          }
+          
+          # Helper function to add element usage with variable info
+          def add_element_usage(element_name, var_info):
+            if element_name and element_name.strip():  # Only add non-empty elements
+              if element_name not in self.used_elements[network]:
+                self.used_elements[network][element_name] = []
+              # Check if this variable is already in the list to avoid duplicates
+              existing_vars = [v["id"] for v in self.used_elements[network][element_name]]
+              if var_info["id"] not in existing_vars:
+                self.used_elements[network][element_name].append(var_info)
+          
+          # Check the main type field - this is where ontology elements like "state" are stored
+          if "type" in var_data and var_data["type"]:
+            add_element_usage(var_data["type"], var_info)
+          
+          # Check tokens list
+          if "tokens" in var_data and isinstance(var_data["tokens"], list):
+            for token in var_data["tokens"]:
+              add_element_usage(token, var_info)
+          
+          # Check all string fields for element names (comprehensive check)
+          for field_name, field_value in var_data.items():
+            if isinstance(field_value, str) and field_value and field_name != "network":
+              add_element_usage(field_value, var_info)
+            elif isinstance(field_value, list):
+              for item in field_value:
+                if isinstance(item, str) and item:
+                  add_element_usage(item, var_info)
+      
+      total_elements = sum(len(elements) for elements in self.used_elements.values())
+      self.__writeMessage(f"Cached {total_elements} used ontology elements across {len(self.used_elements)} networks")
+      
+    except Exception as e:
+      self.__writeMessage(f"Error loading usage cache: {e}")
+
+  def __isElementUsed(self, element_name, component_type=None):
+    """
+    Check if an ontology element is being used in variables for the current network.
+    Returns tuple: (is_used, list_of_using_variables_with_info)
+    Uses cached information for efficiency.
+    """
+    # Check usage in the current network
+    current_network = self.current_network
+    using_variables = []
+    
+    # Check current network usage
+    if current_network in self.used_elements and element_name in self.used_elements[current_network]:
+      using_variables.extend(self.used_elements[current_network][element_name])
+    
+    # Only check parent networks for inherited usage if this is an "intra" type network
+    # "inter" type networks are first-level and don't inherit from parents
+    if (current_network in self.ontology_tree and 
+        self.ontology_tree[current_network].get("type") == "intra"):
+      
+      parents = self.ontology_tree[current_network].get("parents", [])
+      for parent in parents:
+        if parent in self.used_elements and element_name in self.used_elements[parent]:
+          using_variables.extend(self.used_elements[parent][element_name])
+    
+    return (len(using_variables) > 0, using_variables)
+
   def __indexVariableClasses(self):
     self.variables = OrderedDict()
 
@@ -1055,9 +1149,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
           self.ui.labelStructure.setText(self.labels[status]["structure"])
           self.ui.labelStructureExtension.setText(self.labels[status]["extension"])
 
-    if self.lock_delete:
-      for i in self.actions["block_delete"]:
-        i.hide()
+    # NOTE: Removed binary lock_delete check - deletions are now controlled by usage checking in delete methods
 
   #### event handling
 
@@ -1550,9 +1642,37 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     self.__makeList(self.ui.listViewStructureExtension, the_list)
 
   def on_pushDeleteStructureElement_pressed(self):
+    # Get the current selection first
+    if not self.ui.listViewStructure.currentItem():
+      return  # No item selected
+      
+    delete_element = self.ui.listViewStructure.currentItem().text()
+    
+    # Check if element is in use before allowing deletion
+    is_used, using_variables = self.__isElementUsed(delete_element, self.current_structure_component)
+    if is_used:
+      # Format the variable list for display with names and symbols
+      if len(using_variables) <= 10:
+        var_list = "\n".join(
+          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
+          for var_info in using_variables
+        )
+      else:
+        var_list = "\n".join(
+          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
+          for var_info in using_variables[:10]
+        )
+        var_list += f"\n  ... and {len(using_variables) - 10} more variables"
+      
+      makeMessageBox(f"Cannot delete '{delete_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
+                    f"{var_list}\n\n"
+                    "To delete this element, first remove or modify all variables that reference it.", 
+                    ["OK"])
+      return
+    
+    # Only update current selection and proceed with deletion if it's allowed
     self.on_listViewStructure_doubleClicked()
-
-    delete_element = self.current_structure_variable
+    
     nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
     # print("debugging -- deleting structure element ", delete_element)
     # if delete_element == "token":
@@ -1595,8 +1715,37 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     self.__makeList(self.ui.listViewStructureExtension, [])
 
   def on_pushDeleteStructureElementExtension_pressed(self):
+    # Get the current selection first
+    if not self.ui.listViewStructureExtension.currentItem():
+      return  # No item selected
+      
+    new_element = self.ui.listViewStructureExtension.currentItem().text()
+    
+    # Check if element is in use before allowing deletion
+    is_used, using_variables = self.__isElementUsed(new_element, "extension")
+    if is_used:
+      # Format the variable list for display with names and symbols
+      if len(using_variables) <= 10:
+        var_list = "\n".join(
+          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
+          for var_info in using_variables
+        )
+      else:
+        var_list = "\n".join(
+          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
+          for var_info in using_variables[:10]
+        )
+        var_list += f"\n  ... and {len(using_variables) - 10} more variables"
+      
+      makeMessageBox(f"Cannot delete extension '{new_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
+                    f"{var_list}\n\n"
+                    "To delete this extension, first remove or modify all variables that reference it.", 
+                    ["OK"])
+      return
+    
+    # Only update current selection and proceed with deletion if it's allowed
     self.on_listViewStructureExtension_doubleClicked()
-    new_element = self.current_structure_extension_variable
+    
     nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
     if self.current_structure_component == "arc":
       for nw in nw_list:
@@ -1624,7 +1773,35 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     self.__makeList(self.ui.listViewStructureExtension, the_list)
 
   def on_pushDeleteBehaviourElement_pressed(self):
+    # Get the current selection first
+    if not self.ui.listViewBehaviour.currentItem():
+      return  # No item selected
+      
+    delete_element = self.ui.listViewBehaviour.currentItem().text()
+    
+    # Check if element is in use before allowing deletion
+    is_used, using_variables = self.__isElementUsed(delete_element, self.current_behaviour_component)
+    if is_used:
+      # Format the variable list for display with names and symbols
+      if len(using_variables) <= 10:
+        var_list = "\n".join(
+          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
+          for var_info in using_variables
+        )
+      else:
+        var_list = "\n".join(
+          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
+          for var_info in using_variables[:10]
+        )
+        var_list += f"\n  ... and {len(using_variables) - 10} more variables"
+      
+      makeMessageBox(f"Cannot delete behaviour element '{delete_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
+                    f"{var_list}\n\n"
+                    "To delete this element, first remove or modify all variables that reference it.", 
+                    ["OK"])
+      return
 
+    # Only update current selection and proceed with deletion if it's allowed
     self.on_listViewBehaviour_doubleClicked()
 
     nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))

@@ -1,0 +1,32 @@
+
+
+{% raw %}
+\renewcommand{\arraystretch}{1.5}
+
+\begin{longtable}{|p{1cm}|p{2.5cm}|p{4.5cm}|p{8cm}|p{3.0cm}|p{3cm}|p{1cm}|}\hline
+ &var & \text{symbol} &documentation &type &units &eqs \\\hline\hline
+\endhead
+\hline \multicolumn{4}{r}{\textit{Continued on next page}} \\
+\endfoot
+\hline
+\endlastfoot
+
+{% endraw %}
+
+{% for var_class in index -%}
+    {% for ID in index[var_class] -%}
+    {% set vID = ID.replace("V_","") %}
+    {% set vlatex = variables[ID].compiled_lhs["latex"] %}
+    {{vID}}
+             & \hypertarget{"v:{{vID}}"}{ $ {{ vlatex }} $}
+             & \verb|{{variables[ID].label}}|
+             & {{ variables[ID].doc.replace("_"," ") }}
+             & \begin{lay}{{ variables[ID].type }} \end{lay}
+             & $ {{variables[ID].units.prettyPrint() }} $
+             & {% for e_ID in variables[ID].equations -%}
+                {% set eqID = e_ID.replace("E_","") %}
+                \hyperlink{"e:{{eqID}}"}{ {{eqID}} }
+                 {% endfor -%} \\
+    {% endfor -%}
+{% endfor -%}
+\end{longtable}
