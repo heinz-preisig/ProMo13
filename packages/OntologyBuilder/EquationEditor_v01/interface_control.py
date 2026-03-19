@@ -5,8 +5,6 @@ buttons = ['pushAddIndex',
                'pushCompile',
                'pushExit',
                'pushInfo',
-               'pushMakeInterfaceEquations',
-               'pushShowInterfaceEquations',
                'pushShowPDF',
                'pushShowVariables',
                'pushWrite'
@@ -18,12 +16,8 @@ buttons = ['pushAddIndex',
             'radioVariables',
             'radioVariablesAliases'
             ]
-  tabs = ['tab_internets',
-          'tab_networks'
-          ]
   trees = ['treeWidget']
-  combos = ['combo_EditVariableTypes',
-            'combo_InterConnectionNetwork'
+  combos = ['combo_EditVariableTypes'
             ]
 """
 
@@ -72,15 +66,11 @@ class InterfaceControl():
     roundButton(self.ui.pushWrite, "save", tooltip="save")
     roundButton(self.ui.pushShowPDF, "PDF", tooltip="show pdf variable equation documentation")
     roundButton(self.ui.pushExit, "off", tooltip="exit")
-    roundButton(self.ui.pushMakeInterfaceEquations, "plus", "display table for generating new interface equations")
-    roundButton(self.ui.pushShowInterfaceEquations, "edit", "display table of defined interface equations")
     self.signalButton = roundButton(self.ui.LED, "LED_green", tooltip="status", mysize=20)
 
   def start(self, condition):
     pass
-    hide = ["pushMakeInterfaceEquations",
-            "pushShowInterfaceEquations",
-            "pushShowVariables",
+    hide = ["pushShowVariables",
             "groupVariables",
             "groupEdit",
             ]
@@ -108,28 +98,8 @@ class InterfaceControl():
     hide = []
     self._do_show_and_hide(hide, show)
 
-  def tab_internets(self):
-    show = []
-    hide = ["pushShowVariables",
-            "combo_EditVariableTypes",
-            "groupEdit",
-            "pushMakeInterfaceEquations",
-            "pushShowInterfaceEquations",]
-    self._do_show_and_hide(hide, show)
-
-  def combo_InterConnectionNetwork_activated(self, condition):
-    if condition:
-      show = ["pushMakeInterfaceEquations",
-              "pushShowVariables"]
-      hide = ["pushShowInterfaceEquations",]
-    else:
-      show = ["pushMakeInterfaceEquations",
-              "pushShowInterfaceEquations",
-              "pushShowVariables"]
-      hide = []
-
-    self._do_show_and_hide(hide, show)
-
+  
+  
 
   def do_change_LED(self, state):
     if state:

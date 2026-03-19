@@ -24,7 +24,27 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-import constants   #todo: find a better solution
+try:
+    import constants   #todo: find a better solution
+except ImportError:
+    # Handle case where constants module is not in path
+    import sys
+    import os
+    # Add ProMo directory to path
+    promo_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    sys.path.append(promo_dir)
+    try:
+        import constants
+    except ImportError:
+        # If still not found, create a minimal constants class
+        class FixedVariables:
+            INCIDENCE_MATRIX_NI_SOURCE = "V_3"
+            INCIDENCE_MATRIX_NI_SINK = "V_4"
+            INCIDENCE_MATRIX_AI_SOURCE = "V_5"
+            INCIDENCE_MATRIX_AI_SINK = "V_6"
+            SELECTION_MATRIX_I_INPUT = "V_9"
+            SELECTION_MATRIX_I_OUTPUT = "V_10"
+        constants = type('constants', (), {'FixedVariables': FixedVariables})()
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow
@@ -37,7 +57,6 @@ from pydotplus.graphviz import Node
 
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import UI_GetString
-from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.common_resources import displayPdf
 from Common.common_resources import getOntologyName
 from Common.common_resources import makeTreeView
@@ -191,10 +210,6 @@ class UiOntologyDesign(QMainWindow):
     self.state = "edit"
 
     makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
-    self.ui.combo_InterConnectionNetwork.clear()
-    self.ui.combo_InterConnectionNetwork.addItems(sorted(self.interconnection_nws_list))
-
-    self.ui.combo_InterConnectionNetwork.show()
 
     # prepare for compiled versions
     # issue: remove compiled_equations. It is currently used in generating a file with the rendered equations
@@ -251,34 +266,8 @@ class UiOntologyDesign(QMainWindow):
     self.interface_control.aliases()
     self.__setupIndicesAliasTable()
 
-  def on_pushMakeInterfaceEquations_pressed(self):
-    # print("debugging -- radioMakeInterfaceEquations")
-    self.__setupEditInterface()
-    self.__showFilesControl()
-    self.ui.pushShowVariables.show()
-
-  def on_pushShowInterfaceEquations_pressed(self):
-    # print("debugging -- radioShowInterfaceEquations")
-    hide = (["LaTex", "dot", "next", "port"])
-
-    # no controlled by hiding button
-    # self.variable_space, no_of_variables = self.variables.variableSpaces("variable_picking",
-    #                                                                      self.current_network,
-    #                                                                      VARIABLE_TYPE_INTERFACES)
-    # if no_of_variables == 0:
-    #   dialog = makeMessageBox(message="no variables to delete",
-    #                           buttons=["OK"], default="OK", )
-    #   return
-
-    self.table_variables = UI_VariableTableDeleteEquation("delete interface equations",
-                                                          self.variables,
-                                                          self.indices,
-                                                          self.current_network,
-                                                          info_file=FILES["info_ontology_variable_table"],
-                                                          )
-    self.table_variables.changed.connect(self.dataChanged)
-    self.table_variables.show()
-
+  
+  
   def on_pushAddIndex_pressed(self):
     print("debugging __ adding index")
     indices = self.ontology_container.indices
@@ -355,11 +344,8 @@ class UiOntologyDesign(QMainWindow):
     self.writeMessage("finished rendered document")
 
   def on_pushShowVariables_pressed(self):
-    if self.current_network in self.ontology_container.interfaces:
-      enabled_var_types = [VARIABLE_TYPE_INTERFACES]
-    else:
-      enabled_var_types = self.variable_types_on_networks[self.current_network]
-      enabled_var_types.append(VARIABLE_TYPE_INTERFACES)
+    # Simplified: only handle regular network variables
+    enabled_var_types = self.variable_types_on_networks[self.current_network]
 
     # update incidence dictionaries
     self.updateLatexImages()
@@ -444,226 +430,43 @@ class UiOntologyDesign(QMainWindow):
     # self.ui.pushShowVariables.show()
     self.interface_control.tree_widget_clicked()
 
-  @QtCore.pyqtSlot(str)
-  def on_combo_InterConnectionNetwork_activated(self, choice):
-    self.__hideTable()
-    self.current_network = str(choice)
-    self.state = "inter_connections"
-    if self.ui.radioVariablesAliases.isChecked():
-      self.on_radioVariablesAliases_pressed()
-    else:
-      pass
+  
+  
+  
+  
+  
+    
+    
+              
+    # REMOVED: Interface equation functionality - variables not defined
+    # variable_definition_network = self.current_network
+    # expression_definition_network = self.current_network
 
-      _, no_of_variables = self.variables.variableSpaces("interface_picking",
-                                                         self.current_network,
-                                                         [VARIABLE_TYPE_INTERFACES])
-      # self.ui.pushMakeInterfaceEquations.show()
-      # if no_of_variables == 0:
-      #   self.ui.pushShowInterfaceEquations.hide()
-      # else:
-      #   self.ui.pushShowInterfaceEquations.show()
-      # self.ui.pushShowVariables.show()
-      self.interface_control.combo_InterConnectionNetwork_activated(no_of_variables == 0)
+    # # step1 generate compilers
+    # compile_space_global_ID = CompileSpace(self.variables, self.indices, variable_definition_network, expression_definition_network,
+    #                                        language="global_ID")
+    # compiler_global_ID = Expression(compile_space_global_ID, verbose=0)
 
-  @QtCore.pyqtSlot(int)
-  def on_tabWidget_currentChanged(self, which):
-    # print("debugging -- changed tab", which)
-    self.current_network = None
-    self.ui.treeWidget.clearSelection()
-    self.interface_control.tab_internets()
+    # compile_space_latex = CompileSpace(self.variables, self.indices, variable_definition_network, expression_definition_network,
+    #                                    language="latex")
+    # compiler_latex = Expression(compile_space_latex, verbose=0)
 
-  def __setupEditInterface(self):
-    left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
-    right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
-    # self.equations = self.ontology_container.equations
-    # print("debugging -- left and right network:", left_nw, right_nw)
-    set_left_variables = set()
-    enabled_var_classes = list(
-            self.variables.index_accessible_variables_on_networks[left_nw].keys())
+    # # step2: make left-to-interface
+    # x = compiler_global_ID(left_to_interface)
+    # left_to_interface_compiled_global_ID_units = x.units
+    # left_to_interface_compiled_global_ID_index_structures = x.index_structures
+    # left_to_interface_compiled_global_ID = str(x)
+    # left_to_interface_compiled_latex = str(compiler_latex(left_to_interface))
+    # rhs_dic = {"global_ID": left_to_interface_compiled_global_ID,
+    #            "latex"    : left_to_interface_compiled_latex}
+    # incidence_list = makeIncidentList(left_to_interface_compiled_global_ID)
 
-    # RULE: what to hide -- all that have already be put into the interface
-    already_defined_variables, not_yet_defined_variables, all_variables_imported = self.__alreadyDefinedVariables()
+    # new_var_ID = self.variables.newProMoVariableIRI()
+    # new_equ_ID = self.variables.newProMoEquationIRI()
 
-    for var_class in enabled_var_classes:
-      for var_ID in self.variables.index_accessible_variables_on_networks[left_nw][var_class]:
-        set_left_variables.add(var_ID)
-    # print("debugging -- variable lists", set_left_variables)
-
-    source, sink = self.current_network.split(CONNECTION_NETWORK_SEPARATOR)
-    self.pick = UI_VariableTableInterfacePick("make interface cut equation",
-                                              self.variables, self.indices,
-                                              source,  # self.current_network,
-                                              hide_vars=already_defined_variables | all_variables_imported,
-                                              enabled_types=enabled_var_classes)
-    self.pick.picked.connect(self.__makeLinkEquation)
-    self.pick.exec_()
-
-  def __alreadyDefinedVariables(self):
-    already_defined_variables = set()
-    all_variables_in_interface = set()
-    all_variables_imported = set()
-    for var_ID in self.variables:
-      symbol = self.variables[var_ID].label
-      all_variables_in_interface.add(symbol)
-      if self.variables[var_ID].imported:
-        all_variables_imported.add(symbol)
-      if self.variables[var_ID].network == self.current_network:
-        already_defined_variables.add(symbol)
-        symbol = revertInterfaceVariableName(symbol)
-        already_defined_variables.add(symbol)
-    not_yet_defined_variables = all_variables_in_interface - already_defined_variables
-    return already_defined_variables, not_yet_defined_variables, all_variables_imported
-
-  def __makeLinkEquation(self, var_ID):
-    """
-    generates interface related equations
-    rules:
-    - if left domain is macro and right is control,
-    -- if left source is node, map from node
-    -- if left source is arc, map from arc
-    - if left domain is control and right is ard,
-    -- map from node to interface & interface to arc
-    - if left domain is macro and right is not control
-    -- if left source is node, map from node & map back to node
-    -- if left source is arc, map from arc & map pack to arc
-    Parameters
-    ----------
-    var_ID
-
-    Returns
-    -------
-
-    """
-
-    left_nw = self.ontology_container.interfaces[self.current_network]["left_network"]
-    right_nw = self.ontology_container.interfaces[self.current_network]["right_network"]
-
-    variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["node"]
-
-    variable = self.variables[var_ID]
-    label = variable.label
-    type = variable.type
-    node_index_ID = "I_1"  # TODO: should not be hardwired
-    arc_index_ID = "I_2"  # ditto
-    species_index = "I_4"  # ditto
-
-    from_centre = left_nw in CENTRE_NETWORKS
-    to_centre = right_nw in CENTRE_NETWORKS
-    from_node = node_index_ID in variable.index_structures
-    from_arc = arc_index_ID in variable.index_structures
-
-    from_normed = self.rules["normed_network"][left_nw]
-    to_normed = self.rules["normed_network"][right_nw]
-
-    has_species_index = species_index in variable.index_structures
-
-    # constants
-    F_NI_source_ID = constants.FixedVariables.INCIDENCE_MATRIX_NI_SOURCE
-    F_NI_sink_ID = constants.FixedVariables.INCIDENCE_MATRIX_NI_SINK
-    F_AI_source_ID = constants.FixedVariables.INCIDENCE_MATRIX_AI_SOURCE
-    F_AI_sink_ID = constants.FixedVariables.INCIDENCE_MATRIX_AI_SINK
-    S_Ip_ID = constants.FixedVariables.SELECTION_MATRIX_I_INPUT
-    S_Iq_ID = constants.FixedVariables.SELECTION_MATRIX_I_OUTPUT
-    F_NI_source = self.variables[F_NI_source_ID].label
-    F_NI_sink = self.variables[F_NI_sink_ID].label
-    F_AI_source = self.variables[F_AI_source_ID].label
-    F_AI_sink = self.variables[F_AI_sink_ID].label
-    S_Ip = self.variables[S_Ip_ID].label
-    S_Iq = self.variables[S_Iq_ID].label
-
-    if from_normed:
-      interface_variable = TEMPLATES["fromNormed"]
-    elif to_normed:
-      if has_species_index:
-        interface_variable = TEMPLATES["toNormedVector"]
-      else:
-        interface_variable = TEMPLATES["toNormedScalar"]
-    else:
-      interface_variable = TEMPLATES["interface_variable"] % label
-      while self.variables.existSymbol(self.current_network, interface_variable):
-        interface_variable = TEMPLATES["interface_variable"] % interface_variable
-
-    # RULE: keep information on if it came from node or arc and from the centre
-    if from_centre:
-      source = "node"
-      if from_node:
-        F = F_NI_source
-      elif from_arc:
-        F = F_AI_source
-        source = "arc"
-      else:
-        source = None
-        dialog = makeMessageBox(message="no source neither arc or node -- cannot build interface",
-                                buttons=["OK"], default="OK", )
-        return
-
-      # ....................................eq 27
-      left_to_interface = "%s * %s" % (F, label)
-      interface_to_right = "(%s . %s ) * %s" % (F_NI_sink, interface_variable, S_Ip)
-
-    elif to_centre:
-      if variable.memory:
-        to_node = variable.memory == "node"
-        to_arc = variable.memory == "arc"
-        if to_node:
-          default = "node"
-        else:
-          default = "arc"
-      else:
-        default = None
-      answer = makeMessageBox("what is the target, node or arc", buttons=None,
-                              custom_buttons=[("node", "accept"), ("arc", "accept")], default=default)
-      if answer == "node":
-        to_node = True
-        to_arc = False
-      else:
-        to_arc = True
-        to_node = False
-
-      if to_node:
-        F = F_NI_source
-        source = "node"
-        variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["node"]
-      elif to_arc:
-        F = F_AI_source
-        source = "arc"
-        variable_types_right_nw = self.ontology_container.variable_types_on_networks_per_component[right_nw]["arc"]
-      else:
-        dialog = makeMessageBox("neither going to node or arc ???", buttons=["OK"], default="OK")
-        return
-
-      left_to_interface = "reduceSum((( %s * %s ) . %s), q )" % (
-              F_NI_source, label, S_Iq)
-      interface_to_right = "%s * %s" % (F, interface_variable)
-
-    variable_definition_network = self.current_network
-    expression_definition_network = self.current_network
-
-    # step1 generate compilers
-    compile_space_global_ID = CompileSpace(self.variables, self.indices, variable_definition_network, expression_definition_network,
-                                           language="global_ID")
-    compiler_global_ID = Expression(compile_space_global_ID, verbose=0)
-
-    compile_space_latex = CompileSpace(self.variables, self.indices, variable_definition_network, expression_definition_network,
-                                       language="latex")
-    compiler_latex = Expression(compile_space_latex, verbose=0)
-
-    # step2: make left-to-interface
-    x = compiler_global_ID(left_to_interface)
-    left_to_interface_compiled_global_ID_units = x.units
-    left_to_interface_compiled_global_ID_index_structures = x.index_structures
-    left_to_interface_compiled_global_ID = str(x)
-    left_to_interface_compiled_latex = str(compiler_latex(left_to_interface))
-    rhs_dic = {"global_ID": left_to_interface_compiled_global_ID,
-               "latex"    : left_to_interface_compiled_latex}
-    incidence_list = makeIncidentList(left_to_interface_compiled_global_ID)
-
-    new_var_ID = self.variables.newProMoVariableIRI()
-    new_equ_ID = self.variables.newProMoEquationIRI()
-
-    left_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
-                                                                  network=self.current_network,
-                                                                  doc="interface equation", incidence_list=incidence_list)
+    # left_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
+    #                                                               network=self.current_network,
+    #                                                               doc="interface equation", incidence_list=incidence_list)
 
     # # RULE: keep information on if it came from node or arc and from the centre
     # if from_centre:
@@ -673,70 +476,72 @@ class UiOntologyDesign(QMainWindow):
     # else:
     #   source = None
 
-    left_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
-                                                                label=interface_variable,
-                                                                type=VARIABLE_TYPE_INTERFACES,
-                                                                network=self.current_network,
-                                                                doc="link variable %s to interface %s with source:%s" % (
-                                                                        interface_variable, self.current_network, source),
-                                                                index_structures=left_to_interface_compiled_global_ID_index_structures,
-                                                                units=left_to_interface_compiled_global_ID_units,
-                                                                equations={new_equ_ID: left_to_interface_equation_record},
-                                                                aliases={},
-                                                                port_variable=False,
-                                                                tokens=[],
-                                                                memory=source,
-                                                                imported=True,
-                                                                )
-    self.variables.addNewVariable(
-            ID=new_var_ID, **left_interface_variable_record)
+    # REMOVED: Interface equation functionality - variables not defined
+    # left_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
+    #                                                             label=interface_variable,
+    #                                                             type=VARIABLE_TYPE_INTERFACES,
+    #                                                             network=self.current_network,
+    #                                                             doc="link variable %s to interface %s with source:%s" % (
+    #                                                                     interface_variable, self.current_network, source),
+    #                                                             index_structures=left_to_interface_compiled_global_ID_index_structures,
+    #                                                             units=left_to_interface_compiled_global_ID_units,
+    #                                                             equations={new_equ_ID: left_to_interface_equation_record},
+    #                                                             aliases={},
+    #                                                             port_variable=False,
+    #                                                             tokens=[],
+    #                                                             memory=source,
+    #                                                             imported=True,
+    #                                                             )
+    # self.variables.addNewVariable(
+    #         ID=new_var_ID, **left_interface_variable_record)
 
-    self.variables.indexVariables()
-    # fix latex for variable
-    left_interface_variable_record["aliases"]["latex"] = interface_variable.replace(
-            "_", r"\_")
+    # self.variables.indexVariables()
+    # # fix latex for variable
+    # left_interface_variable_record["aliases"]["latex"] = interface_variable.replace(
+    #         "_", r"\_")
 
-    # step3: make interface-to-right
-    dialog = RadioSelectorDialog(variable_types_right_nw, parent=self)
-    # dialog.exec_()
-    variable_type = dialog.selection
+    # REMOVED: Interface equation functionality - variables not defined
+    # dialog = RadioSelectorDialog(variable_types_right_nw, parent=self)
+    # # dialog.exec_()
+    # variable_type = dialog.selection
 
-    y = compiler_global_ID(interface_to_right)
-    interface_to_right_compiled_global_ID = str(y)
-    interface_to_right_compiled_global_ID_units = y.units
-    interface_to_right_compiled_global_ID_index_structures = y.index_structures
-    interface_to_right_compiled_latex = str(compiler_latex(interface_to_right))
-    rhs_dic = {"global_ID": interface_to_right_compiled_global_ID,
-               "latex"    : interface_to_right_compiled_latex}
-    incidence_list = makeIncidentList(interface_to_right_compiled_global_ID)
+    # REMOVED: Interface equation functionality - variables not defined
+    # y = compiler_global_ID(interface_to_right)
+    # interface_to_right_compiled_global_ID = str(y)
+    # interface_to_right_compiled_global_ID_units = y.units
+    # interface_to_right_compiled_global_ID_index_structures = y.index_structures
+    # interface_to_right_compiled_latex = str(compiler_latex(interface_to_right))
+    # rhs_dic = {"global_ID": interface_to_right_compiled_global_ID,
+    #            "latex"    : interface_to_right_compiled_latex}
+    # incidence_list = makeIncidentList(interface_to_right_compiled_global_ID)
 
-    new_var_ID = self.variables.newProMoVariableIRI()
-    new_equ_ID = self.variables.newProMoEquationIRI()
+    # REMOVED: Interface equation functionality - variables not defined
+    # new_var_ID = self.variables.newProMoVariableIRI()
+    # new_equ_ID = self.variables.newProMoEquationIRI()
 
-    right_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
-                                                                   network=right_nw,
-                                                                   doc="interface equation", incidence_list=incidence_list)
+    # right_to_interface_equation_record = makeCompletEquationRecord(rhs=rhs_dic, type="interface_link_equation",
+    #                                                                network=right_nw,
+    #                                                                doc="interface equation", incidence_list=incidence_list)
 
-    right_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
-                                                                 label=label,
-                                                                 type=variable_type,  # VARIABLE_TYPE_INTERFACES,
-                                                                 network=right_nw,
-                                                                 doc="link variable %s to interface %s" % (interface_variable, right_nw),
-                                                                 index_structures=interface_to_right_compiled_global_ID_index_structures,
-                                                                 units=interface_to_right_compiled_global_ID_units,
-                                                                 equations={new_equ_ID: right_to_interface_equation_record},
-                                                                 aliases={},
-                                                                 port_variable=False,
-                                                                 tokens=[],
-                                                                 memory=source,
-                                                                 imported=True,
-                                                                 )
-    self.variables.addNewVariable(ID=new_var_ID, **right_interface_variable_record)
+    # right_interface_variable_record = makeCompleteVariableRecord(new_var_ID,
+    #                                                              label=label,
+    #                                                                 type=variable_type,  # VARIABLE_TYPE_INTERFACES,
+    #                                                                 network=right_nw,
+    #                                                                 doc="link variable %s to interface %s" % (interface_variable, right_nw),
+    #                                                                 index_structures=interface_to_right_compiled_global_ID_index_structures,
+    #                                                                 units=interface_to_right_compiled_global_ID_units,
+    #                                                                 equations={new_equ_ID: right_to_interface_equation_record},
+    #                                                                 aliases={},
+    #                                                                 port_variable=False,
+    #                                                                 tokens=[],
+    #                                                                 memory=source,
+    #                                                                 imported=True,
+    #                                                                 )
+    # self.variables.addNewVariable(ID=new_var_ID, **right_interface_variable_record)
 
-    self.ontology_container.indexEquations()
-    self.variables.indexVariables()
-    self.pick.close()
-    self.__setupEditInterface()
+    # self.ontology_container.indexEquations()
+    # self.variables.indexVariables()
+    # self.pick.close()
 
     # print("debugging -- link_equation", link_equation)
 

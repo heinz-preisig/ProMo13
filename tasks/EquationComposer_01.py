@@ -27,8 +27,13 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
-root = os.path.abspath(os.path.join(".."))
-sys.path.extend([root, os.path.join(root, 'packages'), os.path.join(root, 'tasks')])
+# Get the correct path to the project root
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(script_dir)
+sys.path.extend([project_root, os.path.join(project_root, 'packages'), os.path.join(project_root, 'tasks')])
+
+# Add the ProMo directory to path for constants module
+sys.path.append(project_root)
 
 from OntologyBuilder.EquationEditor_v01.ui_ontology_design_impl import UiOntologyDesign
 
@@ -37,7 +42,7 @@ sys.path.append(cwd)
 
 a = QtWidgets.QApplication(sys.argv)
 icon_f = "task_ontology_equations.svg"
-icon = os.path.join(os.path.abspath("../packages/Common/icons"), icon_f)
+icon = os.path.join(project_root, "packages/Common/icons", icon_f)
 a.setWindowIcon(QtGui.QIcon(icon))
 w = UiOntologyDesign()
 w.move(QtCore.QPoint(100, 100))
