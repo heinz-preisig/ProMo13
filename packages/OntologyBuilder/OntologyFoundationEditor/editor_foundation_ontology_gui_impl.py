@@ -36,19 +36,15 @@ from Common.common_resources import getOntologyName
 # from Common.common_resources import globalEquationID # NOTE: removed for the time being. IDs are now local to ontology
 # from Common.common_resources import globalVariableID # NOTE: removed for the time being. IDs are now local to ontology
 from Common.common_resources import makeTreeView
-from Common.common_resources import putData
 from Common.common_resources import putDataOrdered
 from Common.common_resources import saveBackupFile
 from Common.pop_up_message_box import makeMessageBox
 from Common.radio_selector_impl import RadioSelector
 from Common.record_definitions import OntologyContainerFile
-from Common.record_definitions import RecordProMoIRI
-from Common.record_definitions import VariableFile
-from Common.resource_initialisation import checkAndFixResources
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.resource_initialisation import ONTOLOGY_VERSION
-from Common.resource_initialisation import VARIABLE_EQUATIONS_VERSION
+from Common.resource_initialisation import checkAndFixResources
 from Common.resources_icons import getIcon
 from Common.resources_icons import roundButton
 from Common.ui_get_string_impl import UI_GetString
@@ -59,1758 +55,1751 @@ from OntologyBuilder.OntologyFoundationEditor.rulesClass import Rules
 from OntologyBuilder.OntologyFoundationEditor.rulesClass import RulesRadioButtons
 
 
-
 # RULE: defining the tree structure, and its components
 class Behaviour(OrderedDict):
-  def __init__(self):
-    super().__init__()
-    self["graph"] = []
-    self["node"] = []
-    self["arc"] = []
+    def __init__(self):
+        super().__init__()
+        self["graph"] = []
+        self["node"] = []
+        self["arc"] = []
 
 
 class Structure(OrderedDict):
-  def __init__(self):
-    super().__init__()
-    self["node"] = OrderedDict()
-    self["arc"] = OrderedDict()
-    self["token"] = OrderedDict()
+    def __init__(self):
+        super().__init__()
+        self["node"] = OrderedDict()
+        self["arc"] = OrderedDict()
+        self["token"] = OrderedDict()
 
-  # def addArc(self, token):
-  #   self["arc"][token] = {}  # hash -- mechanism  & value nature (distributed, lumped)
+    # def addArc(self, token):
+    #   self["arc"][token] = {}  # hash -- mechanism  & value nature (distributed, lumped)
 
 
 class Ontology(OrderedDict):
 
-  def __init__(self, name=None, type='intra', parent_ontology=None):
-    super().__init__()
-    self["name"] = name  # string
-    self["type"] = type  # string
-    if parent_ontology == None:
-      self["structure"] = Structure()
-      self["behaviour"] = Behaviour()
-      self["parents"] = []
-    else:  # first one -- the root of the tree
-      self["structure"] = deepcopy(parent_ontology["structure"])  # inherit down the branch
-      self["behaviour"] = deepcopy(parent_ontology["behaviour"])  # inherit down the branch
-      a = [parent_ontology["name"]]
-      b = copy(parent_ontology["parents"])
-      a.extend(b)
-      self["parents"] = a
+    def __init__(self, name=None, type='intra', parent_ontology=None):
+        super().__init__()
+        self["name"] = name  # string
+        self["type"] = type  # string
+        if parent_ontology == None:
+            self["structure"] = Structure()
+            self["behaviour"] = Behaviour()
+            self["parents"] = []
+        else:  # first one -- the root of the tree
+            self["structure"] = deepcopy(parent_ontology["structure"])  # inherit down the branch
+            self["behaviour"] = deepcopy(parent_ontology["behaviour"])  # inherit down the branch
+            a = [parent_ontology["name"]]
+            b = copy(parent_ontology["parents"])
+            a.extend(b)
+            self["parents"] = a
 
-    self["children"] = []  # ontologies
+        self["children"] = []  # ontologies
 
-  def addChild(self, child):
-    self["children"].append(child)  # ontologies
+    def addChild(self, child):
+        self["children"].append(child)  # ontologies
 
-  def importOntologyNode(self, node):
-    for i in node:
-      self[i] = deepcopy(node[i])
+    def importOntologyNode(self, node):
+        for i in node:
+            self[i] = deepcopy(node[i])
 
 
 def askForString(prompt, placeholdertext="", limiting_list=[]):  #
-  ui_ask = UI_GetString(prompt, placeholdertext=placeholdertext, limiting_list=limiting_list)
-  ui_ask.exec_()
-  model_name = ui_ask.getText()
-  return model_name
+    ui_ask = UI_GetString(prompt, placeholdertext=placeholdertext, limiting_list=limiting_list)
+    ui_ask.exec_()
+    model_name = ui_ask.getText()
+    return model_name
 
 
 # =====================================================================================================================
 
 class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
 
-  # potential_issues : Note : is the order important. Adding a network does leave us unordered compared to the old
-  #  approach....???
+    # potential_issues : Note : is the order important. Adding a network does leave us unordered compared to the old
+    #  approach....???
 
-  def __init__(self):
-    QtWidgets.QMainWindow.__init__(self)
-    self.ui = Ui_MainWindow()
-    self.ui.setupUi(self)
+    def __init__(self):
+        QtWidgets.QMainWindow.__init__(self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
 
-    roundButton(self.ui.pushInfo, "info", tooltip="information")
-    roundButton(self.ui.pushGraph, "dot_graph", tooltip="make ProMo ontology graphs")
-    roundButton(self.ui.pushSave, "save", tooltip="save ProMo base ontology")
+        roundButton(self.ui.pushInfo, "info", tooltip="information")
+        roundButton(self.ui.pushGraph, "dot_graph", tooltip="make ProMo ontology graphs")
+        roundButton(self.ui.pushSave, "save", tooltip="save ProMo base ontology")
 
-    ontology_name, ontologies = getOntologyName(new=True, task="task_ontology_foundation", behaviour="on_click")
+        ontology_name, ontologies = getOntologyName(new=True, task="task_ontology_foundation", behaviour="on_click")
 
-    self.ontology = OntologyContainerFile(ONTOLOGY_VERSION)
-    self.ontology_tree = self.ontology["ontology_tree"]
-    self.root = "root"  # RULE: root of tree is called "root"
-    self.lock_delete = False
-    self.saved_ontology = False
-    self.new_variable_file = False
-
-    if not ontology_name:  # RULE: No ontology chosen -- ask for new ontology
-      ui_ask = UI_GetString("give new ontology name ", "ontology name", limiting_list=ontologies)
-      ui_ask.exec_()
-      ontology_name = ui_ask.getText()
-      if not ontology_name:  # RULE: no new ontology -- exit
-        OS._exit(-1)
-
-      # RULE: make new infrastructure for new ontology
-      self.ontology_dir = DIRECTORIES["ontology_location"] % ontology_name
-      checkAndFixResources(ontology_name)  # TODO : can be extended when needed
-
-      try:
-        self.logo.close()
-      except:
-        pass
-
-      self.__createRoot()
-      self.ontology_dir = DIRECTORIES["ontology_location"] % ontology_name
-      self.__writeMessage("make directory tree %s" % self.ontology_dir)
-      src = DIRECTORIES["new_ontology_starting_set"]
-      # copy_tree(src, self.ontology_dir)   # TODO: copy_tree used to be in distutils.dir_util
-      self.ontology_file = FILES["ontology_file"] % ontology_name
-      # self.__makeOntology()
-
-    else:  # edit
-      self.ontology_file = FILES["ontology_file"] % ontology_name
-
-      # RULE: if variable file exists then delete & rename is to be blocked
-      variable_file = FILES["variables_file"] % ontology_name
-
-      self.new_variable_file = False
-      if OS.path.exists(variable_file):
-        reply = makeMessageBox("There is a variable file \n -- do you want to delete it and restart "
-                               "the whole process?", ["NO", "YES"])
-        if reply == "YES":
-          self.lock_delete = False
-          old, new, next = saveBackupFile(variable_file)
-          self.__writeMessage("variable file has been renamed from %s to %s" % (old, new))
-          self.new_variable_file = True
-        else:
-          self.lock_delete = True
-
-      else:
-        self.__writeMessage("did not find equation file %s" % variable_file)
+        self.ontology = OntologyContainerFile(ONTOLOGY_VERSION)
+        self.ontology_tree = self.ontology["ontology_tree"]
+        self.root = "root"  # RULE: root of tree is called "root"
         self.lock_delete = False
-        self.new_variable_file = True
+        self.saved_ontology = False
+        self.new_variable_file = False
 
-    self.__makeOntology()
+        if not ontology_name:  # RULE: No ontology chosen -- ask for new ontology
+            ui_ask = UI_GetString("give new ontology name ", "ontology name", limiting_list=ontologies)
+            ui_ask.exec_()
+            ontology_name = ui_ask.getText()
+            if not ontology_name:  # RULE: no new ontology -- exit
+                OS._exit(-1)
 
-    # setup rules for index generation
-    # if "network_enable_adding_indices" not in self.ontology["rules"]:
-    #   self.ontology["rules"]["network_enable_adding_indices"] = {}
-    # for nw in sorted(self.ontology_tree.keys()):
-    #   if nw not in self.ontology["rules"]["network_enable_adding_indices"]:
-    #     self.ontology["rules"]["network_enable_adding_indices"][nw] = False
+            # RULE: make new infrastructure for new ontology
+            self.ontology_dir = DIRECTORIES["ontology_location"] % ontology_name
+            checkAndFixResources(ontology_name)  # TODO : can be extended when needed
 
-    self.ontology_name = ontology_name
+            try:
+                self.logo.close()
+            except:
+                pass
 
-    ### initialisations  ===========
-    self.current_network = None
-    self.current_structure_component = None
-    self.current_behaviour_component = None
-    self.current_behaviour_variable = None
-    self.current_structure_variable = None
-    self.current_structure_extension_variable = None
-    self.current_arc_token = None
+            self.__createRoot()
+            self.ontology_dir = DIRECTORIES["ontology_location"] % ontology_name
+            self.__writeMessage("make directory tree %s" % self.ontology_dir)
+            src = DIRECTORIES["new_ontology_starting_set"]
+            # copy_tree(src, self.ontology_dir)   # TODO: copy_tree used to be in distutils.dir_util
+            self.ontology_file = FILES["ontology_file"] % ontology_name
+            # self.__makeOntology()
 
-    self.branches = ["structure", "behaviour"]
-    self.branch = self.branches[self.ui.tabWidget.currentIndex()]
-    #
-    # actions for state entry
-    self.__automaton()
+        else:  # edit
+            self.ontology_file = FILES["ontology_file"] % ontology_name
 
-    #  silly problem with single click and double-click on listView widget
-    self.click_count = 1
-    self.clickTimer = QtCore.QTimer()
+            # RULE: if variable file exists then delete & rename is to be blocked
+            variable_file = FILES["variables_file"] % ontology_name
 
-    # icons for buttons
-    plus_icon = getIcon("+")
-    minus_icon = getIcon("-")
-    self.ui.pushNewStructureElement.setIcon(plus_icon)
-    self.ui.pushNewBehaviourElement.setIcon(plus_icon)
-    self.ui.pushNewStructureElementExtension.setIcon(plus_icon)
-    self.ui.pushDeleteStructureElement.setIcon(minus_icon)
-    self.ui.pushDeleteBehaviourElement.setIcon(minus_icon)
-    self.ui.pushDeleteStructureElementExtension.setIcon(minus_icon)
+            self.new_variable_file = False
+            if OS.path.exists(variable_file):
+                reply = makeMessageBox("There is a variable file \n -- do you want to delete it and restart "
+                                       "the whole process?", ["NO", "YES"])
+                if reply == "YES":
+                    self.lock_delete = False
+                    old, new, next = saveBackupFile(variable_file)
+                    self.__writeMessage("variable file has been renamed from %s to %s" % (old, new))
+                    self.new_variable_file = True
+                else:
+                    self.lock_delete = True
 
-    # sizing of buttons
-    size = self.ui.pushNewStructureElement.sizeHint()
-    self.ui.pushNewStructureElement.resize(size)
-
-    self.radio = {
-            "structure_node" : None,
-            "structure_arc"  : None,
-            "structure_token": None,
-            "behaviour_graph": None,
-            "behaviour_node" : None,
-            "behaviour_arc"  : None
-            }
-
-    # starting up ===============
-    # self.__makeTreeView()
-
-    self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
-    self.__indexVariableClasses()
-    self.__loadUsageCache()  # Load usage information once at startup
-    self.__ui_status("start")
-    if self.new_variable_file:
-      self.__ui_status("new_variable_file")
-
-  def __makeOntology(self):
-    if OS.path.exists(self.ontology_file):
-      raw_ontology_container = getData(self.ontology_file)  # from json file
-      for key in raw_ontology_container:
-        if key == "ontology_tree":
-          raw_ontology = raw_ontology_container["ontology_tree"]  # this needs to be "massaged"
-        else:
-          self.ontology[key] = raw_ontology_container[key]  # just copy - do not touch
-
-      for o in raw_ontology:
-        self.ontology_tree[o] = Ontology()
-        self.ontology_tree[o].importOntologyNode(raw_ontology[o])
-
-
-    else:
-      self.__createRoot()
-    self.__writeMessage("preparing ontology")
-
-    self.__addFixedRules()  # RULE: here we add the rule system for the time being
-
-  def __automaton(self):
-    """
-    Sets the hidden/show for the various GUI items -- thus enables selective control of the interface.
-    what is in the lists is hidden -- everything else is shown.
-    :return:
-    """
-    ui = self.ui
-    actions = {  #
-            "0"                                : [  #
-                    ui.groupBoxFile,
-                    ui.pushSave,
-                    ui.treeWidget,
-                    ui.tabWidget,
-                    ui.groupBoxNetwork,
-                    ui.radioButtonInter,
-                    ui.radioButtonIntra,
-                    ui.pushAddChild,
-                    ui.pushRemoveChild,
-                    ui.groupBoxStructureComponents,
-                    ui.groupBoxBehaviourComponents,
-                    ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    ui.listViewBehaviour,
-                    ui.pushNewBehaviourElement,
-                    ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.radioButtonIsEnableAddingIndex,
-                    ui.radioButtonNormedDomain,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "start"                            : [  #
-                    ui.groupBoxFile,
-                    ui.pushSave,
-                    ui.tabWidget,
-                    ui.groupBoxNetwork,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.radioButtonIsEnableAddingIndex,
-                    ui.radioButtonNormedDomain,
-                    ],
-            "new_variable_file"                : [
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    ui.tabWidget,
-                    ui.groupBoxNetwork,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "removed_branch"                   : [  #
-                    ui.tabWidget,
-                    ui.groupBoxNetwork,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ],
-            "network_selected"                 : [  #
-                    ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    ui.listViewBehaviour,
-                    ui.pushNewBehaviourElement,
-                    ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    # ui.radioButtonIsEnableAddingIndex,
-                    ],
-            "network_selected_no_tokens"       : [  #
-                    ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    ui.listViewBehaviour,
-                    ui.radioButtonStructureArc,
-                    ui.pushNewBehaviourElement,
-                    ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ],
-            "add_child_selected"               : [  #
-                    ui.groupBoxNetwork,
-                    ui.tabWidget,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ],
-            "block_delete"                     : [  #
-                    ui.pushRemoveChild,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ],
-            "structure_selected"               : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.tabWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupBoxStructureComponents,
-                    ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    # ui.listViewStructureExtension,
-                    ui.listViewBehaviour,
-                    ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    # ui.pushNewStructureElementExtension,
-                    # ui.pushDeleteStructureElement,
-                    # ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.radioButtonIsEnableAddingIndex,
-                    ui.radioButtonNormedDomain,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "behaviour_selected"               : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.tabWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    # ui.pushDeleteBehaviourElement,
-                    # ui.widgetToken,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.radioButtonIsEnableAddingIndex,
-                    ui.radioButtonNormedDomain,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_node_selected"          : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_token_selected"         : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_node_prop_selected"     : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    # ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    # ui.pushNewStructureElementExtension,
-                    # ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    # ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    # ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_token_prop_selected"    : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    # ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    # ui.pushNewStructureElementExtension,
-                    # ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_node_prop_ext_selected" : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    # ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    # ui.pushNewStructureElementExtension,
-                    # ui.pushDeleteStructureElement,
-                    # ui.pushDeleteStructureElementExtension,
-                    # ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    # ui.groupBoxStructureRules,
-                    # ui.groupBoxBehaviourRules,
-                    ],
-            "structure_token_prop_ext_selected": [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    # ui.listViewStructureExtension,
-                    ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    # ui.pushNewStructureElementExtension,
-                    # ui.pushDeleteStructureElement,
-                    # ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_arc_selected"           : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    # ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_arc_token_selected"     : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    # ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_arc_token_prop_selected": [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    # ui.listViewStructureExtension,
-                    ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    # ui.pushNewStructureElementExtension,
-                    # ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    # ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "structure_arc_prop_ext_selected"  : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    # ui.listViewStructureExtension,
-                    ui.listViewBehaviour,
-                    ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    # ui.pushNewStructureElementExtension,
-                    # ui.pushDeleteStructureElement,
-                    # ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    # ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "behaviour_component_selected"     : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.radioButtonIsEnableAddingIndex,
-                    ui.radioButtonNormedDomain,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "behaviour_prop_selected"          : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    # ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.radioButtonIsEnableAddingIndex,
-                    ui.radioButtonNormedDomain,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            "behaviour_prop_selected_node"     : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupChildDefine,
-                    # ui.groupBoxStructure,
-                    # ui.groupBoxBehaviour,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    ui.pushNewStructureElementExtension,
-                    ui.pushDeleteStructureElement,
-                    ui.pushDeleteStructureElementExtension,
-                    # ui.pushDeleteBehaviourElement,
-                    ui.widgetToken,
-                    # ui.radioButtonHasPortVariables,
-                    # ui.radioButtonHasPersistantVariables,
-                    # ui.radioButtonAreConstants,
-                    ui.groupBoxStructureRules,
-                    # ui.groupBoxBehaviourRules,
-                    ],
-            "saved"                            : [  #
-                    # ui.groupBoxFile,
-                    # ui.pushSave,
-                    # ui.treeWidget,
-                    ui.tabWidget,
-                    # ui.groupBoxNetwork,
-                    # ui.radioButtonInter,
-                    # ui.radioButtonIntra,
-                    # ui.pushAddChild,
-                    # ui.pushRemoveChild,
-                    # ui.groupBoxStructureComponents,
-                    # ui.groupBoxBehaviourComponents,
-                    # ui.listViewStructure,
-                    # ui.listViewStructureExtension,
-                    # ui.listViewBehaviour,
-                    # ui.pushNewBehaviourElement,
-                    # ui.pushNewStructureElement,
-                    # ui.pushNewStructureElementExtension,
-                    # ui.pushDeleteStructureElement,
-                    # ui.pushDeleteStructureElementExtension,
-                    # ui.pushDeleteBehaviourElement,
-                    # ui.widgetToken,
-                    ui.radioButtonHasPortVariables,
-                    ui.radioButtonHasPersistantVariables,
-                    ui.radioButtonAreConstants,
-                    ui.radioButtonIsEnableAddingIndex,
-                    ui.radioButtonNormedDomain,
-                    ui.groupBoxStructureRules,
-                    ui.groupBoxBehaviourRules,
-                    ],
-            }
-    self.actions = actions
-    self.labels = {
-            "0"                              : {
-                    "structure": "",
-                    "extension": ""
-                    },
-            "start"                          : {
-                    "structure": "",
-                    "extension": ""
-                    },
-            "structure_node_selected"        : {
-                    "structure": "dynamics",
-                    "extension": "distribution nature"
-                    },
-            "structure_token_selected"       : {
-                    "structure": "token",
-                    "extension": "refinement"
-                    },
-            "structure_arc_selected"         : {
-                    "structure": "mechanism",
-                    "extension": "nature"
-                    },
-            "structure_arc_token_selected"   : {
-                    "structure": "mechanism",
-                    "extension": "nature"
-                    },
-            "structure_arc_prop_ext_selected": {
-                    "structure": "mechanism",
-                    "extension": "nature"
-                    },
-            }
-
-  def __createRoot(self):
-
-    model_name = "root"
-    self.current_network = model_name
-    self.__writeMessage("create root: %s" % model_name)
-    self.ontology_tree[model_name] = Ontology(model_name, None, None)
-
-  def __makeTreeDepthFirstList(self, branch_root, nodes):
-
-    if branch_root not in nodes:
-      nodes.append(branch_root)
-    if self.ontology_tree[branch_root]["children"] != []:
-      for child in self.ontology_tree[branch_root]["children"]:
-        self.__makeTreeDepthFirstList(child, nodes)  ###ooops cannot be nodes=nodes !!!
-    else:
-      return nodes
-
-    return nodes
-
-
-  def __loadUsageCache(self):
-    """
-    Load and cache all ontology elements that are currently in use by variables.
-    This is called once when the editor starts to avoid repeated file reads.
-    Usage is organized by network for domain-specific checking, with detailed variable tracking.
-    """
-    self.used_elements = {}  # Cache of used elements by network: {network: {element: [variable_info]}}
-    
-    if not OS.path.exists(FILES["variables_file"] % self.ontology_name):
-      return  # No variable file exists, no elements are in use
-    
-    try:
-      variable_data = getData(FILES["variables_file"] % self.ontology_name)
-      if not variable_data or "variables" not in variable_data:
-        return  # No variables defined, no elements are in use
-      
-      variables = variable_data["variables"]
-      
-      # Collect all used ontology elements from all variables, organized by network
-      for var_key, var_data in variables.items():
-        if isinstance(var_data, dict):
-          # Get the network this variable belongs to
-          network = var_data.get("network", "root")
-          if network not in self.used_elements:
-            self.used_elements[network] = {}
-          
-          # Create variable info with name, label, and symbol
-          var_info = {
-            "id": var_key,
-            "name": var_data.get("label", var_key),  # Use label if available, otherwise ID
-            "symbol": var_data.get("symbol", "")  # Symbol if available
-          }
-          
-          # Helper function to add element usage with variable info
-          def add_element_usage(element_name, var_info):
-            if element_name and element_name.strip():  # Only add non-empty elements
-              if element_name not in self.used_elements[network]:
-                self.used_elements[network][element_name] = []
-              # Check if this variable is already in the list to avoid duplicates
-              existing_vars = [v["id"] for v in self.used_elements[network][element_name]]
-              if var_info["id"] not in existing_vars:
-                self.used_elements[network][element_name].append(var_info)
-          
-          # Check the main type field - this is where ontology elements like "state" are stored
-          if "type" in var_data and var_data["type"]:
-            add_element_usage(var_data["type"], var_info)
-          
-          # Check tokens list
-          if "tokens" in var_data and isinstance(var_data["tokens"], list):
-            for token in var_data["tokens"]:
-              add_element_usage(token, var_info)
-          
-          # Check all string fields for element names (comprehensive check)
-          for field_name, field_value in var_data.items():
-            if isinstance(field_value, str) and field_value and field_name != "network":
-              add_element_usage(field_value, var_info)
-            elif isinstance(field_value, list):
-              for item in field_value:
-                if isinstance(item, str) and item:
-                  add_element_usage(item, var_info)
-      
-      total_elements = sum(len(elements) for elements in self.used_elements.values())
-      self.__writeMessage(f"Cached {total_elements} used ontology elements across {len(self.used_elements)} networks")
-      
-    except Exception as e:
-      self.__writeMessage(f"Error loading usage cache: {e}")
-
-  def __isElementUsed(self, element_name, component_type=None):
-    """
-    Check if an ontology element is being used in variables for the current network.
-    Returns tuple: (is_used, list_of_using_variables_with_info)
-    Uses cached information for efficiency.
-    """
-    # Check usage in the current network
-    current_network = self.current_network
-    using_variables = []
-    
-    # Check current network usage
-    if current_network in self.used_elements and element_name in self.used_elements[current_network]:
-      using_variables.extend(self.used_elements[current_network][element_name])
-    
-    # Only check parent networks for inherited usage if this is an "intra" type network
-    # "inter" type networks are first-level and don't inherit from parents
-    if (current_network in self.ontology_tree and 
-        self.ontology_tree[current_network].get("type") == "intra"):
-      
-      parents = self.ontology_tree[current_network].get("parents", [])
-      for parent in parents:
-        if parent in self.used_elements and element_name in self.used_elements[parent]:
-          using_variables.extend(self.used_elements[parent][element_name])
-    
-    return (len(using_variables) > 0, using_variables)
-
-  def __indexVariableClasses(self):
-    self.variables = OrderedDict()
-
-    treeDpethFirstList = self.__makeTreeDepthFirstList(self.root, [])
-
-    if not treeDpethFirstList:
-      return
-
-    for nw in treeDpethFirstList:
-      self.variables[nw] = []
-      for branch in ["structure", "behaviour"]:
-        for component in self.ontology_tree[nw][branch]:
-          if branch == "structure":
-            if component == "arc":
-              for token in self.ontology_tree[nw][branch][component]:
-                for variable in self.ontology_tree[nw][branch][component][token]:
-                  v = "%s-%s-%s-%s" % (branch, component, token, variable)
-                  self.variables[nw].append(v)
-                  for mechanism in self.ontology_tree[nw][branch][component][token][variable]:
-                    v = "%s-%s-%s-%s-%s" % (branch, component, token, variable, mechanism)
-                    self.variables[nw].append(v)
             else:
-              for variable in self.ontology_tree[nw][branch][component]:
-                v = "%s-%s-%s" % (branch, component, variable)
-                self.variables[nw].append(v)
-                for extension in self.ontology_tree[nw][branch][component][variable]:
-                  v = "%s-%s-%s-%s" % (branch, component, variable, extension)
-                  self.variables[nw].append(v)
-          else:
-            for component_ in self.ontology_tree[nw][branch]:
-              for variable in self.ontology_tree[nw][branch][component_]:
-                v = "%s-%s-%s" % (branch, component_, variable)
-                self.variables[nw].append(v)
-
-
-  def __setInterIntra(self, what):
-    self.ontology_tree[self.current_network]["type"] = what
-
-  def __makeList(self, what_list_view, the_list):
-    """
-    list generator
-    :param what_list_view: gui component
-    :param the_list: the list to be inserted
-    :return:
-    """
-    what_list_view.clear()
-    what_list_view.addItems(the_list)
-
-  def __whichComponent(self, current_branch):
-    for i in self.radio:
-      if self.radio[i]:
-        branch, component = i.split("_")
-        if branch == current_branch:
-          return component
-    self.__writeMessage("error - no such radio button")
-    return None
-
-  def __writeMessage(self, message):
-    self.ui.msgWindow.clear()
-    self.ui.msgWindow.setText(message)
-
-  def __switchNetwork(self, network):
-    tree_item = self.tree_items[network]
-    self.ui.treeWidget.setCurrentItem(tree_item)
-    self.current_network = network
-    self.__on_network_selected()
-
-  def __findAndSwitchToDefinitionNetwork(self, v):
-    parents = self.ontology_tree[self.current_network]["parents"]
-    for nw in reversed(parents):
-      if nw in self.variables:
-        for v_nw in self.variables[nw]:
-          if v == v_nw:
-            return nw  # first one it is
-
-
-
-  def __clearLayout(self, layout):
-    while layout.count():
-      child = layout.takeAt(0)
-      if child.widget() is not None:
-        child.widget().deleteLater()
-      elif child.layout() is not None:
-        self.__clearLayout(child.layout())
-
-  def __makeAndAddSelector(self, group_name, what, receiver, index, layout, autoexclusive=True):
-    """
-
-    :param group_name: name of the group of radio buttons to be added
-    :param what: list of labels for the radio buttons --> also identifier
-    :param receiver: receiver slot, thus a method
-    :param index: string or integer -- if string it must be a radio button identifier,
-                                      if number then it is the index in the list of radio buttons,
-                                      if -1 no button is checked
-    :param layout: a horizontal layout box
-    :param autoexclusive: true or false
-    :return: the radio selecter QWidget
-    """
-    radio_selector = RadioSelector()
-    list_of_choices = []
-    counter = 0
-    layout.addWidget(radio_selector)
-    for item in what:
-      list_of_choices.append((str(counter), item, receiver))
-      counter += 1
-    if not list_of_choices:
-      return None
-
-    radio_selector.addListOfChoices(group_name, list_of_choices, index, autoexclusive=autoexclusive)
-    return radio_selector
-
-  def __clearRadioButtons(self):
-    r_list = []
-    if self.branch == "structure":
-      r_list = [self.ui.radioButtonBehaviourArc,
-                self.ui.radioButtonBehaviourGraph,
-                self.ui.radioButtonBehaviourNode]
-    elif self.branch == "behaviour":
-      r_list = [self.ui.radioButtonStructureArc,
-                self.ui.radioButtonStructureNode,
-                self.ui.radioButtonStructureToken]
-    for r in r_list:
-      r.setChecked(False)
-
-  def __ui_status(self, status):
-    # print("debugging -- status:", status)
-    for i in self.actions["0"]:
-      if i in self.actions[status]:
-        i.hide()
-      else:
-        i.show()
-    if self.branch:
-      self.__clearRadioButtons()
-
-    if self.branch == "structure":
-      if status in self.labels:
-        for i in self.labels:
-          self.ui.labelStructure.setText(self.labels[status]["structure"])
-          self.ui.labelStructureExtension.setText(self.labels[status]["extension"])
-
-    # NOTE: Removed binary lock_delete check - deletions are now controlled by usage checking in delete methods
-
-  #### event handling
-
-  @QtCore.pyqtSlot(str)
-  def on_comboInterconnectionNetworks_activated(self, choice):
-    left_nw = self.interconnection_network_dictionary[choice]["left"]
-    right_nw = self.interconnection_network_dictionary[choice]["right"]
-    vars_types = self.saved_ontology_container.variable_types_on_interconnection_networks_left_right
-    # print("debugging -- left, right", left_nw, right_nw)
-    # print("deugging -- var-types", vars_types[choice])
-    left_variable_types = self.saved_ontology_container.variable_types_on_networks[left_nw]
-    root_variable_types = self.saved_ontology_container.variable_types_on_networks["root"]
-    enabled_set = set(left_variable_types) - set(root_variable_types)
-    # print("debugging -- left variables classes:", left_variable_types)
-    # print("debugging -- enabled_set classes:", enabled_set)
-
-    pass
-
-  # def on_treeWidget_itemSelectionChanged(self,index):  # TODO: gave a pyqt error: missing 1 required positional
-  #  argument: 'index'
-  #   print("debugging : entered")
-  #   self.on_treeWidget_clicked(index)
-
-  def on_treeWidget_clicked(self, index):  # state network_selected
-    self.current_network = self.ui.treeWidget.currentItem().name
-    # print("debugging -- current network selected: ", self.current_network)
-
-    self.__on_network_selected()
-
-  def on_pushInfo_pressed(self):
-    msg_popup = UI_FileDisplayWindow(FILES["info_ontology_foundation_editor"])
-    msg_popup.exec_()
-
-  def on_pushGraph_pressed(self):
-    makeOntologyDotGraph(self.ontology_tree, self.ontology_name, show="write")
-
-  def __addFixedRules(self):  # RULE: fixed rules
-
-    # RULE: main rules
-    RULES = Rules()
-
-    rules = self.ontology["rules"]
-    for c in RULES:
-      for r in RULES[c]:
-        if r not in rules:
-          rules[r] = RULES[c][r]
-
-    networks = sorted(self.ontology_tree.keys())
-
-    # get those that are defined
-    for nw in  networks:
-      if nw not in self.ontology["rules"]["network_enable_adding_indices"]:
-        self.ontology["rules"]["network_enable_adding_indices"][nw] = False
-    networks_to_clean = list(rules["network_enable_adding_indices"].keys())
-    for nw in networks_to_clean:
-      if nw not in networks:
-        del rules["network_enable_adding_indices"][nw]
-
-    pass
-
-    self.rulesRadioButtons = RulesRadioButtons(self.ui)
-
-  def __updateRadioButtons(self, ruleClass, selection):
-    RULES = Rules()
-    for r in RULES[ruleClass]:
-      if selection in self.ontology["rules"][r]:
-        self.rulesRadioButtons[r].setChecked(True)
-      else:
-        self.rulesRadioButtons[r].setChecked(False)
-    pass
-
-
-
-  def on_pushSave_pressed(self):
-    self.__ui_status("saved")
-    self.__addFixedRules()
-    saveBackupFile(self.ontology_file)
-    putDataOrdered(self.ontology, self.ontology_file)
-
-    if self.new_variable_file:
-      variables_f_name = FILES["variables_file"] % self.ontology_name
-      variables_starting_file = FILES["variables_starting_file"] % self.ontology_name
-      shutil.copyfile(variables_starting_file,variables_f_name)
-      # # NOTE: do not delete the below
-      # # globalVariableID(update=False, reset=True)  # RULE: for a new variable file reset global variable ID
-      # # globalEquationID(update=False, reset=True)  # RULE: and global equation ID
-      # variables = {}
-      # indices = {}
-      # ProMoIRI = RecordProMoIRI()
-      # data = VariableFile(variables, indices, VARIABLE_EQUATIONS_VERSION, ProMoIRI)
-      # putData(data, variables_f_name)
-      self.__writeMessage("ontology file written and new data file generated : %s" % variables_f_name)
-    else:
-      self.__writeMessage("ontology file written")
-
-  def on_pushAddChild_pressed(self):
-    self.__ui_status("add_child_selected")
-    models = list(self.ontology_tree.keys())
-    model_name = askForString("give new network name or exit ", "name for new child", limiting_list=models)
-    if not model_name:
-      self.__ui_status("network_selected")
-      return
-    if model_name in self.ontology_tree:
-      self.__writeMessage("error -- name -- %s -- is already defined" % model_name)
-      return
-
-    print("model name: ", model_name)
-    self.ontology_tree[self.current_network].addChild(model_name)
-    self.ontology_tree[model_name] = Ontology(model_name, 'intra', self.ontology_tree[self.current_network])
-
-    if self.current_network not in self.ontology["rules"]["network_enable_adding_indices"]:
-      self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = False
-    self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
-
-  def on_pushRemoveChild_pressed(self):
-    # print("debugging -- remove child from ", self.current_network)
-    deleting = []
-    for nw in self.ontology_tree:
-      if self.current_network in self.ontology_tree[nw]["parents"]:
-        # print("debugging -- delete : ", nw)
-        deleting.append(nw)
-
-    for nw in deleting:  # delete branch below
-      del self.ontology_tree[nw]
-
-    print("deugging -- delete : ", self.current_network)
-    parent = self.ontology_tree[self.current_network]["parents"][0]
-    self.ontology_tree[parent]["children"].remove(
-            self.current_network)  # remove from children list of the parent node
-
-    del self.ontology_tree[self.current_network]  # finally delete node itself
-    # self.__makeTreeView()
-    self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
-    self.__ui_status("removed_branch")
-
-  def __on_network_selected(self):
-
-    if self.ontology_tree[self.current_network]["structure"]["token"] == {}:
-      self.__ui_status("network_selected_no_tokens")
-    else:
-      self.__ui_status("network_selected")
-
-    self.ui.listViewStructure.clear()
-    self.ui.listViewStructureExtension.clear()
-    self.ui.listViewBehaviour.clear()
-    self.ui.listViewStructureExtension.clear()
-
-    self.on_radioButtonBehaviourGraph_toggled(self.radio["behaviour_graph"])
-    self.on_radioButtonBehaviourNode_toggled(self.radio["behaviour_node"])
-    self.on_radioButtonBehaviourArc_toggled(self.radio["behaviour_arc"])
-
-    self.on_radioButtonStructureToken_toggled(self.radio["structure_token"])
-    self.on_radioButtonStructureNode_toggled(self.radio["structure_node"])
-    self.on_radioButtonStructureArc_toggled(self.radio["structure_arc"])
-
-    inter_intra = self.ontology_tree[self.current_network]["type"]
-    if inter_intra == "inter":
-      self.ui.radioButtonInter.setChecked(True)
-    else:
-      self.ui.radioButtonIntra.setChecked(True)
-
-    # is adding indices enabled?
-    if self.current_network not in self.ontology["rules"]["network_enable_adding_indices"]:
-      self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = False
-    self.ui.radioButtonIsEnableAddingIndex.setChecked(
-            self.ontology["rules"]["network_enable_adding_indices"][self.current_network])
-    if self.current_network not in self.ontology["rules"]["normed_network"]:
-      self.ontology["rules"]["normed_network"][self.current_network] = False
-    self.ui.radioButtonNormedDomain.setChecked(
-            self.ontology["rules"]["normed_network"][self.current_network])
-
-  def on_radioButtonInter_toggled(self, position):
-    what = "intra"
-    if position:
-      what = "inter"
-    self.__setInterIntra(what)
-
-  def on_radioButtonIntra_toggled(self, position):
-    what = "inter"
-    if position:
-      what = "intra"
-    self.__setInterIntra(what)
-
-  def on_radioButtonStructureNode_toggled(self, position):
-    self.radio["structure_node"] = position
-    if position:
-      self.current_structure_component = "node"
-      # print("debugging -- structure node")
-      the_list = sorted(self.ontology_tree[self.current_network]["structure"]["node"].keys())
-      self.__makeList(self.ui.listViewStructure, the_list)
-      self.__ui_status("structure_node_selected")
-
-  def on_radioButtonStructureArc_toggled(self, position):
-    self.radio["structure_arc"] = position
-    if position:
-      self.current_structure_component = "arc"
-      # print("debugging -- structure arc")
-
-      token_list = sorted(self.ontology_tree[self.current_network]["structure"]["token"].keys())
-
-      self.__clearLayout(self.ui.horizontalLayoutToken)
-
-      self.radio_selectors_token = self.__makeAndAddSelector("tokens",
-                                                             token_list,
-                                                             self.radioReceiverArcToken, -1,
-                                                             self.ui.horizontalLayoutToken)
-      self.__ui_status("structure_arc_selected")
-
-  def radioReceiverArcToken(self, token_class, token, token_string, toggle):
-    if toggle:
-      # print("radioReceiverArcDistribution: reciever class %s, radio token %s. token_string %s" % (
-      # token_class, token, token_string))
-      self.current_arc_token = token_string
-
-      the_list = sorted(self.ontology_tree[self.current_network]["structure"]["arc"][token_string].keys())
-      self.__makeList(self.ui.listViewStructure, the_list)
-      self.__ui_status("structure_arc_token_selected")
-
-  def on_radioButtonStructureToken_toggled(self, position):
-    self.radio["structure_token"] = position
-    if position:
-      # print("structure token")
-      self.current_structure_component = "token"
-      the_list = sorted(self.ontology_tree[self.current_network]["structure"]["token"].keys())
-      self.__makeList(self.ui.listViewStructure, the_list)
-      self.__ui_status("structure_token_selected")
-
-  def on_radioButtonIsEnableAddingIndex_toggled(self, position):
-    # print("debugging -- radio button position: ", position)
-    self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = position
-
-  def on_radioButtonNormedDomain_toggled(self, position):
-    self.ontology["rules"]["normed_network"][self.current_network] = position
-
-  def on_radioButtonHasPortVariables_toggled(self, position):
-    # print("debugging -- radio button position: ", position)
-    # variable_classes_having_port_variables = set(self.ontology["rules"]["variable_classes_having_port_variables"])
-    # if position:
-    #   variable_classes_having_port_variables.add(self.current_behaviour_variable)
-    # else:
-    #   variable_classes_having_port_variables.difference_update()
-    # self.ontology["rules"]["variable_classes_having_port_variables"] = sorted(
-    #         variable_classes_having_port_variables)
-    self.__setRuleValue(position, "variable_classes_having_port_variables")
-
-  def on_radioButtonHasPersistantVariables_toggled(self, position):
-    # print("debugging -- radio button position: ", position)
-    rule = "are_persistent_variables"
-    self.__setRuleValue(position, rule)
-
-  def __setRuleValue(self, position, rule):
-    if position:
-      self.ontology["rules"][rule].append(self.current_behaviour_variable)
-    else:
-      try:
-        self.ontology["rules"][rule].remove(self.current_behaviour_variable)
-      except:
+                self.__writeMessage("did not find equation file %s" % variable_file)
+                self.lock_delete = False
+                self.new_variable_file = True
+
+        self.__makeOntology()
+
+        # setup rules for index generation
+        # if "network_enable_adding_indices" not in self.ontology["rules"]:
+        #   self.ontology["rules"]["network_enable_adding_indices"] = {}
+        # for nw in sorted(self.ontology_tree.keys()):
+        #   if nw not in self.ontology["rules"]["network_enable_adding_indices"]:
+        #     self.ontology["rules"]["network_enable_adding_indices"][nw] = False
+
+        self.ontology_name = ontology_name
+
+        ### initialisations  ===========
+        self.current_network = None
+        self.current_structure_component = None
+        self.current_behaviour_component = None
+        self.current_behaviour_variable = None
+        self.current_structure_variable = None
+        self.current_structure_extension_variable = None
+        self.current_arc_token = None
+
+        self.branches = ["structure", "behaviour"]
+        self.branch = self.branches[self.ui.tabWidget.currentIndex()]
+        #
+        # actions for state entry
+        self.__automaton()
+
+        #  silly problem with single click and double-click on listView widget
+        self.click_count = 1
+        self.clickTimer = QtCore.QTimer()
+
+        # icons for buttons
+        plus_icon = getIcon("+")
+        minus_icon = getIcon("-")
+        self.ui.pushNewStructureElement.setIcon(plus_icon)
+        self.ui.pushNewBehaviourElement.setIcon(plus_icon)
+        self.ui.pushNewStructureElementExtension.setIcon(plus_icon)
+        self.ui.pushDeleteStructureElement.setIcon(minus_icon)
+        self.ui.pushDeleteBehaviourElement.setIcon(minus_icon)
+        self.ui.pushDeleteStructureElementExtension.setIcon(minus_icon)
+
+        # sizing of buttons
+        size = self.ui.pushNewStructureElement.sizeHint()
+        self.ui.pushNewStructureElement.resize(size)
+
+        self.radio = {
+                "structure_node" : None,
+                "structure_arc"  : None,
+                "structure_token": None,
+                "behaviour_graph": None,
+                "behaviour_node" : None,
+                "behaviour_arc"  : None
+                }
+
+        # starting up ===============
+        # self.__makeTreeView()
+
+        self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
+        self.__indexVariableClasses()
+        self.__loadUsageCache()  # Load usage information once at startup
+        self.__ui_status("start")
+        if self.new_variable_file:
+            self.__ui_status("new_variable_file")
+
+    def __makeOntology(self):
+        if OS.path.exists(self.ontology_file):
+            raw_ontology_container = getData(self.ontology_file)  # from json file
+            for key in raw_ontology_container:
+                if key == "ontology_tree":
+                    raw_ontology = raw_ontology_container["ontology_tree"]  # this needs to be "massaged"
+                else:
+                    self.ontology[key] = raw_ontology_container[key]  # just copy - do not touch
+
+            for o in raw_ontology:
+                self.ontology_tree[o] = Ontology()
+                self.ontology_tree[o].importOntologyNode(raw_ontology[o])
+
+
+        else:
+            self.__createRoot()
+        self.__writeMessage("preparing ontology")
+
+        self.__addFixedRules()  # RULE: here we add the rule system for the time being
+
+    def __automaton(self):
+        """
+        Sets the hidden/show for the various GUI items -- thus enables selective control of the interface.
+        what is in the lists is hidden -- everything else is shown.
+        :return:
+        """
+        ui = self.ui
+        actions = {  #
+                "0"                                : [  #
+                        ui.groupBoxFile,
+                        ui.pushSave,
+                        ui.treeWidget,
+                        ui.tabWidget,
+                        ui.groupBoxNetwork,
+                        ui.radioButtonInter,
+                        ui.radioButtonIntra,
+                        ui.pushAddChild,
+                        ui.pushRemoveChild,
+                        ui.groupBoxStructureComponents,
+                        ui.groupBoxBehaviourComponents,
+                        ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        ui.listViewBehaviour,
+                        ui.pushNewBehaviourElement,
+                        ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.radioButtonIsEnableAddingIndex,
+                        ui.radioButtonNormedDomain,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "start"                            : [  #
+                        ui.groupBoxFile,
+                        ui.pushSave,
+                        ui.tabWidget,
+                        ui.groupBoxNetwork,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.radioButtonIsEnableAddingIndex,
+                        ui.radioButtonNormedDomain,
+                        ],
+                "new_variable_file"                : [
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        ui.tabWidget,
+                        ui.groupBoxNetwork,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "removed_branch"                   : [  #
+                        ui.tabWidget,
+                        ui.groupBoxNetwork,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ],
+                "network_selected"                 : [  #
+                        ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        ui.listViewBehaviour,
+                        ui.pushNewBehaviourElement,
+                        ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        # ui.radioButtonIsEnableAddingIndex,
+                        ],
+                "network_selected_no_tokens"       : [  #
+                        ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        ui.listViewBehaviour,
+                        ui.radioButtonStructureArc,
+                        ui.pushNewBehaviourElement,
+                        ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ],
+                "add_child_selected"               : [  #
+                        ui.groupBoxNetwork,
+                        ui.tabWidget,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ],
+                "block_delete"                     : [  #
+                        ui.pushRemoveChild,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ],
+                "structure_selected"               : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.tabWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupBoxStructureComponents,
+                        ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        # ui.listViewStructureExtension,
+                        ui.listViewBehaviour,
+                        ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        # ui.pushNewStructureElementExtension,
+                        # ui.pushDeleteStructureElement,
+                        # ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.radioButtonIsEnableAddingIndex,
+                        ui.radioButtonNormedDomain,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "behaviour_selected"               : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.tabWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        # ui.pushDeleteBehaviourElement,
+                        # ui.widgetToken,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.radioButtonIsEnableAddingIndex,
+                        ui.radioButtonNormedDomain,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_node_selected"          : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_token_selected"         : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_node_prop_selected"     : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        # ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        # ui.pushNewStructureElementExtension,
+                        # ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        # ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        # ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_token_prop_selected"    : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        # ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        # ui.pushNewStructureElementExtension,
+                        # ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_node_prop_ext_selected" : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        # ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        # ui.pushNewStructureElementExtension,
+                        # ui.pushDeleteStructureElement,
+                        # ui.pushDeleteStructureElementExtension,
+                        # ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        # ui.groupBoxStructureRules,
+                        # ui.groupBoxBehaviourRules,
+                        ],
+                "structure_token_prop_ext_selected": [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        # ui.listViewStructureExtension,
+                        ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        # ui.pushNewStructureElementExtension,
+                        # ui.pushDeleteStructureElement,
+                        # ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_arc_selected"           : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        # ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_arc_token_selected"     : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        # ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_arc_token_prop_selected": [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        # ui.listViewStructureExtension,
+                        ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        # ui.pushNewStructureElementExtension,
+                        # ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        # ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "structure_arc_prop_ext_selected"  : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        # ui.listViewStructureExtension,
+                        ui.listViewBehaviour,
+                        ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        # ui.pushNewStructureElementExtension,
+                        # ui.pushDeleteStructureElement,
+                        # ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        # ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "behaviour_component_selected"     : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.radioButtonIsEnableAddingIndex,
+                        ui.radioButtonNormedDomain,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "behaviour_prop_selected"          : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        # ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.radioButtonIsEnableAddingIndex,
+                        ui.radioButtonNormedDomain,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                "behaviour_prop_selected_node"     : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupChildDefine,
+                        # ui.groupBoxStructure,
+                        # ui.groupBoxBehaviour,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        ui.pushNewStructureElementExtension,
+                        ui.pushDeleteStructureElement,
+                        ui.pushDeleteStructureElementExtension,
+                        # ui.pushDeleteBehaviourElement,
+                        ui.widgetToken,
+                        # ui.radioButtonHasPortVariables,
+                        # ui.radioButtonHasPersistantVariables,
+                        # ui.radioButtonAreConstants,
+                        ui.groupBoxStructureRules,
+                        # ui.groupBoxBehaviourRules,
+                        ],
+                "saved"                            : [  #
+                        # ui.groupBoxFile,
+                        # ui.pushSave,
+                        # ui.treeWidget,
+                        ui.tabWidget,
+                        # ui.groupBoxNetwork,
+                        # ui.radioButtonInter,
+                        # ui.radioButtonIntra,
+                        # ui.pushAddChild,
+                        # ui.pushRemoveChild,
+                        # ui.groupBoxStructureComponents,
+                        # ui.groupBoxBehaviourComponents,
+                        # ui.listViewStructure,
+                        # ui.listViewStructureExtension,
+                        # ui.listViewBehaviour,
+                        # ui.pushNewBehaviourElement,
+                        # ui.pushNewStructureElement,
+                        # ui.pushNewStructureElementExtension,
+                        # ui.pushDeleteStructureElement,
+                        # ui.pushDeleteStructureElementExtension,
+                        # ui.pushDeleteBehaviourElement,
+                        # ui.widgetToken,
+                        ui.radioButtonHasPortVariables,
+                        ui.radioButtonHasPersistantVariables,
+                        ui.radioButtonAreConstants,
+                        ui.radioButtonIsEnableAddingIndex,
+                        ui.radioButtonNormedDomain,
+                        ui.groupBoxStructureRules,
+                        ui.groupBoxBehaviourRules,
+                        ],
+                }
+        self.actions = actions
+        self.labels = {
+                "0"                              : {
+                        "structure": "",
+                        "extension": ""
+                        },
+                "start"                          : {
+                        "structure": "",
+                        "extension": ""
+                        },
+                "structure_node_selected"        : {
+                        "structure": "dynamics",
+                        "extension": "distribution nature"
+                        },
+                "structure_token_selected"       : {
+                        "structure": "token",
+                        "extension": "refinement"
+                        },
+                "structure_arc_selected"         : {
+                        "structure": "mechanism",
+                        "extension": "nature"
+                        },
+                "structure_arc_token_selected"   : {
+                        "structure": "mechanism",
+                        "extension": "nature"
+                        },
+                "structure_arc_prop_ext_selected": {
+                        "structure": "mechanism",
+                        "extension": "nature"
+                        },
+                }
+
+    def __createRoot(self):
+
+        model_name = "root"
+        self.current_network = model_name
+        self.__writeMessage("create root: %s" % model_name)
+        self.ontology_tree[model_name] = Ontology(model_name, None, None)
+
+    def __makeTreeDepthFirstList(self, branch_root, nodes):
+
+        if branch_root not in nodes:
+            nodes.append(branch_root)
+        if self.ontology_tree[branch_root]["children"] != []:
+            for child in self.ontology_tree[branch_root]["children"]:
+                self.__makeTreeDepthFirstList(child, nodes)  ###ooops cannot be nodes=nodes !!!
+        else:
+            return nodes
+
+        return nodes
+
+    def __loadUsageCache(self):
+        """
+        Load and cache all ontology elements that are currently in use by variables.
+        This is called once when the editor starts to avoid repeated file reads.
+        Usage is organized by network for domain-specific checking, with detailed variable tracking.
+        """
+        self.used_elements = {}  # Cache of used elements by network: {network: {element: [variable_info]}}
+
+        if not OS.path.exists(FILES["variables_file"] % self.ontology_name):
+            return  # No variable file exists, no elements are in use
+
+        try:
+            variable_data = getData(FILES["variables_file"] % self.ontology_name)
+            if not variable_data or "variables" not in variable_data:
+                return  # No variables defined, no elements are in use
+
+            variables = variable_data["variables"]
+
+            # Collect all used ontology elements from all variables, organized by network
+            for var_key, var_data in variables.items():
+                if isinstance(var_data, dict):
+                    # Get the network this variable belongs to
+                    network = var_data.get("network", "root")
+                    if network not in self.used_elements:
+                        self.used_elements[network] = {}
+
+                    # Create variable info with name, label, and symbol
+                    var_info = {
+                            "id"    : var_key,
+                            "name"  : var_data.get("label", var_key),  # Use label if available, otherwise ID
+                            "symbol": var_data.get("symbol", "")  # Symbol if available
+                            }
+
+                    # Helper function to add element usage with variable info
+                    def add_element_usage(element_name, var_info):
+                        if element_name and element_name.strip():  # Only add non-empty elements
+                            if element_name not in self.used_elements[network]:
+                                self.used_elements[network][element_name] = []
+                            # Check if this variable is already in the list to avoid duplicates
+                            existing_vars = [v["id"] for v in self.used_elements[network][element_name]]
+                            if var_info["id"] not in existing_vars:
+                                self.used_elements[network][element_name].append(var_info)
+
+                    # Check the main type field - this is where ontology elements like "state" are stored
+                    if "type" in var_data and var_data["type"]:
+                        add_element_usage(var_data["type"], var_info)
+
+                    # Check tokens list
+                    if "tokens" in var_data and isinstance(var_data["tokens"], list):
+                        for token in var_data["tokens"]:
+                            add_element_usage(token, var_info)
+
+                    # Check all string fields for element names (comprehensive check)
+                    for field_name, field_value in var_data.items():
+                        if isinstance(field_value, str) and field_value and field_name != "network":
+                            add_element_usage(field_value, var_info)
+                        elif isinstance(field_value, list):
+                            for item in field_value:
+                                if isinstance(item, str) and item:
+                                    add_element_usage(item, var_info)
+
+            total_elements = sum(len(elements) for elements in self.used_elements.values())
+            self.__writeMessage(f"Cached {total_elements} used ontology elements across {len(self.used_elements)} networks")
+
+        except Exception as e:
+            self.__writeMessage(f"Error loading usage cache: {e}")
+
+    def __isElementUsed(self, element_name, component_type=None):
+        """
+        Check if an ontology element is being used in variables for the current network.
+        Returns tuple: (is_used, list_of_using_variables_with_info)
+        Uses cached information for efficiency.
+        """
+        # Check usage in the current network
+        current_network = self.current_network
+        using_variables = []
+
+        # Check current network usage
+        if current_network in self.used_elements and element_name in self.used_elements[current_network]:
+            using_variables.extend(self.used_elements[current_network][element_name])
+
+        # Only check parent networks for inherited usage if this is an "intra" type network
+        # "inter" type networks are first-level and don't inherit from parents
+        if (current_network in self.ontology_tree and
+                self.ontology_tree[current_network].get("type") == "intra"):
+
+            parents = self.ontology_tree[current_network].get("parents", [])
+            for parent in parents:
+                if parent in self.used_elements and element_name in self.used_elements[parent]:
+                    using_variables.extend(self.used_elements[parent][element_name])
+
+        return (len(using_variables) > 0, using_variables)
+
+    def __indexVariableClasses(self):
+        self.variables = OrderedDict()
+
+        treeDpethFirstList = self.__makeTreeDepthFirstList(self.root, [])
+
+        if not treeDpethFirstList:
+            return
+
+        for nw in treeDpethFirstList:
+            self.variables[nw] = []
+            for branch in ["structure", "behaviour"]:
+                for component in self.ontology_tree[nw][branch]:
+                    if branch == "structure":
+                        if component == "arc":
+                            for token in self.ontology_tree[nw][branch][component]:
+                                for variable in self.ontology_tree[nw][branch][component][token]:
+                                    v = "%s-%s-%s-%s" % (branch, component, token, variable)
+                                    self.variables[nw].append(v)
+                                    for mechanism in self.ontology_tree[nw][branch][component][token][variable]:
+                                        v = "%s-%s-%s-%s-%s" % (branch, component, token, variable, mechanism)
+                                        self.variables[nw].append(v)
+                        else:
+                            for variable in self.ontology_tree[nw][branch][component]:
+                                v = "%s-%s-%s" % (branch, component, variable)
+                                self.variables[nw].append(v)
+                                for extension in self.ontology_tree[nw][branch][component][variable]:
+                                    v = "%s-%s-%s-%s" % (branch, component, variable, extension)
+                                    self.variables[nw].append(v)
+                    else:
+                        for component_ in self.ontology_tree[nw][branch]:
+                            for variable in self.ontology_tree[nw][branch][component_]:
+                                v = "%s-%s-%s" % (branch, component_, variable)
+                                self.variables[nw].append(v)
+
+    def __setInterIntra(self, what):
+        self.ontology_tree[self.current_network]["type"] = what
+
+    def __makeList(self, what_list_view, the_list):
+        """
+        list generator
+        :param what_list_view: gui component
+        :param the_list: the list to be inserted
+        :return:
+        """
+        what_list_view.clear()
+        what_list_view.addItems(the_list)
+
+    def __whichComponent(self, current_branch):
+        for i in self.radio:
+            if self.radio[i]:
+                branch, component = i.split("_")
+                if branch == current_branch:
+                    return component
+        self.__writeMessage("error - no such radio button")
+        return None
+
+    def __writeMessage(self, message):
+        self.ui.msgWindow.clear()
+        self.ui.msgWindow.setText(message)
+
+    def __switchNetwork(self, network):
+        tree_item = self.tree_items[network]
+        self.ui.treeWidget.setCurrentItem(tree_item)
+        self.current_network = network
+        self.__on_network_selected()
+
+    def __findAndSwitchToDefinitionNetwork(self, v):
+        parents = self.ontology_tree[self.current_network]["parents"]
+        for nw in reversed(parents):
+            if nw in self.variables:
+                for v_nw in self.variables[nw]:
+                    if v == v_nw:
+                        return nw  # first one it is
+
+    def __clearLayout(self, layout):
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget() is not None:
+                child.widget().deleteLater()
+            elif child.layout() is not None:
+                self.__clearLayout(child.layout())
+
+    def __makeAndAddSelector(self, group_name, what, receiver, index, layout, autoexclusive=True):
+        """
+
+        :param group_name: name of the group of radio buttons to be added
+        :param what: list of labels for the radio buttons --> also identifier
+        :param receiver: receiver slot, thus a method
+        :param index: string or integer -- if string it must be a radio button identifier,
+                                          if number then it is the index in the list of radio buttons,
+                                          if -1 no button is checked
+        :param layout: a horizontal layout box
+        :param autoexclusive: true or false
+        :return: the radio selecter QWidget
+        """
+        radio_selector = RadioSelector()
+        list_of_choices = []
+        counter = 0
+        layout.addWidget(radio_selector)
+        for item in what:
+            list_of_choices.append((str(counter), item, receiver))
+            counter += 1
+        if not list_of_choices:
+            return None
+
+        radio_selector.addListOfChoices(group_name, list_of_choices, index, autoexclusive=autoexclusive)
+        return radio_selector
+
+    def __clearRadioButtons(self):
+        r_list = []
+        if self.branch == "structure":
+            r_list = [self.ui.radioButtonBehaviourArc,
+                      self.ui.radioButtonBehaviourGraph,
+                      self.ui.radioButtonBehaviourNode]
+        elif self.branch == "behaviour":
+            r_list = [self.ui.radioButtonStructureArc,
+                      self.ui.radioButtonStructureNode,
+                      self.ui.radioButtonStructureToken]
+        for r in r_list:
+            r.setChecked(False)
+
+    def __ui_status(self, status):
+        # print("debugging -- status:", status)
+        for i in self.actions["0"]:
+            if i in self.actions[status]:
+                i.hide()
+            else:
+                i.show()
+        if self.branch:
+            self.__clearRadioButtons()
+
+        if self.branch == "structure":
+            if status in self.labels:
+                for i in self.labels:
+                    self.ui.labelStructure.setText(self.labels[status]["structure"])
+                    self.ui.labelStructureExtension.setText(self.labels[status]["extension"])
+
+        # NOTE: Removed binary lock_delete check - deletions are now controlled by usage checking in delete methods
+
+    #### event handling
+
+    @QtCore.pyqtSlot(str)
+    def on_comboInterconnectionNetworks_activated(self, choice):
+        left_nw = self.interconnection_network_dictionary[choice]["left"]
+        right_nw = self.interconnection_network_dictionary[choice]["right"]
+        vars_types = self.saved_ontology_container.variable_types_on_interconnection_networks_left_right
+        # print("debugging -- left, right", left_nw, right_nw)
+        # print("deugging -- var-types", vars_types[choice])
+        left_variable_types = self.saved_ontology_container.variable_types_on_networks[left_nw]
+        root_variable_types = self.saved_ontology_container.variable_types_on_networks["root"]
+        enabled_set = set(left_variable_types) - set(root_variable_types)
+        # print("debugging -- left variables classes:", left_variable_types)
+        # print("debugging -- enabled_set classes:", enabled_set)
+
         pass
 
-  def on_radioButtonAreConstants_toggled(self, position):
-    # print("debugging -- radio button position: ", position)
-    self.__setRuleValue(position, "are_constants")
+    # def on_treeWidget_itemSelectionChanged(self,index):  # TODO: gave a pyqt error: missing 1 required positional
+    #  argument: 'index'
+    #   print("debugging : entered")
+    #   self.on_treeWidget_clicked(index)
 
-  def on_radioButtonBehaviourNode_toggled(self, position):
-    self.radio["behaviour_node"] = position
-    if position:
-      self.current_behaviour_component = "node"
-      # print("debugging -- behaviour node")
-      the_list = sorted(self.ontology_tree[self.current_network]["behaviour"]["node"])
-      self.__makeList(self.ui.listViewBehaviour, the_list)
-      self.__ui_status("behaviour_component_selected")
+    def on_treeWidget_clicked(self, index):  # state network_selected
+        self.current_network = self.ui.treeWidget.currentItem().name
+        # print("debugging -- current network selected: ", self.current_network)
 
-  def on_radioButtonBehaviourArc_toggled(self, position):
-    self.radio["behaviour_arc"] = position
-    if position:
-      self.current_behaviour_component = "arc"
-      # print("debugging -- behaviour arc")
-      the_list = sorted(self.ontology_tree[self.current_network][self.branch][self.current_behaviour_component])
-      self.__makeList(self.ui.listViewBehaviour, the_list)
-      self.__ui_status("behaviour_component_selected")
+        self.__on_network_selected()
 
-  def on_radioButtonBehaviourGraph_toggled(self, position):
-    self.radio["behaviour_graph"] = position
-    if position:
-      self.current_behaviour_component = "graph"
-      # print("debugging -- behaviour graph")
-      the_list = sorted(self.ontology_tree[self.current_network]["behaviour"]["graph"])
-      self.__makeList(self.ui.listViewBehaviour, the_list)
-      self.__ui_status("behaviour_component_selected")
+    def on_pushInfo_pressed(self):
+        msg_popup = UI_FileDisplayWindow(FILES["info_ontology_foundation_editor"])
+        msg_popup.exec_()
 
-  def on_listViewStructure_clicked(self):
-    variable_name = self.ui.listViewStructure.currentItem().text()
-    self.current_structure_variable = variable_name
-    component = self.__whichComponent("structure")
-    self.ui.groupBoxStructureRules.hide()
-    if component == "arc":
-      token = self.current_arc_token
-      the_list = self.ontology_tree[self.current_network]["structure"][component][token][variable_name]
-      self.__ui_status("structure_arc_token_prop_selected")
-    elif component == "node":
-      self.ui.groupBoxStructureRules.show()
-      self.__updateRadioButtons("node_classes", variable_name)
-      the_list = sorted(self.ontology_tree[self.current_network]["structure"][component][variable_name])
-      self.__ui_status("structure_node_prop_selected")
-    else:
-      self.__ui_status("structure_token_prop_selected")
-      the_list = sorted(self.ontology_tree[self.current_network]["structure"][component][variable_name])
-    self.__makeList(self.ui.listViewStructureExtension, the_list)
+    def on_pushGraph_pressed(self):
+        makeOntologyDotGraph(self.ontology_tree, self.ontology_name, show="write")
 
-  def on_listViewStructure_doubleClicked(self):
-    ###self.__double_clicked(self.ui.listViewStructure)
-    self.current_structure_variable = self.ui.listViewStructure.currentItem().text()
-    if self.current_structure_component == "arc":
-      v = "%s-%s-%s-%s" % (self.branch, self.current_structure_component, self.current_arc_token,
-                           self.current_structure_variable)
-    else:
-      v = "%s-%s-%s" % (self.branch, self.current_structure_component, self.current_structure_variable)
-    nw = self.__findAndSwitchToDefinitionNetwork(v)
-    # print("debugging -- set network:", nw, "variable ", v)
-    if nw:  # root yields None
-      self.__switchNetwork(nw)
+    def __addFixedRules(self):  # RULE: fixed rules
 
-  def on_listViewStructureExtension_clicked(self):
-    variable_name = self.ui.listViewStructureExtension.currentItem().text()
-    self.current_structure_extension_variable = variable_name
-    # print("debugging -- extension selected : ", variable_name)
-    component = self.__whichComponent("structure")
-    ###self.__single_click(self.__click_reset)
-    if component == "node":
-      self.__ui_status("structure_node_prop_ext_selected")
-    elif component == "token":
-      self.__ui_status("structure_token_prop_ext_selected")
-    else:
-      self.__ui_status("structure_arc_prop_ext_selected")
+        # RULE: main rules
+        RULES = Rules()
 
-  def on_listViewStructureExtension_doubleClicked(self):
-    ###self.__double_clicked(self.ui.listViewStructureExtension)
-    self.current_structure_extension_variable = self.ui.listViewStructureExtension.currentItem().text()
-    if self.current_structure_component == "arc":
-      v = "%s-%s-%s-%s-%s" % (self.branch, self.current_structure_component, self.current_arc_token,
-                              self.current_structure_variable, self.current_structure_extension_variable)
-      # print("debugging -- came arc way")
-    else:
-      # print("debugging -- came the other way")
-      v = "%s-%s-%s-%s" % (self.branch, self.current_structure_component, self.current_structure_variable,
-                           self.current_structure_extension_variable)
-    nw = self.__findAndSwitchToDefinitionNetwork(v)
-    # print("debugging -- set network:", nw, "variable ", v)
-    if nw:  # root yields None
-      self.__switchNetwork(nw)
+        rules = self.ontology["rules"]
+        for c in RULES:
+            for r in RULES[c]:
+                if r not in rules:
+                    rules[r] = RULES[c][r]
 
-  def on_listViewBehaviour_clicked(self):
-    variable_name = self.ui.listViewBehaviour.currentItem().text()
-    self.current_behaviour_variable = variable_name
-    if self.current_behaviour_component in ["node",
-                                            "graph",
-                                            "arc"]:  # ....RULE: variable classes related to node and graph may
-      # RULE: ---continued-- have port variables
-      self.__ui_status("behaviour_prop_selected_node")
-      self.__updateRadioButtons("variable_classes",variable_name)
-      # if self.current_behaviour_variable in self.ontology["rules"]["variable_classes_having_port_variables"]:
-      #   self.ui.radioButtonHasPortVariables.setChecked(True)
-      # else:
-      #   self.ui.radioButtonHasPortVariables.setChecked(False)
-      #
-      # if self.current_behaviour_variable in self.ontology["rules"]["variable_classes_being_state_variables"]:
-      #   self.ui.radioButtonIsEnableAddingIndex.setChecked(True)
-      # else:
-      #   self.ui.radioButtonIsEnableAddingIndex.setChecked(False)
+        networks = sorted(self.ontology_tree.keys())
 
-    else:
-      self.__ui_status("behaviour_prop_selected")
+        # get those that are defined
+        for nw in networks:
+            if nw not in self.ontology["rules"]["network_enable_adding_indices"]:
+                self.ontology["rules"]["network_enable_adding_indices"][nw] = False
+        networks_to_clean = list(rules["network_enable_adding_indices"].keys())
+        for nw in networks_to_clean:
+            if nw not in networks:
+                del rules["network_enable_adding_indices"][nw]
 
-  def on_listViewBehaviour_doubleClicked(self):
-    ###self.__double_clicked(self.ui.listViewBehaviour)
-    v = "%s-%s-%s" % (self.branch, self.current_behaviour_component, self.current_behaviour_variable)
-    nw = self.__findAndSwitchToDefinitionNetwork(v)
-    # print("debugging -- set network:", nw)
-    if nw:
-      self.__switchNetwork(nw)
+        pass
 
-  @QtCore.pyqtSlot(int)
-  def on_tabWidget_currentChanged(self, index):
-    self.branch = self.branches[self.ui.tabWidget.currentIndex()]
-    # print("debugging -- selected new branch :", self.branch, index)
-    if index == 0:
-      self.__ui_status("structure_selected")
-    elif index == 1:
-      self.__ui_status("behaviour_selected")
+        self.rulesRadioButtons = RulesRadioButtons(self.ui)
 
-  def on_pushNewBehaviourElement_pressed(self):
-    new_element = askForString("new behaviour element")
-    if not new_element: return
-    # print("debugging -- new behaviour element", new_element)
-    # print("debugging -- branch %s -- component %s -- new element %s"
-    #       % (self.branch, self.current_behaviour_component, new_element))
+    def __updateRadioButtons(self, ruleClass, selection):
+        RULES = Rules()
+        for r in RULES[ruleClass]:
+            if selection in self.ontology["rules"][r]:
+                self.rulesRadioButtons[r].setChecked(True)
+            else:
+                self.rulesRadioButtons[r].setChecked(False)
+        pass
 
-    nw_list = self.__makeTreeDepthFirstList(self.current_network, [])
-    # print("debugging -- ", self.current_network, '----', nw_list)
+    def on_pushSave_pressed(self):
+        self.__ui_status("saved")
+        self.__addFixedRules()
+        saveBackupFile(self.ontology_file)
+        putDataOrdered(self.ontology, self.ontology_file)
 
-    for nw in nw_list:
-      o = self.ontology_tree[nw] \
-        [self.branch] \
-        [self.current_behaviour_component]
-      if new_element not in o:
-        o.append(new_element)
+        if self.new_variable_file:
+            variables_f_name = FILES["variables_file"] % self.ontology_name
+            variables_starting_file = FILES["variables_starting_file"] % self.ontology_name
+            shutil.copyfile(variables_starting_file, variables_f_name)
+            # # NOTE: do not delete the below
+            # # globalVariableID(update=False, reset=True)  # RULE: for a new variable file reset global variable ID
+            # # globalEquationID(update=False, reset=True)  # RULE: and global equation ID
+            # variables = {}
+            # indices = {}
+            # ProMoIRI = RecordProMoIRI()
+            # data = VariableFile(variables, indices, VARIABLE_EQUATIONS_VERSION, ProMoIRI)
+            # putData(data, variables_f_name)
+            self.__writeMessage("ontology file written and new data file generated : %s" % variables_f_name)
+        else:
+            self.__writeMessage("ontology file written")
 
-    the_list = sorted(self.ontology_tree[self.current_network][self.branch][self.current_behaviour_component])
-    self.__makeList(self.ui.listViewBehaviour, the_list)
-    self.__ui_status("behaviour_component_selected")
-    self.__indexVariableClasses()
+    def on_pushAddChild_pressed(self):
+        self.__ui_status("add_child_selected")
+        models = list(self.ontology_tree.keys())
+        model_name = askForString("give new network name or exit ", "name for new child", limiting_list=models)
+        if not model_name:
+            self.__ui_status("network_selected")
+            return
+        if model_name in self.ontology_tree:
+            self.__writeMessage("error -- name -- %s -- is already defined" % model_name)
+            return
 
-  def on_pushNewStructureElement_pressed(self):
-    new_element = askForString("new structure element")
-    if not new_element: return
-    if self.current_structure_component == "arc":
-      # print("debugging -- branch %s -- token %s -- component %s -- new element %s"
-      #       % (self.branch, self.current_arc_token, self.current_structure_component, new_element))
+        print("model name: ", model_name)
+        self.ontology_tree[self.current_network].addChild(model_name)
+        self.ontology_tree[model_name] = Ontology(model_name, 'intra', self.ontology_tree[self.current_network])
 
-      nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
-      for nw in nw_list:
-        self.ontology_tree[nw] \
-          [self.branch] \
-          [self.current_structure_component] \
-          [self.current_arc_token] \
-          [new_element] = []
+        if self.current_network not in self.ontology["rules"]["network_enable_adding_indices"]:
+            self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = False
+        self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
 
-      the_list = sorted(self.ontology_tree[self.current_network] \
-                          [self.branch] \
-                          [self.current_structure_component] \
-                          [self.current_arc_token])
+    def on_pushRemoveChild_pressed(self):
+        # print("debugging -- remove child from ", self.current_network)
+        deleting = []
+        for nw in self.ontology_tree:
+            if self.current_network in self.ontology_tree[nw]["parents"]:
+                # print("debugging -- delete : ", nw)
+                deleting.append(nw)
 
-    else:
-      # print("debugging -- branch %s -- component %s -- new element %s"
-      #       % (self.branch, self.current_structure_component, new_element))
+        for nw in deleting:  # delete branch below
+            del self.ontology_tree[nw]
 
-      nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
-      for nw in nw_list:
-        self.ontology_tree[nw] \
-          [self.branch] \
-          [self.current_structure_component] \
-          [new_element] = []
+        print("deugging -- delete : ", self.current_network)
+        parent = self.ontology_tree[self.current_network]["parents"][0]
+        self.ontology_tree[parent]["children"].remove(
+                self.current_network)  # remove from children list of the parent node
 
-      if self.current_structure_component == "token":
+        del self.ontology_tree[self.current_network]  # finally delete node itself
+        # self.__makeTreeView()
+        self.tree_items = makeTreeView(self.ui.treeWidget, self.ontology_tree)
+        self.__ui_status("removed_branch")
+
+    def __on_network_selected(self):
+
+        if self.ontology_tree[self.current_network]["structure"]["token"] == {}:
+            self.__ui_status("network_selected_no_tokens")
+        else:
+            self.__ui_status("network_selected")
+
+        self.ui.listViewStructure.clear()
+        self.ui.listViewStructureExtension.clear()
+        self.ui.listViewBehaviour.clear()
+        self.ui.listViewStructureExtension.clear()
+
+        self.on_radioButtonBehaviourGraph_toggled(self.radio["behaviour_graph"])
+        self.on_radioButtonBehaviourNode_toggled(self.radio["behaviour_node"])
+        self.on_radioButtonBehaviourArc_toggled(self.radio["behaviour_arc"])
+
+        self.on_radioButtonStructureToken_toggled(self.radio["structure_token"])
+        self.on_radioButtonStructureNode_toggled(self.radio["structure_node"])
+        self.on_radioButtonStructureArc_toggled(self.radio["structure_arc"])
+
+        inter_intra = self.ontology_tree[self.current_network]["type"]
+        if inter_intra == "inter":
+            self.ui.radioButtonInter.setChecked(True)
+        else:
+            self.ui.radioButtonIntra.setChecked(True)
+
+        # is adding indices enabled?
+        if self.current_network not in self.ontology["rules"]["network_enable_adding_indices"]:
+            self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = False
+        self.ui.radioButtonIsEnableAddingIndex.setChecked(
+                self.ontology["rules"]["network_enable_adding_indices"][self.current_network])
+        if self.current_network not in self.ontology["rules"]["normed_network"]:
+            self.ontology["rules"]["normed_network"][self.current_network] = False
+        self.ui.radioButtonNormedDomain.setChecked(
+                self.ontology["rules"]["normed_network"][self.current_network])
+
+    def on_radioButtonInter_toggled(self, position):
+        what = "intra"
+        if position:
+            what = "inter"
+        self.__setInterIntra(what)
+
+    def on_radioButtonIntra_toggled(self, position):
+        what = "inter"
+        if position:
+            what = "intra"
+        self.__setInterIntra(what)
+
+    def on_radioButtonStructureNode_toggled(self, position):
+        self.radio["structure_node"] = position
+        if position:
+            self.current_structure_component = "node"
+            # print("debugging -- structure node")
+            the_list = sorted(self.ontology_tree[self.current_network]["structure"]["node"].keys())
+            self.__makeList(self.ui.listViewStructure, the_list)
+            self.__ui_status("structure_node_selected")
+
+    def on_radioButtonStructureArc_toggled(self, position):
+        self.radio["structure_arc"] = position
+        if position:
+            self.current_structure_component = "arc"
+            # print("debugging -- structure arc")
+
+            token_list = sorted(self.ontology_tree[self.current_network]["structure"]["token"].keys())
+
+            self.__clearLayout(self.ui.horizontalLayoutToken)
+
+            self.radio_selectors_token = self.__makeAndAddSelector("tokens",
+                                                                   token_list,
+                                                                   self.radioReceiverArcToken, -1,
+                                                                   self.ui.horizontalLayoutToken)
+            self.__ui_status("structure_arc_selected")
+
+    def radioReceiverArcToken(self, token_class, token, token_string, toggle):
+        if toggle:
+            # print("radioReceiverArcDistribution: reciever class %s, radio token %s. token_string %s" % (
+            # token_class, token, token_string))
+            self.current_arc_token = token_string
+
+            the_list = sorted(self.ontology_tree[self.current_network]["structure"]["arc"][token_string].keys())
+            self.__makeList(self.ui.listViewStructure, the_list)
+            self.__ui_status("structure_arc_token_selected")
+
+    def on_radioButtonStructureToken_toggled(self, position):
+        self.radio["structure_token"] = position
+        if position:
+            # print("structure token")
+            self.current_structure_component = "token"
+            the_list = sorted(self.ontology_tree[self.current_network]["structure"]["token"].keys())
+            self.__makeList(self.ui.listViewStructure, the_list)
+            self.__ui_status("structure_token_selected")
+
+    def on_radioButtonIsEnableAddingIndex_toggled(self, position):
+        # print("debugging -- radio button position: ", position)
+        self.ontology["rules"]["network_enable_adding_indices"][self.current_network] = position
+
+    def on_radioButtonNormedDomain_toggled(self, position):
+        self.ontology["rules"]["normed_network"][self.current_network] = position
+
+    def on_radioButtonHasPortVariables_toggled(self, position):
+        # print("debugging -- radio button position: ", position)
+        # variable_classes_having_port_variables = set(self.ontology["rules"]["variable_classes_having_port_variables"])
+        # if position:
+        #   variable_classes_having_port_variables.add(self.current_behaviour_variable)
+        # else:
+        #   variable_classes_having_port_variables.difference_update()
+        # self.ontology["rules"]["variable_classes_having_port_variables"] = sorted(
+        #         variable_classes_having_port_variables)
+        self.__setRuleValue(position, "variable_classes_having_port_variables")
+
+    def on_radioButtonHasPersistantVariables_toggled(self, position):
+        # print("debugging -- radio button position: ", position)
+        rule = "are_persistent_variables"
+        self.__setRuleValue(position, rule)
+
+    def __setRuleValue(self, position, rule):
+        if position:
+            self.ontology["rules"][rule].append(self.current_behaviour_variable)
+        else:
+            try:
+                self.ontology["rules"][rule].remove(self.current_behaviour_variable)
+            except:
+                pass
+
+    def on_radioButtonAreConstants_toggled(self, position):
+        # print("debugging -- radio button position: ", position)
+        self.__setRuleValue(position, "are_constants")
+
+    def on_radioButtonBehaviourNode_toggled(self, position):
+        self.radio["behaviour_node"] = position
+        if position:
+            self.current_behaviour_component = "node"
+            # print("debugging -- behaviour node")
+            the_list = sorted(self.ontology_tree[self.current_network]["behaviour"]["node"])
+            self.__makeList(self.ui.listViewBehaviour, the_list)
+            self.__ui_status("behaviour_component_selected")
+
+    def on_radioButtonBehaviourArc_toggled(self, position):
+        self.radio["behaviour_arc"] = position
+        if position:
+            self.current_behaviour_component = "arc"
+            # print("debugging -- behaviour arc")
+            the_list = sorted(self.ontology_tree[self.current_network][self.branch][self.current_behaviour_component])
+            self.__makeList(self.ui.listViewBehaviour, the_list)
+            self.__ui_status("behaviour_component_selected")
+
+    def on_radioButtonBehaviourGraph_toggled(self, position):
+        self.radio["behaviour_graph"] = position
+        if position:
+            self.current_behaviour_component = "graph"
+            # print("debugging -- behaviour graph")
+            the_list = sorted(self.ontology_tree[self.current_network]["behaviour"]["graph"])
+            self.__makeList(self.ui.listViewBehaviour, the_list)
+            self.__ui_status("behaviour_component_selected")
+
+    def on_listViewStructure_clicked(self):
+        variable_name = self.ui.listViewStructure.currentItem().text()
+        self.current_structure_variable = variable_name
+        component = self.__whichComponent("structure")
+        self.ui.groupBoxStructureRules.hide()
+        if component == "arc":
+            token = self.current_arc_token
+            the_list = self.ontology_tree[self.current_network]["structure"][component][token][variable_name]
+            self.__ui_status("structure_arc_token_prop_selected")
+        elif component == "node":
+            self.ui.groupBoxStructureRules.show()
+            self.__updateRadioButtons("node_classes", variable_name)
+            the_list = sorted(self.ontology_tree[self.current_network]["structure"][component][variable_name])
+            self.__ui_status("structure_node_prop_selected")
+        else:
+            self.__ui_status("structure_token_prop_selected")
+            the_list = sorted(self.ontology_tree[self.current_network]["structure"][component][variable_name])
+        self.__makeList(self.ui.listViewStructureExtension, the_list)
+
+    def on_listViewStructure_doubleClicked(self):
+        ###self.__double_clicked(self.ui.listViewStructure)
+        self.current_structure_variable = self.ui.listViewStructure.currentItem().text()
+        if self.current_structure_component == "arc":
+            v = "%s-%s-%s-%s" % (self.branch, self.current_structure_component, self.current_arc_token,
+                                 self.current_structure_variable)
+        else:
+            v = "%s-%s-%s" % (self.branch, self.current_structure_component, self.current_structure_variable)
+        nw = self.__findAndSwitchToDefinitionNetwork(v)
+        # print("debugging -- set network:", nw, "variable ", v)
+        if nw:  # root yields None
+            self.__switchNetwork(nw)
+
+    def on_listViewStructureExtension_clicked(self):
+        variable_name = self.ui.listViewStructureExtension.currentItem().text()
+        self.current_structure_extension_variable = variable_name
+        # print("debugging -- extension selected : ", variable_name)
+        component = self.__whichComponent("structure")
+        ###self.__single_click(self.__click_reset)
+        if component == "node":
+            self.__ui_status("structure_node_prop_ext_selected")
+        elif component == "token":
+            self.__ui_status("structure_token_prop_ext_selected")
+        else:
+            self.__ui_status("structure_arc_prop_ext_selected")
+
+    def on_listViewStructureExtension_doubleClicked(self):
+        ###self.__double_clicked(self.ui.listViewStructureExtension)
+        self.current_structure_extension_variable = self.ui.listViewStructureExtension.currentItem().text()
+        if self.current_structure_component == "arc":
+            v = "%s-%s-%s-%s-%s" % (self.branch, self.current_structure_component, self.current_arc_token,
+                                    self.current_structure_variable, self.current_structure_extension_variable)
+            # print("debugging -- came arc way")
+        else:
+            # print("debugging -- came the other way")
+            v = "%s-%s-%s-%s" % (self.branch, self.current_structure_component, self.current_structure_variable,
+                                 self.current_structure_extension_variable)
+        nw = self.__findAndSwitchToDefinitionNetwork(v)
+        # print("debugging -- set network:", nw, "variable ", v)
+        if nw:  # root yields None
+            self.__switchNetwork(nw)
+
+    def on_listViewBehaviour_clicked(self):
+        variable_name = self.ui.listViewBehaviour.currentItem().text()
+        self.current_behaviour_variable = variable_name
+        if self.current_behaviour_component in ["node",
+                                                "graph",
+                                                "arc"]:  # ....RULE: variable classes related to node and graph may
+            # RULE: ---continued-- have port variables
+            self.__ui_status("behaviour_prop_selected_node")
+            self.__updateRadioButtons("variable_classes", variable_name)
+            # if self.current_behaviour_variable in self.ontology["rules"]["variable_classes_having_port_variables"]:
+            #   self.ui.radioButtonHasPortVariables.setChecked(True)
+            # else:
+            #   self.ui.radioButtonHasPortVariables.setChecked(False)
+            #
+            # if self.current_behaviour_variable in self.ontology["rules"]["variable_classes_being_state_variables"]:
+            #   self.ui.radioButtonIsEnableAddingIndex.setChecked(True)
+            # else:
+            #   self.ui.radioButtonIsEnableAddingIndex.setChecked(False)
+
+        else:
+            self.__ui_status("behaviour_prop_selected")
+
+    def on_listViewBehaviour_doubleClicked(self):
+        ###self.__double_clicked(self.ui.listViewBehaviour)
+        v = "%s-%s-%s" % (self.branch, self.current_behaviour_component, self.current_behaviour_variable)
+        nw = self.__findAndSwitchToDefinitionNetwork(v)
+        # print("debugging -- set network:", nw)
+        if nw:
+            self.__switchNetwork(nw)
+
+    @QtCore.pyqtSlot(int)
+    def on_tabWidget_currentChanged(self, index):
+        self.branch = self.branches[self.ui.tabWidget.currentIndex()]
+        # print("debugging -- selected new branch :", self.branch, index)
+        if index == 0:
+            self.__ui_status("structure_selected")
+        elif index == 1:
+            self.__ui_status("behaviour_selected")
+
+    def on_pushNewBehaviourElement_pressed(self):
+        new_element = askForString("new behaviour element")
+        if not new_element: return
+        # print("debugging -- new behaviour element", new_element)
+        # print("debugging -- branch %s -- component %s -- new element %s"
+        #       % (self.branch, self.current_behaviour_component, new_element))
+
+        nw_list = self.__makeTreeDepthFirstList(self.current_network, [])
+        # print("debugging -- ", self.current_network, '----', nw_list)
+
         for nw in nw_list:
-          self.ontology_tree[nw][self.branch]["arc"][new_element] = {}
+            o = self.ontology_tree[nw] \
+                [self.branch] \
+                [self.current_behaviour_component]
+            if new_element not in o:
+                o.append(new_element)
 
-      the_list = sorted(self.ontology_tree[self.current_network][self.branch][self.current_structure_component])
+        the_list = sorted(self.ontology_tree[self.current_network][self.branch][self.current_behaviour_component])
+        self.__makeList(self.ui.listViewBehaviour, the_list)
+        self.__ui_status("behaviour_component_selected")
+        self.__indexVariableClasses()
 
-    self.__makeList(self.ui.listViewStructure, the_list)
-    self.__indexVariableClasses()
+    def on_pushNewStructureElement_pressed(self):
+        new_element = askForString("new structure element")
+        if not new_element: return
+        if self.current_structure_component == "arc":
+            # print("debugging -- branch %s -- token %s -- component %s -- new element %s"
+            #       % (self.branch, self.current_arc_token, self.current_structure_component, new_element))
 
-    if self.current_structure_component == "arc":
-      self.__ui_status("structure_arc_token_selected")
-    elif self.current_structure_component == "node":
-      self.__ui_status("structure_node_selected")
-    else:
-      self.__ui_status("structure_token_selected")
+            nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
+            for nw in nw_list:
+                self.ontology_tree[nw] \
+                    [self.branch] \
+                    [self.current_structure_component] \
+                    [self.current_arc_token] \
+                    [new_element] = []
 
-  def on_pushNewStructureElementExtension_pressed(self):
-    new_element = askForString("new structure extension element")
-    if not new_element: return
-    if self.current_structure_component == "arc":
-      nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
-      for nw in nw_list:
-        o = self.ontology_tree[nw] \
-          [self.branch] \
-          [self.current_structure_component] \
-          [self.current_arc_token] \
-          [self.current_structure_variable]
-        if new_element not in o:
-          o.append(new_element)
-        if nw == self.current_network:
-          the_list = sorted(o)
+            the_list = sorted(self.ontology_tree[self.current_network] \
+                                  [self.branch] \
+                                  [self.current_structure_component] \
+                                  [self.current_arc_token])
+
+        else:
+            # print("debugging -- branch %s -- component %s -- new element %s"
+            #       % (self.branch, self.current_structure_component, new_element))
+
+            nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
+            for nw in nw_list:
+                self.ontology_tree[nw] \
+                    [self.branch] \
+                    [self.current_structure_component] \
+                    [new_element] = []
+
+            if self.current_structure_component == "token":
+                for nw in nw_list:
+                    self.ontology_tree[nw][self.branch]["arc"][new_element] = {}
+
+            the_list = sorted(self.ontology_tree[self.current_network][self.branch][self.current_structure_component])
+
+        self.__makeList(self.ui.listViewStructure, the_list)
+        self.__indexVariableClasses()
+
+        if self.current_structure_component == "arc":
+            self.__ui_status("structure_arc_token_selected")
+        elif self.current_structure_component == "node":
+            self.__ui_status("structure_node_selected")
+        else:
+            self.__ui_status("structure_token_selected")
+
+    def on_pushNewStructureElementExtension_pressed(self):
+        new_element = askForString("new structure extension element")
+        if not new_element: return
+        if self.current_structure_component == "arc":
+            nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
+            for nw in nw_list:
+                o = self.ontology_tree[nw] \
+                    [self.branch] \
+                    [self.current_structure_component] \
+                    [self.current_arc_token] \
+                    [self.current_structure_variable]
+                if new_element not in o:
+                    o.append(new_element)
+                if nw == self.current_network:
+                    the_list = sorted(o)
 
 
-    else:
-      nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
-      for nw in nw_list:
-        o = self.ontology_tree[nw] \
-          [self.branch] \
-          [self.current_structure_component] \
-          [self.current_structure_variable]
-        if new_element not in o:
-          o.append(new_element)
-        if nw == self.current_network:
-          the_list = sorted(o)
+        else:
+            nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
+            for nw in nw_list:
+                o = self.ontology_tree[nw] \
+                    [self.branch] \
+                    [self.current_structure_component] \
+                    [self.current_structure_variable]
+                if new_element not in o:
+                    o.append(new_element)
+                if nw == self.current_network:
+                    the_list = sorted(o)
 
-    self.__indexVariableClasses()
-    self.__makeList(self.ui.listViewStructureExtension, the_list)
+        self.__indexVariableClasses()
+        self.__makeList(self.ui.listViewStructureExtension, the_list)
 
-  def on_pushDeleteStructureElement_pressed(self):
-    # Get the current selection first
-    if not self.ui.listViewStructure.currentItem():
-      return  # No item selected
-      
-    delete_element = self.ui.listViewStructure.currentItem().text()
-    
-    # Check if element is in use before allowing deletion
-    is_used, using_variables = self.__isElementUsed(delete_element, self.current_structure_component)
-    if is_used:
-      # Format the variable list for display with names and symbols
-      if len(using_variables) <= 10:
-        var_list = "\n".join(
-          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
-          for var_info in using_variables
-        )
-      else:
-        var_list = "\n".join(
-          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
-          for var_info in using_variables[:10]
-        )
-        var_list += f"\n  ... and {len(using_variables) - 10} more variables"
-      
-      makeMessageBox(f"Cannot delete '{delete_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
-                    f"{var_list}\n\n"
-                    "To delete this element, first remove or modify all variables that reference it.", 
-                    ["OK"])
-      return
-    
-    # Only update current selection and proceed with deletion if it's allowed
-    self.on_listViewStructure_doubleClicked()
-    
-    nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
-    # print("debugging -- deleting structure element ", delete_element)
-    # if delete_element == "token":
-    #   print("debugging -- token ", delete_element)
-    # print("debugging --  in network list :", nw_list)
-    if self.current_structure_component == "arc":
-      for nw in nw_list:
-        o = self.ontology_tree[nw] \
-          [self.branch] \
-          [self.current_structure_component] \
-          [self.current_arc_token]
-        if delete_element in o:
-          o.pop(delete_element)
-        if nw == self.current_network:
-          the_list = sorted(o)
+    def on_pushDeleteStructureElement_pressed(self):
+        # Get the current selection first
+        if not self.ui.listViewStructure.currentItem():
+            return  # No item selected
 
-    else:
+        delete_element = self.ui.listViewStructure.currentItem().text()
 
-      for nw in nw_list:
-        o = self.ontology_tree[nw] \
-          [self.branch] \
-          [self.current_structure_component]
-        if delete_element in o:
-          o.pop(delete_element)
-        if nw == self.current_network:
-          the_list = sorted(o)
+        # Check if element is in use before allowing deletion
+        is_used, using_variables = self.__isElementUsed(delete_element, self.current_structure_component)
+        if is_used:
+            # Format the variable list for display with names and symbols
+            if len(using_variables) <= 10:
+                var_list = "\n".join(
+                        f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}"
+                        for var_info in using_variables
+                        )
+            else:
+                var_list = "\n".join(
+                        f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}"
+                        for var_info in using_variables[:10]
+                        )
+                var_list += f"\n  ... and {len(using_variables) - 10} more variables"
 
-    if self.current_structure_component == "token":
-      for nw in nw_list:
-        o = self.ontology_tree[nw] \
-          [self.branch] \
-          ["arc"]
-        if delete_element in o:
-          o.pop(delete_element)
-        # if nw == self.current_network:
-        #   the_list = sorted(o)
+            makeMessageBox(f"Cannot delete '{delete_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
+                           f"{var_list}\n\n"
+                           "To delete this element, first remove or modify all variables that reference it.",
+                           ["OK"])
+            return
 
-    self.__indexVariableClasses()
-    self.__makeList(self.ui.listViewStructure, the_list)
-    self.__makeList(self.ui.listViewStructureExtension, [])
+        # Only update current selection and proceed with deletion if it's allowed
+        self.on_listViewStructure_doubleClicked()
 
-  def on_pushDeleteStructureElementExtension_pressed(self):
-    # Get the current selection first
-    if not self.ui.listViewStructureExtension.currentItem():
-      return  # No item selected
-      
-    new_element = self.ui.listViewStructureExtension.currentItem().text()
-    
-    # Check if element is in use before allowing deletion
-    is_used, using_variables = self.__isElementUsed(new_element, "extension")
-    if is_used:
-      # Format the variable list for display with names and symbols
-      if len(using_variables) <= 10:
-        var_list = "\n".join(
-          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
-          for var_info in using_variables
-        )
-      else:
-        var_list = "\n".join(
-          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
-          for var_info in using_variables[:10]
-        )
-        var_list += f"\n  ... and {len(using_variables) - 10} more variables"
-      
-      makeMessageBox(f"Cannot delete extension '{new_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
-                    f"{var_list}\n\n"
-                    "To delete this extension, first remove or modify all variables that reference it.", 
-                    ["OK"])
-      return
-    
-    # Only update current selection and proceed with deletion if it's allowed
-    self.on_listViewStructureExtension_doubleClicked()
-    
-    nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
-    if self.current_structure_component == "arc":
-      for nw in nw_list:
-        o = self.ontology_tree[nw] \
-          [self.branch] \
-          [self.current_structure_component] \
-          [self.current_arc_token] \
-          [self.current_structure_variable]
-        if new_element in o:
-          o.remove(new_element)
-        if nw == self.current_network:
-          the_list = sorted(o)
-    else:
-      for nw in nw_list:
-        o = self.ontology_tree[nw] \
-          [self.branch] \
-          [self.current_structure_component] \
-          [self.current_structure_variable]
-        if new_element in o:
-          o.remove(new_element)
-        if nw == self.current_network:
-          the_list = sorted(o)
+        nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
+        # print("debugging -- deleting structure element ", delete_element)
+        # if delete_element == "token":
+        #   print("debugging -- token ", delete_element)
+        # print("debugging --  in network list :", nw_list)
+        if self.current_structure_component == "arc":
+            for nw in nw_list:
+                o = self.ontology_tree[nw] \
+                    [self.branch] \
+                    [self.current_structure_component] \
+                    [self.current_arc_token]
+                if delete_element in o:
+                    o.pop(delete_element)
+                if nw == self.current_network:
+                    the_list = sorted(o)
 
-    self.__indexVariableClasses()
-    self.__makeList(self.ui.listViewStructureExtension, the_list)
+        else:
 
-  def on_pushDeleteBehaviourElement_pressed(self):
-    # Get the current selection first
-    if not self.ui.listViewBehaviour.currentItem():
-      return  # No item selected
-      
-    delete_element = self.ui.listViewBehaviour.currentItem().text()
-    
-    # Check if element is in use before allowing deletion
-    is_used, using_variables = self.__isElementUsed(delete_element, self.current_behaviour_component)
-    if is_used:
-      # Format the variable list for display with names and symbols
-      if len(using_variables) <= 10:
-        var_list = "\n".join(
-          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
-          for var_info in using_variables
-        )
-      else:
-        var_list = "\n".join(
-          f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}" 
-          for var_info in using_variables[:10]
-        )
-        var_list += f"\n  ... and {len(using_variables) - 10} more variables"
-      
-      makeMessageBox(f"Cannot delete behaviour element '{delete_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
-                    f"{var_list}\n\n"
-                    "To delete this element, first remove or modify all variables that reference it.", 
-                    ["OK"])
-      return
+            for nw in nw_list:
+                o = self.ontology_tree[nw] \
+                    [self.branch] \
+                    [self.current_structure_component]
+                if delete_element in o:
+                    o.pop(delete_element)
+                if nw == self.current_network:
+                    the_list = sorted(o)
 
-    # Only update current selection and proceed with deletion if it's allowed
-    self.on_listViewBehaviour_doubleClicked()
+        if self.current_structure_component == "token":
+            for nw in nw_list:
+                o = self.ontology_tree[nw] \
+                    [self.branch] \
+                    ["arc"]
+                if delete_element in o:
+                    o.pop(delete_element)
+                # if nw == self.current_network:
+                #   the_list = sorted(o)
 
-    nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
-    for nw in nw_list:
-      o = self.ontology_tree[nw][self.branch][self.current_behaviour_component]
-      o.remove(self.current_behaviour_variable)
-      if nw == self.current_network:
-        the_list = sorted(o)
+        self.__indexVariableClasses()
+        self.__makeList(self.ui.listViewStructure, the_list)
+        self.__makeList(self.ui.listViewStructureExtension, [])
 
-    self.__makeList(self.ui.listViewBehaviour, the_list)
-    self.__ui_status("behaviour_component_selected")
-    self.__indexVariableClasses()
+    def on_pushDeleteStructureElementExtension_pressed(self):
+        # Get the current selection first
+        if not self.ui.listViewStructureExtension.currentItem():
+            return  # No item selected
+
+        new_element = self.ui.listViewStructureExtension.currentItem().text()
+
+        # Check if element is in use before allowing deletion
+        is_used, using_variables = self.__isElementUsed(new_element, "extension")
+        if is_used:
+            # Format the variable list for display with names and symbols
+            if len(using_variables) <= 10:
+                var_list = "\n".join(
+                        f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}"
+                        for var_info in using_variables
+                        )
+            else:
+                var_list = "\n".join(
+                        f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}"
+                        for var_info in using_variables[:10]
+                        )
+                var_list += f"\n  ... and {len(using_variables) - 10} more variables"
+
+            makeMessageBox(f"Cannot delete extension '{new_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
+                           f"{var_list}\n\n"
+                           "To delete this extension, first remove or modify all variables that reference it.",
+                           ["OK"])
+            return
+
+        # Only update current selection and proceed with deletion if it's allowed
+        self.on_listViewStructureExtension_doubleClicked()
+
+        nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
+        if self.current_structure_component == "arc":
+            for nw in nw_list:
+                o = self.ontology_tree[nw] \
+                    [self.branch] \
+                    [self.current_structure_component] \
+                    [self.current_arc_token] \
+                    [self.current_structure_variable]
+                if new_element in o:
+                    o.remove(new_element)
+                if nw == self.current_network:
+                    the_list = sorted(o)
+        else:
+            for nw in nw_list:
+                o = self.ontology_tree[nw] \
+                    [self.branch] \
+                    [self.current_structure_component] \
+                    [self.current_structure_variable]
+                if new_element in o:
+                    o.remove(new_element)
+                if nw == self.current_network:
+                    the_list = sorted(o)
+
+        self.__indexVariableClasses()
+        self.__makeList(self.ui.listViewStructureExtension, the_list)
+
+    def on_pushDeleteBehaviourElement_pressed(self):
+        # Get the current selection first
+        if not self.ui.listViewBehaviour.currentItem():
+            return  # No item selected
+
+        delete_element = self.ui.listViewBehaviour.currentItem().text()
+
+        # Check if element is in use before allowing deletion
+        is_used, using_variables = self.__isElementUsed(delete_element, self.current_behaviour_component)
+        if is_used:
+            # Format the variable list for display with names and symbols
+            if len(using_variables) <= 10:
+                var_list = "\n".join(
+                        f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}"
+                        for var_info in using_variables
+                        )
+            else:
+                var_list = "\n".join(
+                        f"  • {var_info['name']} ({var_info['id']}) - {var_info.get('symbol', '')}"
+                        for var_info in using_variables[:10]
+                        )
+                var_list += f"\n  ... and {len(using_variables) - 10} more variables"
+
+            makeMessageBox(f"Cannot delete behaviour element '{delete_element}' because it is being used by {len(using_variables)} variable(s):\n\n"
+                           f"{var_list}\n\n"
+                           "To delete this element, first remove or modify all variables that reference it.",
+                           ["OK"])
+            return
+
+        # Only update current selection and proceed with deletion if it's allowed
+        self.on_listViewBehaviour_doubleClicked()
+
+        nw_list = (self.__makeTreeDepthFirstList(self.current_network, []))
+        for nw in nw_list:
+            o = self.ontology_tree[nw][self.branch][self.current_behaviour_component]
+            o.remove(self.current_behaviour_variable)
+            if nw == self.current_network:
+                the_list = sorted(o)
+
+        self.__makeList(self.ui.listViewBehaviour, the_list)
+        self.__ui_status("behaviour_component_selected")
+        self.__indexVariableClasses()
