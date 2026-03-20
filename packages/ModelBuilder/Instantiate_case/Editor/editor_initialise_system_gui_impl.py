@@ -11,7 +11,7 @@ from Common.common_resources import askForModelFileGivenOntologyLocation as afm
 from Common.common_resources import getData
 from Common.common_resources import getOntologyName
 # from Common.common_resources import putData
-from Common.exchange_board import ProMoExchangeBoard
+from Common.exchange_board import OntologyContainer
 from Common.resource_initialisation import DIRECTORIES
 # from Common.resource_initialisation import FILE_NAMES
 from Common.resource_initialisation import FILES
@@ -27,7 +27,7 @@ class Ui_Initialise_system(QtWidgets.QMainWindow):
     self.ui.setupUi(self)
     self.ontology_name = getOntologyName()
     # self.ontology_name = 'Flash_11'
-    self.ontology = ProMoExchangeBoard(self.ontology_name)
+    self.ontology = OntologyContainer(self.ontology_name)
     self.ontology_location = self.ontology.ontology_location
     models_file = DIRECTORIES["model_library_location"] % self.ontology_name
     self.mod_name = afm(models_file, alternative=False)[0]

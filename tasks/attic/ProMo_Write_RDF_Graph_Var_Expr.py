@@ -413,11 +413,11 @@ if __name__ == '__main__':
     #   self.finished.emit()
 
     def makeMultiGraph(self):
-      from Common.exchange_board import ProMoExchangeBoard
+      from Common.exchange_board import OntologyContainer
 
       self.ontology_name = getOntologyName(task="task_RDF_variable_expression")
 
-      ontology_container = ProMoExchangeBoard(self.ontology_name)
+      ontology_container = OntologyContainer(self.ontology_name)
       tokens = ontology_container.tokens
       variables = ontology_container.variables
       print("number of variables:", len(variables))

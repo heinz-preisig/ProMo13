@@ -7,7 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from Common.classes.entity_v1 import Entity
 from Common.common_resources import getOntologyName
-from Common.exchange_board import ProMoExchangeBoard
+from Common.exchange_board import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
@@ -405,7 +405,7 @@ class BehaviourLinerBackEnd(QObject):
         self.send_message_to_main_frontend("start")
         # get ontology
         self.ontology_location = DIRECTORIES["ontology_location"] % str(self.ontology_name)
-        self.ontology_container = ProMoExchangeBoard(self.ontology_name)
+        self.ontology_container = OntologyContainer(self.ontology_name)
 
         # self.variable_types_on_networks = self.ontology_container.variable_types_on_networks
         # self.converting_tokens = self.ontology_container.converting_tokens

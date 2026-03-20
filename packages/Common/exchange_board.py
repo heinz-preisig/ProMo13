@@ -194,7 +194,7 @@ def makeIndices(ontology_container):
     return indices
 
 
-class ProMoExchangeBoard():
+class OntologyContainer():
     """
     store ontology in configuration files.
     """
@@ -1248,6 +1248,14 @@ class ProMoExchangeBoard():
         for i in args:
             self.variables[ID][i] = args[i]
 
+    # def setEquationDictionary(self, equation_dictionary):
+    #     """
+    #     Set the equation dictionary for export purposes
+    #
+    #     :param equation_dictionary: Dictionary containing all equations
+    #     """
+    #     self.equation_dictionary = equation_dictionary
+
     def writeVariables(self, variables, indices, ProMoIRI):
         """
         The data are assumed to be a dictionary (ordered)
@@ -1264,6 +1272,27 @@ class ProMoExchangeBoard():
         # NOTE: every saving generates a backup file -- enables scrolling back
         saveWithBackup(data, f_name)
         # putData(data, f_name)
+        
+        # Also write variables to text file in same directory
+        try:
+            # Extract directory from f_name and create text file path
+            import os
+            file_dir = os.path.dirname(f_name)
+            if file_dir:
+                variables_text_path = os.path.join(file_dir, "variables_definition_order.txt")
+                equations_text_path = os.path.join(file_dir, "equations_sequence_order.txt")
+            else:
+                variables_text_path = "variables_definition_order.txt"
+                equations_text_path = "equations_sequence_order.txt"
+            
+            self.writeVariablesToTextFile(variables, variables_text_path)
+            
+            # Also write equations to text file if equation dictionary is available
+            if hasattr(self, 'equation_dictionary') and self.equation_dictionary:
+                self.writeEquationsToTextFile(self.equation_dictionary, equations_text_path)
+                
+        except Exception as e:
+            print(f"Warning: Failed to write variables/equations to text files: {e}")
 
     def readVariables(self):
         """
@@ -1307,6 +1336,133 @@ class ProMoExchangeBoard():
                     QtWidgets.QWidget(), "ProMo", msg, QtWidgets.QMessageBox.Ok)
             if reply == OK:
                 exit(-1)
+
+    def writeVariablesToTextFile(self, variables, output_filename="variables_definition_order.txt"):
+        """
+        Write all variables to a text file in order of their definition (V_1, V_2, V_3, etc.)
+        
+        :param variables: Variables object (OrderedDict) or dictionary containing all variables
+        :param output_filename: Name of the output file
+        """
+        try:
+            # Handle both Variables object and plain dictionary
+            if hasattr(variables, 'keys'):
+                # Variables object (OrderedDict) - use .keys() directly
+                var_ids = variables.keys()
+            else:
+                # Plain dictionary - use .keys()
+                var_ids = variables.keys()
+            
+            # Get all variable IDs and sort them numerically
+            variable_ids = []
+            for var_id in var_ids:
+                # Extract the numeric part from V_N format
+                if var_id.startswith("V_"):
+                    try:
+                        num = int(var_id[2:])
+                        variable_ids.append((num, var_id))
+                    except ValueError:
+                        # Handle cases where the suffix might not be a simple number
+                        variable_ids.append((float('inf'), var_id))
+            
+            # Sort by the numeric part
+            variable_ids.sort()
+            
+            # Write to file
+            with open(output_filename, 'w', encoding='utf-8') as f:
+                f.write("List of Variables in Definition Order\n")
+                f.write("=" * 50 + "\n\n")
+                
+                for num, var_id in variable_ids:
+                    # Get variable object - handle both formats
+                    if hasattr(variables, 'get'):
+                        var = variables.get(var_id, {})
+                    else:
+                        var = variables.get(var_id, {})
+                    
+                    f.write(f"Variable ID: {var_id}\n")
+                    f.write(f"  Label: {var.get('label', 'N/A')}\n")
+                    f.write(f"  Type: {var.get('type', 'N/A')}\n")
+                    f.write(f"  Network: {var.get('network', 'N/A')}\n")
+                    f.write(f"  Documentation: {var.get('doc', 'N/A')}\n")
+                    
+                    # Write units if available
+                    if var.get('units'):
+                        f.write(f"  Units: {var['units']}\n")
+                    
+                    # Write equations if available
+                    equations = var.get('equations', {})
+                    if equations:
+                        f.write(f"  Equations: {list(equations.keys())}\n")
+                    
+                    f.write("\n")
+            
+            print(f"Successfully wrote {len(variable_ids)} variables to {output_filename}")
+            return True
+            
+        except Exception as e:
+            print(f"Error writing variables to file: {e}")
+            return False
+
+    def writeEquationsToTextFile(self, equation_dictionary, output_filename="equations_sequence_order.txt"):
+        """
+        Write all equations to a text file in proper sequence order
+        
+        :param equation_dictionary: Dictionary containing all equations
+        :param output_filename: Name of the output file
+        """
+        try:
+            # Get all equation IDs and sort them numerically
+            equation_ids = []
+            for eq_id in equation_dictionary.keys():
+                # Extract the numeric part from E_N format
+                if eq_id.startswith("E_"):
+                    try:
+                        num = int(eq_id[2:])
+                        equation_ids.append((num, eq_id))
+                    except ValueError:
+                        # Handle cases where the suffix might not be a simple number
+                        equation_ids.append((float('inf'), eq_id))
+            
+            # Sort by the numeric part for proper sequence
+            equation_ids.sort()
+            
+            # Write to file
+            with open(output_filename, 'w', encoding='utf-8') as f:
+                f.write("List of Equations in Sequence Order\n")
+                f.write("=" * 50 + "\n\n")
+                
+                for num, eq_id in equation_ids:
+                    eq = equation_dictionary[eq_id]
+                    f.write(f"Equation ID: {eq_id}\n")
+                    
+                    # Write equation details
+                    if isinstance(eq, dict):
+                        f.write(f"  Type: {eq.get('type', 'N/A')}\n")
+                        f.write(f"  Network: {eq.get('network', 'N/A')}\n")
+                        
+                        # Write RHS if available
+                        if 'rhs' in eq:
+                            rhs = eq['rhs']
+                            if isinstance(rhs, dict):
+                                f.write(f"  RHS Global ID: {rhs.get('global_ID', 'N/A')}\n")
+                                f.write(f"  RHS Internal: {rhs.get('internal', 'N/A')}\n")
+                                f.write(f"  RHS LaTeX: {rhs.get('latex', 'N/A')}\n")
+                            else:
+                                f.write(f"  RHS: {rhs}\n")
+                        
+                        # Write documentation if available
+                        if 'doc' in eq:
+                            f.write(f"  Documentation: {eq['doc']}\n")
+                    
+                    f.write("\n")
+            
+            print(f"Successfully wrote {len(equation_ids)} equations to {output_filename}")
+            return True
+            
+        except Exception as e:
+            print(f"Error writing equations to file: {e}")
+            return False
 
     # def fix_lhs(self,variables):
     #   pass
@@ -1813,3 +1969,50 @@ class ProMoExchangeBoard():
                     self.variables[var_id]["png_file"] = None
             else:
                 self.variables[var_id]["png_file"] = None
+
+    def writeEquationsFile(self, language="internal"):
+        """
+        Write equations to the standard equations file using FILES constant
+        
+        :param language: Language code for equations
+        """
+        try:
+            # Get the equation file name using FILES constant
+            e_name = FILES["coded_equations"] % (self.ontology_location, language)
+            e_name = e_name.replace(".json", ".txt")
+            
+            # Use the compiled equations from the UI, not the raw equation dictionary
+            if hasattr(self, 'compiled_equations') and language in self.compiled_equations:
+                equations = self.compiled_equations[language]
+            else:
+                # Fallback to equation dictionary if compiled_equations not available
+                equations = getattr(self, 'equation_dictionary', {})
+            
+            # Sort equation IDs numerically for proper sequence (E_1, E_2, E_3, etc.)
+            equation_ids = []
+            for equ_ID in equations.keys():
+                if equ_ID.startswith("E_"):
+                    try:
+                        num = int(equ_ID[2:])
+                        equation_ids.append((num, equ_ID))
+                    except ValueError:
+                        equation_ids.append((float('inf'), equ_ID))
+                else:
+                    equation_ids.append((float('inf'), equ_ID))
+            
+            # Sort numerically
+            equation_ids.sort()
+            
+            # Write equations in proper numerical order
+            with open(e_name, 'w') as f:
+                for num, equ_ID in equation_ids:
+                    if equ_ID in equations:
+                        e = equations[equ_ID]
+                        f.write("%s :: %s = %s\n" % (equ_ID, e["lhs"], e["rhs"]))
+            
+            print(f"Successfully wrote {len(equation_ids)} equations to {e_name}")
+            return True
+            
+        except Exception as e:
+            print(f"Error writing equations to file: {e}")
+            return False

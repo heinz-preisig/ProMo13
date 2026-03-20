@@ -1,0 +1,38 @@
+List of Variables in Definition Order
+==================================================
+
+Variable ID: V_1
+  Label: Temperature
+  Type: state
+  Network: physical
+  Documentation: System temperature
+  Units: kg/s
+
+Variable ID: V_2
+  Label: Concentration
+  Type: state
+  Network: physical
+  Documentation: Chemical concentration
+  Units: kg/s
+
+Variable ID: V_3
+  Label: Pressure
+  Type: algebraic
+  Network: physical
+  Documentation: System pressure
+  Units: kg/s
+
+Variable ID: V_4
+  Label: Volume
+  Type: algebraic
+  Network: physical
+  Documentation: System volume
+  Units: kg/s
+
+Variable ID: V_5
+  Label: FlowRate
+  Type: state
+  Network: physical
+  Documentation: Mass flow rate through the system
+  Units: kg/s
+

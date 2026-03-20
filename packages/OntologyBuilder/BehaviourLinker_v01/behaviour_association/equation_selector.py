@@ -17,7 +17,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
-from Common.exchange_board import ProMoExchangeBoard
+from Common.exchange_board import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.UIs.equation_selector import Ui_Dialog
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
@@ -256,7 +256,7 @@ def preload_equation_icons(variable_data, ontology_container):
     """
     try:
         # Use exchange board to load all equation icons
-        exchange_board = ProMoExchangeBoard(ontology_container)
+        exchange_board = OntologyContainer(ontology_container)
         preloaded_icons = exchange_board.load_equation_icons()
 
         # Filter icons to only include equations for this variable

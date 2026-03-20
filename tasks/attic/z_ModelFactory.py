@@ -13,7 +13,7 @@ sys.path.extend([root, os.path.join(root, 'packages'), os.path.join(root, 'tasks
 
 from PyQt5 import QtGui, QtWidgets
 from TaskBuilder.z_ModelFactory.editor_model_factory_gui_impl import Ui_ModelFactory
-from Common.exchange_board import ProMoExchangeBoard
+from Common.exchange_board import OntologyContainer
 from TaskBuilder.z_ModelFactory.model_integration import ModelFactory
 
 #
@@ -25,7 +25,7 @@ if __name__ == '__main__':
   # mode = 'development ModelFactory'
   if mode == 'development ModelFactory':
     ontology_name = 'Ball_02'
-    ontology = ProMoExchangeBoard(ontology_name)
+    ontology = OntologyContainer(ontology_name)
     ontology_location = ontology.ontology_location
     mod_name = 'ball_fall'
     language = 'python'

@@ -60,10 +60,10 @@ def debug_png_paths():
         
         # Try to create a mock ontology container to test equation dictionary
         try:
-            from Common.exchange_board import ProMoExchangeBoard
+            from Common.exchange_board import OntologyContainer
             
             print(f"\nCreating OntologyContainer...")
-            container = ProMoExchangeBoard(ontology_name)
+            container = OntologyContainer(ontology_name)
             
             if hasattr(container, 'equation_dictionary'):
                 eq_dict = container.equation_dictionary

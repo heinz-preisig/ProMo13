@@ -23,7 +23,7 @@ def test_equation_dictionary_png_integration():
     
     try:
         # Try to import and create an ontology container
-        from Common.exchange_board import ProMoExchangeBoard
+        from Common.exchange_board import OntologyContainer
         from Common.common_resources import getOntologyName
         
         # Get ontology name
@@ -35,7 +35,7 @@ def test_equation_dictionary_png_integration():
         print(f"Testing with ontology: {ontology_name}")
         
         # Create ontology container
-        container = ProMoExchangeBoard(ontology_name)
+        container = OntologyContainer(ontology_name)
         
         # Check if equation dictionary exists
         if hasattr(container, 'equation_dictionary'):

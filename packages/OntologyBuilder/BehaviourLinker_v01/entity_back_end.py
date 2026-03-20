@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 from Common.classes.entity_v1 import Entity
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
 from .state_manager import get_state_manager
+from .variable_domain_validator import VariableDomainValidator
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -263,6 +264,26 @@ class EntityEditorBackEnd(QObject):
                 root_variable = assignments.get('root_variable')
                 root_equation = assignments.get('root_equation')
                 use_initialization = assignments.get('use_initialization', False)
+
+                # Validate variable name uniqueness within domain (additional check)
+                if root_variable:
+                    # Get the domain (network) for the current entity type
+                    domain = self._get_entity_domain()
+                    
+                    # Get variable name from ontology
+                    var_name = self._get_variable_label(root_variable)
+                    
+                    # Validate uniqueness
+                    is_valid, error_msg = VariableDomainValidator.validate_variable_name(
+                        var_name, domain, self.ontology_container
+                    )
+                    
+                    if not is_valid:
+                        self.message.emit({
+                            "event": "error",
+                            "error": error_msg
+                        })
+                        return
 
                 # Ensure we have an entity object - create one if needed
                 try:
@@ -999,3 +1020,16 @@ class EntityEditorBackEnd(QObject):
                     "event": "error",
                     "error": f"Error deleting variable: {str(e)}"
                     })
+
+    def _get_entity_domain(self):
+        """Get the domain (network) for the current entity type"""
+        if hasattr(self, 'entity_frontend') and self.entity_frontend:
+            entity_data = getattr(self.entity_frontend, 'current_entity_data', {})
+            return entity_data.get('network', 'physical')
+        return 'physical'  # Default domain
+
+    def _get_variable_label(self, var_id):
+        """Get the label/name of a variable from the ontology"""
+        if hasattr(self.ontology_container, 'variables') and var_id in self.ontology_container.variables:
+            return self.ontology_container.variables[var_id].get('label', var_id)
+        return var_id

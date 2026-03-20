@@ -63,7 +63,7 @@ from Common.common_resources import makeTreeView
 from Common.common_resources import putData
 from Common.common_resources import saveBackupFile
 from Common.exchange_board import CENTRE_NETWORKS
-from Common.exchange_board import ProMoExchangeBoard
+from Common.exchange_board import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import RecordIndex
 from Common.record_definitions import makeCompletEquationRecord
@@ -185,7 +185,7 @@ class UiOntologyDesign(QMainWindow):
 
     # get ontology
     self.ontology_location = DIRECTORIES["ontology_location"] % str(self.ontology_name)
-    self.ontology_container = ProMoExchangeBoard(self.ontology_name)
+    self.ontology_container = OntologyContainer(self.ontology_name)
     self.ui.groupOntology.setTitle("ontology : %s" % self.ontology_name)
 
     self.variable_types_on_networks = self.ontology_container.variable_types_on_networks
@@ -626,6 +626,10 @@ class UiOntologyDesign(QMainWindow):
   def on_pushWrite_pressed(self):
     filter = makeCompleteVariableRecord("dummy").keys()
     variables = self.variables.extractVariables(filter)
+    
+    # Set equation dictionary in ontology container for export
+    # self.ontology_container.setEquationDictionary(self.ontology_container.equation_dictionary)
+    
     self.ontology_container.writeVariables(variables, self.indices, self.variables.ProMoIRI)
     self.state = 'edit'
 
@@ -673,11 +677,13 @@ class UiOntologyDesign(QMainWindow):
 
     e_name = FILES["coded_equations"] % (self.ontology_location, "just_list_internal_format")
     e_name = e_name.replace(".json", ".txt")
-    file = open(e_name, 'w')
-    for equ_ID in sorted(incidence_dictionary):
-      e = self.compiled_equations[language][equ_ID]
-      file.write("%s :: %s = %s\n" % (equ_ID, e["lhs"], e["rhs"]))
-    file.close()
+    
+    # Use exchange board method to write equations with proper sequencing
+    # Pass the compiled equations to the exchange board
+    self.ontology_container.compiled_equations = {language: self.compiled_equations[language]}
+    self.ontology_container.writeEquationsFile("internal")
+    
+    putData(self.compiled_equations[language], e_name)
 
   def __compile(self, language):
 

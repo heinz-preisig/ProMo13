@@ -1,0 +1,1015 @@
+List of Variables in Definition Order
+==================================================
+
+Variable ID: V_1
+  Label: t
+  Type: frame
+  Network: root
+  Documentation: time
+  Units: [1, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_2
+  Label: F
+  Type: network
+  Network: root
+  Documentation: incidence matrix
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_3
+  Label: F_NI_source
+  Type: network
+  Network: root
+  Documentation: incidence matrix NI source
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_4
+  Label: F_NI_sink
+  Type: network
+  Network: root
+  Documentation: incidence matrix NI sink
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_5
+  Label: F_AI_source
+  Type: network
+  Network: root
+  Documentation: incidence matrix AI source
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_6
+  Label: F_AI_sink
+  Type: network
+  Network: root
+  Documentation: incidence matrix AI sink
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_7
+  Label: F_NA_source
+  Type: network
+  Network: root
+  Documentation: incidence matrix NA source
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_8
+  Label: F_NA_sink
+  Type: network
+  Network: root
+  Documentation: incidence matrix NA sink
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_9
+  Label: S_Ip
+  Type: network
+  Network: root
+  Documentation: selection matrix interface to control input
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_10
+  Label: S_Iq
+  Type: network
+  Network: root
+  Documentation: selection matrix interface to control output
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_11
+  Label: I_tu
+  Type: network
+  Network: root
+  Documentation: identity mapping from <t> to <u>
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_12
+  Label: S_Ap
+  Type: network
+  Network: root
+  Documentation: selection matrix interface species-related measures
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_13
+  Label: S_Aq
+  Type: network
+  Network: root
+  Documentation: selection matrix arcs to outputs
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_14
+  Label: S_Npu
+  Type: network
+  Network: root
+  Documentation: selection matrix for stacker
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_15
+  Label: S_Nqt
+  Type: network
+  Network: root
+  Documentation: selection matrix or splitter
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_16
+  Label: mv_I
+  Type: network
+  Network: root
+  Documentation: interface variable macro --> control
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_17
+  Label: cz_N
+  Type: network
+  Network: root
+  Documentation: output from control
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_18
+  Label: cz_I
+  Type: network
+  Network: root
+  Documentation: interface variable macro --> control
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_19
+  Label: A_Npq
+  Type: network
+  Network: root
+  Documentation: mapping from inputs to outputs
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_20
+  Label: A_Ntu
+  Type: network
+  Network: root
+  Documentation: mapping from input elements to outputs
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_21
+  Label: u_Ntu
+  Type: network
+  Network: root
+  Documentation: input signal in control domain
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_22
+  Label: y_Ntu
+  Type: network
+  Network: root
+  Documentation: output signal in control domain
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_23
+  Label: r_x
+  Type: frame
+  Network: physical
+  Documentation: x-coordinate
+  Units: [0, 1, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_24
+  Label: r_y
+  Type: frame
+  Network: physical
+  Documentation: y-coordinate
+  Units: [0, 1, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_25
+  Label: r_z
+  Type: frame
+  Network: physical
+  Documentation: z-coordinate
+  Units: [0, 1, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_26
+  Label: N
+  Type: constant
+  Network: reactions
+  Documentation: stoichiometric matrix
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_27
+  Label: I_NA
+  Type: network
+  Network: root
+  Documentation: identity mapping from <N> to <A>
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_101
+  Label: value
+  Type: constant
+  Network: root
+  Documentation: numerical value
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+
+Variable ID: V_102
+  Label: zero
+  Type: constant
+  Network: root
+  Documentation: numerical value zero
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_1']
+
+Variable ID: V_103
+  Label: one
+  Type: constant
+  Network: root
+  Documentation: numerical value one
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_2']
+
+Variable ID: V_104
+  Label: oneHalf
+  Type: constant
+  Network: root
+  Documentation: numerical value one half
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_3']
+
+Variable ID: V_105
+  Label: to
+  Type: frame
+  Network: root
+  Documentation: starting time
+  Units: [1, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_4']
+
+Variable ID: V_106
+  Label: te
+  Type: frame
+  Network: root
+  Documentation: end time
+  Units: [1, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_5']
+
+Variable ID: V_107
+  Label: t_interval
+  Type: frame
+  Network: root
+  Documentation: time interval
+  Units: [1, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_6']
+
+Variable ID: V_108
+  Label: U
+  Type: state
+  Network: physical
+  Documentation: fundamental state -- internal energy
+  Units: [-2, 2, 0, 1, 0, 0, 0, 0]
+
+Variable ID: V_109
+  Label: S
+  Type: state
+  Network: physical
+  Documentation: fundamental state -- internal entropy
+  Units: [-2, 2, 0, 1, -1, 0, 0, 0]
+
+Variable ID: V_110
+  Label: V
+  Type: state
+  Network: physical
+  Documentation: volume
+  Units: [0, 3, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_7']
+
+Variable ID: V_111
+  Label: n
+  Type: state
+  Network: physical
+  Documentation: fundamental state -- molar mass
+  Units: [0, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_93']
+
+Variable ID: V_112
+  Label: p
+  Type: effort
+  Network: macroscopic
+  Documentation: thermodynamic pressure
+  Units: [-2, -1, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_8']
+
+Variable ID: V_113
+  Label: T
+  Type: effort
+  Network: macroscopic
+  Documentation: temperature
+  Units: [0, 0, 0, 0, 1, 0, 0, 0]
+  Equations: ['E_9', 'E_121']
+
+Variable ID: V_114
+  Label: chemPot
+  Type: effort
+  Network: macroscopic
+  Documentation: chemical potential
+  Units: [-2, 2, -1, 1, 0, 0, 0, 0]
+  Equations: ['E_10', 'E_54']
+
+Variable ID: V_115
+  Label: H
+  Type: state
+  Network: macroscopic
+  Documentation: Enthalpy
+  Units: [-2, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_11', 'E_112']
+
+Variable ID: V_116
+  Label: A
+  Type: state
+  Network: macroscopic
+  Documentation: Helmholtz energy
+  Units: [-2, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_12']
+
+Variable ID: V_117
+  Label: G
+  Type: state
+  Network: macroscopic
+  Documentation: Gibbs free energy
+  Units: [-2, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_13']
+
+Variable ID: V_118
+  Label: v_x
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: velocity in x-direction
+  Units: [-1, 1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_14']
+
+Variable ID: V_119
+  Label: v_y
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: velocity in y-direction
+  Units: [-1, 1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_15']
+
+Variable ID: V_120
+  Label: v_z
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: velocity in z-direction
+  Units: [-1, 1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_16']
+
+Variable ID: V_121
+  Label: Avo
+  Type: constant
+  Network: physical
+  Documentation: Avogadro constant
+  Units: [0, 0, -1, 0, 0, 0, 0, 0]
+
+Variable ID: V_122
+  Label: Boltz
+  Type: constant
+  Network: physical
+  Documentation: Boltzmann constant
+  Units: [-2, 2, 0, 1, -1, 0, 0, 0]
+
+Variable ID: V_123
+  Label: R
+  Type: constant
+  Network: physical
+  Documentation: gas constant
+  Units: [-2, 2, -1, 1, -1, 0, 0, 0]
+  Equations: ['E_17']
+
+Variable ID: V_124
+  Label: Cp
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: total heat capacity at constant pressure
+  Units: [-2, 2, 0, 1, -1, 0, 0, 0]
+  Equations: ['E_18', 'E_117']
+
+Variable ID: V_125
+  Label: CV
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: total heat capacity at constant volume
+  Units: [-2, 2, 0, 1, -1, 0, 0, 0]
+  Equations: ['E_19']
+
+Variable ID: V_132
+  Label: Mm
+  Type: constant
+  Network: physical
+  Documentation: molecular masses
+  Units: [0, 0, -1, 1, 0, 0, 0, 0]
+
+Variable ID: V_136
+  Label: h
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: partial molar enthalpies
+  Units: [-2, 2, -1, 1, 0, 0, 0, 0]
+  Equations: ['E_29']
+
+Variable ID: V_137
+  Label: m
+  Type: state
+  Network: physical
+  Documentation: mass
+  Units: [0, 0, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_30']
+
+Variable ID: V_138
+  Label: c
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: molar concentration
+  Units: [0, -3, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_31']
+
+Variable ID: V_139
+  Label: nt
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: total number of moles
+  Units: [0, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_32']
+
+Variable ID: V_140
+  Label: x
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: mole fraction
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_33']
+
+Variable ID: V_141
+  Label: cp
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: specific heat capacity at constant pressure
+  Units: [-2, 2, 0, 0, -1, 0, 0, 0]
+  Equations: ['E_34', 'E_120']
+
+Variable ID: V_142
+  Label: cV
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: specific heat capacity at constant volume
+  Units: [-2, 2, 0, 0, -1, 0, 0, 0]
+  Equations: ['E_35']
+
+Variable ID: V_143
+  Label: rho
+  Type: secondaryState
+  Network: physical
+  Documentation: density
+  Units: [0, -3, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_36']
+
+Variable ID: V_144
+  Label: C
+  Type: state
+  Network: physical
+  Documentation: fundamental state -- charge
+  Units: [1, 0, 0, 0, 0, 1, 0, 0]
+
+Variable ID: V_148
+  Label: Axy
+  Type: secondaryState
+  Network: physical
+  Documentation: cross sectional area xy
+  Units: [0, 2, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_40']
+
+Variable ID: V_149
+  Label: Axz
+  Type: secondaryState
+  Network: physical
+  Documentation: cross sectional are xz
+  Units: [0, 2, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_41']
+
+Variable ID: V_150
+  Label: Ayz
+  Type: secondaryState
+  Network: physical
+  Documentation: cross sectional area yz
+  Units: [0, 2, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_42']
+
+Variable ID: V_151
+  Label: fq_x
+  Type: transport
+  Network: macroscopic
+  Documentation: heat flow in x-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_43']
+
+Variable ID: V_152
+  Label: fq_y
+  Type: transport
+  Network: macroscopic
+  Documentation: heat flow in y-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_44']
+
+Variable ID: V_153
+  Label: fq_z
+  Type: transport
+  Network: macroscopic
+  Documentation: heat flow in z-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_45']
+
+Variable ID: V_154
+  Label: fnd_x
+  Type: transport
+  Network: macroscopic
+  Documentation: diffusion flow in x-direction
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_46', 'E_89']
+
+Variable ID: V_155
+  Label: fnd_y
+  Type: transport
+  Network: macroscopic
+  Documentation: diffusion flow in y-direction
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_47', 'E_90']
+
+Variable ID: V_156
+  Label: fnd_z
+  Type: transport
+  Network: macroscopic
+  Documentation: diffusion flow in z-direction
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_48', 'E_91']
+
+Variable ID: V_157
+  Label: d
+  Type: transport
+  Network: macroscopic
+  Documentation: flow direction of convective flow
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_49']
+
+Variable ID: V_158
+  Label: c_AS
+  Type: transport
+  Network: macroscopic
+  Documentation: concentration in convective event-dynamic flow
+  Units: [0, -3, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_50']
+
+Variable ID: V_159
+  Label: fV
+  Type: transport
+  Network: macroscopic
+  Documentation: volumetric flow in x-direction
+  Units: [-1, 3, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_51']
+
+Variable ID: V_160
+  Label: fnc_x
+  Type: transport
+  Network: macroscopic
+  Documentation: molar convective flow in x-direction
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_52']
+
+Variable ID: V_161
+  Label: chemPotStandard
+  Type: effort
+  Network: macroscopic
+  Documentation: instantiating standard chemical potential
+  Units: [-2, 2, -1, 1, 0, 0, 0, 0]
+  Equations: ['E_53']
+
+Variable ID: V_162
+  Label: _c
+  Type: get
+  Network: macroscopic >>> reactions
+  Documentation: link variable _c to interface macroscopic >>> reactions with source:node
+  Units: [0, -3, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_55']
+
+Variable ID: V_163
+  Label: c
+  Type: secondaryState
+  Network: reactions
+  Documentation: link variable _c to interface reactions
+  Units: [0, -3, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_56']
+
+Variable ID: V_164
+  Label: _x
+  Type: get
+  Network: macroscopic >>> reactions
+  Documentation: link variable _x to interface macroscopic >>> reactions with source:node
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_57']
+
+Variable ID: V_165
+  Label: x
+  Type: secondaryState
+  Network: reactions
+  Documentation: link variable _x to interface reactions
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_58']
+
+Variable ID: V_166
+  Label: _T
+  Type: get
+  Network: macroscopic >>> reactions
+  Documentation: link variable _T to interface macroscopic >>> reactions with source:node
+  Units: [0, 0, 0, 0, 1, 0, 0, 0]
+  Equations: ['E_59']
+
+Variable ID: V_167
+  Label: T
+  Type: effort
+  Network: reactions
+  Documentation: link variable _T to interface reactions
+  Units: [0, 0, 0, 0, 1, 0, 0, 0]
+  Equations: ['E_60']
+
+Variable ID: V_168
+  Label: factor
+  Type: conversion
+  Network: reactions
+  Documentation: factor for probability computation
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_61']
+
+Variable ID: V_169
+  Label: probability
+  Type: conversion
+  Network: reactions
+  Documentation: probability of reaction to take place
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_62']
+
+Variable ID: V_180
+  Label: kdA_x
+  Type: properties
+  Network: macroscopic
+  Documentation: diffusivity in arc and x-direction
+  Units: [1, -4, 2, -1, 0, 0, 0, 0]
+  Equations: ['E_73']
+
+Variable ID: V_181
+  Label: kdA_y
+  Type: properties
+  Network: macroscopic
+  Documentation: diffusivity in arc and y-direction
+  Units: [1, -4, 2, -1, 0, 0, 0, 0]
+  Equations: ['E_74']
+
+Variable ID: V_182
+  Label: kdA_z
+  Type: properties
+  Network: macroscopic
+  Documentation: diffusivity in arc and z-direction
+  Units: [1, -4, 2, -1, 0, 0, 0, 0]
+  Equations: ['E_75']
+
+Variable ID: V_183
+  Label: kcA_x
+  Type: properties
+  Network: macroscopic
+  Documentation: convective mass conductivity in arc and x diretion
+  Units: [1, -1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_76']
+
+Variable ID: V_184
+  Label: kcA_y
+  Type: properties
+  Network: macroscopic
+  Documentation: convective mass conductivity in arc and y-direction
+  Units: [1, -1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_77']
+
+Variable ID: V_185
+  Label: kcA_z
+  Type: properties
+  Network: macroscopic
+  Documentation: convecive mass conductivity in arc and y-direction
+  Units: [1, -1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_78']
+
+Variable ID: V_186
+  Label: kqA_x
+  Type: properties
+  Network: macroscopic
+  Documentation: thermal conductivity in arc and x-direction
+  Units: [-3, 0, 0, 1, -1, 0, 0, 0]
+  Equations: ['E_79']
+
+Variable ID: V_187
+  Label: kqA_y
+  Type: properties
+  Network: macroscopic
+  Documentation: thermal conductivity in arc and y-direction
+  Units: [-3, 0, 0, 1, -1, 0, 0, 0]
+  Equations: ['E_80']
+
+Variable ID: V_188
+  Label: kqA_z
+  Type: properties
+  Network: macroscopic
+  Documentation: thermal conductivity in arc and z-direction
+  Units: [-3, 0, 0, 1, -1, 0, 0, 0]
+  Equations: ['E_81']
+
+Variable ID: V_189
+  Label: rhoA
+  Type: properties
+  Network: macroscopic
+  Documentation: density in arc
+  Units: [0, -3, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_82']
+
+Variable ID: V_190
+  Label: kdAFick_x
+  Type: properties
+  Network: macroscopic
+  Documentation: Fick's diffusivity in arc and x-direction
+  Units: [-1, 1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_83']
+
+Variable ID: V_191
+  Label: kdAFick_y
+  Type: properties
+  Network: macroscopic
+  Documentation: Fick diffusivity in arc and y-direction
+  Units: [-1, 1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_84']
+
+Variable ID: V_192
+  Label: kdAFick_z
+  Type: properties
+  Network: macroscopic
+  Documentation: Fick diffusivity in arc and z-direction
+  Units: [-1, 1, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_85']
+
+Variable ID: V_193
+  Label: hA
+  Type: properties
+  Network: macroscopic
+  Documentation: partial molar enthalpiies in arc
+  Units: [-2, 2, -1, 1, 0, 0, 0, 0]
+  Equations: ['E_86']
+
+Variable ID: V_194
+  Label: anc_x
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation of molar mass due to convection
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_87']
+
+Variable ID: V_195
+  Label: and_x
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation due to diffusion in x-direction
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_88']
+
+Variable ID: V_196
+  Label: an
+  Type: diffState
+  Network: macroscopic
+  Documentation: differential mass balance without reaction
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_92']
+
+Variable ID: V_197
+  Label: Ea
+  Type: constant
+  Network: reactions
+  Documentation: Arrhenius activation energy
+  Units: [-2, 2, -1, 1, 0, 0, 0, 0]
+
+Variable ID: V_198
+  Label: Ko
+  Type: constant
+  Network: reactions
+  Documentation: Arrhenius frequency factor
+  Units: [-1, -3, 1, 0, 0, 0, 0, 0]
+
+Variable ID: V_199
+  Label: K
+  Type: conversion
+  Network: reactions
+  Documentation: Arrhenius reaction "constant"
+  Units: [-1, -3, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_94']
+
+Variable ID: V_200
+  Label: np
+  Type: conversion
+  Network: reactions
+  Documentation: production from reaction set
+  Units: [-1, -3, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_95']
+
+Variable ID: V_201
+  Label: _np
+  Type: get
+  Network: reactions >>> macroscopic
+  Documentation: link variable _np to interface reactions >>> macroscopic with source:node
+  Units: [-1, -3, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_96']
+
+Variable ID: V_202
+  Label: np
+  Type: conversion
+  Network: macroscopic
+  Documentation: link variable _np to interface macroscopic
+  Units: [-1, -3, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_97']
+
+Variable ID: V_203
+  Label: no
+  Type: state
+  Network: macroscopic
+  Documentation: initial mass
+  Units: [0, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_98']
+
+Variable ID: V_204
+  Label: aHnc_x
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation of enthalpy due to convective mass flow in x-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_99']
+
+Variable ID: V_205
+  Label: aHnd_x
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation of enthalpy due to diffusional mass flow in x-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_100']
+
+Variable ID: V_206
+  Label: aHnd_y
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation of enthalpy due to diffusional mass flow in y-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_101']
+
+Variable ID: V_207
+  Label: aHnd_z
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation of enthalpy due to diffusional mass flow in z-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_102']
+
+Variable ID: V_208
+  Label: aq_x
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation due to heat flow in x-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_103']
+
+Variable ID: V_209
+  Label: aq_y
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation due to heat flow in y-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_104']
+
+Variable ID: V_210
+  Label: aq_z
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation due to heat flow in z-direction
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_105']
+
+Variable ID: V_211
+  Label: fw
+  Type: transport
+  Network: macroscopic
+  Documentation: a fixed work flow to start with
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_106']
+
+Variable ID: V_212
+  Label: and_y
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation due to diffusion in y-direction
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_107']
+
+Variable ID: V_213
+  Label: and_z
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation due to diffusion in z-direction
+  Units: [-1, 0, 1, 0, 0, 0, 0, 0]
+  Equations: ['E_108']
+
+Variable ID: V_214
+  Label: aw
+  Type: transport
+  Network: macroscopic
+  Documentation: accumulation of enthalpy due to work flow
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_109']
+
+Variable ID: V_215
+  Label: dH
+  Type: diffState
+  Network: macroscopic
+  Documentation: accumulation of enthalpy
+  Units: [-3, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_110']
+
+Variable ID: V_216
+  Label: Ho
+  Type: state
+  Network: macroscopic
+  Documentation: initial enthalpy
+  Units: [-2, 2, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_111']
+
+Variable ID: V_217
+  Label: Ue
+  Type: effort
+  Network: macroscopic
+  Documentation: electrical potential -- voltage
+  Units: [-3, 2, 0, 1, 0, -1, 0, 0]
+  Equations: ['E_113']
+
+Variable ID: V_218
+  Label: current
+  Type: internalTransport
+  Network: macroscopic
+  Documentation: current definition
+  Units: [0, 0, 0, 0, 0, 1, 0, 0]
+  Equations: ['E_114']
+
+Variable ID: V_219
+  Label: elResistant
+  Type: properties
+  Network: macroscopic
+  Documentation: electrical resistant
+  Units: [-3, 2, 0, 1, 0, -2, 0, 0]
+  Equations: ['E_115']
+
+Variable ID: V_220
+  Label: dUe
+  Type: diffState
+  Network: macroscopic
+  Documentation: Kirkhoffs first law
+  Units: [-3, 2, 0, 1, 0, -1, 0, 0]
+  Equations: ['E_116']
+
+Variable ID: V_222
+  Label: T_ref
+  Type: secondaryState
+  Network: macroscopic
+  Documentation: reference temperature
+  Units: [0, 0, 0, 0, 1, 0, 0, 0]
+  Equations: ['E_119']
+
+Variable ID: V_223
+  Label: T_meas_norming
+  Type: observation
+  Network: macroscopic
+  Documentation: value to norm measurement of temperature
+  Units: [0, 0, 0, 0, 1, 0, 0, 0]
+  Equations: ['E_122']
+
+Variable ID: V_224
+  Label: T_meas
+  Type: observation
+  Network: macroscopic
+  Documentation: temperature measurement
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_123']
+
+Variable ID: V_234
+  Label: fm
+  Type: transport
+  Network: macroscopic
+  Documentation: convective mass flow
+  Units: [-1, 0, 0, 1, 0, 0, 0, 0]
+  Equations: ['E_133']
+
+Variable ID: V_244
+  Label: _mv_I
+  Type: get
+  Network: macroscopic >>> control
+  Documentation: link variable _mv_I to interface macroscopic >>> control with source:node
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_143']
+
+Variable ID: V_245
+  Label: T_meas
+  Type: algebraic
+  Network: control
+  Documentation: link variable _mv_I to interface control
+  Units: [0, 0, 0, 0, 0, 0, 0, 0]
+  Equations: ['E_144']
+

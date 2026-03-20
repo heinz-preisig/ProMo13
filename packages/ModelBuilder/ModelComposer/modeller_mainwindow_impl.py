@@ -39,7 +39,7 @@ from Common.common_resources import askForModelFileGivenOntologyLocation
 from Common.common_resources import getOntologyName
 from Common.graphics_objects import NetworkData
 from Common.graphics_objects import getGraphData
-from Common.exchange_board import ProMoExchangeBoard
+from Common.exchange_board import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from Common.qt_resources import ModellerRadioButton
 from Common.qt_resources import clearLayout
@@ -152,7 +152,7 @@ class MainWindowImpl(QtWidgets.QMainWindow):
     self.schnipsel_file = None
 
     # attach ontology
-    ontology = ProMoExchangeBoard(ontology_name)
+    ontology = OntologyContainer(ontology_name)
     self.ontology = ontology
     self.networks = ontology.list_leave_networks
 
