@@ -1240,7 +1240,7 @@ class UiOntologyDesign(QMainWindow):
       f.write("\\usepackage{amsmath}\n")
       f.write("\\begin{document}\n")
       f.write(latex_alias)
-      f.write("\\end{document}\n")
+      f.write("\\end{document}\n" )
       f.close()
 
       print("......................................................................................................................")
