@@ -43,8 +43,8 @@ from Common.common_resources import getOntologyName
 from Common.common_resources import makeTreeView
 from Common.common_resources import putData
 from Common.common_resources import saveBackupFile
-from Common.exchange_board import CENTRE_NETWORKS
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import CENTRE_NETWORKS
+from Common.ontology_container import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import RecordIndex
 from Common.record_definitions import makeCompletEquationRecord

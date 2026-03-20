@@ -245,7 +245,7 @@ class RDFProMo():
 
 
 if __name__ == '__main__':
-  from Common.exchange_board import OntologyContainer
+  from Common.ontology_container import OntologyContainer
 
   ontology_container = OntologyContainer("processes_000")
   tokens = ontology_container.tokens

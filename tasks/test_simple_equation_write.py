@@ -32,7 +32,7 @@ def main():
         print("Testing equation writing method...")
         
         # Import the exchange board
-        from Common.exchange_board import OntologyContainer
+        from Common.ontology_container import OntologyContainer
         
         # Create a minimal mock ontology container
         class MockOntologyContainer:

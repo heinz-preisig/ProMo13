@@ -7,7 +7,7 @@ from Common.common_resources import getData, getOntologyName
 from Common.common_resources import askForModelFileGivenOntologyLocation as afm
 from Common.common_resources import askForCasefileGivenLocation as afc
 from Common.resource_initialisation import DIRECTORIES, FILES
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from ModelBuilder.Instantiate_equations.Editor.editor_initialise_equations_gui import Ui_MainWindow
 from ModelBuilder.Instantiate_equations import Ui_Eq_selector
 from ModelBuilder.Instantiate_equations.Editor.fix_selected_equations import Ui_Var_fixer

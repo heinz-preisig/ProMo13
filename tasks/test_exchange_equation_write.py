@@ -25,7 +25,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(script_dir)
 sys.path.extend([project_root, os.path.join(project_root, 'packages'), os.path.join(project_root, 'tasks')])
 
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 
 def main():
     """

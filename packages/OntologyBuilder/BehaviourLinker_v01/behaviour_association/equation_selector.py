@@ -17,7 +17,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.UIs.equation_selector import Ui_Dialog
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings

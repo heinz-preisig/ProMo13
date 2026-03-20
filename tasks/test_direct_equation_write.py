@@ -32,7 +32,7 @@ def main():
         print("Testing writeEquationsFile method directly...")
         
         # Import the exchange board
-        from Common.exchange_board import OntologyContainer
+        from Common.ontology_container import OntologyContainer
         from Common.resource_initialisation import FILES, DIRECTORIES
         
         # Create a mock ontology container with minimal setup

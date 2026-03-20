@@ -13,7 +13,7 @@ sys.path.extend([root, os.path.join(root, 'packages'), os.path.join(root, 'tasks
 
 from PyQt5 import QtGui, QtWidgets
 from TaskBuilder.z_ModelFactory.editor_model_factory_gui_impl import Ui_ModelFactory
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from TaskBuilder.z_ModelFactory.model_integration import ModelFactory
 
 #

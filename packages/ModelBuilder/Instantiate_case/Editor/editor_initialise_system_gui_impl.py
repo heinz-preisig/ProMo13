@@ -11,7 +11,7 @@ from Common.common_resources import askForModelFileGivenOntologyLocation as afm
 from Common.common_resources import getData
 from Common.common_resources import getOntologyName
 # from Common.common_resources import putData
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from Common.resource_initialisation import DIRECTORIES
 # from Common.resource_initialisation import FILE_NAMES
 from Common.resource_initialisation import FILES

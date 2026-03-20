@@ -24,7 +24,7 @@ def test_make_equation_dictionary():
     
     try:
         # Import the method directly to test it
-        from Common.exchange_board import OntologyContainer
+        from Common.ontology_container import OntologyContainer
         
         # Create a mock container to test the method logic
         class MockContainer:

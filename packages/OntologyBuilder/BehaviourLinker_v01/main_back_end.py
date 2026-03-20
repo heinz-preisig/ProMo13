@@ -7,7 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 
 from Common.classes.entity_v1 import Entity
 from Common.common_resources import getOntologyName
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES

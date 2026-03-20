@@ -49,7 +49,7 @@ from Common.graphics_objects import STATES
 from Common.graphics_objects import STATE_OBJECT_COLOURED
 from Common.graphics_objects import STRUCTURES_Graph_Item
 from Common.graphics_objects import getGraphData
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from Common.qt_resources import PEN_STYLES
 from Common.resource_initialisation import FILES
 from ModelBuilder.GraphComponentEditor.editor_graphcomponents_gui import Ui_MainWindow

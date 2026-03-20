@@ -27,7 +27,7 @@ from Common.common_resources import getData
 from Common.common_resources import getOntologyName
 from Common.common_resources import M_None
 from Common.common_resources import putData
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from Common.resource_initialisation import FILES
 from Common.ui_two_list_selector_dialog_impl import UI_TwoListSelector
 from OntologyBuilder.TypedTokenEditor.editor_typed_token import Ui_MainWindow

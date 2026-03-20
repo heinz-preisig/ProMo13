@@ -23,7 +23,7 @@ def test_equation_dictionary_png_integration():
     
     try:
         # Try to import and create an ontology container
-        from Common.exchange_board import OntologyContainer
+        from Common.ontology_container import OntologyContainer
         from Common.common_resources import getOntologyName
         
         # Get ontology name

@@ -60,7 +60,7 @@ def debug_png_paths():
         
         # Try to create a mock ontology container to test equation dictionary
         try:
-            from Common.exchange_board import OntologyContainer
+            from Common.ontology_container import OntologyContainer
             
             print(f"\nCreating OntologyContainer...")
             container = OntologyContainer(ontology_name)

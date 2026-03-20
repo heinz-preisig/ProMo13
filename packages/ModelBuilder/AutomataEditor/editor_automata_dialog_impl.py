@@ -39,7 +39,7 @@ from Common.automata_objects import getAutomata
 from Common.automata_objects import GRAPH_EDITOR_STATES
 from Common.automata_objects import KeyAutomatonEntry
 from Common.graphics_objects import PHASES
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.common_resources import displayPdf

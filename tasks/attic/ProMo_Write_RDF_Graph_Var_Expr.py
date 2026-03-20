@@ -413,7 +413,7 @@ if __name__ == '__main__':
     #   self.finished.emit()
 
     def makeMultiGraph(self):
-      from Common.exchange_board import OntologyContainer
+      from Common.ontology_container import OntologyContainer
 
       self.ontology_name = getOntologyName(task="task_RDF_variable_expression")
 

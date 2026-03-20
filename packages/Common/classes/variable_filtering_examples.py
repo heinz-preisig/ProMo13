@@ -1,5 +1,5 @@
 """
-Example usage of the integrated variable filtering in exchange_board.py
+Example usage of the integrated variable filtering in ontology_container.py
 
 This demonstrates how the unified filtering system can be used by both
 Entity classes and Behaviour Linker components.

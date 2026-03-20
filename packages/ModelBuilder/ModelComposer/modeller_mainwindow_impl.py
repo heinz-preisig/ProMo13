@@ -39,7 +39,7 @@ from Common.common_resources import askForModelFileGivenOntologyLocation
 from Common.common_resources import getOntologyName
 from Common.graphics_objects import NetworkData
 from Common.graphics_objects import getGraphData
-from Common.exchange_board import OntologyContainer
+from Common.ontology_container import OntologyContainer
 from Common.pop_up_message_box import makeMessageBox
 from Common.qt_resources import ModellerRadioButton
 from Common.qt_resources import clearLayout
