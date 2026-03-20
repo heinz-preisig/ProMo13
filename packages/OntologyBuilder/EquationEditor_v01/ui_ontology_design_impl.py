@@ -655,35 +655,29 @@ class UiOntologyDesign(QMainWindow):
     self.writeMessage("finished")
 
   def __makeRenderedOutput(self):
-    """idea is to ease the repetition of inputting equations by writing them on a file."""
+    """idea is to ease the repetition of inputting equations by writing them on a file.
+    language is in ProMo's input language"""
     self.writeMessage("generating variable and equation pictures")
     language = LANGUAGES["global_ID_to_internal"]
     incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(self.variables)
-    e_name = FILES["coded_equations"] % (self.ontology_location, language)
 
     for equ_ID in sorted(incidence_dictionary):
       lhs_var_ID, incidence_list = incidence_dictionary[equ_ID]
       expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]["global_ID"]
       network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
+      type = self.variables[lhs_var_ID].type
       var_label = self.variables[lhs_var_ID].label
       expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
       self.compiled_equations[language][equ_ID] = {
               "lhs"    : var_label,
               "network": network,
-              "rhs"    : expression
+              "type"  :  type,
+              "rhs"    : expression,
               }
 
-    putData(self.compiled_equations[language], e_name)
-
-    e_name = FILES["coded_equations"] % (self.ontology_location, "just_list_internal_format")
-    e_name = e_name.replace(".json", ".txt")
+    self.ontology_container.writeEquationsFile(self.compiled_equations[language])
     
-    # Use exchange board method to write equations with proper sequencing
-    # Pass the compiled equations to the exchange board
-    self.ontology_container.compiled_equations = {language: self.compiled_equations[language]}
-    self.ontology_container.writeEquationsFile("internal")
-    
-    putData(self.compiled_equations[language], e_name)
+    # putData(self.compiled_equations[language], e_name)
 
   def __compile(self, language):
 
@@ -1255,13 +1249,13 @@ class UiOntologyDesign(QMainWindow):
       # p.startDetached("sh", ["resources/make_images.sh", file_name])
       tex_file = file_name + ".tex"
       png_file = file_name + ".png"
-      dvi_file = file_name + ".dvi"
+      pdf_file = file_name + ".pdf"
       path = str(latex_folder_path)
-      status = p.execute("latex", ["-interaction=nonstopmode", tex_file])
+      status = p.execute("pdflatex", ["-interaction=nonstopmode", tex_file])
       if status == 0:
         pp = QtCore.QProcess()
-        pars = ["-D", "300", "-T", "tight", "-norawps", "-z", "9", "-bg", "Transparent", "-o", png_file, dvi_file]
-        (pstatus, pID) = pp.startDetached("dvipng", pars, path)
+        pars = ["-density", "300", "-background", "Transparent", pdf_file, png_file]
+        (pstatus, pID) = pp.startDetached("convert", pars, path)
         print("cwd", os.getcwd(), "--", tex_file, png_file)
         if not pstatus:
           print("failed to generate png", png_file)

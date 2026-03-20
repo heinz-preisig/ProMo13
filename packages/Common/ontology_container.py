@@ -120,7 +120,11 @@ def makeIndices(ontology_container):
 
     # nodes and arcs =====================================================================================
     # RULE: hard wired components --- the same as in the first stage
-    for component in ["node", "arc", "interface"]:
+    if ontology_container.version == '8':
+        app_list = ["node", "arc", "interface"]
+    else:
+        app_set = {"node", "arc"}
+    for component in app_set:
         definition_network = "root"  # rule root is root ...
         index = RecordIndex()
         index["label"] = component
@@ -173,19 +177,20 @@ def makeIndices(ontology_container):
                          indexID, index["label"])
 
         # inter-domain connections ==========================================================================
-    for dimen in ["p", "q", "r", "t", "u", ]:
-        # q :: input dimension
-        # p :: output dimension
-        # r :: internal state dimension
-        index = RecordIndex()
-        definition_network = "root"  # rule root is root ...
-        index["label"] = dimen
-        index["network"] = index["network"] = ontology_container.heirs_network_dictionary[definition_network]
-        index_counter += 1
-        indexID = ID_prefix["index"] + "%s" % index_counter
-        indices[indexID] = index
-        makeIndexAliases(indices[indexID],
-                         indexID, index["label"])
+    if ontology_container.version == '8':
+        for dimen in ["p", "q", "r", "t", "u", ]:
+            # q :: input dimension
+            # p :: output dimension
+            # r :: internal state dimension
+            index = RecordIndex()
+            definition_network = "root"  # rule root is root ...
+            index["label"] = dimen
+            index["network"] = index["network"] = ontology_container.heirs_network_dictionary[definition_network]
+            index_counter += 1
+            indexID = ID_prefix["index"] + "%s" % index_counter
+            indices[indexID] = index
+            makeIndexAliases(indices[indexID],
+                             indexID, index["label"])
 
     for i in indices:
         indices[i]["IRI"] = PROMO_IRI_PREFIX + indices[i]["label"]
@@ -1248,13 +1253,6 @@ class OntologyContainer():
         for i in args:
             self.variables[ID][i] = args[i]
 
-    # def setEquationDictionary(self, equation_dictionary):
-    #     """
-    #     Set the equation dictionary for export purposes
-    #
-    #     :param equation_dictionary: Dictionary containing all equations
-    #     """
-    #     self.equation_dictionary = equation_dictionary
 
     def writeVariables(self, variables, indices, ProMoIRI):
         """
@@ -1970,23 +1968,18 @@ class OntologyContainer():
             else:
                 self.variables[var_id]["png_file"] = None
 
-    def writeEquationsFile(self, language="internal"):
+    def writeEquationsFile(self, compiled_equations):
         """
-        Write equations to the standard equations file using FILES constant
+        Write equations in input format equations file using FILES constant
         
-        :param language: Language code for equations
+        :compiled_equations in ProMo's input language
         """
         try:
             # Get the equation file name using FILES constant
-            e_name = FILES["coded_equations"] % (self.ontology_location, language)
+            e_name = FILES["coded_equations"] % (self.ontology_location, "input_language")
             e_name = e_name.replace(".json", ".txt")
-            
-            # Use the compiled equations from the UI, not the raw equation dictionary
-            if hasattr(self, 'compiled_equations') and language in self.compiled_equations:
-                equations = self.compiled_equations[language]
-            else:
-                # Fallback to equation dictionary if compiled_equations not available
-                equations = getattr(self, 'equation_dictionary', {})
+
+            equations = compiled_equations
             
             # Sort equation IDs numerically for proper sequence (E_1, E_2, E_3, etc.)
             equation_ids = []
@@ -2008,8 +2001,8 @@ class OntologyContainer():
                 for num, equ_ID in equation_ids:
                     if equ_ID in equations:
                         e = equations[equ_ID]
-                        f.write("%s :: %s = %s\n" % (equ_ID, e["lhs"], e["rhs"]))
-            
+                        f.write("\n%s - %s - %s ::\n%s = %s\n" % (equ_ID, e["network"], e["type"], e["lhs"], e["rhs"]))
+
             print(f"Successfully wrote {len(equation_ids)} equations to {e_name}")
             return True
             

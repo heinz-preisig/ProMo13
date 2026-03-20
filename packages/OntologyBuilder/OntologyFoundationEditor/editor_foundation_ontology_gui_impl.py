@@ -1220,6 +1220,7 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
 
         if self.new_variable_file:
             variables_f_name = FILES["variables_file"] % self.ontology_name
+            # Note: we try a new version without the interface variables
             variables_starting_file = FILES["variables_starting_file"] % self.ontology_name
             shutil.copyfile(variables_starting_file, variables_f_name)
             # # NOTE: do not delete the below

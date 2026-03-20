@@ -1431,13 +1431,13 @@ class UiOntologyDesign(QMainWindow):
       # p.startDetached("sh", ["resources/make_images.sh", file_name])
       tex_file = file_name + ".tex"
       png_file = file_name + ".png"
-      dvi_file = file_name + ".dvi"
+      pdf_file = file_name + ".pdf"
       path = str(latex_folder_path)
-      status = p.execute("latex", ["-interaction=nonstopmode", tex_file])
+      status = p.execute("pdflatex", ["-interaction=nonstopmode", tex_file])
       if status == 0:
         pp = QtCore.QProcess()
-        pars = ["-D", "300", "-T", "tight", "-norawps", "-z", "9", "-bg", "Transparent", "-o", png_file, dvi_file]
-        (pstatus, pID) = pp.startDetached("dvipng", pars, path)
+        pars = ["-density", "300", "-background", "Transparent", pdf_file, png_file]
+        (pstatus, pID) = pp.startDetached("convert", pars, path)
         print("cwd", os.getcwd(), "--", tex_file, png_file)
         if not pstatus:
           print("failed to generate png", png_file)
