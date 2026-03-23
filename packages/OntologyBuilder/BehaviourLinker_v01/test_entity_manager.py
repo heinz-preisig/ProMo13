@@ -23,7 +23,7 @@ def test_entity_manager():
             return {'id': self.entity_id}
     
     # Test EntityManager
-    from entity_manager import EntityManager
+    from entity.entity_manager import EntityManager
     
     # Create mock ontology container
     class MockOntology:

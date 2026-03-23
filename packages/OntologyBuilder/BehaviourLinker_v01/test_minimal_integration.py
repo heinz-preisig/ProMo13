@@ -11,8 +11,8 @@ root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.extend([root, os.path.join(root, 'packages'), os.path.join(root, 'tasks')])
 
 from PyQt5.QtWidgets import QApplication
-from entity_front_end_with_helper import create_entity_editor_with_helper
-from entity_front_end import EntityEditorFrontEnd
+from entity.entity_front_end_with_helper import create_entity_editor_with_helper
+from entity.entity_front_end import EntityEditorFrontEnd
 
 
 def test_minimal_integration():

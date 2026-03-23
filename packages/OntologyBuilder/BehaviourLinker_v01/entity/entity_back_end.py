@@ -6,8 +6,8 @@ from PyQt5.QtCore import pyqtSignal
 
 from Common.classes.entity_v1 import Entity
 from OntologyBuilder.BehaviourLinker_v01.behaviour_association.editor import launch_behavior_association_editor
-from .state_manager import get_state_manager
-from .variable_domain_validator import VariableDomainValidator
+from ..state_manager import get_state_manager
+from ..variable_domain_validator import VariableDomainValidator
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

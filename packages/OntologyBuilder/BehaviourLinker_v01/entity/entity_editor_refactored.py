@@ -21,7 +21,7 @@ except ImportError:
     roundButton = None
 
 from OntologyBuilder.BehaviourLinker_v01.UIs.entity_changes import Ui_entity_changes
-from OntologyBuilder.BehaviourLinker_v01.entity_automaton import gui_automaton
+from OntologyBuilder.BehaviourLinker_v01.entity.entity_automaton import gui_automaton
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.error_logger import log_error
@@ -31,7 +31,7 @@ from OntologyBuilder.BehaviourLinker_v01.classification_rules import (
 )
 
 # Import our refactored components
-from .icon_helper import IconHelper
+from ..icon_helper import IconHelper
 from .entity_manager import EntityManager
 
 

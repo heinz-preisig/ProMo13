@@ -13,7 +13,7 @@ try:
     from .entity_front_end import EntityEditorFrontEnd
 except ImportError:
     from entity_front_end import EntityEditorFrontEnd
-from .icon_helper import IconHelper
+from ..icon_helper import IconHelper
 from .entity_manager import EntityManager
 
 

@@ -12,8 +12,8 @@ from Common.pop_up_message_box import makeMessageBox
 from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.ui_get_string_impl import UI_GetString
-from OntologyBuilder.BehaviourLinker_v01.entity_back_end import EntityEditorBackEnd
-from OntologyBuilder.BehaviourLinker_v01.entity_front_end import EntityEditorFrontEnd  # Back to original - refactored version is incompatible
+from OntologyBuilder.BehaviourLinker_v01.entity.entity_back_end import EntityEditorBackEnd
+from OntologyBuilder.BehaviourLinker_v01.entity.entity_front_end import EntityEditorFrontEnd  # Back to original - refactored version is incompatible
 from OntologyBuilder.BehaviourLinker_v01.main_automaton import gui_automaton
 
 

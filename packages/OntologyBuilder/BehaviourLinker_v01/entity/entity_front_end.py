@@ -27,7 +27,7 @@ from PyQt5.QtGui import QStandardItemModel
 from Common.resources_icons import getIcon
 from Common.resources_icons import roundButton
 from OntologyBuilder.BehaviourLinker_v01.UIs.entity_changes import Ui_entity_changes
-from OntologyBuilder.BehaviourLinker_v01.entity_automaton import gui_automaton
+from OntologyBuilder.BehaviourLinker_v01.entity.entity_automaton import gui_automaton
 from OntologyBuilder.BehaviourLinker_v01.resources.pop_up_message_box import makeMessageBox
 from OntologyBuilder.BehaviourLinker_v01.ui_settings import UISettings
 from OntologyBuilder.BehaviourLinker_v01.classification_rules import (
