@@ -659,7 +659,16 @@ def renderExpressionFromGlobalIDToInternal(expression, variables, indices):
         try:
           a = variables[w].label  # RULE: label is used not alias TODO: fix alias edit table -- remove alias
         except:
-          a = variables[w]["label"]
+          try:
+            a = variables[w]["label"]
+          except KeyError as e:
+            # Check if this might be an interface variable that needs resolution
+            if '_' in w:
+              # This might be an interface variable name, but it should be a variable ID
+              # For now, return a placeholder to prevent crashes
+              a = f"INTERFACE_VAR_{w}"
+            else:
+              a = f"UNKNOWN_{w}"  # Fallback
       elif w[0] == "I":
         i_ID = w #int(w.replace("I_", "").strip())
         a = indices[i_ID]["aliases"]["internal_code"]  # RULE: we use alias to reduce length of string

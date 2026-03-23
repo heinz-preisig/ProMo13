@@ -695,17 +695,27 @@ class Variables(OrderedDict):
     self.index_accessible_variables_on_networks = {}  # defines accessible name space
 
     # for nw in self.networks + self.interconnection_networks + self.intraconnection_networks:
-    for nw in self.networks + self.ontology_container.list_inter_branches_pairs + self.intraconnection_networks:
+    all_networks = self.networks + self.ontology_container.list_inter_branches_pairs + self.intraconnection_networks
+    
+    # Add interface domain if it exists
+    if hasattr(self, 'interface_domain') and self.interface_domain:
+        all_networks.append(self.interface_domain)
+    
+    for nw in all_networks:
       self.index_definition_networks_for_variable[nw] = []
 
     for ID in self:
       self.index_definition_networks_for_variable[self[ID].network].append(ID)
 
     # make index for variables on the networks it was defined
-    for nw in self.networks:
+    for nw in all_networks:
       self.index_networks_for_variable[nw] = {}
 
-    for nw in self.networks:
+    for nw in all_networks:
+      # Ensure variable types exist for this network
+      if nw not in self.ontology_container.variable_types_on_networks:
+        self.ontology_container.variable_types_on_networks[nw] = {}
+        
       for variable_class in self.ontology_container.variable_types_on_networks[nw]:
         if variable_class not in self.index_networks_for_variable[nw]:
           self.index_networks_for_variable[nw][variable_class] = []
@@ -869,11 +879,79 @@ class Variables(OrderedDict):
     return variables_not_instantiated
 
   def variableSpaces(self, what, network, enabled_variable_types):
-
-    # print("debugging -- variable spaces -- what:", what)
+    """
+    THE single definition of variable space access rules
+    Used by both UI picking and expression validation
+    """
     v_counter = 0
+    
     if what == "variable_picking":
-      variable_space = self.index_accessible_variables_on_networks
+      # Get accessible networks including interface domain
+      # accessible_networks = list(self.ontology_container.heirs_network_dictionary[network])
+      # inter_branches = self.ontology_container.interface_networks_accessible_to_networks_dictionary[network]
+
+      # from the hierarchy
+      if network in self.ontology_container.ontology_hierarchy:
+        accessible_networks = self.ontology_container.ontology_hierarchy[network]
+      else:
+        # If network is not in hierarchy (e.g., 'interface'), use only the network itself
+        accessible_networks = [network]
+      
+      inter_branches = self.ontology_container.list_inter_branches
+      accessible_networks.extend(inter_branches)
+      accessible_networks = list(set(accessible_networks))
+
+      # print(f"DEBUG: Network {network} has heirs: {accessible_networks}")
+      
+      # Add interface domain if it exists and has variables
+      # if hasattr(self, 'interface_domain') and self.interface_domain:
+      #   accessible_networks.append(self.interface_domain)
+      
+      variable_space = {}
+      v_space = {}
+      v_space[network] = {}
+      for nw in accessible_networks:
+        for var_class in self.index_networks_for_variable[nw]:
+          v_space[network][var_class] = []
+      #
+      # variables = self.ontology_container.variables
+      # for var_id in self.ontology_container.variables:
+      #   if variables[var_id]["network"]  in accessible_networks:
+      #     variable_space.add(var_id)
+      #     v_counter += 1
+      
+      # Build variable space for each accessible network
+      for nw in accessible_networks:
+        if nw in self.index_networks_for_variable:
+          variable_space[nw] = {}
+          for var_class in self.index_networks_for_variable[nw]:
+            variable_space[nw][var_class] = set()
+
+            # Filter by enabled_variable_types if provided
+            for v in self.index_networks_for_variable[nw][var_class]:
+              # if not enabled_variable_types or self[v].type in enabled_variable_types:
+                variable_space[nw][var_class].add(v)
+                if v not in v_space[network][var_class]:
+                  v_space[network][var_class].append(v)
+                v_counter += 1
+
+
+      # Also include variables from heir networks that are accessible to current network
+      # This handles cross-domain access (e.g., control accessing physical/macroscopic variables)
+      # for heir_network in accessible_networks:
+      #   if heir_network != network and heir_network in self.index_networks_for_variable:
+      #     if heir_network not in variable_space:  # Don't overwrite existing
+      #       variable_space[heir_network] = {}
+      #       for var_class in self.index_networks_for_variable[heir_network]:
+      #         variable_space[heir_network][var_class] = set()
+      #
+      #         # Filter by enabled_variable_types if provided
+      #         for v in self.index_networks_for_variable[heir_network][var_class]:
+      #           if not enabled_variable_types or self[v].type in enabled_variable_types:
+      #             variable_space[heir_network][var_class].add(v)
+      #             v_counter += 1
+      variable_space = v_space
+
     elif what == "interface_picking":
       rule = "only local"
       networks = [network] # self.ontology_container.heirs_network_dictionary[network]
@@ -888,12 +966,103 @@ class Variables(OrderedDict):
                 variable_space[nw][c].add(v)
                 v_counter += 1
 
-
     else:
       variable_space = self.index_networks_for_variable
 
-
     return variable_space, v_counter
+
+  def getOrCreateInterfaceDomain(self):
+    """
+    Get or create interface domain for cross-domain variable access
+    """
+    if not hasattr(self, 'interface_domain'):
+      self.interface_domain = "interface"
+      
+      # Ensure interface domain exists in ontology structure
+      if self.interface_domain not in self.ontology_container.variable_types_on_networks:
+        self.ontology_container.variable_types_on_networks[self.interface_domain] = {}
+      
+      # Ensure interface domain is in hierarchy
+      if self.interface_domain not in self.ontology_container.heirs_network_dictionary:
+        self.ontology_container.heirs_network_dictionary[self.interface_domain] = [self.interface_domain]
+      
+      # Add interface domain to variable types with common interface types
+      # Interface variables can be of any type that source variables could be
+      common_interface_types = ["state", "algebraic", "observation", "secondaryState", "effort"]
+      self.ontology_container.variable_types_on_networks[self.interface_domain] = common_interface_types
+    
+    return self.interface_domain
+
+  def createInterfaceVariable(self, source_domain, source_var_ID, target_network):
+    """
+    Create an interface variable in the interface domain
+    Prevents duplication of interface variables
+    """
+    interface_domain = self.getOrCreateInterfaceDomain()
+    source_var = self[source_var_ID]
+    
+    # Generate interface variable name: domain_varname
+    interface_var_name = f"{source_domain}_{source_var.label}"
+    
+    # Check if interface variable already exists
+    for var_ID in self:
+      var = self[var_ID]
+      if var.label == interface_var_name and var.network == interface_domain:
+        # Interface variable already exists, return existing ID
+        return var_ID
+    
+    # Create new interface variable
+    interface_var_ID = self.newProMoVariableIRI()
+    
+    # Copy properties from source variable but change network and label
+    interface_var_data = {
+        "ID": interface_var_ID,
+        "label": interface_var_name,
+        "type": source_var.type,
+        "network": interface_domain,
+        "doc": f"Interface variable for {source_domain}.{source_var.label}",
+        "index_structures": source_var.index_structures,  # Copy index structures (includes tokens)
+        "units": source_var.units,  # Pass Units object directly, not dictionary
+        "aliases": source_var.aliases.copy(),
+        "equations": {},
+        "port_variable": False
+    }
+    
+    # Add interface variable to variables
+    self[interface_var_ID] = PhysicalVariable(**interface_var_data)
+    self[interface_var_ID].indices = self.ontology_container.indices
+    
+    # Create interface equation: interface_var = source_var
+    interface_equ_ID = self.newProMoEquationIRI()
+    interface_equation = {
+        "lhs": {"global_ID": interface_var_ID},
+        "rhs": {"global_ID": source_var_ID},
+        "type": "interface",
+        "network": interface_domain,
+        "created": dateString()
+    }
+    
+    self[interface_var_ID].equations[interface_equ_ID] = interface_equation
+    
+    # Add interface equation to ontology container for compiler access
+    self.ontology_container.equation_dictionary[interface_equ_ID] = interface_equation
+    
+    # Update ontology container - ID as positional argument
+    interface_var_data_copy = interface_var_data.copy()
+    interface_var_ID_str = interface_var_data_copy.pop('ID')  # Remove ID from kwargs
+    
+    self.ontology_container.addVariable(interface_var_ID, **interface_var_data_copy)
+    
+    # Initialize compiled_lhs for interface variables (needed for LaTeX generation)
+    if "compiled_lhs" not in self.ontology_container.variables[interface_var_ID]:
+        self.ontology_container.variables[interface_var_ID]["compiled_lhs"] = {}
+    
+    # Re-index variables to include new interface variable
+    self.indexVariables()
+    
+    print(f"Created interface variable: {interface_var_name} = {source_var.label} (from {source_domain})")
+    
+    return interface_var_ID
 
   def changeVariableAlias(self, variable_ID, language, new_alias):
     old_alias =     self[variable_ID].aliases[language]
@@ -1088,42 +1257,75 @@ class CompileSpace:
     '''
     gets the variable "label" from the variable ordered dictionary and
     sets the appropriate language
+    Uses unified variable space definition consistent with variableSpaces()
     @param symbol: variable's symbol
     @return: v : the variable object
     '''
     # print("get variable", symbol)
 
-    v = None
-    networks = set()
-    # if CONNECTION_NETWORK_SEPARATOR in self.variable_definition_network:
-    #   [source, sink] = self.variable_definition_network.split(CONNECTION_NETWORK_SEPARATOR)
-    #   # [source, self.variable_definition_network, self.expression_definition_network]
-    #   networks.add(str(source))
-
-    networks.add(self.variable_definition_network)
-    networks.add(str(self.expression_definition_network))
-    networks = list(networks)
-
+    # Use the same logic as variableSpaces for variable_picking
+    variable_space, v_counter = self.variables.variableSpaces("variable_picking", self.expression_definition_network, None)
+    
+    # Manually add interface domain if it exists and has variables
+    if hasattr(self.variables, 'interface_domain') and self.variables.interface_domain:
+        if self.variables.interface_domain in self.variables.index_networks_for_variable:
+            if self.variables.interface_domain not in variable_space:
+                variable_space[self.variables.interface_domain] = {}
+            for var_class in self.variables.index_networks_for_variable[self.variables.interface_domain]:
+                if var_class not in variable_space[self.variables.interface_domain]:
+                    variable_space[self.variables.interface_domain][var_class] = set()
+                for var_ID in self.variables.index_networks_for_variable[self.variables.interface_domain][var_class]:
+                    variable_space[self.variables.interface_domain][var_class].add(var_ID)
+    
     v_list = set()
-    for nw in networks:
-      for variable_class in self.variables.index_accessible_variables_on_networks[nw]:
-        for var_ID in self.variables.index_accessible_variables_on_networks[nw][variable_class]:
+    
+    # Search in all accessible networks from variable space
+    for nw in variable_space:
+      for var_class in variable_space[nw]:
+        for var_ID in variable_space[nw][var_class]:
           if symbol == self.variables[var_ID].label:
-            #   print("found %s"%symbol)
-            v_list.add(var_ID)  # self.variables[var_ID])
+            v_list.add(var_ID)
 
     v_list = sorted(v_list)
 
     if len(v_list) == 0:
+      # Check if this is an interface variable (format: domain_varname)
+      if '_' in symbol:
+        parts = symbol.split('_', 1)
+        if len(parts) == 2:
+          source_domain, source_label = parts
+          
+          # Try to find the original variable
+          for var_ID in self.variables:
+            var = self.variables[var_ID]
+            if var.label == source_label and var.network == source_domain:
+              # Return the variable ID for interface variables, not the variable object
+              # This ensures the global_ID expression contains the proper variable ID
+              interface_var_ID = var_ID
+              v = self.variables[interface_var_ID]
+              return v
+      
       print("did not find %s in language %s" % (symbol, self.language))
       raise VarError(" no such variable %s defined" % symbol)
     elif len(v_list) == 1:
       v = self.variables[v_list[0]]
     elif len(v_list) > 1:
+      # Prefer variables from current expression definition network
       for i in v_list:
-        if (self.variables[i].network == self.variable_definition_network) or \
-                (self.variables[i].network == self.expression_definition_network):
+        if self.variables[i].network == self.expression_definition_network:
           v = self.variables[i]
+          break
+      else:
+        # If no current network match, prefer interface domain
+        for i in v_list:
+          if hasattr(self.variables, 'interface_domain') and \
+             self.variables.interface_domain and \
+             self.variables[i].network == self.variables.interface_domain:
+            v = self.variables[i]
+            break
+        else:
+          # Fallback to first match
+          v = self.variables[v_list[0]]
     else:
       print("did not find %s in language %s" % (symbol, self.language))
       raise VarError(" no such variable %s defined" % symbol)
@@ -1216,7 +1418,7 @@ class PhysicalVariable():
 
   def __str__(self):
 
-    if self.language in LANGUAGES["documentation"]:
+    if hasattr(self, 'language') and self.language in LANGUAGES["documentation"]:
       temp = "template_variable.%s" % self.language
       ind = []
       for ID in self.index_structures:
@@ -1226,7 +1428,11 @@ class PhysicalVariable():
       try:
         s = ID_spacer + self.aliases[self.language]
       except:
-        print("debugging -- 793 -- language :", self.language, "variable:", self.label)
+        # Fallback when language attribute is missing
+        try:
+          s = ID_spacer + self.label
+        except:
+          s = ID_spacer + "unknown_variable"
 
     return s
 

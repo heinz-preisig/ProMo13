@@ -1190,13 +1190,22 @@ class UiOntologyDesign(QMainWindow):
       if os.path.exists(var_png_file_path):  # .exists():
         png_mod_date = datetime.fromtimestamp(
                 var_png_file_path.stat().st_mtime)
-        modified = variables[var_id]["modified"]
-        date_format = "%Y-%m-%d %H:%M:%S"
-        var_mod_date = datetime.strptime(modified, date_format)
-        if png_mod_date > var_mod_date:
-          continue
+        # Safe check for 'modified' key
+        if "modified" in variables[var_id]:
+          modified = variables[var_id]["modified"]
+          date_format = "%Y-%m-%d %H:%M:%S"
+          var_mod_date = datetime.strptime(modified, date_format)
+          if png_mod_date > var_mod_date:
+            continue
+        else:
+          # If no 'modified' key, assume regeneration is needed
+          pass
 
-      variables[var_id]["compiled_lhs"]["latex"] = self.__makeLHSCompiledLabel("latex", var_id)
+      if var_id in variables:
+        if "compiled_lhs" in variables[var_id]:
+            variables[var_id]["compiled_lhs"]["latex"] = self.__makeLHSCompiledLabel("latex", var_id)
+        else:
+            variables[var_id]["compiled_lhs"] = {"latex": self.__makeLHSCompiledLabel("latex", var_id)}
       var_latex_alias = variables[var_id]["compiled_lhs"]["latex"]
       latex_info[var_id] = "$" + var_latex_alias + "$"
       modified_vars.append(var_id)

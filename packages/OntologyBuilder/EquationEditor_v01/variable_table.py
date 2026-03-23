@@ -143,16 +143,36 @@ class VariableTable(QtWidgets.QDialog):
   def makeVariableIDList(self):
     variable_ID_list = set()
     if self.what == 'interface_picking':
-      # print("debugging -- gugus gugus", self.network)
-      networks = self.variables.ontology_container.heirs_network_dictionary[self.network]
-    else:
+      # Only local network for interface picking
       networks = [self.network]
-    # nw = self.network
+    elif self.what == 'variable_editing':
+      # For variable editing, only show variables from current network
+      networks = [self.network]
+      # Use basic variable space for editing
+      variable_space = {}
+      if self.network in self.variables.index_networks_for_variable:
+        variable_space[self.network] = {}
+        for var_class in self.variables.index_networks_for_variable[self.network]:
+          variable_space[self.network][var_class] = set()
+          for v in self.variables.index_networks_for_variable[self.network][var_class]:
+            if not self.enabled_variable_types or self.variables[v].type in self.enabled_variable_types:
+              variable_space[self.network][var_class].add(v)
+    else:
+      # Use the updated variableSpaces method for variable_picking
+      variable_space, v_counter = self.variables.variableSpaces("variable_picking", self.network, self.enabled_variable_types)
+      networks = list(variable_space.keys())
+    
+    # Collect variables from all accessible networks
     for nw in networks:
-      for variable_type in self.variable_space[nw]:
-        if variable_type in self.enabled_variable_types:
-          for i in self.variable_space[nw][variable_type]:
+      if nw in variable_space:
+        for variable_type in variable_space[nw]:
+          for i in variable_space[nw][variable_type]:
             variable_ID_list.add(i)
+    
+    # Handle interface variable creation when picking from other domains
+    if self.what == 'variable_picking':
+      variable_ID_list = self._handleInterfaceVariableCreation(variable_ID_list)
+    
     variable_dict = {}
     if variable_ID_list:
       for var_ID in variable_ID_list:
@@ -164,6 +184,38 @@ class VariableTable(QtWidgets.QDialog):
       variable_ID_list_sorted = []
 
     return variable_ID_list_sorted  # variable_ID_list
+
+  def _handleInterfaceVariableCreation(self, variable_ID_list):
+    """
+    Create interface variables for cross-domain selections
+    """
+    interface_vars_to_add = set()
+    vars_to_remove = set()
+    
+    for var_ID in variable_ID_list:
+      var = self.variables[var_ID]
+      
+      # Skip if variable is from current domain or interface domain
+      if var.network == self.network:
+        continue
+        
+      if hasattr(self.variables, 'interface_domain') and \
+         self.variables.interface_domain and \
+         var.network == self.variables.interface_domain:
+        continue
+      
+      # Create interface variable: domain_varname = varname
+      interface_var_ID = self.variables.createInterfaceVariable(
+          var.network, var_ID, self.network
+      )
+      
+      interface_vars_to_add.add(interface_var_ID)
+      vars_to_remove.add(var_ID)
+    
+    # Update the original list: remove cross-domain vars, add interface vars
+    final_list = (variable_ID_list - vars_to_remove) | interface_vars_to_add
+    
+    return final_list
 
   def populateTable(self, table, variable_ID_list):
     table.clearContents()
@@ -184,7 +236,7 @@ class VariableTable(QtWidgets.QDialog):
           self.__addQtTableItem(table, symbol, rowCount, 1)
           self.__addQtTableItem(table, v.doc, rowCount, 2)
           toks = ""
-          for t in v.tokens:
+          for t in getattr(v, 'tokens', []):  # Safe fallback for variables without tokens
             toks += t.strip("[],")
             toks += ","
           toks = toks[:-1]  # remove last ,

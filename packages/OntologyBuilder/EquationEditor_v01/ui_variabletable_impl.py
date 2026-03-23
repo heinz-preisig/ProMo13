@@ -92,7 +92,7 @@ class UI_VariableTableDialog(VariableTable):
 
     VariableTable.__init__(self,
                            title,
-                           "variable_picking",
+                           "variable_editing",
                            variables,
                            indices,
                            network,

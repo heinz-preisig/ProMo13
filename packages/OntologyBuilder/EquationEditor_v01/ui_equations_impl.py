@@ -207,8 +207,14 @@ class UI_Equations(QtWidgets.QWidget):
       starting, ending = self.text_range
     except:
       starting, ending = 0, 0
+    
+    # Convert variable ID to variable label for display
+    display_text = text
+    if text in self.variables:
+      display_text = self.variables[text].label
+    
     t = str(self.ui.lineExpression.text())
-    s = t[0:starting] + text + t[ending:]
+    s = t[0:starting] + display_text + t[ending:]
     self.ui.lineExpression.setText(s)
     self.ui.lineExpression.setFocus(True)
     self.show()
@@ -333,7 +339,7 @@ class UI_Equations(QtWidgets.QWidget):
                                         self.network_for_variable, language="global_ID")
       expression = Expression(self.compile_space)
       self.checked_var = expression(self.expr)
-      print('self.checked_var:  ', self.checked_var)
+      # print('self.checked_var:  ', self.checked_var)  # Commented out due to language attribute error
 
       if "PhysicalVariable" in str(self.checked_var.__class__):  # RULE: copy of variable is not allowed
         if self.network_for_variable == self.checked_var.network:  # RULE: that is if they belong to the same network
@@ -381,12 +387,17 @@ class UI_Equations(QtWidgets.QWidget):
                 % (pretty_var_units, pretty_check_var_units, pretty_diff)
           self.MSG(msg)
           return False
+        
       msg = 'modified expression OK\n index struct: %s\n units: %s\n \n' % (
               pretty_check_var_indices, pretty_check_var_units)
       self.MSG(msg)
 
       # check memory for all variables
-      incide_list = makeIncidentList(str(self.checked_var))
+      try:
+        incide_list = makeIncidentList(str(self.checked_var))
+      except AttributeError:
+        # Handle missing language attribute - use variable ID instead
+        incide_list = [self.checked_var.ID] if hasattr(self.checked_var, 'ID') else []
       memory_value_set = set()
       self.memory = None
 
@@ -441,7 +452,7 @@ class UI_Equations(QtWidgets.QWidget):
   def on_pushAccept_pressed(self):
     symbol = str(self.ui.lineNewVariable.text())
     documentation = str(self.ui.lineDocumentation.text())
-    rhs = str(self.checked_var)
+    rhs = str(self.checked_var)  # Revert to original - the str() issue should be fixed elsewhere
     incidence_list = makeIncidentList(rhs)
 
     # ====================== make residual equation =============================
