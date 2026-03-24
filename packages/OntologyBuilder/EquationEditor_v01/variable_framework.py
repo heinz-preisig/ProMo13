@@ -1065,11 +1065,12 @@ class Variables(OrderedDict):
     source_latex = source_var.aliases.get("latex", source_var.label)
     decorated_latex = f"\\multimap{{{source_latex}}}"
     interface_aliases["latex"] = decorated_latex
-    
+
+    from Common.common_resources import INTERFACT_VARIABLE_TYPE
     variable_record = makeCompleteVariableRecord(
         var_ID=interface_var_ID,
         label=interface_var_name,
-        type=source_var.type,
+        type=INTERFACT_VARIABLE_TYPE, #source_var.type,
         network=interface_domain,
         doc=f"Interface variable for {source_domain}.{source_var.label}",
         index_structures=source_var.index_structures,

@@ -64,6 +64,7 @@ from Common.common_resources import putData
 from Common.common_resources import saveBackupFile
 from Common.ontology_container import CENTRE_NETWORKS
 from Common.ontology_container import OntologyContainer
+from Common.common_resources import VARIABLE_TYPE_INTERFACES
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import RecordIndex
 from Common.record_definitions import makeCompletEquationRecord
@@ -93,9 +94,8 @@ from OntologyBuilder.EquationEditor_v01.ui_aliastablevariables_impl import UI_Al
 from OntologyBuilder.EquationEditor_v01.ui_equations_impl import UI_Equations
 from OntologyBuilder.EquationEditor_v01.ui_interface_variable_pick_impl import UI_VariableTableInterfacePick         #>
 from OntologyBuilder.EquationEditor_v01.ui_ontology_design import Ui_OntologyDesigner
-from OntologyBuilder.EquationEditor_v01.ui_variabletable_delete_equation_impl import UI_VariableTableDeleteEquation  #>
-from OntologyBuilder.EquationEditor_v01.ui_variabletable_impl import UI_VariableTableDialog                          #>
-from OntologyBuilder.EquationEditor_v01.ui_variabletable_show_impl import UI_VariableTableShow                       #>
+from OntologyBuilder.EquationEditor_v01.ui_variabletable_show_impl import UI_VariableTableShow
+from OntologyBuilder.EquationEditor_v01.ui_variabletable_impl import UI_VariableTableDialog
 from OntologyBuilder.EquationEditor_v01.variable_framework import CompileSpace
 from OntologyBuilder.EquationEditor_v01.variable_framework import Expression
 from OntologyBuilder.EquationEditor_v01.variable_framework import IndexStructureError
@@ -361,6 +361,44 @@ class UiOntologyDesign(QMainWindow):
                                           ["info", "new", "port", "LaTex", "dot"]
                                           )
     variable_table.exec_()
+
+  def on_pushManageInterfaceVariables_pressed(self):
+    """Manage interface variables with editing capability"""
+    # Check if interface domain exists
+    if not hasattr(self.variables, 'interface_domain') or not self.variables.interface_domain:
+        makeMessageBox("No interface variables found", 
+                      buttons=["OK"], 
+                      infotext="Interface variables are created automatically when you use variables from other domains.")
+        return
+
+    # update incidence dictionaries
+    self.updateLatexImages()
+
+    # Use the standard show table for interface variables
+    # Pass interface domain as network and filter by interface types
+    from Common.common_resources import INTERFACT_VARIABLE_TYPE
+    interface_variable_table = UI_VariableTableShow(
+        "Interface Variables - Edit Management",
+        self.ontology_container,
+        self.variables,
+        self.variables.interface_domain,  # Show interface domain variables
+        [INTERFACT_VARIABLE_TYPE],  # Filter to show only interface variables
+        [],
+        [3],  # Hide tokens column
+        None,
+        ["info", "new", "port", "LaTex", "dot"]
+    )
+    
+    interface_variable_table.exec_()
+
+  def onInterfaceVariablesChanged(self, changed):
+    """Handle changes to interface variables"""
+    if changed:
+      self.changed = True
+      # Re-index variables to update the ontology structure
+      self.variables.indexVariables()
+      self.ontology_container.indexEquations()
+      self.writeMessage("Interface variables updated")
 
   def on_pushExit_pressed(self):
     variable_list = sorted(self.variables.keys())

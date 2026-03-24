@@ -145,6 +145,7 @@ class VariableTable(QtWidgets.QDialog):
     if self.what == 'interface_picking':
       # Only local network for interface picking
       networks = [self.network]
+      print("table -- interface_picking")
     elif self.what == 'variable_editing':
       # For variable editing, only show variables from current network
       networks = [self.network]
@@ -157,10 +158,13 @@ class VariableTable(QtWidgets.QDialog):
           for v in self.variables.index_networks_for_variable[self.network][var_class]:
             if not self.enabled_variable_types or self.variables[v].type in self.enabled_variable_types:
               variable_space[self.network][var_class].add(v)
+      print("table -- variable_editing")
     else:
       # Use the updated variableSpaces method for variable_picking
       variable_space, v_counter = self.variables.variableSpaces("variable_picking", self.network, self.enabled_variable_types)
       networks = list(variable_space.keys())
+
+      print("table -- neither uses variableSpace")
     
     # Collect variables from all accessible networks
     for nw in networks:
@@ -170,8 +174,8 @@ class VariableTable(QtWidgets.QDialog):
             variable_ID_list.add(i)
     
     # Handle interface variable creation when picking from other domains
-    if self.what == 'variable_picking':
-      variable_ID_list = self._handleInterfaceVariableCreation(variable_ID_list)
+    # if self.what == 'variable_picking':
+    #   variable_ID_list = self._handleInterfaceVariableCreation(variable_ID_list)
     
     variable_dict = {}
     if variable_ID_list:
