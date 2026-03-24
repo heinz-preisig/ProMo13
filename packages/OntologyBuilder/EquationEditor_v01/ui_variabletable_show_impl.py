@@ -43,7 +43,7 @@ class UI_VariableTableShow(VariableTable):
                hide_columns=[3],
                info_file=None,
                hidden=[],
-               ):
+               table_type="variable_picking"):  # Add table_type parameter
     """
     constructs a dialog window based on QDialog for picking variables
     @param title:     title string: indicates the tree's nature
@@ -65,7 +65,7 @@ class UI_VariableTableShow(VariableTable):
 
     VariableTable.__init__(self,
                            title,
-                           "variable_picking",
+                           table_type,  # Use the parameter instead of hardcoded "variable_picking"
                            variables,
                            ontology_container.indices,
                            network,

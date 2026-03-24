@@ -151,13 +151,25 @@ class VariableTable(QtWidgets.QDialog):
       networks = [self.network]
       # Use basic variable space for editing
       variable_space = {}
+      print(f"DEBUG: Checking if network '{self.network}' exists in index_networks_for_variable")
+      print(f"DEBUG: Available networks: {list(self.variables.index_networks_for_variable.keys())}")
       if self.network in self.variables.index_networks_for_variable:
+        print(f"DEBUG: Network '{self.network}' found in index")
         variable_space[self.network] = {}
+        print(f"DEBUG: Variable classes in network: {list(self.variables.index_networks_for_variable[self.network].keys())}")
         for var_class in self.variables.index_networks_for_variable[self.network]:
           variable_space[self.network][var_class] = set()
+          print(f"DEBUG: Checking class '{var_class}' with {len(self.variables.index_networks_for_variable[self.network][var_class])} variables")
           for v in self.variables.index_networks_for_variable[self.network][var_class]:
+            print(f"DEBUG: Checking variable {v}: type='{self.variables[v].type}', enabled_types={self.enabled_variable_types}")
             if not self.enabled_variable_types or self.variables[v].type in self.enabled_variable_types:
+              print(f"DEBUG: Adding variable {v} to space")
               variable_space[self.network][var_class].add(v)
+            else:
+              print(f"DEBUG: Filtering out variable {v}")
+      else:
+        print(f"DEBUG: Network '{self.network}' NOT found in index!")
+      print(f"DEBUG: variable_editing final space: {variable_space}")
       print("table -- variable_editing")
     else:
       # Use the updated variableSpaces method for variable_picking

@@ -786,12 +786,18 @@ class Variables(OrderedDict):
     # Handle interface domain if it exists
     if hasattr(self, 'interface_domain') and self.interface_domain:
       self.index_definition_network_for_variable_component_class[self.interface_domain] = {}
+      self.index_networks_for_variable[self.interface_domain] = {}  # Add this line
       for ID in self:
         if self[ID].network == self.interface_domain:
           t = self[ID].type
           if t not in self.index_definition_network_for_variable_component_class[self.interface_domain]:
             self.index_definition_network_for_variable_component_class[self.interface_domain][t] = set()
           self.index_definition_network_for_variable_component_class[self.interface_domain][t].add(ID)
+          
+          # Also add to index_networks_for_variable
+          if t not in self.index_networks_for_variable[self.interface_domain]:
+            self.index_networks_for_variable[self.interface_domain][t] = []
+          self.index_networks_for_variable[self.interface_domain][t].append(ID)
 
 
     # incidence and inverse incidence lists
@@ -1066,11 +1072,11 @@ class Variables(OrderedDict):
     decorated_latex = f"\\multimap{{{source_latex}}}"
     interface_aliases["latex"] = decorated_latex
 
-    from Common.common_resources import INTERFACT_VARIABLE_TYPE
+    from Common.common_resources import VARIABLE_TYPE_INTERFACE
     variable_record = makeCompleteVariableRecord(
         var_ID=interface_var_ID,
         label=interface_var_name,
-        type=INTERFACT_VARIABLE_TYPE, #source_var.type,
+        type=VARIABLE_TYPE_INTERFACE, #source_var.type,
         network=interface_domain,
         doc=f"Interface variable for {source_domain}.{source_var.label}",
         index_structures=source_var.index_structures,

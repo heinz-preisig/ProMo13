@@ -64,7 +64,7 @@ from Common.common_resources import putData
 from Common.common_resources import saveBackupFile
 from Common.ontology_container import CENTRE_NETWORKS
 from Common.ontology_container import OntologyContainer
-from Common.common_resources import VARIABLE_TYPE_INTERFACES
+from Common.common_resources import VARIABLE_TYPE_INTERFACE
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import RecordIndex
 from Common.record_definitions import makeCompletEquationRecord
@@ -373,23 +373,27 @@ class UiOntologyDesign(QMainWindow):
 
     # update incidence dictionaries
     self.updateLatexImages()
-
-    # Use the standard show table for interface variables
-    # Pass interface domain as network and filter by interface types
-    from Common.common_resources import INTERFACT_VARIABLE_TYPE
-    interface_variable_table = UI_VariableTableShow(
-        "Interface Variables - Edit Management",
-        self.ontology_container,
-        self.variables,
-        self.variables.interface_domain,  # Show interface domain variables
-        [INTERFACT_VARIABLE_TYPE],  # Filter to show only interface variables
-        [],
-        [3],  # Hide tokens column
-        None,
-        ["info", "new", "port", "LaTex", "dot"]
-    )
     
-    interface_variable_table.exec_()
+    # Force re-indexing to ensure interface variables are properly indexed
+    print("DEBUG: Re-indexing variables...")
+    self.variables.indexVariables()
+    print("DEBUG: Re-indexing completed")
+
+    # Use the standard __setupVariableTable approach for interface variables
+    # Set the context to interface domain and interface variable type
+    original_network = self.current_network
+    original_variable_type = self.current_variable_type
+    
+    # Temporarily set to interface domain and type
+    self.current_network = self.variables.interface_domain
+    self.current_variable_type = VARIABLE_TYPE_INTERFACE
+    
+    # Use the standard variable table setup
+    self.__setupVariableTable()
+    
+    # Restore original context
+    self.current_network = original_network
+    self.current_variable_type = original_variable_type
 
   def onInterfaceVariablesChanged(self, changed):
     """Handle changes to interface variables"""

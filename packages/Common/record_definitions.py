@@ -26,7 +26,7 @@ __status__ = "beta"
 from collections import OrderedDict
 from datetime import datetime
 
-from Common.common_resources import VARIABLE_TYPE_INTERFACES
+from Common.common_resources import VARIABLE_TYPE_INTERFACE
 from Common.ui_get_string_impl import UI_GetString
 from OntologyBuilder.OntologyEquationEditor.resources import CODE
 from OntologyBuilder.OntologyEquationEditor.resources import dateString
@@ -203,7 +203,7 @@ class Interface(dict):  # .........TODO: check if still in use .................
     self["left_network"] = left_network
     self["right_network"] = right_network
     self["left_variable_classes"] = left_variable_classes
-    self["internal_variable_classes"] = [VARIABLE_TYPE_INTERFACES]    # ..... RULE: hard wired interface variable class
+    self["internal_variable_classes"] = [VARIABLE_TYPE_INTERFACE]    # ..... RULE: hard wired interface variable class
     self["token"] = "information"  # ..................................... RULE: hard wired token
     self["mechanism"] = "link"  # ........................................ RULE: hard wired mechanism
     self["nature"] = "unidirectional"  # ................................. RULE: hard wired tranfer nature
