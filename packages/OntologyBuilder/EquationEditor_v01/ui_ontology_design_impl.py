@@ -211,6 +211,9 @@ class UiOntologyDesign(QMainWindow):
 
     makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
 
+    # Add interface domains to tree copy as additional approach
+    self._add_interface_domains_to_tree()
+
     # prepare for compiled versions
     # issue: remove compiled_equations. It is currently used in generating a file with the rendered equations
     self.compiled_equations = {language: {} for language in LANGUAGES["compile"]}
@@ -344,56 +347,24 @@ class UiOntologyDesign(QMainWindow):
     self.writeMessage("finished rendered document")
 
   def on_pushShowVariables_pressed(self):
-    # Simplified: only handle regular network variables
-    enabled_var_types = self.variable_types_on_networks[self.current_network]
-
+    # Use new variable_display mode to show all accessible variables
+    # This separates it from the picking functionality
+    
     # update incidence dictionaries
     self.updateLatexImages()
 
-    variable_table = UI_VariableTableShow("All defined variables",
+    variable_table = UI_VariableTableShow("All accessible variables in domain",
                                           self.ontology_container,
                                           self.variables,
                                           self.current_network,
-                                          enabled_var_types,
+                                          [],  # No type filtering for display mode
                                           [],
-                                          [3],
+                                          [3],  # Hide column 3
                                           None,
-                                          ["info", "new", "port", "LaTex", "dot"]
+                                          ["back"],  # Only show back button
+                                          table_type="variable_display"  # Use new display mode
                                           )
     variable_table.exec_()
-
-  def on_pushManageInterfaceVariables_pressed(self):
-    """Manage interface variables with editing capability"""
-    # Check if interface domain exists
-    if not hasattr(self.variables, 'interface_domain') or not self.variables.interface_domain:
-        makeMessageBox("No interface variables found", 
-                      buttons=["OK"], 
-                      infotext="Interface variables are created automatically when you use variables from other domains.")
-        return
-
-    # update incidence dictionaries
-    self.updateLatexImages()
-    
-    # Force re-indexing to ensure interface variables are properly indexed
-    print("DEBUG: Re-indexing variables...")
-    self.variables.indexVariables()
-    print("DEBUG: Re-indexing completed")
-
-    # Use the standard __setupVariableTable approach for interface variables
-    # Set the context to interface domain and interface variable type
-    original_network = self.current_network
-    original_variable_type = self.current_variable_type
-    
-    # Temporarily set to interface domain and type
-    self.current_network = self.variables.interface_domain
-    self.current_variable_type = VARIABLE_TYPE_INTERFACE
-    
-    # Use the standard variable table setup
-    self.__setupVariableTable()
-    
-    # Restore original context
-    self.current_network = original_network
-    self.current_variable_type = original_variable_type
 
   def onInterfaceVariablesChanged(self, changed):
     """Handle changes to interface variables"""
@@ -403,6 +374,33 @@ class UiOntologyDesign(QMainWindow):
       self.variables.indexVariables()
       self.ontology_container.indexEquations()
       self.writeMessage("Interface variables updated")
+
+  def _add_interface_domains_to_tree(self):
+    """Add single unified interface domain to tree copy"""
+    if hasattr(self.ontology_container, 'interfaces') and self.ontology_container.interfaces:
+        # Make a copy of the current tree
+        tree_copy = dict(self.ontology_container.ontology_tree)
+        
+        # Add single unified interface domain
+        if "interface" not in tree_copy:
+            tree_copy["interface"] = {
+                "name": "interface",
+                "type": "inter",
+                "parents": ["root"],
+                "children": [],
+                "behaviour": {
+                    "graph": [],  # Interface domain variable type
+                    "node": [],   # Interface domain variable type
+                    "arc": [VARIABLE_TYPE_INTERFACE]
+                },
+                "structure": {"token": {}}
+            }
+        
+        # Update the ontology tree with the copy
+        self.ontology_container.ontology_tree = tree_copy
+        
+        # Rebuild the tree widget with updated data
+        makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
 
   def on_pushExit_pressed(self):
     variable_list = sorted(self.variables.keys())
@@ -457,10 +455,17 @@ class UiOntologyDesign(QMainWindow):
     if self.ui.radioVariablesAliases.isChecked():
       self.on_radioVariablesAliases_pressed()
     elif self.ui.radioVariables.isChecked():
-      self.__setupEdit("networks")
+      if self.current_network == "interface":
+        # Clear combo box first, then setup interface
+        self.ui.combo_EditVariableTypes.clear()
+        self.__setupEdit("interface")
+      else:
+        self.__setupEdit("networks")
       self.ui.groupEdit.show()
       self.ui.combo_EditVariableTypes.show()
-      self.on_radioVariables_pressed()
+      # Only call on_radioVariables_pressed for non-interface domains
+      if self.current_network != "interface":
+        self.on_radioVariables_pressed()
       condition = self.ontology_container.rules["network_enable_adding_indices"][self.current_network]
       self.interface_control.tree_widget_radio_variables(condition)
       # if self.ontology_container.rules["network_enable_adding_indices"][self.current_network]:
@@ -603,10 +608,15 @@ class UiOntologyDesign(QMainWindow):
     nw = self.current_network
 
     if what == "interface":
-      vars_types_on_network_variable = self.ontology_container.interfaces[nw]["internal_variable_classes"]
+      # Get interface variable types from interfaces dictionary
+      if hasattr(self.ontology_container, 'variable_types_on_interfaces') and self.current_network in self.ontology_container.variable_types_on_interfaces:
+        vars_types_on_network_variable = self.ontology_container.variable_types_on_interfaces[self.current_network]
+      else:
+        vars_types_on_network_variable = [VARIABLE_TYPE_INTERFACE]  # fallback to constant
+      
       network_for_variable = nw
       network_for_expression = nw
-      vars_types_on_network_expression = self.ontology_container.interfaces[nw]["left_variable_classes"]
+      vars_types_on_network_expression = vars_types_on_network_variable  # Use same as network variable types
     else:
       self.ui.radioNode.toggle()
       self.on_radioNode_clicked()
@@ -1094,13 +1104,17 @@ class UiOntologyDesign(QMainWindow):
     network_variable = self.current_network
     network_expression = self.current_network
 
-    if choice[0] == "*":
-      hide = ["port"]
-    elif choice not in self.rules["variable_classes_having_port_variables"]:
-      hide = ["port"]
+    if  choice in self.rules["variable_classes_having_port_variables"]:
+      show = ["port"]
     else:
-      hide = []
-    hide.extend(["LaTex", "dot", "next"])
+      show = []
+
+    
+    # For interface variables, only show back button
+    if choice == VARIABLE_TYPE_INTERFACE:
+      show = ["info", "new", "port", "LaTex", "dot", "next"]
+    else:
+      show.extend(["LaTex", "dot", "next"])
     self.table_variables = UI_VariableTableDialog("create & edit variables",
                                                   self.variables,
                                                   self.indices,
@@ -1110,7 +1124,7 @@ class UiOntologyDesign(QMainWindow):
                                                   network_expression,
                                                   choice,
                                                   info_file=FILES["info_ontology_variable_table"],
-                                                  hidden_buttons=hide,
+                                                  show_buttons=show,
                                                   )
     self.table_variables.show()
     self.table_variables.changed.connect(self.dataChanged)

@@ -5,7 +5,6 @@ buttons = ['pushAddIndex',
                'pushCompile',
                'pushExit',
                'pushInfo',
-               'pushManageInterfaceVariables',
                'pushShowPDF',
                'pushShowVariables',
                'pushWrite'
@@ -64,7 +63,6 @@ class InterfaceControl():
     roundButton(self.ui.pushInfo, "info", tooltip="information")
     roundButton(self.ui.pushCompile, "compile", tooltip="compile")
     roundButton(self.ui.pushShowVariables, "variable_show", tooltip="show variables")
-    roundButton(self.ui.pushManageInterfaceVariables, "edit", tooltip="manage interface variables")
     roundButton(self.ui.pushWrite, "save", tooltip="save")
     roundButton(self.ui.pushShowPDF, "PDF", tooltip="show pdf variable equation documentation")
     roundButton(self.ui.pushExit, "off", tooltip="exit")
@@ -72,8 +70,7 @@ class InterfaceControl():
 
   def start(self, condition):
     pass
-    hide = ["pushManageInterfaceVariables",
-            "pushShowVariables",
+    hide = ["pushShowVariables",
             "groupVariables",
             "groupEdit",
             ]
@@ -97,7 +94,7 @@ class InterfaceControl():
       self._do_show_and_hide(hide, show)
 
   def tree_widget_clicked(self):
-    show = ["pushShowVariables", "pushManageInterfaceVariables"]
+    show = ["pushShowVariables"]
     hide = []
     self._do_show_and_hide(hide, show)
 

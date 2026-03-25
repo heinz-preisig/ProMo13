@@ -20,7 +20,7 @@ MAX_HEIGHT = 800
 
 from PyQt5 import QtWidgets
 
-from Common.resources_icons import roundButton
+# from Common.resources_icons import roundButton
 from OntologyBuilder.EquationEditor_v01.resources import AnalyseBiPartiteGraph
 from OntologyBuilder.EquationEditor_v01.resources import makeLatexDoc
 from OntologyBuilder.EquationEditor_v01.resources import showPDF
@@ -42,7 +42,7 @@ class UI_VariableTableShow(VariableTable):
                hide_vars=[],
                hide_columns=[3],
                info_file=None,
-               hidden=[],
+               show_buttons=[],
                table_type="variable_picking"):  # Add table_type parameter
     """
     constructs a dialog window based on QDialog for picking variables
@@ -69,26 +69,32 @@ class UI_VariableTableShow(VariableTable):
                            variables,
                            ontology_container.indices,
                            network,
-                           enabled_types,
+                           enabled_types,  # This matches enabled_variable_types in parent
                            hide_vars,
                            hide_columns,
-                           info_file=info_file
+                           info_file,
+                           show_buttons,
                            )
 
-    buttons = self.buttons
-
-    showButtons = {"back" : roundButton(buttons["back"], "back", tooltip="go back"),
-                   "LaTex": roundButton(buttons["LaTex"], "LaTex", tooltip="make LaTeX document"),
-                   "dot"  : roundButton(buttons["dot"], "dot_graph", tooltip="show graph"),
-                   }
-
-    for b in buttons:
-      if b not in showButtons:
-        # print("debugging -- hide button", b)
-        buttons[b].hide()
-
-    buttons["LaTex"].hide()
-    buttons["dot"].hide()
+    # buttons = self.buttons
+    #
+    # # Show only the buttons specified in the hidden parameter
+    # showButtons = {}
+    # for button_name in buttons:
+    #   if button_name in buttons:
+    #     showButtons[button_name] = roundButton(buttons[button_name], button_name,
+    #                                           tooltip=buttons[button_name].toolTip())
+    #
+    # for b in buttons:
+    #   if b not in showButtons:
+    #     # print("debugging -- hide button", b)
+    #     buttons[b].hide()
+    #
+    # # Always hide LaTeX and dot buttons unless explicitly requested
+    # if "LaTex" not in hidden:
+    #   buttons["LaTex"].hide()
+    # if "dot_graph" not in hidden:
+    #   buttons["dot_graph"].hide()
 
     self.hide_columns = hide_columns
 

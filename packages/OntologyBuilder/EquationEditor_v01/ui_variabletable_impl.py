@@ -67,7 +67,7 @@ class UI_VariableTableDialog(VariableTable):
                hide_vars=[],
                hide_columns=[],
                info_file=None,
-               hidden_buttons=[]):
+               show_buttons=[]):
     """
     constructs a dialog window based on QDialog
     @param title:     title string: indicates the tree's nature
@@ -100,20 +100,21 @@ class UI_VariableTableDialog(VariableTable):
                            enabled_variable_types,
                            hide_vars,
                            hide_columns,
-                           info_file=info_file
+                           info_file=info_file,
+                           show_buttons=["back"],
                            )
 
-    buttons = self.buttons
-
-    showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
-                   "info": roundButton(buttons["info"], "info", tooltip="information"),
-                   "new" : roundButton(buttons["new"], "dependent_variable", tooltip="new dependent variable"),
-                   "port": roundButton(buttons["port"], "port", tooltip="new port variable"),
-                   }
-
-    for b in buttons:
-      if b not in showButtons:
-        buttons[b].hide()
+    # buttons = self.buttons
+    #
+    # showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
+    #                "info": roundButton(buttons["info"], "info", tooltip="information"),
+    #                "new" : roundButton(buttons["new"], "dependent_variable", tooltip="new dependent variable"),
+    #                "port": roundButton(buttons["port"], "port", tooltip="new port variable"),
+    #                }
+    #
+    # for b in buttons:
+    #   if b not in showButtons:
+    #     buttons[b].hide()
 
     # version_change : hide token column
     self.hideColumn(3)

@@ -996,6 +996,47 @@ class Variables(OrderedDict):
                 variable_space[nw][c].add(v)
                 v_counter += 1
 
+    elif what == "variable_display":
+      # NEW MODE: Show all variables accessible in the selected domain
+      # This is simpler than variable_picking - no complex filtering
+      
+      # Get accessible networks from hierarchy
+      if network in self.ontology_container.ontology_hierarchy:
+        accessible_networks = self.ontology_container.ontology_hierarchy[network]
+      else:
+        # If network is not in hierarchy (e.g., 'interface'), use only the network itself
+        accessible_networks = [network]
+      
+      # Add inter-branch networks for cross-domain access
+      inter_branches = self.ontology_container.list_inter_branches
+      accessible_networks.extend(inter_branches)
+      accessible_networks = list(set(accessible_networks))
+      
+      variable_space = {}
+      v_counter = 0
+      
+      # Build variable space for each accessible network
+      for nw in accessible_networks:
+        if nw in self.index_networks_for_variable:
+          variable_space[nw] = {}
+          for var_class in self.index_networks_for_variable[nw]:
+            variable_space[nw][var_class] = set()
+            
+            # Include ALL variables (no filtering for display mode)
+            for v in self.index_networks_for_variable[nw][var_class]:
+              variable_space[nw][var_class].add(v)
+              v_counter += 1
+      
+      # Add interface domain variables if they exist
+      if hasattr(self, 'interface_domain') and self.interface_domain:
+        if self.interface_domain in self.index_networks_for_variable:
+          variable_space[self.interface_domain] = {}
+          for var_class in self.index_networks_for_variable[self.interface_domain]:
+            variable_space[self.interface_domain][var_class] = set()
+            for v in self.index_networks_for_variable[self.interface_domain][var_class]:
+              variable_space[self.interface_domain][var_class].add(v)
+              v_counter += 1
+
     else:
       variable_space = self.index_networks_for_variable
 

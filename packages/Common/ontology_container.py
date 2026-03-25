@@ -272,6 +272,19 @@ class OntologyContainer():
                     if nw not in self.interconnection_nws_list:
                         self.interconnection_nws_list.append(nw)
 
+        # Add interface domain to rules
+        # if hasattr(self, 'interfaces') and self.interfaces:
+        #     print(f"DEBUG: Interfaces in dictionary: {list(self.interfaces.keys())}")
+        #     for interface_name in self.interfaces.keys():
+        #         if interface_name not in self.rules["network_enable_adding_indices"]:
+        #             print(f"DEBUG: Adding interface '{interface_name}' to rules dictionary")
+        #             self.rules["network_enable_adding_indices"][interface_name] = False
+        
+        # Add unified interface domain to rules
+        if "interface" not in self.rules["network_enable_adding_indices"]: # note: this is a unified interface
+            print(f"DEBUG: Adding unified 'interface' to rules dictionary")
+            self.rules["network_enable_adding_indices"]["interface"] = False
+
         self.interconnection_network_dictionary, \
             self.intraconnection_network_dictionary = self.__makeConnectionNetworks(
                 )  # ...... dict(connection network) of dict

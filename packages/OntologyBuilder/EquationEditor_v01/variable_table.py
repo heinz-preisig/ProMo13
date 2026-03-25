@@ -19,10 +19,12 @@ MAX_WIDTH = 1000
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
+
+from Common.resources_icons import roundButton
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
-from OntologyBuilder.OntologyEquationEditor.resources import TOOLTIPS
-from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal
-from OntologyBuilder.OntologyEquationEditor.ui_variabletable import Ui_Dialog
+from OntologyBuilder.EquationEditor_v01.resources import TOOLTIPS
+from OntologyBuilder.EquationEditor_v01.resources import renderIndexListFromGlobalIDToInternal
+from OntologyBuilder.EquationEditor_v01.ui_variabletable import Ui_Dialog
 
 
 class VariableTable(QtWidgets.QDialog):
@@ -46,7 +48,9 @@ class VariableTable(QtWidgets.QDialog):
                enabled_variable_types,
                hide_vars,
                hide_columns,
-               info_file):
+               info_file,
+               show_buttons,
+               ):
 
     self.variables = variables
     self.indices = indices
@@ -81,8 +85,21 @@ class VariableTable(QtWidgets.QDialog):
             "port" : self.ui.pushPort,
             "LaTex": self.ui.pushLaTex,
             "dot"  : self.ui.pushDot,
+            "dot_graph"  : self.ui.pushDot,
             "next" : self.ui.pushNext,
             }
+
+
+    for button in self.buttons:
+      self.buttons[button].hide()
+
+    buttons = self.buttons
+    for button_name in buttons:
+      if button_name in show_buttons:
+        roundButton(buttons[button_name], button_name, tooltip=buttons[button_name].toolTip())
+        self.buttons[button_name].show()
+      else:
+        self.buttons[button_name].hide()
 
   def reset_table(self):
     self.variables.indexVariables()  # this was a hard one
@@ -90,10 +107,11 @@ class VariableTable(QtWidgets.QDialog):
     self.ui.tableVariable.setRowCount(0)
     self.makeTable()
     self.update()
-    if not self.info_file:
-      self.ui.pushInfo.hide()
-    else:
-      self.ui.pushInfo.show()
+    # if not self.info_file:
+    #   self.ui.pushInfo.hide()
+    # else:
+    #   if "info" in self.buttons:
+    #     self.ui.pushInfo.show()
 
   def setToolTips(self, mode):
     rows = self.ui.tableVariable.rowCount()
@@ -304,6 +322,8 @@ class VariableTable(QtWidgets.QDialog):
     tab.setItem(row, col, item)
 
   def on_pushInfo_pressed(self):
+    if not self.info_file:
+      return
     msg_popup = UI_FileDisplayWindow(self.info_file)
     msg_popup.exec_()
 

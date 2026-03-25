@@ -140,19 +140,6 @@
      <string>add index</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushManageInterfaceVariables">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>340</y>
-      <width>88</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>interface</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QGroupBox" name="groupOntology">
    <property name="geometry">
