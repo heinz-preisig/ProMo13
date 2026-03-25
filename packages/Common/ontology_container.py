@@ -31,13 +31,17 @@ import os as OS
 from collections import OrderedDict
 from copy import copy
 from pathlib import Path
-from typing import List, Dict, Any, Union, Optional
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
 from PyQt5 import QtWidgets
 
 from Common.classes.equation import Equation
-from Common.classes.io import load_entities_from_file    #todo: eliminate
-from Common.classes.io import load_var_idx_eq_from_file  #todo: eliminate
+from Common.classes.io import load_entities_from_file  # todo: eliminate
+from Common.classes.io import load_var_idx_eq_from_file  # todo: eliminate
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import M_None
 from Common.common_resources import PROMO_IRI_PREFIX
@@ -279,9 +283,9 @@ class OntologyContainer():
         #         if interface_name not in self.rules["network_enable_adding_indices"]:
         #             print(f"DEBUG: Adding interface '{interface_name}' to rules dictionary")
         #             self.rules["network_enable_adding_indices"][interface_name] = False
-        
+
         # Add unified interface domain to rules
-        if "interface" not in self.rules["network_enable_adding_indices"]: # note: this is a unified interface
+        if "interface" not in self.rules["network_enable_adding_indices"]:  # note: this is a unified interface
             print(f"DEBUG: Adding unified 'interface' to rules dictionary")
             self.rules["network_enable_adding_indices"]["interface"] = False
 
@@ -452,7 +456,7 @@ class OntologyContainer():
         """Save entities to file and update equation_entity_dict"""
         try:
             path = FILES["variable_assignment_to_entity_object"] % self.ontology_name
-            
+
             # Clean up var_eq_forest data before saving to ensure proper format
             cleaned_entities = {}
             for entity_key, entity_data in entities_dict.items():
@@ -472,17 +476,17 @@ class OntologyContainer():
                         cleaned_forest.append(cleaned_tree)
                     cleaned_data['var_eq_forest'] = cleaned_forest
                 cleaned_entities[entity_key] = cleaned_data
-            
+
             # Save entities to file
             with open(path, 'w', encoding='utf-8') as file:
                 json.dump(cleaned_entities, file, indent=4)
-            
+
             print(f"Saved {len(cleaned_entities)} entities to {path}")
-            
+
             # Update equation_entity_dict
             self.equation_entity_dict = self.__makeEquationClassesDictionary()
             print(f"Updated equation_entity_dict with {len(self.equation_entity_dict)} equations")
-            
+
         except Exception as e:
             print(f"Error saving entities: {e}")
 
@@ -1079,7 +1083,7 @@ class OntologyContainer():
         # RULE: continue -- current approach hard wired the term 'transport'
 
         arcs = {}
-        for nw in networks: #self.list_leave_networks:
+        for nw in networks:  # self.list_leave_networks:
             arcs_in_network = []
             for token in self.ontology_tree[nw]["structure"]["arc"]:
                 for mechanism in self.ontology_tree[nw]["structure"]["arc"][token]:
@@ -1266,7 +1270,6 @@ class OntologyContainer():
         for i in args:
             self.variables[ID][i] = args[i]
 
-
     def writeVariables(self, variables, indices, ProMoIRI):
         """
         The data are assumed to be a dictionary (ordered)
@@ -1283,7 +1286,7 @@ class OntologyContainer():
         # NOTE: every saving generates a backup file -- enables scrolling back
         saveWithBackup(data, f_name)
         # putData(data, f_name)
-        
+
         # Also write variables to text file in same directory
         try:
             # Extract directory from f_name and create text file path
@@ -1295,13 +1298,13 @@ class OntologyContainer():
             else:
                 variables_text_path = "variables_definition_order.txt"
                 equations_text_path = "equations_sequence_order.txt"
-            
+
             self.writeVariablesToTextFile(variables, variables_text_path)
-            
+
             # Also write equations to text file if equation dictionary is available
             if hasattr(self, 'equation_dictionary') and self.equation_dictionary:
                 self.writeEquationsToTextFile(self.equation_dictionary, equations_text_path)
-                
+
         except Exception as e:
             print(f"Warning: Failed to write variables/equations to text files: {e}")
 
@@ -1363,7 +1366,7 @@ class OntologyContainer():
             else:
                 # Plain dictionary - use .keys()
                 var_ids = variables.keys()
-            
+
             # Get all variable IDs and sort them numerically
             variable_ids = []
             for var_id in var_ids:
@@ -1375,42 +1378,42 @@ class OntologyContainer():
                     except ValueError:
                         # Handle cases where the suffix might not be a simple number
                         variable_ids.append((float('inf'), var_id))
-            
+
             # Sort by the numeric part
             variable_ids.sort()
-            
+
             # Write to file
             with open(output_filename, 'w', encoding='utf-8') as f:
                 f.write("List of Variables in Definition Order\n")
                 f.write("=" * 50 + "\n\n")
-                
+
                 for num, var_id in variable_ids:
                     # Get variable object - handle both formats
                     if hasattr(variables, 'get'):
                         var = variables.get(var_id, {})
                     else:
                         var = variables.get(var_id, {})
-                    
+
                     f.write(f"Variable ID: {var_id}\n")
                     f.write(f"  Label: {var.get('label', 'N/A')}\n")
                     f.write(f"  Type: {var.get('type', 'N/A')}\n")
                     f.write(f"  Network: {var.get('network', 'N/A')}\n")
                     f.write(f"  Documentation: {var.get('doc', 'N/A')}\n")
-                    
+
                     # Write units if available
                     if var.get('units'):
                         f.write(f"  Units: {var['units']}\n")
-                    
+
                     # Write equations if available
                     equations = var.get('equations', {})
                     if equations:
                         f.write(f"  Equations: {list(equations.keys())}\n")
-                    
+
                     f.write("\n")
-            
+
             print(f"Successfully wrote {len(variable_ids)} variables to {output_filename}")
             return True
-            
+
         except Exception as e:
             print(f"Error writing variables to file: {e}")
             return False
@@ -1434,24 +1437,24 @@ class OntologyContainer():
                     except ValueError:
                         # Handle cases where the suffix might not be a simple number
                         equation_ids.append((float('inf'), eq_id))
-            
+
             # Sort by the numeric part for proper sequence
             equation_ids.sort()
-            
+
             # Write to file
             with open(output_filename, 'w', encoding='utf-8') as f:
                 f.write("List of Equations in Sequence Order\n")
                 f.write("=" * 50 + "\n\n")
-                
+
                 for num, eq_id in equation_ids:
                     eq = equation_dictionary[eq_id]
                     f.write(f"Equation ID: {eq_id}\n")
-                    
+
                     # Write equation details
                     if isinstance(eq, dict):
                         f.write(f"  Type: {eq.get('type', 'N/A')}\n")
                         f.write(f"  Network: {eq.get('network', 'N/A')}\n")
-                        
+
                         # Write RHS if available
                         if 'rhs' in eq:
                             rhs = eq['rhs']
@@ -1461,16 +1464,16 @@ class OntologyContainer():
                                 f.write(f"  RHS LaTeX: {rhs.get('latex', 'N/A')}\n")
                             else:
                                 f.write(f"  RHS: {rhs}\n")
-                        
+
                         # Write documentation if available
                         if 'doc' in eq:
                             f.write(f"  Documentation: {eq['doc']}\n")
-                    
+
                     f.write("\n")
-            
+
             print(f"Successfully wrote {len(equation_ids)} equations to {output_filename}")
             return True
-            
+
         except Exception as e:
             print(f"Error writing equations to file: {e}")
             return False
@@ -1512,7 +1515,7 @@ class OntologyContainer():
 
     def __load_variable_assignment_file(self, file_name):
         data = getData(file_name)
-        
+
         # Clean up var_eq_forest data to handle JSON serialization issues
         if data:
             for entity_key, entity_data in data.items():
@@ -1530,7 +1533,7 @@ class OntologyContainer():
                                 cleaned_tree[key] = values
                         cleaned_forest.append(cleaned_tree)
                     entity_data['var_eq_forest'] = cleaned_forest
-        
+
         return data
 
     def __load_arc_options_to_file(self):
@@ -1669,7 +1672,7 @@ class OntologyContainer():
                     painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
                     painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
                     painter.setRenderHint(QtGui.QPainter.TextAntialiasing, True)
-                    
+
                     # Center the scaled pixmap in the canvas
                     x_offset = (canvas_width - scaled_pixmap.width()) // 2
                     y_offset = (canvas_height - scaled_pixmap.height()) // 2
@@ -1692,11 +1695,11 @@ class OntologyContainer():
         return variable_icons
 
     def filter_variables_by_type(
-        self, 
-        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]], 
-        allowed_types: List[str],
-        exclude_types: Optional[List[str]] = None
-    ) -> List[Union[Dict[str, Any], str]]:
+            self,
+            variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]],
+            allowed_types: List[str],
+            exclude_types: Optional[List[str]] = None
+            ) -> List[Union[Dict[str, Any], str]]:
         """
         Filter variables by allowed and excluded types.
         
@@ -1709,7 +1712,7 @@ class OntologyContainer():
             List of filtered variables (dicts if input was list, IDs if input was dict)
         """
         exclude_types = exclude_types or []
-        
+
         if isinstance(variables, dict):
             # Return list of variable IDs
             filtered_ids = []
@@ -1726,26 +1729,26 @@ class OntologyContainer():
                 if var_type in allowed_types and var_type not in exclude_types:
                     filtered.append(var)
             return filtered
-    
+
     def filter_transport_variables(
-        self, 
-        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]]
-    ) -> List[Union[Dict[str, Any], str]]:
+            self,
+            variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]]
+            ) -> List[Union[Dict[str, Any], str]]:
         """Filter out transport variables."""
         return self.filter_variables_by_type(variables, [], ['transport'])
-    
+
     def filter_only_transport(
-        self, 
-        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]]
-    ) -> List[Union[Dict[str, Any], str]]:
+            self,
+            variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]]
+            ) -> List[Union[Dict[str, Any], str]]:
         """Filter for only transport variables."""
         return self.filter_variables_by_type(variables, ['transport'])
-    
+
     def filter_variables_by_network(
-        self,
-        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]],
-        networks: List[str]
-    ) -> List[Union[Dict[str, Any], str]]:
+            self,
+            variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]],
+            networks: List[str]
+            ) -> List[Union[Dict[str, Any], str]]:
         """
         Filter variables by network(s).
         
@@ -1772,12 +1775,12 @@ class OntologyContainer():
                 if var_network in networks:
                     filtered.append(var)
             return filtered
-    
+
     def filter_variables_by_component(
-        self,
-        variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]],
-        component: str
-    ) -> List[Union[Dict[str, Any], str]]:
+            self,
+            variables: Union[List[Dict[str, Any]], Dict[str, Dict[str, Any]]],
+            component: str
+            ) -> List[Union[Dict[str, Any], str]]:
         """
         Filter variables by component type using ontology rules.
         
@@ -1793,7 +1796,7 @@ class OntologyContainer():
         for network in self.variable_types_on_networks_per_component:
             if component in self.variable_types_on_networks_per_component[network]:
                 allowed_var_types.update(self.variable_types_on_networks_per_component[network][component])
-        
+
         if isinstance(variables, dict):
             # Return list of variable IDs
             filtered_ids = []
@@ -1810,11 +1813,11 @@ class OntologyContainer():
                 if var_type in allowed_var_types:
                     filtered.append(var)
             return filtered
-    
+
     def get_variables_for_interface(
-        self,
-        interface_network: str
-    ) -> List[str]:
+            self,
+            interface_network: str
+            ) -> List[str]:
         """
         Get variables applicable to a specific interface.
         
@@ -1828,11 +1831,11 @@ class OntologyContainer():
             interface_var_types = self.variable_types_on_interfaces[interface_network]
             return self.filter_variables_by_type(self.variables, interface_var_types)
         return []
-    
+
     def get_variables_for_intraface(
-        self,
-        intraface_network: str
-    ) -> List[str]:
+            self,
+            intraface_network: str
+            ) -> List[str]:
         """
         Get variables applicable to a specific intraface.
         
@@ -1846,13 +1849,13 @@ class OntologyContainer():
             intraface_var_types = self.variable_types_on_intrafaces[intraface_network]
             return self.filter_variables_by_type(self.variables, intraface_var_types)
         return []
-    
+
     # Convenience methods for Entity class compatibility
     def get_output_variables_filtered(
-        self,
-        entity_variable_ids: List[str],
-        exclude_transport: bool = True
-    ) -> List[str]:
+            self,
+            entity_variable_ids: List[str],
+            exclude_transport: bool = True
+            ) -> List[str]:
         """
         Entity-compatible method to get output variables with transport filtering.
         
@@ -1865,7 +1868,7 @@ class OntologyContainer():
         """
         if not exclude_transport:
             return entity_variable_ids
-        
+
         # Filter out transport variables using exchange board's variable data
         filtered_vars = []
         for var_id in entity_variable_ids:
@@ -1876,14 +1879,14 @@ class OntologyContainer():
             else:
                 # Include variable if not found in exchange board (fallback)
                 filtered_vars.append(var_id)
-        
+
         return filtered_vars
-    
+
     def get_equation_defined_variables_filtered(
-        self,
-        equation_defined_var_ids: List[str],
-        exclude_transport: bool = True
-    ) -> List[str]:
+            self,
+            equation_defined_var_ids: List[str],
+            exclude_transport: bool = True
+            ) -> List[str]:
         """
         Entity-compatible method to filter equation-defined variables.
         
@@ -1895,13 +1898,13 @@ class OntologyContainer():
             List of filtered variable IDs
         """
         return self.get_output_variables_filtered(equation_defined_var_ids, exclude_transport)
-    
+
     # Convenience methods for Behaviour Linker compatibility
     def filter_variables_for_behaviour_linker(
-        self,
-        entity_type_info: Dict[str, Any],
-        variable_class_mode: str = 'state'
-    ) -> List[Dict[str, Any]]:
+            self,
+            entity_type_info: Dict[str, Any],
+            variable_class_mode: str = 'state'
+            ) -> List[Dict[str, Any]]:
         """
         Behaviour Linker compatible filtering method.
         
@@ -1914,41 +1917,43 @@ class OntologyContainer():
         """
         try:
             # Import here to avoid circular dependencies
-            from packages.OntologyBuilder.BehaviourLinker_v01.variable_classification_rules import VariableClassificationRules
-            
+            from packages.OntologyBuilder.BehaviourLinker_v01.variable_classification_rules import \
+                VariableClassificationRules
+
             # Convert variables to list of dictionaries for classification
             var_list = []
             for var_id, var_data in self.variables.items():
                 try:
                     # Safely extract variable data
                     var_dict = {
-                        'id': var_id,
-                        'type': var_data.get('type', ''),
-                        'label': var_data.get('label', ''),
-                        'network': var_data.get('network', ''),
-                        'png_file': var_data.get('png_file'),
-                        # Add other fields as needed
-                    }
+                            'id'      : var_id,
+                            'type'    : var_data.get('type', ''),
+                            'label'   : var_data.get('label', ''),
+                            'network' : var_data.get('network', ''),
+                            'png_file': var_data.get('png_file'),
+                            # Add other fields as needed
+                            }
                     var_list.append(var_dict)
                 except Exception as e:
                     print(f"Warning: Error processing variable {var_id} for filtering: {e}")
                     continue
-            
+
             # Apply classification rules
             classification = VariableClassificationRules.classify_variables(var_list, entity_type_info)
-            
+
             # Select appropriate classification based on mode
             if variable_class_mode == 'state':
                 filtered_dicts = classification['allowed_root']
             elif variable_class_mode == 'transport':
                 filtered_dicts = VariableClassificationRules.filter_variables_by_type(var_list, ['transport'])
             elif variable_class_mode == 'intensity':
-                filtered_dicts = VariableClassificationRules.filter_variables_by_type(var_list, ['effort', 'secondaryState'])
+                filtered_dicts = VariableClassificationRules.filter_variables_by_type(var_list,
+                                                                                      ['effort', 'secondaryState'])
             elif variable_class_mode == 'all':
                 # Combine all classifications, remove duplicates
-                all_vars = (classification['allowed_root'] + 
-                           classification['inputs'] + 
-                           classification['outputs'])
+                all_vars = (classification['allowed_root'] +
+                            classification['inputs'] +
+                            classification['outputs'])
                 seen_ids = set()
                 filtered_dicts = []
                 for var in all_vars:
@@ -1958,9 +1963,9 @@ class OntologyContainer():
             else:
                 # Default to state mode
                 filtered_dicts = classification['allowed_root']
-            
+
             return filtered_dicts
-            
+
         except Exception as e:
             print(f"Error in filter_variables_for_behaviour_linker: {e}")
             # Return empty list as fallback
@@ -1993,7 +1998,7 @@ class OntologyContainer():
             e_name = e_name.replace(".json", ".txt")
 
             equations = compiled_equations
-            
+
             # Sort equation IDs numerically for proper sequence (E_1, E_2, E_3, etc.)
             equation_ids = []
             for equ_ID in equations.keys():
@@ -2005,10 +2010,10 @@ class OntologyContainer():
                         equation_ids.append((float('inf'), equ_ID))
                 else:
                     equation_ids.append((float('inf'), equ_ID))
-            
+
             # Sort numerically
             equation_ids.sort()
-            
+
             # Write equations in proper numerical order
             with open(e_name, 'w') as f:
                 for num, equ_ID in equation_ids:
@@ -2018,7 +2023,7 @@ class OntologyContainer():
 
             print(f"Successfully wrote {len(equation_ids)} equations to {e_name}")
             return True
-            
+
         except Exception as e:
             print(f"Error writing equations to file: {e}")
             return False

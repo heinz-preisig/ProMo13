@@ -22,114 +22,115 @@ from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
 
 
 class UI_VariableTablePick(VariableTable):
-  """
-  dialog for a variable
-  emits a signal on completion
-  """
-
-  completed = QtCore.pyqtSignal(str)
-  picked = QtCore.pyqtSignal(str)
-  new_variable = QtCore.pyqtSignal(str)
-  new_equation = QtCore.pyqtSignal(str, str)
-  deleted_symbol = QtCore.pyqtSignal(str)
-
-  def __init__(self,
-               title,
-               variables,
-               indices,
-               network,
-               enabled_types=['ALL'],
-               hide_vars=[],
-               hide_columns=[],
-               info_file=None,
-               hidden=[],
-               which="variable_picking",
-               ):
     """
-    constructs a dialog window based on QDialog for picking variables
-    @param title:     title string: indicates the tree's nature
-    @param variables: physical variable.
-    @network:      network type
-    @my_types:      type of variables being processed
-
-    control is done through the interface and additional functions:
-    - enable_pick_contents : true or false
-    - enable_seclection : rows and columns
-
-    signals:
-    - picked : returns selected item text
-    - completed : button finished has been pressed
-    -
+    dialog for a variable
+    emits a signal on completion
     """
 
-    VariableTable.__init__(self,
-                           title,
-                           which,
-                           variables,
-                           indices,
-                           network,
-                           # variables.index_accessible_variables_on_networks,
-                           enabled_types,
-                           hide_vars,
-                           hide_columns,
-                           info_file=info_file,
-                           )
-    buttons = self.buttons
+    completed = QtCore.pyqtSignal(str)
+    picked = QtCore.pyqtSignal(str)
+    new_variable = QtCore.pyqtSignal(str)
+    new_equation = QtCore.pyqtSignal(str, str)
+    deleted_symbol = QtCore.pyqtSignal(str)
 
-    showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
-                   # "info": roundButton(buttons["info"], "info", tooltip="information"),
-                   # "new" : roundButton(buttons["new"], "dependent_variable", tooltip="new dependent variable"),
-                   # "port": roundButton(buttons["port"], "port", tooltip="new port variable"),
-                   }
+    def __init__(self,
+                 title,
+                 variables,
+                 indices,
+                 network,
+                 enabled_types=['ALL'],
+                 hide_vars=[],
+                 hide_columns=[],
+                 info_file=None,
+                 hidden=[],
+                 which="variable_picking",
+                 ):
+        """
+        constructs a dialog window based on QDialog for picking variables
+        @param title:     title string: indicates the tree's nature
+        @param variables: physical variable.
+        @network:      network type
+        @my_types:      type of variables being processed
 
-    for b in buttons:
-      if b not in showButtons:
-        buttons[b].hide()
+        control is done through the interface and additional functions:
+        - enable_pick_contents : true or false
+        - enable_seclection : rows and columns
 
-    self.variable_list = []
-    self.hide_columns = hide_columns
+        signals:
+        - picked : returns selected item text
+        - completed : button finished has been pressed
+        -
+        """
 
-    self.setToolTips('pick')
-    self.ui.tableVariable.setToolTip("click on row to copy variable to expression")
-    self.ui.tableVariable.setSortingEnabled(True)
+        VariableTable.__init__(self,
+                               title,
+                               which,
+                               variables,
+                               indices,
+                               network,
+                               # variables.index_accessible_variables_on_networks,
+                               enabled_types,
+                               hide_vars,
+                               hide_columns,
+                               info_file=info_file,
+                               )
+        buttons = self.buttons
 
-  def on_tableVariable_itemClicked(self, item):
-    r = int(item.row())
-    item = self.ui.tableVariable.item
-    
-    # Get the variable ID from column 9 (hidden column with ID)
-    var_ID = str(item(r, 9).text())
-    
-    # Check if this is an interface variable by looking at its network
-    var = self.variables[var_ID]
-    
-    # If variable is from interface domain, use its label directly
-    # If variable is from another domain, create/get interface variable name
-    if hasattr(var, 'network') and var.network == 'interface':
-        # This is already an interface variable - return its ID
-        self.selected_variable_symbol = str(item(r, 9).text())  # Get ID from hidden column
-    else:
-        # This is a cross-domain variable, create interface variable and return its ID
-        source_domain = var.network
-        source_label = var.label
-        interface_var_name = f"{source_domain}_{source_label}"
-        
-        # Create interface variable to get its ID
-        interface_var_ID = self.variables.createInterfaceVariable(
-            source_domain, var_ID, self.network
-        )
-        
-        # Return the interface variable ID (V_8), not the name (physical_V)
-        self.selected_variable_symbol = interface_var_ID
-    
-    self.picked.emit(self.selected_variable_symbol)
-    return
+        showButtons = {
+                "back": roundButton(buttons["back"], "back", tooltip="go back"),
+                # "info": roundButton(buttons["info"], "info", tooltip="information"),
+                # "new" : roundButton(buttons["new"], "dependent_variable", tooltip="new dependent variable"),
+                # "port": roundButton(buttons["port"], "port", tooltip="new port variable"),
+                }
 
-  # def on_tableVariable_itemDoubleClicked(self, item):
-  #   print("debugging -- double click on item", item.row(), item.column())
+        for b in buttons:
+            if b not in showButtons:
+                buttons[b].hide()
 
-  def on_pushFinished_pressed(self):
-    self.close()
+        self.variable_list = []
+        self.hide_columns = hide_columns
 
-  def closeEvent(self, event):
-    self.close()
+        self.setToolTips('pick')
+        self.ui.tableVariable.setToolTip("click on row to copy variable to expression")
+        self.ui.tableVariable.setSortingEnabled(True)
+
+    def on_tableVariable_itemClicked(self, item):
+        r = int(item.row())
+        item = self.ui.tableVariable.item
+
+        # Get the variable ID from column 9 (hidden column with ID)
+        var_ID = str(item(r, 9).text())
+
+        # Check if this is an interface variable by looking at its network
+        var = self.variables[var_ID]
+
+        # If variable is from interface domain, use its label directly
+        # If variable is from another domain, create/get interface variable name
+        if hasattr(var, 'network') and var.network == 'interface':
+            # This is already an interface variable - return its ID
+            self.selected_variable_symbol = str(item(r, 9).text())  # Get ID from hidden column
+        else:
+            # This is a cross-domain variable, create interface variable and return its ID
+            source_domain = var.network
+            source_label = var.label
+            interface_var_name = f"{source_domain}_{source_label}"
+
+            # Create interface variable to get its ID
+            interface_var_ID = self.variables.createInterfaceVariable(
+                    source_domain, var_ID, self.network
+                    )
+
+            # Return the interface variable ID (V_8), not the name (physical_V)
+            self.selected_variable_symbol = interface_var_ID
+
+        self.picked.emit(self.selected_variable_symbol)
+        return
+
+    # def on_tableVariable_itemDoubleClicked(self, item):
+    #   print("debugging -- double click on item", item.row(), item.column())
+
+    def on_pushFinished_pressed(self):
+        self.close()
+
+    def closeEvent(self, event):
+        self.close()

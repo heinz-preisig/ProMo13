@@ -28,163 +28,163 @@ from OntologyBuilder.EquationEditor_v01.variable_table import VariableTable
 
 
 class UI_VariableTableShow(VariableTable):
-  """
-  dialog for a variable
-  emits a signal on completion
-  """
-
-  def __init__(self,
-               title,
-               ontology_container,  #
-               variables,
-               network,
-               enabled_types=['ALL'],
-               hide_vars=[],
-               hide_columns=[3],
-               info_file=None,
-               show_buttons=[],
-               table_type="variable_picking"):  # Add table_type parameter
     """
-    constructs a dialog window based on QDialog for picking variables
-    @param title:     title string: indicates the tree's nature
-    @param variables: physical variable.
-    @network:      network type
-    @my_types:      type of variables being processed
-
-    control is done through the interface and additional functions:
-    - enable_pick_contents : true or false
-    - enable_seclection : rows and columns
-
-    signals:
-    - picked : returns selected item text
-    - completed : button finished has been pressed
-    -
+    dialog for a variable
+    emits a signal on completion
     """
-    self.ontology_name = ontology_container.ontology_name
-    self.ontology_container = ontology_container
 
-    VariableTable.__init__(self,
-                           title,
-                           table_type,  # Use the parameter instead of hardcoded "variable_picking"
-                           variables,
-                           ontology_container.indices,
-                           network,
-                           enabled_types,  # This matches enabled_variable_types in parent
-                           hide_vars,
-                           hide_columns,
-                           info_file,
-                           show_buttons,
-                           )
+    def __init__(self,
+                 title,
+                 ontology_container,  #
+                 variables,
+                 network,
+                 enabled_types=['ALL'],
+                 hide_vars=[],
+                 hide_columns=[3],
+                 info_file=None,
+                 show_buttons=[],
+                 table_type="variable_picking"):  # Add table_type parameter
+        """
+        constructs a dialog window based on QDialog for picking variables
+        @param title:     title string: indicates the tree's nature
+        @param variables: physical variable.
+        @network:      network type
+        @my_types:      type of variables being processed
 
-    # buttons = self.buttons
-    #
-    # # Show only the buttons specified in the hidden parameter
-    # showButtons = {}
-    # for button_name in buttons:
-    #   if button_name in buttons:
-    #     showButtons[button_name] = roundButton(buttons[button_name], button_name,
-    #                                           tooltip=buttons[button_name].toolTip())
-    #
-    # for b in buttons:
-    #   if b not in showButtons:
-    #     # print("debugging -- hide button", b)
-    #     buttons[b].hide()
-    #
-    # # Always hide LaTeX and dot buttons unless explicitly requested
-    # if "LaTex" not in hidden:
-    #   buttons["LaTex"].hide()
-    # if "dot_graph" not in hidden:
-    #   buttons["dot_graph"].hide()
+        control is done through the interface and additional functions:
+        - enable_pick_contents : true or false
+        - enable_seclection : rows and columns
 
-    self.hide_columns = hide_columns
+        signals:
+        - picked : returns selected item text
+        - completed : button finished has been pressed
+        -
+        """
+        self.ontology_name = ontology_container.ontology_name
+        self.ontology_container = ontology_container
 
-    self.setToolTips("show")
-    self.ui.tableVariable.setToolTip("click on row to copy variable to expression")
-    self.ui.tableVariable.setSortingEnabled(True)
+        VariableTable.__init__(self,
+                               title,
+                               table_type,  # Use the parameter instead of hardcoded "variable_picking"
+                               variables,
+                               ontology_container.indices,
+                               network,
+                               enabled_types,  # This matches enabled_variable_types in parent
+                               hide_vars,
+                               hide_columns,
+                               info_file,
+                               show_buttons,
+                               )
 
-  def on_tableVariable_itemClicked(self, item):
+        # buttons = self.buttons
+        #
+        # # Show only the buttons specified in the hidden parameter
+        # showButtons = {}
+        # for button_name in buttons:
+        #   if button_name in buttons:
+        #     showButtons[button_name] = roundButton(buttons[button_name], button_name,
+        #                                           tooltip=buttons[button_name].toolTip())
+        #
+        # for b in buttons:
+        #   if b not in showButtons:
+        #     # print("debugging -- hide button", b)
+        #     buttons[b].hide()
+        #
+        # # Always hide LaTeX and dot buttons unless explicitly requested
+        # if "LaTex" not in hidden:
+        #   buttons["LaTex"].hide()
+        # if "dot_graph" not in hidden:
+        #   buttons["dot_graph"].hide()
 
-    column_count = self.ui.tableVariable.columnCount()
-    row = item.row()
-    column = item.column()
-    item = self.ui.tableVariable.item
-    data = {}
-    for c in range(column_count):
-      data[c] = item(row, c).text()
-      # print("debugging -- chose:", c, str(data[c]))
+        self.hide_columns = hide_columns
 
-    self.selected_variable_symbol = data[1]
-    self.selected_variable_ID = data[9]
-    # print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
+        self.setToolTips("show")
+        self.ui.tableVariable.setToolTip("click on row to copy variable to expression")
+        self.ui.tableVariable.setSortingEnabled(True)
 
-    image_location = self.variables.ontology_container.latex_image_location
-    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+    def on_tableVariable_itemClicked(self, item):
 
-    if len(list_equations) == 0:
-      makeMessageBox("there are no equation", buttons=["OK"])
-      self.buttons["LaTex"].hide()
-      self.buttons["dot"].hide()
-    else:
-      self.buttons["LaTex"].show()
-      self.buttons["dot"].show()
+        column_count = self.ui.tableVariable.columnCount()
+        row = item.row()
+        column = item.column()
+        item = self.ui.tableVariable.item
+        data = {}
+        for c in range(column_count):
+            data[c] = item(row, c).text()
+            # print("debugging -- chose:", c, str(data[c]))
 
-    if column == 9:
-      if len(list_equations) != 0:
-        UI_ShowVariableEquation(list_equations, image_location,
-                                mode="show",
-                                prompt="These are the equations:",
-                                buttons=["back"])
-    return
+        self.selected_variable_symbol = data[1]
+        self.selected_variable_ID = data[9]
+        # print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
 
-  def on_pushLaTex_pressed(self):
-    # print("debugging -- generate latex table", self.selected_variable_symbol)
-    # todo: extend to show each expression tree separaately
+        image_location = self.variables.ontology_container.latex_image_location
+        list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
 
-    assignments, dot_graph_file, file_name = self.__makeDotGraph()
-    pdf = makeLatexDoc(file_name, assignments, self.ontology_container, dot_graph_file)
+        if len(list_equations) == 0:
+            makeMessageBox("there are no equation", buttons=["OK"])
+            self.buttons["LaTex"].hide()
+            self.buttons["dot"].hide()
+        else:
+            self.buttons["LaTex"].show()
+            self.buttons["dot"].show()
 
-    showPDF(pdf)
+        if column == 9:
+            if len(list_equations) != 0:
+                UI_ShowVariableEquation(list_equations, image_location,
+                                        mode="show",
+                                        prompt="These are the equations:",
+                                        buttons=["back"])
+        return
 
-  def __makeDotGraph(self):
-    var_equ_tree_graph, assignments = AnalyseBiPartiteGraph(self.selected_variable_ID,
-                                                            self.ontology_container,
-                                                            self.ontology_name,
-                                                            [],
-                                                            "%s_graph" % self.selected_variable_symbol)
-    # var_equ_tree_graph.render_expression_to_list()
-    var_equ_tree_graph.render()
-    dot_graph_file = var_equ_tree_graph.outputFile + ".pdf"
-    file_name = self.selected_variable_symbol
-    return assignments, dot_graph_file, file_name
+    def on_pushLaTex_pressed(self):
+        # print("debugging -- generate latex table", self.selected_variable_symbol)
+        # todo: extend to show each expression tree separaately
 
-  def on_pushDot_pressed(self):
-    list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
-    if len(list_equations) == 0:
-      makeMessageBox("there are no equation", buttons=["OK"])
-      return
-    assignments, dot_graph_file, file_name = self.__makeDotGraph()
-    showPDF(dot_graph_file)
-    # print("debugging -- generate graph")
+        assignments, dot_graph_file, file_name = self.__makeDotGraph()
+        pdf = makeLatexDoc(file_name, assignments, self.ontology_container, dot_graph_file)
 
-  @staticmethod
-  def __addQtTableItem(tab, s, row, col):
-    item = QtWidgets.QTableWidgetItem(s)
-    tab.setRowCount(row + 1)
-    tab.setItem(row, col, item)
+        showPDF(pdf)
 
-  def on_tableVariable_itemDoubleClicked(self, item):
-    column_count = self.ui.tableVariable.columnCount()
-    row = item.row()
-    item = self.ui.tableVariable.item
-    data = {}
-    for c in range(column_count):
-      data[c] = item(row, c).text()
-      # print("debugging -- chose:", c, str(data[c]))
-    self.selected_variable_ID = data[9]
-    # print("debugging -- selected ID:", self.selected_variable_ID)
+    def __makeDotGraph(self):
+        var_equ_tree_graph, assignments = AnalyseBiPartiteGraph(self.selected_variable_ID,
+                                                                self.ontology_container,
+                                                                self.ontology_name,
+                                                                [],
+                                                                "%s_graph" % self.selected_variable_symbol)
+        # var_equ_tree_graph.render_expression_to_list()
+        var_equ_tree_graph.render()
+        dot_graph_file = var_equ_tree_graph.outputFile + ".pdf"
+        file_name = self.selected_variable_symbol
+        return assignments, dot_graph_file, file_name
 
-  def on_pushFinished_pressed(self):
-    self.close()
+    def on_pushDot_pressed(self):
+        list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
+        if len(list_equations) == 0:
+            makeMessageBox("there are no equation", buttons=["OK"])
+            return
+        assignments, dot_graph_file, file_name = self.__makeDotGraph()
+        showPDF(dot_graph_file)
+        # print("debugging -- generate graph")
 
-  def closeEvent(self, event):
-    self.close()
+    @staticmethod
+    def __addQtTableItem(tab, s, row, col):
+        item = QtWidgets.QTableWidgetItem(s)
+        tab.setRowCount(row + 1)
+        tab.setItem(row, col, item)
+
+    def on_tableVariable_itemDoubleClicked(self, item):
+        column_count = self.ui.tableVariable.columnCount()
+        row = item.row()
+        item = self.ui.tableVariable.item
+        data = {}
+        for c in range(column_count):
+            data[c] = item(row, c).text()
+            # print("debugging -- chose:", c, str(data[c]))
+        self.selected_variable_ID = data[9]
+        # print("debugging -- selected ID:", self.selected_variable_ID)
+
+    def on_pushFinished_pressed(self):
+        self.close()
+
+    def closeEvent(self, event):
+        self.close()
