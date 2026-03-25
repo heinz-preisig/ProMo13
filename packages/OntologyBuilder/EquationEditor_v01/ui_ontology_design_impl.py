@@ -19,6 +19,7 @@ __version__ = "6.00"
 __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
+import os
 import time
 from datetime import datetime
 from pathlib import Path
