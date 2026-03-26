@@ -20,7 +20,7 @@ __status__ = "beta"
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
+from Common.common_resources import CONNECTION_NETWORK_SEPARATOR, VARIABLE_TYPE_INTERFACE
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
 from Common.resources_icons import roundButton
@@ -135,14 +135,14 @@ class UI_Equations(QtWidgets.QWidget):
     def __makePickVariableTable(self):
 
         self.variable_tables = {}
-        if self.what == "interface":  # CONNECTION_NETWORK_SEPARATOR in self.network_for_expression:
-            [source, sink] = self.network_for_expression.split(CONNECTION_NETWORK_SEPARATOR)
-            network = source
-            enabled_var_types = {
-                    self.network_for_variable: self.variable_types_variable,
-                    source                   : self.variable_types_expression
-                    }
-            which = "interface_picking"
+        # if self.what == "interface":  # CONNECTION_NETWORK_SEPARATOR in self.network_for_expression:
+        #     [source, sink] = self.network_for_expression.split(CONNECTION_NETWORK_SEPARATOR)
+        #     network = source
+        #     enabled_var_types = {
+        #             self.network_for_variable: self.variable_types_variable,
+        #             source                   : self.variable_types_expression
+        #             }
+        #     which = "interface_picking"
         # elif self.what == "intraface":
         #   enabled_var_types = {
         #           self.network_for_variable  : self.variable_types_variable,
@@ -150,24 +150,25 @@ class UI_Equations(QtWidgets.QWidget):
         #           }
         #   network = self.network_for_variable
 
-        else:
-            # RULE: the variables from the interconnection nodes that potentially connect are also included as sources
-            if self.network_for_variable != self.network_for_expression:
-                enabled_var_types = {
-                        self.network_for_variable  : self.variable_types_variable,
-                        self.network_for_expression: self.variable_types_expression
-                        }
-            else:
-                enabled_var_types = {
-                        self.network_for_expression: self.variable_types_expression
-                        }
-            network = self.network_for_variable
-            which = "variable_picking"
+        # else:
+            # Simplified variable space: current domain + interface variables only
+        enabled_var_types = {
+                self.network_for_expression: self.variable_types_expression
+                }
+        network = self.network_for_variable
+        which = "variable_picking"
 
+        # Create networks list: current domain + interface domain (if exists)
+        networks = [network]
+        if hasattr(self.variables, 'interface_domain') and self.variables.interface_domain:
+            networks.append(self.variables.interface_domain)
+
+        # Create single table that handles multiple networks
         self.variable_tables[network] = UI_VariableTablePick('Pick variable symbol \nnetwork %s' % network,
                                                              self.variables,
                                                              self.indices,
-                                                             network,
+                                                             networks[0],  # Pass first network as primary network
+                                                             networks=networks,  # Pass multiple networks
                                                              enabled_types=enabled_var_types[network],
                                                              hide_vars=[NEW_VAR],
                                                              hide_columns=[0, 6, 7],
@@ -557,7 +558,7 @@ class UI_Equations(QtWidgets.QWidget):
 
             # Check if variable type has is_visible_in_interface rule and create interface variable
             interface_rule = self.ontology_container.rules["is_visible_in_interface"]
-            if (self.selected_variable_type in self.ontology_container.rules.get("variable_classes", {}).get("is_visible_in_interface", [])):
+            if (self.selected_variable_type in interface_rule):
                 self.__createInterfaceVariableAndEquation(var_ID, symbol, documentation)
 
         # new equation to existing variable false, true, false
@@ -682,8 +683,18 @@ class UI_Equations(QtWidgets.QWidget):
         # Get the domain name from the network
         domain_name = self.network_for_variable
         
+        # Get interface domain (create if it doesn't exist)
+        interface_domain = self.variables.getOrCreateInterfaceDomain()
+        
         # Create interface variable name
         interface_var_name = f"{domain_name}_{symbol}"
+        
+        # Check if interface variable already exists to prevent duplicates
+        existing_interface_vars = [self.variables[v].label for v in self.variables 
+                                 if self.variables[v].network == interface_domain]
+        if interface_var_name in existing_interface_vars:
+            # Interface variable already exists - skip creation
+            return
         
         # Create interface variable ID
         interface_var_ID = self.variables.newProMoVariableIRI()
@@ -691,22 +702,41 @@ class UI_Equations(QtWidgets.QWidget):
         # Create interface equation ID
         interface_equ_ID = self.variables.newProMoEquationIRI()
         
-        # Get interface domain (create if it doesn't exist)
-        interface_domain = self.variables.getOrCreateInterfaceDomain()
-        
         # Create the equation: interface_var = original_var
-        # Use the original variable ID for the RHS
-        rhs_expression = var_ID
+        # Use the original variable label for the RHS (not ID)
+        original_var_label = self.variables[var_ID].label
+        rhs_expression = original_var_label
         
-        # Create compilers for both languages
+        # For interface equations, we need to ensure cross-domain variable access
+        # Temporarily add source domain variables to interface domain variable space
+        source_domain = self.variables[var_ID].network
+        
+        # Create a custom compiler that includes source domain variables
+        def makeInterfaceCompiler(language):
+            # Create compile space with cross-domain access
+            compile_space = CompileSpace(self.variables, self.indices, interface_domain, interface_domain, language=language)
+            
+            # Override getVariable to include source domain variables
+            original_getVariable = compile_space.getVariable
+            
+            def getVariableWithCrossDomainAccess(symbol):
+                try:
+                    # Try normal access first
+                    return original_getVariable(symbol)
+                except:
+                    # If normal access fails, try to find in source domain
+                    if symbol == original_var_label:
+                        return self.variables[var_ID]
+                    # Re-raise the original exception if not found
+                    raise
+            
+            compile_space.getVariable = getVariableWithCrossDomainAccess
+            return Expression(compile_space, verbose=0)
+        
+        # Create compilers for both languages using custom method
         compilers = {}
         for language in ["latex", "global_ID"]:
-            compilers[language] = makeCompilerForNetwork(self.variables,
-                                                         self.indices,
-                                                         interface_domain,
-                                                         interface_domain,
-                                                         language=language,
-                                                         verbose=0)
+            compilers[language] = makeInterfaceCompiler(language)
         
         # Compile the expression
         expression_global = str(compilers["global_ID"](rhs_expression))
@@ -730,7 +760,7 @@ class UI_Equations(QtWidgets.QWidget):
         interface_variable_record = makeCompleteVariableRecord(
             interface_var_ID,
             label=interface_var_name,
-            type=self.selected_variable_type,
+            type=VARIABLE_TYPE_INTERFACE,
             network=interface_domain,
             doc=f"Interface variable for {symbol}",
             index_structures=self.checked_var.index_structures,
@@ -827,7 +857,8 @@ class UI_Equations(QtWidgets.QWidget):
 
     def on_pushPickVariables_pressed(self):
         self.__makePickVariableTable()
-        [self.variable_tables[nw].show() for nw in self.variable_tables]
+        for nw in self.variable_tables:
+            self.variable_tables[nw].show()
 
     def on_pushPickOperations_pressed(self):
         self.operator_table.show()

@@ -47,24 +47,26 @@ from collections import OrderedDict
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
-# from Common.record_definitions import RecordVariable
+from Common.record_definitions import RecordIndex
+from Common.record_definitions import makeCompletEquationRecord
+from Common.record_definitions import makeCompleteVariableRecord
 from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
-from OntologyBuilder.OntologyEquationEditor.resources import CODE
-from OntologyBuilder.OntologyEquationEditor.resources import dateString
-from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
-from OntologyBuilder.OntologyEquationEditor.resources import ID_spacer
-from OntologyBuilder.OntologyEquationEditor.resources import IRI_make
-from OntologyBuilder.OntologyEquationEditor.resources import IRI_parse
-from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.resources import renderExpressionFromGlobalIDToInternal
-from OntologyBuilder.OntologyEquationEditor.resources import renderIndexListFromGlobalIDToInternal
-from OntologyBuilder.OntologyEquationEditor.resources import TEMP_VARIABLE
-from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
-from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_INVERSE_UNITS
-from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_LOOSE_UNITS
-from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_NO_UNITS
-from OntologyBuilder.OntologyEquationEditor.resources import UNITARY_RETAIN_UNITS
-from OntologyBuilder.OntologyEquationEditor.tpg import *
+from OntologyBuilder.EquationEditor_v01.resources import CODE
+from OntologyBuilder.EquationEditor_v01.resources import dateString
+from OntologyBuilder.EquationEditor_v01.resources import ID_prefix
+from OntologyBuilder.EquationEditor_v01.resources import ID_spacer
+from OntologyBuilder.EquationEditor_v01.resources import IRI_make
+from OntologyBuilder.EquationEditor_v01.resources import IRI_parse
+from OntologyBuilder.EquationEditor_v01.resources import LANGUAGES
+from OntologyBuilder.EquationEditor_v01.resources import renderExpressionFromGlobalIDToInternal
+from OntologyBuilder.EquationEditor_v01.resources import renderIndexListFromGlobalIDToInternal
+from OntologyBuilder.EquationEditor_v01.resources import TEMP_VARIABLE
+from OntologyBuilder.EquationEditor_v01.resources import TEMPLATES
+from OntologyBuilder.EquationEditor_v01.resources import UNITARY_INVERSE_UNITS
+from OntologyBuilder.EquationEditor_v01.resources import UNITARY_LOOSE_UNITS
+from OntologyBuilder.EquationEditor_v01.resources import UNITARY_NO_UNITS
+from OntologyBuilder.EquationEditor_v01.resources import UNITARY_RETAIN_UNITS
+from OntologyBuilder.EquationEditor_v01.tpg import *
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
@@ -244,13 +246,150 @@ def simulateDeletion(variables, var_ID, indices):
   return d_vars, d_equs, d_vars_text, d_equs_text
 
 
+def simulateDeletionImproved(variables, var_ID, indices):
+  """
+  Improved dependency analysis for variable deletion simulation.
+  Always analyzes full dependency graph but only marks non-state variables for deletion.
+  State variables are protected as they form foundation of the model.
+  
+  :param variables: variable dictionary
+  :param var_ID: variable ID to analyze
+  :param indices: indices dictionary
+  :return: (vars_to_delete, eqs_to_delete, vars_text, eqs_text, protected_state_vars)
+  """
+  print(f"=== IMPROVED DELETION ANALYSIS: {var_ID} ===")
+  
+  vars_to_delete = set()
+  eqs_to_delete = set()
+  protected_state_vars = set()
+  visited_vars = set()
+  visited_eqs = set()
+  
+  def dfs_analyze(current_var, depth=0):
+    """Depth-first search through dependency graph"""
+    if depth > 20 or current_var in visited_vars:  # Prevent infinite loops
+      return
+    visited_vars.add(current_var)
+    
+    var = variables[current_var]
+    print(f"  Analyzing var {current_var} (type: {var.type}) at depth {depth}")
+    
+    # Always track dependencies, but only mark non-state for deletion
+    if var.type != "state":
+      vars_to_delete.add(current_var)
+      print(f"    → Marked for deletion: {current_var}")
+    else:
+      protected_state_vars.add(current_var)
+      print(f"    → Protected state variable: {current_var}")
+    
+    # Find all equations using this variable
+    try:
+      incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(variables)
+    except:
+      print("Error making incidence dictionaries")
+      return
+      
+    if current_var not in inv_incidence_dictionary:
+      print(f"    → No equations use variable {current_var}")
+      return
+      
+    for eq_id in inv_incidence_dictionary[current_var]:
+      if eq_id not in visited_eqs:
+        visited_eqs.add(eq_id)
+        eqs_to_delete.add(eq_id)
+        print(f"    → Found equation {eq_id}")
+        
+        # Find all variables in this equation (both LHS and RHS)
+        lhs, incidence_list = incidence_dictionary[eq_id]
+        
+        # Analyze LHS variable
+        dfs_analyze(lhs, depth + 1)
+        
+        # Analyze RHS variables
+        for other_var in incidence_list:
+          dfs_analyze(other_var, depth + 1)
+  
+  # Start analysis
+  dfs_analyze(var_ID)
+  
+  # Generate user-friendly text
+  vars_text = ""
+  eqs_text = ""
+  
+  for var_id in vars_to_delete:
+    try:
+      label = variables[var_id].label
+    except:
+      label = f"Var_{var_id}"
+    vars_text += f"\n  • {label} (ID: {var_id})"
+  
+  for eq_id in eqs_to_delete:
+    try:
+      lhs, incidence_list = incidence_dictionary[eq_id]
+      equation = variables[lhs].equations[eq_id]
+      rhs = equation["rhs"]["global_ID"]
+      rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
+      eqs_text += f"\n  • {rhs_rendered}"
+    except:
+      eqs_text += f"\n  • Equation_{eq_id}"
+  
+  # Add protected state vars info
+  if protected_state_vars:
+    vars_text += f"\n\n🛡️ PROTECTED state variables (cannot be deleted):"
+    for var_id in protected_state_vars:
+      try:
+        label = variables[var_id].label
+      except:
+        label = f"Var_{var_id}"
+      vars_text += f"\n  • {label} (ID: {var_id})"
+  
+  print(f"=== ANALYSIS COMPLETE ===")
+  print(f"Variables to delete: {len(vars_to_delete)}")
+  print(f"Equations to delete: {len(eqs_to_delete)}")
+  print(f"Protected state vars: {len(protected_state_vars)}")
+  
+  return vars_to_delete, eqs_to_delete, vars_text, eqs_text, protected_state_vars
+
+
+def simulateDeletionOld(variables, var_ID, indices):
+  """
+  Original simulation method - kept for comparison/testing
+  """
+  d_vars = set()
+  d_equs = set()
+
+  # - key: equation_ID(integer)
+  # - value: (lhs - variable_ID, rhs - incidence list (integers) )
+
+  # incidence_dictionary structure:
+  # incidence_dictionary[equation_ID:int] = (variable_ID, incidencce_list[variable_ID: no string])
+  # inv_incidence_dictionary_set[variable_ID: int]= [equation_ID:int]
+
+  incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(variables)
+  reduceVars(inv_incidence_dictionary, variables, incidence_dictionary, d_vars, d_equs, var_ID)
+  d_vars_text = ""
+  d_equs_text = ""
+  for var_ID in d_vars:
+    label = variables[var_ID].label
+    d_vars_text += "\n %s" % label
+  for eq_ID in d_equs:
+    lhs, incidence_list = incidence_dictionary[eq_ID]
+    equation = variables[lhs].equations[eq_ID]
+    rhs = equation["rhs"]["global_ID"]
+    rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
+    # print("debugging -- rhs", rhs, rhs_rendered)
+    d_equs_text += "\n %s" % rhs_rendered
+
+  return d_vars, d_equs, d_vars_text, d_equs_text
+
+
 def reduceVars(inv_incidence_dictionary, variables, incidence_dictionary, d_vars, d_equs, var_ID):
   """
-  used in equation editor, where the variables are defined differently than in the other editors TODO: consider change -- probably not feasible or worth the trouble
+  used in equation editor, where variables are defined differently than in other editors TODO: consider change -- probably not feasible or worth trouble
   iterate to find all equations and variables to be deleted
-  in most of the cases everything is deleted except the state variables
-    because the equations are all dependent on each other.
-  :param inv_incidence_dictionary:  "inverse" incidence dictionary
+  in most of the cases everything is deleted except state variables
+    because equations are all dependent on each other.
+  :param inv_incidence_dictionary: "inverse" incidence dictionary
   :param variables: variables (dictionary)
   :param incidence_dictionary: incidence dictionary (var, incidence list)
   :param d_vars: set of variables to be deleted - list of IDs (integers)
@@ -695,17 +834,33 @@ class Variables(OrderedDict):
     self.index_accessible_variables_on_networks = {}  # defines accessible name space
 
     # for nw in self.networks + self.interconnection_networks + self.intraconnection_networks:
-    for nw in self.networks + self.ontology_container.list_inter_branches_pairs + self.intraconnection_networks:
+    all_networks = self.networks + self.ontology_container.list_inter_branches_pairs + self.intraconnection_networks
+    
+    # Check if any loaded variables are in the interface domain
+    has_interface_variables = any(self[ID].network == "interface" for ID in self)
+    
+    # Add interface domain if it exists or if we have interface variables
+    if (hasattr(self, 'interface_domain') and self.interface_domain) or has_interface_variables:
+        if not hasattr(self, 'interface_domain') or not self.interface_domain:
+            self.interface_domain = "interface"
+        if self.interface_domain not in all_networks:
+            all_networks.append(self.interface_domain)
+    
+    for nw in all_networks:
       self.index_definition_networks_for_variable[nw] = []
 
     for ID in self:
       self.index_definition_networks_for_variable[self[ID].network].append(ID)
 
     # make index for variables on the networks it was defined
-    for nw in self.networks:
+    for nw in all_networks:
       self.index_networks_for_variable[nw] = {}
 
-    for nw in self.networks:
+    for nw in all_networks:
+      # Ensure variable types exist for this network
+      if nw not in self.ontology_container.variable_types_on_networks:
+        self.ontology_container.variable_types_on_networks[nw] = {}
+        
       for variable_class in self.ontology_container.variable_types_on_networks[nw]:
         if variable_class not in self.index_networks_for_variable[nw]:
           self.index_networks_for_variable[nw][variable_class] = []
@@ -765,6 +920,22 @@ class Variables(OrderedDict):
             self.index_definition_network_for_variable_component_class[nw][t] = set()
           self.index_definition_network_for_variable_component_class[nw][t].add(ID)
 
+    # Handle interface domain if it exists
+    if hasattr(self, 'interface_domain') and self.interface_domain:
+      self.index_definition_network_for_variable_component_class[self.interface_domain] = {}
+      self.index_networks_for_variable[self.interface_domain] = {}  # Add this line
+      for ID in self:
+        if self[ID].network == self.interface_domain:
+          t = self[ID].type
+          if t not in self.index_definition_network_for_variable_component_class[self.interface_domain]:
+            self.index_definition_network_for_variable_component_class[self.interface_domain][t] = set()
+          self.index_definition_network_for_variable_component_class[self.interface_domain][t].add(ID)
+          
+          # Also add to index_networks_for_variable
+          if t not in self.index_networks_for_variable[self.interface_domain]:
+            self.index_networks_for_variable[self.interface_domain][t] = []
+          self.index_networks_for_variable[self.interface_domain][t].append(ID)
+
 
     # incidence and inverse incidence lists
     self.incidence_dictionary, self.inv_incidence_dictionary = makeIncidenceDictionaries(self)
@@ -793,6 +964,12 @@ class Variables(OrderedDict):
         if no not in self.nameSpacesForVariableLabel[label]:
           self.nameSpacesForVariableLabel[label][no] = []
         self.nameSpacesForVariableLabel[label][no].append(definition_network)
+      elif definition_network == "interface":  # Special handling for interface domain
+        if no not in self.nameSpacesForVariableLabel[label]:
+          self.nameSpacesForVariableLabel[label][no] = []
+        self.nameSpacesForVariableLabel[label][no].append(definition_network)
+        # Interface domain has no heirs, so just add itself
+        self.nameSpacesForVariableLabel[label][no + 1] = [definition_network]
       else:
         space = self.heirs_network_dictionary[definition_network]
         self.nameSpacesForVariableLabel[label][no + 1] = copy.copy(space)
@@ -869,31 +1046,212 @@ class Variables(OrderedDict):
     return variables_not_instantiated
 
   def variableSpaces(self, what, network, enabled_variable_types):
-
-    # print("debugging -- variable spaces -- what:", what)
+    """
+    THE single definition of variable space access rules
+    Used by both UI picking and expression validation
+    """
     v_counter = 0
-    if what == "variable_picking":
-      variable_space = self.index_accessible_variables_on_networks
-    elif what == "interface_picking":
-      rule = "only local"
-      networks = [network] # self.ontology_container.heirs_network_dictionary[network]
+    
+    # Handle both single network and list of networks
+    if isinstance(network, list):
+        networks = network
+    else:
+        networks = [network]
+    
+    variable_space = {}
+    
+    for network in networks:
+        if what == "variable_picking":
+            # For variable_picking: current domain + interface variables only
+            if network in self.index_networks_for_variable:
+                variable_space[network] = {}
+                for var_class in self.index_networks_for_variable[network]:
+                    variable_space[network][var_class] = set()
+                    for v in self.index_networks_for_variable[network][var_class]:
+                        if not enabled_variable_types or self[v].type in enabled_variable_types:
+                            variable_space[network][var_class].add(v)
+                            v_counter += 1
+            
+            # Add interface domain variables (only for current domain, not all domains)
+            if hasattr(self, 'interface_domain') and self.interface_domain and network == networks[0]:
+                if self.interface_domain in self.index_networks_for_variable:
+                    variable_space[self.interface_domain] = {}
+                    for var_class in self.index_networks_for_variable[self.interface_domain]:
+                        # Only show interface type variables from interface domain
+                        if var_class == 'interface':
+                            variable_space[self.interface_domain][var_class] = set()
+                            for v in self.index_networks_for_variable[self.interface_domain][var_class]:
+                                if not enabled_variable_types or self[v].type in enabled_variable_types:
+                                    variable_space[self.interface_domain][var_class].add(v)
+                                    v_counter += 1
+        
+        elif what == "interface_picking":
+            # Original logic for interface picking
+            rule = "only local"
+            variable_space[network] = {}
+            for c in self.index_definition_network_for_variable_component_class[network]:
+                variable_space[network][c] = set()
+                for v in self.index_definition_network_for_variable_component_class[network][c]:
+                    for i in enabled_variable_types:
+                        if self[v].type == i:
+                            variable_space[network][c].add(v)
+                            v_counter += 1
+        
+        else:
+            # Original logic for other cases
+            pass  # TODO: implement other cases as needed
+    
+    return variable_space, v_counter
+    
+    elif what == "variable_display":
+      # NEW MODE: Show all variables accessible in the selected domain
+      # This is simpler than variable_picking - no complex filtering
+      
+      # Get accessible networks from hierarchy
+      if network in self.ontology_container.ontology_hierarchy:
+        accessible_networks = self.ontology_container.ontology_hierarchy[network]
+      else:
+        # If network is not in hierarchy (e.g., 'interface'), use only the network itself
+        accessible_networks = [network]
+      
+      # Add inter-branch networks for cross-domain access
+      inter_branches = self.ontology_container.list_inter_branches
+      accessible_networks.extend(inter_branches)
+      accessible_networks = list(set(accessible_networks))
+      
       variable_space = {}
-      for nw in networks: #self.index_definition_network_for_variable_component_class:
-        variable_space[nw] = {}
-        for c in self.index_definition_network_for_variable_component_class[nw]:
-          variable_space[nw][c] = set()
-          for v in self.index_definition_network_for_variable_component_class[nw][c]:
-            for i in enabled_variable_types:
-              if self[v].type == i:
-                variable_space[nw][c].add(v)
-                v_counter += 1
-
+      v_counter = 0
+      
+      # Build variable space for each accessible network
+      for nw in accessible_networks:
+        if nw in self.index_networks_for_variable:
+          variable_space[nw] = {}
+          for var_class in self.index_networks_for_variable[nw]:
+            variable_space[nw][var_class] = set()
+            
+            # Include ALL variables (no filtering for display mode)
+            for v in self.index_networks_for_variable[nw][var_class]:
+              variable_space[nw][var_class].add(v)
+              v_counter += 1
+      
+      # Add interface domain variables if they exist
+      if hasattr(self, 'interface_domain') and self.interface_domain:
+        if self.interface_domain in self.index_networks_for_variable:
+          variable_space[self.interface_domain] = {}
+          for var_class in self.index_networks_for_variable[self.interface_domain]:
+            variable_space[self.interface_domain][var_class] = set()
+            for v in self.index_networks_for_variable[self.interface_domain][var_class]:
+              variable_space[self.interface_domain][var_class].add(v)
+              v_counter += 1
 
     else:
       variable_space = self.index_networks_for_variable
 
-
     return variable_space, v_counter
+
+  def getOrCreateInterfaceDomain(self):
+    """
+    Get or create interface domain for cross-domain variable access
+    """
+    if not hasattr(self, 'interface_domain'):
+      self.interface_domain = "interface"
+      
+      # Ensure interface domain exists in ontology structure
+      if self.interface_domain not in self.ontology_container.variable_types_on_networks:
+        self.ontology_container.variable_types_on_networks[self.interface_domain] = {}
+      
+      # Ensure interface domain is in hierarchy
+      if self.interface_domain not in self.ontology_container.heirs_network_dictionary:
+        self.ontology_container.heirs_network_dictionary[self.interface_domain] = [self.interface_domain]
+      
+      # Add interface domain to variable types with common interface types
+      # Interface variables can be of any type that source variables could be
+      common_interface_types = ["state", "algebraic", "observation", "secondaryState", "effort"]
+      self.ontology_container.variable_types_on_networks[self.interface_domain] = common_interface_types
+    
+    return self.interface_domain
+
+  def createInterfaceVariable(self, source_domain, source_var_ID, target_network):
+    """
+    Create an interface variable in the interface domain
+    Prevents duplication of interface variables
+    """
+    interface_domain = self.getOrCreateInterfaceDomain()
+    source_var = self[source_var_ID]
+    
+    # Generate interface variable name: domain_varname
+    interface_var_name = f"{source_domain}_{source_var.label}"
+    
+    # Check if interface variable already exists
+    for var_ID in self:
+      var = self[var_ID]
+      if var.label == interface_var_name and var.network == interface_domain:
+        # Interface variable already exists, return existing ID
+        return var_ID
+    
+    # Create new interface variable
+    interface_var_ID = self.newProMoVariableIRI()
+    
+    # Create interface equation using proper record structure
+    interface_equ_ID = self.newProMoEquationIRI()
+    
+    # Create RHS dictionary in proper format with both global_ID and latex
+    rhs_global_ID = source_var_ID
+    source_latex = source_var.aliases.get("latex", source_var.label)
+    decorated_latex = f"\\multimap{{{source_latex}}}"
+    rhs_dic = {"global_ID": rhs_global_ID, "latex": decorated_latex}
+    
+    # Create incidence list for the interface equation
+    incidence_list = makeIncidentList(rhs_global_ID)
+    
+    # Create proper equation record using makeCompletEquationRecord
+    interface_equation_record = makeCompletEquationRecord(
+        rhs=rhs_dic, 
+        network=interface_domain, 
+        doc=f"Interface equation linking {interface_var_name} to {source_domain}.{source_var.label}",
+        incidence_list=incidence_list, 
+        created=dateString()
+    )
+    
+    # Create variable record using makeCompleteVariableRecord with equation included
+    # Add LaTeX decoration for interface variables
+    interface_aliases = source_var.aliases.copy()
+    source_latex = source_var.aliases.get("latex", source_var.label)
+    decorated_latex = f"\\multimap{{{source_latex}}}"
+    interface_aliases["latex"] = decorated_latex
+
+    from Common.common_resources import VARIABLE_TYPE_INTERFACE
+    variable_record = makeCompleteVariableRecord(
+        var_ID=interface_var_ID,
+        label=interface_var_name,
+        type=VARIABLE_TYPE_INTERFACE, #source_var.type,
+        network=interface_domain,
+        doc=f"Interface variable for {source_domain}.{source_var.label}",
+        index_structures=source_var.index_structures,
+        units=source_var.units,
+        equations={interface_equ_ID: interface_equation_record},
+        aliases=interface_aliases,
+        port_variable=False,
+        tokens=[],
+        memory=getattr(source_var, 'memory', None)
+    )
+    
+    # Add interface variable using the standard addNewVariable method
+    self.addNewVariable(ID=interface_var_ID, **variable_record)
+    
+    # Add interface equation to ontology container for compiler access
+    self.ontology_container.equation_dictionary[interface_equ_ID] = interface_equation_record
+    
+    # Initialize compiled_lhs for interface variables (needed for LaTeX generation)
+    if "compiled_lhs" not in self.ontology_container.variables[interface_var_ID]:
+        self.ontology_container.variables[interface_var_ID]["compiled_lhs"] = {}
+    
+    # Re-index variables to include new interface variable
+    self.indexVariables()
+    
+    print(f"Created interface variable: {interface_var_name} = {source_var.label} (from {source_domain})")
+    
+    return interface_var_ID
 
   def changeVariableAlias(self, variable_ID, language, new_alias):
     old_alias =     self[variable_ID].aliases[language]
@@ -1088,42 +1446,85 @@ class CompileSpace:
     '''
     gets the variable "label" from the variable ordered dictionary and
     sets the appropriate language
+    Uses unified variable space definition consistent with variableSpaces()
     @param symbol: variable's symbol
     @return: v : the variable object
     '''
     # print("get variable", symbol)
 
-    v = None
-    networks = set()
-    # if CONNECTION_NETWORK_SEPARATOR in self.variable_definition_network:
-    #   [source, sink] = self.variable_definition_network.split(CONNECTION_NETWORK_SEPARATOR)
-    #   # [source, self.variable_definition_network, self.expression_definition_network]
-    #   networks.add(str(source))
-
-    networks.add(self.variable_definition_network)
-    networks.add(str(self.expression_definition_network))
-    networks = list(networks)
-
+    # Use the same logic as variableSpaces for variable_picking
+    variable_space, v_counter = self.variables.variableSpaces("variable_picking", self.expression_definition_network, None)
+    
+    # Manually add interface domain if it exists and has variables
+    if hasattr(self.variables, 'interface_domain') and self.variables.interface_domain:
+        if self.variables.interface_domain in self.variables.index_networks_for_variable:
+            if self.variables.interface_domain not in variable_space:
+                variable_space[self.variables.interface_domain] = {}
+            for var_class in self.variables.index_networks_for_variable[self.variables.interface_domain]:
+                if var_class not in variable_space[self.variables.interface_domain]:
+                    variable_space[self.variables.interface_domain][var_class] = set()
+                for var_ID in self.variables.index_networks_for_variable[self.variables.interface_domain][var_class]:
+                    # Ensure we're working with a set
+                    if not isinstance(variable_space[self.variables.interface_domain][var_class], set):
+                        variable_space[self.variables.interface_domain][var_class] = set(variable_space[self.variables.interface_domain][var_class])
+                    variable_space[self.variables.interface_domain][var_class].add(var_ID)
+    
     v_list = set()
-    for nw in networks:
-      for variable_class in self.variables.index_accessible_variables_on_networks[nw]:
-        for var_ID in self.variables.index_accessible_variables_on_networks[nw][variable_class]:
+    
+    # Search in all accessible networks from variable space
+    for nw in variable_space:
+      for var_class in variable_space[nw]:
+        # Handle both sets and lists
+        var_collection = variable_space[nw][var_class]
+        if isinstance(var_collection, list):
+          var_iterable = var_collection
+        else:
+          var_iterable = var_collection
+          
+        for var_ID in var_iterable:
           if symbol == self.variables[var_ID].label:
-            #   print("found %s"%symbol)
-            v_list.add(var_ID)  # self.variables[var_ID])
+            v_list.add(var_ID)
 
     v_list = sorted(v_list)
 
     if len(v_list) == 0:
+      # Check if this is an interface variable (format: domain_varname)
+      if '_' in symbol:
+        parts = symbol.split('_', 1)
+        if len(parts) == 2:
+          source_domain, source_label = parts
+          
+          # Try to find the original variable
+          for var_ID in self.variables:
+            var = self.variables[var_ID]
+            if var.label == source_label and var.network == source_domain:
+              # Return the variable ID for interface variables, not the variable object
+              # This ensures the global_ID expression contains the proper variable ID
+              interface_var_ID = var_ID
+              v = self.variables[interface_var_ID]
+              return v
+      
       print("did not find %s in language %s" % (symbol, self.language))
       raise VarError(" no such variable %s defined" % symbol)
     elif len(v_list) == 1:
       v = self.variables[v_list[0]]
     elif len(v_list) > 1:
+      # Prefer variables from current expression definition network
       for i in v_list:
-        if (self.variables[i].network == self.variable_definition_network) or \
-                (self.variables[i].network == self.expression_definition_network):
+        if self.variables[i].network == self.expression_definition_network:
           v = self.variables[i]
+          break
+      else:
+        # If no current network match, prefer interface domain
+        for i in v_list:
+          if hasattr(self.variables, 'interface_domain') and \
+             self.variables.interface_domain and \
+             self.variables[i].network == self.variables.interface_domain:
+            v = self.variables[i]
+            break
+        else:
+          # Fallback to first match
+          v = self.variables[v_list[0]]
     else:
       print("did not find %s in language %s" % (symbol, self.language))
       raise VarError(" no such variable %s defined" % symbol)
@@ -1216,7 +1617,7 @@ class PhysicalVariable():
 
   def __str__(self):
 
-    if self.language in LANGUAGES["documentation"]:
+    if hasattr(self, 'language') and self.language in LANGUAGES["documentation"]:
       temp = "template_variable.%s" % self.language
       ind = []
       for ID in self.index_structures:
@@ -1226,7 +1627,11 @@ class PhysicalVariable():
       try:
         s = ID_spacer + self.aliases[self.language]
       except:
-        print("debugging -- 793 -- language :", self.language, "variable:", self.label)
+        # Fallback when language attribute is missing
+        try:
+          s = ID_spacer + self.label
+        except:
+          s = ID_spacer + "unknown_variable"
 
     return s
 
@@ -1960,3 +2365,50 @@ class Expression(VerboseParser):
     VerboseParser.__init__(self)
     self.space.eq_variable_incidence_list = []
     self.verbose = verbose
+
+
+def testDeletionApproaches(variables, var_ID, indices):
+  """
+  Test function to compare old vs improved deletion analysis
+  """
+  print("="*60)
+  print(f"TESTING DELETION ANALYSIS FOR VARIABLE: {var_ID}")
+  print("="*60)
+  
+  # Test old approach
+  print("\n🔴 OLD APPROACH:")
+  try:
+    old_vars, old_eqs, old_vars_text, old_eqs_text = simulateDeletionOld(variables, var_ID, indices)
+    print(f"  Variables to delete: {len(old_vars)}")
+    print(f"  Equations to delete: {len(old_eqs)}")
+    print(f"  Variables: {old_vars_text}")
+    print(f"  Equations: {old_eqs_text}")
+  except Exception as e:
+    print(f"  ERROR in old approach: {e}")
+  
+  # Test improved approach  
+  print("\n🟢 NEW APPROACH:")
+  try:
+    new_vars, new_eqs, new_vars_text, new_eqs_text, protected_vars = simulateDeletionImproved(variables, var_ID, indices)
+    print(f"  Variables to delete: {len(new_vars)}")
+    print(f"  Equations to delete: {len(new_eqs)}")
+    print(f"  Protected state vars: {len(protected_vars)}")
+    print(f"  Variables: {new_vars_text}")
+    print(f"  Equations: {new_eqs_text}")
+  except Exception as e:
+    print(f"  ERROR in new approach: {e}")
+  
+  # Comparison
+  print("\n📊 COMPARISON:")
+  if 'old_vars' in locals() and 'new_vars' in locals():
+    print(f"  Same variables found: {old_vars == new_vars}")
+    print(f"  Same equations found: {old_eqs == new_eqs}")
+    if len(old_vars) != len(new_vars):
+      print(f"  ⚠️  Variable count differs: old={len(old_vars)}, new={len(new_vars)}")
+    if len(old_eqs) != len(new_eqs):
+      print(f"  ⚠️  Equation count differs: old={len(old_eqs)}, new={len(new_eqs)}")
+  
+  print("="*60)
+  print("TEST COMPLETE\n")
+  
+  return True

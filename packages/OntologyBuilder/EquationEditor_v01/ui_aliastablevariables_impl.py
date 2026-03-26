@@ -20,8 +20,8 @@ from PyQt5 import QtWidgets
 from Common.resource_initialisation import FILES
 from Common.resources_icons import roundButton
 from Common.ui_text_browser_popup_impl import UI_FileDisplayWindow
-from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.ui_aliastable import Ui_AliasTable
+from OntologyBuilder.EquationEditor_v01.resources import LANGUAGES
+from OntologyBuilder.EquationEditor_v01.ui_aliastable import Ui_AliasTable
 
 MAX_HEIGHT = 800
 MAX_WIDTH = 1000

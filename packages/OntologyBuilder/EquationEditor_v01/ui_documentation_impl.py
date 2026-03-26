@@ -22,8 +22,8 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from copy import copy
 
-from OntologyBuilder.OntologyEquationEditor.resources import dateString
-from OntologyBuilder.OntologyEquationEditor.ui_documentation import Ui_DocumentationDialog
+from OntologyBuilder.EquationEditor_v01.resources import dateString
+from OntologyBuilder.EquationEditor_v01.ui_documentation import Ui_DocumentationDialog
 
 
 class UI_DocumentationDialog(QtWidgets.QDialog):

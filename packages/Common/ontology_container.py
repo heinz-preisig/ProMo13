@@ -67,9 +67,9 @@ from Common.resource_initialisation import DIRECTORIES
 from Common.resource_initialisation import FILES
 from Common.resource_initialisation import ONTOLOGY_VERSION
 from Common.resource_initialisation import VARIABLE_EQUATIONS_VERSION
-from OntologyBuilder.OntologyEquationEditor.resources import ID_prefix
-from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
+from OntologyBuilder.EquationEditor_v01.resources import ID_prefix
+from OntologyBuilder.EquationEditor_v01.resources import LANGUAGES
+from OntologyBuilder.EquationEditor_v01.variable_framework import Units
 
 # RULE: we constrain interface networks to only exist to the CENTER_NETWORK
 

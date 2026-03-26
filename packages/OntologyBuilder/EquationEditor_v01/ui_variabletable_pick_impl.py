@@ -18,7 +18,7 @@ MAX_HEIGHT = 800
 from PyQt5 import QtCore
 
 from Common.resources_icons import roundButton
-from OntologyBuilder.OntologyEquationEditor.variable_table import VariableTable
+from OntologyBuilder.EquationEditor_v01.variable_table import VariableTable
 
 
 class UI_VariableTablePick(VariableTable):
@@ -38,6 +38,7 @@ class UI_VariableTablePick(VariableTable):
                  variables,
                  indices,
                  network,
+                 networks=None,
                  enabled_types=['ALL'],
                  hide_vars=[],
                  hide_columns=[],
@@ -49,7 +50,8 @@ class UI_VariableTablePick(VariableTable):
         constructs a dialog window based on QDialog for picking variables
         @param title:     title string: indicates the tree's nature
         @param variables: physical variable.
-        @network:      network type
+        @param network:      network type (deprecated, use networks instead)
+        @param networks:     list of network types (new parameter)
         @my_types:      type of variables being processed
 
         control is done through the interface and additional functions:
@@ -62,17 +64,25 @@ class UI_VariableTablePick(VariableTable):
         -
         """
 
+        # Support both old single network and new multiple networks
+        if networks is not None:
+            self.networks = networks
+            self.network = networks[0] if networks else network  # For compatibility
+        else:
+            self.networks = [network]
+            self.network = network
+
         VariableTable.__init__(self,
                                title,
                                which,
                                variables,
                                indices,
-                               network,
-                               # variables.index_accessible_variables_on_networks,
+                               self.networks,  # Pass networks instead of single network
                                enabled_types,
                                hide_vars,
                                hide_columns,
                                info_file=info_file,
+                               show_buttons=["back"],
                                )
         buttons = self.buttons
 

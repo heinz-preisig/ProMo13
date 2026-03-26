@@ -53,7 +53,15 @@ class VariableTable(QtWidgets.QDialog):
 
         self.variables = variables
         self.indices = indices
-        self.network = network
+
+        # Always handle networks as a list for consistency
+        if isinstance(network, list):
+            self.networks = network
+            self.network = network[0] if network else network  # For compatibility
+        else:
+            self.networks = [network]
+            self.network = network
+
         self.what = what
         self.info_file = info_file
 
@@ -128,8 +136,11 @@ class VariableTable(QtWidgets.QDialog):
 
     def makeTable(self):
         # Note: variable space generation has been centralised
+        # Always use the first network for variableSpaces calculation
+        primary_network = self.networks[0] if self.networks else self.network
+
         self.variable_space, no_of_variables = self.variables.variableSpaces(self.what,
-                                                                             self.network,
+                                                                             primary_network,
                                                                              self.enabled_variable_types)
         if (no_of_variables == 0) and (self.what == "variable_picking"):
             # print("debugging -- should build no table")
@@ -167,29 +178,29 @@ class VariableTable(QtWidgets.QDialog):
             networks = [self.network]
             # Use basic variable space for editing
             variable_space = {}
-            print(f"DEBUG: Checking if network '{self.network}' exists in index_networks_for_variable")
-            print(f"DEBUG: Available networks: {list(self.variables.index_networks_for_variable.keys())}")
+            # print(f"DEBUG: Checking if network '{self.network}' exists in index_networks_for_variable")
+            # print(f"DEBUG: Available networks: {list(self.variables.index_networks_for_variable.keys())}")
             if self.network in self.variables.index_networks_for_variable:
-                print(f"DEBUG: Network '{self.network}' found in index")
+                # print(f"DEBUG: Network '{self.network}' found in index")
                 variable_space[self.network] = {}
-                print(
-                    f"DEBUG: Variable classes in network: {list(self.variables.index_networks_for_variable[self.network].keys())}")
+                # print(
+                #     f"DEBUG: Variable classes in network: {list(self.variables.index_networks_for_variable[self.network].keys())}")
                 for var_class in self.variables.index_networks_for_variable[self.network]:
                     variable_space[self.network][var_class] = set()
-                    print(
-                        f"DEBUG: Checking class '{var_class}' with {len(self.variables.index_networks_for_variable[self.network][var_class])} variables")
+                    # print(
+                    # f"DEBUG: Checking class '{var_class}' with {len(self.variables.index_networks_for_variable[self.network][var_class])} variables")
                     for v in self.variables.index_networks_for_variable[self.network][var_class]:
-                        print(
-                            f"DEBUG: Checking variable {v}: type='{self.variables[v].type}', enabled_types={self.enabled_variable_types}")
+                        # print(
+                        #     f"DEBUG: Checking variable {v}: type='{self.variables[v].type}', enabled_types={self.enabled_variable_types}")
                         if not self.enabled_variable_types or self.variables[v].type in self.enabled_variable_types:
-                            print(f"DEBUG: Adding variable {v} to space")
+                            # print(f"DEBUG: Adding variable {v} to space")
                             variable_space[self.network][var_class].add(v)
-                        else:
-                            print(f"DEBUG: Filtering out variable {v}")
+                        # else:
+                        #     print(f"DEBUG: Filtering out variable {v}")
             else:
                 print(f"DEBUG: Network '{self.network}' NOT found in index!")
-            print(f"DEBUG: variable_editing final space: {variable_space}")
-            print("table -- variable_editing")
+            # print(f"DEBUG: variable_editing final space: {variable_space}")
+            # print("table -- variable_editing")
         else:
             # Use the updated variableSpaces method for variable_picking
             variable_space, v_counter = self.variables.variableSpaces("variable_picking", self.network,

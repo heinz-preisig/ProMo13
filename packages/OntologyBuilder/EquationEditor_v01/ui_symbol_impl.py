@@ -19,75 +19,75 @@ __status__ = "beta"
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-from OntologyBuilder.OntologyEquationEditor.resources import setValidator
-from OntologyBuilder.OntologyEquationEditor.ui_symbol import Ui_SymbolDialog
-from OntologyBuilder.OntologyEquationEditor.resources import dateString
+from OntologyBuilder.EquationEditor_v01.resources import dateString
+from OntologyBuilder.EquationEditor_v01.resources import setValidator
+from OntologyBuilder.EquationEditor_v01.ui_symbol import Ui_SymbolDialog
 
 ALLREADY_DEFINED = 'already defined -- give new variable'
 
 
 class UI_SymbolDialog(QtWidgets.QDialog):
-  """
-  dialog for a variable
-  any new variable will also generate a new equation
-
-  state controlled
-  """
-
-  finished = QtCore.pyqtSignal()
-
-  def __init__(self):  # variables, phys_var): # equations, phys_var):
     """
-    rename the physical variable.
-    Some funny things going on. One has to get the phys_var and change the label in there. Local referencing of the
-    label
-    does not work. Also if one passes the reference of the label and replaces the contents does not work.....
+    dialog for a variable
+    any new variable will also generate a new equation
+
+    state controlled
     """
-    self.phys_var = None
-    self.forbidden_symbol = None
 
-    QtWidgets.QDialog.__init__(self)
-    self.ui = Ui_SymbolDialog()
-    self.ui.setupUi(self)
-    self.setWindowTitle('edit variable symbol')
-    self.MSG = self.ui.MSG.setPlainText
-    self.MSG("provide variable symbol")
-    self.validator = setValidator(self.ui.lineSymbol)
-    self.state_OK = False
-    self.hide()
+    finished = QtCore.pyqtSignal()
 
-  def setUp(self, phys_var, forbidden_symbol):
-    self.phys_var = phys_var
-    self.forbidden_symbol = forbidden_symbol
-    self.ui.groupSymbol.show()
-    self.ui.lineSymbol.setText(self.phys_var.label)
-    self.ui.lineSymbol.selectAll()
-    self.ui.pushCancle.show()
+    def __init__(self):  # variables, phys_var): # equations, phys_var):
+        """
+        rename the physical variable.
+        Some funny things going on. One has to get the phys_var and change the label in there. Local referencing of the
+        label
+        does not work. Also if one passes the reference of the label and replaces the contents does not work.....
+        """
+        self.phys_var = None
+        self.forbidden_symbol = None
 
-  def on_lineSymbol_textChanged(self, text):
-    if str(text) in self.forbidden_symbol:  # symbol OK ?
-      self.MSG("already defined")
-      self.state_OK = False
-      return
-    if len(str(text)) == 0:
-      self.MSG("provide new variable name")
-      self.state_OK = False
-      return
+        QtWidgets.QDialog.__init__(self)
+        self.ui = Ui_SymbolDialog()
+        self.ui.setupUi(self)
+        self.setWindowTitle('edit variable symbol')
+        self.MSG = self.ui.MSG.setPlainText
+        self.MSG("provide variable symbol")
+        self.validator = setValidator(self.ui.lineSymbol)
+        self.state_OK = False
+        self.hide()
 
-    self.MSG("OK")
-    self.state_OK = True
+    def setUp(self, phys_var, forbidden_symbol):
+        self.phys_var = phys_var
+        self.forbidden_symbol = forbidden_symbol
+        self.ui.groupSymbol.show()
+        self.ui.lineSymbol.setText(self.phys_var.label)
+        self.ui.lineSymbol.selectAll()
+        self.ui.pushCancle.show()
 
-  def on_lineSymbol_returnPressed(self):
-    # print("debugging -- line 81 -- gotten here ")
-    if self.state_OK:
-      # self.phys_var.label = str(self.ui.lineSymbol.text())
-      label = str(self.ui.lineSymbol.text())
-      self.phys_var.changeLabel(label)
-      self.phys_var.modified = dateString()
-      self.finished.emit()
-      self.close()
-    else:
-      self.MSG("Invalid, provide variable symbol or cancle")
+    def on_lineSymbol_textChanged(self, text):
+        if str(text) in self.forbidden_symbol:  # symbol OK ?
+            self.MSG("already defined")
+            self.state_OK = False
+            return
+        if len(str(text)) == 0:
+            self.MSG("provide new variable name")
+            self.state_OK = False
+            return
 
-  def on_pushCancle_pressed(self):
-    self.close()
+        self.MSG("OK")
+        self.state_OK = True
+
+    def on_lineSymbol_returnPressed(self):
+        # print("debugging -- line 81 -- gotten here ")
+        if self.state_OK:
+            # self.phys_var.label = str(self.ui.lineSymbol.text())
+            label = str(self.ui.lineSymbol.text())
+            self.phys_var.changeLabel(label)
+            self.phys_var.modified = dateString()
+            self.finished.emit()
+            self.close()
+        else:
+            self.MSG("Invalid, provide variable symbol or cancle")
+
+    def on_pushCancle_pressed(self):
+        self.close()

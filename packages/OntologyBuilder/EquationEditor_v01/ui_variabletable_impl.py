@@ -191,7 +191,7 @@ class UI_VariableTableDialog(VariableTable):
         self.variables.indexVariables()  # indexEquationsInNetworks()
         self.reset_table()
         self.changed.emit(
-            True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+                True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
 
     def showVariableEquations(self, v):
         list_equations = sorted(v.equations.keys())
@@ -242,7 +242,7 @@ class UI_VariableTableDialog(VariableTable):
     def __defineNewVarWithEquation(self):
         self.new_variable.emit(self.selected_variable_type)
         self.changed.emit(
-            True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+                True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
 
     ### table handling
     def on_tableVariable_itemClicked(self, item):
@@ -361,13 +361,13 @@ class UI_VariableTableDialog(VariableTable):
         self.ui_symbol.setUp(variable, forbidden_symbols)
         self.ui_symbol.show()
         self.changed.emit(
-            True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+                True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
 
     def __changeUnits(self, phys_var):
         self.ui_units.setUp(phys_var)
         self.ui_units.show()
         self.changed.emit(
-            True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+                True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
 
     def __changeDocumentation(self, phys_var):
         self.ui_documentation = UI_DocumentationDialog(phys_var)
@@ -448,7 +448,7 @@ class UI_VariableTableDialog(VariableTable):
         self.ui_selector.newSelection.connect(self.__gotNewTokens)
         self.ui_selector.show()
         self.changed.emit(
-            True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
+                True)  # Note: not the most clever way to do this -- if it is not changed it is still marked as changed
 
     def __gotNewTokens(self, token_list):
         print("debugging got tokens", token_list)

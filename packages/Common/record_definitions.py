@@ -24,15 +24,12 @@ __email__ = "heinz.preisig@chemeng.ntnu.no"
 __status__ = "beta"
 
 from collections import OrderedDict
-from datetime import datetime
 
 from Common.common_resources import VARIABLE_TYPE_INTERFACE
 from Common.ui_get_string_impl import UI_GetString
-from OntologyBuilder.OntologyEquationEditor.resources import CODE
-from OntologyBuilder.OntologyEquationEditor.resources import dateString
-from OntologyBuilder.OntologyEquationEditor.resources import IRI_make
-from OntologyBuilder.OntologyEquationEditor.resources import LANGUAGES
-from OntologyBuilder.OntologyEquationEditor.variable_framework import Units
+from OntologyBuilder.EquationEditor_v01.resources import IRI_make
+from OntologyBuilder.EquationEditor_v01.resources import LANGUAGES
+from OntologyBuilder.EquationEditor_v01.resources import dateString
 
 TEMPLATES = {
         "incidence_matrix"          : "F_%s_%s",  # %(token, transfer_mechanism)
@@ -43,23 +40,22 @@ TEMPLATES = {
 
 date_format = "%Y-%m-%d %H:%M:%S"
 
+
 class OntologyContainerFile(dict):  # TODO: integrate typed token conversion into file
-  def __init__(self, version):
-    super()
-    self["version"] = version  # ...................................................................... ontology version
-    self["ontology_tree"] = OrderedDict()  # ........domain tree RULE: hand defined should correspond to subtree of EMMO
-    self["interfaces"] = {}
-    self["rules"] = {}  # rules are added in the editor_foundation_ontology_gui_impl as fixed rules
+    def __init__(self, version):
+        super()
+        self["version"] = version  # ...................................................................... ontology version
+        self["ontology_tree"] = OrderedDict()  # ........domain tree RULE: hand defined should correspond to subtree of EMMO
+        self["interfaces"] = {}
+        self["rules"] = {}  # rules are added in the editor_foundation_ontology_gui_impl as fixed rules
 
 
 class VariableFile(dict):
-  def __init__(self, variables, indices, version, ProMoIRI):
-    self["version"] = version  # ..................................................................... ontology version
-    self["variables"] = variables  # variable dictionary hash-key: global variable_ID contains also equation dictionary
-    self["indices"] = indices  # .............................................. incidence dictionary hash-key: index_ID
-    self["Ontology_global_IDs"] = ProMoIRI  # ................... RULE: variable and equation ID is global to ontology
-
-
+    def __init__(self, variables, indices, version, ProMoIRI):
+        self["version"] = version  # ..................................................................... ontology version
+        self["variables"] = variables  # variable dictionary hash-key: global variable_ID contains also equation dictionary
+        self["indices"] = indices  # .............................................. incidence dictionary hash-key: index_ID
+        self["Ontology_global_IDs"] = ProMoIRI  # ................... RULE: variable and equation ID is global to ontology
 
 
 # class RecordVariable(dict):
@@ -109,43 +105,43 @@ class VariableFile(dict):
 
 
 class EquationAssignment(dict):  # defines / controls entity definition
-  def __init__(self, tree=None, buddies=None):
-    super().__init__()
-    self = {
-            "tree"   : tree,  # ObjectTree dict
-            "buddies": buddies,  # buddies
-            }
-    print("gotten here", self)
+    def __init__(self, tree=None, buddies=None):
+        super().__init__()
+        self = {
+                "tree"   : tree,  # ObjectTree dict
+                "buddies": buddies,  # buddies
+                }
+        print("gotten here", self)
 
 
 class RecordProMoIRI(dict):
-  def __init__(self):
-    self["variable"] = 0
-    self["equation"] = 0
+    def __init__(self):
+        self["variable"] = 0
+        self["equation"] = 0
 
 
 class RecordIndex(dict):  # ................................................................... hash is global index_ID
-  def __init__(self):
-    super()
-    self["type"] = "index"  # .............................................................................. index class
-    self["label"] = ""  # ........................................................................ label for readability
-    self[
-      "network"] = []  # TODO : the list of networks is available from the ontology >> heirs_network_dictionary -->
-    # simplify
-    self["aliases"] = {}  # ...................................................................... hash-key is language
-    self["tokens"] = None
-    self["IRI"] = "None"  # ......................................................... qudt or promo IRI for the variable
+    def __init__(self):
+        super()
+        self["type"] = "index"  # .............................................................................. index class
+        self["label"] = ""  # ........................................................................ label for readability
+        self[
+            "network"] = []  # TODO : the list of networks is available from the ontology >> heirs_network_dictionary -->
+        # simplify
+        self["aliases"] = {}  # ...................................................................... hash-key is language
+        self["tokens"] = None
+        self["IRI"] = "None"  # ......................................................... qudt or promo IRI for the variable
 
 
 class RecordBlockIndex(dict):  # .............................................................. hash is global index_ID
-  def __init__(self):
-    super()
-    self["type"] = "block_index"  # ....................................................................... index class
-    self["label"] = ""  # ........................................................................ label for readability
-    self["indices"] = []  # ................................................. the two indices making up the block index
-    self["network"] = []  # TODO: list of networks it applies to ???
-    self["aliases"] = {}  # ...................................................................... hash-key is language
-    self["IRI"] = "None"  # ......................................................... qudt or promo IRI for the variable
+    def __init__(self):
+        super()
+        self["type"] = "block_index"  # ....................................................................... index class
+        self["label"] = ""  # ........................................................................ label for readability
+        self["indices"] = []  # ................................................. the two indices making up the block index
+        self["network"] = []  # TODO: list of networks it applies to ???
+        self["aliases"] = {}  # ...................................................................... hash-key is language
+        self["IRI"] = "None"  # ......................................................... qudt or promo IRI for the variable
 
 
 # class RecordIncidenceMatrix(RecordVariable):  # obsolete for the time being
@@ -195,19 +191,18 @@ class RecordBlockIndex(dict):  # ...............................................
 
 
 class Interface(dict):  # .........TODO: check if still in use ........................... interface record definition
-  def __init__(self, interface_network_label, left_network, right_network, left_variable_classes):
-    self["type"] = "event"  # ............................................ RULE: hard wired node type
-    self["doc"] = ""
-    self["index_structures"] = ["node"]  # ................................ RULE: hard wired index
-    self["label"] = interface_network_label
-    self["left_network"] = left_network
-    self["right_network"] = right_network
-    self["left_variable_classes"] = left_variable_classes
-    self["internal_variable_classes"] = [VARIABLE_TYPE_INTERFACE]    # ..... RULE: hard wired interface variable class
-    self["token"] = "information"  # ..................................... RULE: hard wired token
-    self["mechanism"] = "link"  # ........................................ RULE: hard wired mechanism
-    self["nature"] = "unidirectional"  # ................................. RULE: hard wired tranfer nature
-
+    def __init__(self, interface_network_label, left_network, right_network, left_variable_classes):
+        self["type"] = "event"  # ............................................ RULE: hard wired node type
+        self["doc"] = ""
+        self["index_structures"] = ["node"]  # ................................ RULE: hard wired index
+        self["label"] = interface_network_label
+        self["left_network"] = left_network
+        self["right_network"] = right_network
+        self["left_variable_classes"] = left_variable_classes
+        self["internal_variable_classes"] = [VARIABLE_TYPE_INTERFACE]  # ..... RULE: hard wired interface variable class
+        self["token"] = "information"  # ..................................... RULE: hard wired token
+        self["mechanism"] = "link"  # ........................................ RULE: hard wired mechanism
+        self["nature"] = "unidirectional"  # ................................. RULE: hard wired tranfer nature
 
 
 def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with variableRecord
@@ -216,82 +211,86 @@ def makeCompleteVariableRecord(var_ID,  # TODO: remove ?? and replace with varia
                                network="",
                                doc="",
                                index_structures=[],
-                               units=Units(),
+                               units=None,
                                equations={},
                                aliases={},
                                port_variable=False,
-                               memory = None,
-                               imported = False,
+                               memory=None,
+                               imported=False,
                                tokens=[],
                                ):
-  """
-  NOTE: there is a problem here with the defaults -- do not use them, but define everthing explicitly.
-  functional programming in Python has its problems. Here the defaults cause some problems -- why I do not know.
-  But the consequence is that each of the items must be defined. So the only reason to implement it like this is to
-  keep it centralised, in case things change down the road
-  :param var_ID:
-  :param label:
-  :param type:
-  :param network:
-  :param doc:
-  :param index_structures:
-  :param units:
-  :param equations:
-  :param aliases:
-  :return:
-  """
-  self = {}
-  self["label"] = label  # ........................................................................ is hash in variables
-  self["type"] = type
-  self["network"] = network
-  self["doc"] = doc
-  self["index_structures"] = index_structures  # ................................................... as IDs == integers
-  self["units"] = units  # ....................................................................
-  self["equations"] = equations  # ..................................................... hash is equation ID, an integer
-  self["aliases"] = aliases  # .....could be in code - not handy and not quite logical: there is also a compiled version
-  self["port_variable"] = port_variable  # ............ port variables are at the bottom of the definition -- foundation
-  self["tokens"] = tokens  # ..................................................................................... token
-  self["memory"] = memory  # .......................................... remembers if it was node or arc being the source
-  self["imported"] = imported # .................... label to indicated if information was imported through an interface
-  # self["IRI"] = IRI_make("promo", network, label)  # NOTE: label is to be adjusted when changed
-  self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
-  self["created"] = dateString()
-  self["modified"] = self["created"]
-  self["compiled_lhs"] = {"global_ID": var_ID, "latex": label}
+    """
+    NOTE: there is a problem here with the defaults -- do not use them, but define everthing explicitly.
+    functional programming in Python has its problems. Here the defaults cause some problems -- why I do not know.
+    But the consequence is that each of the items must be defined. So the only reason to implement it like this is to
+    keep it centralised, in case things change down the road
+    :param var_ID:
+    :param label:
+    :param type:
+    :param network:
+    :param doc:
+    :param index_structures:
+    :param units:
+    :param equations:
+    :param aliases:
+    :return:
+    """
+    # Local import to avoid circular dependency
+    if units is None:
+        from OntologyBuilder.EquationEditor_v01.variable_framework import Units
+        units = Units()
 
-  if aliases == {}:
-    for language in LANGUAGES["aliasing"]:
-      self["aliases"][language] = label
-    self["aliases"]["global_ID"] = var_ID
+    self = {}
+    self["label"] = label  # ........................................................................ is hash in variables
+    self["type"] = type
+    self["network"] = network
+    self["doc"] = doc
+    self["index_structures"] = index_structures  # ................................................... as IDs == integers
+    self["units"] = units  # ....................................................................
+    self["equations"] = equations  # ..................................................... hash is equation ID, an integer
+    self["aliases"] = aliases  # .....could be in code - not handy and not quite logical: there is also a compiled version
+    self["port_variable"] = port_variable  # ............ port variables are at the bottom of the definition -- foundation
+    self["tokens"] = tokens  # ..................................................................................... token
+    self["memory"] = memory  # .......................................... remembers if it was node or arc being the source
+    self["imported"] = imported  # .................... label to indicated if information was imported through an interface
+    # self["IRI"] = IRI_make("promo", network, label)  # NOTE: label is to be adjusted when changed
+    self["IRI"] = IRI_make("promo", label)  # NOTE: label is to be adjusted when changed
+    self["created"] = dateString()
+    self["modified"] = self["created"]
+    self["compiled_lhs"] = {"global_ID": var_ID, "latex": label}
 
+    if aliases == {}:
+        for language in LANGUAGES["aliasing"]:
+            self["aliases"][language] = label
+        self["aliases"]["global_ID"] = var_ID
 
-
-  return self
+    return self
 
 
 def makeCompletEquationRecord(rhs={}, type="generic", network="", doc="", incidence_list=[], created=None):
-  date = dateString()
-  self = {"rhs"           : rhs, #{"global_ID": rhs},
-          "type"          : type,
-          "doc"           : doc,
-          "network"       : network,
-          "incidence_list": incidence_list,
-          "created" : date,
-          "modified" : date
-          }
-  return self
+    date = dateString()
+    self = {"rhs"           : rhs,  # {"global_ID": rhs},
+            "type"          : type,
+            "doc"           : doc,
+            "network"       : network,
+            "incidence_list": incidence_list,
+            "created"       : date,
+            "modified"      : date
+            }
+    return self
+
 
 def makeInitialAliases(label, var_ID):
-  aliases = {}
-  for language in LANGUAGES["aliasing"]:
-    aliases[language] = label
-  aliases["global_ID"] = var_ID
-  a = UI_GetString("Give a LaTex representation of variable %s: " % label)
-  a.exec_()
-  text = a.getText()
+    aliases = {}
+    for language in LANGUAGES["aliasing"]:
+        aliases[language] = label
+    aliases["global_ID"] = var_ID
+    a = UI_GetString("Give a LaTex representation of variable %s: " % label)
+    a.exec_()
+    text = a.getText()
 
-  if text:
-    aliases["latex"] = text
-  else:
-    aliases["latex"] = label
-  return aliases
+    if text:
+        aliases["latex"] = text
+    else:
+        aliases["latex"] = label
+    return aliases

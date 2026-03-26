@@ -1,213 +1,214 @@
 """Contains the equation class."""
-from typing import TypedDict, List, Optional, Dict, Tuple, Self
 from datetime import datetime
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import TypedDict
 
 
 class EquationDict(TypedDict):
-  """Creates a new type for a dictionary that stores an equation."""
-  # TODO Update the way equations are stored.
-  variable_ID: str  # pylint: disable=invalid-name Backwards compatibility
-  lhs: str
-  rhs: str
-  network: str
+    """Creates a new type for a dictionary that stores an equation."""
+    # TODO Update the way equations are stored.
+    variable_ID: str  # pylint: disable=invalid-name Backwards compatibility
+    lhs: str
+    rhs: str
+    network: str
 
 
 class Equation():
-  """Models an equation."""
-  # TODO Add atributes.
-  # TODO Explain the different possibilites for the terms in the equations
+    """Models an equation."""
 
-  def __init__(
-      self,
-      eq_id: str,
-      img_path: str,
-      type: str,
-      lhs: Dict[str, str],
-      rhs: Dict[str, str],
-      network: str,
-      doc: str,
-      created: str,
-      modified: str,
-  ) -> None:
+    # TODO Add atributes.
+    # TODO Explain the different possibilites for the terms in the equations
 
+    def __init__(
+            self,
+            eq_id: str,
+            img_path: str,
+            type: str,
+            lhs: Dict[str, str],
+            rhs: Dict[str, str],
+            network: str,
+            doc: str,
+            created: str,
+            modified: str,
+            ) -> None:
 
+        self.eq_id = eq_id
+        self.img_path = img_path
+        self.type = type
+        self.lhs = lhs
+        self.rhs = rhs
+        self.network = network
+        self.doc = doc
 
-    self.eq_id = eq_id
-    self.img_path = img_path
-    self.type = type
-    self.lhs = lhs
-    self.rhs = rhs
-    self.network = network
-    self.doc = doc
+        date_format = "%Y-%m-%d %H:%M:%S"
+        self.created = datetime.strptime(created, date_format)
+        self.modified = datetime.strptime(modified, date_format)
 
-    date_format = "%Y-%m-%d %H:%M:%S"
-    self.created = datetime.strptime(created, date_format)
-    self.modified = datetime.strptime(modified, date_format)
+        # TODO: Probably throw an exception if "global_ID" is not found
+        self.terms = self.lhs.get("global_ID").split()
+        self.terms.extend(self.rhs.get("global_ID").split())
 
-    # TODO: Probably throw an exception if "global_ID" is not found
-    self.terms = self.lhs.get("global_ID").split()
-    self.terms.extend(self.rhs.get("global_ID").split())
+        self.__makeOperatorList()
 
-    self.__makeOperatorList()
+    def __makeOperatorList(self):
 
-  def __makeOperatorList(self):
+        from OntologyBuilder.EquationEditor_v01.resources import CODE
+        self.operators = {}
+        for o in CODE["global_ID"]["operator"]:
+            self.operators[o] = CODE["global_ID"]["operator"][o].replace(" ", "")
+        pass
 
-    from OntologyBuilder.OntologyEquationEditor.resources import CODE
-    self.operators = {}
-    for o in CODE["global_ID"]["operator"]:
-      self.operators[o] = CODE["global_ID"]["operator"][o].replace(" ","")
-    pass
+    def get_main_var_id(self):
+        return self.terms[0]
 
+    def get_id(self):
+        return self.eq_id
 
-  def get_main_var_id(self):
-    return self.terms[0]
+    def get_img_path(self):
+        return self.img_path
 
-  def get_id(self):
-    return self.eq_id
+    def is_explicit_for_var(self, var_id: str) -> bool:
+        """Checks if a variable is in the lhs of the equation.
 
-  def get_img_path(self):
-    return self.img_path
+        Args:
+            var_id (str): Id of the variable.
 
-  def is_explicit_for_var(self, var_id: str) -> bool:
-    """Checks if a variable is in the lhs of the equation.
+        Returns:
+            bool: **True** if the variable is on the lhs of the equation.
+              **False** otherwise.
+        """
+        if self.terms[0] == var_id:
+            return True
 
-    Args:
-        var_id (str): Id of the variable.
+        return False
 
-    Returns:
-        bool: **True** if the variable is on the lhs of the equation.
-          **False** otherwise.
-    """
-    if self.terms[0] == var_id:
-      return True
+    def contains_var(self, var_id: str) -> bool:
+        """Checks if a variable appears in the equation.
 
-    return False
+        Args:
+            var_id (str): Id of the variable.
 
-  def contains_var(self, var_id: str) -> bool:
-    """Checks if a variable appears in the equation.
+        Returns:
+            Bool: **True** if the variable appears on the equation.
+              **False** otherwise.
+        """
+        if var_id in self.terms:
+            return True
 
-    Args:
-        var_id (str): Id of the variable.
+        return False
 
-    Returns:
-        Bool: **True** if the variable appears on the equation.
-          **False** otherwise.
-    """
-    if var_id in self.terms:
-      return True
+    def get_dependencies_list(self):
+        var_id = self.get_main_var_id()
+        return self.get_incidence_list(var_id)
 
-    return False
+    def get_incidence_list(self, var_id: Optional[str] = None) -> List[str]:
+        """Returns the incidence list for the equation.
 
-  def get_dependencies_list(self):
-    var_id = self.get_main_var_id()
-    return self.get_incidence_list(var_id)
+        Args:
+            var_id (Optional[str], optional): Id of the variable or **None**
+              if all variables in the equation are desired. Defaults to
+              **None**.
 
-  def get_incidence_list(self, var_id: Optional[str] = None) -> List[str]:
-    """Returns the incidence list for the equation.
+        Returns:
+            List[str]: Contains the ids of the variables needed to calculate
+              the variable passed as argument using this equation.
 
-    Args:
-        var_id (Optional[str], optional): Id of the variable or **None**
-          if all variables in the equation are desired. Defaults to
-          **None**.
+        """
+        inc_list = list(set(filter(lambda term: "V" in term, self.terms)))
+        if var_id is None:
+            return inc_list
 
-    Returns:
-        List[str]: Contains the ids of the variables needed to calculate
-          the variable passed as argument using this equation.
+        if self.contains_var(var_id):
+            inc_list.remove(var_id)
+            # return inc_list
 
-    """
-    inc_list = list(set(filter(lambda term: "V" in term, self.terms)))
-    if var_id is None:
-      return inc_list
+        # In some cases var_id wont be explicitly in the equation but
+        # one of the variables with be a function of var_id.
+        return inc_list
+        # print(f"Variable {var_id} not in equation {self.eq_id}")
+        # return []
 
-    if self.contains_var(var_id):
-      inc_list.remove(var_id)
-      # return inc_list
+    def is_instantiation_eq(self) -> bool:
+        """Checks if this equation is used for instantiation.
 
-    # In some cases var_id wont be explicitly in the equation but
-    # one of the variables with be a function of var_id.
-    return inc_list
-    # print(f"Variable {var_id} not in equation {self.eq_id}")
-    # return []
+        Specifically it checks when the `Instantiate` operator (O_10) is in the rhs of the equation.
 
-  def is_instantiation_eq(self) -> bool:
-    """Checks if this equation is used for instantiation.
+        Returns:
+            Bool: **True** is the equation is used to instantiate a variable
+              with an undetermined value. **False** otherwise.
+        """
+        # TODO Find a way that is independent from hard coded identifiers.
+        # Probably from variable classes or tags
+        # try:
+        instantiate_operator = getattr(self, 'operators', {}).get("Instantiate")
+        if instantiate_operator and hasattr(self, 'rhs'):
+            rhs_content = self.rhs["global_ID"]
+            if instantiate_operator in rhs_content:
+                return True
+            else:
+                return False
 
-    Specifically it checks when the `Instantiate` operator (O_10) is in the rhs of the equation.
+                # # Check different ways the RHS might be structured
+                # if isinstance(rhs_content, dict):
+                #     for key, value in rhs_content.items():
+                #         if instantiate_operator in str(value):
+                #             return True
+                # elif isinstance(rhs_content, str):
+                #     if instantiate_operator in rhs_content:
+                #         return True
+                # else:
+                #     if instantiate_operator in str(rhs_content):
+                #         return True
 
-    Returns:
-        Bool: **True** is the equation is used to instantiate a variable
-          with an undetermined value. **False** otherwise.
-    """
-    # TODO Find a way that is independent from hard coded identifiers.
-    # Probably from variable classes or tags
-    # try:
-    instantiate_operator = getattr(self, 'operators', {}).get("Instantiate")
-    if instantiate_operator and hasattr(self, 'rhs'):
-        rhs_content = self.rhs["global_ID"]
-        if instantiate_operator in rhs_content:
-          return True
-        else:
-          return False
+        # except (AttributeError, KeyError):
+        #     pass
+        # return False
 
-            # # Check different ways the RHS might be structured
-            # if isinstance(rhs_content, dict):
-            #     for key, value in rhs_content.items():
-            #         if instantiate_operator in str(value):
-            #             return True
-            # elif isinstance(rhs_content, str):
-            #     if instantiate_operator in rhs_content:
-            #         return True
-            # else:
-            #     if instantiate_operator in str(rhs_content):
-            #         return True
-                    
-    # except (AttributeError, KeyError):
-    #     pass
-    # return False
+    def parse_integrator(self):
+        # NOTE: fixed HAP 2006-02-10
 
-  def parse_integrator(self):
-    # NOTE: fixed HAP 2006-02-10
+        # from OntologyBuilder.OntologyEquationEditor.resources import CODE
+        # operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
+        components = self.rhs.get("global_ID").split()
+        if components[0] != self.operators["Integral"]:
+            return None
 
-    # from OntologyBuilder.OntologyEquationEditor.resources import CODE
-    # operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
-    components = self.rhs.get("global_ID").split()
-    if components[0] != self.operators["Integral"]:
-      return None
+        return {
+                "var_id"          : self.terms[0],
+                "int_interval_ini": components[7],
+                "int_interval_fin": components[9],
+                "integrand"       : components[2],
+                "int_var"         : components[4],
+                "init_value"      : components[13],
+                }
 
-    return {
-        "var_id": self.terms[0],
-        "int_interval_ini": components[7],
-        "int_interval_fin": components[9],
-        "integrand": components[2],
-        "int_var": components[4],
-        "init_value": components[13],
-    }
+    def is_integrator(self):
+        # TODO: Check for a better way to check this
+        # from OntologyBuilder.OntologyEquationEditor.resources import CODE
+        # operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
+        components = self.rhs.get("global_ID").split()
+        if components[0] == self.operators["Integral"]:
+            return True
 
-  def is_integrator(self):
-    # TODO: Check for a better way to check this
-    # from OntologyBuilder.OntologyEquationEditor.resources import CODE
-    # operator_integrator = CODE["global_ID"]["operator"]["Integral"].replace(" ","")
-    components = self.rhs.get("global_ID").split()
-    if components[0] == self.operators["Integral"]:
-      return True
+        return False
 
-    return False
+    # def get_translation(self, language: str) -> Dict[str, str]:
+    #   lhs_global_repr = self.lhs["global_ID"]
+    #   rhs_global_repr = self.rhs["global_ID"]
+    #   translation = {
+    #       "lhs": equation_parser.,
+    #       "rhs": self.rhs.get(language)
+    #   }
 
-  # def get_translation(self, language: str) -> Dict[str, str]:
-  #   lhs_global_repr = self.lhs["global_ID"]
-  #   rhs_global_repr = self.rhs["global_ID"]
-  #   translation = {
-  #       "lhs": equation_parser.,
-  #       "rhs": self.rhs.get(language)
-  #   }
+    #  return translation
 
-  #  return translation
+    def get_mod_date(self):
+        return self.modified
 
-  def get_mod_date(self):
-    return self.modified
+    def is_interface_eq(self) -> bool:
+        return ">>>" in self.network
 
-  def is_interface_eq(self) -> bool:
-    return ">>>" in self.network
-
-  def is_root(self) -> bool:
-    return "F_17" in str(self.rhs.get("global_ID"))
+    def is_root(self) -> bool:
+        return "F_17" in str(self.rhs.get("global_ID"))
