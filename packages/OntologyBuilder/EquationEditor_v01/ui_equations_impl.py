@@ -773,7 +773,9 @@ class UI_Equations(QtWidgets.QWidget):
             tokens=[],
             memory=self.memory,
         )
-        
+        # Note: this is a fix. We replace the <domain>_<symbol> with <domain>\\_<symbol> for latex
+        interface_variable_record["aliases"]["latex"] = interface_variable_record["aliases"]["latex"].replace("_", "\\_",1)
+
         # Add the interface variable
         self.variables.addNewVariable(ID=interface_var_ID, **interface_variable_record)
 

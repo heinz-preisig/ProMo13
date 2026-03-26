@@ -511,7 +511,6 @@ class UiOntologyDesign(QMainWindow):
             return
 
         self.current_variable_type = selection
-        # self.ui.groupEdit.show()
         self.__setupVariableTable()
         self.table_variables.show()
 

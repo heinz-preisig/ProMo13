@@ -103,19 +103,7 @@ class UI_VariableTableDialog(VariableTable):
                                show_buttons=show_buttons,
                                )
 
-        # buttons = self.buttons
-        #
-        # showButtons = {"back": roundButton(buttons["back"], "back", tooltip="go back"),
-        #                "info": roundButton(buttons["info"], "info", tooltip="information"),
-        #                "new" : roundButton(buttons["new"], "dependent_variable", tooltip="new dependent variable"),
-        #                "port": roundButton(buttons["port"], "port", tooltip="new port variable"),
-        #                }
-        #
-        # for b in buttons:
-        #   if b not in showButtons:
-        #     buttons[b].hide()
-
-        # version_change : hide token column
+                # version_change : hide token column
         self.hideColumn(3)
 
         self.network_expression = network_expression

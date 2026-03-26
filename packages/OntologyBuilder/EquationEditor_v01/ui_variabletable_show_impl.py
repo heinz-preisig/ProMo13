@@ -76,25 +76,6 @@ class UI_VariableTableShow(VariableTable):
                                show_buttons,
                                )
 
-        # buttons = self.buttons
-        #
-        # # Show only the buttons specified in the hidden parameter
-        # showButtons = {}
-        # for button_name in buttons:
-        #   if button_name in buttons:
-        #     showButtons[button_name] = roundButton(buttons[button_name], button_name,
-        #                                           tooltip=buttons[button_name].toolTip())
-        #
-        # for b in buttons:
-        #   if b not in showButtons:
-        #     # print("debugging -- hide button", b)
-        #     buttons[b].hide()
-        #
-        # # Always hide LaTeX and dot buttons unless explicitly requested
-        # if "LaTex" not in hidden:
-        #   buttons["LaTex"].hide()
-        # if "dot_graph" not in hidden:
-        #   buttons["dot_graph"].hide()
 
         self.hide_columns = hide_columns
 
@@ -115,7 +96,6 @@ class UI_VariableTableShow(VariableTable):
 
         self.selected_variable_symbol = data[1]
         self.selected_variable_ID = data[9]
-        # print("debugging -- selected ID:", self.selected_variable_ID, self.selected_variable_symbol)
 
         image_location = self.variables.ontology_container.latex_image_location
         list_equations = sorted(self.variables[self.selected_variable_ID].equations.keys())
