@@ -22,7 +22,6 @@ from copy import copy
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions import makeCompleteVariableRecord
 from Common.single_list_selector_impl import SingleListSelector
@@ -366,23 +365,9 @@ class UI_VariableTableDialog(VariableTable):
     def __changeIndexing(self, phys_var):  # TODO: when does this make sense ?
         self.phys_var = phys_var
         # version_change: the rule for the oonnection interfaces is too constraint
-        if CONNECTION_NETWORK_SEPARATOR in phys_var.network:
-            [source, sink] = phys_var.network.split(CONNECTION_NETWORK_SEPARATOR)
-            left_indices = set()
-            right_indices = set()
-            for id in self.indices:
-                if source in self.indices[id]["network"]:
-                    left_indices.add(id)
-                if sink in self.indices[id]["network"]:
-                    right_indices.add(id)
-            joint_index = left_indices | right_indices
-            index_structures_labels = []
-            for id in joint_index:
-                index_structures_labels.append(self.indices[id]["label"])
 
-        else:
-            self.label_ID_dict = self.__getIndexListPerNetwork(self.network)
-            index_structures_labels = [self.indices[ind_ID]["label"] for ind_ID in self.label_ID_dict.keys()]
+        self.label_ID_dict = self.__getIndexListPerNetwork(self.network)
+        index_structures_labels = [self.indices[ind_ID]["label"] for ind_ID in self.label_ID_dict.keys()]
 
         try:
             del self.ui_selector

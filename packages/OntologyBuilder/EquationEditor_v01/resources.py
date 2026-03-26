@@ -31,7 +31,8 @@ from jinja2 import Environment  # sudo apt-get install python-jinja2
 from jinja2 import FileSystemLoader
 
 from Common.classes import entity
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
+from Common.common_resources import TEMPLATE_INTRACONNECTION_PAIRS
+# from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import invertDict
 from Common.pop_up_message_box import makeMessageBox
 from Common.record_definitions_equation_linking import VariantRecord

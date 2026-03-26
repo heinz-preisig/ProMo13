@@ -20,7 +20,7 @@ __status__ = "beta"
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR, VARIABLE_TYPE_INTERFACE
+from Common.common_resources import VARIABLE_TYPE_INTERFACE
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
 from Common.resources_icons import roundButton
@@ -135,7 +135,7 @@ class UI_Equations(QtWidgets.QWidget):
     def __makePickVariableTable(self):
 
         self.variable_tables = {}
-        # if self.what == "interface":  # CONNECTION_NETWORK_SEPARATOR in self.network_for_expression:
+        # Interfaces are now standard domains - use standard variable table logic
         #     [source, sink] = self.network_for_expression.split(CONNECTION_NETWORK_SEPARATOR)
         #     network = source
         #     enabled_var_types = {

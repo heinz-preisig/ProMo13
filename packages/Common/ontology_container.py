@@ -42,17 +42,16 @@ from PyQt5 import QtWidgets
 from Common.classes.equation import Equation
 from Common.classes.io import load_entities_from_file  # todo: eliminate
 from Common.classes.io import load_var_idx_eq_from_file  # todo: eliminate
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import M_None
 from Common.common_resources import PROMO_IRI_PREFIX
 from Common.common_resources import TEMPLATE_ARC_APPLICATION
 from Common.common_resources import TEMPLATE_INTER_NODE_OBJECT
-from Common.common_resources import TEMPLATE_INTRACONNECTION_NETWORK
-from Common.common_resources import TEMPLATE_INTRACONNECTION_PAIRS
 from Common.common_resources import TEMPLATE_INTRA_NODE_OBJECT
 from Common.common_resources import TEMPLATE_INTRA_NODE_OBJECT_WITH_TOKEN
 from Common.common_resources import TEMPLATE_NODE_OBJECT
 from Common.common_resources import TEMPLATE_NODE_OBJECT_WITH_TOKEN
+from Common.common_resources import TEMPLATE_INTRACONNECTION_PAIRS
+from Common.common_resources import TEMPLATE_INTRACONNECTION_NETWORK
 from Common.common_resources import getData
 from Common.common_resources import invertDict
 from Common.common_resources import saveWithBackup
@@ -454,23 +453,11 @@ class OntologyContainer():
         # self.equations = self.__makeEquationAndIndexLists()
         
     def __setupInterfaces(self):
-        # RULE: interfaces are now standard ontology domains - no special handling needed
-        # Legacy interfaces with "source >>> sink" format are still supported for backward compatibility
+        # Interfaces are now standard ontology domains - no special handling needed
+        # This method kept for backward compatibility but returns empty dict
+        # Interface entities are created through standard domain processing
         
-        interfaces = OrderedDict()
-        list_networks = self.list_inter_branches_pairs
-        
-        for network in list_networks:
-            if CONNECTION_NETWORK_SEPARATOR in network:
-                # Legacy format: "source >>> sink" - keep for backward compatibility
-                left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
-                left_variable_types = self.variable_types_on_networks[left_nw]
-                
-                interfaces[network] = Interface(
-                        network, left_nw, right_nw, left_variable_types)
-            # New interface domain is handled automatically as a standard domain
-        
-        return interfaces
+        return OrderedDict()
 
     #####################
     def __makeObjectKeyLists(self):

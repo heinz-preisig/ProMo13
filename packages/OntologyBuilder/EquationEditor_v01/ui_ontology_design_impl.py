@@ -58,10 +58,11 @@ from pydotplus.graphviz import Dot
 from pydotplus.graphviz import Edge
 from pydotplus.graphviz import Node
 
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
+# from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import UI_GetString
 from Common.common_resources import displayPdf
 from Common.common_resources import getOntologyName
+from Common.common_resources import TEMPLATE_INTRACONNECTION_PAIRS
 from Common.common_resources import makeTreeView
 from Common.common_resources import saveBackupFile
 from Common.ontology_container import OntologyContainer

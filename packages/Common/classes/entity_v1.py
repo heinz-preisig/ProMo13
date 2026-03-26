@@ -49,7 +49,7 @@ class Entity():
         self.classifications_initialized = False  # Will be generated when needed
 
         self.all_included_variables = []
-        if entity_id == "Topology" or entity_id.startswith("interface.") or ">>>" in entity_id:
+        if entity_id == "Topology" or (hasattr(self, 'network') and self.network == "interface"):
             self.entity_type = "interface"
             return
 
@@ -1754,10 +1754,8 @@ class Entity():
         return var_id in self.get_entity_variables()
 
     def is_interface_ent(self) -> bool:
-        # Check for new ontology-based interface domain or legacy patterns
-        return (hasattr(self, 'network') and self.network == "interface") or \
-               self.entity_id.startswith("interface.") or \
-               ">>>" in self.entity_id
+        # Check for ontology-based interface domain
+        return (hasattr(self, 'network') and self.network == "interface")
 
     def get_type(self) -> Optional[str]:
         if self.entity_id == "Topology":
@@ -1780,14 +1778,6 @@ class Entity():
         if hasattr(self, 'network'):
             # Standard entity parsing - return the network
             return [self.network]
-        
-        if ">>>" in self.entity_id:
-            # Legacy format: "source >>> sink"
-            return [self.entity_id.split(" ")[0], self.entity_id.split(" ")[2]]
-        
-        if self.entity_id.startswith("interface."):
-            # New unified interface system
-            return ["interface"]
 
         try:
             return [self.entity_id.split(".")[0]]

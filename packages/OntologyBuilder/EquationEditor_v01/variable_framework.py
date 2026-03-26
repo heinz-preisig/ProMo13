@@ -47,7 +47,6 @@ from collections import OrderedDict
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.record_definitions import makeCompletEquationRecord
 from Common.record_definitions import makeCompleteVariableRecord
 from OntologyBuilder.EquationEditor_v01.resources import CODE
@@ -733,17 +732,14 @@ class Variables(OrderedDict):
                             self.index_networks_for_variable[i_nw][variable_class].append(ID)
 
         for nw in self.interconnection_networks:
-            if CONNECTION_NETWORK_SEPARATOR in nw:
-                # Legacy format: "source >>> sink" - keep for backward compatibility
-                left_nw, right_nw = nw.split(CONNECTION_NETWORK_SEPARATOR)
-                self.index_networks_for_variable[nw] = {}
-                for variable_class in self.ontology_container.variable_types_on_interfaces[nw]:
-                    if variable_class not in self.index_networks_for_variable[nw]:
-                        self.index_networks_for_variable[nw][variable_class] = []
-                    for ID in self:
-                        if (self[ID].type == variable_class) and (self[ID].network == nw):
-                            self.index_networks_for_variable[nw][variable_class].append(ID)
-            # New interface domain is handled automatically as a standard domain
+            # Standard domain processing - interfaces are handled like any other domain
+            self.index_networks_for_variable[nw] = {}
+            for variable_class in self.ontology_container.variable_types_on_interfaces[nw]:
+                if variable_class not in self.index_networks_for_variable[nw]:
+                    self.index_networks_for_variable[nw][variable_class] = []
+                for ID in self:
+                    if (self[ID].type == variable_class) and (self[ID].network == nw):
+                        self.index_networks_for_variable[nw][variable_class].append(ID)
 
         for nw in self.intraconnection_networks:
             self.index_networks_for_variable[nw] = {}
@@ -823,11 +819,7 @@ class Variables(OrderedDict):
             else:
                 no = len(self.nameSpacesForVariableLabel[label].keys())
             definition_network = self[ID].network
-            if CONNECTION_NETWORK_SEPARATOR in definition_network:  # Rule: No inheritance for interfaces
-                if no not in self.nameSpacesForVariableLabel[label]:
-                    self.nameSpacesForVariableLabel[label][no] = []
-                self.nameSpacesForVariableLabel[label][no].append(definition_network)
-            elif definition_network == "interface":  # Special handling for interface domain
+            if definition_network == "interface":  # Special handling for interface domain
                 if no not in self.nameSpacesForVariableLabel[label]:
                     self.nameSpacesForVariableLabel[label][no] = []
                 self.nameSpacesForVariableLabel[label][no].append(definition_network)
@@ -868,15 +860,6 @@ class Variables(OrderedDict):
                     if self[ID].type == variable_class:
                         if self[ID].network == nw:
                             acc[nw][variable_class].append(ID)
-            
-            if CONNECTION_NETWORK_SEPARATOR in nw:
-                # Legacy format: "source >>> sink" - keep for backward compatibility
-                [source, sink] = nw.split(CONNECTION_NETWORK_SEPARATOR)
-                for variable_class in acc[source]:
-                    if variable_class not in acc[nw]:
-                        acc[nw][variable_class] = []
-                    acc[nw][variable_class].extend(acc[source][variable_class])
-            # New interface domain is handled automatically as a standard domain
 
         for nw in self.ontology_container.interface_networks_accessible_to_networks_dictionary:
             for i_nw in self.ontology_container.interface_networks_accessible_to_networks_dictionary[nw]:
@@ -1180,11 +1163,12 @@ class Variables(OrderedDict):
             if network in self.nameSpacesForVariableLabel[label][name_space]:
                 return True
             else:
-                for nw in self.nameSpacesForVariableLabel[label][name_space]:
-                    if CONNECTION_NETWORK_SEPARATOR in nw:
-                        _, rnw = nw.split(CONNECTION_NETWORK_SEPARATOR)
-                        if rnw == network:
-                            return True
+                pass
+                # for nw in self.nameSpacesForVariableLabel[label][name_space]:
+                #     if CONNECTION_NETWORK_SEPARATOR in nw:
+                #         _, rnw = nw.split(CONNECTION_NETWORK_SEPARATOR)
+                #         if rnw == network:
+                #             return True
 
         return False
 
@@ -1213,15 +1197,7 @@ class Variables(OrderedDict):
         :return: IDs for the variables that are available in this network of type/class <vartype>
         """
         acc = []
-        if CONNECTION_NETWORK_SEPARATOR in network:
-            # Legacy format: "source >>> sink" - keep for backward compatibility
-            for ID in self:
-                if self[ID].type == vartype:
-                    if network == self[ID].network:
-                        acc.append(ID)
-            return acc
-        
-        # New interface domain and all other domains are handled as standard domains
+        # Standard domain processing for all networks including interface
         for ID in self:
             if self[ID].type == vartype:
                 def_nw = self[ID].network
