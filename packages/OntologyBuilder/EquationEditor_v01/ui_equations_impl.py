@@ -555,6 +555,11 @@ class UI_Equations(QtWidgets.QWidget):
 
             self.variables.addNewVariable(ID=var_ID, **variable_record)
 
+            # Check if variable type has is_visible_in_interface rule and create interface variable
+            interface_rule = self.ontology_container.rules["is_visible_in_interface"]
+            if (self.selected_variable_type in self.ontology_container.rules.get("variable_classes", {}).get("is_visible_in_interface", [])):
+                self.__createInterfaceVariableAndEquation(var_ID, symbol, documentation)
+
         # new equation to existing variable false, true, false
         elif log == (False, True, False):
             self.variables.addEquation(var_ID, equation_record)
@@ -667,6 +672,80 @@ class UI_Equations(QtWidgets.QWidget):
 
         self.hide()
         self.close()
+
+    def __createInterfaceVariableAndEquation(self, var_ID, symbol, documentation):
+        """
+        Create an interface variable and equation when is_visible_in_interface rule applies.
+        Interface variable name format: <domain_name>_variablename
+        Equation: <domain_name>_variablename = variablename
+        """
+        # Get the domain name from the network
+        domain_name = self.network_for_variable
+        
+        # Create interface variable name
+        interface_var_name = f"{domain_name}_{symbol}"
+        
+        # Create interface variable ID
+        interface_var_ID = self.variables.newProMoVariableIRI()
+        
+        # Create interface equation ID
+        interface_equ_ID = self.variables.newProMoEquationIRI()
+        
+        # Get interface domain (create if it doesn't exist)
+        interface_domain = self.variables.getOrCreateInterfaceDomain()
+        
+        # Create the equation: interface_var = original_var
+        # Use the original variable ID for the RHS
+        rhs_expression = var_ID
+        
+        # Create compilers for both languages
+        compilers = {}
+        for language in ["latex", "global_ID"]:
+            compilers[language] = makeCompilerForNetwork(self.variables,
+                                                         self.indices,
+                                                         interface_domain,
+                                                         interface_domain,
+                                                         language=language,
+                                                         verbose=0)
+        
+        # Compile the expression
+        expression_global = str(compilers["global_ID"](rhs_expression))
+        expression_latex = str(compilers["latex"](rhs_expression))
+        
+        rhs_dic = {
+            "global_ID": expression_global,
+            "latex": expression_latex
+        }
+        
+        # Create interface equation record
+        interface_equation_record = makeCompletEquationRecord(
+            rhs=rhs_dic, 
+            network=interface_domain, 
+            doc=f"Interface equation for {symbol}",
+            incidence_list=[var_ID], 
+            created=dateString()
+        )
+        
+        # Create interface variable record
+        interface_variable_record = makeCompleteVariableRecord(
+            interface_var_ID,
+            label=interface_var_name,
+            type=self.selected_variable_type,
+            network=interface_domain,
+            doc=f"Interface variable for {symbol}",
+            index_structures=self.checked_var.index_structures,
+            units=self.checked_var.units,
+            equations={
+                interface_equ_ID: interface_equation_record
+            },
+            aliases={},
+            port_variable=False,
+            tokens=[],
+            memory=self.memory,
+        )
+        
+        # Add the interface variable
+        self.variables.addNewVariable(ID=interface_var_ID, **interface_variable_record)
 
     @staticmethod
     def __printDelete():

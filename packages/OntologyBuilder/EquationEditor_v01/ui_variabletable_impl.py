@@ -100,7 +100,7 @@ class UI_VariableTableDialog(VariableTable):
                                hide_vars,
                                hide_columns,
                                info_file=info_file,
-                               show_buttons=["back"],
+                               show_buttons=show_buttons,
                                )
 
         # buttons = self.buttons

@@ -236,7 +236,7 @@ class Ui_MainWindow(object):
         self.groupBoxBehaviourRules.setGeometry(QtCore.QRect(370, 40, 341, 211))
         self.groupBoxBehaviourRules.setObjectName("groupBoxBehaviourRules")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.groupBoxBehaviourRules)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 50, 303, 83))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 50, 303, 112))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
@@ -256,6 +256,11 @@ class Ui_MainWindow(object):
         self.radioButtonAreConstants.setAutoExclusive(False)
         self.radioButtonAreConstants.setObjectName("radioButtonAreConstants")
         self.verticalLayout_5.addWidget(self.radioButtonAreConstants)
+        self.radioButtonIsInInterface = QtWidgets.QRadioButton(self.verticalLayoutWidget)
+        self.radioButtonIsInInterface.setToolTip("")
+        self.radioButtonIsInInterface.setAutoExclusive(False)
+        self.radioButtonIsInInterface.setObjectName("radioButtonIsInInterface")
+        self.verticalLayout_5.addWidget(self.radioButtonIsInInterface)
         self.tabWidget.addTab(self.tab_behaviour, "")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(20, 30, 301, 221))
@@ -316,7 +321,7 @@ class Ui_MainWindow(object):
         MainWindow.addToolBar(QtCore.Qt.LeftToolBarArea, self.toolBar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -360,6 +365,7 @@ class Ui_MainWindow(object):
         self.radioButtonHasPortVariables.setText(_translate("MainWindow", "has port variables"))
         self.radioButtonHasPersistantVariables.setText(_translate("MainWindow", "has persistent variables"))
         self.radioButtonAreConstants.setText(_translate("MainWindow", "are constants -> numerically instantiated"))
+        self.radioButtonIsInInterface.setText(_translate("MainWindow", "is in interface visible"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_behaviour), _translate("MainWindow", "behaviour"))
         self.tabWidget.setTabToolTip(self.tabWidget.indexOf(self.tab_behaviour), _translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600;\">behaviour</span>: </p><p><span style=\" font-weight:600;\">graph</span> --&gt; network,</p><p><span style=\" font-weight:600;\">node</span> : constant, frame and state, </p><p><span style=\" font-weight:600;\">arc</span>: transport</p></body></html>"))
         self.groupBox.setTitle(_translate("MainWindow", "domain tree"))

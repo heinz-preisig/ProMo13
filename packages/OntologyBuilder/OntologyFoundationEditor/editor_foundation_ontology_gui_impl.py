@@ -1392,7 +1392,9 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
 
     def __setRuleValue(self, position, rule):
         if position:
-            self.ontology["rules"][rule].append(self.current_behaviour_variable)
+            # Prevent duplicates by checking if already present
+            if self.current_behaviour_variable not in self.ontology["rules"][rule]:
+                self.ontology["rules"][rule].append(self.current_behaviour_variable)
         else:
             try:
                 self.ontology["rules"][rule].remove(self.current_behaviour_variable)
@@ -1402,6 +1404,10 @@ class UI_EditorFoundationOntology(QtWidgets.QMainWindow):
     def on_radioButtonAreConstants_toggled(self, position):
         # print("debugging -- radio button position: ", position)
         self.__setRuleValue(position, "are_constants")
+
+    def on_radioButtonIsInInterface_toggled(self, position):
+        # print("debugging -- radio button position: ", position)
+        self.__setRuleValue(position, "is_visible_in_interface")
 
     def on_radioButtonBehaviourNode_toggled(self, position):
         self.radio["behaviour_node"] = position

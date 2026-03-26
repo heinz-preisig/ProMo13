@@ -906,9 +906,9 @@ class UiOntologyDesign(QMainWindow):
 
         # For interface variables, only show back button
         if choice == VARIABLE_TYPE_INTERFACE:
-            show = ["info", "new", "port", "LaTex", "dot", "next"]
+            show = ["back"]
         else:
-            show.extend(["LaTex", "dot", "next"])
+            show.extend(["new","back"])
         self.table_variables = UI_VariableTableDialog("create & edit variables",
                                                       self.variables,
                                                       self.indices,
