@@ -49,12 +49,12 @@ class Entity():
         self.classifications_initialized = False  # Will be generated when needed
 
         self.all_included_variables = []
-        if entity_id == "Topology" or ">>>" in entity_id:
+        if entity_id == "Topology" or entity_id.startswith("interface.") or ">>>" in entity_id:
             self.entity_type = "interface"
             return
 
         try:
-            # Simple split into exactly 4 parts
+            # Standard entity parsing: network.category.entity_type.name
             self.network, self.category, self.entity_type, self.name = entity_id.split('.', 3)
 
             # Set index set based on category
@@ -1754,7 +1754,10 @@ class Entity():
         return var_id in self.get_entity_variables()
 
     def is_interface_ent(self) -> bool:
-        return ">>>" in self.entity_id
+        # Check for new ontology-based interface domain or legacy patterns
+        return (hasattr(self, 'network') and self.network == "interface") or \
+               self.entity_id.startswith("interface.") or \
+               ">>>" in self.entity_id
 
     def get_type(self) -> Optional[str]:
         if self.entity_id == "Topology":
@@ -1763,17 +1766,34 @@ class Entity():
         if self.is_interface_ent():
             return "interface"
 
-        _, ent_type, _, _ = self.entity_id.split(".")
-        return ent_type
+        try:
+            _, ent_type, _, _ = self.entity_id.split(".", 3)
+            return ent_type
+        except ValueError:
+            # Handle legacy format or malformed entity_id
+            return None
 
     def get_network(self) -> Optional[List[str]]:
         if self.entity_id == "Topology":
             return None
 
+        if hasattr(self, 'network'):
+            # Standard entity parsing - return the network
+            return [self.network]
+        
         if ">>>" in self.entity_id:
+            # Legacy format: "source >>> sink"
             return [self.entity_id.split(" ")[0], self.entity_id.split(" ")[2]]
+        
+        if self.entity_id.startswith("interface."):
+            # New unified interface system
+            return ["interface"]
 
-        return [self.entity_id.split(".")[0]]
+        try:
+            return [self.entity_id.split(".")[0]]
+        except (ValueError, IndexError):
+            # Handle malformed entity_id
+            return None
 
     def get_tokens(self) -> Optional[List[str]]:
         if self.entity_id == "Topology":

@@ -454,17 +454,22 @@ class OntologyContainer():
         # self.equations = self.__makeEquationAndIndexLists()
         
     def __setupInterfaces(self):
-        # RULE: by default all variable classes from the left network are available
-
-        list_networks = self.list_inter_branches_pairs
+        # RULE: interfaces are now standard ontology domains - no special handling needed
+        # Legacy interfaces with "source >>> sink" format are still supported for backward compatibility
+        
         interfaces = OrderedDict()
+        list_networks = self.list_inter_branches_pairs
+        
         for network in list_networks:
-            left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
-            left_variable_types = self.variable_types_on_networks[left_nw]
-
-            interfaces[network] = Interface(
-                    network, left_nw, right_nw, left_variable_types)
-
+            if CONNECTION_NETWORK_SEPARATOR in network:
+                # Legacy format: "source >>> sink" - keep for backward compatibility
+                left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
+                left_variable_types = self.variable_types_on_networks[left_nw]
+                
+                interfaces[network] = Interface(
+                        network, left_nw, right_nw, left_variable_types)
+            # New interface domain is handled automatically as a standard domain
+        
         return interfaces
 
     #####################
