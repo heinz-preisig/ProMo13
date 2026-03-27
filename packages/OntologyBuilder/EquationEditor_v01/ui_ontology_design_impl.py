@@ -315,6 +315,9 @@ class UiOntologyDesign(QMainWindow):
         # update incidence dictionaries
         self.updateLatexImages()
 
+        if not self.variables:  # no variables --> no show TODO: message box?
+            return
+
         variable_table = UI_VariableTableShow("All accessible variables in domain",
                                               self.ontology_container,
                                               self.variables,
@@ -449,12 +452,12 @@ class UiOntologyDesign(QMainWindow):
 
         if what == "interface":
             # Get interface variable types from interfaces dictionary
-            if hasattr(self.ontology_container,
-                       'variable_types_on_interfaces') and self.current_network in self.ontology_container.variable_types_on_interfaces:
-                vars_types_on_network_variable = self.ontology_container.variable_types_on_interfaces[
-                    self.current_network]
-            else:
-                vars_types_on_network_variable = [VARIABLE_TYPE_INTERFACE]  # fallback to constant
+            # if hasattr(self.ontology_container,
+            #            'variable_types_on_interfaces') and self.current_network in self.ontology_container.variable_types_on_interfaces:
+            #     vars_types_on_network_variable = self.ontology_container.variable_types_on_interfaces[
+            #         self.current_network]
+            # else:
+            vars_types_on_network_variable = [VARIABLE_TYPE_INTERFACE]  # fallback to constant
 
             network_for_variable = nw
             network_for_expression = nw
@@ -648,7 +651,7 @@ class UiOntologyDesign(QMainWindow):
             for e in eqs[e_type]:
                 nw = eqs[e_type][e]["network"]
                 # nw_that_has_equation.add(nw)
-                nw_cleaned = nw.replace(CONNECTION_NETWORK_SEPARATOR, '--')
+                nw_cleaned = nw #.replace(CONNECTION_NETWORK_SEPARATOR, '--')
                 nw_that_has_equation_cleaned.add(nw_cleaned)
 
         # networks with defined variables:
@@ -656,8 +659,8 @@ class UiOntologyDesign(QMainWindow):
         for v in self.variables:
             vnw = self.variables[v].network
             snw = vnw
-            if CONNECTION_NETWORK_SEPARATOR in vnw:
-                snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR, "--")
+            # if CONNECTION_NETWORK_SEPARATOR in vnw:
+            #     snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR, "--")
             set_nw_that_have_variables_cleaned.add(snw)
             # set_nw_that_have_variables.add(snw)
 

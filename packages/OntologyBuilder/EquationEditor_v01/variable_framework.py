@@ -731,23 +731,23 @@ class Variables(OrderedDict):
                                 self.index_networks_for_variable[i_nw][variable_class] = []
                             self.index_networks_for_variable[i_nw][variable_class].append(ID)
 
-        for nw in self.interconnection_networks:
-            # Standard domain processing - interfaces are handled like any other domain
-            self.index_networks_for_variable[nw] = {}
-            for variable_class in self.ontology_container.variable_types_on_interfaces[nw]:
-                if variable_class not in self.index_networks_for_variable[nw]:
-                    self.index_networks_for_variable[nw][variable_class] = []
-                for ID in self:
-                    if (self[ID].type == variable_class) and (self[ID].network == nw):
-                        self.index_networks_for_variable[nw][variable_class].append(ID)
-
-        for nw in self.intraconnection_networks:
-            self.index_networks_for_variable[nw] = {}
-            for variable_class in self.ontology_container.variable_types_on_intrafaces[nw]:
-                if variable_class not in self.index_networks_for_variable[nw]:
-                    self.index_networks_for_variable[nw][variable_class] = []
-                for ID in self:
-                    if (self[ID].type == variable_class) and (self[ID].network == nw):
+        # for nw in self.interconnection_networks:
+        #     # Standard domain processing - interfaces are handled like any other domain
+        #     self.index_networks_for_variable[nw] = {}
+        #     for variable_class in self.ontology_container.variable_types_on_interfaces[nw]:
+        #         if variable_class not in self.index_networks_for_variable[nw]:
+        #             self.index_networks_for_variable[nw][variable_class] = []
+        #         for ID in self:
+        #             if (self[ID].type == variable_class) and (self[ID].network == nw):
+        #                 self.index_networks_for_variable[nw][variable_class].append(ID)
+        #
+        # for nw in self.intraconnection_networks:
+        #     self.index_networks_for_variable[nw] = {}
+        #     for variable_class in self.ontology_container.variable_types_on_intrafaces[nw]:
+        #         if variable_class not in self.index_networks_for_variable[nw]:
+        #             self.index_networks_for_variable[nw][variable_class] = []
+        #         for ID in self:
+        #             if (self[ID].type == variable_class) and (self[ID].network == nw):
                         self.index_networks_for_variable[nw][variable_class].append(ID)
 
         # make index for variables
@@ -851,15 +851,15 @@ class Variables(OrderedDict):
         # if inter_connections :
 
         # if not self.global_name_space:
-        for nw in self.interconnection_networks:
-            acc[nw] = {}
-            for variable_class in self.ontology_container.variable_types_on_interfaces[nw]:
-                if variable_class not in acc[nw]:
-                    acc[nw][variable_class] = []
-                for ID in self:
-                    if self[ID].type == variable_class:
-                        if self[ID].network == nw:
-                            acc[nw][variable_class].append(ID)
+        # for nw in self.interconnection_networks:
+        #     acc[nw] = {}
+        #     for variable_class in self.ontology_container.variable_types_on_interfaces[nw]:
+        #         if variable_class not in acc[nw]:
+        #             acc[nw][variable_class] = []
+        #         for ID in self:
+        #             if self[ID].type == variable_class:
+        #                 if self[ID].network == nw:
+        #                     acc[nw][variable_class].append(ID)
 
         for nw in self.ontology_container.interface_networks_accessible_to_networks_dictionary:
             for i_nw in self.ontology_container.interface_networks_accessible_to_networks_dictionary[nw]:
