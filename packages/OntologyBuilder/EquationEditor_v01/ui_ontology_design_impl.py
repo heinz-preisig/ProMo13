@@ -613,7 +613,7 @@ class UiOntologyDesign(QMainWindow):
             compiled_label = self.__makeLHSCompiledLabel(language, varID)
             self.ontology_container.variables[varID]["compiled_lhs"][language] = compiled_label
 
-    def __makeLHSCompiledLabel(self, language, varID):
+    def __makeLHSCompiledLabel(self, language, varID):  # note: how to make the latex string for the variable
         self.variables[varID].setLanguage(language)
         compiled_label = str(self.variables[varID])
         return compiled_label

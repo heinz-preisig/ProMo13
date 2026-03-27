@@ -151,7 +151,7 @@ class UI_Equations(QtWidgets.QWidget):
         #   network = self.network_for_variable
 
         # else:
-            # Simplified variable space: current domain + interface variables only
+        # Simplified variable space: current domain + interface variables only
         enabled_var_types = {
                 self.network_for_expression: self.variable_types_expression
                 }
@@ -461,26 +461,7 @@ class UI_Equations(QtWidgets.QWidget):
         is_root = CODE["global_ID"]["function"]["Root"] in rhs
         if is_root:
             # Rule: root equation -- generate residual representation
-            root_argument = rhs.split(" ")[3]
-            # equations = self.variables[root_argument].equations
-            v = self.variables[root_argument]
-            argument = v.label
-            equation_list = sorted(v.equations.keys())
-            loc = self.variables.ontology_container.latex_image_location
-            dialog = UI_ShowVariableEquation(equation_list, loc,
-                                             mode="select",
-                                             prompt="select an equation for the residual formation -- a must",
-                                             buttons=[])
-
-            root = CODE["internal_code"]["Root"]
-            minus = CODE["internal_code"]["-"]
-            equation = v.equations[dialog.answer]["rhs"]["global_ID"]
-            equation_rendered = renderExpressionFromGlobalIDToInternal(equation, self.variables, self.indices)
-            second = CODE["internal_code"]["bracket"] % equation_rendered
-            new_argument = minus % (argument, second)
-            self.expr = root % new_argument
-
-            pass
+            self.__makeRootResidualEquation(rhs)
 
         # now add the latex version of the expression
         compilers = {}
@@ -492,17 +473,6 @@ class UI_Equations(QtWidgets.QWidget):
                                                          language=language,
                                                          verbose=0)
 
-        # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
-        #                                   self.network_for_variable, language="latex")
-        # expression_latex = Expression(self.compile_space)
-        # self.expression_latex = str(expression_latex(self.expr))
-        #
-        # self.compile_space = CompileSpace(self.variables, self.indices, self.network_for_variable,
-        #                                   self.network_for_variable, language="global_ID")
-        #
-        # expression_global_ID = Expression(self.compile_space)
-        #
-        # self.expression_global = str(expression_global_ID(self.expr))
         expression_global = str(compilers["global_ID"](self.expr))
         expression_latex = str(compilers["latex"](self.expr))
 
@@ -674,6 +644,28 @@ class UI_Equations(QtWidgets.QWidget):
         self.hide()
         self.close()
 
+    def __makeRootResidualEquation(self, rhs: str):
+        root_argument = rhs.split(" ")[3]
+        # equations = self.variables[root_argument].equations
+        v = self.variables[root_argument]
+        argument = v.label
+        equation_list = sorted(v.equations.keys())
+        loc = self.variables.ontology_container.latex_image_location
+        dialog = UI_ShowVariableEquation(equation_list, loc,
+                                         mode="select",
+                                         prompt="select an equation for the residual formation -- a must",
+                                         buttons=[])
+
+        root = CODE["internal_code"]["Root"]
+        minus = CODE["internal_code"]["-"]
+        equation = v.equations[dialog.answer]["rhs"]["global_ID"]
+        equation_rendered = renderExpressionFromGlobalIDToInternal(equation, self.variables, self.indices)
+        second = CODE["internal_code"]["bracket"] % equation_rendered
+        new_argument = minus % (argument, second)
+        self.expr = root % new_argument
+
+        pass
+
     def __createInterfaceVariableAndEquation(self, var_ID, symbol, documentation):
         """
         Create an interface variable and equation when is_visible_in_interface rule applies.
@@ -682,99 +674,65 @@ class UI_Equations(QtWidgets.QWidget):
         """
         # Get the domain name from the network
         domain_name = self.network_for_variable
-        
+
         # Get interface domain (create if it doesn't exist)
         interface_domain = self.variables.getOrCreateInterfaceDomain()
-        
+
         # Create interface variable name
         interface_var_name = f"{domain_name}_{symbol}"
-        
+
         # Check if interface variable already exists to prevent duplicates
-        existing_interface_vars = [self.variables[v].label for v in self.variables 
-                                 if self.variables[v].network == interface_domain]
+        existing_interface_vars = [self.variables[v].label for v in self.variables
+                                   if self.variables[v].network == interface_domain]
         if interface_var_name in existing_interface_vars:
             # Interface variable already exists - skip creation
             return
-        
+
         # Create interface variable ID
         interface_var_ID = self.variables.newProMoVariableIRI()
-        
+
         # Create interface equation ID
         interface_equ_ID = self.variables.newProMoEquationIRI()
-        
-        # Create the equation: interface_var = original_var
-        # Use the original variable label for the RHS (not ID)
-        original_var_label = self.variables[var_ID].label
-        rhs_expression = original_var_label
-        
-        # For interface equations, we need to ensure cross-domain variable access
-        # Temporarily add source domain variables to interface domain variable space
-        source_domain = self.variables[var_ID].network
-        
-        # Create a custom compiler that includes source domain variables
-        def makeInterfaceCompiler(language):
-            # Create compile space with cross-domain access
-            compile_space = CompileSpace(self.variables, self.indices, interface_domain, interface_domain, language=language)
-            
-            # Override getVariable to include source domain variables
-            original_getVariable = compile_space.getVariable
-            
-            def getVariableWithCrossDomainAccess(symbol):
-                try:
-                    # Try normal access first
-                    return original_getVariable(symbol)
-                except:
-                    # If normal access fails, try to find in source domain
-                    if symbol == original_var_label:
-                        return self.variables[var_ID]
-                    # Re-raise the original exception if not found
-                    raise
-            
-            compile_space.getVariable = getVariableWithCrossDomainAccess
-            return Expression(compile_space, verbose=0)
-        
-        # Create compilers for both languages using custom method
-        compilers = {}
-        for language in ["latex", "global_ID"]:
-            compilers[language] = makeInterfaceCompiler(language)
-        
+
         # Compile the expression
-        expression_global = str(compilers["global_ID"](rhs_expression))
-        expression_latex = str(compilers["latex"](rhs_expression))
-        
+        language = "latex"
+        self.variables[var_ID].setLanguage(language)
+        expression_latex = str(self.variables[var_ID])
+        expression_global = var_ID  # str(compilers["global_ID"](rhs_expression))
+        # expression_latex = self.variables[var_ID].aliases["latex"] #str(compilers["latex"](rhs_expression))
+
         rhs_dic = {
-            "global_ID": expression_global,
-            "latex": expression_latex
-        }
-        
+                "global_ID": expression_global,
+                "latex"    : expression_latex
+                }
+
         # Create interface equation record
         interface_equation_record = makeCompletEquationRecord(
-            rhs=rhs_dic, 
-            network=interface_domain, 
-            doc=f"Interface equation for {symbol}",
-            incidence_list=[var_ID], 
-            created=dateString()
-        )
-        
+                rhs=rhs_dic,
+                network=interface_domain,
+                doc=f"Interface equation for {symbol}",
+                incidence_list=[var_ID],
+                created=dateString()
+                )
+
         # Create interface variable record
         interface_variable_record = makeCompleteVariableRecord(
-            interface_var_ID,
-            label=interface_var_name,
-            type=VARIABLE_TYPE_INTERFACE,
-            network=interface_domain,
-            doc=f"Interface variable for {symbol}",
-            index_structures=self.checked_var.index_structures,
-            units=self.checked_var.units,
-            equations={
-                interface_equ_ID: interface_equation_record
-            },
-            aliases={},
-            port_variable=False,
-            tokens=[],
-            memory=self.memory,
-        )
+                interface_var_ID,
+                label=interface_var_name,
+                type=VARIABLE_TYPE_INTERFACE,
+                network=interface_domain,
+                doc=f"Interface variable for {symbol}",
+                index_structures=self.checked_var.index_structures,
+                units=self.checked_var.units,
+                equations={interface_equ_ID: interface_equation_record},
+                aliases={},
+                port_variable=False,
+                tokens=[],
+                memory=self.memory,
+                )
         # Note: this is a fix. We replace the <domain>_<symbol> with <domain>\\_<symbol> for latex
-        interface_variable_record["aliases"]["latex"] = interface_variable_record["aliases"]["latex"].replace("_", "\\_",1)
+        interface_variable_record["aliases"]["latex"] = interface_variable_record["aliases"]["latex"].replace("_",
+                                                                                                              "\\_", 1)
 
         # Add the interface variable
         self.variables.addNewVariable(ID=interface_var_ID, **interface_variable_record)
