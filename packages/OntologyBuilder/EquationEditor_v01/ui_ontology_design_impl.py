@@ -198,7 +198,7 @@ class UiOntologyDesign(QMainWindow):
         makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
 
         # Add interface domains to tree copy as additional approach
-        self._add_interface_domains_to_tree()
+        # self._add_interface_domains_to_tree()
 
         # prepare for compiled versions
         # issue: remove compiled_equations. It is currently used in generating a file with the rendered equations
@@ -331,41 +331,41 @@ class UiOntologyDesign(QMainWindow):
                                               )
         variable_table.exec_()
 
-    def onInterfaceVariablesChanged(self, changed):  # TODO: probably not used
-        """Handle changes to interface variables"""
-        if changed:
-            self.changed = True
-            # Re-index variables to update the ontology structure
-            self.variables.indexVariables()
-            self.ontology_container.indexEquations()
-            self.writeMessage("Interface variables updated")
+    # def onInterfaceVariablesChanged(self, changed):  # TODO: probably not used
+    #     """Handle changes to interface variables"""
+    #     if changed:
+    #         self.changed = True
+    #         # Re-index variables to update the ontology structure
+    #         self.variables.indexVariables()
+    #         self.ontology_container.indexEquations()
+    #         self.writeMessage("Interface variables updated")
 
-    def _add_interface_domains_to_tree(self):
-        """Add single unified interface domain to tree copy"""
-        if hasattr(self.ontology_container, 'interfaces') and self.ontology_container.interfaces:
-            # Make a copy of the current tree
-            tree_copy = dict(self.ontology_container.ontology_tree)
-
-            # Add single unified interface domain
-            if "interface" not in tree_copy:
-                tree_copy["interface"] = {
-                        "name"     : "interface",
-                        "type"     : "inter",
-                        "parents"  : ["root"],
-                        "children" : [],
-                        "behaviour": {
-                                "graph": [],  # Interface domain variable type
-                                "node" : [],  # Interface domain variable type
-                                "arc"  : [VARIABLE_TYPE_INTERFACE]
-                                },
-                        "structure": {"token": {}}
-                        }
-
-            # Update the ontology tree with the copy
-            self.ontology_container.ontology_tree = tree_copy
-
-            # Rebuild the tree widget with updated data
-            makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
+    # def _add_interface_domains_to_tree(self):
+    #     """Add single unified interface domain to tree copy"""
+    #     if hasattr(self.ontology_container, 'interfaces') and self.ontology_container.interfaces:
+    #         # Make a copy of the current tree
+    #         tree_copy = dict(self.ontology_container.ontology_tree)
+    #
+    #         # Add single unified interface domain
+    #         if "interface" not in tree_copy:
+    #             tree_copy["interface"] = {
+    #                     "name"     : "interface",
+    #                     "type"     : "inter",
+    #                     "parents"  : ["root"],
+    #                     "children" : [],
+    #                     "behaviour": {
+    #                             "graph": [],  # Interface domain variable type
+    #                             "node" : [],  # Interface domain variable type
+    #                             "arc"  : [VARIABLE_TYPE_INTERFACE]
+    #                             },
+    #                     "structure": {"token": {}}
+    #                     }
+    #
+    #         # Update the ontology tree with the copy
+    #         self.ontology_container.ontology_tree = tree_copy
+    #
+    #         # Rebuild the tree widget with updated data
+    #         makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
 
     def on_pushExit_pressed(self):
         variable_list = sorted(self.variables.keys())
@@ -420,12 +420,12 @@ class UiOntologyDesign(QMainWindow):
         if self.ui.radioVariablesAliases.isChecked():
             self.on_radioVariablesAliases_pressed()
         elif self.ui.radioVariables.isChecked():
-            if self.current_network == "interface":
-                # Clear combo box first, then setup interface
-                self.ui.combo_EditVariableTypes.clear()
-                self.__setupEdit("interface")
-            else:
-                self.__setupEdit("networks")
+            # if self.current_network == "interface":
+            #     # Clear combo box first, then setup interface
+            #     self.ui.combo_EditVariableTypes.clear()
+            #     self.__setupEdit("interface")
+            # else:
+            self.__setupEdit("networks")
             self.ui.groupEdit.show()
             self.ui.combo_EditVariableTypes.show()
             # Only call on_radioVariables_pressed for non-interface domains

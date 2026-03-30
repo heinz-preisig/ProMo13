@@ -135,23 +135,7 @@ class UI_Equations(QtWidgets.QWidget):
     def __makePickVariableTable(self):
 
         self.variable_tables = {}
-        # Interfaces are now standard domains - use standard variable table logic
-        #     [source, sink] = self.network_for_expression.split(CONNECTION_NETWORK_SEPARATOR)
-        #     network = source
-        #     enabled_var_types = {
-        #             self.network_for_variable: self.variable_types_variable,
-        #             source                   : self.variable_types_expression
-        #             }
-        #     which = "interface_picking"
-        # elif self.what == "intraface":
-        #   enabled_var_types = {
-        #           self.network_for_variable  : self.variable_types_variable,
-        #           self.network_for_expression: self.variable_types_expression
-        #           }
-        #   network = self.network_for_variable
 
-        # else:
-        # Simplified variable space: current domain + interface variables only
         enabled_var_types = {
                 self.network_for_expression: self.variable_types_expression
                 }
@@ -530,12 +514,6 @@ class UI_Equations(QtWidgets.QWidget):
 
             self.variables.addNewVariable(ID=var_ID, **variable_record)
 
-            # Note: we removed the interface variable creation -- direct access
-            # # Check if variable type has is_visible_in_interface rule and create interface variable
-            # interface_rule = self.ontology_container.rules["is_visible_in_interface"]
-            # if (self.selected_variable_type in interface_rule):
-            #     self.__createInterfaceVariableAndEquation(var_ID, symbol, documentation)
-
         # new equation to existing variable false, true, false
         elif log == (False, True, False):
             self.variables.addEquation(var_ID, equation_record)
@@ -553,83 +531,6 @@ class UI_Equations(QtWidgets.QWidget):
         alias = self.ui.lineEditLatex.text()
         self.variables.changeVariableAlias(var_ID, "latex", alias)
 
-        # # ====================== make residual equation =============================
-        # # Rule: root equation -- generate residual representation
-        # is_root = CODE["global_ID"]["function"]["Root"] in rhs
-        # if is_root:
-        #   root_argument = rhs.split(" ")[3]  # Rule: assumes first blank and form Root(var) -- " F_17 D_0 V_115 D_1" yields V_115
-        #   # equations = self.variables[root_argument].equations
-        #   v =self.variables[root_argument]
-        #   equation_list = sorted(v.equations.keys())
-        #   loc = self.variables.ontology_container.latex_image_location
-        #   dialog = UI_ShowVariableEquation(equation_list, loc,
-        #                                    mode="select",
-        #                                    prompt="select an equation for the residual formation -- a must",
-        #                                    buttons=[])
-        #   selected_equation = dialog.answer
-        #   root = CODE["global_ID"]["Root"]
-        #   minus = CODE["global_ID"]["operator"]["-"]
-        #   left_bracket = CODE["global_ID"]["delimiter"]["("]
-        #   right_bracket = CODE["global_ID"]["delimiter"][")"]
-        #   equation = v.equations[dialog.answer]["rhs"]["global_ID"]
-        #   residual_equation = root %(" %s %s %s %s %s " %(root_argument, minus,
-        #                                                   left_bracket, equation,right_bracket))
-        #
-        #
-        #
-        #   pass
-
-        #   residual_symbol = "res_%s"%symbol
-        #   root_argument = rhs.split(" ")[3]  # Rule: assumes first blank and form Root(var) -- " F_17 D_0 V_115 D_1" yields V_115
-        #   minus = CODE["global_ID"]["operator"]["-"]
-        #   left_bracket = CODE["global_ID"]["delimiter"]["("]
-        #   right_bracket = CODE["global_ID"]["delimiter"][")"]
-        #
-        #   # latex_argument = self.variables[]
-        #
-        #   lhs_latex = str(self.variables[root_argument])
-        #   equations = self.variables[root_argument].equations
-        #   new_equations = {}
-        #   for equ_ID in equations:
-        #     global_ID_expression = "%s %s %s %s %s"%(root_argument,
-        #                                              minus,
-        #                                              left_bracket,
-        #                                              equations[equ_ID]["rhs"]["global_ID"],
-        #                                              right_bracket)
-        #     incidence_list = makeIncidentList(global_ID_expression)
-        #
-        #     latex_expression = "%s - ( %s )"%(lhs_latex, equations[equ_ID]["rhs"]["latex"])
-        #
-        #     rhs_dic = {"global_ID": global_ID_expression,
-        #                "latex"    : latex_expression}
-        #
-        #     equ_ID = self.variables.newProMoEquationIRI()
-        #     new_equations[equ_ID] = makeCompletEquationRecord(rhs=rhs_dic,
-        #                                                 network=self.network_for_expression,
-        #                                                 doc="residual formulation",
-        #                                                 incidence_list=incidence_list,
-        #                                                 created=dateString())
-        #
-        #     pass
-        #
-        #   var_ID = self.variables.newProMoVariableIRI()
-        #   tokens = self.variables[root_argument].tokens
-        #
-        #   variable_record = makeCompleteVariableRecord(var_ID,
-        #                                                label=residual_symbol,
-        #                                                type=VARIABLE_TYPE_RESIDUAL,
-        #                                                network=self.network_for_variable,
-        #                                                doc="residual variable",
-        #                                                index_structures=self.checked_var.index_structures,
-        #                                                units=self.checked_var.units,
-        #                                                equations=new_equations,
-        #                                                aliases={},
-        #                                                port_variable=False,
-        #                                                tokens=tokens,
-        #                                                memory=self.memory,
-        #                                                )
-        #
-        #   self.variables.addNewVariable(ID=var_ID, **variable_record)
 
         # print("debugging -- alias", alias)
         self.variables.indexVariables()
@@ -671,76 +572,6 @@ class UI_Equations(QtWidgets.QWidget):
 
         pass
 
-    def __createInterfaceVariableAndEquation(self, var_ID, symbol, documentation):
-        """
-        Create an interface variable and equation when is_visible_in_interface rule applies.
-        Interface variable name format: <domain_name>_variablename
-        Equation: <domain_name>_variablename = variablename
-        """
-        # Get the domain name from the network
-        domain_name = self.network_for_variable
-
-        # Get interface domain (create if it doesn't exist)
-        interface_domain = self.variables.getOrCreateInterfaceDomain()
-
-        # Create interface variable name
-        interface_var_name = f"{domain_name}_{symbol}"
-
-        # Check if interface variable already exists to prevent duplicates
-        existing_interface_vars = [self.variables[v].label for v in self.variables
-                                   if self.variables[v].network == interface_domain]
-        if interface_var_name in existing_interface_vars:
-            # Interface variable already exists - skip creation
-            return
-
-        # Create interface variable ID
-        interface_var_ID = self.variables.newProMoVariableIRI()
-
-        # Create interface equation ID
-        interface_equ_ID = self.variables.newProMoEquationIRI()
-
-        # Compile the expression
-        language = "latex"
-        self.variables[var_ID].setLanguage(language)
-        expression_latex = str(self.variables[var_ID])
-        expression_global = var_ID  # str(compilers["global_ID"](rhs_expression))
-        # expression_latex = self.variables[var_ID].aliases["latex"] #str(compilers["latex"](rhs_expression))
-
-        rhs_dic = {
-                "global_ID": expression_global,
-                "latex"    : expression_latex
-                }
-
-        # Create interface equation record
-        interface_equation_record = makeCompletEquationRecord(
-                rhs=rhs_dic,
-                network=interface_domain,
-                doc=f"Interface equation for {symbol}",
-                incidence_list=[var_ID],
-                created=dateString()
-                )
-
-        # Create interface variable record
-        interface_variable_record = makeCompleteVariableRecord(
-                interface_var_ID,
-                label=interface_var_name,
-                type=VARIABLE_TYPE_INTERFACE,
-                network=interface_domain,
-                doc=f"Interface variable for {symbol}",
-                index_structures=self.checked_var.index_structures,
-                units=self.checked_var.units,
-                equations={interface_equ_ID: interface_equation_record},
-                aliases={},
-                port_variable=False,
-                tokens=[],
-                memory=self.memory,
-                )
-        # Note: this is a fix. We replace the <domain>_<symbol> with <domain>\\_<symbol> for latex
-        interface_variable_record["aliases"]["latex"] = interface_variable_record["aliases"]["latex"].replace("_",
-                                                                                                              "\\_", 1)
-
-        # Add the interface variable
-        self.variables.addNewVariable(ID=interface_var_ID, **interface_variable_record)
 
     @staticmethod
     def __printDelete():

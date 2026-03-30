@@ -992,109 +992,109 @@ class Variables(OrderedDict):
 
         return variable_space, v_counter
 
-    def getOrCreateInterfaceDomain(self):
-        """
-        Get or create interface domain for cross-domain variable access
-        """
-        if not hasattr(self, 'interface_domain'):
-            self.interface_domain = "interface"
-
-            # Ensure interface domain exists in ontology structure
-            if self.interface_domain not in self.ontology_container.variable_types_on_networks:
-                self.ontology_container.variable_types_on_networks[self.interface_domain] = {}
-
-            # Ensure interface domain is in hierarchy
-            if self.interface_domain not in self.ontology_container.heirs_network_dictionary:
-                self.ontology_container.heirs_network_dictionary[self.interface_domain] = [self.interface_domain]
-
-            # Add interface domain to variable types with common interface types
-            # Interface variables can be of any type that source variables could be
-            common_interface_types = ["state", "algebraic", "observation", "secondaryState", "effort"]
-            self.ontology_container.variable_types_on_networks[self.interface_domain] = common_interface_types
-
-        return self.interface_domain
-
-    def createInterfaceVariable(self, source_domain, source_var_ID, target_network):
-        """
-        Create an interface variable in the interface domain
-        Prevents duplication of interface variables
-        """
-        interface_domain = self.getOrCreateInterfaceDomain()
-        source_var = self[source_var_ID]
-
-        # Generate interface variable name: domain_varname
-        interface_var_name = f"{source_domain}_{source_var.label}"
-
-        # Check if interface variable already exists
-        for var_ID in self:
-            var = self[var_ID]
-            if var.label == interface_var_name and var.network == interface_domain:
-                # Interface variable already exists, return existing ID
-                return var_ID
-
-        # Create new interface variable
-        interface_var_ID = self.newProMoVariableIRI()
-
-        # Create interface equation using proper record structure
-        interface_equ_ID = self.newProMoEquationIRI()
-
-        # Create RHS dictionary in proper format with both global_ID and latex
-        rhs_global_ID = source_var_ID
-        source_latex = source_var.aliases.get("latex", source_var.label)
-        decorated_latex = f"\\multimap{{{source_latex}}}"
-        rhs_dic = {"global_ID": rhs_global_ID, "latex": decorated_latex}
-
-        # Create incidence list for the interface equation
-        incidence_list = makeIncidentList(rhs_global_ID)
-
-        # Create proper equation record using makeCompletEquationRecord
-        interface_equation_record = makeCompletEquationRecord(
-                rhs=rhs_dic,
-                network=interface_domain,
-                doc=f"Interface equation linking {interface_var_name} to {source_domain}.{source_var.label}",
-                incidence_list=incidence_list,
-                created=dateString()
-                )
-
-        # Create variable record using makeCompleteVariableRecord with equation included
-        # Add LaTeX decoration for interface variables
-        interface_aliases = source_var.aliases.copy()
-        source_latex = source_var.aliases.get("latex", source_var.label)
-        decorated_latex = f"\\multimap{{{source_latex}}}"
-        interface_aliases["latex"] = decorated_latex
-
-        from Common.common_resources import VARIABLE_TYPE_INTERFACE
-        variable_record = makeCompleteVariableRecord(
-                var_ID=interface_var_ID,
-                label=interface_var_name,
-                type=VARIABLE_TYPE_INTERFACE,  # source_var.type,
-                network=interface_domain,
-                doc=f"Interface variable for {source_domain}.{source_var.label}",
-                index_structures=source_var.index_structures,
-                units=source_var.units,
-                equations={interface_equ_ID: interface_equation_record},
-                aliases=interface_aliases,
-                port_variable=False,
-                tokens=[],
-                memory=getattr(source_var, 'memory', None)
-                )
-
-        # Add interface variable using the standard addNewVariable method
-        self.addNewVariable(ID=interface_var_ID, **variable_record)
-
-        # Add interface equation to ontology container for compiler access
-        self.ontology_container.equation_dictionary[interface_equ_ID] = interface_equation_record
-
-        # Initialize compiled_lhs for interface variables (needed for LaTeX generation)
-        if "compiled_lhs" not in self.ontology_container.variables[interface_var_ID]:
-            self.ontology_container.variables[interface_var_ID]["compiled_lhs"] = {}
-
-        # Re-index variables to include new interface variable
-        self.indexVariables()
-
-        print(f"Created interface variable: {interface_var_name} = {source_var.label} (from {source_domain})")
-
-        return interface_var_ID
+    # def getOrCreateInterfaceDomain(self):
+    #     """
+    #     Get or create interface domain for cross-domain variable access
+    #     """
+    #     if not hasattr(self, 'interface_domain'):
+    #         self.interface_domain = "interface"
+    #
+    #         # Ensure interface domain exists in ontology structure
+    #         if self.interface_domain not in self.ontology_container.variable_types_on_networks:
+    #             self.ontology_container.variable_types_on_networks[self.interface_domain] = {}
+    #
+    #         # Ensure interface domain is in hierarchy
+    #         if self.interface_domain not in self.ontology_container.heirs_network_dictionary:
+    #             self.ontology_container.heirs_network_dictionary[self.interface_domain] = [self.interface_domain]
+    #
+    #         # Add interface domain to variable types with common interface types
+    #         # Interface variables can be of any type that source variables could be
+    #         common_interface_types = ["state", "algebraic", "observation", "secondaryState", "effort"]
+    #         self.ontology_container.variable_types_on_networks[self.interface_domain] = common_interface_types
+    #
+    #     return self.interface_domain
+    #
+    # def createInterfaceVariable(self, source_domain, source_var_ID, target_network):
+    #     """
+    #     Create an interface variable in the interface domain
+    #     Prevents duplication of interface variables
+    #     """
+    #     interface_domain = self.getOrCreateInterfaceDomain()
+    #     source_var = self[source_var_ID]
+    #
+    #     # Generate interface variable name: domain_varname
+    #     interface_var_name = f"{source_domain}_{source_var.label}"
+    #
+    #     # Check if interface variable already exists
+    #     for var_ID in self:
+    #         var = self[var_ID]
+    #         if var.label == interface_var_name and var.network == interface_domain:
+    #             # Interface variable already exists, return existing ID
+    #             return var_ID
+    #
+    #     # Create new interface variable
+    #     interface_var_ID = self.newProMoVariableIRI()
+    #
+    #     # Create interface equation using proper record structure
+    #     interface_equ_ID = self.newProMoEquationIRI()
+    #
+    #     # Create RHS dictionary in proper format with both global_ID and latex
+    #     rhs_global_ID = source_var_ID
+    #     source_latex = source_var.aliases.get("latex", source_var.label)
+    #     decorated_latex = f"\\multimap{{{source_latex}}}"
+    #     rhs_dic = {"global_ID": rhs_global_ID, "latex": decorated_latex}
+    #
+    #     # Create incidence list for the interface equation
+    #     incidence_list = makeIncidentList(rhs_global_ID)
+    #
+    #     # Create proper equation record using makeCompletEquationRecord
+    #     interface_equation_record = makeCompletEquationRecord(
+    #             rhs=rhs_dic,
+    #             network=interface_domain,
+    #             doc=f"Interface equation linking {interface_var_name} to {source_domain}.{source_var.label}",
+    #             incidence_list=incidence_list,
+    #             created=dateString()
+    #             )
+    #
+    #     # Create variable record using makeCompleteVariableRecord with equation included
+    #     # Add LaTeX decoration for interface variables
+    #     interface_aliases = source_var.aliases.copy()
+    #     source_latex = source_var.aliases.get("latex", source_var.label)
+    #     decorated_latex = f"\\multimap{{{source_latex}}}"
+    #     interface_aliases["latex"] = decorated_latex
+    #
+    #     from Common.common_resources import VARIABLE_TYPE_INTERFACE
+    #     variable_record = makeCompleteVariableRecord(
+    #             var_ID=interface_var_ID,
+    #             label=interface_var_name,
+    #             type=VARIABLE_TYPE_INTERFACE,  # source_var.type,
+    #             network=interface_domain,
+    #             doc=f"Interface variable for {source_domain}.{source_var.label}",
+    #             index_structures=source_var.index_structures,
+    #             units=source_var.units,
+    #             equations={interface_equ_ID: interface_equation_record},
+    #             aliases=interface_aliases,
+    #             port_variable=False,
+    #             tokens=[],
+    #             memory=getattr(source_var, 'memory', None)
+    #             )
+    #
+    #     # Add interface variable using the standard addNewVariable method
+    #     self.addNewVariable(ID=interface_var_ID, **variable_record)
+    #
+    #     # Add interface equation to ontology container for compiler access
+    #     self.ontology_container.equation_dictionary[interface_equ_ID] = interface_equation_record
+    #
+    #     # Initialize compiled_lhs for interface variables (needed for LaTeX generation)
+    #     if "compiled_lhs" not in self.ontology_container.variables[interface_var_ID]:
+    #         self.ontology_container.variables[interface_var_ID]["compiled_lhs"] = {}
+    #
+    #     # Re-index variables to include new interface variable
+    #     self.indexVariables()
+    #
+    #     print(f"Created interface variable: {interface_var_name} = {source_var.label} (from {source_domain})")
+    #
+    #     return interface_var_ID
 
     def changeVariableAlias(self, variable_ID, language, new_alias):
         old_alias = self[variable_ID].aliases[language]
