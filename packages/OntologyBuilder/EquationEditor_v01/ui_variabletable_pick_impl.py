@@ -111,27 +111,16 @@ class UI_VariableTablePick(VariableTable):
         # Get the variable ID from column 9 (hidden column with ID)
         var_ID = str(item(r, 9).text())
 
-        # Check if this is an interface variable by looking at its network
+        # Check if this is a cross-domain variable
         var = self.variables[var_ID]
-
-        # If variable is from interface domain, use its label directly
-        # If variable is from another domain, create/get interface variable name
-        if hasattr(var, 'network') and var.network == 'interface':
-            # This is already an interface variable - return its ID
-            self.selected_variable_symbol = str(item(r, 9).text())  # Get ID from hidden column
+        
+        # Return the appropriate symbol based on whether it's cross-domain
+        if var.network != self.network:
+            # Cross-domain variable: return network!variable syntax
+            self.selected_variable_symbol = f"{var.network}!{var.label}"
         else:
-            # This is a cross-domain variable, create interface variable and return its ID
-            source_domain = var.network
-            source_label = var.label
-            interface_var_name = f"{source_domain}_{source_label}"
-
-            # Create interface variable to get its ID
-            interface_var_ID = self.variables.createInterfaceVariable(
-                    source_domain, var_ID, self.network
-                    )
-
-            # Return the interface variable ID (V_8), not the name (physical_V)
-            self.selected_variable_symbol = interface_var_ID
+            # Local variable: return variable ID
+            self.selected_variable_symbol = var_ID
 
         self.picked.emit(self.selected_variable_symbol)
         return

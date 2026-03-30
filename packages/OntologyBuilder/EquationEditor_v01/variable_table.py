@@ -223,7 +223,13 @@ class VariableTable(QtWidgets.QDialog):
         variable_dict = {}
         if variable_ID_list:
             for var_ID in variable_ID_list:
-                variable_dict[self.variables[var_ID].label] = var_ID
+                var = self.variables[var_ID]
+                # Add network prefix for cross-domain variables
+                if var.network != self.network:
+                    display_label = f"{var.network}!{var.label}"
+                else:
+                    display_label = var.label
+                variable_dict[display_label] = var_ID
             variable_ID_list_sorted = []
             for var_symbol in sorted(variable_dict.keys()):
                 variable_ID_list_sorted.append(variable_dict[var_symbol])

@@ -210,7 +210,11 @@ class UI_Equations(QtWidgets.QWidget):
         # Convert variable ID to variable label for display
         display_text = text
         if text in self.variables:
+            # It's a variable ID, use its label
             display_text = self.variables[text].label
+        elif "!" in text:
+            # It's already in network!variable format, use as-is
+            display_text = text
 
         t = str(self.ui.lineExpression.text())
         s = t[0:starting] + display_text + t[ending:]
@@ -526,10 +530,11 @@ class UI_Equations(QtWidgets.QWidget):
 
             self.variables.addNewVariable(ID=var_ID, **variable_record)
 
-            # Check if variable type has is_visible_in_interface rule and create interface variable
-            interface_rule = self.ontology_container.rules["is_visible_in_interface"]
-            if (self.selected_variable_type in interface_rule):
-                self.__createInterfaceVariableAndEquation(var_ID, symbol, documentation)
+            # Note: we removed the interface variable creation -- direct access
+            # # Check if variable type has is_visible_in_interface rule and create interface variable
+            # interface_rule = self.ontology_container.rules["is_visible_in_interface"]
+            # if (self.selected_variable_type in interface_rule):
+            #     self.__createInterfaceVariableAndEquation(var_ID, symbol, documentation)
 
         # new equation to existing variable false, true, false
         elif log == (False, True, False):

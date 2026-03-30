@@ -903,7 +903,7 @@ class Variables(OrderedDict):
         v_counter = 0
 
         if what == "variable_picking":
-            # Simplified variable space: current domain + interface variables only
+            # NEW: variable space with cross-domain access (no interface variables)
             variable_space = {}
             v_counter = 0
 
@@ -917,18 +917,17 @@ class Variables(OrderedDict):
                             variable_space[network][var_class].add(v)
                             v_counter += 1
 
-            # Add interface domain variables
-            if hasattr(self, 'interface_domain') and self.interface_domain:
-                if self.interface_domain in self.index_networks_for_variable:
-                    variable_space[self.interface_domain] = {}
-                    for var_class in self.index_networks_for_variable[self.interface_domain]:
-                        # Only show interface type variables from interface domain
-                        if var_class == 'interface':
-                            variable_space[self.interface_domain][var_class] = set()
-                            for v in self.index_networks_for_variable[self.interface_domain][var_class]:
-                                if not enabled_variable_types or self[v].type in enabled_variable_types:
-                                    variable_space[self.interface_domain][var_class].add(v)
-                                    v_counter += 1
+            # Add inter-branch networks for cross-domain access
+            inter_branches = self.ontology_container.list_inter_branches
+            for nw in inter_branches:
+                if nw in self.index_networks_for_variable:
+                    variable_space[nw] = {}
+                    for var_class in self.index_networks_for_variable[nw]:
+                        variable_space[nw][var_class] = set()
+                        for v in self.index_networks_for_variable[nw][var_class]:
+                            if not enabled_variable_types or self[v].type in enabled_variable_types:
+                                variable_space[nw][var_class].add(v)
+                                v_counter += 1
 
             return variable_space, v_counter
 
@@ -978,14 +977,15 @@ class Variables(OrderedDict):
                             v_counter += 1
 
             # Add interface domain variables if they exist
-            if hasattr(self, 'interface_domain') and self.interface_domain:
-                if self.interface_domain in self.index_networks_for_variable:
-                    variable_space[self.interface_domain] = {}
-                    for var_class in self.index_networks_for_variable[self.interface_domain]:
-                        variable_space[self.interface_domain][var_class] = set()
-                        for v in self.index_networks_for_variable[self.interface_domain][var_class]:
-                            variable_space[self.interface_domain][var_class].add(v)
-                            v_counter += 1
+            # REMOVED: No longer using interface domain
+            # if hasattr(self, 'interface_domain') and self.interface_domain:
+            #     if self.interface_domain in self.index_networks_for_variable:
+            #         variable_space[self.interface_domain] = {}
+            #         for var_class in self.index_networks_for_variable[self.interface_domain]:
+            #             variable_space[self.interface_domain][var_class] = set()
+            #             for v in self.index_networks_for_variable[self.interface_domain][var_class]:
+            #                 variable_space[self.interface_domain][var_class].add(v)
+            #                 v_counter += 1
 
         else:
             variable_space = self.index_networks_for_variable
@@ -1291,90 +1291,123 @@ class CompileSpace:
         # print("get variable", symbol)
 
         # Use the same logic as variableSpaces for variable_picking
-        variable_space, v_counter = self.variables.variableSpaces("variable_picking", self.expression_definition_network, None)
 
-        # Manually add interface domain if it exists and has variables
-        if hasattr(self.variables, 'interface_domain') and self.variables.interface_domain:
-            if self.variables.interface_domain in self.variables.index_networks_for_variable:
-                if self.variables.interface_domain not in variable_space:
-                    variable_space[self.variables.interface_domain] = {}
-                for var_class in self.variables.index_networks_for_variable[self.variables.interface_domain]:
-                    if var_class not in variable_space[self.variables.interface_domain]:
-                        variable_space[self.variables.interface_domain][var_class] = set()
-                    for var_ID in self.variables.index_networks_for_variable[self.variables.interface_domain][var_class]:
-                        # Ensure we're working with a set
-                        if not isinstance(variable_space[self.variables.interface_domain][var_class], set):
-                            variable_space[self.variables.interface_domain][var_class] = set(variable_space[self.variables.interface_domain][var_class])
-                        variable_space[self.variables.interface_domain][var_class].add(var_ID)
+        # ============================================================
+        # variable_space, v_counter = self.variables.variableSpaces("variable_picking", self.expression_definition_network, None)
+        #
+        # # Manually add interface domain if it exists and has variables
+        # if hasattr(self.variables, 'interface_domain') and self.variables.interface_domain:
+        #     if self.variables.interface_domain in self.variables.index_networks_for_variable:
+        #         if self.variables.interface_domain not in variable_space:
+        #             variable_space[self.variables.interface_domain] = {}
+        #         for var_class in self.variables.index_networks_for_variable[self.variables.interface_domain]:
+        #             if var_class not in variable_space[self.variables.interface_domain]:
+        #                 variable_space[self.variables.interface_domain][var_class] = set()
+        #             for var_ID in self.variables.index_networks_for_variable[self.variables.interface_domain][var_class]:
+        #                 # Ensure we're working with a set
+        #                 if not isinstance(variable_space[self.variables.interface_domain][var_class], set):
+        #                     variable_space[self.variables.interface_domain][var_class] = set(variable_space[self.variables.interface_domain][var_class])
+        #                 variable_space[self.variables.interface_domain][var_class].add(var_ID)
+        #
+        # v_list = set()
+        #
+        # # Search in all accessible networks from variable space
+        # for nw in variable_space:
+        #     for var_class in variable_space[nw]:
+        #         # Handle both sets and lists
+        #         var_collection = variable_space[nw][var_class]
+        #         if isinstance(var_collection, list):
+        #             var_iterable = var_collection
+        #         else:
+        #             var_iterable = var_collection
+        #
+        #         for var_ID in var_iterable:
+        #             if symbol == self.variables[var_ID].label:
+        #                 v_list.add(var_ID)
+        #
+        # v_list = sorted(v_list)
+        #
+        # if len(v_list) == 0:
+        #     # Check if this is an interface variable (format: domain_varname)
+        #     if '_' in symbol:
+        #         parts = symbol.split('_', 1)
+        #         if len(parts) == 2:
+        #             source_domain, source_label = parts
+        #
+        #             # Try to find the original variable
+        #             for var_ID in self.variables:
+        #                 var = self.variables[var_ID]
+        #                 if var.label == source_label and var.network == source_domain:
+        #                     # Return the variable ID for interface variables, not the variable object
+        #                     # This ensures the global_ID expression contains the proper variable ID
+        #                     interface_var_ID = var_ID
+        #                     v = self.variables[interface_var_ID]
+        #                     return v
+        #
+        #     print("did not find %s in language %s" % (symbol, self.language))
+        #     raise VarError(" no such variable %s defined" % symbol)
+        # elif len(v_list) == 1:
+        #     v = self.variables[v_list[0]]
+        # elif len(v_list) > 1:
+        #     # Prefer variables from current expression definition network
+        #     for i in v_list:
+        #         if self.variables[i].network == self.expression_definition_network:
+        #             v = self.variables[i]
+        #             break
+        #     else:
+        #         # If no current network match, prefer interface domain
+        #         for i in v_list:
+        #             if hasattr(self.variables, 'interface_domain') and \
+        #                     self.variables.interface_domain and \
+        #                     self.variables[i].network == self.variables.interface_domain:
+        #                 v = self.variables[i]
+        #                 break
+        #         else:
+        #             # Fallback to first match
+        #             v = self.variables[v_list[0]]
+        # else:
+        #     print("did not find %s in language %s" % (symbol, self.language))
+        #     raise VarError(" no such variable %s defined" % symbol)
+        # ===================================================================
 
-        v_list = set()
-
-        # Search in all accessible networks from variable space
-        for nw in variable_space:
-            for var_class in variable_space[nw]:
-                # Handle both sets and lists
-                var_collection = variable_space[nw][var_class]
-                if isinstance(var_collection, list):
-                    var_iterable = var_collection
-                else:
-                    var_iterable = var_collection
-
-                for var_ID in var_iterable:
-                    if symbol == self.variables[var_ID].label:
-                        v_list.add(var_ID)
-
-        v_list = sorted(v_list)
-
-        if len(v_list) == 0:
-            # Check if this is an interface variable (format: domain_varname)
-            if '_' in symbol:
-                parts = symbol.split('_', 1)
-                if len(parts) == 2:
-                    source_domain, source_label = parts
-
-                    # Try to find the original variable
-                    for var_ID in self.variables:
-                        var = self.variables[var_ID]
-                        if var.label == source_label and var.network == source_domain:
-                            # Return the variable ID for interface variables, not the variable object
-                            # This ensures the global_ID expression contains the proper variable ID
-                            interface_var_ID = var_ID
-                            v = self.variables[interface_var_ID]
-                            return v
-
-            print("did not find %s in language %s" % (symbol, self.language))
-            raise VarError(" no such variable %s defined" % symbol)
-        elif len(v_list) == 1:
-            v = self.variables[v_list[0]]
-        elif len(v_list) > 1:
-            # Prefer variables from current expression definition network
-            for i in v_list:
-                if self.variables[i].network == self.expression_definition_network:
-                    v = self.variables[i]
+        if "!" in symbol:
+            network, variable_name = symbol.split("!")
+            # Handle network!variable syntax
+            v = None
+            for var_ID in self.variables:
+                c1 = self.variables[var_ID].label == variable_name
+                c2 = self.variables[var_ID].network == network
+                if (c1 and c2):
+                    v = self.variables[var_ID]
                     break
-            else:
-                # If no current network match, prefer interface domain
-                for i in v_list:
-                    if hasattr(self.variables, 'interface_domain') and \
-                            self.variables.interface_domain and \
-                            self.variables[i].network == self.variables.interface_domain:
-                        v = self.variables[i]
-                        break
-                else:
-                    # Fallback to first match
-                    v = self.variables[v_list[0]]
+            if v is None:
+                print("did not find %s in language %s" % (symbol, self.language))
+                raise VarError(" no such variable %s defined" % symbol)
         else:
-            print("did not find %s in language %s" % (symbol, self.language))
-            raise VarError(" no such variable %s defined" % symbol)
-
-        try:
-            v.language = self.language
-        except:
-            pass
-        try:
-            v.indices = self.indices
-        except:
-            pass
+            # Handle regular variable ID or local variable name
+            if symbol in self.variables:
+                # It's a variable ID
+                v = self.variables[symbol]
+            else:
+                # It's a local variable name, search in current network
+                v = None
+                for var_ID in self.variables:
+                    c1 = self.variables[var_ID].label == symbol
+                    c2 = self.variables[var_ID].network == self.expression_definition_network
+                    if (c1 and c2):
+                        v = self.variables[var_ID]
+                        break
+                if v is None:
+                    print("did not find %s in language %s" % (symbol, self.language))
+                    raise VarError(" no such variable %s defined" % symbol)
+        # try:
+        #     v.language = self.language
+        # except:
+        #     pass
+        # try:
+        #     v.indices = self.indices
+        # except:
+        #     pass
         return v
 
     def getIndex(self, symbol):
@@ -2116,7 +2149,7 @@ class Expression(VerboseParser):
     token UFuncLoose  : '\b(sign)\b';
     token MaxMin      : '\b(max|min)\b';
     token IN          : '\b(in)\b';
-    token Variable    : '[a-zA-Z_]\w*';
+    token Variable    : '[a-zA-Z_]\w*(![a-zA-Z_]\w*)?';   # allow for var or var!var
     token SUM         : '[+-]'; # plus minus
     token POWER       : '^';   # power
     token EXPAND      : ':';   # expand product
