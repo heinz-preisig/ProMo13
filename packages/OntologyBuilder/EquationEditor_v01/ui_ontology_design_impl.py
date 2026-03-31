@@ -719,8 +719,6 @@ class UiOntologyDesign(QMainWindow):
         for nw in nws:  # list_nw_that_have_variables:  # nw_that_has_equation:
             j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
             snw = nw
-            if "--" in nw:
-                snw = nw.replace("--", CONNECTION_NETWORK_SEPARATOR)
             body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
                                                                                  index=index_dictionary[snw])
             name = nw  # str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--')
@@ -1001,26 +999,26 @@ class UiOntologyDesign(QMainWindow):
             ui.setChecked(False)
         radios_ui[which].setChecked(True)
 
-    def __changeFromGlobalToLocal(self):
-        found = False
-        for equ_ID in self.ontology_container.equation_variable_dictionary:
-            variable_ID, equation = self.ontology_container.equation_variable_dictionary[equ_ID]
-            incidence_list = equation["incidence_list"]
-            variable_network = self.variables[variable_ID].network
-            for v_str_ID in incidence_list:
-                v_ID = int(v_str_ID)
-                network_v = self.variables[v_ID].network
-                if variable_network != network_v:
-                    for i in self.interconnection_nws:
-                        left_nw, right_nw = i.split(CONNECTION_NETWORK_SEPARATOR)
-                        if (variable_network == left_nw):
-                            if (network_v == right_nw):
-                                print("inter", i)
-                                print("networks", variable_network, network_v)
-                                print("change name space", variable_ID,
-                                      variable_network, v_ID, network_v)
-                                # TODO: introduce code for generating a cut equation and delete the direct link equation.
-                                found = True
+    # def __changeFromGlobalToLocal(self):
+    #     found = False
+    #     for equ_ID in self.ontology_container.equation_variable_dictionary:
+    #         variable_ID, equation = self.ontology_container.equation_variable_dictionary[equ_ID]
+    #         incidence_list = equation["incidence_list"]
+    #         variable_network = self.variables[variable_ID].network
+    #         for v_str_ID in incidence_list:
+    #             v_ID = int(v_str_ID)
+    #             network_v = self.variables[v_ID].network
+    #             if variable_network != network_v:
+    #                 for i in self.interconnection_nws:
+    #                     left_nw, right_nw = i.split(CONNECTION_NETWORK_SEPARATOR)
+    #                     if (variable_network == left_nw):
+    #                         if (network_v == right_nw):
+    #                             print("inter", i)
+    #                             print("networks", variable_network, network_v)
+    #                             print("change name space", variable_ID,
+    #                                   variable_network, v_ID, network_v)
+    #                             # TODO: introduce code for generating a cut equation and delete the direct link equation.
+    #                             found = True
 
     def __cleanDirectories(self):
 
