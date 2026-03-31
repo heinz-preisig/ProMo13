@@ -1370,6 +1370,7 @@ class CompileSpace:
         #     raise VarError(" no such variable %s defined" % symbol)
         # ===================================================================
 
+        imported = False
         if "!" in symbol:
             network, variable_name = symbol.split("!")
             # Handle network!variable syntax
@@ -1379,6 +1380,7 @@ class CompileSpace:
                 c2 = self.variables[var_ID].network == network
                 if (c1 and c2):
                     v = self.variables[var_ID]
+                    imported = True
                     break
             if v is None:
                 print("did not find %s in language %s" % (symbol, self.language))
@@ -1408,6 +1410,9 @@ class CompileSpace:
         #     v.indices = self.indices
         # except:
         #     pass
+        v.language = self.language  # the variable needs to know the current language
+        v.indices = self.indices
+        v.imported = imported       # signal imported
         return v
 
     def getIndex(self, symbol):
@@ -1490,7 +1495,10 @@ class PhysicalVariable():
             ind = []
             for ID in self.index_structures:
                 ind.append(self.indices[ID]["aliases"][self.language])
-            s = j2_env.get_template(temp).render(var=self.aliases[self.language], ind=ind)
+            var_latex = self.aliases[self.language]
+            if self.imported:
+                var_latex = self.network + "!" + var_latex
+            s = j2_env.get_template(temp).render(var=var_latex, ind=ind)
         else:
             try:
                 s = ID_spacer + self.aliases[self.language]
