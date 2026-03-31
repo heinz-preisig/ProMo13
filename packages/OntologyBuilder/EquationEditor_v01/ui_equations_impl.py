@@ -565,7 +565,11 @@ class UI_Equations(QtWidgets.QWidget):
         root = CODE["internal_code"]["Root"]
         minus = CODE["internal_code"]["-"]
         equation = v.equations[dialog.answer]["rhs"]["global_ID"]
-        equation_rendered = renderExpressionFromGlobalIDToInternal(equation, self.variables, self.indices)
+        expression_network = v.equations[equ_ID]["network"]
+        equation_rendered = renderExpressionFromGlobalIDToInternal(equation,
+                                                                   self.variables,
+                                                                   self.indices,
+                                                                   expression_network)
         second = CODE["internal_code"]["bracket"] % equation_rendered
         new_argument = minus % (argument, second)
         self.expr = root % new_argument
@@ -585,10 +589,13 @@ class UI_Equations(QtWidgets.QWidget):
             equs_dict = self.variables[self.selected_variable_ID].equations
             eq_dict = equs_dict[self.current_eq_ID]
             self.current_expression = eq_dict["rhs"]["global_ID"]
+            equation_network = eq_dict["network"]
             if len(equs_dict) > 1:
                 self.ui.pushDeleteEquation.show()
-            rendered_expression = renderExpressionFromGlobalIDToInternal(self.current_expression, self.variables,
-                                                                         self.indices)
+            rendered_expression = renderExpressionFromGlobalIDToInternal(self.current_expression,
+                                                                         self.variables,
+                                                                         self.indices,
+                                                                         equation_network)
             self.ui.lineExpression.setText(rendered_expression)
             self.ui.lineDocumentation.setText(eq_dict["doc"])
         else:
@@ -633,7 +640,11 @@ class UI_Equations(QtWidgets.QWidget):
             self.current_eq_ID = entry  # eq_no
             self.status_edit_expr = True
             rhs = self.selected_variable.equations[entry]["rhs"]["global_ID"]
-            equ_rendered = renderExpressionFromGlobalIDToInternal(rhs, self.variables, self.indices)
+            equation_network = self.selected_variable.equations[entry]["network"]
+            equ_rendered = renderExpressionFromGlobalIDToInternal(rhs,
+                                                                  self.variables,
+                                                                  self.indices,
+                                                                  equation_network)
             self.current_alternative = equ_rendered
 
         self.status_new_equation = (entry == NEW_EQ)

@@ -564,7 +564,10 @@ class UiOntologyDesign(QMainWindow):
             network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
             type = self.variables[lhs_var_ID].type
             var_label = self.variables[lhs_var_ID].label
-            expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
+            expression = renderExpressionFromGlobalIDToInternal(expression_ID,
+                                                                self.variables,
+                                                                self.indices,
+                                                                network)
             self.compiled_equations[language][equ_ID] = {
                     "lhs"    : var_label,
                     "network": network,
@@ -588,7 +591,11 @@ class UiOntologyDesign(QMainWindow):
 
     def __compileEquation(self, equ_ID, language, lhs_var_ID):
         expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]["global_ID"]
-        expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
+        expression_network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
+        expression = renderExpressionFromGlobalIDToInternal(expression_ID,
+                                                            self.variables,
+                                                            self.indices,
+                                                            expression_network)
         if "Root" in expression:
             self.variables.to_define_variable_name = self.variables[lhs_var_ID].label
         compiler = makeCompiler(self.variables, self.indices, lhs_var_ID, equ_ID, language=language)
@@ -610,12 +617,15 @@ class UiOntologyDesign(QMainWindow):
 
     def __makeLHSCompliedLabels(self, language):
         for varID in self.variables:
+            self.variables[varID].imported = False
             compiled_label = self.__makeLHSCompiledLabel(language, varID)
             self.ontology_container.variables[varID]["compiled_lhs"][language] = compiled_label
 
     def __makeLHSCompiledLabel(self, language, varID):  # note: how to make the latex string for the variable
+        imported = self.variables[varID].imported  # switch imported off for the generation of the lhs
         self.variables[varID].setLanguage(language)
         compiled_label = str(self.variables[varID])
+        self.variables[varID].imported = imported
         return compiled_label
 
     def __makeOWLFile(self):

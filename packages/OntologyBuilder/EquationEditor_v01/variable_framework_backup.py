@@ -239,7 +239,11 @@ def simulateDeletion(variables, var_ID, indices):
     lhs, incidence_list = incidence_dictionary[eq_ID]
     equation = variables[lhs].equations[eq_ID]
     rhs = equation["rhs"]["global_ID"]
-    rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
+    expression_network = equation["network"]
+    rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs,
+                                                          variables=variables,
+                                                          indices=indices,
+                                                          expression_network=expression_network)
     # print("debugging -- rhs", rhs, rhs_rendered)
     d_equs_text += "\n %s" % rhs_rendered
 
@@ -328,7 +332,7 @@ def simulateDeletionImproved(variables, var_ID, indices):
       lhs, incidence_list = incidence_dictionary[eq_id]
       equation = variables[lhs].equations[eq_id]
       rhs = equation["rhs"]["global_ID"]
-      rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
+      rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices, expression_network=None)
       eqs_text += f"\n  • {rhs_rendered}"
     except:
       eqs_text += f"\n  • Equation_{eq_id}"
@@ -376,7 +380,7 @@ def simulateDeletionOld(variables, var_ID, indices):
     lhs, incidence_list = incidence_dictionary[eq_ID]
     equation = variables[lhs].equations[eq_ID]
     rhs = equation["rhs"]["global_ID"]
-    rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
+    rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices, expression_network=None)
     # print("debugging -- rhs", rhs, rhs_rendered)
     d_equs_text += "\n %s" % rhs_rendered
 
@@ -442,7 +446,11 @@ def findDependentVariables(variables, var_ID, indices):
     except:
       equation = variables[lhs].equations[eq_ID]
     rhs = equation["rhs"]["global_ID"]
-    rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
+    expression_network = equation["network"]
+    rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs,
+                                                          variables=variables,
+                                                          indices=indices,
+                                                          expression_network=expression_network)
     # print("debugging -- rhs", rhs, rhs_rendered)
     found_equs_text += "\n %s" % rhs_rendered
 

@@ -630,7 +630,7 @@ def isVariableInExpression(expression, variable_ID):
   return False
 
 
-def renderExpressionFromGlobalIDToInternal(expression, variables, indices):
+def renderExpressionFromGlobalIDToInternal(expression, variables, indices, expression_network):
   """
   render from global ID representation to internal text representation
 
@@ -670,6 +670,9 @@ def renderExpressionFromGlobalIDToInternal(expression, variables, indices):
               a = f"INTERFACE_VAR_{w}"
             else:
               a = f"UNKNOWN_{w}"  # Fallback
+        if variables[w].network != expression_network:
+          network = variables[w].network
+          a = f"{network}!{a}"
       elif w[0] == "I":
         i_ID = w #int(w.replace("I_", "").strip())
         a = indices[i_ID]["aliases"]["internal_code"]  # RULE: we use alias to reduce length of string
@@ -880,8 +883,11 @@ class DotGraphVariableEquations(VarEqTree):
       for equ_ID in self.variables[var_id]["equations"]:
         ID = self.TEMPLATE_EQUATION % equ_ID
         equation = self.variables[var_id]["equations"][equ_ID]["rhs"]["global_ID"]
-        rendered_expressions = renderExpressionFromGlobalIDToInternal(equation, self.variables,
-                                                                      self.indices)
+        expression_network = self.variables[var_id]["equations"][equ_ID]["network"]
+        rendered_expressions = renderExpressionFromGlobalIDToInternal(equation,
+                                                                      self.variables,
+                                                                      self.indices,
+                                                                      expression_network)
         equ_labels[ID] = rendered_expressions
 
     return var_labels, equ_labels

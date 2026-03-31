@@ -47,8 +47,6 @@ from collections import OrderedDict
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
-from Common.record_definitions import makeCompletEquationRecord
-from Common.record_definitions import makeCompleteVariableRecord
 from OntologyBuilder.EquationEditor_v01.resources import CODE
 from OntologyBuilder.EquationEditor_v01.resources import ID_prefix
 from OntologyBuilder.EquationEditor_v01.resources import ID_spacer
@@ -87,15 +85,11 @@ def makeIncidenceDictionaries(variables):
     incidence_dictionary = {}
     inv_incidence_dictionary_set = {v: set() for v in variables.keys()}
     for v in variables:
-        # if v == 18:
-        #   print("debugging")
         try:
             equations = variables[v].equations  # variables as class Variables
         except:
             equations = variables[v]["equations"]  # variables from variable dict, the variable file format
         for e in equations:
-            # if e == 197:
-            #   print("debugging 197")
             inc_list = makeIncidentList(equations[e]["rhs"]["global_ID"])
             incidence_dictionary[e] = (v, inc_list)
             equations[e]["incidence_list"] = inc_list
@@ -175,6 +169,7 @@ def stringBinaryOperation(language, operation, left, right,
       not permitted.
     - Objects with one dimension only are interpreted as column vectors
     """
+    s = ""
     if left.type == TEMP_VARIABLE:  # NOTE:TODO:RULE: this added additional bracket
         a = CODE[language]["()"] % left.__str__()
     else:
@@ -224,7 +219,7 @@ def simulateDeletion(variables, var_ID, indices):
     # - value: (lhs - variable_ID, rhs - incidence list (integers) )
 
     # incidence_dictionary structure:
-    # incidence_dictionary[equation_ID:int] = (variable_ID, incidencce_list[variable_ID: no string)
+    # incidence_dictionary[equation_ID:int] = (variable_ID, incidence_list[variable_ID: no string)
     # inv_incidence_dictionary_set[variable_ID: int]= [equation_ID:int]
 
     incidence_dictionary, inv_incidence_dictionary = makeIncidenceDictionaries(variables)
@@ -238,7 +233,12 @@ def simulateDeletion(variables, var_ID, indices):
         lhs, incidence_list = incidence_dictionary[eq_ID]
         equation = variables[lhs].equations[eq_ID]
         rhs = equation["rhs"]["global_ID"]
-        rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
+        expression_network = equation["network"]
+        rhs_rendered = renderExpressionFromGlobalIDToInternal(
+                rhs,
+                variables=variables,
+                indices=indices,
+                expression_network=expression_network)
         # print("debugging -- rhs", rhs, rhs_rendered)
         d_equs_text += "\n %s" % rhs_rendered
 
@@ -304,7 +304,11 @@ def findDependentVariables(variables, var_ID, indices):
         except:
             equation = variables[lhs].equations[eq_ID]
         rhs = equation["rhs"]["global_ID"]
-        rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs, variables=variables, indices=indices)
+        expression_network = equation["network"]
+        rhs_rendered = renderExpressionFromGlobalIDToInternal(rhs,
+                                                              variables=variables,
+                                                              indices=indices,
+                                                              expression_network=expression_network)
         # print("debugging -- rhs", rhs, rhs_rendered)
         found_equs_text += "\n %s" % rhs_rendered
 
@@ -598,7 +602,7 @@ class Variables(OrderedDict):
         self.networks = ontology_container.networks
         self.ontology_hierarchy = ontology_container.ontology_hierarchy
         self.intraconnection_networks = list(ontology_container.intraconnection_network_dictionary.keys())
-        self.interconnection_networks = ontology_container.list_inter_branches_pairs  # list(ontology_container
+        # self.interconnection_networks = ontology_container.list_inter_branches_pairs  # list(ontology_container
         # .interconnection_network_dictionary.keys())
         self.heirs_network_dictionary = ontology_container.heirs_network_dictionary
         self.ProMoIRI = self.ontology_container.ProMoIRI
@@ -731,23 +735,23 @@ class Variables(OrderedDict):
                                 self.index_networks_for_variable[i_nw][variable_class] = []
                             self.index_networks_for_variable[i_nw][variable_class].append(ID)
 
-        # for nw in self.interconnection_networks:
-        #     # Standard domain processing - interfaces are handled like any other domain
-        #     self.index_networks_for_variable[nw] = {}
-        #     for variable_class in self.ontology_container.variable_types_on_interfaces[nw]:
-        #         if variable_class not in self.index_networks_for_variable[nw]:
-        #             self.index_networks_for_variable[nw][variable_class] = []
-        #         for ID in self:
-        #             if (self[ID].type == variable_class) and (self[ID].network == nw):
-        #                 self.index_networks_for_variable[nw][variable_class].append(ID)
-        #
-        # for nw in self.intraconnection_networks:
-        #     self.index_networks_for_variable[nw] = {}
-        #     for variable_class in self.ontology_container.variable_types_on_intrafaces[nw]:
-        #         if variable_class not in self.index_networks_for_variable[nw]:
-        #             self.index_networks_for_variable[nw][variable_class] = []
-        #         for ID in self:
-        #             if (self[ID].type == variable_class) and (self[ID].network == nw):
+                        # for nw in self.interconnection_networks:
+                        #     # Standard domain processing - interfaces are handled like any other domain
+                        #     self.index_networks_for_variable[nw] = {}
+                        #     for variable_class in self.ontology_container.variable_types_on_interfaces[nw]:
+                        #         if variable_class not in self.index_networks_for_variable[nw]:
+                        #             self.index_networks_for_variable[nw][variable_class] = []
+                        #         for ID in self:
+                        #             if (self[ID].type == variable_class) and (self[ID].network == nw):
+                        #                 self.index_networks_for_variable[nw][variable_class].append(ID)
+                        #
+                        # for nw in self.intraconnection_networks:
+                        #     self.index_networks_for_variable[nw] = {}
+                        #     for variable_class in self.ontology_container.variable_types_on_intrafaces[nw]:
+                        #         if variable_class not in self.index_networks_for_variable[nw]:
+                        #             self.index_networks_for_variable[nw][variable_class] = []
+                        #         for ID in self:
+                        #             if (self[ID].type == variable_class) and (self[ID].network == nw):
                         self.index_networks_for_variable[nw][variable_class].append(ID)
 
         # make index for variables
@@ -762,14 +766,14 @@ class Variables(OrderedDict):
                         if (self[ID].network == nw) and (self[ID].type == t):
                             self.index_definition_network_for_variable_component_class[nw][t].add(ID)
 
-        for nw in self.interconnection_networks:
-            self.index_definition_network_for_variable_component_class[nw] = {}
-            for ID in self:
-                if self[ID].network == nw:
-                    t = self[ID].type
-                    if t not in self.index_definition_network_for_variable_component_class[nw]:
-                        self.index_definition_network_for_variable_component_class[nw][t] = set()
-                    self.index_definition_network_for_variable_component_class[nw][t].add(ID)
+        # for nw in self.interconnection_networks:
+        #     self.index_definition_network_for_variable_component_class[nw] = {}
+        #     for ID in self:
+        #         if self[ID].network == nw:
+        #             t = self[ID].type
+        #             if t not in self.index_definition_network_for_variable_component_class[nw]:
+        #                 self.index_definition_network_for_variable_component_class[nw][t] = set()
+        #             self.index_definition_network_for_variable_component_class[nw][t].add(ID)
 
         for nw in self.intraconnection_networks:
             self.index_definition_network_for_variable_component_class[nw] = {}
@@ -931,19 +935,19 @@ class Variables(OrderedDict):
 
             return variable_space, v_counter
 
-        elif what == "interface_picking":
-            rule = "only local"
-            networks = [network]  # self.ontology_container.heirs_network_dictionary[network]
-            variable_space = {}
-            for nw in networks:  # self.index_definition_network_for_variable_component_class:
-                variable_space[nw] = {}
-                for c in self.index_definition_network_for_variable_component_class[nw]:
-                    variable_space[nw][c] = set()
-                    for v in self.index_definition_network_for_variable_component_class[nw][c]:
-                        for i in enabled_variable_types:
-                            if self[v].type == i:
-                                variable_space[nw][c].add(v)
-                                v_counter += 1
+        # elif what == "interface_picking":
+        #     rule = "only local"
+        #     networks = [network]  # self.ontology_container.heirs_network_dictionary[network]
+        #     variable_space = {}
+        #     for nw in networks:  # self.index_definition_network_for_variable_component_class:
+        #         variable_space[nw] = {}
+        #         for c in self.index_definition_network_for_variable_component_class[nw]:
+        #             variable_space[nw][c] = set()
+        #             for v in self.index_definition_network_for_variable_component_class[nw][c]:
+        #                 for i in enabled_variable_types:
+        #                     if self[v].type == i:
+        #                         variable_space[nw][c].add(v)
+        #                         v_counter += 1
 
         elif what == "variable_display":
             # NEW MODE: Show all variables accessible in the selected domain
@@ -1412,7 +1416,7 @@ class CompileSpace:
         #     pass
         v.language = self.language  # the variable needs to know the current language
         v.indices = self.indices
-        v.imported = imported       # signal imported
+        v.imported = imported  # signal imported
         return v
 
     def getIndex(self, symbol):
