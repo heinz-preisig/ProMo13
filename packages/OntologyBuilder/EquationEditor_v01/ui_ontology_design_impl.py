@@ -58,10 +58,11 @@ from pydotplus.graphviz import Dot
 from pydotplus.graphviz import Edge
 from pydotplus.graphviz import Node
 
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
+# from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import UI_GetString
 from Common.common_resources import displayPdf
 from Common.common_resources import getOntologyName
+from Common.common_resources import TEMPLATE_INTRACONNECTION_PAIRS
 from Common.common_resources import makeTreeView
 from Common.common_resources import saveBackupFile
 from Common.ontology_container import OntologyContainer
@@ -197,7 +198,7 @@ class UiOntologyDesign(QMainWindow):
         makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
 
         # Add interface domains to tree copy as additional approach
-        self._add_interface_domains_to_tree()
+        # self._add_interface_domains_to_tree()
 
         # prepare for compiled versions
         # issue: remove compiled_equations. It is currently used in generating a file with the rendered equations
@@ -314,6 +315,9 @@ class UiOntologyDesign(QMainWindow):
         # update incidence dictionaries
         self.updateLatexImages()
 
+        if not self.variables:  # no variables --> no show TODO: message box?
+            return
+
         variable_table = UI_VariableTableShow("All accessible variables in domain",
                                               self.ontology_container,
                                               self.variables,
@@ -327,41 +331,41 @@ class UiOntologyDesign(QMainWindow):
                                               )
         variable_table.exec_()
 
-    def onInterfaceVariablesChanged(self, changed):  # TODO: probably not used
-        """Handle changes to interface variables"""
-        if changed:
-            self.changed = True
-            # Re-index variables to update the ontology structure
-            self.variables.indexVariables()
-            self.ontology_container.indexEquations()
-            self.writeMessage("Interface variables updated")
+    # def onInterfaceVariablesChanged(self, changed):  # TODO: probably not used
+    #     """Handle changes to interface variables"""
+    #     if changed:
+    #         self.changed = True
+    #         # Re-index variables to update the ontology structure
+    #         self.variables.indexVariables()
+    #         self.ontology_container.indexEquations()
+    #         self.writeMessage("Interface variables updated")
 
-    def _add_interface_domains_to_tree(self):
-        """Add single unified interface domain to tree copy"""
-        if hasattr(self.ontology_container, 'interfaces') and self.ontology_container.interfaces:
-            # Make a copy of the current tree
-            tree_copy = dict(self.ontology_container.ontology_tree)
-
-            # Add single unified interface domain
-            if "interface" not in tree_copy:
-                tree_copy["interface"] = {
-                        "name"     : "interface",
-                        "type"     : "inter",
-                        "parents"  : ["root"],
-                        "children" : [],
-                        "behaviour": {
-                                "graph": [],  # Interface domain variable type
-                                "node" : [],  # Interface domain variable type
-                                "arc"  : [VARIABLE_TYPE_INTERFACE]
-                                },
-                        "structure": {"token": {}}
-                        }
-
-            # Update the ontology tree with the copy
-            self.ontology_container.ontology_tree = tree_copy
-
-            # Rebuild the tree widget with updated data
-            makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
+    # def _add_interface_domains_to_tree(self):
+    #     """Add single unified interface domain to tree copy"""
+    #     if hasattr(self.ontology_container, 'interfaces') and self.ontology_container.interfaces:
+    #         # Make a copy of the current tree
+    #         tree_copy = dict(self.ontology_container.ontology_tree)
+    #
+    #         # Add single unified interface domain
+    #         if "interface" not in tree_copy:
+    #             tree_copy["interface"] = {
+    #                     "name"     : "interface",
+    #                     "type"     : "inter",
+    #                     "parents"  : ["root"],
+    #                     "children" : [],
+    #                     "behaviour": {
+    #                             "graph": [],  # Interface domain variable type
+    #                             "node" : [],  # Interface domain variable type
+    #                             "arc"  : [VARIABLE_TYPE_INTERFACE]
+    #                             },
+    #                     "structure": {"token": {}}
+    #                     }
+    #
+    #         # Update the ontology tree with the copy
+    #         self.ontology_container.ontology_tree = tree_copy
+    #
+    #         # Rebuild the tree widget with updated data
+    #         makeTreeView(self.ui.treeWidget, self.ontology_container.ontology_tree)
 
     def on_pushExit_pressed(self):
         variable_list = sorted(self.variables.keys())
@@ -416,12 +420,12 @@ class UiOntologyDesign(QMainWindow):
         if self.ui.radioVariablesAliases.isChecked():
             self.on_radioVariablesAliases_pressed()
         elif self.ui.radioVariables.isChecked():
-            if self.current_network == "interface":
-                # Clear combo box first, then setup interface
-                self.ui.combo_EditVariableTypes.clear()
-                self.__setupEdit("interface")
-            else:
-                self.__setupEdit("networks")
+            # if self.current_network == "interface":
+            #     # Clear combo box first, then setup interface
+            #     self.ui.combo_EditVariableTypes.clear()
+            #     self.__setupEdit("interface")
+            # else:
+            self.__setupEdit("networks")
             self.ui.groupEdit.show()
             self.ui.combo_EditVariableTypes.show()
             # Only call on_radioVariables_pressed for non-interface domains
@@ -448,12 +452,12 @@ class UiOntologyDesign(QMainWindow):
 
         if what == "interface":
             # Get interface variable types from interfaces dictionary
-            if hasattr(self.ontology_container,
-                       'variable_types_on_interfaces') and self.current_network in self.ontology_container.variable_types_on_interfaces:
-                vars_types_on_network_variable = self.ontology_container.variable_types_on_interfaces[
-                    self.current_network]
-            else:
-                vars_types_on_network_variable = [VARIABLE_TYPE_INTERFACE]  # fallback to constant
+            # if hasattr(self.ontology_container,
+            #            'variable_types_on_interfaces') and self.current_network in self.ontology_container.variable_types_on_interfaces:
+            #     vars_types_on_network_variable = self.ontology_container.variable_types_on_interfaces[
+            #         self.current_network]
+            # else:
+            vars_types_on_network_variable = [VARIABLE_TYPE_INTERFACE]  # fallback to constant
 
             network_for_variable = nw
             network_for_expression = nw
@@ -560,7 +564,10 @@ class UiOntologyDesign(QMainWindow):
             network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
             type = self.variables[lhs_var_ID].type
             var_label = self.variables[lhs_var_ID].label
-            expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
+            expression = renderExpressionFromGlobalIDToInternal(expression_ID,
+                                                                self.variables,
+                                                                self.indices,
+                                                                network)
             self.compiled_equations[language][equ_ID] = {
                     "lhs"    : var_label,
                     "network": network,
@@ -584,7 +591,11 @@ class UiOntologyDesign(QMainWindow):
 
     def __compileEquation(self, equ_ID, language, lhs_var_ID):
         expression_ID = self.variables[lhs_var_ID].equations[equ_ID]["rhs"]["global_ID"]
-        expression = renderExpressionFromGlobalIDToInternal(expression_ID, self.variables, self.indices)
+        expression_network = self.variables[lhs_var_ID].equations[equ_ID]["network"]
+        expression = renderExpressionFromGlobalIDToInternal(expression_ID,
+                                                            self.variables,
+                                                            self.indices,
+                                                            expression_network)
         if "Root" in expression:
             self.variables.to_define_variable_name = self.variables[lhs_var_ID].label
         compiler = makeCompiler(self.variables, self.indices, lhs_var_ID, equ_ID, language=language)
@@ -606,12 +617,15 @@ class UiOntologyDesign(QMainWindow):
 
     def __makeLHSCompliedLabels(self, language):
         for varID in self.variables:
+            self.variables[varID].imported = False
             compiled_label = self.__makeLHSCompiledLabel(language, varID)
             self.ontology_container.variables[varID]["compiled_lhs"][language] = compiled_label
 
-    def __makeLHSCompiledLabel(self, language, varID):
+    def __makeLHSCompiledLabel(self, language, varID):  # note: how to make the latex string for the variable
+        imported = self.variables[varID].imported  # switch imported off for the generation of the lhs
         self.variables[varID].setLanguage(language)
         compiled_label = str(self.variables[varID])
+        self.variables[varID].imported = imported
         return compiled_label
 
     def __makeOWLFile(self):
@@ -647,7 +661,7 @@ class UiOntologyDesign(QMainWindow):
             for e in eqs[e_type]:
                 nw = eqs[e_type][e]["network"]
                 # nw_that_has_equation.add(nw)
-                nw_cleaned = nw.replace(CONNECTION_NETWORK_SEPARATOR, '--')
+                nw_cleaned = nw #.replace(CONNECTION_NETWORK_SEPARATOR, '--')
                 nw_that_has_equation_cleaned.add(nw_cleaned)
 
         # networks with defined variables:
@@ -655,8 +669,8 @@ class UiOntologyDesign(QMainWindow):
         for v in self.variables:
             vnw = self.variables[v].network
             snw = vnw
-            if CONNECTION_NETWORK_SEPARATOR in vnw:
-                snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR, "--")
+            # if CONNECTION_NETWORK_SEPARATOR in vnw:
+            #     snw = vnw.replace(CONNECTION_NETWORK_SEPARATOR, "--")
             set_nw_that_have_variables_cleaned.add(snw)
             # set_nw_that_have_variables.add(snw)
 
@@ -705,8 +719,6 @@ class UiOntologyDesign(QMainWindow):
         for nw in nws:  # list_nw_that_have_variables:  # nw_that_has_equation:
             j2_env = Environment(loader=FileSystemLoader(this_dir), trim_blocks=True)
             snw = nw
-            if "--" in nw:
-                snw = nw.replace("--", CONNECTION_NETWORK_SEPARATOR)
             body = j2_env.get_template(FILES["latex_template_variables"]).render(variables=self.variables,
                                                                                  index=index_dictionary[snw])
             name = nw  # str(nw).replace(CONNECTION_NETWORK_SEPARATOR, '--')
@@ -987,26 +999,26 @@ class UiOntologyDesign(QMainWindow):
             ui.setChecked(False)
         radios_ui[which].setChecked(True)
 
-    def __changeFromGlobalToLocal(self):
-        found = False
-        for equ_ID in self.ontology_container.equation_variable_dictionary:
-            variable_ID, equation = self.ontology_container.equation_variable_dictionary[equ_ID]
-            incidence_list = equation["incidence_list"]
-            variable_network = self.variables[variable_ID].network
-            for v_str_ID in incidence_list:
-                v_ID = int(v_str_ID)
-                network_v = self.variables[v_ID].network
-                if variable_network != network_v:
-                    for i in self.interconnection_nws:
-                        left_nw, right_nw = i.split(CONNECTION_NETWORK_SEPARATOR)
-                        if (variable_network == left_nw):
-                            if (network_v == right_nw):
-                                print("inter", i)
-                                print("networks", variable_network, network_v)
-                                print("change name space", variable_ID,
-                                      variable_network, v_ID, network_v)
-                                # TODO: introduce code for generating a cut equation and delete the direct link equation.
-                                found = True
+    # def __changeFromGlobalToLocal(self):
+    #     found = False
+    #     for equ_ID in self.ontology_container.equation_variable_dictionary:
+    #         variable_ID, equation = self.ontology_container.equation_variable_dictionary[equ_ID]
+    #         incidence_list = equation["incidence_list"]
+    #         variable_network = self.variables[variable_ID].network
+    #         for v_str_ID in incidence_list:
+    #             v_ID = int(v_str_ID)
+    #             network_v = self.variables[v_ID].network
+    #             if variable_network != network_v:
+    #                 for i in self.interconnection_nws:
+    #                     left_nw, right_nw = i.split(CONNECTION_NETWORK_SEPARATOR)
+    #                     if (variable_network == left_nw):
+    #                         if (network_v == right_nw):
+    #                             print("inter", i)
+    #                             print("networks", variable_network, network_v)
+    #                             print("change name space", variable_ID,
+    #                                   variable_network, v_ID, network_v)
+    #                             # TODO: introduce code for generating a cut equation and delete the direct link equation.
+    #                             found = True
 
     def __cleanDirectories(self):
 

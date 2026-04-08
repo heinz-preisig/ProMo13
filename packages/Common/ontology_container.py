@@ -42,17 +42,17 @@ from PyQt5 import QtWidgets
 from Common.classes.equation import Equation
 from Common.classes.io import load_entities_from_file  # todo: eliminate
 from Common.classes.io import load_var_idx_eq_from_file  # todo: eliminate
-from Common.common_resources import CONNECTION_NETWORK_SEPARATOR
 from Common.common_resources import M_None
 from Common.common_resources import PROMO_IRI_PREFIX
 from Common.common_resources import TEMPLATE_ARC_APPLICATION
 from Common.common_resources import TEMPLATE_INTER_NODE_OBJECT
-from Common.common_resources import TEMPLATE_INTRACONNECTION_NETWORK
-from Common.common_resources import TEMPLATE_INTRACONNECTION_PAIRS
 from Common.common_resources import TEMPLATE_INTRA_NODE_OBJECT
 from Common.common_resources import TEMPLATE_INTRA_NODE_OBJECT_WITH_TOKEN
 from Common.common_resources import TEMPLATE_NODE_OBJECT
 from Common.common_resources import TEMPLATE_NODE_OBJECT_WITH_TOKEN
+from Common.common_resources import TEMPLATE_INTRACONNECTION_PAIRS
+from Common.common_resources import TEMPLATE_INTRACONNECTION_NETWORK
+from Common.common_resources import VARIABLE_TYPE_INTERFACE
 from Common.common_resources import getData
 from Common.common_resources import invertDict
 from Common.common_resources import saveWithBackup
@@ -113,7 +113,7 @@ def makeIndices(ontology_container):
     """
 
     from Common.record_definitions import RecordIndex
-    from OntologyBuilder.OntologyEquationEditor.resources import TEMPLATES
+    from OntologyBuilder.EquationEditor_v01.resources import TEMPLATES
 
     typed_token_definition_nw = ontology_container.typed_token_definition_nw
 
@@ -309,7 +309,7 @@ class OntologyContainer():
 
         self.interfaces = self.__setupInterfaces()
 
-        self.variable_types_on_interfaces = self.__makeVariableTypeListInterfaces()
+        self.variable_types_on_interfaces = VARIABLE_TYPE_INTERFACE# self.__makeVariableTypeListInterfaces()
         self.variable_types_on_intrafaces = self.__makeVariableTypeListIntraFaces()
 
         # ............................................  dict(network) of sets of networks that are below the hashtag network
@@ -454,18 +454,11 @@ class OntologyContainer():
         # self.equations = self.__makeEquationAndIndexLists()
         
     def __setupInterfaces(self):
-        # RULE: by default all variable classes from the left network are available
-
-        list_networks = self.list_inter_branches_pairs
-        interfaces = OrderedDict()
-        for network in list_networks:
-            left_nw, right_nw = network.split(CONNECTION_NETWORK_SEPARATOR)
-            left_variable_types = self.variable_types_on_networks[left_nw]
-
-            interfaces[network] = Interface(
-                    network, left_nw, right_nw, left_variable_types)
-
-        return interfaces
+        # Interfaces are now standard ontology domains - no special handling needed
+        # This method kept for backward compatibility but returns empty dict
+        # Interface entities are created through standard domain processing
+        
+        return OrderedDict()
 
     #####################
     def __makeObjectKeyLists(self):
@@ -517,9 +510,9 @@ class OntologyContainer():
 
         keys_inter = []
         # interconnection_network_dictionary:
-        for inter_nw in self.list_inter_branches_pairs:
-            inter_token = self.interfaces[inter_nw]["token"]
-            keys_inter.append((inter_nw, NAMES["interface"], inter_token))
+        # for inter_nw in self.list_inter_branches_pairs:
+        #     inter_token = self.interfaces[inter_nw]["token"]
+        #     keys_inter.append((inter_nw, NAMES["interface"], inter_token))
 
         return keys_networks, keys_intra, keys_inter
 
@@ -904,12 +897,12 @@ class OntologyContainer():
 
     def __makeVariableTypeListInterfaces(self):
 
-        variable_types_on_interfaces = {}
-        for nw in self.list_inter_branches_pairs:  # interfaces:  # ADDED:
-            variable_types_on_interfaces[nw] = self.interfaces[nw][
-                "internal_variable_classes"]  # RULE: interfaces have only one variable class
+        # variable_types_on_interfaces = {}
+        # for nw in self.list_inter_branches_pairs:  # interfaces:  # ADDED:
+        #     variable_types_on_interfaces[nw] = self.interfaces[nw][
+        #         "internal_variable_classes"]  # RULE: interfaces have only one variable class
 
-        return variable_types_on_interfaces
+        return VARIABLE_TYPE_INTERFACE
 
     def __makeVariableTypeListIntraFaces(self):
         # connection networks
@@ -977,8 +970,8 @@ class OntologyContainer():
         for nw in leave_nws:
             all_arcs.extend(arcs[nw])
         # interconnection_network_dictionary:
-        for cnw in self.list_inter_branches_pairs:
-            all_arcs.extend(arcs[cnw])
+        # for cnw in self.list_inter_branches_pairs:
+        #     all_arcs.extend(arcs[cnw])
         return sorted(set(all_arcs))
 
     def __makeArcEntityTypes(self):
@@ -1017,16 +1010,17 @@ class OntologyContainer():
             arcs[nw] = sorted(set(arcs_in_network))
 
         # interconnection_network_dictionary:  # NOTE: the token is the same
-        for cnw in self.list_inter_branches_pairs:
-            # for all interfaces
-            arcs_in_network = []
-            # RULE: fixed wired connection from and to interface
-            inter_token = self.interfaces[cnw]["token"]
-            mechanism = self.interfaces[cnw]["mechanism"]
-            nature = self.interfaces[cnw]["nature"]
-            arcs_in_network.append(TEMPLATE_ARC_APPLICATION %
-                                   (inter_token, mechanism, nature))
-            arcs[cnw] = sorted(set(arcs_in_network))
+        # for cnw in self.list_inter_branches_pairs:
+        #     # for all interfaces
+        #     arcs_in_network = []
+        #     # RULE: fixed wired connection from and to interface
+        #     inter_token = self.interfaces[cnw]["token"]
+        #     mechanism = self.interfaces[cnw]["mechanism"]
+        #     nature = self.interfaces[cnw]["nature"]
+        #     arcs_in_network.append(TEMPLATE_ARC_APPLICATION %
+        #                            (inter_token, mechanism, nature))
+        #     arcs[cnw] = sorted(set(arcs_in_network))
+
 
         return arcs  # arc_type_list
 

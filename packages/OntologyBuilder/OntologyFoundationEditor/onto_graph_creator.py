@@ -21,6 +21,8 @@ __status__ = "beta"
 import os
 import sys
 
+from PyPDF2 import PdfMerger
+
 root = os.path.abspath(os.path.join(".."))
 sys.path.extend([root, os.path.join(root, 'packages'), os.path.join(root, 'tasks')])
 
@@ -346,7 +348,7 @@ def makeOntologyDotGraph(ontology_tree, ontology_name, show="write"):
 
   pdf_template = dot_path + ".pdf"
 
-  merger = PdfFileMerger()
+  merger = PdfMerger()
   pdf = pdf_template % "tree"
   merger.append(open(pdf, 'rb'))
   pdf = pdf_template % str("root")
